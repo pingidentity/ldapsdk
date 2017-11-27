@@ -23,6 +23,10 @@ package com.unboundid.util.ssl.cert;
 
 
 import java.io.Serializable;
+import java.security.KeyPair;
+import java.security.MessageDigest;
+import java.security.PrivateKey;
+import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -32,9 +36,11 @@ import com.unboundid.asn1.ASN1BitString;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1ObjectIdentifier;
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1Set;
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
@@ -48,7 +54,7 @@ import static com.unboundid.util.ssl.cert.CertMessages.*;
 
 
 /**
- * This class provides support for decoding a PKCS#10 certificate signing
+ * This class provides support for decoding a PKCS #10 certificate signing
  * request (aka certification request or CSR) as defined in
  * <A HREF="https://www.ietf.org/rfc/rfc2986.txt">RFC 2986</A>.  The certificate
  * signing request is encoded using the ASN.1 Distinguished Encoding Rules
@@ -135,7 +141,7 @@ public final class PKCS10CertificateSigningRequest
   // The ASN.1 element with the encoded signature algorithm parameters.
   private final ASN1Element signatureAlgorithmParameters;
 
-  // The bytes that comprise the encoded representation of the PKCS#10
+  // The bytes that comprise the encoded representation of the PKCS #10
   // certificate signing request.
   private final byte[] pkcs10CertificateSigningRequestBytes;
 
@@ -157,7 +163,7 @@ public final class PKCS10CertificateSigningRequest
   // The OID for the signature algorithm.
   private final OID signatureAlgorithmOID;
 
-  // The PKCS#10 certificate signing request version.
+  // The PKCS #10 certificate signing request version.
   private final PKCS10CertificateSigningRequestVersion version;
 
   // The public key algorithm name that corresponds with the public key
@@ -171,7 +177,7 @@ public final class PKCS10CertificateSigningRequest
 
 
   /**
-   * Creates a new PKCS#10 certificate signing request with the provided
+   * Creates a new PKCS #10 certificate signing request with the provided
    * information.  This is primarily intended for unit testing and other
    * internal use.
    *
@@ -246,7 +252,8 @@ public final class PKCS10CertificateSigningRequest
     }
     else
     {
-      signatureAlgorithmName = signatureAlgorithmIdentifier.getName();
+      signatureAlgorithmName =
+           signatureAlgorithmIdentifier.getUserFriendlyName();
     }
 
     final PublicKeyAlgorithmIdentifier publicKeyAlgorithmIdentifier =
@@ -287,15 +294,15 @@ public final class PKCS10CertificateSigningRequest
 
 
   /**
-   * Decodes the contents of the provided byte array as a PKCS#10 certificate
+   * Decodes the contents of the provided byte array as a PKCS #10 certificate
    * signing request.
    *
-   * @param  encodedRequest  The byte array containing the encoded PKCS#10
+   * @param  encodedRequest  The byte array containing the encoded PKCS #10
    *                         certificate signing request.  This must not be
    *                         {@code null}.
    *
    * @throws  CertException  If the contents of the provided byte array could
-   *                         not be decoded as a valid PKCS#10 certificate
+   *                         not be decoded as a valid PKCS #10 certificate
    *                         signing request.
    */
   public PKCS10CertificateSigningRequest(final byte[] encodedRequest)
@@ -538,7 +545,8 @@ public final class PKCS10CertificateSigningRequest
     }
     else
     {
-      signatureAlgorithmName = signatureAlgorithmIdentifier.getName();
+      signatureAlgorithmName =
+           signatureAlgorithmIdentifier.getUserFriendlyName();
     }
 
     try
@@ -558,12 +566,12 @@ public final class PKCS10CertificateSigningRequest
 
 
   /**
-   * Encodes this X.509 certificate to an ASN.1 element.
+   * Encodes this PKCS #10 certificate signing request to an ASN.1 element.
    *
-   * @return  The encoded X.509 certificate.
+   * @return  The encoded PKCS #10 certificate signing request.
    *
    * @throws  CertException  If a problem is encountered while trying to encode
-   *                         the X.509 certificate.
+   *                         the PKCS #10 certificate signing request.
    */
   private ASN1Element encode()
           throws CertException
@@ -590,20 +598,17 @@ public final class PKCS10CertificateSigningRequest
              encodedPublicKey));
       }
 
-      if (! requestAttributes.isEmpty())
+      final ArrayList<ASN1Element> attrElements =
+           new ArrayList<>(requestAttributes.size());
+      for (final ObjectPair<OID,ASN1Set> attr : requestAttributes)
       {
-        final ArrayList<ASN1Element> attrElements =
-             new ArrayList<>(requestAttributes.size());
-        for (final ObjectPair<OID,ASN1Set> attr : requestAttributes)
-        {
-          attrElements.add(
-               new ASN1Sequence(
-                 new ASN1ObjectIdentifier(attr.getFirst()),
-                 attr.getSecond()));
-        }
-
-        requestInfoElements.add(new ASN1Set(TYPE_ATTRIBUTES, attrElements));
+        attrElements.add(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(attr.getFirst()),
+                  attr.getSecond()));
       }
+
+      requestInfoElements.add(new ASN1Set(TYPE_ATTRIBUTES, attrElements));
 
 
       final ArrayList<ASN1Element> certificationRequestElements =
@@ -639,11 +644,264 @@ public final class PKCS10CertificateSigningRequest
 
 
   /**
-   * Retrieves the bytes that comprise the encoded representation of this
-   * PKCS#10 certificate signing request.
+   * Generates a PKCS #10 certificate signing request with the provided
+   * information.
    *
-   * @return  The bytes that comprise the encoded representation of this PKCS#10
-   *          certificate signing request.
+   * @param  signatureAlgorithm  The algorithm to use to generate the signature.
+   *                             This must not be {@code null}.
+   * @param  keyPair             The key pair to use for the certificate signing
+   *                             request.  This must not be {@code null}.
+   * @param  subjectDN           The subject DN for the certificate signing
+   *                             request.  This must not be {@code null}.
+   * @param  extensions          The set of extensions to include in the
+   *                             certificate signing request.  This may be
+   *                             {@code null} or empty if the request should not
+   *                             include any custom extensions.
+   *
+   * @return  The generated PKCS #10 certificate signing request.
+   *
+   * @throws  CertException  If a problem is encountered while creating the
+   *                         certificate signing request.
+   */
+  public static PKCS10CertificateSigningRequest
+              generateCertificateSigningRequest(
+                   final SignatureAlgorithmIdentifier signatureAlgorithm,
+                   final KeyPair keyPair, final DN subjectDN,
+                   final X509CertificateExtension... extensions)
+         throws CertException
+  {
+    // Extract the parameters and encoded public key from the generated key
+    // pair.  And while we're at it, generate a subject key identifier from
+    // the encoded public key.
+    DecodedPublicKey decodedPublicKey = null;
+    final ASN1BitString encodedPublicKey;
+    final ASN1Element publicKeyAlgorithmParameters;
+    final byte[] subjectKeyIdentifier;
+    final OID publicKeyAlgorithmOID;
+    try
+    {
+      final ASN1Element[] pkElements = ASN1Sequence.decodeAsSequence(
+           keyPair.getPublic().getEncoded()).elements();
+      final ASN1Element[] pkAlgIDElements = ASN1Sequence.decodeAsSequence(
+           pkElements[0]).elements();
+      publicKeyAlgorithmOID =
+           pkAlgIDElements[0].decodeAsObjectIdentifier().getOID();
+      if (pkAlgIDElements.length == 1)
+      {
+        publicKeyAlgorithmParameters = null;
+      }
+      else
+      {
+        publicKeyAlgorithmParameters = pkAlgIDElements[1];
+      }
+
+      encodedPublicKey = pkElements[1].decodeAsBitString();
+
+      try
+      {
+        if (publicKeyAlgorithmOID.equals(
+             PublicKeyAlgorithmIdentifier.RSA.getOID()))
+        {
+          decodedPublicKey = new RSAPublicKey(encodedPublicKey);
+        }
+        else if (publicKeyAlgorithmOID.equals(
+             PublicKeyAlgorithmIdentifier.EC.getOID()))
+        {
+          decodedPublicKey = new EllipticCurvePublicKey(encodedPublicKey);
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+
+      final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+      subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CSR_GEN_CANNOT_PARSE_KEY_PAIR.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Construct the set of all extensions for the certificate.
+    final ArrayList<X509CertificateExtension> extensionList =
+         new ArrayList<>(10);
+    extensionList.add(new SubjectKeyIdentifierExtension(false,
+         new ASN1OctetString(subjectKeyIdentifier)));
+    if (extensions != null)
+    {
+      for (final X509CertificateExtension e : extensions)
+      {
+        if (! e.getOID().equals(SubjectKeyIdentifierExtension.
+             SUBJECT_KEY_IDENTIFIER_OID))
+        {
+          extensionList.add(e);
+        }
+      }
+    }
+
+    final X509CertificateExtension[] allExtensions =
+         new X509CertificateExtension[extensionList.size()];
+    extensionList.toArray(allExtensions);
+
+
+    final ASN1BitString encodedSignature = generateSignature(signatureAlgorithm,
+         keyPair.getPrivate(), subjectDN, publicKeyAlgorithmOID,
+         publicKeyAlgorithmParameters, encodedPublicKey, allExtensions);
+
+    return new PKCS10CertificateSigningRequest(
+         PKCS10CertificateSigningRequestVersion.V1, signatureAlgorithm.getOID(),
+         null, encodedSignature, subjectDN, publicKeyAlgorithmOID,
+         publicKeyAlgorithmParameters, encodedPublicKey, decodedPublicKey,
+         null, allExtensions);
+  }
+
+
+
+  /**
+   * Generates a signature for the certificate signing request with the provided
+   * information.
+   *
+   * @param  signatureAlgorithm            The signature algorithm to use to
+   *                                       generate the signature.  This must
+   *                                       not be {@code null}.
+   * @param  privateKey                    The private key to use to sign the
+   *                                       certificate signing request.  This
+   *                                       must not be {@code null}.
+   * @param  subjectDN                     The subject DN for the certificate
+   *                                       signing request.  This must not be
+   *                                       {@code null}.
+   * @param  publicKeyAlgorithmOID         The OID for the public key algorithm.
+   *                                       This must not be {@code null}.
+   * @param  publicKeyAlgorithmParameters  The encoded public key algorithm
+   *                                       parameters.  This may be
+   *                                       {@code null} if no parameters are
+   *                                       needed.
+   * @param  encodedPublicKey              The encoded representation of the
+   *                                       public key.  This must not be
+   *                                       {@code null}.
+   * @param  extensions                    The set of extensions to include in
+   *                                       the certificate signing request.
+   *                                       This must not be {@code null} but
+   *                                       may be empty.
+   *
+   * @return  An encoded representation of the generated signature.
+   *
+   * @throws  CertException  If a problem is encountered while generating the
+   *                         certificate.
+   */
+  private static ASN1BitString generateSignature(
+                      final SignatureAlgorithmIdentifier signatureAlgorithm,
+                      final PrivateKey privateKey, final DN subjectDN,
+                      final OID publicKeyAlgorithmOID,
+                      final ASN1Element publicKeyAlgorithmParameters,
+                      final ASN1BitString encodedPublicKey,
+                      final X509CertificateExtension... extensions)
+          throws CertException
+  {
+    // Get and initialize the signature generator.
+    final Signature signature;
+    try
+    {
+      signature = Signature.getInstance(signatureAlgorithm.getJavaName());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CSR_GEN_SIGNATURE_CANNOT_GET_SIGNATURE_GENERATOR.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    try
+    {
+      signature.initSign(privateKey);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CSR_GEN_SIGNATURE_CANNOT_INIT_SIGNATURE_GENERATOR.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Construct the tbsCertificate element of the certificate and compute its
+    // signature.
+    try
+    {
+      final ArrayList<ASN1Element> requestInfoElements = new ArrayList<>(4);
+      requestInfoElements.add(new ASN1Integer(
+           PKCS10CertificateSigningRequestVersion.V1.getIntValue()));
+      requestInfoElements.add(X509Certificate.encodeName(subjectDN));
+
+      if (publicKeyAlgorithmParameters == null)
+      {
+        requestInfoElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID)),
+             encodedPublicKey));
+      }
+      else
+      {
+        requestInfoElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
+                  publicKeyAlgorithmParameters),
+             encodedPublicKey));
+      }
+
+      final ArrayList<ASN1Element> attrElements = new ArrayList<>(1);
+      if ((extensions != null) && (extensions.length > 0))
+      {
+        final ArrayList<ASN1Element> extensionElements =
+             new ArrayList<>(extensions.length);
+        for (final X509CertificateExtension e : extensions)
+        {
+          extensionElements.add(e.encode());
+        }
+
+        attrElements.add(new ASN1Sequence(
+             new ASN1ObjectIdentifier(ATTRIBUTE_OID_EXTENSIONS),
+             new ASN1Set(new ASN1Sequence(extensionElements))));
+      }
+      requestInfoElements.add(new ASN1Set(TYPE_ATTRIBUTES, attrElements));
+
+      final byte[] certificationRequestInfoBytes =
+           new ASN1Sequence(requestInfoElements).getValue();
+      signature.update(certificationRequestInfoBytes);
+      final byte[] signatureBytes = signature.sign();
+
+      return new ASN1BitString(ASN1BitString.getBitsForBytes(signatureBytes));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CSR_GEN_SIGNATURE_CANNOT_COMPUTE.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the bytes that comprise the encoded representation of this
+   * PKCS #10 certificate signing request.
+   *
+   * @return  The bytes that comprise the encoded representation of this
+   *          PKCS #10 certificate signing request.
    */
   public byte[] getPKCS10CertificateSigningRequestBytes()
   {
@@ -978,5 +1236,56 @@ public final class PKCS10CertificateSigningRequest
     }
 
     buffer.append("')");
+  }
+
+
+
+  /**
+   * Retrieves a list of the lines that comprise a PEM representation of this
+   * PKCS #10 certificate signing request.
+   *
+   * @return  A list of the lines that comprise a PEM representation of this
+   *          PKCS #10 certificate signing request.
+   */
+  public List<String> toPEM()
+  {
+    final ArrayList<String> lines = new ArrayList<>(10);
+    lines.add("-----BEGIN CERTIFICATE REQUEST-----");
+
+    final String csrBase64 =
+         Base64.encode(pkcs10CertificateSigningRequestBytes);
+    lines.addAll(StaticUtils.wrapLine(csrBase64, 64));
+
+    lines.add("-----END CERTIFICATE REQUEST-----");
+
+    return Collections.unmodifiableList(lines);
+  }
+
+
+
+  /**
+   * Retrieves a multi-line string containing a PEM representation of this
+   * PKCS #10 certificate signing request.
+   *
+   * @return  A multi-line string containing a PEM representation of this
+   *          PKCS #10 certificate signing request.
+   */
+  public String toPEMString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append("-----BEGIN CERTIFICATE REQUEST-----");
+    buffer.append(StaticUtils.EOL);
+
+    final String csrBase64 =
+         Base64.encode(pkcs10CertificateSigningRequestBytes);
+    for (final String line : StaticUtils.wrapLine(csrBase64, 64))
+    {
+      buffer.append(line);
+      buffer.append(StaticUtils.EOL);
+    }
+    buffer.append("-----END CERTIFICATE REQUEST-----");
+    buffer.append(StaticUtils.EOL);
+
+    return buffer.toString();
   }
 }

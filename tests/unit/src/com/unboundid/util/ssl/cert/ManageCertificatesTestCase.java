@@ -2859,7 +2859,7 @@ public final class ManageCertificatesTestCase
     assertEquals(chain[0].getSubjectDN(),
          new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
     assertEquals(chain[0].getPublicKeyAlgorithmName(), "EC");
-    assertEquals(chain[0].getSignatureAlgorithmName(), "SHA256withECDSA");
+    assertEquals(chain[0].getSignatureAlgorithmName(), "SHA-256 with ECDSA");
 
     manageCertificates(
          "list-certificates",
@@ -2889,7 +2889,7 @@ public final class ManageCertificatesTestCase
     assertEquals(chain[0].getSubjectDN(),
          new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
     assertEquals(chain[0].getPublicKeyAlgorithmName(), "EC");
-    assertEquals(chain[0].getSignatureAlgorithmName(), "SHA256withECDSA");
+    assertEquals(chain[0].getSignatureAlgorithmName(), "SHA-256 with ECDSA");
 
     manageCertificates(
          "list-certificates",
@@ -2930,6 +2930,28 @@ public final class ManageCertificatesTestCase
          "--keystore-password", "password",
          "--alias", serverCertificateAlias,
          "--replace-existing-certificate");
+
+
+    // Test the behavior when trying to an unrecognized key algorithm.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "generate-self-signed-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--key-algorithm", "unrecognized",
+         "--signature-algorithm", "SHA256withECDSA");
+
+
+    // Test the behavior when trying to an unrecognized signature algorithm.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "generate-self-signed-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--key-algorithm", "RSA",
+         "--signature-algorithm", "unrecognized");
 
 
     // Test the behavior when trying to use a non-RSA key without specifying
@@ -3149,7 +3171,8 @@ public final class ManageCertificatesTestCase
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US");
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--display-keytool-command");
 
     assertTrue(ksFile.exists());
 
@@ -3171,7 +3194,8 @@ public final class ManageCertificatesTestCase
          "--keystore", rootCAKeyStorePath,
          "--keystore-password", "password",
          "--signing-certificate-alias", rootCACertificateAlias,
-         "--no-prompt");
+         "--no-prompt",
+         "--display-keytool-command");
 
     assertTrue(certFile.exists());
 
@@ -3195,7 +3219,29 @@ public final class ManageCertificatesTestCase
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--replace-existing-certificate");
+         "--replace-existing-certificate",
+         "--display-keytool-command");
+
+    assertTrue(csrFile.exists());
+    csr = ManageCertificates.readCertificateSigningRequestFromFile(csrFile);
+    assertEquals(csr.getSubjectDN(),
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
+
+
+    // Do the same but using the DER output format.
+    assertTrue(csrFile.exists());
+    assertTrue(csrFile.delete());
+    assertFalse(csrFile.exists());
+
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-format", "DER",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--replace-existing-certificate",
+         "--display-keytool-command");
 
     assertTrue(csrFile.exists());
     csr = ManageCertificates.readCertificateSigningRequestFromFile(csrFile);
@@ -3215,6 +3261,7 @@ public final class ManageCertificatesTestCase
 
     manageCertificates(
          "generate-certificate-signing-request",
+         "--output-format", "DER",
          "--output-file", csrFile.getAbsolutePath(),
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
@@ -3255,7 +3302,7 @@ public final class ManageCertificatesTestCase
     assertEquals(csr.getSubjectDN(),
          new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
     assertEquals(csr.getPublicKeyAlgorithmName(), "RSA");
-    assertEquals(csr.getSignatureAlgorithmName(), "SHA256withRSA");
+    assertEquals(csr.getSignatureAlgorithmName(), "SHA-256 with RSA");
 
     boolean hasBasicConstraintsExtension = false;
     boolean hasExtendedKeyUsageConstraintsExtension = false;
@@ -3382,7 +3429,7 @@ public final class ManageCertificatesTestCase
     assertEquals(certs.get(0).getSubjectDN(),
          new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
     assertEquals(certs.get(0).getPublicKeyAlgorithmName(), "RSA");
-    assertEquals(certs.get(0).getSignatureAlgorithmName(), "SHA256withRSA");
+    assertEquals(certs.get(0).getSignatureAlgorithmName(), "SHA-256 with RSA");
 
     hasBasicConstraintsExtension = false;
     hasExtendedKeyUsageConstraintsExtension = false;
@@ -3554,6 +3601,36 @@ public final class ManageCertificatesTestCase
 
 
     // Tests the behavior when trying to sign a certificate signing request with
+    // the signed certificate being written to standard output instead of to a
+    // file.
+    manageCertificates(ResultCode.SUCCESS, null,
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--output-format", "PEM",
+         "--keystore", rootCAKeyStorePath,
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+    assertTrue(certFile.exists());
+
+
+    // Tests the behavior when trying to sign a certificate signing request with
+    // the signed certificate being written to standard output instead of to a
+    // file and using the DER output format.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--output-format", "DER",
+         "--keystore", rootCAKeyStorePath,
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+    assertTrue(certFile.exists());
+
+
+    // Tests the behavior when trying to sign a certificate signing request with
     // a keystore that doesn't have an entry with the specified alias.
     manageCertificates(ResultCode.PARAM_ERROR, null,
          "sign-certificate-signing-request",
@@ -3598,6 +3675,17 @@ public final class ManageCertificatesTestCase
          "--keystore-password", "password",
          "--signing-certificate-alias", rootCACertificateAlias,
          "--no-prompt",
+         "--display-keytool-command");
+
+
+    // Tests the behavior when writing a certificate signing request to standard
+    // output.
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--replace-existing-certificate",
          "--display-keytool-command");
   }
 
@@ -5847,31 +5935,6 @@ public final class ManageCertificatesTestCase
 
 
   /**
-   * Provides test coverage for the {@code runCommand} method.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test()
-  public void testRunCommand()
-         throws Exception
-  {
-    final File keytoolFile = ManageCertificates.findKeytool();
-    assertNotNull(keytoolFile);
-
-    final List<String> commandAndArgs = Arrays.asList(
-         keytoolFile.getAbsolutePath(),
-         "-list",
-         "-keystore", emptyKeyStorePath,
-         "-storetype", "PKCS12",
-         "-storepass", "password");
-
-    final ManageCertificates tool = new ManageCertificates(null, null, null);
-    assertEquals(tool.runCommand(commandAndArgs), ResultCode.SUCCESS);
-  }
-
-
-
-  /**
    * Provides test coverage for the {@code getKeystorePassword} method.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -6771,19 +6834,19 @@ public final class ManageCertificatesTestCase
 
     assertEquals(
          ManageCertificates.getUserFriendlyKeystoreType("PKCS12"),
-         "PKCS#12");
+         "PKCS #12");
 
     assertEquals(
          ManageCertificates.getUserFriendlyKeystoreType("pkcs12"),
-         "PKCS#12");
+         "PKCS #12");
 
     assertEquals(
          ManageCertificates.getUserFriendlyKeystoreType("PKCS#12"),
-         "PKCS#12");
+         "PKCS #12");
 
     assertEquals(
          ManageCertificates.getUserFriendlyKeystoreType("pkcs#12"),
-         "PKCS#12");
+         "PKCS #12");
   }
 
 

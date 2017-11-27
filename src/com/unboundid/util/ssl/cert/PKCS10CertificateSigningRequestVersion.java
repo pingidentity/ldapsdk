@@ -28,31 +28,31 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * This enum defines a set of supported PKCS#10 certificate signing request
+ * This enum defines a set of supported PKCS #10 certificate signing request
  * versions.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum PKCS10CertificateSigningRequestVersion
 {
   /**
-   * The PKCS#10 v1 certificate signing request version.
+   * The PKCS #10 v1 certificate signing request version.
    */
   V1(0, "v1");
 
 
 
   // The integer value for this certificate signing request version, as used in
-  // the encoded PKCS#10 request.
+  // the encoded PKCS #10 request.
   private final int intValue;
 
-  // The name for this PKCS#10 certificate signing request version.
+  // The name for this PKCS #10 certificate signing request version.
   private final String name;
 
 
 
   /**
-   * Creates a new PKCS#10 certificate signing request version with the provided
-   * information.
+   * Creates a new PKCS #10 certificate signing request version with the
+   * provided information.
    *
    * @param  intValue  The integer value for the certificate signing request
    *                   version.  Note that this is the integer value that is

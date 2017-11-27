@@ -142,6 +142,65 @@ public enum PublicKeyAlgorithmIdentifier
 
 
   /**
+   * Retrieves the public key algorithm identifier instance with the specified
+   * name.
+   *
+   * @param  name  The name of the public key algorithm identifier instance to
+   *               retrieve.
+   *
+   * @return  The appropriate public key algorithm identifier instance, or
+   *          {@code null} if the provided name does not reference a known
+   *          public key algorithm identifier.
+   */
+  public static PublicKeyAlgorithmIdentifier forName(final String name)
+  {
+    final String preparedName = prepareName(name);
+    for (final PublicKeyAlgorithmIdentifier v : values())
+    {
+      if (v.name.equalsIgnoreCase(preparedName))
+      {
+        return v;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
+   * Prepares the provided name to be used by the {@link #forName(String)}
+   * method.  All spaces, dashes, and underscores will be removed.
+   *
+   * @param  name  The name to be compared.
+   *
+   * @return  The prepared version of the provided name.
+   */
+  private static String prepareName(final String name)
+  {
+    final StringBuilder buffer = new StringBuilder(name.length());
+
+    for (final char c : name.toCharArray())
+    {
+      switch (c)
+      {
+        case ' ':
+        case '-':
+        case '_':
+          // This character will be omitted.
+          break;
+        default:
+          // This character will be used.
+          buffer.append(c);
+      }
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
    * Retrieves the human-readable name for the public key algorithm identifier
    * value with the provided OID, or a string representation of the OID if there
    * is no value with that OID.
@@ -163,5 +222,18 @@ public enum PublicKeyAlgorithmIdentifier
     {
       return id.name;
     }
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this public key algorithm identifier.
+   *
+   * @return  A string representation of this public key algorithm identifier.
+   */
+  @Override()
+  public String toString()
+  {
+    return name;
   }
 }

@@ -51,17 +51,32 @@ public class SignatureAlgorithmIdentifierTestCase
 
       assertNotNull(id.getOID());
 
-      assertNotNull(id.getName());
+      assertNotNull(id.getJavaName());
+
+      assertNotNull(id.getUserFriendlyName());
 
       assertNotNull(SignatureAlgorithmIdentifier.forOID(id.getOID()));
       assertEquals(SignatureAlgorithmIdentifier.forOID(id.getOID()), id);
 
       assertNotNull(SignatureAlgorithmIdentifier.getNameOrOID(id.getOID()));
       assertEquals(SignatureAlgorithmIdentifier.getNameOrOID(id.getOID()),
-           id.getName());
+           id.getUserFriendlyName());
+
+      assertNotNull(SignatureAlgorithmIdentifier.forName(id.name()));
+      assertEquals(SignatureAlgorithmIdentifier.forName(id.name()), id);
+
+      assertNotNull(SignatureAlgorithmIdentifier.forName(id.getJavaName()));
+      assertEquals(SignatureAlgorithmIdentifier.forName(id.getJavaName()), id);
+
+      assertNotNull(
+           SignatureAlgorithmIdentifier.forName(id.getUserFriendlyName()));
+      assertEquals(
+           SignatureAlgorithmIdentifier.forName(id.getUserFriendlyName()), id);
 
       assertNotNull(SignatureAlgorithmIdentifier.valueOf(id.name()));
       assertEquals(SignatureAlgorithmIdentifier.valueOf(id.name()), id);
+
+      assertNotNull(id.toString());
     }
   }
 
@@ -82,6 +97,8 @@ public class SignatureAlgorithmIdentifierTestCase
          new OID("1.2.3.4")));
     assertEquals(SignatureAlgorithmIdentifier.getNameOrOID(new OID("1.2.3.4")),
          "1.2.3.4");
+
+    assertNull(SignatureAlgorithmIdentifier.forName("undefined"));
 
     try
     {

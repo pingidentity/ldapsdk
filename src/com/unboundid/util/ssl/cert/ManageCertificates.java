@@ -34,11 +34,12 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.security.Key;
+import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.text.SimpleDateFormat;
@@ -68,6 +69,7 @@ import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.OID;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -99,31 +101,6 @@ import static com.unboundid.util.ssl.cert.CertMessages.*;
 public final class ManageCertificates
        extends CommandLineTool
 {
-  /**
-   * A handle to the method that can be invoked via reflection to run the
-   * keytool command programmatically.  It will be {@code null} if keytool
-   * cannot be run programmatically.
-   */
-  private static final Method KEYTOOL_MAIN_METHOD;
-  static
-  {
-    Method ktMainMethod = null;
-    try
-    {
-      final Class<?> keytoolClass =
-           Class.forName("sun.security.tools.keytool.Main");
-      ktMainMethod = keytoolClass.getMethod("main", String[].class);
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-    KEYTOOL_MAIN_METHOD = ktMainMethod;
-  }
-
-
-
   /**
    * The path to the keystore with the JVM's set of default trusted issuer
    * certificates.
@@ -1740,6 +1717,22 @@ public final class ManageCertificates
     final ArgumentParser genCSRParser = new ArgumentParser(
          "generate-certificate-signing-request",
          INFO_MANAGE_CERTS_SC_GEN_CSR_DESC.get());
+
+    final LinkedHashSet<String> genCSROutputFormatAllowedValues =
+         new LinkedHashSet<>(7);
+    genCSROutputFormatAllowedValues.add("PEM");
+    genCSROutputFormatAllowedValues.add("text");
+    genCSROutputFormatAllowedValues.add("txt");
+    genCSROutputFormatAllowedValues.add("RFC");
+    genCSROutputFormatAllowedValues.add("DER");
+    genCSROutputFormatAllowedValues.add("binary");
+    genCSROutputFormatAllowedValues.add("bin");
+    final StringArgument genCSROutputFormat = new StringArgument(null,
+         "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
+         INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_FORMAT_DESC.get(),
+         genCSROutputFormatAllowedValues, "PEM");
+    genCSROutputFormat.addLongIdentifier("outputFormat");
+    genCSRParser.addArgument(genCSROutputFormat);
 
     final FileArgument genCSROutputFile = new FileArgument(null, "output-file",
          false, 1, null,
@@ -5258,6 +5251,13 @@ public final class ManageCertificates
       }
     }
 
+    if ((! outputPEM) && (outputFile == null))
+    {
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_GEN_CERT_NO_FILE_WITH_DER.get());
+      return ResultCode.PARAM_ERROR;
+    }
+
     final BooleanArgument replaceExistingCertificateArgument =
          subCommandParser.getBooleanArgument("replace-existing-certificate");
     final boolean replaceExistingCertificate =
@@ -5310,12 +5310,24 @@ public final class ManageCertificates
       validityStartTime = validityStartTimeArgument.getValue();
     }
 
-    String keyAlgorithm = null;
+    PublicKeyAlgorithmIdentifier keyAlgorithmIdentifier = null;
+    String keyAlgorithmName = null;
     final StringArgument keyAlgorithmArgument =
          subCommandParser.getStringArgument("key-algorithm");
     if ((keyAlgorithmArgument != null) && keyAlgorithmArgument.isPresent())
     {
-      keyAlgorithm = keyAlgorithmArgument.getValue();
+      final String name = keyAlgorithmArgument.getValue();
+      keyAlgorithmIdentifier = PublicKeyAlgorithmIdentifier.forName(name);
+      if (keyAlgorithmIdentifier == null)
+      {
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_GEN_CERT_UNKNOWN_KEY_ALG.get(name));
+        return ResultCode.PARAM_ERROR;
+      }
+      else
+      {
+        keyAlgorithmName = keyAlgorithmIdentifier.getName();
+      }
     }
 
     Integer keySizeBits = null;
@@ -5326,7 +5338,8 @@ public final class ManageCertificates
       keySizeBits = keySizeBitsArgument.getValue();
     }
 
-    if ((keyAlgorithm != null) && (! keyAlgorithm.equalsIgnoreCase("RSA")) &&
+    if ((keyAlgorithmIdentifier != null) &&
+        (keyAlgorithmIdentifier != PublicKeyAlgorithmIdentifier.RSA) &&
         (keySizeBits == null))
     {
       wrapErr(0, WRAP_COLUMN,
@@ -5334,17 +5347,30 @@ public final class ManageCertificates
       return ResultCode.PARAM_ERROR;
     }
 
-    String signatureAlgorithm = null;
+    String signatureAlgorithmName = null;
+    SignatureAlgorithmIdentifier signatureAlgorithmIdentifier = null;
     final StringArgument signatureAlgorithmArgument =
          subCommandParser.getStringArgument("signature-algorithm");
     if ((signatureAlgorithmArgument != null) &&
         signatureAlgorithmArgument.isPresent())
     {
-      signatureAlgorithm = signatureAlgorithmArgument.getValue();
+      final String name = signatureAlgorithmArgument.getValue();
+      signatureAlgorithmIdentifier = SignatureAlgorithmIdentifier.forName(name);
+      if (signatureAlgorithmIdentifier == null)
+      {
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_GEN_CERT_UNKNOWN_SIG_ALG.get(name));
+        return ResultCode.PARAM_ERROR;
+      }
+      else
+      {
+        signatureAlgorithmName = signatureAlgorithmIdentifier.getJavaName();
+      }
     }
 
-    if ((keyAlgorithm != null) && (! keyAlgorithm.equalsIgnoreCase("RSA")) &&
-        (signatureAlgorithm == null))
+    if ((keyAlgorithmIdentifier != null) &&
+        (keyAlgorithmIdentifier != PublicKeyAlgorithmIdentifier.RSA) &&
+        (signatureAlgorithmIdentifier == null))
     {
       wrapErr(0, WRAP_COLUMN,
            ERR_MANAGE_CERTS_GEN_CERT_NO_SIG_ALG_FOR_NON_RSA_KEY.get());
@@ -5352,7 +5378,10 @@ public final class ManageCertificates
     }
 
 
-    // Build a set of subject alternative name extension values.
+    // Build a subject alternative name extension, if appropriate.
+    final ArrayList<X509CertificateExtension> extensionList =
+         new ArrayList<>(10);
+    final GeneralNamesBuilder sanBuilder = new GeneralNamesBuilder();
     final LinkedHashSet<String> sanValues = new LinkedHashSet<>(10);
     final StringArgument sanDNSArgument =
          subCommandParser.getStringArgument("subject-alternative-name-dns");
@@ -5360,6 +5389,7 @@ public final class ManageCertificates
     {
       for (final String value : sanDNSArgument.getValues())
       {
+        sanBuilder.addDNSName(value);
         sanValues.add("DNS:" + value);
       }
     }
@@ -5370,7 +5400,17 @@ public final class ManageCertificates
     {
       for (final String value : sanIPArgument.getValues())
       {
-        sanValues.add("IP:" + value);
+        try
+        {
+          sanBuilder.addIPAddress(InetAddress.getByName(value));
+          sanValues.add("IP:" + value);
+        }
+        catch (final Exception e)
+        {
+          // This should never happen.
+          Debug.debugException(e);
+          throw new RuntimeException(e);
+        }
       }
     }
 
@@ -5380,6 +5420,7 @@ public final class ManageCertificates
     {
       for (final String value : sanEmailArgument.getValues())
       {
+        sanBuilder.addRFC822Name(value);
         sanValues.add("EMAIL:" + value);
       }
     }
@@ -5390,6 +5431,7 @@ public final class ManageCertificates
     {
       for (final String value : sanURIArgument.getValues())
       {
+        sanBuilder.addUniformResourceIdentifier(value);
         sanValues.add("URI:" + value);
       }
     }
@@ -5400,12 +5442,28 @@ public final class ManageCertificates
     {
       for (final String value : sanOIDArgument.getValues())
       {
+        sanBuilder.addRegisteredID(new OID(value));
         sanValues.add("OID:" + value);
       }
     }
 
+    if (! sanValues.isEmpty())
+    {
+      try
+      {
+        extensionList.add(
+             new SubjectAlternativeNameExtension(false, sanBuilder.build()));
+      }
+      catch (final Exception e)
+      {
+        // This should never happen.
+        Debug.debugException(e);
+        throw new RuntimeException(e);
+      }
+    }
 
     // Build a set of issuer alternative name extension values.
+    final GeneralNamesBuilder ianBuilder = new GeneralNamesBuilder();
     final LinkedHashSet<String> ianValues = new LinkedHashSet<>(10);
     final StringArgument ianDNSArgument =
          subCommandParser.getStringArgument("issuer-alternative-name-dns");
@@ -5413,6 +5471,7 @@ public final class ManageCertificates
     {
       for (final String value : ianDNSArgument.getValues())
       {
+        ianBuilder.addDNSName(value);
         ianValues.add("DNS:" + value);
       }
     }
@@ -5423,7 +5482,17 @@ public final class ManageCertificates
     {
       for (final String value : ianIPArgument.getValues())
       {
-        ianValues.add("IP:" + value);
+        try
+        {
+          ianBuilder.addIPAddress(InetAddress.getByName(value));
+          ianValues.add("IP:" + value);
+        }
+        catch (final Exception e)
+        {
+          // This should never happen.
+          Debug.debugException(e);
+          throw new RuntimeException(e);
+        }
       }
     }
 
@@ -5433,6 +5502,7 @@ public final class ManageCertificates
     {
       for (final String value : ianEmailArgument.getValues())
       {
+        ianBuilder.addRFC822Name(value);
         ianValues.add("EMAIL:" + value);
       }
     }
@@ -5443,6 +5513,7 @@ public final class ManageCertificates
     {
       for (final String value : ianURIArgument.getValues())
       {
+        ianBuilder.addUniformResourceIdentifier(value);
         ianValues.add("URI:" + value);
       }
     }
@@ -5453,7 +5524,23 @@ public final class ManageCertificates
     {
       for (final String value : ianOIDArgument.getValues())
       {
+        ianBuilder.addRegisteredID(new OID(value));
         ianValues.add("OID:" + value);
+      }
+    }
+
+    if (! ianValues.isEmpty())
+    {
+      try
+      {
+        extensionList.add(
+             new IssuerAlternativeNameExtension(false, ianBuilder.build()));
+      }
+      catch (final Exception e)
+      {
+        // This should never happen.
+        Debug.debugException(e);
+        throw new RuntimeException(e);
       }
     }
 
@@ -5486,6 +5573,7 @@ public final class ManageCertificates
       }
 
       basicConstraints = new BasicConstraintsExtension(false, isCA, pathLength);
+      extensionList.add(basicConstraints);
     }
 
 
@@ -5565,6 +5653,7 @@ public final class ManageCertificates
       keyUsage = new KeyUsageExtension(false, digitalSignature, nonRepudiation,
            keyEncipherment, dataEncipherment, keyAgreement, keyCertSign,
            crlSign, encipherOnly, decipherOnly);
+      extensionList.add(keyUsage);
     }
 
 
@@ -5644,6 +5733,8 @@ public final class ManageCertificates
         e.printStackTrace(getErr());
         return ResultCode.PARAM_ERROR;
       }
+
+      extensionList.add(extendedKeyUsage);
     }
 
 
@@ -5711,8 +5802,10 @@ public final class ManageCertificates
             return ResultCode.PARAM_ERROR;
           }
 
-          genericExtensions.add(new X509CertificateExtension(oid, criticality,
-               valueBytes));
+          final X509CertificateExtension extension =
+               new X509CertificateExtension(oid, criticality, valueBytes);
+          genericExtensions.add(extension);
+          extensionList.add(extension);
         }
         catch (final Exception e)
         {
@@ -5751,7 +5844,7 @@ public final class ManageCertificates
 
 
     // Get the keystore.
-    KeyStore keystore;
+    final KeyStore keystore;
     try
     {
       keystore = getKeystore(keystoreType, keystorePath, keystorePassword);
@@ -5805,12 +5898,18 @@ public final class ManageCertificates
       }
 
 
-      // Get the certificate to replace.
+      // Get the certificate to replace, along with its keypair.
       final X509Certificate certToReplace;
+      final KeyPair keyPair;
       try
       {
         final Certificate[] chain = keystore.getCertificateChain(alias);
         certToReplace = new X509Certificate(chain[0].getEncoded());
+
+        final PublicKey publicKey = chain[0].getPublicKey();
+        final PrivateKey privateKey =
+             (PrivateKey) keystore.getKey(alias, privateKeyPassword);
+        keyPair = new KeyPair(publicKey, privateKey);
       }
       catch (final Exception e)
       {
@@ -5824,7 +5923,19 @@ public final class ManageCertificates
 
       // Assign the remaining values using information in the existing
       // certificate.
-      signatureAlgorithm = certToReplace.getSignatureAlgorithmNameOrOID();
+      signatureAlgorithmIdentifier = SignatureAlgorithmIdentifier.forOID(
+           certToReplace.getSignatureAlgorithmOID());
+      if (signatureAlgorithmIdentifier == null)
+      {
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_GEN_CERT_UNKNOWN_SIG_ALG_IN_CERT.get(
+                  certToReplace.getSignatureAlgorithmOID()));
+        return ResultCode.PARAM_ERROR;
+      }
+      else
+      {
+        signatureAlgorithmName = signatureAlgorithmIdentifier.getJavaName();
+      }
 
       if (subjectDN == null)
       {
@@ -5844,10 +5955,8 @@ public final class ManageCertificates
           }
           else if (extension instanceof SubjectKeyIdentifierExtension)
           {
-            // This extension is based on the key, which we're re-using.  But
-            // keytool automatically includes the subject key identifier
-            // extension in the certificates that it generates, so we don't need
-            // to include it.
+            // The generated certificate will automatically include a subject
+            // key identifier extension, so we don't need to include it.
           }
           else if (extension instanceof BasicConstraintsExtension)
           {
@@ -5855,6 +5964,7 @@ public final class ManageCertificates
             if (basicConstraints == null)
             {
               basicConstraints = (BasicConstraintsExtension) extension;
+              extensionList.add(basicConstraints);
             }
           }
           else if (extension instanceof ExtendedKeyUsageExtension)
@@ -5863,6 +5973,7 @@ public final class ManageCertificates
             if (extendedKeyUsage == null)
             {
               extendedKeyUsage = (ExtendedKeyUsageExtension) extension;
+              extensionList.add(extendedKeyUsage);
             }
           }
           else if (extension instanceof KeyUsageExtension)
@@ -5871,6 +5982,7 @@ public final class ManageCertificates
             if (keyUsage == null)
             {
               keyUsage = (KeyUsageExtension) extension;
+              extensionList.add(keyUsage);
             }
           }
           else if (extension instanceof SubjectAlternativeNameExtension)
@@ -5906,119 +6018,206 @@ public final class ManageCertificates
               {
                 sanValues.add("OID:" + oid.toString());
               }
+
+              extensionList.add(extension);
             }
           }
           else
           {
             genericExtensions.add(extension);
+            extensionList.add(extension);
           }
         }
       }
 
 
+      // Create an array with the final set of extensions to include in the
+      // certificate or certificate signing request.
+      final X509CertificateExtension[] extensions =
+           new X509CertificateExtension[extensionList.size()];
+      extensionList.toArray(extensions);
+
+
       // If we're generating a self-signed certificate or a certificate signing
       // request, then we should now have everything we need to do that.  Build
-      // the keytool command that we should use to accomplish it.
+      // a keytool command that we could use to accomplish it.
       if (isGenerateCertificate)
       {
-        final ArrayList<String> keytoolArguments = new ArrayList<>(30);
-        keytoolArguments.add("-selfcert");
-        keytoolArguments.add("-keystore");
-        keytoolArguments.add(keystorePath.getAbsolutePath());
-        keytoolArguments.add("-storetype");
-        keytoolArguments.add(keystoreType);
-        keytoolArguments.add("-storepass");
-        keytoolArguments.add(new String(keystorePassword));
-        keytoolArguments.add("-keypass");
-        keytoolArguments.add(new String(privateKeyPassword));
-        keytoolArguments.add("-alias");
-        keytoolArguments.add(alias);
-        keytoolArguments.add("-dname");
-        keytoolArguments.add(subjectDN.toString());
-        keytoolArguments.add("-sigalg");
-        keytoolArguments.add(signatureAlgorithm);
-        keytoolArguments.add("-validity");
-        keytoolArguments.add(String.valueOf(daysValid));
-
-        if (validityStartTime != null)
-        {
-          keytoolArguments.add("-startdate");
-          keytoolArguments.add(formatValidityStartTime(validityStartTime));
-        }
-
-        addExtensionArguments(keytoolArguments, basicConstraints, keyUsage,
-             extendedKeyUsage, sanValues, ianValues, genericExtensions);
-
         if (displayKeytoolCommand)
         {
+          final ArrayList<String> keytoolArguments = new ArrayList<>(30);
+          keytoolArguments.add("-selfcert");
+          keytoolArguments.add("-keystore");
+          keytoolArguments.add(keystorePath.getAbsolutePath());
+          keytoolArguments.add("-storetype");
+          keytoolArguments.add(keystoreType);
+          keytoolArguments.add("-storepass");
+          keytoolArguments.add("*****REDACTED*****");
+          keytoolArguments.add("-keypass");
+          keytoolArguments.add("*****REDACTED*****");
+          keytoolArguments.add("-alias");
+          keytoolArguments.add(alias);
+          keytoolArguments.add("-dname");
+          keytoolArguments.add(subjectDN.toString());
+          keytoolArguments.add("-sigalg");
+          keytoolArguments.add(signatureAlgorithmName);
+          keytoolArguments.add("-validity");
+          keytoolArguments.add(String.valueOf(daysValid));
+
+          if (validityStartTime != null)
+          {
+            keytoolArguments.add("-startdate");
+            keytoolArguments.add(formatValidityStartTime(validityStartTime));
+          }
+
+          addExtensionArguments(keytoolArguments, basicConstraints, keyUsage,
+               extendedKeyUsage, sanValues, ianValues, genericExtensions);
+
           displayKeytoolCommand(keytoolArguments);
         }
 
-        final ResultCode resultCode = runKeytool(keytoolArguments);
-        if (resultCode != ResultCode.SUCCESS)
-        {
-          return resultCode;
-        }
 
+        // Generate the self-signed certificate.
+        final long notBefore = System.currentTimeMillis();
+        final long notAfter = notBefore + TimeUnit.DAYS.toMillis(365L);
 
-        // Reload the keystore and display the certificate we just generated to
-        // the end user.
+        final X509Certificate certificate;
+        final Certificate[] chain;
         try
         {
-          keystore = getKeystore(keystoreType, keystorePath, keystorePassword);
-          final X509Certificate[] chain =
-               getCertificateChain(alias, keystore, new AtomicReference<DN>());
-          out();
-          wrapOut(0, WRAP_COLUMN,
-               INFO_MANAGE_CERTS_GEN_CERT_SUCCESSFULLY_GENERATED_SELF_CERT.
-                    get());
-          printCertificate(chain[0], "", false);
+          certificate = X509Certificate.generateSelfSignedCertificate(
+               signatureAlgorithmIdentifier, keyPair, subjectDN, notBefore,
+               notAfter, extensions);
+          chain = new Certificate[] { certificate.toCertificate() };
         }
         catch (final Exception e)
         {
           Debug.debugException(e);
+          wrapErr(0, WRAP_COLUMN,
+               ERR_MANAGE_CERTS_GEN_CERT_ERROR_GENERATING_CERT.get());
+          e.printStackTrace(getErr());
+          return ResultCode.LOCAL_ERROR;
         }
 
+
+        // Update the keystore with the new certificate.
+        try
+        {
+          keystore.setKeyEntry(alias, keyPair.getPrivate(), privateKeyPassword,
+               chain);
+          writeKeystore(keystore, keystorePath, keystorePassword);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          wrapErr(0, WRAP_COLUMN,
+               ERR_MANAGE_CERTS_GEN_CERT_ERROR_UPDATING_KEYSTORE.get());
+          e.printStackTrace(getErr());
+          return ResultCode.LOCAL_ERROR;
+        }
+
+
+        // Display the certificate we just generated to the end user.
+        out();
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_GEN_CERT_SUCCESSFULLY_GENERATED_SELF_CERT.
+                  get());
+        printCertificate(certificate, "", false);
         return ResultCode.SUCCESS;
       }
       else
       {
+        // Build the keytool command used to generate the certificate signing
+        // request.
         Validator.ensureTrue(isGenerateCSR);
-        final ArrayList<String> keytoolArguments = new ArrayList<>(30);
-        keytoolArguments.add("-certreq");
-        keytoolArguments.add("-keystore");
-        keytoolArguments.add(keystorePath.getAbsolutePath());
-        keytoolArguments.add("-storetype");
-        keytoolArguments.add(keystoreType);
-        keytoolArguments.add("-storepass");
-        keytoolArguments.add(new String(keystorePassword));
-        keytoolArguments.add("-keypass");
-        keytoolArguments.add(new String(privateKeyPassword));
-        keytoolArguments.add("-alias");
-        keytoolArguments.add(alias);
-        keytoolArguments.add("-dname");
-        keytoolArguments.add(subjectDN.toString());
-        keytoolArguments.add("-sigalg");
-        keytoolArguments.add(signatureAlgorithm);
-
-        addExtensionArguments(keytoolArguments, basicConstraints, keyUsage,
-             extendedKeyUsage, sanValues, ianValues, genericExtensions);
-
-        if (outputFile != null)
-        {
-          keytoolArguments.add("-file");
-          keytoolArguments.add(outputFile.getAbsolutePath());
-        }
-
         if (displayKeytoolCommand)
         {
+          final ArrayList<String> keytoolArguments = new ArrayList<>(30);
+          keytoolArguments.add("-certreq");
+          keytoolArguments.add("-keystore");
+          keytoolArguments.add(keystorePath.getAbsolutePath());
+          keytoolArguments.add("-storetype");
+          keytoolArguments.add(keystoreType);
+          keytoolArguments.add("-storepass");
+          keytoolArguments.add("*****REDACTED*****");
+          keytoolArguments.add("-keypass");
+          keytoolArguments.add("*****REDACTED*****");
+          keytoolArguments.add("-alias");
+          keytoolArguments.add(alias);
+          keytoolArguments.add("-dname");
+          keytoolArguments.add(subjectDN.toString());
+          keytoolArguments.add("-sigalg");
+          keytoolArguments.add(signatureAlgorithmName);
+
+          addExtensionArguments(keytoolArguments, basicConstraints, keyUsage,
+               extendedKeyUsage, sanValues, ianValues, genericExtensions);
+
+          if (outputFile != null)
+          {
+            keytoolArguments.add("-file");
+            keytoolArguments.add(outputFile.getAbsolutePath());
+          }
+
           displayKeytoolCommand(keytoolArguments);
         }
 
-        final ResultCode resultCode = runKeytool(keytoolArguments);
-        if (resultCode != ResultCode.SUCCESS)
+
+        // Generate the certificate signing request.
+        final PKCS10CertificateSigningRequest certificateSigningRequest;
+        try
         {
-          return resultCode;
+          certificateSigningRequest = PKCS10CertificateSigningRequest.
+               generateCertificateSigningRequest(signatureAlgorithmIdentifier,
+                    keyPair, subjectDN, extensions);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          wrapErr(0, WRAP_COLUMN,
+               ERR_MANAGE_CERTS_GEN_CERT_ERROR_GENERATING_CSR.get());
+          e.printStackTrace(getErr());
+          return ResultCode.LOCAL_ERROR;
+        }
+
+
+        // Write the generated certificate signing request to the appropriate
+        // location.
+        try
+        {
+          final PrintStream ps;
+          if (outputFile == null)
+          {
+            ps = getOut();
+          }
+          else
+          {
+            ps = new PrintStream(outputFile);
+          }
+
+          if (outputPEM)
+          {
+            writePEMCertificateSigningRequest(ps,
+                 certificateSigningRequest.
+                      getPKCS10CertificateSigningRequestBytes());
+          }
+          else
+          {
+            ps.write(certificateSigningRequest.
+                 getPKCS10CertificateSigningRequestBytes());
+          }
+
+          if (outputFile != null)
+          {
+            ps.close();
+          }
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          wrapErr(0, WRAP_COLUMN,
+               ERR_MANAGE_CERTS_GEN_CERT_ERROR_WRITING_CSR.get());
+          e.printStackTrace(getErr());
+          return ResultCode.LOCAL_ERROR;
         }
 
 
@@ -6048,9 +6247,10 @@ public final class ManageCertificates
       return ResultCode.PARAM_ERROR;
     }
 
-    if (keyAlgorithm == null)
+    if (keyAlgorithmIdentifier == null)
     {
-      keyAlgorithm = "RSA";
+      keyAlgorithmIdentifier = PublicKeyAlgorithmIdentifier.RSA;
+      keyAlgorithmName = keyAlgorithmIdentifier.getName();
     }
 
     if (keySizeBits == null)
@@ -6058,15 +6258,18 @@ public final class ManageCertificates
       keySizeBits = 2048;
     }
 
-    if ((signatureAlgorithm == null) && (! isSignCSR))
+    if ((signatureAlgorithmIdentifier == null) && (! isSignCSR))
     {
-      signatureAlgorithm = "SHA256withRSA";
+      signatureAlgorithmIdentifier =
+           SignatureAlgorithmIdentifier.SHA_256_WITH_RSA;
+      signatureAlgorithmName = signatureAlgorithmIdentifier.getJavaName();
     }
 
 
     // If we're going to generate a self-signed certificate or a certificate
     // signing request, then we first need to generate a keypair.  Put together
-    // the appropriate set of arguments and invoke keytool with them.
+    // the appropriate set of keytool arguments and then generate a self-signed
+    // certificate.
     if (isGenerateCertificate || isGenerateCSR)
     {
       // Make sure that the specified alias is not already in use in the
@@ -6079,49 +6282,99 @@ public final class ManageCertificates
       }
 
 
-      final ArrayList<String> keytoolGenKeyPairArguments = new ArrayList<>(30);
-      keytoolGenKeyPairArguments.add("-genkeypair");
-      keytoolGenKeyPairArguments.add("-keystore");
-      keytoolGenKeyPairArguments.add(keystorePath.getAbsolutePath());
-      keytoolGenKeyPairArguments.add("-storetype");
-      keytoolGenKeyPairArguments.add(keystoreType);
-      keytoolGenKeyPairArguments.add("-storepass");
-      keytoolGenKeyPairArguments.add(new String(keystorePassword));
-      keytoolGenKeyPairArguments.add("-keypass");
-      keytoolGenKeyPairArguments.add(new String(privateKeyPassword));
-      keytoolGenKeyPairArguments.add("-alias");
-      keytoolGenKeyPairArguments.add(alias);
-      keytoolGenKeyPairArguments.add("-dname");
-      keytoolGenKeyPairArguments.add(subjectDN.toString());
-      keytoolGenKeyPairArguments.add("-keyalg");
-      keytoolGenKeyPairArguments.add(keyAlgorithm);
-      keytoolGenKeyPairArguments.add("-keysize");
-      keytoolGenKeyPairArguments.add(String.valueOf(keySizeBits));
-      keytoolGenKeyPairArguments.add("-sigalg");
-      keytoolGenKeyPairArguments.add(signatureAlgorithm);
-      keytoolGenKeyPairArguments.add("-validity");
-      keytoolGenKeyPairArguments.add(String.valueOf(daysValid));
-
-      if (validityStartTime != null)
-      {
-        keytoolGenKeyPairArguments.add("-startdate");
-        keytoolGenKeyPairArguments.add(
-             formatValidityStartTime(validityStartTime));
-      }
-
-      addExtensionArguments(keytoolGenKeyPairArguments, basicConstraints,
-           keyUsage, extendedKeyUsage, sanValues, ianValues, genericExtensions);
-
       if (displayKeytoolCommand)
       {
-        displayKeytoolCommand(keytoolGenKeyPairArguments);
+        final ArrayList<String> keytoolArguments = new ArrayList<>(30);
+        keytoolArguments.add("-genkeypair");
+        keytoolArguments.add("-keystore");
+        keytoolArguments.add(keystorePath.getAbsolutePath());
+        keytoolArguments.add("-storetype");
+        keytoolArguments.add(keystoreType);
+        keytoolArguments.add("-storepass");
+        keytoolArguments.add("*****REDACTED*****");
+        keytoolArguments.add("-keypass");
+        keytoolArguments.add("*****REDACTED*****");
+        keytoolArguments.add("-alias");
+        keytoolArguments.add(alias);
+        keytoolArguments.add("-dname");
+        keytoolArguments.add(subjectDN.toString());
+        keytoolArguments.add("-keyalg");
+        keytoolArguments.add(keyAlgorithmName);
+        keytoolArguments.add("-keysize");
+        keytoolArguments.add(String.valueOf(keySizeBits));
+        keytoolArguments.add("-sigalg");
+        keytoolArguments.add(signatureAlgorithmName);
+        keytoolArguments.add("-validity");
+        keytoolArguments.add(String.valueOf(daysValid));
+
+        if (validityStartTime != null)
+        {
+          keytoolArguments.add("-startdate");
+          keytoolArguments.add(formatValidityStartTime(validityStartTime));
+        }
+
+        addExtensionArguments(keytoolArguments, basicConstraints,
+             keyUsage, extendedKeyUsage, sanValues, ianValues,
+             genericExtensions);
+
+        displayKeytoolCommand(keytoolArguments);
       }
 
-      final ResultCode genKeyPairResultCode =
-           runKeytool(keytoolGenKeyPairArguments);
-      if (genKeyPairResultCode != ResultCode.SUCCESS)
+
+      // Generate the self-signed certificate.
+      final long notBefore;
+      if (validityStartTime == null)
       {
-        return genKeyPairResultCode;
+        notBefore = System.currentTimeMillis();
+      }
+      else
+      {
+        notBefore = validityStartTime.getTime();
+      }
+
+      final long notAfter = notBefore + TimeUnit.DAYS.toMillis(daysValid);
+
+      final X509CertificateExtension[] extensions =
+           new X509CertificateExtension[extensionList.size()];
+      extensionList.toArray(extensions);
+
+      final Certificate[] chain;
+      final KeyPair keyPair;
+      final X509Certificate certificate;
+      try
+      {
+        final ObjectPair<X509Certificate,KeyPair> p =
+             X509Certificate.generateSelfSignedCertificate(
+                  signatureAlgorithmIdentifier, keyAlgorithmIdentifier,
+                  keySizeBits, subjectDN, notBefore, notAfter, extensions);
+        certificate = p.getFirst();
+        chain = new Certificate[] { certificate.toCertificate() };
+        keyPair = p.getSecond();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_GEN_CERT_ERROR_GENERATING_CERT.get());
+        e.printStackTrace(getErr());
+        return ResultCode.LOCAL_ERROR;
+      }
+
+
+      // Update the keystore with the new certificate.
+      try
+      {
+        keystore.setKeyEntry(alias, keyPair.getPrivate(), privateKeyPassword,
+             chain);
+        writeKeystore(keystore, keystorePath, keystorePassword);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_GEN_CERT_ERROR_UPDATING_KEYSTORE.get());
+        e.printStackTrace(getErr());
+        return ResultCode.LOCAL_ERROR;
       }
 
       if (isNewKeystore)
@@ -6137,70 +6390,110 @@ public final class ManageCertificates
       // certificate that we generated.
       if (isGenerateCertificate)
       {
-        // Reload the keystore and display the certificate we just generated to
-        // the end user.
-        try
-        {
-          keystore = getKeystore(keystoreType, keystorePath, keystorePassword);
-          final X509Certificate[] chain =
-               getCertificateChain(alias, keystore, new AtomicReference<DN>());
-          out();
-          wrapOut(0, WRAP_COLUMN,
-               INFO_MANAGE_CERTS_GEN_CERT_SUCCESSFULLY_GENERATED_SELF_CERT.
-                    get());
-          printCertificate(chain[0], "", false);
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-        }
+        out();
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_GEN_CERT_SUCCESSFULLY_GENERATED_SELF_CERT.get());
+        printCertificate(certificate, "", false);
 
         return ResultCode.SUCCESS;
       }
 
 
       // If we're generating a certificate signing request, then put together
-      // the appropriate set of arguments for that and run keytool.
+      // the appropriate set of arguments for that.
       Validator.ensureTrue(isGenerateCSR);
       out();
       wrapOut(0, WRAP_COLUMN,
            INFO_MANAGE_CERTS_GEN_CERT_SUCCESSFULLY_GENERATED_KEYPAIR.get());
 
-      final ArrayList<String> keytoolGenCSRArguments = new ArrayList<>(30);
-      keytoolGenCSRArguments.add("-certreq");
-      keytoolGenCSRArguments.add("-keystore");
-      keytoolGenCSRArguments.add(keystorePath.getAbsolutePath());
-      keytoolGenCSRArguments.add("-storetype");
-      keytoolGenCSRArguments.add(keystoreType);
-      keytoolGenCSRArguments.add("-storepass");
-      keytoolGenCSRArguments.add(new String(keystorePassword));
-      keytoolGenCSRArguments.add("-keypass");
-      keytoolGenCSRArguments.add(new String(privateKeyPassword));
-      keytoolGenCSRArguments.add("-alias");
-      keytoolGenCSRArguments.add(alias);
-      keytoolGenCSRArguments.add("-dname");
-      keytoolGenCSRArguments.add(subjectDN.toString());
-      keytoolGenCSRArguments.add("-sigalg");
-      keytoolGenCSRArguments.add(signatureAlgorithm);
-
-      addExtensionArguments(keytoolGenCSRArguments, basicConstraints, keyUsage,
-           extendedKeyUsage, sanValues, ianValues, genericExtensions);
-
-      if (outputFile != null)
-      {
-        keytoolGenCSRArguments.add("-file");
-        keytoolGenCSRArguments.add(outputFile.getAbsolutePath());
-      }
-
       if (displayKeytoolCommand)
       {
-        displayKeytoolCommand(keytoolGenCSRArguments);
+        final ArrayList<String> keytoolArguments = new ArrayList<>(30);
+        keytoolArguments.add("-certreq");
+        keytoolArguments.add("-keystore");
+        keytoolArguments.add(keystorePath.getAbsolutePath());
+        keytoolArguments.add("-storetype");
+        keytoolArguments.add(keystoreType);
+        keytoolArguments.add("-storepass");
+        keytoolArguments.add("*****REDACTED*****");
+        keytoolArguments.add("-keypass");
+        keytoolArguments.add("*****REDACTED*****");
+        keytoolArguments.add("-alias");
+        keytoolArguments.add(alias);
+        keytoolArguments.add("-dname");
+        keytoolArguments.add(subjectDN.toString());
+        keytoolArguments.add("-sigalg");
+        keytoolArguments.add(signatureAlgorithmName);
+
+        addExtensionArguments(keytoolArguments, basicConstraints, keyUsage,
+             extendedKeyUsage, sanValues, ianValues, genericExtensions);
+
+        if (outputFile != null)
+        {
+          keytoolArguments.add("-file");
+          keytoolArguments.add(outputFile.getAbsolutePath());
+        }
+
+        displayKeytoolCommand(keytoolArguments);
       }
 
-      final ResultCode resultCode = runKeytool(keytoolGenCSRArguments);
-      if (resultCode != ResultCode.SUCCESS)
+
+      // Generate the certificate signing request.
+      final PKCS10CertificateSigningRequest certificateSigningRequest;
+      try
       {
-        return resultCode;
+        certificateSigningRequest = PKCS10CertificateSigningRequest.
+             generateCertificateSigningRequest(signatureAlgorithmIdentifier,
+                  keyPair, subjectDN, extensions);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_GEN_CERT_ERROR_GENERATING_CSR.get());
+        e.printStackTrace(getErr());
+        return ResultCode.LOCAL_ERROR;
+      }
+
+
+      // Write the generated certificate signing request to the appropriate
+      // location.
+      try
+      {
+        final PrintStream ps;
+        if (outputFile == null)
+        {
+          ps = getOut();
+        }
+        else
+        {
+          ps = new PrintStream(outputFile);
+        }
+
+        if (outputPEM)
+        {
+          writePEMCertificateSigningRequest(ps,
+               certificateSigningRequest.
+                    getPKCS10CertificateSigningRequestBytes());
+        }
+        else
+        {
+          ps.write(certificateSigningRequest.
+               getPKCS10CertificateSigningRequestBytes());
+        }
+
+        if (outputFile != null)
+        {
+          ps.close();
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_GEN_CERT_ERROR_WRITING_CSR.get());
+        e.printStackTrace(getErr());
+        return ResultCode.LOCAL_ERROR;
       }
 
 
@@ -6240,6 +6533,27 @@ public final class ManageCertificates
                   keystorePath.getAbsolutePath()));
         return ResultCode.PARAM_ERROR;
       }
+    }
+
+
+    // Get the signing certificate and its keypair.
+    final PrivateKey issuerPrivateKey;
+    final X509Certificate issuerCertificate;
+    try
+    {
+      final Certificate[] chain = keystore.getCertificateChain(alias);
+      issuerCertificate = new X509Certificate(chain[0].getEncoded());
+
+      issuerPrivateKey =
+           (PrivateKey) keystore.getKey(alias, privateKeyPassword);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_GEN_CERT_SIGN_CANNOT_GET_SIGNING_CERT.get(alias));
+      e.printStackTrace(getErr());
+      return ResultCode.LOCAL_ERROR;
     }
 
 
@@ -6289,7 +6603,7 @@ public final class ManageCertificates
 
     // Read the certificate signing request and see if we need to take values
     // from it.
-    if ((subjectDN == null) || (signatureAlgorithm == null) ||
+    if ((subjectDN == null) || (signatureAlgorithmIdentifier == null) ||
         includeRequestedExtensions)
     {
       if (subjectDN == null)
@@ -6297,9 +6611,21 @@ public final class ManageCertificates
         subjectDN = csr.getSubjectDN();
       }
 
-      if (signatureAlgorithm == null)
+      if (signatureAlgorithmIdentifier == null)
       {
-        signatureAlgorithm = csr.getSignatureAlgorithmNameOrOID();
+        signatureAlgorithmIdentifier = SignatureAlgorithmIdentifier.forOID(
+             csr.getSignatureAlgorithmOID());
+        if (signatureAlgorithmIdentifier == null)
+        {
+          wrapErr(0, WRAP_COLUMN,
+               ERR_MANAGE_CERTS_GEN_CERT_UNKNOWN_SIG_ALG_IN_CSR.get(
+                    csr.getSignatureAlgorithmOID()));
+          return ResultCode.PARAM_ERROR;
+        }
+        else
+        {
+          signatureAlgorithmName = signatureAlgorithmIdentifier.getJavaName();
+        }
       }
 
       if (includeRequestedExtensions)
@@ -6314,10 +6640,8 @@ public final class ManageCertificates
           }
           else if (extension instanceof SubjectKeyIdentifierExtension)
           {
-            // This extension is based on the key, which we're re-using.  But
-            // keytool automatically includes the subject key identifier
-            // extension in the certificates that it generates, so we don't need
-            // to include it.
+            // The generated certificate will automatically include a subject
+            // key identifier extension, so we don't need to include it.
           }
           else if (extension instanceof BasicConstraintsExtension)
           {
@@ -6325,6 +6649,7 @@ public final class ManageCertificates
             if (basicConstraints == null)
             {
               basicConstraints = (BasicConstraintsExtension) extension;
+              extensionList.add(basicConstraints);
             }
           }
           else if (extension instanceof ExtendedKeyUsageExtension)
@@ -6333,6 +6658,7 @@ public final class ManageCertificates
             if (extendedKeyUsage == null)
             {
               extendedKeyUsage = (ExtendedKeyUsageExtension) extension;
+              extensionList.add(extendedKeyUsage);
             }
           }
           else if (extension instanceof KeyUsageExtension)
@@ -6341,6 +6667,7 @@ public final class ManageCertificates
             if (keyUsage == null)
             {
               keyUsage = (KeyUsageExtension) extension;
+              extensionList.add(keyUsage);
             }
           }
           else if (extension instanceof SubjectAlternativeNameExtension)
@@ -6354,33 +6681,52 @@ public final class ManageCertificates
                    (SubjectAlternativeNameExtension) extension;
               for (final String dnsName : e.getDNSNames())
               {
+                sanBuilder.addDNSName(dnsName);
                 sanValues.add("DNS:" + dnsName);
               }
 
               for (final InetAddress ipAddress : e.getIPAddresses())
               {
+                sanBuilder.addIPAddress(ipAddress);
                 sanValues.add("IP:" + ipAddress.getHostAddress());
               }
 
               for (final String emailAddress : e.getRFC822Names())
               {
+                sanBuilder.addRFC822Name(emailAddress);
                 sanValues.add("EMAIL:" + emailAddress);
               }
 
               for (final String uri : e.getUniformResourceIdentifiers())
               {
+                sanBuilder.addUniformResourceIdentifier(uri);
                 sanValues.add("URI:" + uri);
               }
 
               for (final OID oid : e.getRegisteredIDs())
               {
+                sanBuilder.addRegisteredID(oid);
                 sanValues.add("OID:" + oid.toString());
+              }
+
+              try
+              {
+                extensionList.add(
+                     new SubjectAlternativeNameExtension(false,
+                          sanBuilder.build()));
+              }
+              catch (final Exception ex)
+              {
+                // This should never happen.
+                Debug.debugException(ex);
+                throw new RuntimeException(ex);
               }
             }
           }
           else
           {
             genericExtensions.add(extension);
+            extensionList.add(extension);
           }
         }
       }
@@ -6395,15 +6741,15 @@ public final class ManageCertificates
     keytoolArguments.add("-storetype");
     keytoolArguments.add(keystoreType);
     keytoolArguments.add("-storepass");
-    keytoolArguments.add(new String(keystorePassword));
+    keytoolArguments.add("*****REDACTED*****");
     keytoolArguments.add("-keypass");
-    keytoolArguments.add(new String(privateKeyPassword));
+    keytoolArguments.add("*****REDACTED*****");
     keytoolArguments.add("-alias");
     keytoolArguments.add(alias);
     keytoolArguments.add("-dname");
     keytoolArguments.add(subjectDN.toString());
     keytoolArguments.add("-sigalg");
-    keytoolArguments.add(signatureAlgorithm);
+    keytoolArguments.add(signatureAlgorithmName);
     keytoolArguments.add("-validity");
     keytoolArguments.add(String.valueOf(daysValid));
 
@@ -6435,10 +6781,78 @@ public final class ManageCertificates
       displayKeytoolCommand(keytoolArguments);
     }
 
-    final ResultCode resultCode = runKeytool(keytoolArguments);
-    if (resultCode != ResultCode.SUCCESS)
+
+    // Generate the signed certificate.
+    final long notBefore;
+    if (validityStartTime == null)
     {
-      return resultCode;
+      notBefore = System.currentTimeMillis();
+    }
+    else
+    {
+      notBefore = validityStartTime.getTime();
+    }
+
+    final long notAfter = notBefore + TimeUnit.DAYS.toMillis(daysValid);
+
+    final X509CertificateExtension[] extensions =
+         new X509CertificateExtension[extensionList.size()];
+    extensionList.toArray(extensions);
+
+    final X509Certificate signedCertificate;
+    try
+    {
+      signedCertificate = X509Certificate.generateIssuerSignedCertificate(
+           signatureAlgorithmIdentifier, issuerCertificate, issuerPrivateKey,
+           csr.getPublicKeyAlgorithmOID(),
+           csr.getPublicKeyAlgorithmParameters(), csr.getEncodedPublicKey(),
+           csr.getDecodedPublicKey(), subjectDN, notBefore, notAfter,
+           extensions);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_GEN_CERT_ERROR_SIGNING_CERT.get());
+      e.printStackTrace(getErr());
+      return ResultCode.LOCAL_ERROR;
+    }
+
+
+    // Write the signed certificate signing request to the appropriate location.
+    try
+    {
+      final PrintStream ps;
+      if (outputFile == null)
+      {
+        ps = getOut();
+      }
+      else
+      {
+        ps = new PrintStream(outputFile);
+      }
+
+      if (outputPEM)
+      {
+        writePEMCertificate(ps, signedCertificate.getX509CertificateBytes());
+      }
+      else
+      {
+        ps.write(signedCertificate.getX509CertificateBytes());
+      }
+
+      if (outputFile != null)
+      {
+        ps.close();
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_GEN_CERT_ERROR_WRITING_SIGNED_CERT.get());
+      e.printStackTrace(getErr());
+      return ResultCode.LOCAL_ERROR;
     }
 
 
@@ -6533,13 +6947,41 @@ public final class ManageCertificates
     }
 
 
-    // Make sure that the keystore has an entry with the current alias.
-    if (! (hasCertificateAlias(keystore, currentAlias) ||
-         hasKeyAlias(keystore, currentAlias)))
+    // Make sure that the keystore has an existing entry with the current alias.
+    // It must be either a certificate entry or a private key entry.
+    final Certificate existingCertificate;
+    final Certificate[] existingCertificateChain;
+    final PrivateKey existingPrivateKey;
+    try
     {
+      if (hasCertificateAlias(keystore, currentAlias))
+      {
+        existingCertificate = keystore.getCertificate(currentAlias);
+        existingCertificateChain = null;
+        existingPrivateKey = null;
+      }
+      else if (hasKeyAlias(keystore, currentAlias))
+      {
+        existingCertificateChain = keystore.getCertificateChain(currentAlias);
+        existingPrivateKey =
+             (PrivateKey) keystore.getKey(currentAlias, privateKeyPassword);
+        existingCertificate = null;
+      }
+      else
+      {
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MANAGE_CERTS_CHANGE_ALIAS_NO_SUCH_ALIAS.get(currentAlias));
+        return ResultCode.PARAM_ERROR;
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
       wrapErr(0, WRAP_COLUMN,
-           ERR_MANAGE_CERTS_CHANGE_ALIAS_NO_SUCH_ALIAS.get(currentAlias));
-      return ResultCode.PARAM_ERROR;
+           ERR_MANAGE_CERTS_CHANGE_ALIAS_CANNOT_GET_EXISTING_ENTRY.get(
+                currentAlias));
+      e.printStackTrace(getErr());
+      return ResultCode.LOCAL_ERROR;
     }
 
 
@@ -6554,38 +6996,60 @@ public final class ManageCertificates
 
 
     // Generate the keytool arguments to use to sign the requested certificate.
-    final ArrayList<String> keytoolArguments = new ArrayList<>(30);
-    keytoolArguments.add("-changealias");
-    keytoolArguments.add("-keystore");
-    keytoolArguments.add(keystorePath.getAbsolutePath());
-    keytoolArguments.add("-storetype");
-    keytoolArguments.add(keystoreType);
-    keytoolArguments.add("-storepass");
-    keytoolArguments.add(new String(keystorePassword));
-    keytoolArguments.add("-keypass");
-    keytoolArguments.add(new String(privateKeyPassword));
-    keytoolArguments.add("-alias");
-    keytoolArguments.add(currentAlias);
-    keytoolArguments.add("-destalias");
-    keytoolArguments.add(newAlias);
-
     final BooleanArgument displayKeytoolCommandArgument =
          subCommandParser.getBooleanArgument("display-keytool-command");
     if ((displayKeytoolCommandArgument != null) &&
           displayKeytoolCommandArgument.isPresent())
     {
+      final ArrayList<String> keytoolArguments = new ArrayList<>(30);
+      keytoolArguments.add("-changealias");
+      keytoolArguments.add("-keystore");
+      keytoolArguments.add(keystorePath.getAbsolutePath());
+      keytoolArguments.add("-storetype");
+      keytoolArguments.add(keystoreType);
+      keytoolArguments.add("-storepass");
+      keytoolArguments.add("*****REDACTED*****");
+      keytoolArguments.add("-keypass");
+      keytoolArguments.add("*****REDACTED*****");
+      keytoolArguments.add("-alias");
+      keytoolArguments.add(currentAlias);
+      keytoolArguments.add("-destalias");
+      keytoolArguments.add(newAlias);
+
       displayKeytoolCommand(keytoolArguments);
     }
 
-    final ResultCode resultCode = runKeytool(keytoolArguments);
-    if (resultCode == ResultCode.SUCCESS)
+
+    // Update the keystore to remove the entry with the current alias and
+    // re-write it with the new alias.
+    try
     {
-      wrapOut(0, WRAP_COLUMN,
-           INFO_MANAGE_CERTS_CHANGE_ALIAS_SUCCESSFUL.get(currentAlias,
-                newAlias));
+      keystore.deleteEntry(currentAlias);
+      if (existingCertificate != null)
+      {
+        keystore.setCertificateEntry(newAlias, existingCertificate);
+      }
+      else
+      {
+        keystore.setKeyEntry(newAlias, existingPrivateKey,
+             privateKeyPassword, existingCertificateChain);
+      }
+
+      writeKeystore(keystore, keystorePath, keystorePassword);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_CHANGE_ALIAS_CANNOT_UPDATE_KEYSTORE.get());
+      e.printStackTrace(getErr());
+      return ResultCode.LOCAL_ERROR;
     }
 
-    return resultCode;
+    wrapOut(0, WRAP_COLUMN,
+         INFO_MANAGE_CERTS_CHANGE_ALIAS_SUCCESSFUL.get(currentAlias,
+              newAlias));
+    return ResultCode.SUCCESS;
   }
 
 
@@ -7212,7 +7676,7 @@ public final class ManageCertificates
             err();
             wrapErr(0, WRAP_COLUMN,
                  ERR_MANAGE_CERTS_CHECK_USABILITY_WEAK_SIG_ALG.get(
-                      c.getSubjectDN(), id.getName()));
+                      c.getSubjectDN(), id.getUserFriendlyName()));
             numErrors++;
             break;
           case SHA_224_WITH_RSA:
@@ -7228,7 +7692,7 @@ public final class ManageCertificates
             out();
             wrapOut(0, WRAP_COLUMN,
                  INFO_MANAGE_CERTS_CHECK_USABILITY_SIG_ALG_OK.get(
-                      c.getSubjectDN(), id.getName()));
+                      c.getSubjectDN(), id.getUserFriendlyName()));
             break;
         }
       }
@@ -8229,6 +8693,31 @@ public final class ManageCertificates
 
 
   /**
+   * Writes a PEM-encoded representation of the provided encoded certificate
+   * signing request to the given print stream.
+   *
+   * @param  printStream  The print stream to which the PEM-encoded certificate
+   *                      signing request should be written.  It must not be
+   *                      {@code null}.
+   * @param  encodedCSR   The bytes that comprise the encoded certificate
+   *                      signing request.  It must not be {@code null}.
+   */
+  private static void writePEMCertificateSigningRequest(
+                           final PrintStream printStream,
+                           final byte[] encodedCSR)
+  {
+    final String certBase64 = Base64.encode(encodedCSR);
+    printStream.println("-----BEGIN CERTIFICATE REQUEST-----");
+    for (final String line : StaticUtils.wrapLine(certBase64, 64))
+    {
+      printStream.println(line);
+    }
+    printStream.println("-----END CERTIFICATE REQUEST-----");
+  }
+
+
+
+  /**
    * Writes a PEM-encoded representation of the provided encoded private key to
    * the given print stream.
    *
@@ -8261,17 +8750,7 @@ public final class ManageCertificates
   private void displayKeytoolCommand(final List<String> keytoolArgs)
   {
     final StringBuilder buffer = new StringBuilder();
-
-    final File keytoolPath = findKeytool();
-    if (keytoolPath == null)
-    {
-      buffer.append("#      keytool");
-    }
-    else
-    {
-      buffer.append("#      ");
-      buffer.append(keytoolPath.getAbsolutePath());
-    }
+    buffer.append("#      keytool");
 
     boolean lastWasArgName = false;
     boolean lastWasPasswordArgName = false;
@@ -8318,186 +8797,6 @@ public final class ManageCertificates
     out(INFO_MANAGE_CERTS_APPROXIMATE_KEYTOOL_COMMAND.get());
     out(buffer);
     out();
-  }
-
-
-
-  /**
-   * Runs the Java keytool command with the provided set of arguments.
-   *
-   * @param  args  The set of command-line arguments to provide to the Java
-   *               keytool command.
-   *
-   * @return  A result code indicating the result of the processing.
-   */
-  private synchronized ResultCode runKeytool(final List<String> args)
-  {
-    if (KEYTOOL_MAIN_METHOD != null)
-    {
-      final String[] argsArray = new String[args.size()];
-      args.toArray(argsArray);
-
-      final Object argsArrayObject = argsArray;
-
-      final SecurityManager activeSecurityManager = System.getSecurityManager();
-      final ManageCertificatesSecurityManager newSecurityManager =
-           new ManageCertificatesSecurityManager();
-      try
-      {
-        System.setSecurityManager(newSecurityManager);
-        try
-        {
-          KEYTOOL_MAIN_METHOD.invoke(null, argsArrayObject);
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-        }
-
-        if (newSecurityManager.exitCalledWithNonZeroStatus())
-        {
-          return ResultCode.LOCAL_ERROR;
-        }
-        else
-        {
-          return ResultCode.SUCCESS;
-        }
-      }
-      finally
-      {
-        System.setSecurityManager(activeSecurityManager);
-      }
-    }
-    else
-    {
-      final ArrayList<String> commandWithArgs =
-           new ArrayList<>(args.size() + 1);
-
-      final File keytoolFile = findKeytool();
-      if (keytoolFile == null)
-      {
-        commandWithArgs.add("keytool");
-      }
-      else
-      {
-        commandWithArgs.add(keytoolFile.getAbsolutePath());
-      }
-
-      commandWithArgs.addAll(args);
-
-      return runCommand(commandWithArgs);
-    }
-  }
-
-
-
-  /**
-   * Runs the specified command as an external process.
-   *
-   * @param  commandAndArgs  The command to invoke, along with all of its
-   *                         arguments.
-   *
-   * @return  A result code indicating the result of the processing.
-   */
-  ResultCode runCommand(final List<String> commandAndArgs)
-  {
-    final ProcessBuilder processBuilder = new ProcessBuilder(commandAndArgs);
-    processBuilder.redirectInput(ProcessBuilder.Redirect.INHERIT);
-    processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-    processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-
-    final Process process;
-    try
-    {
-      process = processBuilder.start();
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      wrapErr(0, WRAP_COLUMN,
-           ERR_MANAGE_CERTS_CANNOT_INVOKE_COMMAND.get(commandAndArgs.get(0)));
-      e.printStackTrace(getErr());
-      return ResultCode.LOCAL_ERROR;
-    }
-
-    final int exitCode;
-    try
-    {
-      exitCode = process.waitFor();
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      wrapErr(0, WRAP_COLUMN,
-           ERR_MANAGE_CERTS_ERROR_WAITING_FOR_COMMAND.get(
-                commandAndArgs.get(0)));
-      e.printStackTrace(getErr());
-      return ResultCode.LOCAL_ERROR;
-    }
-
-
-    if (exitCode == 0)
-    {
-      return ResultCode.SUCCESS;
-    }
-    else
-    {
-      return ResultCode.LOCAL_ERROR;
-    }
-  }
-
-
-
-  /**
-   * Attempts to find the keytool command in the Java installation.
-   *
-   * @return  The location of the keytool command in the Java installation, or
-   *          {@code null} if it could not be located.
-   */
-  static File findKeytool()
-  {
-    final File javaHome = new File(System.getProperty("java.home"));
-
-    final File binDir = new File(javaHome, "bin");
-    if (binDir.exists())
-    {
-      final File keytoolFile;
-      if (StaticUtils.isWindows())
-      {
-        keytoolFile = new File(binDir, "keytool.exe");
-      }
-      else
-      {
-        keytoolFile = new File(binDir, "keytool");
-      }
-
-      if (keytoolFile.exists())
-      {
-        return keytoolFile;
-      }
-    }
-
-    final File jreDir = new File(javaHome, "jre");
-    if (jreDir.exists())
-    {
-      final File jreBinDir = new File(jreDir, "bin");
-      final File keytoolFile;
-      if (StaticUtils.isWindows())
-      {
-        keytoolFile = new File(jreBinDir, "keytool.exe");
-      }
-      else
-      {
-        keytoolFile = new File(jreBinDir, "keytool");
-      }
-
-      if (keytoolFile.exists())
-      {
-        return keytoolFile;
-      }
-    }
-
-    return null;
   }
 
 
@@ -9033,7 +9332,7 @@ public final class ManageCertificates
 
       if (firstByte == 0x30)
       {
-        // This is the correct first byte of a DER sequence, and a PKCS#12
+        // This is the correct first byte of a DER sequence, and a PKCS #12
         // file is encoded as a DER sequence.
         return "PKCS12";
       }
@@ -9076,8 +9375,9 @@ public final class ManageCertificates
    *                       name.
    *
    * @return  "JKS" if the provided keystore type is for a JKS keystore,
-   *          "PKCS#12" if the provided keystore type is for a PKCS#12 keystore,
-   *          or the provided string if it is for some other keystore type.
+   *          "PKCS #12" if the provided keystore type is for a PKCS #12
+   *          keystore, or the provided string if it is for some other keystore
+   *          type.
    */
   static String getUserFriendlyKeystoreType(final String keystoreType)
   {
@@ -9086,9 +9386,10 @@ public final class ManageCertificates
       return "JKS";
     }
     else if (keystoreType.equalsIgnoreCase("PKCS12") ||
-         keystoreType.equalsIgnoreCase("PKCS#12"))
+         keystoreType.equalsIgnoreCase("PKCS#12") ||
+         keystoreType.equalsIgnoreCase("PKCS #12"))
     {
-      return "PKCS#12";
+      return "PKCS #12";
     }
     else
     {
@@ -9389,7 +9690,7 @@ public final class ManageCertificates
 
   /**
    * Reads a private key from the specified file.  The file must exist and must
-   * contain exactly one PEM-encoded or DER-encoded PKCS#8 private key.
+   * contain exactly one PEM-encoded or DER-encoded PKCS #8 private key.
    *
    * @param  f  The path to the private key file to read.  It must not be
    *            {@code null}.
@@ -9609,7 +9910,7 @@ public final class ManageCertificates
 
   /**
    * Reads a certificate signing request from the specified file.  The file must
-   * exist and must contain exactly one PEM-encoded or DER-encoded PKCS#10
+   * exist and must contain exactly one PEM-encoded or DER-encoded PKCS #10
    * certificate signing request.
    *
    * @param  f  The path to the private key file to read.  It must not be

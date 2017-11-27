@@ -25,6 +25,7 @@ package com.unboundid.util.ssl.cert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.InetAddress;
+import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.math.BigInteger;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -53,6 +55,7 @@ import com.unboundid.asn1.ASN1UTF8String;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.OID;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ssl.JVMDefaultTrustManager;
 
@@ -110,10 +113,10 @@ public final class X509CertificateTestCase
          SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID());
 
     assertNotNull(c.getSignatureAlgorithmName());
-    assertEquals(c.getSignatureAlgorithmName(), "SHA256withRSA");
+    assertEquals(c.getSignatureAlgorithmName(), "SHA-256 with RSA");
 
     assertNotNull(c.getSignatureAlgorithmNameOrOID());
-    assertEquals(c.getSignatureAlgorithmNameOrOID(), "SHA256withRSA");
+    assertEquals(c.getSignatureAlgorithmNameOrOID(), "SHA-256 with RSA");
 
     assertNull(c.getSignatureAlgorithmParameters());
 
@@ -168,6 +171,11 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.toPEM());
+    assertFalse(c.toPEM().isEmpty());
+
+    assertNotNull(c.toPEMString());
 
     assertNotNull(c.getX509CertificateBytes());
 
@@ -251,10 +259,10 @@ public final class X509CertificateTestCase
          SignatureAlgorithmIdentifier.SHA_256_WITH_ECDSA.getOID());
 
     assertNotNull(c.getSignatureAlgorithmName());
-    assertEquals(c.getSignatureAlgorithmName(), "SHA256withECDSA");
+    assertEquals(c.getSignatureAlgorithmName(), "SHA-256 with ECDSA");
 
     assertNotNull(c.getSignatureAlgorithmNameOrOID());
-    assertEquals(c.getSignatureAlgorithmNameOrOID(), "SHA256withECDSA");
+    assertEquals(c.getSignatureAlgorithmNameOrOID(), "SHA-256 with ECDSA");
 
     assertNotNull(c.getSignatureAlgorithmParameters());
 
@@ -329,6 +337,11 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.toPEM());
+    assertFalse(c.toPEM().isEmpty());
+
+    assertNotNull(c.toPEMString());
 
     assertNotNull(c.getX509CertificateBytes());
 
@@ -429,6 +442,11 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.toPEM());
+    assertFalse(c.toPEM().isEmpty());
+
+    assertNotNull(c.toPEMString());
 
     assertNotNull(c.getX509CertificateBytes());
 
@@ -534,6 +552,11 @@ public final class X509CertificateTestCase
 
     assertNotNull(c.toString());
 
+    assertNotNull(c.toPEM());
+    assertFalse(c.toPEM().isEmpty());
+
+    assertNotNull(c.toPEMString());
+
     assertNotNull(c.getX509CertificateBytes());
 
     assertNotNull(c.getSHA1Fingerprint());
@@ -636,6 +659,11 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.toPEM());
+    assertFalse(c.toPEM().isEmpty());
+
+    assertNotNull(c.toPEMString());
 
     assertNotNull(c.getX509CertificateBytes());
 
@@ -760,6 +788,11 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.toPEM());
+    assertFalse(c.toPEM().isEmpty());
+
+    assertNotNull(c.toPEMString());
 
     assertNotNull(c.getX509CertificateBytes());
 
@@ -1564,6 +1597,11 @@ public final class X509CertificateTestCase
 
     assertNotNull(c.toString());
 
+    assertNotNull(c.toPEM());
+    assertFalse(c.toPEM().isEmpty());
+
+    assertNotNull(c.toPEMString());
+
     assertNotNull(c.getX509CertificateBytes());
 
     assertNotNull(c.getSHA1Fingerprint());
@@ -1600,6 +1638,11 @@ public final class X509CertificateTestCase
          publicKey.encode(), publicKey, null, null);
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.toPEM());
+    assertFalse(c.toPEM().isEmpty());
+
+    assertNotNull(c.toPEMString());
 
     assertNotNull(c.getX509CertificateBytes());
 
@@ -1647,11 +1690,12 @@ public final class X509CertificateTestCase
          SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID());
 
     assertNotNull(x509Certificate.getSignatureAlgorithmName());
-    assertEquals(x509Certificate.getSignatureAlgorithmName(), "SHA256withRSA");
+    assertEquals(x509Certificate.getSignatureAlgorithmName(),
+         "SHA-256 with RSA");
 
     assertNotNull(x509Certificate.getSignatureAlgorithmNameOrOID());
     assertEquals(x509Certificate.getSignatureAlgorithmNameOrOID(),
-         "SHA256withRSA");
+         "SHA-256 with RSA");
 
     assertNotNull(x509Certificate.getIssuerDN());
     assertEquals(x509Certificate.getIssuerDN(),
@@ -1756,11 +1800,11 @@ public final class X509CertificateTestCase
 
     assertNotNull(x509Certificate.getSignatureAlgorithmName());
     assertEquals(x509Certificate.getSignatureAlgorithmName(),
-         "SHA256withECDSA");
+         "SHA-256 with ECDSA");
 
     assertNotNull(x509Certificate.getSignatureAlgorithmNameOrOID());
     assertEquals(x509Certificate.getSignatureAlgorithmNameOrOID(),
-         "SHA256withECDSA");
+         "SHA-256 with ECDSA");
 
     assertNotNull(x509Certificate.getIssuerDN());
     assertEquals(x509Certificate.getIssuerDN(),
@@ -2452,5 +2496,115 @@ public final class X509CertificateTestCase
 
     assertFalse(serverCert.isIssuerFor(serverCert));
     assertFalse(serverCert.isIssuerFor(serverCert, new StringBuilder()));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a valid self-signed RSA
+   * certificate.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGenerateSelfSignedRSACertificateValid()
+         throws Exception
+  {
+    final ObjectPair<X509Certificate,KeyPair> p =
+         X509Certificate.generateSelfSignedCertificate(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA,
+              PublicKeyAlgorithmIdentifier.RSA, 2048,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              System.currentTimeMillis(),
+              System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+
+    assertNotNull(p);
+
+    final X509Certificate c = p.getFirst();
+    assertNotNull(c);
+
+    final KeyPair kp = p.getSecond();
+    assertNotNull(kp);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a self-signed RSA certificate with
+   * an invalid key size.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testGenerateSelfSignedRSACertificateInvalidKeySize()
+         throws Exception
+  {
+    X509Certificate.generateSelfSignedCertificate(
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA,
+         PublicKeyAlgorithmIdentifier.RSA, 1,
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+         new SubjectAlternativeNameExtension(false,
+              new GeneralNamesBuilder().addDNSName(
+                   "ldap.example.com").build()));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a valid self-signed elliptic curve
+   * certificate.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGenerateSelfSignedECCertificateValid()
+         throws Exception
+  {
+    final ObjectPair<X509Certificate,KeyPair> p =
+         X509Certificate.generateSelfSignedCertificate(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_ECDSA,
+              PublicKeyAlgorithmIdentifier.EC, 256,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              System.currentTimeMillis(),
+              System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+
+    assertNotNull(p);
+
+    final X509Certificate c = p.getFirst();
+    assertNotNull(c);
+
+    final KeyPair kp = p.getSecond();
+    assertNotNull(kp);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a self-signed elliptic curve
+   * certificate with an invalid key size.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testGenerateSelfSignedECCertificateInvalidKeySize()
+         throws Exception
+  {
+    X509Certificate.generateSelfSignedCertificate(
+         SignatureAlgorithmIdentifier.SHA_256_WITH_ECDSA,
+         PublicKeyAlgorithmIdentifier.EC, -1234,
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+         new SubjectAlternativeNameExtension(false,
+              new GeneralNamesBuilder().addDNSName(
+                   "ldap.example.com").build()));
   }
 }

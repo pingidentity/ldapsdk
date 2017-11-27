@@ -32,7 +32,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 /**
  * This class defines the parent class for a decoded private key that may appear
- * in a PKCS#8 private key object.
+ * in a PKCS #8 private key object.
  */
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)

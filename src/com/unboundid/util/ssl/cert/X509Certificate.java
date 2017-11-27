@@ -25,7 +25,11 @@ package com.unboundid.util.ssl.cert;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
+import java.security.PrivateKey;
+import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -37,6 +41,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import com.unboundid.asn1.ASN1BigInteger;
 import com.unboundid.asn1.ASN1BitString;
@@ -46,6 +51,7 @@ import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1GeneralizedTime;
 import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1ObjectIdentifier;
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1Set;
 import com.unboundid.asn1.ASN1UTCTime;
@@ -54,9 +60,11 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.OID;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -340,7 +348,8 @@ public final class X509Certificate
     }
     else
     {
-      signatureAlgorithmName = signatureAlgorithmIdentifier.getName();
+      signatureAlgorithmName =
+           signatureAlgorithmIdentifier.getUserFriendlyName();
     }
 
     final PublicKeyAlgorithmIdentifier publicKeyAlgorithmIdentifier =
@@ -496,7 +505,8 @@ public final class X509Certificate
     }
     else
     {
-      signatureAlgorithmName = signatureAlgorithmIdentifier.getName();
+      signatureAlgorithmName =
+           signatureAlgorithmIdentifier.getUserFriendlyName();
     }
 
     try
@@ -1098,6 +1108,532 @@ public final class X509Certificate
       return new ASN1Sequence(
            new ASN1GeneralizedTime(notBefore),
            new ASN1GeneralizedTime(notAfter));
+    }
+  }
+
+
+
+  /**
+   * Generates a self-signed X.509 certificate with the provided information.
+   *
+   * @param  signatureAlgorithm  The algorithm to use to generate the signature.
+   *                             This must not be {@code null}.
+   * @param  publicKeyAlgorithm  The algorithm to use to generate the key pair.
+   *                             This must not be {@code null}.
+   * @param  keySizeBits         The size of the key to generate, in bits.
+   * @param  subjectDN           The subject DN for the certificate.  This must
+   *                             not be {@code null}.
+   * @param  notBefore           The validity start time for the certificate.
+   * @param  notAfter            The validity end time for the certificate.
+   * @param  extensions          The set of extensions to include in the
+   *                             certificate.  This may be {@code null} or empty
+   *                             if the certificate should not include any
+   *                             custom extensions.  Note that the generated
+   *                             certificate will automatically include a
+   *                             {@link SubjectKeyIdentifierExtension}, so that
+   *                             should not be provided.
+   *
+   * @return  An {@code ObjectPair} that contains both the self-signed
+   *          certificate and its corresponding key pair.
+   *
+   * @throws  CertException  If a problem is encountered while creating the
+   *                         certificate.
+   */
+  public static ObjectPair<X509Certificate,KeyPair>
+              generateSelfSignedCertificate(
+                   final SignatureAlgorithmIdentifier signatureAlgorithm,
+                   final PublicKeyAlgorithmIdentifier publicKeyAlgorithm,
+                   final int keySizeBits, final DN subjectDN,
+                   final long notBefore, final long notAfter,
+                   final X509CertificateExtension... extensions)
+         throws CertException
+  {
+    // Generate the keypair for the certificate.
+    final KeyPairGenerator keyPairGenerator;
+    try
+    {
+      keyPairGenerator =
+           KeyPairGenerator.getInstance(publicKeyAlgorithm.getName());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_SELF_SIGNED_CANNOT_GET_KEY_GENERATOR.get(
+                publicKeyAlgorithm.getName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    try
+    {
+      keyPairGenerator.initialize(keySizeBits);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_SELF_SIGNED_INVALID_KEY_SIZE.get(keySizeBits,
+                publicKeyAlgorithm.getName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    final KeyPair keyPair;
+    try
+    {
+      keyPair = keyPairGenerator.generateKeyPair();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_SELF_SIGNED_CANNOT_GENERATE_KEY_PAIR.get(
+                keySizeBits, publicKeyAlgorithm.getName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Generate the certificate and return it along with the key pair.
+    final X509Certificate certificate = generateSelfSignedCertificate(
+         signatureAlgorithm, keyPair, subjectDN, notBefore, notAfter,
+         extensions);
+    return new ObjectPair<>(certificate, keyPair);
+  }
+
+
+
+  /**
+   * Generates a self-signed X.509 certificate with the provided information.
+   *
+   * @param  signatureAlgorithm  The algorithm to use to generate the signature.
+   *                             This must not be {@code null}.
+   * @param  keyPair             The key pair for the certificate.  This must
+   *                             not be {@code null}.
+   * @param  subjectDN           The subject DN for the certificate.  This must
+   *                             not be {@code null}.
+   * @param  notBefore           The validity start time for the certificate.
+   * @param  notAfter            The validity end time for the certificate.
+   * @param  extensions          The set of extensions to include in the
+   *                             certificate.  This may be {@code null} or empty
+   *                             if the certificate should not include any
+   *                             custom extensions.  Note that the generated
+   *                             certificate will automatically include a
+   *                             {@link SubjectKeyIdentifierExtension}, so that
+   *                             should not be provided.
+   *
+   * @return  An {@code ObjectPair} that contains both the self-signed
+   *          certificate and its corresponding key pair.
+   *
+   * @throws  CertException  If a problem is encountered while creating the
+   *                         certificate.
+   */
+  public static X509Certificate generateSelfSignedCertificate(
+                   final SignatureAlgorithmIdentifier signatureAlgorithm,
+                   final KeyPair keyPair, final DN subjectDN,
+                   final long notBefore, final long notAfter,
+                   final X509CertificateExtension... extensions)
+         throws CertException
+  {
+    // Extract the parameters and encoded public key from the generated key
+    // pair.  And while we're at it, generate a subject key identifier from
+    // the encoded public key.
+    DecodedPublicKey decodedPublicKey = null;
+    final ASN1BitString encodedPublicKey;
+    final ASN1Element publicKeyAlgorithmParameters;
+    final byte[] subjectKeyIdentifier;
+    final OID publicKeyAlgorithmOID;
+    try
+    {
+      final ASN1Element[] pkElements = ASN1Sequence.decodeAsSequence(
+           keyPair.getPublic().getEncoded()).elements();
+      final ASN1Element[] pkAlgIDElements = ASN1Sequence.decodeAsSequence(
+           pkElements[0]).elements();
+      publicKeyAlgorithmOID =
+           pkAlgIDElements[0].decodeAsObjectIdentifier().getOID();
+      if (pkAlgIDElements.length == 1)
+      {
+        publicKeyAlgorithmParameters = null;
+      }
+      else
+      {
+        publicKeyAlgorithmParameters = pkAlgIDElements[1];
+      }
+
+      encodedPublicKey = pkElements[1].decodeAsBitString();
+
+      try
+      {
+        if (publicKeyAlgorithmOID.equals(
+             PublicKeyAlgorithmIdentifier.RSA.getOID()))
+        {
+          decodedPublicKey = new RSAPublicKey(encodedPublicKey);
+        }
+        else if (publicKeyAlgorithmOID.equals(
+             PublicKeyAlgorithmIdentifier.EC.getOID()))
+        {
+          decodedPublicKey = new EllipticCurvePublicKey(encodedPublicKey);
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+
+      final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+      subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_SELF_SIGNED_CANNOT_PARSE_KEY_PAIR.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Construct the set of all extensions for the certificate.
+    final ArrayList<X509CertificateExtension> extensionList =
+         new ArrayList<>(10);
+    extensionList.add(new SubjectKeyIdentifierExtension(false,
+         new ASN1OctetString(subjectKeyIdentifier)));
+    if (extensions != null)
+    {
+      for (final X509CertificateExtension e : extensions)
+      {
+        if (! e.getOID().equals(SubjectKeyIdentifierExtension.
+             SUBJECT_KEY_IDENTIFIER_OID))
+        {
+          extensionList.add(e);
+        }
+      }
+    }
+
+    final X509CertificateExtension[] allExtensions =
+         new X509CertificateExtension[extensionList.size()];
+    extensionList.toArray(allExtensions);
+
+
+    // Encode the tbsCertificate sequence for the certificate and use it to
+    // generate the certificate's signature.
+    final BigInteger serialNumber = generateSerialNumber();
+    final ASN1BitString encodedSignature = generateSignature(signatureAlgorithm,
+         keyPair.getPrivate(), serialNumber, subjectDN, notBefore, notAfter,
+         subjectDN, publicKeyAlgorithmOID, publicKeyAlgorithmParameters,
+         encodedPublicKey, allExtensions);
+
+
+    // Construct and return the signed certificate and the private key.
+    return new X509Certificate(X509CertificateVersion.V3, serialNumber,
+         signatureAlgorithm.getOID(), null, encodedSignature, subjectDN,
+         notBefore, notAfter, subjectDN, publicKeyAlgorithmOID,
+         publicKeyAlgorithmParameters, encodedPublicKey, decodedPublicKey, null,
+         null, allExtensions);
+  }
+
+
+
+  /**
+   * Generates an issuer-signed X.509 certificate with the provided information.
+   *
+   * @param  signatureAlgorithm
+   *              The algorithm to use to generate the signature.  This must not
+   *              be {@code null}.
+   * @param  issuerCertificate
+   *              The certificate for the issuer.  This must not be
+   *              {@code null}.
+   * @param  issuerPrivateKey
+   *              The private key for the issuer.  This  must not be
+   *              {@code null}.
+   * @param  publicKeyAlgorithmOID
+   *              The OID for the certificate's public key algorithm.  This must
+   *              not be {@code null}.
+   * @param  publicKeyAlgorithmParameters
+   *              The encoded public key algorithm parameters for the
+   *              certificate.  This may be {@code null} if there are no
+   *              parameters.
+   * @param  encodedPublicKey
+   *              The encoded public key for the certificate.  This must not be
+   *              {@code null}.
+   * @param  decodedPublicKey
+   *              The decoded public key for the certificate.  This may be
+   *              {@code null} if it is not available.
+   * @param  subjectDN
+   *              The subject DN for the certificate.  This must not be
+   *              {@code null}.
+   * @param  notBefore
+   *              The validity start time for the certificate.
+   * @param  notAfter
+   *              The validity end time for the certificate.
+   * @param  extensions
+   *              The set of extensions to include in the certificate.  This
+   *              may be {@code null} or empty if the certificate should not
+   *              include any custom extensions.  Note that the generated
+   *              certificate will automatically include a
+   *              {@link SubjectKeyIdentifierExtension}, so that should not be
+   *              provided.  In addition, if the issuer certificate includes its
+   *              own {@code SubjectKeyIdentifierExtension}, then its value will
+   *              be used to generate an
+   *              {@link AuthorityKeyIdentifierExtension}.
+   *
+   * @return  The issuer-signed certificate.
+   *
+   * @throws  CertException  If a problem is encountered while creating the
+   *                         certificate.
+   */
+  public static X509Certificate generateIssuerSignedCertificate(
+              final SignatureAlgorithmIdentifier signatureAlgorithm,
+              final X509Certificate issuerCertificate,
+              final PrivateKey issuerPrivateKey,
+              final OID publicKeyAlgorithmOID,
+              final ASN1Element publicKeyAlgorithmParameters,
+              final ASN1BitString encodedPublicKey,
+              final DecodedPublicKey decodedPublicKey, final DN subjectDN,
+              final long notBefore, final long notAfter,
+              final X509CertificateExtension... extensions)
+         throws CertException
+  {
+    // Generate a subject key identifier from the encoded public key.
+    final byte[] subjectKeyIdentifier;
+    try
+    {
+      final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+      subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_ISSUER_SIGNED_CANNOT_GENERATE_KEY_ID.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // If the issuer certificate contains a subject key identifier, then
+    // extract it to use as the authority key identifier.
+    ASN1OctetString authorityKeyIdentifier = null;
+    for (final X509CertificateExtension e : issuerCertificate.extensions)
+    {
+      if (e instanceof SubjectKeyIdentifierExtension)
+      {
+        authorityKeyIdentifier =
+             ((SubjectKeyIdentifierExtension) e).getKeyIdentifier();
+      }
+    }
+
+
+    // Construct the set of all extensions for the certificate.
+    final ArrayList<X509CertificateExtension> extensionList =
+         new ArrayList<>(10);
+    extensionList.add(new SubjectKeyIdentifierExtension(false,
+         new ASN1OctetString(subjectKeyIdentifier)));
+
+    if (authorityKeyIdentifier == null)
+    {
+      extensionList.add(new AuthorityKeyIdentifierExtension(false, null,
+           new GeneralNamesBuilder().addDirectoryName(
+                issuerCertificate.subjectDN).build(),
+           issuerCertificate.serialNumber));
+    }
+    else
+    {
+      extensionList.add(new AuthorityKeyIdentifierExtension(false,
+           authorityKeyIdentifier, null, null));
+    }
+
+    if (extensions != null)
+    {
+      for (final X509CertificateExtension e : extensions)
+      {
+        if (e.getOID().equals(
+             SubjectKeyIdentifierExtension.SUBJECT_KEY_IDENTIFIER_OID) ||
+            e.getOID().equals(
+                 AuthorityKeyIdentifierExtension.AUTHORITY_KEY_IDENTIFIER_OID))
+        {
+          continue;
+        }
+
+        extensionList.add(e);
+      }
+    }
+
+    final X509CertificateExtension[] allExtensions =
+         new X509CertificateExtension[extensionList.size()];
+    extensionList.toArray(allExtensions);
+
+
+    // Encode the tbsCertificate sequence for the certificate and use it to
+    // generate the certificate's signature.
+    final BigInteger serialNumber = generateSerialNumber();
+    final ASN1BitString encodedSignature = generateSignature(signatureAlgorithm,
+         issuerPrivateKey, serialNumber, issuerCertificate.subjectDN, notBefore,
+         notAfter, subjectDN, publicKeyAlgorithmOID,
+         publicKeyAlgorithmParameters, encodedPublicKey, allExtensions);
+
+
+    // Construct and return the signed certificate.
+    return new X509Certificate(X509CertificateVersion.V3, serialNumber,
+         signatureAlgorithm.getOID(), null, encodedSignature,
+         issuerCertificate.subjectDN, notBefore, notAfter, subjectDN,
+         publicKeyAlgorithmOID, publicKeyAlgorithmParameters, encodedPublicKey,
+         decodedPublicKey, null, null, allExtensions);
+  }
+
+
+
+  /**
+   * Generates a serial number for the certificate.
+   *
+   * @return  The generated serial number.
+   */
+  private static BigInteger generateSerialNumber()
+  {
+    final UUID uuid = UUID.randomUUID();
+    final long msb = uuid.getMostSignificantBits() & 0x7FFFFFFFFFFFFFFFL;
+    final long lsb = uuid.getLeastSignificantBits() & 0x7FFFFFFFFFFFFFFFL;
+    return BigInteger.valueOf(msb).shiftLeft(64).add(BigInteger.valueOf(lsb));
+  }
+
+
+
+  /**
+   * Generates a signature for the certificate with the provided information.
+   *
+   * @param  signatureAlgorithm            The signature algorithm to use to
+   *                                       generate the signature.  This must
+   *                                       not be {@code null}.
+   * @param  privateKey                    The private key to use to sign the
+   *                                       certificate.  This must not be
+   *                                       {@code null}.
+   * @param  serialNumber                  The serial number for the
+   *                                       certificate.  This must not be
+   *                                       {@code null}.
+   * @param  issuerDN                      The issuer DN for the certificate.
+   *                                       This must not be {@code null}.
+   * @param  notBefore                     The validity start time for the
+   *                                       certificate.
+   * @param  notAfter                      The validity end time for the
+   *                                       certificate.
+   * @param  subjectDN                     The subject DN for the certificate.
+   *                                       This must not be {@code null}.
+   * @param  publicKeyAlgorithmOID         The OID for the public key algorithm.
+   *                                       This must not be {@code null}.
+   * @param  publicKeyAlgorithmParameters  The encoded public key algorithm
+   *                                       parameters.  This may be
+   *                                       {@code null} if no parameters are
+   *                                       needed.
+   * @param  encodedPublicKey              The encoded representation of the
+   *                                       public key.  This must not be
+   *                                       {@code null}.
+   * @param  extensions                    The set of extensions to include in
+   *                                       the certificate.  This must not be
+   *                                       {@code null} but may be empty.
+   *
+   * @return  An encoded representation of the generated signature.
+   *
+   * @throws  CertException  If a problem is encountered while generating the
+   *                         certificate.
+   */
+  private static ASN1BitString generateSignature(
+                      final SignatureAlgorithmIdentifier signatureAlgorithm,
+                      final PrivateKey privateKey,
+                      final BigInteger serialNumber,
+                      final DN issuerDN, final long notBefore,
+                      final long notAfter, final DN subjectDN,
+                      final OID publicKeyAlgorithmOID,
+                      final ASN1Element publicKeyAlgorithmParameters,
+                      final ASN1BitString encodedPublicKey,
+                      final X509CertificateExtension... extensions)
+          throws CertException
+  {
+    // Get and initialize the signature generator.
+    final Signature signature;
+    try
+    {
+      signature = Signature.getInstance(signatureAlgorithm.getJavaName());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_SIGNATURE_CANNOT_GET_SIGNATURE_GENERATOR.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    try
+    {
+      signature.initSign(privateKey);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_SIGNATURE_CANNOT_INIT_SIGNATURE_GENERATOR.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Construct the tbsCertificate element of the certificate and compute its
+    // signature.
+    try
+    {
+      final ArrayList<ASN1Element> tbsCertificateElements = new ArrayList<>(8);
+      tbsCertificateElements.add(new ASN1Element(TYPE_EXPLICIT_VERSION,
+           new ASN1Integer(X509CertificateVersion.V3.getIntValue()).encode()));
+      tbsCertificateElements.add(new ASN1BigInteger(serialNumber));
+      tbsCertificateElements.add(new ASN1Sequence(
+           new ASN1ObjectIdentifier(signatureAlgorithm.getOID())));
+      tbsCertificateElements.add(encodeName(issuerDN));
+      tbsCertificateElements.add(encodeValiditySequence(notBefore, notAfter));
+      tbsCertificateElements.add(encodeName(subjectDN));
+
+      if (publicKeyAlgorithmParameters == null)
+      {
+        tbsCertificateElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID)),
+             encodedPublicKey));
+      }
+      else
+      {
+        tbsCertificateElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
+                  publicKeyAlgorithmParameters),
+             encodedPublicKey));
+      }
+
+      final ArrayList<ASN1Element> extensionElements =
+           new ArrayList<>(extensions.length);
+      for (final X509CertificateExtension e : extensions)
+      {
+        extensionElements.add(e.encode());
+      }
+      tbsCertificateElements.add(new ASN1Element(TYPE_EXPLICIT_EXTENSIONS,
+           new ASN1Sequence(extensionElements).encode()));
+
+      final byte[] tbsCertificateBytes =
+           new ASN1Sequence(tbsCertificateElements).getValue();
+      signature.update(tbsCertificateBytes);
+      final byte[] signatureBytes = signature.sign();
+
+      return new ASN1BitString(ASN1BitString.getBitsForBytes(signatureBytes));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_SIGNATURE_CANNOT_COMPUTE.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -1803,5 +2339,54 @@ public final class X509Certificate
     }
 
     buffer.append("')");
+  }
+
+
+
+  /**
+   * Retrieves a list of the lines that comprise a PEM representation of this
+   * X.509 certificate.
+   *
+   * @return  A list of the lines that comprise a PEM representation of this
+   *          X.509 certificate.
+   */
+  public List<String> toPEM()
+  {
+    final ArrayList<String> lines = new ArrayList<>(10);
+    lines.add("-----BEGIN CERTIFICATE-----");
+
+    final String certBase64 = Base64.encode(x509CertificateBytes);
+    lines.addAll(StaticUtils.wrapLine(certBase64, 64));
+
+    lines.add("-----END CERTIFICATE-----");
+
+    return Collections.unmodifiableList(lines);
+  }
+
+
+
+  /**
+   * Retrieves a multi-line string containing a PEM representation of this X.509
+   * certificate.
+   *
+   * @return  A multi-line string containing a PEM representation of this X.509
+   *          certificate.
+   */
+  public String toPEMString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append("-----BEGIN CERTIFICATE-----");
+    buffer.append(StaticUtils.EOL);
+
+    final String certBase64 = Base64.encode(x509CertificateBytes);
+    for (final String line : StaticUtils.wrapLine(certBase64, 64))
+    {
+      buffer.append(line);
+      buffer.append(StaticUtils.EOL);
+    }
+    buffer.append("-----END CERTIFICATE-----");
+    buffer.append(StaticUtils.EOL);
+
+    return buffer.toString();
   }
 }

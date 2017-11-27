@@ -28,6 +28,8 @@ import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.unboundid.asn1.ASN1BitString;
 import com.unboundid.asn1.ASN1Element;
@@ -35,6 +37,7 @@ import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1ObjectIdentifier;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
+import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.OID;
@@ -48,7 +51,7 @@ import static com.unboundid.util.ssl.cert.CertMessages.*;
 
 /**
  * This class provides support for decoding an X.509 private key encoded in the
- * PKCS#8 format as defined in
+ * PKCS #8 format as defined in
  * <A HREF="https://www.ietf.org/rfc/rfc5958.txt">RFC 5958</A>.  The private key
  * is encoded using the ASN.1 Distinguished Encoding Rules (DER), which is a
  * subset of BER, and is supported by the code in the
@@ -131,7 +134,7 @@ public final class PKCS8PrivateKey
   // The encoded representation of the private key.
   private final ASN1OctetString encodedPrivateKey;
 
-  // The bytes that comprise the encoded representation of the PKCS#8 private
+  // The bytes that comprise the encoded representation of the PKCS #8 private
   // key.
   private final byte[] pkcs8PrivateKeyBytes;
 
@@ -141,7 +144,7 @@ public final class PKCS8PrivateKey
   // The OID for the private key algorithm.
   private final OID privateKeyAlgorithmOID;
 
-  // The PKCS#8 private key version.
+  // The PKCS #8 private key version.
   private final PKCS8PrivateKeyVersion version;
 
   // The private key algorithm name that corresponds with the private key
@@ -151,9 +154,9 @@ public final class PKCS8PrivateKey
 
 
   /**
-   * Creates a new PKCS#8 private key with the provided information.
+   * Creates a new PKCS #8 private key with the provided information.
    *
-   * @param  version                        The PKCS#8 private key version.
+   * @param  version                        The PKCS #8 private key version.
    *                                        This must not be {@code null}.
    * @param  privateKeyAlgorithmOID         The OID for the private key
    *                                        algorithm.  This must not be
@@ -215,13 +218,13 @@ public final class PKCS8PrivateKey
 
 
   /**
-   * Decodes the contents of the provided byte array as a PKCS#8 private key.
+   * Decodes the contents of the provided byte array as a PKCS #8 private key.
    *
-   * @param  privateKeyBytes  The byte array containing the encoded PKCS#8
+   * @param  privateKeyBytes  The byte array containing the encoded PKCS #8
    *                          private key.
    *
    * @throws  CertException  If the contents of the provided byte array could
-   *                         not be decoded as a valid PKCS#8 private key.
+   *                         not be decoded as a valid PKCS #8 private key.
    */
   public PKCS8PrivateKey(final byte[] privateKeyBytes)
          throws CertException
@@ -375,9 +378,9 @@ public final class PKCS8PrivateKey
 
 
   /**
-   * Encodes this PKCS#8 private key to an ASN.1 element.
+   * Encodes this PKCS #8 private key to an ASN.1 element.
    *
-   * @return  The encoded PKCS#8 private key.
+   * @return  The encoded PKCS #8 private key.
    *
    * @throws  CertException  If a problem is encountered while trying to encode
    *                         the X.509 certificate.
@@ -430,10 +433,10 @@ public final class PKCS8PrivateKey
 
 
   /**
-   * Retrieves the bytes that comprise the encoded representation of this PKCS#8
-   * private key.
+   * Retrieves the bytes that comprise the encoded representation of this
+   * PKCS #8 private key.
    *
-   * @return  The bytes that comprise the encoded representation of this PKCS#8
+   * @return  The bytes that comprise the encoded representation of this PKCS #8
    *          private key.
    */
   public byte[] getPKCS8PrivateKeyBytes()
@@ -568,11 +571,11 @@ public final class PKCS8PrivateKey
 
 
   /**
-   * Converts this PKCS#8 private key object to a Java {@code PrivateKey}
+   * Converts this PKCS #8 private key object to a Java {@code PrivateKey}
    * object.
    *
-   * @return  The Java {@code PrivateKey} object that corresponds to this PKCS#8
-   *          private key.
+   * @return  The Java {@code PrivateKey} object that corresponds to this
+   *          PKCS #8 private key.
    *
    * @throws  GeneralSecurityException  If a problem is encountered while
    *                                    performing the conversion.
@@ -654,5 +657,54 @@ public final class PKCS8PrivateKey
     }
 
     buffer.append("')");
+  }
+
+
+
+  /**
+   * Retrieves a list of the lines that comprise a PEM representation of this
+   * certificate signing request.
+   *
+   * @return  A list of the lines that comprise a PEM representation of this
+   *          certificate signing request.
+   */
+  public List<String> toPEM()
+  {
+    final ArrayList<String> lines = new ArrayList<>(10);
+    lines.add("-----BEGIN PRIVATE KEY-----");
+
+    final String keyBase64 = Base64.encode(pkcs8PrivateKeyBytes);
+    lines.addAll(StaticUtils.wrapLine(keyBase64, 64));
+
+    lines.add("-----END PRIVATE KEY-----");
+
+    return Collections.unmodifiableList(lines);
+  }
+
+
+
+  /**
+   * Retrieves a multi-line string containing a PEM representation of this
+   * certificate signing request.
+   *
+   * @return  A multi-line string containing a PEM representation of this
+   *          certificate signing request.
+   */
+  public String toPEMString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append("-----BEGIN PRIVATE KEY-----");
+    buffer.append(StaticUtils.EOL);
+
+    final String keyBase64 = Base64.encode(pkcs8PrivateKeyBytes);
+    for (final String line : StaticUtils.wrapLine(keyBase64, 64))
+    {
+      buffer.append(line);
+      buffer.append(StaticUtils.EOL);
+    }
+    buffer.append("-----END PRIVATE KEY-----");
+    buffer.append(StaticUtils.EOL);
+
+    return buffer.toString();
   }
 }

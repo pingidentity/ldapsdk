@@ -38,7 +38,7 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the MD2 message digest with RSA encryption.
    * This identifier is defined in RFC 3279 section 2.2.1.
    */
-  MD2_WITH_RSA("1.2.840.113549.1.1.2", "MD2withRSA"),
+  MD2_WITH_RSA("1.2.840.113549.1.1.2", "MD2withRSA", "MD2 with RSA"),
 
 
 
@@ -46,7 +46,7 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the MD5 message digest with RSA encryption.
    * This identifier is defined in RFC 3279 section 2.2.1.
    */
-  MD5_WITH_RSA("1.2.840.113549.1.1.4", "MD5withRSA"),
+  MD5_WITH_RSA("1.2.840.113549.1.1.4", "MD5withRSA", "MD5 with RSA"),
 
 
 
@@ -54,7 +54,7 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the SHA-1 message digest with RSA encryption.
    * This identifier is defined in RFC 3279 section 2.2.1.
    */
-  SHA_1_WITH_RSA("1.2.840.113549.1.1.5", "SHA1withRSA"),
+  SHA_1_WITH_RSA("1.2.840.113549.1.1.5", "SHA1withRSA", "SHA-1 with RSA"),
 
 
 
@@ -62,7 +62,8 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the 224-bit SHA-2 message digest with RSA
    * encryption.  This identifier is defined in RFC 4055 section 5.
    */
-  SHA_224_WITH_RSA("1.2.840.113549.1.1.14", "SHA224withRSA"),
+  SHA_224_WITH_RSA("1.2.840.113549.1.1.14", "SHA224withRSA",
+       "SHA-224 with RSA"),
 
 
 
@@ -70,7 +71,8 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the 256-bit SHA-2 message digest with RSA
    * encryption.  This identifier is defined in RFC 4055 section 5.
    */
-  SHA_256_WITH_RSA("1.2.840.113549.1.1.11", "SHA256withRSA"),
+  SHA_256_WITH_RSA("1.2.840.113549.1.1.11", "SHA256withRSA",
+       "SHA-256 with RSA"),
 
 
 
@@ -78,7 +80,8 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the 384-bit SHA-2 message digest with RSA
    * encryption.  This identifier is defined in RFC 4055 section 5.
    */
-  SHA_384_WITH_RSA("1.2.840.113549.1.1.12", "SHA384withRSA"),
+  SHA_384_WITH_RSA("1.2.840.113549.1.1.12", "SHA384withRSA",
+       "SHA-384 with RSA"),
 
 
 
@@ -86,7 +89,8 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the 512-bit SHA-2 message digest with RSA
    * encryption.  This identifier is defined in RFC 4055 section 5.
    */
-  SHA_512_WITH_RSA("1.2.840.113549.1.1.13", "SHA512withRSA"),
+  SHA_512_WITH_RSA("1.2.840.113549.1.1.13", "SHA512withRSA",
+       "SHA-512 with RSA"),
 
 
 
@@ -94,7 +98,7 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the SHA-1 message digest with the DSA
    * signature algorithm.  This identifier is defined in RFC 3279 section 2.2.2.
    */
-  SHA_1_WITH_DSA("1.2.840.10040.4.3", "SHA1withDSA"),
+  SHA_1_WITH_DSA("1.2.840.10040.4.3", "SHA1withDSA", "SHA-1 with DSA"),
 
 
 
@@ -102,7 +106,8 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the 224-bit SHA-2 message digest with the DSA
    * signature algorithm.  This identifier is defined in RFC 5758 section 3.1.
    */
-  SHA_224_WITH_DSA("2.16.840.1.101.3.4.3.1", "SHA224withDSA"),
+  SHA_224_WITH_DSA("2.16.840.1.101.3.4.3.1", "SHA224withDSA",
+       "SHA-224 with DSA"),
 
 
 
@@ -110,7 +115,8 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the 256-bit SHA-2 message digest with the DSA
    * signature algorithm.  This identifier is defined in RFC 5758 section 3.1.
    */
-  SHA_256_WITH_DSA("2.16.840.1.101.3.4.3.2", "SHA256withDSA"),
+  SHA_256_WITH_DSA("2.16.840.1.101.3.4.3.2", "SHA256withDSA",
+       "SHA-256 with DSA"),
 
 
 
@@ -118,7 +124,7 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the SHA-1 message digest with the ECDSA
    * signature algorithm.  This identifier is defined in RFC 3279 section 2.2.3.
    */
-  SHA_1_WITH_ECDSA("1.2.840.10045.4.1", "SHA1withECDSA"),
+  SHA_1_WITH_ECDSA("1.2.840.10045.4.1", "SHA1withECDSA", "SHA-1 with ECDSA"),
 
 
 
@@ -127,7 +133,8 @@ public enum SignatureAlgorithmIdentifier
    * ECDSA signature algorithm.  This identifier is defined in RFC 5758 section
    * 3.2.
    */
-  SHA_224_WITH_ECDSA("1.2.840.10045.4.3.1", "SHA224withECDSA"),
+  SHA_224_WITH_ECDSA("1.2.840.10045.4.3.1", "SHA224withECDSA",
+       "SHA-224 with ECDSA"),
 
 
 
@@ -136,7 +143,8 @@ public enum SignatureAlgorithmIdentifier
    * ECDSA signature algorithm.  This identifier is defined in RFC 5758 section
    * 3.2.
    */
-  SHA_256_WITH_ECDSA("1.2.840.10045.4.3.2", "SHA256withECDSA"),
+  SHA_256_WITH_ECDSA("1.2.840.10045.4.3.2", "SHA256withECDSA",
+       "SHA-256 with ECDSA"),
 
 
 
@@ -145,7 +153,8 @@ public enum SignatureAlgorithmIdentifier
    * ECDSA signature algorithm.  This identifier is defined in RFC 5758 section
    * 3.2.
    */
-  SHA_384_WITH_ECDSA("1.2.840.10045.4.3.3", "SHA384withECDSA"),
+  SHA_384_WITH_ECDSA("1.2.840.10045.4.3.3", "SHA384withECDSA",
+       "SHA-384 with ECDSA"),
 
 
 
@@ -154,28 +163,38 @@ public enum SignatureAlgorithmIdentifier
    * ECDSA signature algorithm.  This identifier is defined in RFC 5758 section
    * 3.2.
    */
-  SHA_512_WITH_ECDSA("1.2.840.10045.4.3.4", "SHA512withECDSA");
+  SHA_512_WITH_ECDSA("1.2.840.10045.4.3.4", "SHA512withECDSA",
+       "SHA-512 with ECDSA");
 
 
 
   // The OID for this signature algorithm.
   private final OID oid;
 
-  // The name for this signature algorithm.
-  private final String name;
+  // The name for this signature algorithm as it would be used internally by
+  // Java.
+  private final String javaName;
+
+  // The user-friendly name for this signature algorithm.
+  private final String userFriendlyName;
 
 
 
   /**
    * Creates a new signature algorithm with the provided information.
    *
-   * @param  oidString  The string representation of the OID for this signature
-   *                    algorithm.
-   * @param  name       The name for this signature algorithm.
+   * @param  oidString         The string representation of the OID for this
+   *                           signature algorithm.
+   * @param  javaName          The name for this signature algorithm as it would
+   *                           be used internally by Java.
+   * @param  userFriendlyName  The user-friendly name for this signature
+   *                           algorithm.
    */
-  SignatureAlgorithmIdentifier(final String oidString, final String name)
+  SignatureAlgorithmIdentifier(final String oidString, final String javaName,
+                               final String userFriendlyName)
   {
-    this.name = name;
+    this.javaName = javaName;
+    this.userFriendlyName = userFriendlyName;
 
     oid = new OID(oidString);
   }
@@ -195,13 +214,27 @@ public enum SignatureAlgorithmIdentifier
 
 
   /**
-   * Retrieves the name for this signature algorithm.
+   * Retrieves the name for this signature algorithm as it would be used
+   * internally by Java.
    *
-   * @return  The name for this signature algorithm.
+   * @return  The name for this signature algorithm as it would be used
+   *          internally by Java.
    */
-  public String getName()
+  public String getJavaName()
   {
-    return name;
+    return javaName;
+  }
+
+
+
+  /**
+   * Retrieves the user-friendly name for this signature algorithm.
+   *
+   * @return  The user-friendly name for this signature algorithm.
+   */
+  public String getUserFriendlyName()
+  {
+    return userFriendlyName;
   }
 
 
@@ -233,13 +266,72 @@ public enum SignatureAlgorithmIdentifier
 
 
   /**
-   * Retrieves the human-readable name for the signature algorithm identifier
+   * Retrieves the signature algorithm identifier instance with the specified
+   * name.
+   *
+   * @param  name  The name of the signature algorithm identifier instance to
+   *               retrieve.
+   *
+   * @return  The appropriate signature algorithm identifier instance, or
+   *          {@code null} if the provided name does not reference a known
+   *          signature algorithm identifier.
+   */
+  public static SignatureAlgorithmIdentifier forName(final String name)
+  {
+    final String preparedName = prepareName(name);
+    for (final SignatureAlgorithmIdentifier v : values())
+    {
+      if (v.javaName.equalsIgnoreCase(preparedName))
+      {
+        return v;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
+   * Prepares the provided name to be used by the {@link #forName(String)}
+   * method.  All spaces, dashes, and underscores will be removed.
+   *
+   * @param  name  The name to be compared.
+   *
+   * @return  The prepared version of the provided name.
+   */
+  private static String prepareName(final String name)
+  {
+    final StringBuilder buffer = new StringBuilder(name.length());
+
+    for (final char c : name.toCharArray())
+    {
+      switch (c)
+      {
+        case ' ':
+        case '-':
+        case '_':
+          // This character will be omitted.
+          break;
+        default:
+          // This character will be used.
+          buffer.append(c);
+      }
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Retrieves the user-friendly name for the signature algorithm identifier
    * value with the provided OID, or a string representation of the OID if there
    * is no value with that OID.
    *
    * @param  oid  The OID for the signature algorithm identifier to retrieve.
    *
-   * @return  The human-readable name for the signature algorithm identifier
+   * @return  The user-friendly name for the signature algorithm identifier
    *          value with the provided OID, or a string representation of the OID
    *          if there is no value with that OID.
    */
@@ -252,7 +344,20 @@ public enum SignatureAlgorithmIdentifier
     }
     else
     {
-      return id.name;
+      return id.userFriendlyName;
     }
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this signature algorithm identifier.
+   *
+   * @return  A string representation of this signature algorithm identifier.
+   */
+  @Override()
+  public String toString()
+  {
+    return userFriendlyName;
   }
 }

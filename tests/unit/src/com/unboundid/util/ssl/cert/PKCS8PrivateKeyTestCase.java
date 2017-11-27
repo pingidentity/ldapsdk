@@ -130,6 +130,11 @@ public final class PKCS8PrivateKeyTestCase
 
     assertNotNull(privateKey.toString());
 
+    assertNotNull(privateKey.toPEM());
+    assertFalse(privateKey.toPEM().isEmpty());
+
+    assertNotNull(privateKey.toPEMString());
+
     assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
 
     assertNotNull(privateKey.toPrivateKey());
@@ -207,6 +212,11 @@ public final class PKCS8PrivateKeyTestCase
 
     assertNotNull(privateKey.toString());
 
+    assertNotNull(privateKey.toPEM());
+    assertFalse(privateKey.toPEM().isEmpty());
+
+    assertNotNull(privateKey.toPEMString());
+
     assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }
 
@@ -250,6 +260,11 @@ public final class PKCS8PrivateKeyTestCase
     assertNull(privateKey.getDecodedPrivateKey());
 
     assertNotNull(privateKey.toString());
+
+    assertNotNull(privateKey.toPEM());
+    assertFalse(privateKey.toPEM().isEmpty());
+
+    assertNotNull(privateKey.toPEMString());
 
     assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }
@@ -435,6 +450,11 @@ public final class PKCS8PrivateKeyTestCase
     assertNull(privateKey.getPublicKey());
 
     assertNotNull(privateKey.toString());
+
+    assertNotNull(privateKey.toPEM());
+    assertFalse(privateKey.toPEM().isEmpty());
+
+    assertNotNull(privateKey.toPEMString());
   }
 
 
@@ -486,6 +506,11 @@ public final class PKCS8PrivateKeyTestCase
 
     assertNotNull(privateKey.toString());
 
+    assertNotNull(privateKey.toPEM());
+    assertFalse(privateKey.toPEM().isEmpty());
+
+    assertNotNull(privateKey.toPEMString());
+
     assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }
 
@@ -510,6 +535,11 @@ public final class PKCS8PrivateKeyTestCase
          new ASN1Null(), ecPrivateKey.encode(), ecPrivateKey, null, null);
 
     assertNotNull(privateKey.toString());
+
+    assertNotNull(privateKey.toPEM());
+    assertFalse(privateKey.toPEM().isEmpty());
+
+    assertNotNull(privateKey.toPEMString());
 
     assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }

@@ -28,36 +28,36 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * This enum defines a set of supported PKCS#8 private key versions.
+ * This enum defines a set of supported PKCS #8 private key versions.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum PKCS8PrivateKeyVersion
 {
   /**
-   * The PKCS#8 v1 private key version.
+   * The PKCS #8 v1 private key version.
    */
   V1(0, "v1"),
 
 
 
   /**
-   * The PKCS#8 v2 private key version.
+   * The PKCS #8 v2 private key version.
    */
   V2(1, "v2");
 
 
 
   // The integer value for this private key version, as used in the encoded
-  // PKCS#8 private key.
+  // PKCS #8 private key.
   private final int intValue;
 
-  // The name for this PKCS#8 private key version.
+  // The name for this PKCS #8 private key version.
   private final String name;
 
 
 
   /**
-   * Creates a new PKCS#8 private key version with the provided information.
+   * Creates a new PKCS #8 private key version with the provided information.
    *
    * @param  intValue  The integer value for the private key version.  Note that
    *                   this is the integer value that is used in the encoded

@@ -23,6 +23,8 @@ package com.unboundid.util.ssl.cert;
 
 
 import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.util.ArrayList;
 
 import org.testng.annotations.Test;
@@ -78,6 +80,11 @@ public final class PKCS10CertificateSigningRequestTestCase
 
     assertNotNull(csr.toString());
 
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
+
     csr = new PKCS10CertificateSigningRequest(
          csr.getPKCS10CertificateSigningRequestBytes());
 
@@ -89,10 +96,10 @@ public final class PKCS10CertificateSigningRequestTestCase
          SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID());
 
     assertNotNull(csr.getSignatureAlgorithmName());
-    assertEquals(csr.getSignatureAlgorithmName(), "SHA256withRSA");
+    assertEquals(csr.getSignatureAlgorithmName(), "SHA-256 with RSA");
 
     assertNotNull(csr.getSignatureAlgorithmNameOrOID());
-    assertEquals(csr.getSignatureAlgorithmNameOrOID(), "SHA256withRSA");
+    assertEquals(csr.getSignatureAlgorithmNameOrOID(), "SHA-256 with RSA");
 
     assertNull(csr.getSignatureAlgorithmParameters());
 
@@ -126,6 +133,11 @@ public final class PKCS10CertificateSigningRequestTestCase
     assertNotNull(csr.getSignatureValue());
 
     assertNotNull(csr.toString());
+
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
   }
 
 
@@ -166,6 +178,11 @@ public final class PKCS10CertificateSigningRequestTestCase
 
     assertNotNull(csr.toString());
 
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
+
     csr = new PKCS10CertificateSigningRequest(
          csr.getPKCS10CertificateSigningRequestBytes());
 
@@ -177,10 +194,10 @@ public final class PKCS10CertificateSigningRequestTestCase
          SignatureAlgorithmIdentifier.SHA_256_WITH_ECDSA.getOID());
 
     assertNotNull(csr.getSignatureAlgorithmName());
-    assertEquals(csr.getSignatureAlgorithmName(), "SHA256withECDSA");
+    assertEquals(csr.getSignatureAlgorithmName(), "SHA-256 with ECDSA");
 
     assertNotNull(csr.getSignatureAlgorithmNameOrOID());
-    assertEquals(csr.getSignatureAlgorithmNameOrOID(), "SHA256withECDSA");
+    assertEquals(csr.getSignatureAlgorithmNameOrOID(), "SHA-256 with ECDSA");
 
     assertNotNull(csr.getSignatureAlgorithmParameters());
 
@@ -216,6 +233,11 @@ public final class PKCS10CertificateSigningRequestTestCase
     assertNotNull(csr.getSignatureValue());
 
     assertNotNull(csr.toString());
+
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
   }
 
 
@@ -237,6 +259,11 @@ public final class PKCS10CertificateSigningRequestTestCase
          new ASN1BitString(false, true, false, true, false), null, null);
 
     assertNotNull(csr.toString());
+
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
 
     csr = new PKCS10CertificateSigningRequest(
          csr.getPKCS10CertificateSigningRequestBytes());
@@ -281,6 +308,11 @@ public final class PKCS10CertificateSigningRequestTestCase
     assertNotNull(csr.getSignatureValue());
 
     assertNotNull(csr.toString());
+
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
   }
 
 
@@ -319,6 +351,11 @@ public final class PKCS10CertificateSigningRequestTestCase
                    "ldap.example.com").build()));
 
     assertNotNull(csr.toString());
+
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
   }
 
 
@@ -623,5 +660,211 @@ public final class PKCS10CertificateSigningRequestTestCase
                         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.
                              getOID())),
               new ASN1OctetString()).encode());
+  }
+
+
+
+  /**
+   * Tests the {@code generateCertificateSigningRequest} method with an RSA key
+   * pair.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGenerateCertificateSigningRequestWithRSAPair()
+         throws Exception
+  {
+    final KeyPairGenerator keyPairGenerator =
+         KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+    final KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    final PKCS10CertificateSigningRequest csr =
+         PKCS10CertificateSigningRequest.generateCertificateSigningRequest(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA, keyPair,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+
+    assertNotNull(csr);
+
+    assertNotNull(csr.getVersion());
+    assertEquals(csr.getVersion(), PKCS10CertificateSigningRequestVersion.V1);
+
+    assertNotNull(csr.getSignatureAlgorithmOID());
+    assertEquals(csr.getSignatureAlgorithmOID(),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID());
+
+    assertNotNull(csr.getSignatureAlgorithmName());
+    assertEquals(csr.getSignatureAlgorithmName(),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getUserFriendlyName());
+
+    assertNotNull(csr.getSignatureAlgorithmNameOrOID());
+    assertEquals(csr.getSignatureAlgorithmNameOrOID(),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getUserFriendlyName());
+
+    assertNull(csr.getSignatureAlgorithmParameters());
+
+    assertNotNull(csr.getSignatureValue());
+
+    assertNotNull(csr.getSubjectDN());
+    assertEquals(csr.getSubjectDN(),
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
+
+    assertNotNull(csr.getPublicKeyAlgorithmOID());
+    assertEquals(csr.getPublicKeyAlgorithmOID(),
+         PublicKeyAlgorithmIdentifier.RSA.getOID());
+
+    assertNotNull(csr.getPublicKeyAlgorithmName());
+    assertEquals(csr.getPublicKeyAlgorithmName(),
+         PublicKeyAlgorithmIdentifier.RSA.getName());
+
+    assertNotNull(csr.getPublicKeyAlgorithmNameOrOID());
+    assertEquals(csr.getPublicKeyAlgorithmNameOrOID(),
+         PublicKeyAlgorithmIdentifier.RSA.getName());
+
+    assertNotNull(csr.getPublicKeyAlgorithmParameters());
+
+    assertNotNull(csr.getEncodedPublicKey());
+
+    assertNotNull(csr.getDecodedPublicKey());
+
+    assertNotNull(csr.getRequestAttributes());
+    assertFalse(csr.getRequestAttributes().isEmpty());
+
+    assertNotNull(csr.getExtensions());
+    assertFalse(csr.getExtensions().isEmpty());
+
+    boolean sanFound = false;
+    boolean skiFound = false;
+    for (final X509CertificateExtension e : csr.getExtensions())
+    {
+      if (e instanceof SubjectAlternativeNameExtension)
+      {
+        assertFalse(sanFound);
+        sanFound = true;
+      }
+      else if (e instanceof SubjectKeyIdentifierExtension)
+      {
+        assertFalse(skiFound);
+        skiFound = true;
+      }
+      else
+      {
+        fail("Unexpected extension found in PKCS #10 certificate signing " +
+             "request:  " + e);
+      }
+    }
+
+    assertNotNull(csr.toString());
+
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
+  }
+
+
+
+  /**
+   * Tests the {@code generateCertificateSigningRequest} method with an elliptic
+   * curve key pair.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGenerateCertificateSigningRequestWithECPair()
+         throws Exception
+  {
+    final KeyPairGenerator keyPairGenerator =
+         KeyPairGenerator.getInstance("EC");
+    keyPairGenerator.initialize(256);
+    final KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    final PKCS10CertificateSigningRequest csr =
+         PKCS10CertificateSigningRequest.generateCertificateSigningRequest(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_ECDSA, keyPair,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+
+    assertNotNull(csr);
+
+    assertNotNull(csr.getVersion());
+    assertEquals(csr.getVersion(), PKCS10CertificateSigningRequestVersion.V1);
+
+    assertNotNull(csr.getSignatureAlgorithmOID());
+    assertEquals(csr.getSignatureAlgorithmOID(),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_ECDSA.getOID());
+
+    assertNotNull(csr.getSignatureAlgorithmName());
+    assertEquals(csr.getSignatureAlgorithmName(),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_ECDSA.getUserFriendlyName());
+
+    assertNotNull(csr.getSignatureAlgorithmNameOrOID());
+    assertEquals(csr.getSignatureAlgorithmNameOrOID(),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_ECDSA.getUserFriendlyName());
+
+    assertNull(csr.getSignatureAlgorithmParameters());
+
+    assertNotNull(csr.getSignatureValue());
+
+    assertNotNull(csr.getSubjectDN());
+    assertEquals(csr.getSubjectDN(),
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"));
+
+    assertNotNull(csr.getPublicKeyAlgorithmOID());
+    assertEquals(csr.getPublicKeyAlgorithmOID(),
+         PublicKeyAlgorithmIdentifier.EC.getOID());
+
+    assertNotNull(csr.getPublicKeyAlgorithmName());
+    assertEquals(csr.getPublicKeyAlgorithmName(),
+         PublicKeyAlgorithmIdentifier.EC.getName());
+
+    assertNotNull(csr.getPublicKeyAlgorithmNameOrOID());
+    assertEquals(csr.getPublicKeyAlgorithmNameOrOID(),
+         PublicKeyAlgorithmIdentifier.EC.getName());
+
+    assertNotNull(csr.getPublicKeyAlgorithmParameters());
+
+    assertNotNull(csr.getEncodedPublicKey());
+
+    assertNotNull(csr.getDecodedPublicKey());
+
+    assertNotNull(csr.getRequestAttributes());
+    assertFalse(csr.getRequestAttributes().isEmpty());
+
+    assertNotNull(csr.getExtensions());
+    assertFalse(csr.getExtensions().isEmpty());
+
+    boolean sanFound = false;
+    boolean skiFound = false;
+    for (final X509CertificateExtension e : csr.getExtensions())
+    {
+      if (e instanceof SubjectAlternativeNameExtension)
+      {
+        assertFalse(sanFound);
+        sanFound = true;
+      }
+      else if (e instanceof SubjectKeyIdentifierExtension)
+      {
+        assertFalse(skiFound);
+        skiFound = true;
+      }
+      else
+      {
+        fail("Unexpected extension found in PKCS #10 certificate signing " +
+             "request:  " + e);
+      }
+    }
+
+    assertNotNull(csr.toString());
+
+    assertNotNull(csr.toPEM());
+    assertFalse(csr.toPEM().isEmpty());
+
+    assertNotNull(csr.toPEMString());
   }
 }
