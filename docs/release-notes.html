@@ -6,6 +6,179 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.2</h3>
+
+              <p>
+                The following changes were made between the 4.0.1 and 4.0.2 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new <tt>manage-certificates</tt> tool that can be used to simplify the
+                  management of client and server certificates in Java keystores.  It serves as a
+                  user-friendly replacement for the Java keytool utility, and it offers features
+                  that keytool does not, including support for importing and exporting private
+                  keys, a simplified interface for trusting a TLS server certificate, and a
+                  mechanism for reporting on the suitability of a specified certificate for use as
+                  a TLS server certificate.  The <tt>com.unboundid.util.ssl.cert</tt> package
+                  includes a number of utility classes that can also be used to interact with
+                  keys, certificates, and certificate signing requests.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>Entry.diff</tt> method to make it possible to perform a
+                  byte-for-byte comparison of attribute values instead of using the matching rule
+                  associated with each attribute type.  This makes it possible to detect changes
+                  that result in a logically-equivalent value, like replacing the value of a
+                  case-insensitive attribute with a value that differs only in capitalization.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>PasswordReader.readPasswordChars</tt> method that can be used to
+                  read a password as a character array.  It was previously only possible to read a
+                  password as a byte array.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>LDAPConnection.closeWithoutUnbind</tt> method that can be used
+                  to close a connection without first sending an LDAP unbind request.  This
+                  practice is generally discouraged, but it can be useful in cases where it is
+                  known that the connection is no longer valid, and especially in cases where an
+                  attempt to send a request over the connection could cause the client to block.
+                  Connection pool implementations have been updated to use this method whenever
+                  they are closing a connection that is believed to be invalid.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved support for validating object identifiers.  While the LDAP SDK offered
+                  some support for determining whether a string represented a valid numeric OID,
+                  there were some types of validation that it did not perform.  In particular, it
+                  did not check to ensure that the numeric OID had at least two components, that
+                  the first component had a value between zero and two, or that the second
+                  component had a value between zero and thirty-nine if the first component had a
+                  value of zero or one.  The <tt>OID</tt> class now provides an option for
+                  performing this more strict validation.  There is also a new
+                  <tt>OIDArgumentValueValidator</tt> class that can be used to ensure that a
+                  command-line argument represents a valid OID, and this validator can operate
+                  either with or without this new strict validation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug that could cause the LDAP SDK to leak a connection if it is
+                  configured with an <tt>SSLSocketVerifier</tt> and that verifier rejects the
+                  connection for some reason.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug that could cause the LDAP SDK to unnecessarily block for the full
+                  response timeout duration if an error occurred while attempting to send a
+                  simple bind request on a connection configured to operate in synchronous mode.
+                  At present, the only known circumstance in which the problem might appear is the
+                  case in which the connection is configured with an <tt>SSLSocketFactory</tt> and
+                  the server does not provide any response whatsoever to the attempt to begin TLS
+                  negotiation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for new ASN.1 element types, including bit string, object
+                  identifier, generalized time, UTC time, UTF-8 string, IA5 string, printable
+                  string, and numeric string.  Also, added support for a new integer variant that
+                  is backed by Java's <tt>BigInteger</tt> class and allows for integer values of
+                  any magnitude.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>ASN1Element</tt> class to add methods to make it easier to
+                  determine the BER type class for an element and to determine whether the
+                  primitive/constructed bit is set.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for a new uniqueness request control that can be used to indicate
+                  that the associated add, modify, or modify DN request should be rejected if the
+                  server detects that it would introduce a value that is already in use in the
+                  server.  This is a nonstandard control that is currently only supported by the
+                  Ping Identity Directory Server.  The <tt>ldapmodify</tt> tool has been updated
+                  to make it possible to send requests that include this control.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server to include support for the
+                  UnboundID-proprietary ignore NO-USER-MODIFICATION request control.  This
+                  control can be included in an add request to permit the client to set values for
+                  attributes that are typically only allowed to be set by the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the password policy state extended operation to add new operation types
+                  that make it possible to determine whether the target user has a static
+                  password, and the <tt>manage-account</tt> tool has been updated to support this
+                  operation.  In addition, a new account usability notice has been added that can
+                  be included in an account usability response if the target user does not have a
+                  static password.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the argument parser to add the ability to hide subcommand names and
+                  argument identifiers.  For convenience, you can assign multiple names to the
+                  same subcommand, and you can assign multiple identifiers to the same argument.
+                  In the past, all subcommand names and argument identifiers would be displayed in
+                  the usage information, but this could result in a lot of clutter.  There may be
+                  cases in which you want to allow multiple values but not display them all in the
+                  usage.  When adding an additional subcommand name or argument identifier, you
+                  can now indicate whether it should be omitted from the tool's generated usage
+                  information.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the quality of LDAP request debug messages.  The messages will now
+                  include the internal connection ID, connection name, connection pool name, the
+                  address and port of the server to which the request is being sent, and the LDAP
+                  message ID for the request.  The debug messages for abandon and unbind requests
+                  are now more consistent with the debug messages for other types of requests,
+                  and the LDAP SDK now does a better job of debugging SASL bind requests.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the OID reference to include the OID for the UnboundID-proprietary
+                  password update behavior request control.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the set of LDAP-related specifications to include specifications for
+                  certificate-related RFCs, including 2986 (PKCS #10), 5208 (PKCS #8),
+                  5280 (X.509), 7292 (PKCS #12), and 8017 (PKCS #1).
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the set of LDAP-related specifications to include the most recent
+                  revisions of the draft-seantek-ldap-pkcs9 and draft-kille-ldap-xmpp-schema
+                  drafts.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
+
               <h3>Version 4.0.1</h3>
 
               <p>
