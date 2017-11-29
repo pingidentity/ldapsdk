@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
 import com.unboundid.ldap.sdk.transformations.TransformLDIF;
+import com.unboundid.util.ssl.cert.ManageCertificates;
 
 
 
@@ -59,8 +60,6 @@ import com.unboundid.ldap.sdk.transformations.TransformLDIF;
  * <UL>
  *   <LI>authrate -- Launch the {@link AuthRate} tool.</LI>
  *   <LI>base64 -- Launch the {@link Base64Tool} tool.</LI>
- *   <LI>in-memory-directory-server -- Launch the
- *       {@link InMemoryDirectoryServerTool} tool.</LI>
  *   <LI>generate-schema-from-source -- Launch the
  *       {@link GenerateSchemaFromSource} tool.</LI>
  *   <LI>generate-source-from-schema -- Launch the
@@ -75,6 +74,7 @@ import com.unboundid.ldap.sdk.transformations.TransformLDIF;
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
+ *   <LI>manage-certificates -- Launch the {@link ManageCertificates} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
  *   <LI>search-and-mod-rate -- Launch the {@link SearchAndModRate} tool.</LI>
@@ -193,6 +193,11 @@ public final class Launcher
     {
       return LDAPDebugger.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("manage-certificates"))
+    {
+      return ManageCertificates.main(System.in, outStream, errStream,
+           remainingArgs);
+    }
     else if (firstArg.equals("modrate"))
     {
       return ModRate.main(remainingArgs, outStream, errStream);
@@ -222,15 +227,16 @@ public final class Launcher
         err.println("Supported tool names include:");
         err.println("     authrate");
         err.println("     base64");
+        err.println("     generate-schema-from-source");
+        err.println("     generate-source-from-schema");
         err.println("     identify-references-to-missing-entries");
         err.println("     identify-unique-attribute-conflicts");
         err.println("     in-memory-directory-server");
-        err.println("     generate-schema-from-source");
-        err.println("     generate-source-from-schema");
         err.println("     ldapcompare");
         err.println("     ldapmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
+        err.println("     manage-certificates");
         err.println("     modrate");
         err.println("     searchrate");
         err.println("     search-and-mod-rate");

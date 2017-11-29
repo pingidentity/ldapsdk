@@ -134,6 +134,7 @@ public final class LauncherTestCase
       new Object[] { "ldapsearch" },
       new Object[] { "ldap-debugger" },
       new Object[] { "manage-account" },
+      new Object[] { "manage-certificates" },
       new Object[] { "modrate" },
       new Object[] { "move-subtree" },
       new Object[] { "register-yubikey-otp-device" },

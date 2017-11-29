@@ -52,6 +52,7 @@ import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.ssl.cert.ManageCertificates;
 
 
 
@@ -100,6 +101,7 @@ import com.unboundid.util.ThreadSafetyLevel;
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
  *   <LI>manage-account -- Launch the {@link ManageAccount} tool.</LI>
+ *   <LI>manage-certificates -- Launch the {@link ManageCertificates} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>move-subtree -- Launch the {@link MoveSubtree} tool.</LI>
  *   <LI>register-yubikey-otp-device -- Launch the
@@ -247,6 +249,11 @@ public final class Launcher
     {
       return ManageAccount.main(outStream, errStream, remainingArgs);
     }
+    else if (firstArg.equals("manage-certificates"))
+    {
+      return ManageCertificates.main(System.in, outStream, errStream,
+           remainingArgs);
+    }
     else if (firstArg.equals("modrate"))
     {
       return ModRate.main(remainingArgs, outStream, errStream);
@@ -299,17 +306,18 @@ public final class Launcher
         err.println("     deliver-one-time-password");
         err.println("     deliver-password-reset-token");
         err.println("     dump-dns");
-        err.println("     identify-references-to-missing-entries");
-        err.println("     identify-unique-attribute-conflicts");
-        err.println("     in-memory-directory-server");
         err.println("     generate-schema-from-source");
         err.println("     generate-source-from-schema");
         err.println("     generate-totp-shared-secret");
+        err.println("     identify-references-to-missing-entries");
+        err.println("     identify-unique-attribute-conflicts");
+        err.println("     in-memory-directory-server");
         err.println("     ldapcompare");
         err.println("     ldapmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
         err.println("     manage-account");
+        err.println("     manage-certificates");
         err.println("     modrate");
         err.println("     move-subtree");
         err.println("     register-yubikey-otp-device");
