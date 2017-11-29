@@ -142,13 +142,17 @@ public final class ManageCertificates
   {
     final String propertyValue =
          System.getProperty(PROPERTY_DEFAULT_KEYSTORE_TYPE);
-    if ((propertyValue != null) && propertyValue.equalsIgnoreCase("JKS"))
+    if ((propertyValue != null) &&
+        (propertyValue.equalsIgnoreCase("PKCS12") ||
+         propertyValue.equalsIgnoreCase("PKCS#12") ||
+         propertyValue.equalsIgnoreCase("PKCS #12") ||
+         propertyValue.equalsIgnoreCase("PKCS 12")))
     {
-      DEFAULT_KEYSTORE_TYPE = "JKS";
+      DEFAULT_KEYSTORE_TYPE = "PKCS12";
     }
     else
     {
-      DEFAULT_KEYSTORE_TYPE = "PKCS12";
+      DEFAULT_KEYSTORE_TYPE = "JKS";
     }
   }
 
@@ -951,7 +955,9 @@ public final class ManageCertificates
          new LinkedHashSet<>(2);
     importCertKeystoreTypeAllowedValues.add("jks");
     importCertKeystoreTypeAllowedValues.add("pkcs12");
+    importCertKeystoreTypeAllowedValues.add("pkcs 12");
     importCertKeystoreTypeAllowedValues.add("pkcs#12");
+    importCertKeystoreTypeAllowedValues.add("pkcs #12");
     final StringArgument importCertKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_KS_TYPE_DESC.get(),
@@ -1359,7 +1365,9 @@ public final class ManageCertificates
          new LinkedHashSet<>(2);
     genCertKeystoreTypeAllowedValues.add("jks");
     genCertKeystoreTypeAllowedValues.add("pkcs12");
+    genCertKeystoreTypeAllowedValues.add("pkcs 12");
     genCertKeystoreTypeAllowedValues.add("pkcs#12");
+    genCertKeystoreTypeAllowedValues.add("pkcs #12");
     final StringArgument genCertKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_KS_TYPE_DESC.get(),
@@ -1866,7 +1874,9 @@ public final class ManageCertificates
          new LinkedHashSet<>(2);
     genCSRKeystoreTypeAllowedValues.add("jks");
     genCSRKeystoreTypeAllowedValues.add("pkcs12");
+    genCSRKeystoreTypeAllowedValues.add("pkcs 12");
     genCSRKeystoreTypeAllowedValues.add("pkcs#12");
+    genCSRKeystoreTypeAllowedValues.add("pkcs #12");
     final StringArgument genCSRKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_KS_TYPE_DESC.get(),
@@ -3403,7 +3413,9 @@ public final class ManageCertificates
          new LinkedHashSet<>(2);
     trustServerKeystoreTypeAllowedValues.add("jks");
     trustServerKeystoreTypeAllowedValues.add("pkcs12");
+    trustServerKeystoreTypeAllowedValues.add("pkcs 12");
     trustServerKeystoreTypeAllowedValues.add("pkcs#12");
+    trustServerKeystoreTypeAllowedValues.add("pkcs #12");
     final StringArgument trustServerKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_TRUST_SERVER_ARG_KS_TYPE_DESC.get(),
@@ -10237,7 +10249,9 @@ public final class ManageCertificates
       {
         final String ktaValue = keystoreTypeArgument.getValue();
         if (ktaValue.equalsIgnoreCase("PKCS12") ||
-            ktaValue.equalsIgnoreCase("PKCS#12"))
+            ktaValue.equalsIgnoreCase("PKCS 12") ||
+            ktaValue.equalsIgnoreCase("PKCS#12") ||
+            ktaValue.equalsIgnoreCase("PKCS #12"))
         {
           return "PKCS12";
         }
@@ -10317,6 +10331,7 @@ public final class ManageCertificates
       return "JKS";
     }
     else if (keystoreType.equalsIgnoreCase("PKCS12") ||
+         keystoreType.equalsIgnoreCase("PKCS 12") ||
          keystoreType.equalsIgnoreCase("PKCS#12") ||
          keystoreType.equalsIgnoreCase("PKCS #12"))
     {
