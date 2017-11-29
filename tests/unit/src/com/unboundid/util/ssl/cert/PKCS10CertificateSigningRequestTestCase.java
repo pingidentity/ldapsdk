@@ -757,6 +757,8 @@ public final class PKCS10CertificateSigningRequestTestCase
       }
     }
 
+    csr.verifySignature();
+
     assertNotNull(csr.toString());
 
     assertNotNull(csr.toPEM());
@@ -860,11 +862,153 @@ public final class PKCS10CertificateSigningRequestTestCase
       }
     }
 
+    csr.verifySignature();
+
     assertNotNull(csr.toString());
 
     assertNotNull(csr.toPEM());
     assertFalse(csr.toPEM().isEmpty());
 
     assertNotNull(csr.toPEMString());
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with a malformed
+   * public key.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureMalformedPublicKey()
+         throws Exception
+  {
+    final PKCS10CertificateSigningRequest csr =
+         new PKCS10CertificateSigningRequest(
+              PKCS10CertificateSigningRequestVersion.V1,
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+              new ASN1Null(), new ASN1BitString(true, false, true, false),
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              PublicKeyAlgorithmIdentifier.RSA.getOID(), new ASN1Null(),
+              new ASN1BitString(false, true, false, true), null, null);
+    csr.verifySignature();
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with an unknown
+   * signature algorithm.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureUnknownSignatureAlgorithm()
+         throws Exception
+  {
+    final KeyPairGenerator keyPairGenerator =
+         KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+    final KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    PKCS10CertificateSigningRequest csr =
+         PKCS10CertificateSigningRequest.generateCertificateSigningRequest(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA, keyPair,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+
+    final X509CertificateExtension[] extensions =
+         new X509CertificateExtension[csr.getExtensions().size()];
+    csr.getExtensions().toArray(extensions);
+
+    csr = new PKCS10CertificateSigningRequest(csr.getVersion(),
+         new OID("1.2.3.4"), csr.getSignatureAlgorithmParameters(),
+         csr.getSignatureValue(), csr.getSubjectDN(),
+         csr.getPublicKeyAlgorithmOID(), csr.getPublicKeyAlgorithmParameters(),
+         csr.getEncodedPublicKey(), csr.getDecodedPublicKey(), null,
+         extensions);
+
+    csr.verifySignature();
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with a signature
+   * that isn't formatted properly.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureMalformedSignature()
+         throws Exception
+  {
+    final KeyPairGenerator keyPairGenerator =
+         KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+    final KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    PKCS10CertificateSigningRequest csr =
+         PKCS10CertificateSigningRequest.generateCertificateSigningRequest(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA, keyPair,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+
+    final X509CertificateExtension[] extensions =
+         new X509CertificateExtension[csr.getExtensions().size()];
+    csr.getExtensions().toArray(extensions);
+
+    csr = new PKCS10CertificateSigningRequest(csr.getVersion(),
+         csr.getSignatureAlgorithmOID(), null,
+         new ASN1BitString(true, false, true, false, true),
+         csr.getSubjectDN(), csr.getPublicKeyAlgorithmOID(), null,
+         csr.getEncodedPublicKey(), csr.getDecodedPublicKey(), null,
+         extensions);
+
+    csr.verifySignature();
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with an invalid
+   * signature.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureInvalidSignature()
+         throws Exception
+  {
+    final KeyPairGenerator keyPairGenerator =
+         KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+    final KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    PKCS10CertificateSigningRequest csr =
+         PKCS10CertificateSigningRequest.generateCertificateSigningRequest(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA, keyPair,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+
+    final X509CertificateExtension[] extensions =
+         new X509CertificateExtension[csr.getExtensions().size()];
+    csr.getExtensions().toArray(extensions);
+
+    csr = new PKCS10CertificateSigningRequest(csr.getVersion(),
+         csr.getSignatureAlgorithmOID(), null,
+         new ASN1BitString(ASN1BitString.getBitsForBytes(new byte[256])),
+         csr.getSubjectDN(), csr.getPublicKeyAlgorithmOID(),
+         csr.getPublicKeyAlgorithmParameters(), csr.getEncodedPublicKey(),
+         csr.getDecodedPublicKey(), null, extensions);
+
+    csr.verifySignature();
   }
 }

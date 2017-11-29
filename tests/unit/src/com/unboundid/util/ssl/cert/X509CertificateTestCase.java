@@ -2526,6 +2526,8 @@ public final class X509CertificateTestCase
     final X509Certificate c = p.getFirst();
     assertNotNull(c);
 
+    c.verifySignature(null);
+
     final KeyPair kp = p.getSecond();
     assertNotNull(kp);
   }
@@ -2581,6 +2583,8 @@ public final class X509CertificateTestCase
     final X509Certificate c = p.getFirst();
     assertNotNull(c);
 
+    c.verifySignature(null);
+
     final KeyPair kp = p.getSecond();
     assertNotNull(kp);
   }
@@ -2606,5 +2610,234 @@ public final class X509CertificateTestCase
          new SubjectAlternativeNameExtension(false,
               new GeneralNamesBuilder().addDNSName(
                    "ldap.example.com").build()));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with a self-signed
+   * certificate when that certificate is provided as the issuer.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testVerifySignatureSelfSignedNonNullIssuer()
+         throws Exception
+  {
+    final ObjectPair<X509Certificate,KeyPair> p =
+         X509Certificate.generateSelfSignedCertificate(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA,
+              PublicKeyAlgorithmIdentifier.RSA, 2048,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              System.currentTimeMillis(),
+              System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+
+    final X509Certificate c = p.getFirst();
+    c.verifySignature(c);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with a
+   * {@code null} issuer for a non-self-signed certificate.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureInvalidNullIssuer()
+         throws Exception
+  {
+    final X509Certificate cert = new X509Certificate(
+         X509CertificateVersion.V3, BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(), null,
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(), null,
+         new ASN1BitString(false, true, false, true, false), null, null, null);
+    cert.verifySignature(null);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with a malformed
+   * public key.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureMalformedPublicKey()
+         throws Exception
+  {
+    final X509Certificate cert = new X509Certificate(
+         X509CertificateVersion.V3, BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(), null,
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(), null,
+         new ASN1BitString(false, true, false, true, false), null, null, null);
+    cert.verifySignature(null);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with a signature
+   * algorithm OID that isn't a valid OID.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureInvalidSignatureAlgorithm()
+         throws Exception
+  {
+    final ObjectPair<X509Certificate,KeyPair> p =
+         X509Certificate.generateSelfSignedCertificate(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA,
+              PublicKeyAlgorithmIdentifier.RSA, 2048,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              System.currentTimeMillis(),
+              System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+    final X509Certificate c = p.getFirst();
+    final X509CertificateExtension[] extensions =
+         new X509CertificateExtension[c.getExtensions().size()];
+    c.getExtensions().toArray(extensions);
+
+    final X509Certificate cert = new X509Certificate(c.getVersion(),
+         c.getSerialNumber(), new OID("1234.5678"),
+         c.getSignatureAlgorithmParameters(),
+         new ASN1BitString(true, false, true, false, true),
+         c.getIssuerDN(), c.getNotBeforeTime(), c.getNotAfterTime(),
+         c.getSubjectDN(), c.getPublicKeyAlgorithmOID(), null,
+         c.getEncodedPublicKey(), c.getDecodedPublicKey(),
+         c.getIssuerUniqueID(), c.getSubjectUniqueID(), extensions);
+    cert.verifySignature(null);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with an
+   * unrecognized signature algorithm.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureUnrecognizedSignatureAlgorithm()
+         throws Exception
+  {
+    final ObjectPair<X509Certificate,KeyPair> p =
+         X509Certificate.generateSelfSignedCertificate(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA,
+              PublicKeyAlgorithmIdentifier.RSA, 2048,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              System.currentTimeMillis(),
+              System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+    final X509Certificate c = p.getFirst();
+    final X509CertificateExtension[] extensions =
+         new X509CertificateExtension[c.getExtensions().size()];
+    c.getExtensions().toArray(extensions);
+
+    final X509Certificate cert = new X509Certificate(c.getVersion(),
+         c.getSerialNumber(), new OID("1.2.3.4.5.6.7.8"),
+         c.getSignatureAlgorithmParameters(),
+         new ASN1BitString(true, false, true, false, true),
+         c.getIssuerDN(), c.getNotBeforeTime(), c.getNotAfterTime(),
+         c.getSubjectDN(), c.getPublicKeyAlgorithmOID(), null,
+         c.getEncodedPublicKey(), c.getDecodedPublicKey(),
+         c.getIssuerUniqueID(), c.getSubjectUniqueID(), extensions);
+    cert.verifySignature(null);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with a malformed
+   * signature.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureMalformedSignature()
+         throws Exception
+  {
+    final ObjectPair<X509Certificate,KeyPair> p =
+         X509Certificate.generateSelfSignedCertificate(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA,
+              PublicKeyAlgorithmIdentifier.RSA, 2048,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              System.currentTimeMillis(),
+              System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+    final X509Certificate c = p.getFirst();
+    final X509CertificateExtension[] extensions =
+         new X509CertificateExtension[c.getExtensions().size()];
+    c.getExtensions().toArray(extensions);
+
+    final X509Certificate cert = new X509Certificate(c.getVersion(),
+         c.getSerialNumber(), c.getSignatureAlgorithmOID(),
+         c.getSignatureAlgorithmParameters(),
+         new ASN1BitString(true, false, true, false, true),
+         c.getIssuerDN(), c.getNotBeforeTime(), c.getNotAfterTime(),
+         c.getSubjectDN(), c.getPublicKeyAlgorithmOID(), null,
+         c.getEncodedPublicKey(), c.getDecodedPublicKey(),
+         c.getIssuerUniqueID(), c.getSubjectUniqueID(), extensions);
+    cert.verifySignature(null);
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code verifySignature} method with an
+   * invalid signature.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testVerifySignatureInvalidSignature()
+         throws Exception
+  {
+    final ObjectPair<X509Certificate,KeyPair> p =
+         X509Certificate.generateSelfSignedCertificate(
+              SignatureAlgorithmIdentifier.SHA_256_WITH_RSA,
+              PublicKeyAlgorithmIdentifier.RSA, 2048,
+              new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+              System.currentTimeMillis(),
+              System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365L),
+              new SubjectAlternativeNameExtension(false,
+                   new GeneralNamesBuilder().addDNSName(
+                        "ldap.example.com").build()));
+    final X509Certificate c = p.getFirst();
+    final X509CertificateExtension[] extensions =
+         new X509CertificateExtension[c.getExtensions().size()];
+    c.getExtensions().toArray(extensions);
+
+    final X509Certificate cert = new X509Certificate(c.getVersion(),
+         c.getSerialNumber(), c.getSignatureAlgorithmOID(),
+         c.getSignatureAlgorithmParameters(),
+         new ASN1BitString(ASN1BitString.getBitsForBytes(new byte[256])),
+         c.getIssuerDN(), c.getNotBeforeTime(), c.getNotAfterTime(),
+         c.getSubjectDN(), c.getPublicKeyAlgorithmOID(), null,
+         c.getEncodedPublicKey(), c.getDecodedPublicKey(),
+         c.getIssuerUniqueID(), c.getSubjectUniqueID(), extensions);
+    cert.verifySignature(null);
   }
 }

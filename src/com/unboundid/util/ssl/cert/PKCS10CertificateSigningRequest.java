@@ -23,10 +23,13 @@ package com.unboundid.util.ssl.cert;
 
 
 import java.io.Serializable;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -835,8 +838,8 @@ public final class PKCS10CertificateSigningRequest
     }
 
 
-    // Construct the tbsCertificate element of the certificate and compute its
-    // signature.
+    // Construct the requestInfo element of the certificate signing request and
+    // compute its signature.
     try
     {
       final ArrayList<ASN1Element> requestInfoElements = new ArrayList<>(4);
@@ -1115,6 +1118,143 @@ public final class PKCS10CertificateSigningRequest
   public ASN1BitString getSignatureValue()
   {
     return signatureValue;
+  }
+
+
+
+  /**
+   * Verifies the signature for this certificate signing request.
+   *
+   * @throws  CertException  If the certificate signing request's signature
+   *                         could not be verified.
+   */
+  public void verifySignature()
+         throws CertException
+  {
+    // Generate the public key for this certificate signing request.
+    final PublicKey publicKey;
+    try
+    {
+      final byte[] encodedPublicKeyBytes;
+      if (publicKeyAlgorithmParameters == null)
+      {
+        encodedPublicKeyBytes = new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID)),
+             encodedPublicKey).encode();
+      }
+      else
+      {
+        encodedPublicKeyBytes = new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
+                  publicKeyAlgorithmParameters),
+             encodedPublicKey).encode();
+      }
+
+      final KeyFactory keyFactory =
+           KeyFactory.getInstance(getPublicKeyAlgorithmNameOrOID());
+      publicKey = keyFactory.generatePublic(
+           new X509EncodedKeySpec(encodedPublicKeyBytes));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CSR_VERIFY_SIGNATURE_CANNOT_GET_PUBLIC_KEY.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Get and initialize the signature generator.
+    final Signature signature;
+    final SignatureAlgorithmIdentifier signatureAlgorithm;
+    try
+    {
+      signatureAlgorithm =
+           SignatureAlgorithmIdentifier.forOID(signatureAlgorithmOID);
+      signature = Signature.getInstance(signatureAlgorithm.getJavaName());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CSR_VERIFY_SIGNATURE_CANNOT_GET_SIGNATURE_VERIFIER.get(
+                getSignatureAlgorithmNameOrOID(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    try
+    {
+      signature.initVerify(publicKey);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CSR_VERIFY_SIGNATURE_CANNOT_INIT_SIGNATURE_VERIFIER.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Construct the requestInfo element of the certificate signing request and
+    // compute its signature.
+    final boolean signatureIsValid;
+    try
+    {
+      final ArrayList<ASN1Element> requestInfoElements = new ArrayList<>(4);
+      requestInfoElements.add(new ASN1Integer(version.getIntValue()));
+      requestInfoElements.add(X509Certificate.encodeName(subjectDN));
+
+      if (publicKeyAlgorithmParameters == null)
+      {
+        requestInfoElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID)),
+             encodedPublicKey));
+      }
+      else
+      {
+        requestInfoElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
+                  publicKeyAlgorithmParameters),
+             encodedPublicKey));
+      }
+
+      final ArrayList<ASN1Element> attrElements =
+           new ArrayList<>(requestAttributes.size());
+      for (final ObjectPair<OID,ASN1Set> p : requestAttributes)
+      {
+        attrElements.add(new ASN1Sequence(
+             new ASN1ObjectIdentifier(p.getFirst()),
+             p.getSecond()));
+      }
+      requestInfoElements.add(new ASN1Set(TYPE_ATTRIBUTES, attrElements));
+
+      final byte[] certificationRequestInfoBytes =
+           new ASN1Sequence(requestInfoElements).getValue();
+      signature.update(certificationRequestInfoBytes);
+      signatureIsValid = signature.verify(signatureValue.getBytes());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CSR_VERIFY_SIGNATURE_ERROR.get(subjectDN,
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    if (! signatureIsValid)
+    {
+      throw new CertException(
+           ERR_CSR_VERIFY_SIGNATURE_NOT_VALID.get(subjectDN));
+    }
   }
 
 

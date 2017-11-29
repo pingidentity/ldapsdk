@@ -29,6 +29,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -1942,6 +1943,169 @@ public final class X509Certificate
   public ASN1BitString getSignatureValue()
   {
     return signatureValue;
+  }
+
+
+
+  /**
+   * Verifies the signature for this certificate.
+   *
+   * @param  issuerCertificate  The issuer certificate for this certificate.  It
+   *                            may be {@code null} if this is a self-signed
+   *                            certificate.  It must not be {@code null} if it
+   *                            is not a self-signed certificate.
+   *
+   * @throws  CertException  If the certificate signature could not be verified.
+   */
+  public void verifySignature(final X509Certificate issuerCertificate)
+         throws CertException
+  {
+    // Get the issuer certificate.  If the certificate is self-signed, then it
+    // might be the current certificate.
+    final X509Certificate issuer;
+    if (issuerCertificate == null)
+    {
+      if (isSelfSigned())
+      {
+        issuer = this;
+      }
+      else
+      {
+        throw new CertException(
+             ERR_CERT_VERIFY_SIGNATURE_ISSUER_CERT_NOT_PROVIDED.get());
+      }
+    }
+    else
+    {
+      issuer = issuerCertificate;
+    }
+
+
+    // Get the public key from the issuer certificate.
+    final PublicKey publicKey;
+    try
+    {
+      publicKey = issuer.toCertificate().getPublicKey();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_VERIFY_SIGNATURE_CANNOT_GET_PUBLIC_KEY.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Get and initialize the signature generator.
+    final Signature signature;
+    final SignatureAlgorithmIdentifier signatureAlgorithm;
+    try
+    {
+      signatureAlgorithm =
+           SignatureAlgorithmIdentifier.forOID(signatureAlgorithmOID);
+      signature = Signature.getInstance(signatureAlgorithm.getJavaName());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_VERIFY_SIGNATURE_CANNOT_GET_SIGNATURE_VERIFIER.get(
+                getSignatureAlgorithmNameOrOID(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    try
+    {
+      signature.initVerify(publicKey);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_VERIFY_SIGNATURE_CANNOT_INIT_SIGNATURE_VERIFIER.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    // Construct the tbsCertificate element of the certificate and compute its
+    // signature.
+    try
+    {
+      final ArrayList<ASN1Element> tbsCertificateElements = new ArrayList<>(8);
+      tbsCertificateElements.add(new ASN1Element(TYPE_EXPLICIT_VERSION,
+           new ASN1Integer(version.getIntValue()).encode()));
+      tbsCertificateElements.add(new ASN1BigInteger(serialNumber));
+      tbsCertificateElements.add(new ASN1Sequence(
+           new ASN1ObjectIdentifier(signatureAlgorithm.getOID())));
+      tbsCertificateElements.add(encodeName(issuerDN));
+      tbsCertificateElements.add(encodeValiditySequence(notBefore, notAfter));
+      tbsCertificateElements.add(encodeName(subjectDN));
+
+      if (publicKeyAlgorithmParameters == null)
+      {
+        tbsCertificateElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID)),
+             encodedPublicKey));
+      }
+      else
+      {
+        tbsCertificateElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
+                  publicKeyAlgorithmParameters),
+             encodedPublicKey));
+      }
+
+      final ArrayList<ASN1Element> extensionElements =
+           new ArrayList<>(extensions.size());
+      for (final X509CertificateExtension e : extensions)
+      {
+        extensionElements.add(e.encode());
+      }
+      tbsCertificateElements.add(new ASN1Element(TYPE_EXPLICIT_EXTENSIONS,
+           new ASN1Sequence(extensionElements).encode()));
+
+      final byte[] tbsCertificateBytes =
+           new ASN1Sequence(tbsCertificateElements).getValue();
+      signature.update(tbsCertificateBytes);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_GEN_SIGNATURE_CANNOT_COMPUTE.get(
+                signatureAlgorithm.getJavaName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+
+    try
+    {
+      if (! signature.verify(signatureValue.getBytes()))
+      {
+        throw new CertException(
+             ERR_CERT_VERIFY_SIGNATURE_NOT_VALID.get(subjectDN));
+      }
+    }
+    catch (final CertException ce)
+    {
+      Debug.debugException(ce);
+      throw ce;
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_VERIFY_SIGNATURE_ERROR.get(subjectDN,
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
   }
 
 

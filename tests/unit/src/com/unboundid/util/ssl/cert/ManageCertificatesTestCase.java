@@ -47,6 +47,7 @@ import java.util.Set;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.unboundid.asn1.ASN1BitString;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
@@ -3678,6 +3679,30 @@ public final class ManageCertificatesTestCase
          "--display-keytool-command");
 
 
+    // Tests the behavior when trying to sign a certificate signing request with
+    // an invalid signature.
+    csr = new PKCS10CertificateSigningRequest(
+         PKCS10CertificateSigningRequestVersion.V1,
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(), null,
+         new ASN1BitString(true, true, true, true, true, true, true, true),
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(), null,
+         new ASN1BitString(true, true, true, true, true, true, true, true),
+         null, null);
+    csrFile = createTempFile(csr.toPEMString());
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--output-format", "DER",
+         "--keystore", rootCAKeyStorePath,
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+
+
     // Tests the behavior when writing a certificate signing request to standard
     // output.
     manageCertificates(
@@ -4060,6 +4085,589 @@ public final class ManageCertificatesTestCase
          "--keystore-password", "password",
          "--current-alias", rootCACertificateAlias,
          "--new-alias", "new-" + rootCACertificateAlias,
+         "--display-keytool-command");
+  }
+
+
+
+  /**
+   * Provides test coverage for the change-keystore-password subcommand.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testChangeKeystorePassword()
+         throws Exception
+  {
+    // Tests changing the keystore password for a PKCS#12 keystore.
+    File ksFile = createTempFile();
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "PKCS12",
+         "--alias", rootCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    KeyStore keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         Collections.<String>emptySet());
+    assertEquals(getAliases(keystore, false, true),
+         setOf(rootCACertificateAlias));
+
+    manageCertificates(
+         "change-keystore-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--current-keystore-password", "password",
+         "--new-keystore-password", "new-password",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+
+    try
+    {
+      keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+      fail("Expected an exception when trying to open a keystore with the " +
+           "wrong password");
+    }
+    catch (final Exception e)
+    {
+      // This was expected.
+    }
+
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "new-password");
+
+
+    // Tests changing the keystore password for a JKS keystore.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", rootCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "JKS");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         Collections.<String>emptySet());
+    assertEquals(getAliases(keystore, false, true),
+         setOf(rootCACertificateAlias));
+
+    manageCertificates(
+         "change-keystore-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--current-keystore-password", "password",
+         "--new-keystore-password", "new-password",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+
+    try
+    {
+      keystore = getKeystore(ksFile.getAbsolutePath(), "JKS", "password");
+      fail("Expected an exception when trying to open a keystore with the " +
+           "wrong password");
+    }
+    catch (final Exception e)
+    {
+      // This was expected.
+    }
+
+    keystore = getKeystore(ksFile.getAbsolutePath(), "JKS", "new-password");
+
+
+    // Tests with the current and new passwords read from files.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "PKCS12",
+         "--alias", rootCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         Collections.<String>emptySet());
+    assertEquals(getAliases(keystore, false, true),
+         setOf(rootCACertificateAlias));
+
+    final String newPasswordFilePath =
+         createTempFile("new-password").getAbsolutePath();
+    manageCertificates(
+         "change-keystore-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--current-keystore-password-file", correctPasswordFilePath,
+         "--new-keystore-password-file", newPasswordFilePath,
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+
+    try
+    {
+      keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+      fail("Expected an exception when trying to open a keystore with the " +
+           "wrong password");
+    }
+    catch (final Exception e)
+    {
+      // This was expected.
+    }
+
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "new-password");
+
+
+    // Tests with the current and new passwords obtained interactively.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "PKCS12",
+         "--alias", rootCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         Collections.<String>emptySet());
+    assertEquals(getAliases(keystore, false, true),
+         setOf(rootCACertificateAlias));
+
+    PasswordReader.setTestReader(new BufferedReader(new InputStreamReader(
+         new ByteArrayInputStream(StaticUtils.getBytes(
+              "\npassword\nnew-password\nwrong\nshort\nnew-password\n" +
+                   "new-password\n")))));
+
+    try
+    {
+      manageCertificates(
+           "change-keystore-password",
+           "--keystore", ksFile.getAbsolutePath(),
+           "--prompt-for-current-keystore-password",
+           "--prompt-for-new-keystore-password",
+           "--display-keytool-command");
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
+
+    assertTrue(ksFile.exists());
+
+    try
+    {
+      keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+      fail("Expected an exception when trying to open a keystore with the " +
+           "wrong password");
+    }
+    catch (final Exception e)
+    {
+      // This was expected.
+    }
+
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "new-password");
+
+
+    // Tests with the wrong current password.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "PKCS12",
+         "--alias", rootCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         Collections.<String>emptySet());
+    assertEquals(getAliases(keystore, false, true),
+         setOf(rootCACertificateAlias));
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-keystore-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--current-keystore-password", "wrong",
+         "--new-keystore-password", "new-password",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+
+
+    // Tests with the current password read from an empty file.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-keystore-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--current-keystore-password-file", emptyPasswordFilePath,
+         "--new-keystore-password", "new-password",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+
+
+    // Tests with the new password read from an empty file.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-keystore-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--current-keystore-password-file", correctPasswordFilePath,
+         "--new-keystore-password-file", emptyPasswordFilePath,
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+
+
+    // Tests with a malformed keystore.
+    ksFile = createTempFile("this is not a valid keystore");
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-keystore-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--current-keystore-password", "password",
+         "--new-keystore-password", "new-password",
+         "--display-keytool-command");
+  }
+
+
+
+  /**
+   * Provides test coverage for the change-private-key-password subcommand.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testChangePrivateKeyPassword()
+         throws Exception
+  {
+    // Tests changing the private key password for a certificate in a PKCS#12
+    // keystore.
+    File ksFile = copyFile(serverKeyStorePath);
+
+    assertTrue(ksFile.exists());
+    KeyStore keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, false, true),
+         Collections.<String>emptySet());
+
+    manageCertificates(
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--current-private-key-password", "password",
+         "--new-private-key-password", "new-password",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+    assertNotNull(keystore.getKey("server-cert", "new-password".toCharArray()));
+
+    try
+    {
+      keystore.getKey("server-cert", "password".toCharArray());
+      fail("Expected an exception when trying to get a key with the wrong " +
+           "password");
+    }
+    catch (final Exception e)
+    {
+      // This was expected.
+    }
+
+
+    // Tests changing the private key password for a certificate in a JKS
+    // keystore.
+    ksFile = copyFile(serverJKSKeyStorePath);
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "JKS");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, false, true),
+         Collections.<String>emptySet());
+
+    manageCertificates(
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--current-private-key-password", "password",
+         "--new-private-key-password", "new-password",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "JKS", "password");
+    assertNotNull(keystore.getKey("server-cert", "new-password".toCharArray()));
+
+    try
+    {
+      keystore.getKey("server-cert", "password".toCharArray());
+      fail("Expected an exception when trying to get a key with the wrong " +
+           "password");
+    }
+    catch (final Exception e)
+    {
+      // This was expected.
+    }
+
+
+    // Tests changing the private key password using passwords read from files.
+    ksFile = copyFile(serverKeyStorePath);
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, false, true),
+         Collections.<String>emptySet());
+
+    final String newPasswordFilePath =
+         createTempFile("new-password").getAbsolutePath();
+    manageCertificates(
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--current-private-key-password-file", correctPasswordFilePath,
+         "--new-private-key-password-file", newPasswordFilePath,
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+    assertNotNull(keystore.getKey("server-cert", "new-password".toCharArray()));
+
+    try
+    {
+      keystore.getKey("server-cert", "password".toCharArray());
+      fail("Expected an exception when trying to get a key with the wrong " +
+           "password");
+    }
+    catch (final Exception e)
+    {
+      // This was expected.
+    }
+
+
+    // Tests changing the private key password using passwords read
+    // interactively.
+    ksFile = copyFile(serverKeyStorePath);
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, false, true),
+         Collections.<String>emptySet());
+
+    PasswordReader.setTestReader(new BufferedReader(new InputStreamReader(
+         new ByteArrayInputStream(StaticUtils.getBytes(
+              "\npassword\nnew-password\nwrong\nshort\nnew-password\n" +
+                   "new-password\n")))));
+    try
+    {
+      manageCertificates(
+           "change-private-key-password",
+           "--keystore", ksFile.getAbsolutePath(),
+           "--keystore-password", "password",
+           "--alias", "server-cert",
+           "--prompt-for-current-private-key-password",
+           "--prompt-for-new-private-key-password",
+           "--display-keytool-command");
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12", "password");
+    assertNotNull(keystore.getKey("server-cert", "new-password".toCharArray()));
+
+    try
+    {
+      keystore.getKey("server-cert", "password".toCharArray());
+      fail("Expected an exception when trying to get a key with the wrong " +
+           "password");
+    }
+    catch (final Exception e)
+    {
+      // This was expected.
+    }
+
+
+    // Tests with an alias that doesn't exist in the keystore.
+    ksFile = copyFile(serverKeyStorePath);
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, false, true),
+         Collections.<String>emptySet());
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "nonexistent",
+         "--current-private-key-password", "password",
+         "--new-private-key-password", "new-password",
+         "--display-keytool-command");
+
+
+    // Tests with an alias that is associated with a trusted certificate entry
+    // rather than a private key entry.
+    ksFile = copyFile(serverTrustStorePath);
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(serverCertificateAlias, serverCertificateAlias + "-issuer-1",
+              serverCertificateAlias + "-issuer-2"));
+    assertEquals(getAliases(keystore, true, false),
+         Collections.<String>emptySet());
+    assertEquals(getAliases(keystore, false, true),
+         setOf(serverCertificateAlias, serverCertificateAlias + "-issuer-1",
+              serverCertificateAlias + "-issuer-2"));
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--current-private-key-password", "password",
+         "--new-private-key-password", "new-password",
+         "--display-keytool-command");
+
+
+    // Tests with a wrong keystore password.
+    ksFile = copyFile(serverKeyStorePath);
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "PKCS12");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         setOf(serverCertificateAlias));
+    assertEquals(getAliases(keystore, false, true),
+         Collections.<String>emptySet());
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "wrong",
+         "--alias", "server-cert",
+         "--current-private-key-password", "password",
+         "--new-private-key-password", "new-password",
+         "--display-keytool-command");
+
+
+    // Tests with a keystore password read from an empty file.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password-file", emptyPasswordFilePath,
+         "--alias", "server-cert",
+         "--current-private-key-password", "password",
+         "--new-private-key-password", "new-password",
+         "--display-keytool-command");
+
+
+    // Tests with a wrong current private key password.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--current-private-key-password", "wrong",
+         "--new-private-key-password", "new-password",
+         "--display-keytool-command");
+
+
+    // Tests with a current private key password read from an empty file.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--current-private-key-password-file", emptyPasswordFilePath,
+         "--new-private-key-password", "new-password",
+         "--display-keytool-command");
+
+
+    // Tests with a new private key password read from an empty file.
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--current-private-key-password", "password",
+         "--new-private-key-password-file", emptyPasswordFilePath,
+         "--display-keytool-command");
+
+
+    // Tests with a malformed keystore.
+    ksFile = createTempFile("this is not a valid keystore");
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "change-private-key-password",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--current-private-key-password", "password",
+         "--new-private-key-password", "new-password",
          "--display-keytool-command");
   }
 
@@ -5219,6 +5827,67 @@ public final class ManageCertificatesTestCase
          "--verbose");
 
 
+    // Check the usability for an end certificate that does not have an extended
+    // key usage extension.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+    assertTrue(csrFile.delete());
+    assertFalse(csrFile.exists());
+
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US");
+
+    assertTrue(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+
+    assertTrue(certFile.exists());
+    assertTrue(certFile.delete());
+    assertFalse(certFile.exists());
+
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--keystore", rootCAKeyStorePath,
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--days-valid", "365",
+         "--include-requested-extensions",
+         "--no-prompt");
+    assertTrue(certFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--no-prompt",
+         "--display-keytool-command");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "check-certificate-usability",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert");
+
+    manageCertificates(
+         "list-certificates",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--verbose");
+
+
     // Check the usability for an issuer certificate that has a basic
     // constraints extension with isCA=false.
     assertTrue(issuerKSFile.exists());
@@ -5238,6 +5907,7 @@ public final class ManageCertificatesTestCase
          "--signature-algorithm", "SHA256withRSA",
          "--subject-alternative-name-email-address", "ca@example.com",
          "--basic-constraints-is-ca", "false",
+         "--key-usage", "key-cert-sign",
          "--display-keytool-command");
 
     assertTrue(issuerCertFile.exists());
@@ -5332,6 +6002,7 @@ public final class ManageCertificatesTestCase
          "--subject-alternative-name-email-address", "ca@example.com",
          "--basic-constraints-is-ca", "true",
          "--basic-constraints-maximum-path-length", "2",
+         "--key-usage", "key-cert-sign",
          "--display-keytool-command");
 
     assertTrue(issuerCertFile.exists());
@@ -5423,6 +6094,283 @@ public final class ManageCertificatesTestCase
          "import-certificate",
          "--certificate-file", certFile.getAbsolutePath(),
          "--certificate-file", intermediateCertFile.getAbsolutePath(),
+         "--certificate-file", issuerCertFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--no-prompt",
+         "--display-keytool-command");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "check-certificate-usability",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert");
+
+    manageCertificates(
+         "list-certificates",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--verbose");
+
+
+    // Check the usability for an issuer certificate that does not have a basic
+    // constraints extension.
+    assertTrue(issuerKSFile.exists());
+    assertTrue(issuerKSFile.delete());
+    assertFalse(issuerKSFile.exists());
+
+    manageCertificates(
+         "generate-self-signed-certificate",
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "PKCS12",
+         "--alias", rootCACertificateAlias,
+         "--subject-dn", "CN=Example Root CA,O=Example Corporation,C=US",
+         "--days-valid", "365",
+         "--key-algorithm", "RSA",
+         "--key-size-bits", "2048",
+         "--signature-algorithm", "SHA256withRSA",
+         "--subject-alternative-name-email-address", "ca@example.com",
+         "--key-usage", "key-cert-sign",
+         "--display-keytool-command");
+
+    assertTrue(issuerCertFile.exists());
+    assertTrue(issuerCertFile.delete());
+    assertFalse(issuerCertFile.exists());
+
+    manageCertificates(
+         "export-certificate",
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", rootCACertificateAlias,
+         "--output-format", "PEM",
+         "--output-file", issuerCertFile.getAbsolutePath(),
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+    assertTrue(csrFile.delete());
+    assertFalse(csrFile.exists());
+
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US");
+
+    assertTrue(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+
+    assertTrue(certFile.exists());
+    assertTrue(certFile.delete());
+    assertFalse(certFile.exists());
+
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--days-valid", "365",
+         "--no-prompt");
+    assertTrue(certFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", issuerCertFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--no-prompt",
+         "--display-keytool-command");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "check-certificate-usability",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert");
+
+    manageCertificates(
+         "list-certificates",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--verbose");
+
+
+    // Check the usability for an issuer certificate that has a key usage
+    // extension with the keyCertSign bit set to false.
+    assertTrue(issuerKSFile.exists());
+    assertTrue(issuerKSFile.delete());
+    assertFalse(issuerKSFile.exists());
+
+    manageCertificates(
+         "generate-self-signed-certificate",
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "PKCS12",
+         "--alias", rootCACertificateAlias,
+         "--subject-dn", "CN=Example Root CA,O=Example Corporation,C=US",
+         "--days-valid", "365",
+         "--key-algorithm", "RSA",
+         "--key-size-bits", "2048",
+         "--signature-algorithm", "SHA256withRSA",
+         "--subject-alternative-name-email-address", "ca@example.com",
+         "--basic-constraints-is-ca", "true",
+         "--key-usage", "crl-sign",
+         "--display-keytool-command");
+
+    assertTrue(issuerCertFile.exists());
+    assertTrue(issuerCertFile.delete());
+    assertFalse(issuerCertFile.exists());
+
+    manageCertificates(
+         "export-certificate",
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", rootCACertificateAlias,
+         "--output-format", "PEM",
+         "--output-file", issuerCertFile.getAbsolutePath(),
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+    assertTrue(csrFile.delete());
+    assertFalse(csrFile.exists());
+
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US");
+
+    assertTrue(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+
+    assertTrue(certFile.exists());
+    assertTrue(certFile.delete());
+    assertFalse(certFile.exists());
+
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--days-valid", "365",
+         "--no-prompt");
+    assertTrue(certFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", issuerCertFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--no-prompt",
+         "--display-keytool-command");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "check-certificate-usability",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert");
+
+    manageCertificates(
+         "list-certificates",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--verbose");
+
+
+    // Check the usability for an issuer certificate that does not have a key
+    // usage extension.
+    assertTrue(issuerKSFile.exists());
+    assertTrue(issuerKSFile.delete());
+    assertFalse(issuerKSFile.exists());
+
+    manageCertificates(
+         "generate-self-signed-certificate",
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "PKCS12",
+         "--alias", rootCACertificateAlias,
+         "--subject-dn", "CN=Example Root CA,O=Example Corporation,C=US",
+         "--days-valid", "365",
+         "--key-algorithm", "RSA",
+         "--key-size-bits", "2048",
+         "--signature-algorithm", "SHA256withRSA",
+         "--subject-alternative-name-email-address", "ca@example.com",
+         "--basic-constraints-is-ca", "true",
+         "--display-keytool-command");
+
+    assertTrue(issuerCertFile.exists());
+    assertTrue(issuerCertFile.delete());
+    assertFalse(issuerCertFile.exists());
+
+    manageCertificates(
+         "export-certificate",
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", rootCACertificateAlias,
+         "--output-format", "PEM",
+         "--output-file", issuerCertFile.getAbsolutePath(),
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+    assertTrue(csrFile.delete());
+    assertFalse(csrFile.exists());
+
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US");
+
+    assertTrue(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+
+    assertTrue(certFile.exists());
+    assertTrue(certFile.delete());
+    assertFalse(certFile.exists());
+
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--keystore", issuerKSFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--days-valid", "365",
+         "--no-prompt");
+    assertTrue(certFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", certFile.getAbsolutePath(),
          "--certificate-file", issuerCertFile.getAbsolutePath(),
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
@@ -6945,11 +7893,33 @@ public final class ManageCertificatesTestCase
   private static KeyStore getKeystore(final String path, final String type)
           throws Exception
   {
+    return getKeystore(path, type, "password");
+  }
+
+
+
+  /**
+   * Retrieves a copy of the keystore loaded from the specified file.
+   *
+   * @param  path      The path to the keystore file.  It must not be
+   *                   {@code null}.
+   * @param  type      The keystore type.  It must not be {@code null}.
+   * @param  password  The password for the keystore.  It must not be
+   *                   {@code null}.
+   *
+   * @return  The keystore loaded from the specified file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  private static KeyStore getKeystore(final String path, final String type,
+                                      final String password)
+          throws Exception
+  {
     final KeyStore keystore = KeyStore.getInstance(type);
 
     try (FileInputStream inputStream = new FileInputStream(path))
     {
-      keystore.load(inputStream, "password".toCharArray());
+      keystore.load(inputStream, password.toCharArray());
     }
 
     return keystore;

@@ -2942,6 +2942,380 @@ public final class ManageCertificates
     parser.addSubCommand(changeAliasSubCommand);
 
 
+    // Define the "change-keystore-password" subcommand and all of its
+    // arguments.
+    final ArgumentParser changeKSPWParser = new ArgumentParser(
+         "change-keystore-password",
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_DESC.get());
+
+    final FileArgument changeKSPWKeystore = new FileArgument(null, "keystore",
+         true, 1, null, INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_ARG_KS_DESC.get(),
+         true, true,  true, false);
+    changeKSPWKeystore.addLongIdentifier("keystore-path", true);
+    changeKSPWKeystore.addLongIdentifier("keystorePath", true);
+    changeKSPWKeystore.addLongIdentifier("keystore-file", true);
+    changeKSPWKeystore.addLongIdentifier("keystoreFile", true);
+    changeKSPWParser.addArgument(changeKSPWKeystore);
+
+    final StringArgument changeKSPWCurrentPassword = new StringArgument(null,
+         "current-keystore-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_ARG_CURRENT_PW_DESC.get());
+    changeKSPWCurrentPassword.addLongIdentifier("currentKeystorePassword",
+         true);
+    changeKSPWCurrentPassword.addLongIdentifier("current-keystore-passphrase",
+         true);
+    changeKSPWCurrentPassword.addLongIdentifier("currentKeystorePassphrase",
+         true);
+    changeKSPWCurrentPassword.addLongIdentifier("current-keystore-pin", true);
+    changeKSPWCurrentPassword.addLongIdentifier("currentKeystorePIN", true);
+    changeKSPWCurrentPassword.addLongIdentifier("storepass", true);
+    changeKSPWCurrentPassword.setSensitive(true);
+    changeKSPWParser.addArgument(changeKSPWCurrentPassword);
+
+    final FileArgument changeKSPWCurrentPasswordFile = new FileArgument(null,
+         "current-keystore-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_ARG_CURRENT_PW_FILE_DESC.get(), true,
+         true, true, false);
+    changeKSPWCurrentPasswordFile.addLongIdentifier(
+         "currentKeystorePasswordFile", true);
+    changeKSPWCurrentPasswordFile.addLongIdentifier(
+         "current-keystore-passphrase-file", true);
+    changeKSPWCurrentPasswordFile.addLongIdentifier(
+         "currentKeystorePassphraseFile", true);
+    changeKSPWCurrentPasswordFile.addLongIdentifier("current-keystore-pin-file",
+         true);
+    changeKSPWCurrentPasswordFile.addLongIdentifier("currentKeystorePINFile",
+         true);
+    changeKSPWParser.addArgument(changeKSPWCurrentPasswordFile);
+
+    final BooleanArgument changeKSPWPromptForCurrentPassword =
+         new BooleanArgument(null, "prompt-for-current-keystore-password",
+        INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_ARG_PROMPT_FOR_CURRENT_PW_DESC.get());
+    changeKSPWPromptForCurrentPassword.addLongIdentifier(
+         "promptForCurrentKeystorePassword", true);
+    changeKSPWPromptForCurrentPassword.addLongIdentifier(
+         "prompt-for-current-keystore-passphrase", true);
+    changeKSPWPromptForCurrentPassword.addLongIdentifier(
+         "promptForCurrentKeystorePassphrase", true);
+    changeKSPWPromptForCurrentPassword.addLongIdentifier(
+         "prompt-for-current-keystore-pin", true);
+    changeKSPWPromptForCurrentPassword.addLongIdentifier(
+         "promptForCurrentKeystorePIN", true);
+    changeKSPWParser.addArgument(changeKSPWPromptForCurrentPassword);
+
+    final StringArgument changeKSPWNewPassword = new StringArgument(null,
+         "new-keystore-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_ARG_NEW_PW_DESC.get());
+    changeKSPWNewPassword.addLongIdentifier("newKeystorePassword",
+         true);
+    changeKSPWNewPassword.addLongIdentifier("new-keystore-passphrase",
+         true);
+    changeKSPWNewPassword.addLongIdentifier("newKeystorePassphrase",
+         true);
+    changeKSPWNewPassword.addLongIdentifier("new-keystore-pin", true);
+    changeKSPWNewPassword.addLongIdentifier("newKeystorePIN", true);
+    changeKSPWNewPassword.addLongIdentifier("new", true);
+    changeKSPWNewPassword.setSensitive(true);
+    changeKSPWParser.addArgument(changeKSPWNewPassword);
+
+    final FileArgument changeKSPWNewPasswordFile = new FileArgument(null,
+         "new-keystore-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_ARG_NEW_PW_FILE_DESC.get(), true,
+         true, true, false);
+    changeKSPWNewPasswordFile.addLongIdentifier("newKeystorePasswordFile",
+         true);
+    changeKSPWNewPasswordFile.addLongIdentifier("new-keystore-passphrase-file",
+         true);
+    changeKSPWNewPasswordFile.addLongIdentifier("newKeystorePassphraseFile",
+         true);
+    changeKSPWNewPasswordFile.addLongIdentifier("new-keystore-pin-file", true);
+    changeKSPWNewPasswordFile.addLongIdentifier("newKeystorePINFile", true);
+    changeKSPWParser.addArgument(changeKSPWNewPasswordFile);
+
+    final BooleanArgument changeKSPWPromptForNewPassword =
+         new BooleanArgument(null, "prompt-for-new-keystore-password",
+        INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_ARG_PROMPT_FOR_NEW_PW_DESC.get());
+    changeKSPWPromptForNewPassword.addLongIdentifier(
+         "promptForNewKeystorePassword", true);
+    changeKSPWPromptForNewPassword.addLongIdentifier(
+         "prompt-for-new-keystore-passphrase", true);
+    changeKSPWPromptForNewPassword.addLongIdentifier(
+         "promptForNewKeystorePassphrase", true);
+    changeKSPWPromptForNewPassword.addLongIdentifier(
+         "prompt-for-new-keystore-pin", true);
+    changeKSPWPromptForNewPassword.addLongIdentifier(
+         "promptForNewKeystorePIN", true);
+    changeKSPWParser.addArgument(changeKSPWPromptForNewPassword);
+
+    final BooleanArgument changeKSPWDisplayCommand = new BooleanArgument(null,
+         "display-keytool-command", 1,
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_ARG_DISPLAY_COMMAND_DESC.get());
+    changeKSPWDisplayCommand.addLongIdentifier("displayKeytoolCommand", true);
+    changeKSPWDisplayCommand.addLongIdentifier("show-keytool-command", true);
+    changeKSPWDisplayCommand.addLongIdentifier("showKeytoolCommand", true);
+    changeKSPWParser.addArgument(changeKSPWDisplayCommand);
+
+    changeKSPWParser.addRequiredArgumentSet(changeKSPWCurrentPassword,
+         changeKSPWCurrentPasswordFile, changeKSPWPromptForCurrentPassword);
+    changeKSPWParser.addExclusiveArgumentSet(changeKSPWCurrentPassword,
+         changeKSPWCurrentPasswordFile, changeKSPWPromptForCurrentPassword);
+    changeKSPWParser.addRequiredArgumentSet(changeKSPWNewPassword,
+         changeKSPWNewPasswordFile, changeKSPWPromptForNewPassword);
+    changeKSPWParser.addExclusiveArgumentSet(changeKSPWNewPassword,
+         changeKSPWNewPasswordFile, changeKSPWPromptForNewPassword);
+
+    final LinkedHashMap<String[],String> changeKSPWExamples =
+         new LinkedHashMap<>(1);
+    changeKSPWExamples.put(
+         new String[]
+         {
+           "change-keystore-password",
+           "--keystore", getPlatformSpecificPath("config", "keystore"),
+           "--current-keystore-password-file",
+                getPlatformSpecificPath("config", "current.pin"),
+           "--new-keystore-password-file",
+                getPlatformSpecificPath("config", "new.pin"),
+           "--display-keytool-command"
+         },
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_EXAMPLE_1.get(
+              getPlatformSpecificPath("config", "keystore"),
+              getPlatformSpecificPath("config", "current.pin"),
+              getPlatformSpecificPath("config", "new.pin")));
+
+    final SubCommand changeKSPWSubCommand = new SubCommand(
+         "change-keystore-password",
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_DESC.get(), changeKSPWParser,
+         changeKSPWExamples);
+    changeKSPWSubCommand.addName("changeKeystorePassword", true);
+    changeKSPWSubCommand.addName("change-keystore-passphrase", true);
+    changeKSPWSubCommand.addName("changeKeystorePassphrase", true);
+    changeKSPWSubCommand.addName("change-keystore-pin", true);
+    changeKSPWSubCommand.addName("changeKeystorePIN", true);
+    changeKSPWSubCommand.addName("storepasswd", true);
+
+    parser.addSubCommand(changeKSPWSubCommand);
+
+
+    // Define the "change-private-key-password" subcommand and all of its
+    // arguments.
+    final ArgumentParser changePKPWParser = new ArgumentParser(
+         "change-private-key-password",
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_DESC.get());
+
+    final FileArgument changePKPWKeystore = new FileArgument(null, "keystore",
+         true, 1, null, INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_KS_DESC.get(),
+         true, true,  true, false);
+    changePKPWKeystore.addLongIdentifier("keystore-path", true);
+    changePKPWKeystore.addLongIdentifier("keystorePath", true);
+    changePKPWKeystore.addLongIdentifier("keystore-file", true);
+    changePKPWKeystore.addLongIdentifier("keystoreFile", true);
+    changePKPWParser.addArgument(changePKPWKeystore);
+
+    final StringArgument changePKPWKeystorePassword = new StringArgument(null,
+         "keystore-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_KS_PW_DESC.get());
+    changePKPWKeystorePassword.addLongIdentifier("keystorePassword", true);
+    changePKPWKeystorePassword.addLongIdentifier("keystore-passphrase", true);
+    changePKPWKeystorePassword.addLongIdentifier("keystorePassphrase", true);
+    changePKPWKeystorePassword.addLongIdentifier("keystore-pin", true);
+    changePKPWKeystorePassword.addLongIdentifier("keystorePIN", true);
+    changePKPWKeystorePassword.addLongIdentifier("storepass", true);
+    changePKPWKeystorePassword.setSensitive(true);
+    changePKPWParser.addArgument(changePKPWKeystorePassword);
+
+    final FileArgument changePKPWKeystorePasswordFile = new FileArgument(null,
+         "keystore-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_KS_PW_FILE_DESC.get(), true,
+         true, true, false);
+    changePKPWKeystorePasswordFile.addLongIdentifier("keystorePasswordFile",
+         true);
+    changePKPWKeystorePasswordFile.addLongIdentifier(
+         "keystore-passphrase-file", true);
+    changePKPWKeystorePasswordFile.addLongIdentifier("keystorePassphraseFile",
+         true);
+    changePKPWKeystorePasswordFile.addLongIdentifier("keystore-pin-file",
+         true);
+    changePKPWKeystorePasswordFile.addLongIdentifier("keystorePINFile", true);
+    changePKPWParser.addArgument(changePKPWKeystorePasswordFile);
+
+    final BooleanArgument changePKPWPromptForKeystorePassword =
+         new BooleanArgument(null, "prompt-for-keystore-password",
+        INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_PROMPT_FOR_KS_PW_DESC.get());
+    changePKPWPromptForKeystorePassword.addLongIdentifier(
+         "promptForKeystorePassword", true);
+    changePKPWPromptForKeystorePassword.addLongIdentifier(
+         "prompt-for-keystore-passphrase", true);
+    changePKPWPromptForKeystorePassword.addLongIdentifier(
+         "promptForKeystorePassphrase", true);
+    changePKPWPromptForKeystorePassword.addLongIdentifier(
+         "prompt-for-keystore-pin", true);
+    changePKPWPromptForKeystorePassword.addLongIdentifier(
+         "promptForKeystorePIN", true);
+    changePKPWParser.addArgument(changePKPWPromptForKeystorePassword);
+
+    final StringArgument changePKPWAlias = new StringArgument(null, "alias",
+         true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_ALIAS.get(),
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_ALIAS_DESC.get());
+    changePKPWAlias.addLongIdentifier("nickname", true);
+    changePKPWParser.addArgument(changePKPWAlias);
+
+    final StringArgument changePKPWCurrentPassword = new StringArgument(null,
+         "current-private-key-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_CURRENT_PW_DESC.get());
+    changePKPWCurrentPassword.addLongIdentifier("currentPrivateKeyPassword",
+         true);
+    changePKPWCurrentPassword.addLongIdentifier(
+         "current-private-key-passphrase", true);
+    changePKPWCurrentPassword.addLongIdentifier("currentPrivateKeyPassphrase",
+         true);
+    changePKPWCurrentPassword.addLongIdentifier("current-private-key-pin",
+         true);
+    changePKPWCurrentPassword.addLongIdentifier("currentPrivateKeyPIN", true);
+    changePKPWCurrentPassword.addLongIdentifier("keypass", true);
+    changePKPWCurrentPassword.setSensitive(true);
+    changePKPWParser.addArgument(changePKPWCurrentPassword);
+
+    final FileArgument changePKPWCurrentPasswordFile = new FileArgument(null,
+         "current-private-key-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_CURRENT_PW_FILE_DESC.get(), true,
+         true, true, false);
+    changePKPWCurrentPasswordFile.addLongIdentifier(
+         "currentPrivateKeyPasswordFile", true);
+    changePKPWCurrentPasswordFile.addLongIdentifier(
+         "current-private-key-passphrase-file", true);
+    changePKPWCurrentPasswordFile.addLongIdentifier(
+         "currentPrivateKeyPassphraseFile", true);
+    changePKPWCurrentPasswordFile.addLongIdentifier(
+         "current-private-key-pin-file", true);
+    changePKPWCurrentPasswordFile.addLongIdentifier("currentPrivateKeyPINFile",
+         true);
+    changePKPWParser.addArgument(changePKPWCurrentPasswordFile);
+
+    final BooleanArgument changePKPWPromptForCurrentPassword =
+         new BooleanArgument(null, "prompt-for-current-private-key-password",
+        INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_PROMPT_FOR_CURRENT_PW_DESC.get());
+    changePKPWPromptForCurrentPassword.addLongIdentifier(
+         "promptForCurrentPrivateKeyPassword", true);
+    changePKPWPromptForCurrentPassword.addLongIdentifier(
+         "prompt-for-current-private-key-passphrase", true);
+    changePKPWPromptForCurrentPassword.addLongIdentifier(
+         "promptForCurrentPrivateKeyPassphrase", true);
+    changePKPWPromptForCurrentPassword.addLongIdentifier(
+         "prompt-for-current-private-key-pin", true);
+    changePKPWPromptForCurrentPassword.addLongIdentifier(
+         "promptForCurrentPrivateKeyPIN", true);
+    changePKPWParser.addArgument(changePKPWPromptForCurrentPassword);
+
+    final StringArgument changePKPWNewPassword = new StringArgument(null,
+         "new-private-key-password", false, 1,
+         INFO_MANAGE_CERTS_PLACEHOLDER_PASSWORD.get(),
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_NEW_PW_DESC.get());
+    changePKPWNewPassword.addLongIdentifier("newPrivateKeyPassword",
+         true);
+    changePKPWNewPassword.addLongIdentifier("new-private-key-passphrase", true);
+    changePKPWNewPassword.addLongIdentifier("newPrivateKeyPassphrase", true);
+    changePKPWNewPassword.addLongIdentifier("new-private-key-pin", true);
+    changePKPWNewPassword.addLongIdentifier("newPrivateKeyPIN", true);
+    changePKPWNewPassword.addLongIdentifier("new", true);
+    changePKPWNewPassword.setSensitive(true);
+    changePKPWParser.addArgument(changePKPWNewPassword);
+
+    final FileArgument changePKPWNewPasswordFile = new FileArgument(null,
+         "new-private-key-password-file", false, 1, null,
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_NEW_PW_FILE_DESC.get(), true,
+         true, true, false);
+    changePKPWNewPasswordFile.addLongIdentifier("newPrivateKeyPasswordFile",
+         true);
+    changePKPWNewPasswordFile.addLongIdentifier(
+         "new-private-key-passphrase-file", true);
+    changePKPWNewPasswordFile.addLongIdentifier("newPrivateKeyPassphraseFile",
+         true);
+    changePKPWNewPasswordFile.addLongIdentifier("new-private-key-pin-file",
+         true);
+    changePKPWNewPasswordFile.addLongIdentifier("newPrivateKeyPINFile", true);
+    changePKPWParser.addArgument(changePKPWNewPasswordFile);
+
+    final BooleanArgument changePKPWPromptForNewPassword =
+         new BooleanArgument(null, "prompt-for-new-private-key-password",
+        INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_PROMPT_FOR_NEW_PW_DESC.get());
+    changePKPWPromptForNewPassword.addLongIdentifier(
+         "promptForNewPrivateKeyPassword", true);
+    changePKPWPromptForNewPassword.addLongIdentifier(
+         "prompt-for-new-private-key-passphrase", true);
+    changePKPWPromptForNewPassword.addLongIdentifier(
+         "promptForNewPrivateKeyPassphrase", true);
+    changePKPWPromptForNewPassword.addLongIdentifier(
+         "prompt-for-new-private-key-pin", true);
+    changePKPWPromptForNewPassword.addLongIdentifier(
+         "promptForNewPrivateKeyPIN", true);
+    changePKPWParser.addArgument(changePKPWPromptForNewPassword);
+
+    final BooleanArgument changePKPWDisplayCommand = new BooleanArgument(null,
+         "display-keytool-command", 1,
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_ARG_DISPLAY_COMMAND_DESC.get());
+    changePKPWDisplayCommand.addLongIdentifier("displayKeytoolCommand", true);
+    changePKPWDisplayCommand.addLongIdentifier("show-keytool-command", true);
+    changePKPWDisplayCommand.addLongIdentifier("showKeytoolCommand", true);
+    changePKPWParser.addArgument(changePKPWDisplayCommand);
+
+    changePKPWParser.addRequiredArgumentSet(changePKPWKeystorePassword,
+         changePKPWKeystorePasswordFile, changePKPWPromptForKeystorePassword);
+    changePKPWParser.addExclusiveArgumentSet(changePKPWKeystorePassword,
+         changePKPWKeystorePasswordFile, changePKPWPromptForKeystorePassword);
+    changePKPWParser.addRequiredArgumentSet(changePKPWCurrentPassword,
+         changePKPWCurrentPasswordFile, changePKPWPromptForCurrentPassword);
+    changePKPWParser.addExclusiveArgumentSet(changePKPWCurrentPassword,
+         changePKPWCurrentPasswordFile, changePKPWPromptForCurrentPassword);
+    changePKPWParser.addRequiredArgumentSet(changePKPWNewPassword,
+         changePKPWNewPasswordFile, changePKPWPromptForNewPassword);
+    changePKPWParser.addExclusiveArgumentSet(changePKPWNewPassword,
+         changePKPWNewPasswordFile, changePKPWPromptForNewPassword);
+
+    final LinkedHashMap<String[],String> changePKPWExamples =
+         new LinkedHashMap<>(1);
+    changePKPWExamples.put(
+         new String[]
+         {
+           "change-private-key-password",
+           "--keystore", getPlatformSpecificPath("config", "keystore"),
+           "--keystore-password-file",
+                getPlatformSpecificPath("config", "keystore.pin"),
+           "--alias", "server-cert",
+           "--current-private-key-password-file",
+                getPlatformSpecificPath("config", "current.pin"),
+           "--new-private-key-password-file",
+                getPlatformSpecificPath("config", "new.pin"),
+           "--display-keytool-command"
+         },
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_EXAMPLE_1.get(
+              getPlatformSpecificPath("config", "keystore"),
+              getPlatformSpecificPath("config", "current.pin"),
+              getPlatformSpecificPath("config", "new.pin")));
+
+    final SubCommand changePKPWSubCommand = new SubCommand(
+         "change-private-key-password",
+         INFO_MANAGE_CERTS_SC_CHANGE_PK_PW_DESC.get(), changePKPWParser,
+         changePKPWExamples);
+    changePKPWSubCommand.addName("changePrivateKeyPassword", true);
+    changePKPWSubCommand.addName("change-private-key-passphrase", true);
+    changePKPWSubCommand.addName("changePrivateKeyPassphrase", true);
+    changePKPWSubCommand.addName("change-private-key-pin", true);
+    changePKPWSubCommand.addName("changePrivateKeyPIN", true);
+    changePKPWSubCommand.addName("change-key-password", false);
+    changePKPWSubCommand.addName("changeKeyPassword", true);
+    changePKPWSubCommand.addName("change-key-passphrase", true);
+    changePKPWSubCommand.addName("changeKeyPassphrase", true);
+    changePKPWSubCommand.addName("change-key-pin", true);
+    changePKPWSubCommand.addName("changeKeyPIN", true);
+    changePKPWSubCommand.addName("keypasswd", true);
+
+    parser.addSubCommand(changePKPWSubCommand);
+
+
     // Define the "trust-server-certificate" subcommand and all of its
     // arguments.
     final ArgumentParser trustServerParser = new ArgumentParser(
@@ -3458,6 +3832,14 @@ public final class ManageCertificates
     {
       return doChangeCertificateAlias();
     }
+    else if (selectedSubCommand.hasName("change-keystore-password"))
+    {
+      return doChangeKeystorePassword();
+    }
+    else if (selectedSubCommand.hasName("change-private-key-password"))
+    {
+      return doChangePrivateKeyPassword();
+    }
     else if (selectedSubCommand.hasName("trust-server-certificate"))
     {
       return doTrustServerCertificate();
@@ -3667,7 +4049,7 @@ public final class ManageCertificates
         }
 
         certificateChain = new X509Certificate[chain.length];
-        for (int i=0; i < chain.length; i++)
+        for (int i = 0; i < chain.length; i++)
         {
           certificateChain[i] = new X509Certificate(chain[i].getEncoded());
         }
@@ -3684,7 +4066,7 @@ public final class ManageCertificates
       }
 
       listedCount++;
-      for (int i=0; i < certificateChain.length; i++)
+      for (int i = 0; i < certificateChain.length; i++)
       {
         out();
         if (certificateChain.length == 1)
@@ -3695,7 +4077,7 @@ public final class ManageCertificates
         else
         {
           out(INFO_MANAGE_CERTS_LIST_CERTS_LABEL_ALIAS_WITH_CHAIN.get(alias,
-               (i+1), certificateChain.length));
+               (i + 1), certificateChain.length));
         }
 
         printCertificate(certificateChain[i], "", verbose);
@@ -3710,6 +4092,67 @@ public final class ManageCertificates
           {
             out(INFO_MANAGE_CERTS_LIST_CERTS_LABEL_HAS_PK_NO.get());
           }
+        }
+
+        CertException signatureVerificationException = null;
+        if (certificateChain[i].isSelfSigned())
+        {
+          try
+          {
+            certificateChain[i].verifySignature(null);
+          }
+          catch (final CertException ce)
+          {
+            Debug.debugException(ce);
+            signatureVerificationException = ce;
+          }
+        }
+        else
+        {
+          X509Certificate issuerCertificate = null;
+          try
+          {
+            final AtomicReference<KeyStore> jvmDefaultTrustStoreRef =
+                 new AtomicReference<>();
+            final AtomicReference<DN> missingIssuerRef =
+                 new AtomicReference<>();
+            issuerCertificate = getIssuerCertificate(certificateChain[i],
+                 keystore, jvmDefaultTrustStoreRef, missingIssuerRef);
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+          }
+
+          if (issuerCertificate == null)
+          {
+            signatureVerificationException = new CertException(
+                 ERR_MANAGE_CERTS_LIST_CERTS_VERIFY_SIGNATURE_NO_ISSUER.get(
+                      certificateChain[i].getIssuerDN()));
+          }
+          else
+          {
+            try
+            {
+              certificateChain[i].verifySignature(issuerCertificate);
+            }
+            catch (final CertException ce)
+            {
+              Debug.debugException(ce);
+              signatureVerificationException = ce;
+            }
+          }
+        }
+
+        if (signatureVerificationException == null)
+        {
+          wrapOut(0, WRAP_COLUMN,
+               INFO_MANAGE_CERTS_LIST_CERTS_SIGNATURE_VALID.get());
+        }
+        else
+        {
+          wrapErr(0, WRAP_COLUMN,
+               signatureVerificationException.getMessage());
         }
 
         if (displayPEM)
@@ -6566,8 +7009,21 @@ public final class ManageCertificates
     catch (final LDAPException le)
     {
       Debug.debugException(le);
-      wrapOut(0, WRAP_COLUMN, le.getMessage());
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
       return le.getResultCode();
+    }
+
+
+    // Make sure that we can verify the certificate signing request's signature.
+    try
+    {
+      csr.verifySignature();
+    }
+    catch (final CertException ce)
+    {
+      Debug.debugException(ce);
+      wrapErr(0, WRAP_COLUMN, ce.getMessage());
+      return ResultCode.PARAM_ERROR;
     }
 
 
@@ -6995,7 +7451,7 @@ public final class ManageCertificates
     }
 
 
-    // Generate the keytool arguments to use to sign the requested certificate.
+    // Generate the keytool arguments to use to change the certificate alias.
     final BooleanArgument displayKeytoolCommandArgument =
          subCommandParser.getBooleanArgument("display-keytool-command");
     if ((displayKeytoolCommandArgument != null) &&
@@ -7049,6 +7505,281 @@ public final class ManageCertificates
     wrapOut(0, WRAP_COLUMN,
          INFO_MANAGE_CERTS_CHANGE_ALIAS_SUCCESSFUL.get(currentAlias,
               newAlias));
+    return ResultCode.SUCCESS;
+  }
+
+
+
+  /**
+   * Performs the necessary processing for the change-keystore-password
+   * subcommand.
+   *
+   * @return  A result code that indicates whether the processing completed
+   *          successfully.
+   */
+  private ResultCode doChangeKeystorePassword()
+  {
+    // Get the values of a number of configured arguments.
+    final String keystoreType;
+    final File keystorePath = getKeystorePath();
+    try
+    {
+      keystoreType = inferKeystoreType(keystorePath);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    final char[] currentKeystorePassword;
+    try
+    {
+      currentKeystorePassword = getKeystorePassword(keystorePath, "current");
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    final char[] newKeystorePassword;
+    try
+    {
+      newKeystorePassword = getKeystorePassword(keystorePath, "new");
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
+    // Get the keystore.
+    final KeyStore keystore;
+    try
+    {
+      keystore = getKeystore(keystoreType, keystorePath,
+           currentKeystorePassword);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
+    // Generate the keytool arguments to use to change the keystore password.
+    final BooleanArgument displayKeytoolCommandArgument =
+         subCommandParser.getBooleanArgument("display-keytool-command");
+    if ((displayKeytoolCommandArgument != null) &&
+          displayKeytoolCommandArgument.isPresent())
+    {
+      final ArrayList<String> keytoolArguments = new ArrayList<>(30);
+      keytoolArguments.add("-storepasswd");
+      keytoolArguments.add("-keystore");
+      keytoolArguments.add(keystorePath.getAbsolutePath());
+      keytoolArguments.add("-storetype");
+      keytoolArguments.add(keystoreType);
+      keytoolArguments.add("-storepass");
+      keytoolArguments.add("*****REDACTED*****");
+      keytoolArguments.add("-new");
+      keytoolArguments.add("*****REDACTED*****");
+
+      displayKeytoolCommand(keytoolArguments);
+    }
+
+
+    // Rewrite the keystore with the new password.
+    try
+    {
+      writeKeystore(keystore, keystorePath, newKeystorePassword);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    wrapOut(0, WRAP_COLUMN,
+         INFO_MANAGE_CERTS_CHANGE_KS_PW_SUCCESSFUL.get(
+              keystorePath.getAbsolutePath()));
+    return ResultCode.SUCCESS;
+  }
+
+
+
+  /**
+   * Performs the necessary processing for the change-private-key-password
+   * subcommand.
+   *
+   * @return  A result code that indicates whether the processing completed
+   *          successfully.
+   */
+  private ResultCode doChangePrivateKeyPassword()
+  {
+    // Get the values of a number of configured arguments.
+    final StringArgument aliasArgument =
+         subCommandParser.getStringArgument("alias");
+    final String alias = aliasArgument.getValue();
+
+    final String keystoreType;
+    final File keystorePath = getKeystorePath();
+    try
+    {
+      keystoreType = inferKeystoreType(keystorePath);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    final char[] keystorePassword;
+    try
+    {
+      keystorePassword = getKeystorePassword(keystorePath);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
+    // Get the keystore.
+    final KeyStore keystore;
+    try
+    {
+      keystore = getKeystore(keystoreType, keystorePath, keystorePassword);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
+    // Make sure that the keystore has a key entry with the specified alias.
+    if (hasCertificateAlias(keystore, alias))
+    {
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_CHANGE_PK_PW_ALIAS_IS_CERT.get(alias));
+      return ResultCode.PARAM_ERROR;
+    }
+    else if (! hasKeyAlias(keystore, alias))
+    {
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_CHANGE_PK_PW_NO_SUCH_ALIAS.get(alias));
+      return ResultCode.PARAM_ERROR;
+    }
+
+
+    // Get the current and new private key passwords.
+    final char[] currentPrivateKeyPassword;
+    try
+    {
+      currentPrivateKeyPassword =
+           getPrivateKeyPassword(keystore, alias, "current", keystorePassword);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+    final char[] newPrivateKeyPassword;
+    try
+    {
+      newPrivateKeyPassword =
+           getPrivateKeyPassword(keystore, alias, "new", keystorePassword);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      wrapErr(0, WRAP_COLUMN, le.getMessage());
+      return le.getResultCode();
+    }
+
+
+    // Generate the keytool arguments to use to change the private key.
+    final BooleanArgument displayKeytoolCommandArgument =
+         subCommandParser.getBooleanArgument("display-keytool-command");
+    if ((displayKeytoolCommandArgument != null) &&
+          displayKeytoolCommandArgument.isPresent())
+    {
+      final ArrayList<String> keytoolArguments = new ArrayList<>(30);
+      keytoolArguments.add("-keypasswd");
+      keytoolArguments.add("-keystore");
+      keytoolArguments.add(keystorePath.getAbsolutePath());
+      keytoolArguments.add("-storetype");
+      keytoolArguments.add(keystoreType);
+      keytoolArguments.add("-storepass");
+      keytoolArguments.add("*****REDACTED*****");
+      keytoolArguments.add("-alias");
+      keytoolArguments.add(alias);
+      keytoolArguments.add("-keypass");
+      keytoolArguments.add("*****REDACTED*****");
+      keytoolArguments.add("-new");
+      keytoolArguments.add("*****REDACTED*****");
+
+      displayKeytoolCommand(keytoolArguments);
+    }
+
+
+    // Get the contents of the private key entry.
+    final Certificate[] chain;
+    final PrivateKey privateKey;
+    try
+    {
+      chain = keystore.getCertificateChain(alias);
+      privateKey =
+           (PrivateKey) keystore.getKey(alias, currentPrivateKeyPassword);
+    }
+    catch (final UnrecoverableKeyException e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_CHANGE_PK_PW_WRONG_PK_PW.get(alias));
+      return ResultCode.PARAM_ERROR;
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_CHANGE_PK_PW_CANNOT_GET_PK.get(alias));
+      e.printStackTrace(getErr());
+      return ResultCode.LOCAL_ERROR;
+    }
+
+
+    // Remove the existing key entry and re-add it with the new password.
+    try
+    {
+      keystore.deleteEntry(alias);
+      keystore.setKeyEntry(alias, privateKey, newPrivateKeyPassword, chain);
+      writeKeystore(keystore, keystorePath, keystorePassword);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MANAGE_CERTS_CHANGE_PK_PW_CANNOT_UPDATE_KS.get());
+      e.printStackTrace(getErr());
+      return ResultCode.LOCAL_ERROR;
+    }
+
+    wrapOut(0, WRAP_COLUMN,
+         INFO_MANAGE_CERTS_CHANGE_PK_PW_SUCCESSFUL.get(alias));
     return ResultCode.SUCCESS;
   }
 
@@ -7485,6 +8216,38 @@ public final class ManageCertificates
     }
 
 
+    // Make sure that the signature is valid for each certificate in the
+    // chain.  If any certificate has an invalid signature, then that's an
+    // error.
+    for (int i=0; i < chain.length; i++)
+    {
+      final X509Certificate c = chain[i];
+
+      try
+      {
+        if (c.isSelfSigned())
+        {
+          c.verifySignature(null);
+        }
+        else if ((i + 1) < chain.length)
+        {
+          c.verifySignature(chain[i+1]);
+        }
+
+        out();
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_CHECK_USABILITY_CERT_SIGNATURE_VALID.get(
+                  c.getSubjectDN()));
+      }
+      catch (final CertException ce)
+      {
+        err();
+        wrapErr(0, WRAP_COLUMN, ce.getMessage());
+        numErrors++;
+      }
+    }
+
+
     // Check the validity window for each certificate in the chain.  If any of
     // them is expired or not yet valid, then that's an error.  If any of them
     // will expire in the near future, then that's a warning.
@@ -7572,11 +8335,18 @@ public final class ManageCertificates
     // Look at all of the extensions for all of the certificates and perform the
     // following validation:
     // - If the certificate at the head of the chain has an extended key usage
-    //   extension, then make sure it includes the serverAuth usage.
+    //   extension, then make sure it includes the serverAuth usage.  If it
+    //   does not include an extended key usage extension, then warn that it
+    //   should.
     // - If any of the issuer certificates has a basic constraints extension,
     //   then make sure it indicates that the associated certificate is a
     //   certification authority.  Further, if it has a path length constraint,
-    //   then make sure the chain does not exceed that length.
+    //   then make sure the chain does not exceed that length.  If any issuer
+    //   certificate does not have a basic constraints extension, then warn that
+    //   it should.
+    // - If any of the issuer certificates has a key usage extension, then
+    //   make sure it has the certSign usage.  If any issuer certificate does
+    //   not have a key usage extension, then warn that it should.
     // - TODO:  If any certificate has a CRL distribution points extension, then
     //   retrieve the CRL and make sure the certificate hasn't been revoked.
     // - TODO:  If any certificate has an authority information access
@@ -7584,17 +8354,21 @@ public final class ManageCertificates
     //   determine whether the certificate has been revoked.
     for (int i=0; i < chain.length; i++)
     {
+      boolean basicConstraintsFound = false;
+      boolean extendedKeyUsageFound = false;
+      boolean keyUsageFound = false;
       final X509Certificate c = chain[i];
       for (final X509CertificateExtension extension : c.getExtensions())
       {
         if (extension instanceof ExtendedKeyUsageExtension)
         {
+          extendedKeyUsageFound = true;
           if (i == 0)
           {
             final ExtendedKeyUsageExtension e =
                  (ExtendedKeyUsageExtension) extension;
-            if (! e.getKeyPurposeIDs().contains(
-                       ExtendedKeyUsageID.TLS_SERVER_AUTHENTICATION.getOID()))
+            if (!e.getKeyPurposeIDs().contains(
+                 ExtendedKeyUsageID.TLS_SERVER_AUTHENTICATION.getOID()))
             {
               err();
               wrapErr(0, WRAP_COLUMN,
@@ -7613,11 +8387,12 @@ public final class ManageCertificates
         }
         else if (extension instanceof BasicConstraintsExtension)
         {
+          basicConstraintsFound = true;
           if (i > 0)
           {
             final BasicConstraintsExtension e =
                  (BasicConstraintsExtension) extension;
-            if (! e.isCA())
+            if (!e.isCA())
             {
               err();
               wrapErr(0, WRAP_COLUMN,
@@ -7626,7 +8401,7 @@ public final class ManageCertificates
               numErrors++;
             }
             else if ((e.getPathLengthConstraint() != null) &&
-                     (chain.length > e.getPathLengthConstraint()))
+                 (chain.length > e.getPathLengthConstraint()))
             {
               err();
               wrapErr(0, WRAP_COLUMN,
@@ -7643,6 +8418,61 @@ public final class ManageCertificates
                         c.getSubjectDN()));
             }
           }
+        }
+        else if (extension instanceof KeyUsageExtension)
+        {
+          keyUsageFound = true;
+          if (i > 0)
+          {
+            final KeyUsageExtension e = (KeyUsageExtension) extension;
+            if (! e.isKeyCertSignBitSet())
+            {
+              err();
+              wrapErr(0, WRAP_COLUMN,
+                   ERR_MANAGE_CERTS_CHECK_USABILITY_ISSUER_NO_CERT_SIGN_KU.get(
+                        c.getSubjectDN()));
+              numErrors++;
+            }
+            else
+            {
+              out();
+              wrapOut(0, WRAP_COLUMN,
+                   INFO_MANAGE_CERTS_CHECK_USABILITY_ISSUER_GOOD_KU.get(
+                        c.getSubjectDN()));
+            }
+          }
+        }
+      }
+
+      if (i == 0)
+      {
+        if (! extendedKeyUsageFound)
+        {
+          err();
+          wrapErr(0, WRAP_COLUMN,
+               WARN_MANAGE_CERTS_CHECK_USABILITY_NO_EKU.get(
+                    c.getSubjectDN()));
+          numWarnings++;
+        }
+      }
+      else
+      {
+        if (! basicConstraintsFound)
+        {
+          err();
+          wrapErr(0, WRAP_COLUMN,
+               WARN_MANAGE_CERTS_CHECK_USABILITY_NO_BC.get(
+                    c.getSubjectDN()));
+          numWarnings++;
+        }
+
+        if (! keyUsageFound)
+        {
+          err();
+          wrapErr(0, WRAP_COLUMN,
+               WARN_MANAGE_CERTS_CHECK_USABILITY_NO_KU.get(
+                    c.getSubjectDN()));
+          numWarnings++;
         }
       }
     }
@@ -8753,7 +9583,6 @@ public final class ManageCertificates
     buffer.append("#      keytool");
 
     boolean lastWasArgName = false;
-    boolean lastWasPasswordArgName = false;
     for (final String arg : keytoolArgs)
     {
       if (arg.startsWith("-"))
@@ -8763,24 +9592,12 @@ public final class ManageCertificates
         buffer.append("#           ");
         buffer.append(arg);
         lastWasArgName = true;
-        lastWasPasswordArgName =
-             (arg.equals("-storepass") || arg.equals("-keypass"));
       }
       else if (lastWasArgName)
       {
         buffer.append(' ');
-        if (lastWasPasswordArgName)
-        {
-          buffer.append(StaticUtils.cleanExampleCommandLineArgument(
-               "*****REDACTED*****"));
-        }
-        else
-        {
-          buffer.append(StaticUtils.cleanExampleCommandLineArgument(arg));
-        }
-
+        buffer.append(StaticUtils.cleanExampleCommandLineArgument(arg));
         lastWasArgName = false;
-        lastWasPasswordArgName = false;
       }
       else
       {
@@ -8789,7 +9606,6 @@ public final class ManageCertificates
         buffer.append("#           ");
         buffer.append(arg);
         lastWasArgName = false;
-        lastWasPasswordArgName = false;
       }
     }
 
@@ -8836,8 +9652,41 @@ public final class ManageCertificates
   private char[] getKeystorePassword(final File keystoreFile)
           throws LDAPException
   {
+    return getKeystorePassword(keystoreFile, null);
+  }
+
+
+
+  /**
+   * Retrieves the password needed to access the keystore.
+   *
+   * @param  keystoreFile  The path to the keystore file for which to get the
+   *                       password.
+   * @param  prefix        The prefix string to use for the arguments.  This may
+   *                       be {@code null} if no prefix is needed.
+   *
+   * @return  The password needed to access the keystore, or {@code null} if
+   *          no keystore password was configured.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to get the
+   *                         keystore password.
+   */
+  private char[] getKeystorePassword(final File keystoreFile,
+                                     final String prefix)
+          throws LDAPException
+  {
+    final String prefixDash;
+    if (prefix == null)
+    {
+      prefixDash = "";
+    }
+    else
+    {
+      prefixDash = prefix + '-';
+    }
+
     final StringArgument keystorePasswordArgument =
-         subCommandParser.getStringArgument("keystore-password");
+         subCommandParser.getStringArgument(prefixDash + "keystore-password");
     if ((keystorePasswordArgument != null) &&
          keystorePasswordArgument.isPresent())
     {
@@ -8854,7 +9703,8 @@ public final class ManageCertificates
 
 
     final FileArgument keystorePasswordFileArgument =
-         subCommandParser.getFileArgument("keystore-password-file");
+         subCommandParser.getFileArgument(
+              prefixDash + "keystore-password-file");
     if ((keystorePasswordFileArgument != null) &&
         keystorePasswordFileArgument.isPresent())
     {
@@ -8905,18 +9755,28 @@ public final class ManageCertificates
     }
 
 
-    final BooleanArgument promptArgument =
-         subCommandParser.getBooleanArgument("prompt-for-keystore-password");
+    final BooleanArgument promptArgument = subCommandParser.getBooleanArgument(
+         "prompt-for-" + prefixDash + "keystore-password");
     if ((promptArgument != null) && promptArgument.isPresent())
     {
       out();
-      if (keystoreFile.exists())
+      if (keystoreFile.exists() && (! "new".equals(prefix)))
       {
         // We're only going to prompt once.
-        return promptForPassword(
-             INFO_MANAGE_CERTS_KEY_KS_PW_EXISTING_PROMPT.get(
-                  keystoreFile.getAbsolutePath()),
-             false);
+        if ((prefix != null) && prefix.equals("current"))
+        {
+          return promptForPassword(
+               INFO_MANAGE_CERTS_KEY_KS_PW_EXISTING_CURRENT_PROMPT.get(
+                    keystoreFile.getAbsolutePath()),
+               false);
+        }
+        else
+        {
+          return promptForPassword(
+               INFO_MANAGE_CERTS_KEY_KS_PW_EXISTING_PROMPT.get(
+                    keystoreFile.getAbsolutePath()),
+               false);
+        }
       }
       else
       {
@@ -8924,10 +9784,18 @@ public final class ManageCertificates
         // twice to prevent setting the wrong password because of a typo.
         while (true)
         {
-          final char[] pwChars = promptForPassword(
-               INFO_MANAGE_CERTS_KEY_KS_PW_NEW_PROMPT_1.get(
-                    keystoreFile.getAbsolutePath()),
-               false);
+          final String prompt1;
+          if ("new".equals(prefix))
+          {
+            prompt1 = INFO_MANAGE_CERTS_KEY_KS_PW_EXISTING_NEW_PROMPT.get();
+          }
+          else
+          {
+            prompt1 = INFO_MANAGE_CERTS_KEY_KS_PW_NEW_PROMPT_1.get(
+                 keystoreFile.getAbsolutePath());
+          }
+          final char[] pwChars = promptForPassword(prompt1, false);
+
           if (pwChars.length < 6)
           {
             wrapErr(0, WRAP_COLUMN,
@@ -9141,8 +10009,48 @@ public final class ManageCertificates
                                        final char[] keystorePassword)
           throws LDAPException
   {
+    return getPrivateKeyPassword(keystore, alias, null, keystorePassword);
+  }
+
+
+
+  /**
+   * Retrieves the password needed to access the private key.
+   *
+   * @param  keystore          The keystore that contains the target private
+   *                           key.  This must not be {@code null}.
+   * @param  alias             The alias of the target private key.  This must
+   *                           not be {@code null}.
+   * @param  prefix            The prefix string to use for the arguments.  This
+   *                           may be {@code null} if no prefix is needed.
+   * @param  keystorePassword  The keystore password to use if no specific
+   *                           private key password was provided.
+   *
+   * @return  The password needed to access the private key, or the provided
+   *          keystore password if no arguments were provided to specify a
+   *          different private key password.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to get the
+   *                         private key password.
+   */
+  private char[] getPrivateKeyPassword(final KeyStore keystore,
+                                       final String alias, final String prefix,
+                                       final char[] keystorePassword)
+          throws LDAPException
+  {
+    final String prefixDash;
+    if (prefix == null)
+    {
+      prefixDash = "";
+    }
+    else
+    {
+      prefixDash = prefix + '-';
+    }
+
     final StringArgument privateKeyPasswordArgument =
-         subCommandParser.getStringArgument("private-key-password");
+         subCommandParser.getStringArgument(
+              prefixDash + "private-key-password");
     if ((privateKeyPasswordArgument != null) &&
          privateKeyPasswordArgument.isPresent())
     {
@@ -9161,7 +10069,8 @@ public final class ManageCertificates
 
 
     final FileArgument privateKeyPasswordFileArgument =
-         subCommandParser.getFileArgument("private-key-password-file");
+         subCommandParser.getFileArgument(
+              prefixDash + "private-key-password-file");
     if ((privateKeyPasswordFileArgument != null) &&
         privateKeyPasswordFileArgument.isPresent())
     {
@@ -9215,20 +10124,33 @@ public final class ManageCertificates
 
 
     final BooleanArgument promptArgument =
-         subCommandParser.getBooleanArgument("prompt-for-private-key-password");
+         subCommandParser.getBooleanArgument(
+              "prompt-for-" + prefixDash + "private-key-password");
     if ((promptArgument != null) && promptArgument.isPresent())
     {
       out();
 
       try
       {
-        if (hasKeyAlias(keystore, alias) ||
-            hasCertificateAlias(keystore, alias))
+        if ((hasKeyAlias(keystore, alias) ||
+             hasCertificateAlias(keystore, alias)) &&
+            (! "new".equals(prefix)))
         {
           // This means that the private key already exists, so we just need to
           // prompt once.
-          return promptForPassword(
-               INFO_MANAGE_CERTS_GET_PK_PW_EXISTING_PROMPT.get(alias), false);
+          final String prompt;
+          if ("current".equals(prefix))
+          {
+            prompt =
+                 INFO_MANAGE_CERTS_GET_PK_PW_CURRENT_PROMPT.get(alias);
+          }
+          else
+          {
+            prompt =
+                 INFO_MANAGE_CERTS_GET_PK_PW_EXISTING_PROMPT.get(alias);
+          }
+
+          return promptForPassword(prompt, false);
         }
         else
         {
@@ -9236,8 +10158,17 @@ public final class ManageCertificates
           // prompt twice.
           while (true)
           {
-            final char[] pwChars = promptForPassword(
-                 INFO_MANAGE_CERTS_GET_PK_PW_NEW_PROMPT_1.get(alias), false);
+            final String prompt;
+            if ("new".equals(prefix))
+            {
+              prompt = INFO_MANAGE_CERTS_GET_PK_PW_NEW_PROMPT.get();
+            }
+            else
+            {
+              prompt = INFO_MANAGE_CERTS_GET_PK_PW_NEW_PROMPT_1.get(alias);
+            }
+
+            final char[] pwChars = promptForPassword(prompt, false);
             if (pwChars.length < 6)
             {
               wrapErr(0, WRAP_COLUMN,
@@ -10990,6 +11921,22 @@ public final class ManageCertificates
          },
          INFO_MANAGE_CERTS_EXAMPLE_CHANGE_ALIAS_1.get(keystorePath,
               genCSROutputFile, exportCertOutputFile));
+
+    examples.put(
+         new String[]
+         {
+           "change-keystore-password",
+           "--keystore", getPlatformSpecificPath("config", "keystore"),
+           "--current-keystore-password-file",
+                getPlatformSpecificPath("config", "current.pin"),
+           "--new-keystore-password-file",
+                getPlatformSpecificPath("config", "new.pin"),
+           "--display-keytool-command"
+         },
+         INFO_MANAGE_CERTS_SC_CHANGE_KS_PW_EXAMPLE_1.get(
+              getPlatformSpecificPath("config", "keystore"),
+              getPlatformSpecificPath("config", "current.pin"),
+              getPlatformSpecificPath("config", "new.pin")));
 
     examples.put(
          new String[]
