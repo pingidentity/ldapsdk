@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -154,6 +155,16 @@ final class SearchRateThread
    * @param  baseDN                     The value pattern to use for the base
    *                                    DNs.
    * @param  scope                      The scope to use for the searches.
+   * @param  dereferencePolicy          The alias dereference policy to use for
+   *                                    the searches.
+   * @param  sizeLimit                  The maximum number of entries to return
+   *                                    in response to each search request.
+   * @param  timeLimitSeconds           The maximum length of time, in seconds,
+   *                                    that the server should spend processing
+   *                                    each search request.
+   * @param  typesOnly                  Indicates whether to return entries with
+   *                                    only attribute names, or with both names
+   *                                    and values.
    * @param  filter                     The value pattern for the filters.
    * @param  attributes                 The set of attributes to return.
    * @param  authzID                    The value pattern to use to generate
@@ -197,8 +208,10 @@ final class SearchRateThread
   SearchRateThread(final SearchRate searchRate, final int threadNumber,
                    final LDAPConnection connection, final boolean async,
                    final ValuePattern baseDN, final SearchScope scope,
-                   final ValuePattern filter, final String[] attributes,
-                   final ValuePattern authzID,
+                   final DereferencePolicy dereferencePolicy,
+                   final int sizeLimit, final int timeLimitSeconds,
+                   final boolean typesOnly, final ValuePattern filter,
+                   final String[] attributes, final ValuePattern authzID,
                    final Integer simplePageSize,
                    final List<Control> requestControls,
                    final long iterationsBeforeReconnect,
@@ -249,7 +262,8 @@ final class SearchRateThread
     resultCode    = new AtomicReference<ResultCode>(null);
     searchThread  = new AtomicReference<Thread>(null);
     stopRequested = new AtomicBoolean(false);
-    searchRequest = new SearchRequest(this, "", scope,
+    searchRequest = new SearchRequest(this, "", scope, dereferencePolicy,
+         sizeLimit, timeLimitSeconds, typesOnly,
          Filter.createPresenceFilter("objectClass"), attributes);
   }
 

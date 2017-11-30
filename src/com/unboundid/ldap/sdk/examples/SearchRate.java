@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -105,6 +106,19 @@ import static com.unboundid.util.StaticUtils.*;
  *       search.  The scope value should be one of "base", "one", "sub", or
  *       "subord".  If this isn't specified, then a scope of "sub" will be
  *       used.</LI>
+ *   <LI>"-z {num}" or "--sizeLimit {num}" -- specifies the maximum number of
+ *       entries that should be returned in response to each search
+ *       request.</LI>
+ *   <LI>"-l {num}" or "--timeLimitSeconds {num}" -- specifies the maximum
+ *       length of time, in seconds, that the server should spend processing
+ *       each search request.</LI>
+ *   <LI>"--dereferencePolicy {value}" -- specifies the alias dereferencing
+ *       policy that should be used for each search request.  Allowed values are
+ *       "never", "always", "search", and "find".</LI>
+ *   <LI>"--typesOnly" -- indicates that search requests should have the
+ *       typesOnly flag set to true, indicating that matching entries should
+ *       only include attributes with an attribute description but no
+ *       values.</LI>
  *   <LI>"-f {filter}" or "--filter {filter}" -- specifies the filter to use for
  *       the searches.  This must be provided.  It may be a simple filter, or it
  *       may be a value pattern to express a range of filters.</LI>
@@ -193,6 +207,10 @@ public final class SearchRate
   // result codes.
   private BooleanArgument suppressErrors;
 
+  // The argument used to indicate whether to set the typesOnly flag to true in
+  // search requests.
+  private BooleanArgument typesOnly;
+
   // The argument used to indicate that a generic control should be included in
   // the request.
   private ControlArgument control;
@@ -235,6 +253,12 @@ public final class SearchRate
   // results control with the specified page size.
   private IntegerArgument simplePageSize;
 
+  // The argument used to specify the search request size limit.
+  private IntegerArgument sizeLimit;
+
+  // The argument used to specify the search request time limit, in seconds.
+  private IntegerArgument timeLimitSeconds;
+
   // The number of warm-up intervals to perform.
   private IntegerArgument warmUpIntervals;
 
@@ -246,6 +270,10 @@ public final class SearchRate
 
   // The argument used to specify the base DNs for the searches.
   private StringArgument baseDN;
+
+  // The argument used to specify the alias dereferencing policy for the search
+  // requests.
+  private StringArgument dereferencePolicy;
 
   // The argument used to specify the filters for the searches.
   private StringArgument filter;
@@ -507,6 +535,61 @@ public final class SearchRate
                                  SearchScope.SUB);
     scopeArg.setArgumentGroupName("Search Arguments");
     parser.addArgument(scopeArg);
+
+
+    description = "The maximum number of entries that the server should " +
+                  "return in response to each search request.  A value of " +
+                  "zero indicates that the client does not wish to impose " +
+                  "any limit on the number of entries that are returned " +
+                  "(although the server may impose its own limit).  If this " +
+                  "is not provided, then a default value of zero will be used.";
+    sizeLimit = new IntegerArgument('z', "sizeLimit", false, 1, "{num}",
+                                    description, 0, Integer.MAX_VALUE, 0);
+    sizeLimit.setArgumentGroupName("Search Arguments");
+    sizeLimit.addLongIdentifier("size-limit", true);
+    parser.addArgument(sizeLimit);
+
+
+    description = "The maximum length of time, in seconds, that the server " +
+                  "should spend processing each search request.  A value of " +
+                  "zero indicates that the client does not wish to impose " +
+                  "any limit on the server's processing time (although the " +
+                  "server may impose its own limit).  If this is not " +
+                  "provided, then a default value of zero will be used.";
+    timeLimitSeconds = new IntegerArgument('l', "timeLimitSeconds", false, 1,
+         "{seconds}", description, 0, Integer.MAX_VALUE, 0);
+    timeLimitSeconds.setArgumentGroupName("Search Arguments");
+    timeLimitSeconds.addLongIdentifier("time-limit-seconds", true);
+    timeLimitSeconds.addLongIdentifier("timeLimit", true);
+    timeLimitSeconds.addLongIdentifier("time-limit", true);
+    parser.addArgument(timeLimitSeconds);
+
+
+    final LinkedHashSet<String> derefAllowedValues =
+         new LinkedHashSet<String>(4);
+    derefAllowedValues.add("never");
+    derefAllowedValues.add("always");
+    derefAllowedValues.add("search");
+    derefAllowedValues.add("find");
+    description = "The alias dereferencing policy to use for search " +
+                  "requests.  The value should be one of 'never', 'always', " +
+                  "'search', or 'find'.  If this is not provided, then a " +
+                  "default value of 'never' will be used.";
+    dereferencePolicy = new StringArgument(null, "dereferencePolicy", false, 1,
+         "{never|always|search|find}", description, derefAllowedValues,
+         "never");
+    dereferencePolicy.setArgumentGroupName("Search Arguments");
+    dereferencePolicy.addLongIdentifier("dereference-policy", true);
+    parser.addArgument(dereferencePolicy);
+
+
+    description = "Indicates that serve should only include the names of the " +
+                  "attributes contained in matching entries rather than both " +
+                  "names and values.";
+    typesOnly = new BooleanArgument(null, "typesOnly", 1, description);
+    typesOnly.setArgumentGroupName("Search Arguments");
+    typesOnly.addLongIdentifier("types-only", true);
+    parser.addArgument(typesOnly);
 
 
     description = "The filter to use for the searches.  It may be a simple " +
@@ -882,6 +965,28 @@ public final class SearchRate
       authzIDPattern = null;
     }
 
+
+    // Get the alias dereference policy to use.
+    final DereferencePolicy derefPolicy;
+    final String derefValue = toLowerCase(dereferencePolicy.getValue());
+    if (derefValue.equals("always"))
+    {
+      derefPolicy = DereferencePolicy.ALWAYS;
+    }
+    else if (derefValue.equals("search"))
+    {
+      derefPolicy = DereferencePolicy.SEARCHING;
+    }
+    else if (derefValue.equals("find"))
+    {
+      derefPolicy = DereferencePolicy.FINDING;
+    }
+    else
+    {
+      derefPolicy = DereferencePolicy.NEVER;
+    }
+
+
     // Get the set of controls to include in search requests.
     final ArrayList<Control> controlList = new ArrayList<Control>(5);
     if (assertionFilter.isPresent())
@@ -1106,10 +1211,12 @@ public final class SearchRate
 
       threads[i] = new SearchRateThread(this, i, connection,
            asynchronousMode.isPresent(), dnPattern, scopeArg.getValue(),
-           filterPattern, attrs, authzIDPattern, simplePageSize.getValue(),
-           controlList, iterationsBeforeReconnect.getValue(), barrier,
-           searchCounter, entryCounter, searchDurations, errorCounter,
-           rcCounter, fixedRateBarrier, asyncSemaphore);
+           derefPolicy, sizeLimit.getValue(), timeLimitSeconds.getValue(),
+           typesOnly.isPresent(), filterPattern, attrs, authzIDPattern,
+           simplePageSize.getValue(), controlList,
+           iterationsBeforeReconnect.getValue(), barrier, searchCounter,
+           entryCounter, searchDurations, errorCounter, rcCounter,
+           fixedRateBarrier, asyncSemaphore);
       threads[i].start();
     }
 

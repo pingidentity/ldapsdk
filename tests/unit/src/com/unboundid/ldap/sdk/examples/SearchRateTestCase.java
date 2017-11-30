@@ -159,7 +159,8 @@ public class SearchRateTestCase
       "-R", "0",
       "-c",
       "--suppressErrorResultCodes",
-      "--iterationsBeforeReconnect", "10"
+      "--iterationsBeforeReconnect", "10",
+      "--dereferencePolicy", "always"
     };
     assertEquals(SearchRate.main(args, null, null),
                  ResultCode.SUCCESS);
@@ -203,7 +204,8 @@ public class SearchRateTestCase
       "-i", "1",
       "-I", "2",
       "--timestampFormat", "with-date",
-      "--warmUpIntervals", "1"
+      "--warmUpIntervals", "1",
+      "--dereferencePolicy", "search"
     };
     assertFalse(SearchRate.main(args, null, null) == ResultCode.SUCCESS);
   }
@@ -243,7 +245,8 @@ public class SearchRateTestCase
       "--simplePageSize", "1",
       "--sortOrder", "cn,+givenName,-sn:caseIgnoreOrderingMatch",
       "--assertionFilter", "(objectClass=*)",
-      "--control", "2.16.840.1.113730.3.4.2:false"
+      "--control", "2.16.840.1.113730.3.4.2:false",
+      "--dereferencePolicy", "find"
     };
     assertEquals(SearchRate.main(args, null, null),
                  ResultCode.SUCCESS);
@@ -380,7 +383,8 @@ public class SearchRateTestCase
       "-f", "(uid=user.[1-10])",
       "-t", "10",
       "-i", "1",
-      "-I", "2"
+      "-I", "2",
+      "--dereferencePolicy", "never"
     };
     assertFalse(SearchRate.main(args, null, null) == ResultCode.SUCCESS);
   }
