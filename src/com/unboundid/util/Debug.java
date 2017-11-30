@@ -35,6 +35,7 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.DisconnectType;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPRequest;
 import com.unboundid.ldap.sdk.Version;
@@ -840,11 +841,19 @@ public final class Debug
         buffer.append(':');
         buffer.append(c.getConnectedPort());
         buffer.append("\" ");
+
+        try
+        {
+          final int soTimeout = InternalSDKHelper.getSoTimeout(c);
+          buffer.append("socketTimeoutMillis=");
+          buffer.append(soTimeout);
+          buffer.append(' ');
+        } catch (final Exception e) {}
       }
 
       if (i >= 0)
       {
-        buffer.append(" messageID=");
+        buffer.append("messageID=");
         buffer.append(i);
         buffer.append(' ');
       }

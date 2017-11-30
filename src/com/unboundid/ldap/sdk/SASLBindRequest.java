@@ -254,8 +254,7 @@ public abstract class SASLBindRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
-           (int) timeoutMillis);
+      InternalSDKHelper.setSoTimeout(connection, (int) timeoutMillis);
     }
     catch (final Exception e)
     {

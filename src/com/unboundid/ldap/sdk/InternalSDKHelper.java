@@ -31,9 +31,13 @@ import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.sdk.extensions.CancelExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
+import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+
+import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
 
 
@@ -58,10 +62,41 @@ public final class InternalSDKHelper
 
 
   /**
-   * Sets the SO_TIMEOUT socket option on the socket associated with this
-   * connection, which will take effect for the next blocking operation that is
-   * performed on the socket.  This will have no effect for connections that are
-   * operating in synchronous mode.
+   * Retrieves the value (in milliseconds) of the SO_TIMEOUT socket option from
+   * the socket associated with the provided connection.
+   *
+   * @param  connection  The connection for which to retrieve the SO_TIMEOUT
+   *                     socket option value.  It must not be {@code null}.
+   *
+   * @return  The value (in milliseconds) of the SO_TIMEOUT socket option from
+   *          the socket associated with the provided connection.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         get the SO_TIMEOUT value.
+   */
+  public static int getSoTimeout(final LDAPConnection connection)
+         throws LDAPException
+  {
+    try
+    {
+      return connection.getConnectionInternals(true).getSocket().getSoTimeout();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_INTERNAL_SDK_HELPER_CANNOT_GET_SO_TIMEOUT.get(
+                String.valueOf(connection), StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+  }
+
+
+
+  /**
+   * Sets the value (in milliseconds) of the SO_TIMEOUT socket option on the
+   * socket associated with the provided connection.  It will take effect for
+   * the next blocking operation that is performed on the socket.
    *
    * @param  connection  The connection for which the SO_TIMEOUT option will be
    *                     set.
@@ -78,11 +113,33 @@ public final class InternalSDKHelper
                                   final int soTimeout)
          throws LDAPException
   {
-    final LDAPConnectionReader connectionReader =
-         connection.getConnectionInternals(true).getConnectionReader();
-    if (connectionReader != null)
+    if (Debug.debugEnabled())
     {
-      connectionReader.setSoTimeout(soTimeout);
+      Debug.debug(Level.INFO, DebugType.CONNECT,
+           "Setting the SO_TIMEOUT value for connection " + connection +
+                " to " + soTimeout + "ms.");
+    }
+
+    try
+    {
+      if (connection != null)
+      {
+        final LDAPConnectionInternals internals =
+             connection.getConnectionInternals(false);
+        if (internals != null)
+        {
+          internals.getSocket().setSoTimeout(soTimeout);
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_INTERNAL_SDK_HELPER_CANNOT_SET_SO_TIMEOUT.get(
+                String.valueOf(connection), soTimeout,
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

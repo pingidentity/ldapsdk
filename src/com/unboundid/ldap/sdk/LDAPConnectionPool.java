@@ -2816,7 +2816,7 @@ public final class LDAPConnectionPool
           {
             s = conn.getConnectionInternals(true).getSocket();
             previousTimeout = s.getSoTimeout();
-            s.setSoTimeout(1);
+            InternalSDKHelper.setSoTimeout(conn, 1);
 
             final LDAPResponse response = conn.readResponse(0);
             if (response instanceof ConnectionClosedResponse)
@@ -2909,7 +2909,7 @@ public final class LDAPConnectionPool
               {
                 if (s != null)
                 {
-                  s.setSoTimeout(previousTimeout);
+                  InternalSDKHelper.setSoTimeout(conn, previousTimeout);
                 }
               }
               catch (final Exception e)

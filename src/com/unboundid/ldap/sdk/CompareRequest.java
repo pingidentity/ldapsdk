@@ -734,7 +734,7 @@ public final class CompareRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      InternalSDKHelper.setSoTimeout(connection,
            (int) getResponseTimeoutMillis(connection));
     }
     catch (final Exception e)

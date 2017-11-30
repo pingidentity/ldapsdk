@@ -1457,8 +1457,7 @@ public final class SearchRequest
     final long responseTimeout = getResponseTimeoutMillis(connection);
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
-           (int) responseTimeout);
+      InternalSDKHelper.setSoTimeout(connection, (int) responseTimeout);
     }
     catch (final Exception e)
     {
