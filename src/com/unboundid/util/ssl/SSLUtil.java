@@ -60,7 +60,9 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 /**
  * This class provides a simple interface for creating {@code SSLContext} and
  * {@code SSLSocketFactory} instances, which may be used to create SSL-based
- * connections, or secure existing connections with StartTLS.
+ * connections, or secure existing connections with StartTLS.  Support for the
+ * TLSv1, TLSv1.1, and TLSv1.2 protocols will be enabled by default (if the JVM
+ * supports them), with TLSv1.2 being the preferred protocol.
  * <BR><BR>
  * <H2>Example 1</H2>
  * The following example demonstrates the use of the SSL helper to create an
@@ -371,10 +373,12 @@ public final class SSLUtil
    * Creates an initialized SSL context created with the configured key and
    * trust managers.  It will use the default provider.
    *
-   * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
-   *                   Architecture document, the set of supported protocols
-   *                   should include at least "SSLv3", "TLSv1", "TLSv1.1", and
-   *                   "SSLv2Hello".  It must not be {@code null}.
+   * @param  protocol  The SSL protocol to use.  The Java Secure Socket
+   *                   Extension (JSSE) Reference Guide provides a list of the
+   *                   supported protocols, but commonly used values are
+   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
+   *                   {@code null}.
+   *
    *
    * @return  The created SSL context.
    *
@@ -397,10 +401,11 @@ public final class SSLUtil
    * Creates an initialized SSL context created with the configured key and
    * trust managers.
    *
-   * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
-   *                   Architecture document, the set of supported protocols
-   *                   should include at least "SSLv3", "TLSv1", "TLSv1.1", and
-   *                   "SSLv2Hello".  It must not be {@code null}.
+   * @param  protocol  The SSL protocol to use.  The Java Secure Socket
+   *                   Extension (JSSE) Reference Guide provides a list of the
+   *                   supported protocols, but commonly used values are
+   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
+   *                   {@code null}.
    * @param  provider  The name of the provider to use for cryptographic
    *                   operations.  It must not be {@code null}.
    *
@@ -446,10 +451,11 @@ public final class SSLUtil
    * Creates an SSL socket factory with the configured key and trust managers.
    * It will use the default provider.
    *
-   * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
-   *                   Architecture document, the set of supported protocols
-   *                   should include at least "SSLv3", "TLSv1", "TLSv1.1", and
-   *                   "SSLv2Hello".  It must not be {@code null}.
+   * @param  protocol  The SSL protocol to use.  The Java Secure Socket
+   *                   Extension (JSSE) Reference Guide provides a list of the
+   *                   supported protocols, but commonly used values are
+   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
+   *                   {@code null}.
    *
    * @return  The created SSL socket factory.
    *
@@ -468,10 +474,11 @@ public final class SSLUtil
   /**
    * Creates an SSL socket factory with the configured key and trust managers.
    *
-   * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
-   *                   Architecture document, the set of supported protocols
-   *                   should include at least "SSLv3", "TLSv1", "TLSv1.1", and
-   *                   "SSLv2Hello".  It must not be {@code null}.
+   * @param  protocol  The SSL protocol to use.  The Java Secure Socket
+   *                   Extension (JSSE) Reference Guide provides a list of the
+   *                   supported protocols, but commonly used values are
+   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
+   *                   {@code null}.
    * @param  provider  The name of the provider to use for cryptographic
    *                   operations.  It must not be {@code null}.
    *
@@ -514,10 +521,11 @@ public final class SSLUtil
    * Creates an SSL server socket factory using the configured key and trust
    * manager providers.  It will use the JVM-default provider.
    *
-   * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
-   *                   Architecture document, the set of supported protocols
-   *                   should include at least "SSLv3", "TLSv1", "TLSv1.1", and
-   *                   "SSLv2Hello".  It must not be {@code null}.
+   * @param  protocol  The SSL protocol to use.  The Java Secure Socket
+   *                   Extension (JSSE) Reference Guide provides a list of the
+   *                   supported protocols, but commonly used values are
+   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
+   *                   {@code null}.
    *
    * @return  The created SSL server socket factory.
    *
@@ -539,10 +547,11 @@ public final class SSLUtil
    * Creates an SSL server socket factory using the configured key and trust
    * manager providers.
    *
-   * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
-   *                   Architecture document, the set of supported protocols
-   *                   should include at least "SSLv3", "TLSv1", "TLSv1.1", and
-   *                   "SSLv2Hello".  It must not be {@code null}.
+   * @param  protocol  The SSL protocol to use.  The Java Secure Socket
+   *                   Extension (JSSE) Reference Guide provides a list of the
+   *                   supported protocols, but commonly used values are
+   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
+   *                   {@code null}.
    * @param  provider  The name of the provider to use for cryptographic
    *                   operations.  It must not be {@code null}.
    *
