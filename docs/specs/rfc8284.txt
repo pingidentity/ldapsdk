@@ -1,0 +1,339 @@
+
+
+
+
+
+
+Internet Engineering Task Force (IETF)                          S. Kille
+Request for Comments: 8284                                     Isode Ltd
+Category: Informational                                    November 2017
+ISSN: 2070-1721
+
+
+   Lightweight Directory Access Protocol (LDAP) Schema for Supporting
+  the Extensible Messaging and Presence Protocol (XMPP) in White Pages
+
+Abstract
+
+   The Extensible Messaging and Presence Protocol (XMPP) identifies
+   users by use of Jabber IDs (JIDs).  The Lightweight Directory Access
+   Protocol (LDAP) enables provision of a white pages service with a
+   schema relating to users and support for Internet protocols.  This
+   specification defines a schema to enable XMPP JIDs to be associated
+   with objects in an LDAP directory so that this information can be
+   used with white pages applications.
+
+Status of This Memo
+
+   This document is not an Internet Standards Track specification; it is
+   published for informational purposes.
+
+   This document is a product of the Internet Engineering Task Force
+   (IETF).  It represents the consensus of the IETF community.  It has
+   received public review and has been approved for publication by the
+   Internet Engineering Steering Group (IESG).  Not all documents
+   approved by the IESG are a candidate for any level of Internet
+   Standard; see Section 2 of RFC 7841.
+
+   Information about the current status of this document, any errata,
+   and how to provide feedback on it may be obtained at
+   https://www.rfc-editor.org/info/rfc8284.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kille                         Informational                     [Page 1]
+
+RFC 8284                  LDAP Schema for XMPP             November 2017
+
+
+Copyright Notice
+
+   Copyright (c) 2017 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Conventions Used in This Document . . . . . . . . . . . . . .   3
+   3.  Schema Definition . . . . . . . . . . . . . . . . . . . . . .   3
+     3.1.  Object Class  . . . . . . . . . . . . . . . . . . . . . .   3
+     3.2.  Attribute . . . . . . . . . . . . . . . . . . . . . . . .   3
+   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   5
+   6.  Normative References  . . . . . . . . . . . . . . . . . . . .   5
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .   6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
+
+1.  Introduction
+
+   Extensible Messaging and Presence Protocol (XMPP) [RFC6120]
+   identifies users by use of Jabber IDs (JIDs).  The Lightweight
+   Directory Access Protocol (LDAP) [RFC4510] enables provision of a
+   white pages service with a schema relating to users and support for
+   Internet protocols defined in [RFC4519].  This specification defines
+   a schema to enable XMPP JIDs to be associated with LDAP directory
+   objects so that this information can be used with white pages
+   applications.
+
+   The LDAP schema for storing JIDs is defined to enable JIDs to be
+   associated with any object stored in the directory.  This is done by
+   associating the new JID Attribute with a new Auxiliary Object Class
+   called JIDObject.
+
+
+
+
+
+
+
+
+Kille                         Informational                     [Page 2]
+
+RFC 8284                  LDAP Schema for XMPP             November 2017
+
+
+2.  Conventions Used in This Document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  Schema Definition
+
+   This section defines the schema used to store JIDs in the directory.
+
+3.1.  Object Class
+
+   This section defines a new Auxiliary Object Class called JIDObject,
+   which MAY be associated with any structural Object Class.  This
+   Object Class is used to augment entries for objects that act or may
+   act as an XMPP client.  The JID attribute is optional in order to
+   enable configuring an object that is allowed to have an associated
+   JID but does not currently have one.
+
+        ( 1.3.6.1.1.23.1 NAME 'JIDObject'
+        AUXILIARY
+        MAY jid )
+
+3.2.  Attribute
+
+   This section defines the JID attribute referenced by the JIDObject
+   Auxiliary Object Class.  The syntax of the JID attribute MUST follow
+   the rules of [RFC7622].  The JID stored MUST be a bare JID (e.g., a
+   JID such as romeo@shakespeare.example.com representing a human user)
+   and not a full JID (e.g., a JID such as
+   romeo@shakespare.example.com/AABBCC, which represents a specific XMPP
+   client used by the human user and is identified by the resource
+   AABBCC).  Note that the LDAP directory server is not expected to
+   enforce this syntax.  The syntax rules are for LDAP clients setting
+   this attribute, noting that human usage is a key target.
+   Applications using this attribute should format that string in a
+   manner appropriate to the application, and XMPP applications SHOULD
+   apply [RFC7622] to the attribute.  The directory service doesn't
+   enforce the JID syntax, and values are compared according to the
+   matching rules specified in the attribute definition.
+
+   Note that for the convenience of users and administrators as well as
+   implementers, the Directory String syntax and the caseIgnoreMatch
+   matching rule are chosen to allow entry and matching of values
+   according to common rules used within the directory.  As this syntax
+   and matching rule differ from [RFC7622], false positives and false
+
+
+
+Kille                         Informational                     [Page 3]
+
+RFC 8284                  LDAP Schema for XMPP             November 2017
+
+
+   negatives can possibly occur.  This is not anticipated to cause
+   operational issues (based on implementation experience with similar
+   syntax/matching rule mismatches).
+
+         ( 1.3.6.1.1.23.2 NAME 'jid'
+            EQUALITY caseIgnoreMatch
+            SUBSTR caseIgnoreSubstringsMatch
+            SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+   1.3.6.1.4.1.1466.115.121.1.15 refers to the Directory String syntax
+   defined in [RFC4517].
+
+4.  IANA Considerations
+
+   The following registrations have been made in the "Lightweight
+   Directory Access Protocol (LDAP) Parameters" registry
+   <https://www.iana.org/assignments/ldap-parameters> in line with
+   BCP 64 [RFC4520].
+
+   Object Identifier Registration
+
+   An object identifier has been assigned to support the registrations
+   necessary for this specification by an entry in the Internet
+   Directory Numbers (iso.org.dod.internet.directory [1.3.6.1.1.])
+   registry:
+
+               Decimal: 23
+               Name: xmpp
+               Description: LDAP schema for XMPP
+
+   Two object identifiers have been assigned:
+
+   'JIDObject' Descriptor Registration
+
+               Name: JIDObject
+               Type: O
+               OID: 1.3.6.1.1.23.1
+
+   'jid' Descriptor Registration
+
+               Name: jid
+               Type: A
+               OID: 1.3.6.1.1.23.2
+
+
+
+
+
+
+
+
+Kille                         Informational                     [Page 4]
+
+RFC 8284                  LDAP Schema for XMPP             November 2017
+
+
+5.  Security Considerations
+
+   XMPP JIDs are often personal identifiers enabling electronic
+   communication and have similar considerations to email addresses.
+   This schema enables publishing of this information in LDAP
+   directories, which may be corporate or public services.  Care should
+   be taken to only publish JID information that is acceptable both to
+   be linked to the LDAP object and to be made accessible to all LDAP
+   users.  The general LDAP security considerations specified in
+   [RFC4510] also apply.
+
+6.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510,
+              DOI 10.17487/RFC4510, June 2006,
+              <https://www.rfc-editor.org/info/rfc4510>.
+
+   [RFC4517]  Legg, S., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Syntaxes and Matching Rules", RFC 4517,
+              DOI 10.17487/RFC4517, June 2006,
+              <https://www.rfc-editor.org/info/rfc4517>.
+
+   [RFC4519]  Sciberras, A., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Schema for User Applications", RFC 4519,
+              DOI 10.17487/RFC4519, June 2006,
+              <https://www.rfc-editor.org/info/rfc4519>.
+
+   [RFC4520]  Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
+              Considerations for the Lightweight Directory Access
+              Protocol (LDAP)", BCP 64, RFC 4520, DOI 10.17487/RFC4520,
+              June 2006, <https://www.rfc-editor.org/info/rfc4520>.
+
+   [RFC6120]  Saint-Andre, P., "Extensible Messaging and Presence
+              Protocol (XMPP): Core", RFC 6120, DOI 10.17487/RFC6120,
+              March 2011, <https://www.rfc-editor.org/info/rfc6120>.
+
+   [RFC7622]  Saint-Andre, P., "Extensible Messaging and Presence
+              Protocol (XMPP): Address Format", RFC 7622,
+              DOI 10.17487/RFC7622, September 2015,
+              <https://www.rfc-editor.org/info/rfc7622>.
+
+
+
+
+
+Kille                         Informational                     [Page 5]
+
+RFC 8284                  LDAP Schema for XMPP             November 2017
+
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+Acknowledgements
+
+   Thanks to Alexey Melnikov for suggestions on preparing this document.
+   Thanks to Alan Murdock, Yoav Nir, Peter Saint-Andre, and Kurt
+   Zeilenga for their review comments.
+
+Author's Address
+
+   Steve Kille
+   Isode Ltd
+   14 Castle Mews
+   Hampton, Middlesex  TW12 2NP
+   United Kingdom
+
+   Email: Steve.Kille@isode.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kille                         Informational                     [Page 6]
+
