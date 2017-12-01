@@ -11832,7 +11832,7 @@ public final class ManageCertificates
          {
            "import-certificate",
            "--keystore", keystorePath,
-           "--keystore-type", "PKCS12",
+           "--keystore-type", "JKS",
            "--keystore-password-file", keystorePWPath,
            "--alias", "server-cert",
            "--certificate-file", exportCertOutputFile,
