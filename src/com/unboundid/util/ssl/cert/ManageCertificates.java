@@ -11362,16 +11362,33 @@ public final class ManageCertificates
     while (aliases.hasMoreElements())
     {
       final String alias = aliases.nextElement();
-      final Certificate c = keystore.getCertificate(alias);
-      if (c == null)
+
+      Certificate[] certs = null;
+      if (hasCertificateAlias(keystore, alias))
       {
-        continue;
+        final Certificate c = keystore.getCertificate(alias);
+        if (c == null)
+        {
+          continue;
+        }
+
+        certs = new Certificate[] { c };
+      }
+      else if (hasKeyAlias(keystore, alias))
+      {
+        certs = keystore.getCertificateChain(alias);
       }
 
-      final X509Certificate xc = new X509Certificate(c.getEncoded());
-      if (xc.isIssuerFor(certificate))
+      if (certs != null)
       {
-        return xc;
+        for (final Certificate c : certs)
+        {
+          final X509Certificate xc = new X509Certificate(c.getEncoded());
+          if (xc.isIssuerFor(certificate))
+          {
+            return xc;
+          }
+        }
       }
     }
 
