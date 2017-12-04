@@ -1621,7 +1621,7 @@ public final class X509Certificate
            new ASN1Sequence(extensionElements).encode()));
 
       final byte[] tbsCertificateBytes =
-           new ASN1Sequence(tbsCertificateElements).getValue();
+           new ASN1Sequence(tbsCertificateElements).encode();
       signature.update(tbsCertificateBytes);
       final byte[] signatureBytes = signature.sign();
 
@@ -2035,43 +2035,9 @@ public final class X509Certificate
     // signature.
     try
     {
-      final ArrayList<ASN1Element> tbsCertificateElements = new ArrayList<>(8);
-      tbsCertificateElements.add(new ASN1Element(TYPE_EXPLICIT_VERSION,
-           new ASN1Integer(version.getIntValue()).encode()));
-      tbsCertificateElements.add(new ASN1BigInteger(serialNumber));
-      tbsCertificateElements.add(new ASN1Sequence(
-           new ASN1ObjectIdentifier(signatureAlgorithm.getOID())));
-      tbsCertificateElements.add(encodeName(issuerDN));
-      tbsCertificateElements.add(encodeValiditySequence(notBefore, notAfter));
-      tbsCertificateElements.add(encodeName(subjectDN));
-
-      if (publicKeyAlgorithmParameters == null)
-      {
-        tbsCertificateElements.add(new ASN1Sequence(
-             new ASN1Sequence(
-                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID)),
-             encodedPublicKey));
-      }
-      else
-      {
-        tbsCertificateElements.add(new ASN1Sequence(
-             new ASN1Sequence(
-                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
-                  publicKeyAlgorithmParameters),
-             encodedPublicKey));
-      }
-
-      final ArrayList<ASN1Element> extensionElements =
-           new ArrayList<>(extensions.size());
-      for (final X509CertificateExtension e : extensions)
-      {
-        extensionElements.add(e.encode());
-      }
-      tbsCertificateElements.add(new ASN1Element(TYPE_EXPLICIT_EXTENSIONS,
-           new ASN1Sequence(extensionElements).encode()));
-
-      final byte[] tbsCertificateBytes =
-           new ASN1Sequence(tbsCertificateElements).getValue();
+      final ASN1Element[] x509CertificateElements =
+           ASN1Sequence.decodeAsSequence(x509CertificateBytes).elements();
+      final byte[] tbsCertificateBytes = x509CertificateElements[0].encode();
       signature.update(tbsCertificateBytes);
     }
     catch (final Exception e)

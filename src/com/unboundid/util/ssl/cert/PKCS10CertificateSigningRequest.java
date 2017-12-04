@@ -880,7 +880,7 @@ public final class PKCS10CertificateSigningRequest
       requestInfoElements.add(new ASN1Set(TYPE_ATTRIBUTES, attrElements));
 
       final byte[] certificationRequestInfoBytes =
-           new ASN1Sequence(requestInfoElements).getValue();
+           new ASN1Sequence(requestInfoElements).encode();
       signature.update(certificationRequestInfoBytes);
       final byte[] signatureBytes = signature.sign();
 
@@ -1206,39 +1206,11 @@ public final class PKCS10CertificateSigningRequest
     final boolean signatureIsValid;
     try
     {
-      final ArrayList<ASN1Element> requestInfoElements = new ArrayList<>(4);
-      requestInfoElements.add(new ASN1Integer(version.getIntValue()));
-      requestInfoElements.add(X509Certificate.encodeName(subjectDN));
-
-      if (publicKeyAlgorithmParameters == null)
-      {
-        requestInfoElements.add(new ASN1Sequence(
-             new ASN1Sequence(
-                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID)),
-             encodedPublicKey));
-      }
-      else
-      {
-        requestInfoElements.add(new ASN1Sequence(
-             new ASN1Sequence(
-                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
-                  publicKeyAlgorithmParameters),
-             encodedPublicKey));
-      }
-
-      final ArrayList<ASN1Element> attrElements =
-           new ArrayList<>(requestAttributes.size());
-      for (final ObjectPair<OID,ASN1Set> p : requestAttributes)
-      {
-        attrElements.add(new ASN1Sequence(
-             new ASN1ObjectIdentifier(p.getFirst()),
-             p.getSecond()));
-      }
-      requestInfoElements.add(new ASN1Set(TYPE_ATTRIBUTES, attrElements));
-
-      final byte[] certificationRequestInfoBytes =
-           new ASN1Sequence(requestInfoElements).getValue();
-      signature.update(certificationRequestInfoBytes);
+      final ASN1Element[] requestInfoElements =
+           ASN1Sequence.decodeAsSequence(
+                pkcs10CertificateSigningRequestBytes).elements();
+      final byte[] requestInfoBytes = requestInfoElements[0].encode();
+      signature.update(requestInfoBytes);
       signatureIsValid = signature.verify(signatureValue.getBytes());
     }
     catch (final Exception e)
