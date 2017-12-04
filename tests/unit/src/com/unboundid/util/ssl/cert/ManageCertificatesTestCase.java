@@ -914,15 +914,19 @@ public final class ManageCertificatesTestCase
          "--export-certificate-chain",
          "--output-format", "PEM",
          "--output-file", outputFile.getAbsolutePath(),
+         "--separate-file-per-certificate",
          "--display-keytool-command");
-    assertTrue(outputFile.exists());
-    assertEquals(countPEMEntries(outputFile.getAbsolutePath()), 3);
+    assertFalse(outputFile.exists());
+    assertTrue(new File(outputFile.getAbsolutePath() + ".1").exists());
+    assertTrue(new File(outputFile.getAbsolutePath() + ".2").exists());
+    assertTrue(new File(outputFile.getAbsolutePath() + ".3").exists());
 
 
     // Test exporting a DER certificate chain for a JKS keystore with a private
     // key entry.
-    assertTrue(outputFile.delete());
-    assertFalse(outputFile.exists());
+    assertTrue(new File(outputFile.getAbsolutePath() + ".1").delete());
+    assertTrue(new File(outputFile.getAbsolutePath() + ".2").delete());
+    assertTrue(new File(outputFile.getAbsolutePath() + ".3").delete());
     manageCertificates(
          "export-certificate",
          "--keystore", serverKeyStorePath,

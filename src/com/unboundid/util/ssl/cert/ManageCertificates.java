@@ -644,6 +644,15 @@ public final class ManageCertificates
     exportCertOutputFile.addLongIdentifier("filename", true);
     exportCertParser.addArgument(exportCertOutputFile);
 
+    final BooleanArgument exportCertSeparateFile = new BooleanArgument(null,
+         "separate-file-per-certificate", 1,
+         INFO_MANAGE_CERTS_SC_EXPORT_CERT_ARG_SEPARATE_FILE_DESC.get());
+    exportCertSeparateFile.addLongIdentifier("separateFilePerCertificate",
+         true);
+    exportCertSeparateFile.addLongIdentifier("separate-files", true);
+    exportCertSeparateFile.addLongIdentifier("separateFiles", true);
+    exportCertParser.addArgument(exportCertSeparateFile);
+
     final BooleanArgument exportCertDisplayCommand = new BooleanArgument(null,
          "display-keytool-command", 1,
          INFO_MANAGE_CERTS_SC_EXPORT_CERT_ARG_DISPLAY_COMMAND_DESC.get());
@@ -654,6 +663,10 @@ public final class ManageCertificates
 
     exportCertParser.addExclusiveArgumentSet(exportCertKeystorePassword,
          exportCertKeystorePasswordFile, exportCertPromptForKeystorePassword);
+    exportCertParser.addDependentArgumentSet(exportCertSeparateFile,
+         exportCertChain);
+    exportCertParser.addDependentArgumentSet(exportCertSeparateFile,
+         exportCertOutputFile);
 
     final LinkedHashMap<String[],String> exportCertExamples =
          new LinkedHashMap<>(2);
@@ -4225,6 +4238,12 @@ public final class ManageCertificates
     final boolean exportChain =
          ((exportChainArgument != null) && exportChainArgument.isPresent());
 
+    final BooleanArgument separateFilePerCertificateArgument =
+         subCommandParser.getBooleanArgument("separate-file-per-certificate");
+    final boolean separateFilePerCertificate =
+         ((separateFilePerCertificateArgument != null) &&
+          separateFilePerCertificateArgument.isPresent());
+
     boolean exportPEM = true;
     final StringArgument outputFormatArgument =
          subCommandParser.getStringArgument("output-format");
@@ -4388,7 +4407,9 @@ public final class ManageCertificates
 
 
     // Get a PrintStream to use for the output.
-    final PrintStream printStream;
+    int fileCounter = 1;
+    String filename = null;
+    PrintStream printStream;
     if (outputFile == null)
     {
       printStream = getOut();
@@ -4397,7 +4418,15 @@ public final class ManageCertificates
     {
       try
       {
-        printStream = new PrintStream(outputFile);
+        if ((certificatesToExport.length > 1) && separateFilePerCertificate)
+        {
+          filename = outputFile.getAbsolutePath() + '.' + fileCounter;
+        }
+        else
+        {
+          filename = outputFile.getAbsolutePath();
+        }
+        printStream = new PrintStream(filename);
       }
       catch (final Exception e)
       {
@@ -4416,6 +4445,18 @@ public final class ManageCertificates
       {
         try
         {
+          if (separateFilePerCertificate && (certificatesToExport.length > 1))
+          {
+            if (fileCounter > 1)
+            {
+              printStream.close();
+              filename = outputFile.getAbsolutePath() + '.' + fileCounter;
+              printStream = new PrintStream(filename);
+            }
+
+            fileCounter++;
+          }
+
           if (exportPEM)
           {
             writePEMCertificate(printStream,
@@ -4440,7 +4481,7 @@ public final class ManageCertificates
         {
           out();
           wrapOut(0, WRAP_COLUMN,
-               INFO_MANAGE_CERTS_EXPORT_CERT_EXPORT_SUCCESSFUL.get());
+               INFO_MANAGE_CERTS_EXPORT_CERT_EXPORT_SUCCESSFUL.get(filename));
           printCertificate(certificate, "", false);
         }
       }
