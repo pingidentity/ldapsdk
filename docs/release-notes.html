@@ -6,6 +6,24 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.3</h3>
+
+              <p>
+                The following changes were made between the 4.0.2 and 4.0.3 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fixed a bug in the way that signatures were generated and verified for X.509
+                  certificates and PKCS #8 private keys.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 4.0.2</h3>
 
               <p>
@@ -188,7 +206,6 @@ ${TARGET="offline"}                <br>
               </ul>
 
               <p></p>
-
 
 
 
@@ -4164,7 +4181,7 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Fixed a potiential bug in the value normalization code which could cause a string
+                  Fixed a potential bug in the value normalization code which could cause a string
                   index out of range exception when attempting to normalize a value containing only
                   non-ASCII space characters.
                   <br><br>
@@ -4277,7 +4294,7 @@ ${TARGET="offline"}                <br>
                   <tt>toMinimallyEncodedString</tt> method has been added to both the <tt>DN</tt>
                   and <tt>RDN</tt> classes which will construct a string representation of the
                   DN or RDN with a minimal set of escaped characters (e.g., non-ASCII characters
-                  and non-printible ASCII characters will not be escaped).
+                  and non-printable ASCII characters will not be escaped).
                   <br><br>
                 </li>
 
