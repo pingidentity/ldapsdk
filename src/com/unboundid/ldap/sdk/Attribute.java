@@ -582,28 +582,11 @@ public final class Attribute
     System.arraycopy(attr1.values, 0, mergedValues, 0, attr1.values.length);
 
     int pos = attr1.values.length;
-    for (final ASN1OctetString s2 : attr2.values)
+    for (final ASN1OctetString attr2Value : attr2.values)
     {
-      boolean found = false;
-      for (final ASN1OctetString s1 : attr1.values)
+      if (! attr1.hasValue(attr2Value, mr))
       {
-        try
-        {
-          if (mr.valuesMatch(s1, s2))
-          {
-            found = true;
-            break;
-          }
-        }
-        catch (final Exception e)
-        {
-          debugException(e);
-        }
-      }
-
-      if (! found)
-      {
-        mergedValues[pos++] = s2;
+        mergedValues[pos++] = attr2Value;
       }
     }
 
@@ -1378,30 +1361,26 @@ public final class Attribute
    */
   boolean hasValue(final ASN1OctetString value, final MatchingRule matchingRule)
   {
-    for (final ASN1OctetString existingValue : values)
+    try
     {
-      try
-      {
-        if (matchingRule.valuesMatch(existingValue, value))
-        {
-          return true;
-        }
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-
-        // The value cannot be normalized, but we'll still consider it a match
-        // if the values are exactly the same.
-        if (existingValue.equals(value))
-        {
-          return true;
-        }
-      }
+      return matchingRule.matchesAnyValue(value, values);
     }
+    catch (final LDAPException le)
+    {
+      debugException(le);
 
-    // If we've gotten here, then we didn't find a match.
-    return false;
+      // This probably means that the provided value cannot be normalized.  In
+      // that case, we'll fall back to a byte-for-byte comparison of the values.
+      for (final ASN1OctetString existingValue : values)
+      {
+        if (value.equalsIgnoreType(existingValue))
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
   }
 
 

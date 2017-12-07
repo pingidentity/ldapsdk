@@ -311,4 +311,58 @@ public class DistinguishedNameMatchingRuleTestCase
 
     assertNull(mr.getSubstringMatchingRuleNameOrOID());
   }
+
+
+
+  /**
+   * Provides test coverage for the {@code matchesAnyValue} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMatchesAnyValue()
+         throws Exception
+  {
+    final DistinguishedNameMatchingRule mr =
+         DistinguishedNameMatchingRule.getInstance();
+
+    final ASN1OctetString assertionValue =
+         new ASN1OctetString("dc=example,dc=com");
+    assertFalse(mr.matchesAnyValue(assertionValue, null));
+    assertFalse(mr.matchesAnyValue(assertionValue, new ASN1OctetString[0]));
+
+    final ASN1OctetString[] attributeValues =
+    {
+      new ASN1OctetString("o=example.com"),
+      new ASN1OctetString("not a valid dn"),
+      new ASN1OctetString("dc=example,dc=com"),
+      new ASN1OctetString("ou=People,dc=example,dc=com")
+    };
+
+
+    assertFalse(mr.matchesAnyValue(null, attributeValues));
+
+    assertTrue(mr.matchesAnyValue(assertionValue, attributeValues));
+    assertTrue(mr.matchesAnyValue(new ASN1OctetString("o=example.com"),
+         attributeValues));
+    assertTrue(mr.matchesAnyValue(
+         new ASN1OctetString("ou=People,dc=example,dc=com"), attributeValues));
+    assertTrue(mr.matchesAnyValue(
+         new ASN1OctetString("OU = people , DC = example , DC = com"),
+         attributeValues));
+
+    assertFalse(mr.matchesAnyValue(new ASN1OctetString("o=test"),
+         attributeValues));
+
+    try
+    {
+      mr.matchesAnyValue(new ASN1OctetString("malformed"), attributeValues);
+      fail("Expected an LDAP exception when providing a malformed assertion " +
+           "value");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+    }
+  }
 }

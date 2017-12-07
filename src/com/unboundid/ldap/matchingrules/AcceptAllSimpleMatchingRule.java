@@ -66,6 +66,34 @@ public abstract class AcceptAllSimpleMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
+                                 final ASN1OctetString[] attributeValues)
+  {
+    if ((assertionValue == null) || (attributeValues == null) ||
+        (attributeValues.length == 0))
+    {
+      return false;
+    }
+
+    final ASN1OctetString normalizedAssertionValue = normalize(assertionValue);
+
+    for (final ASN1OctetString attributeValue : attributeValues)
+    {
+      if (normalizedAssertionValue.equalsIgnoreType(normalize(attributeValue)))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean matchesSubstring(final ASN1OctetString value,
                                   final ASN1OctetString subInitial,
                                   final ASN1OctetString[] subAny,

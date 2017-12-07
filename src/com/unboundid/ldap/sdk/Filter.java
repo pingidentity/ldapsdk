@@ -3204,14 +3204,7 @@ attrNameLoop:
 
         MatchingRule matchingRule =
              MatchingRule.selectEqualityMatchingRule(attrName, schema);
-        for (final ASN1OctetString v : a.getRawValues())
-        {
-          if (matchingRule.valuesMatch(v, assertionValue))
-          {
-            return true;
-          }
-        }
-        return false;
+        return matchingRule.matchesAnyValue(assertionValue, a.getRawValues());
 
       case FILTER_TYPE_SUBSTRING:
         a = entry.getAttribute(attrName, schema);

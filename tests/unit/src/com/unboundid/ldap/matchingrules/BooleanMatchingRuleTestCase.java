@@ -297,4 +297,52 @@ public class BooleanMatchingRuleTestCase
 
     assertNull(mr.getSubstringMatchingRuleNameOrOID());
   }
+
+
+
+  /**
+   * Provides test coverage for the {@code matchesAnyValue} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMatchesAnyValue()
+         throws Exception
+  {
+    final BooleanMatchingRule mr = BooleanMatchingRule.getInstance();
+
+    final ASN1OctetString assertionValue =
+         new ASN1OctetString("TRUE");
+    assertFalse(mr.matchesAnyValue(assertionValue, null));
+    assertFalse(mr.matchesAnyValue(assertionValue, new ASN1OctetString[0]));
+
+    final ASN1OctetString[] attributeValues =
+    {
+      new ASN1OctetString("not a valid Boolean"),
+      new ASN1OctetString("TRUE"),
+    };
+
+
+    assertFalse(mr.matchesAnyValue(null, attributeValues));
+
+    assertTrue(mr.matchesAnyValue(assertionValue, attributeValues));
+    assertTrue(mr.matchesAnyValue(new ASN1OctetString("true"),
+         attributeValues));
+    assertTrue(mr.matchesAnyValue(new ASN1OctetString("True"),
+         attributeValues));
+
+    assertFalse(mr.matchesAnyValue(new ASN1OctetString("FALSE"),
+         attributeValues));
+
+    try
+    {
+      mr.matchesAnyValue(new ASN1OctetString("malformed"), attributeValues);
+      fail("Expected an LDAP exception when providing a malformed assertion " +
+           "value");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+    }
+  }
 }

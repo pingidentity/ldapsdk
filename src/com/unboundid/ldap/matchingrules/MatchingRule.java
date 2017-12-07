@@ -30,6 +30,7 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.jsonfilter.
             JSONObjectExactMatchingRule;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -246,6 +247,65 @@ public abstract class MatchingRule
   public abstract boolean valuesMatch(ASN1OctetString value1,
                                       ASN1OctetString value2)
          throws LDAPException;
+
+
+
+  /**
+   * Indicates whether the provided assertion value matches any of the provided
+   * attribute values.
+   *
+   * @param  assertionValue   The assertion value for which to make the
+   *                          determination.
+   * @param  attributeValues  The set of attribute values to compare against the
+   *                          provided assertion value.
+   *
+   * @return  {@code true} if the provided assertion value matches any of the
+   *          given attribute values, or {@code false} if not.
+   *
+   * @throws  LDAPException  If a problem occurs while making the determination,
+   *                         or if this matching rule does not support equality
+   *                         matching.
+   */
+  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
+                                 final ASN1OctetString[] attributeValues)
+         throws LDAPException
+  {
+    if ((assertionValue == null) || (attributeValues == null) ||
+        (attributeValues.length == 0))
+    {
+      return false;
+    }
+
+    boolean exceptionOnEveryAttempt = true;
+    LDAPException firstException = null;
+    for (final ASN1OctetString attributeValue : attributeValues)
+    {
+      try
+      {
+        if (valuesMatch(assertionValue, attributeValue))
+        {
+          return true;
+        }
+
+        exceptionOnEveryAttempt = false;
+      }
+      catch (final LDAPException le)
+      {
+        Debug.debugException(le);
+        if (firstException == null)
+        {
+          firstException = le;
+        }
+      }
+    }
+
+    if (exceptionOnEveryAttempt)
+    {
+      throw firstException;
+    }
+
+    return false;
+  }
 
 
 

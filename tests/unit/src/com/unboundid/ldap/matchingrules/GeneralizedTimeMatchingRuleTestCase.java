@@ -337,4 +337,54 @@ public class GeneralizedTimeMatchingRuleTestCase
 
     assertNull(mr.getSubstringMatchingRuleNameOrOID());
   }
+
+
+
+  /**
+   * Provides test coverage for the {@code matchesAnyValue} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMatchesAnyValue()
+         throws Exception
+  {
+    final GeneralizedTimeMatchingRule mr =
+         GeneralizedTimeMatchingRule.getInstance();
+
+    final ASN1OctetString assertionValue =
+         new ASN1OctetString("20170102030405.678Z");
+    assertFalse(mr.matchesAnyValue(assertionValue, null));
+    assertFalse(mr.matchesAnyValue(assertionValue, new ASN1OctetString[0]));
+
+    final ASN1OctetString[] attributeValues =
+    {
+      new ASN1OctetString("20160102030405.678Z"),
+      new ASN1OctetString("not a valid generalized time"),
+      new ASN1OctetString("20170102030405.678Z"),
+      new ASN1OctetString("20180102030405.678Z")
+    };
+
+    assertFalse(mr.matchesAnyValue(null, attributeValues));
+
+    assertTrue(mr.matchesAnyValue(assertionValue, attributeValues));
+    assertTrue(mr.matchesAnyValue(new ASN1OctetString("20160102030405.678Z"),
+         attributeValues));
+    assertTrue(mr.matchesAnyValue(
+         new ASN1OctetString("20180102030405.678Z"), attributeValues));
+
+    assertFalse(mr.matchesAnyValue(new ASN1OctetString("20150102030405.678Z"),
+         attributeValues));
+
+    try
+    {
+      mr.matchesAnyValue(new ASN1OctetString("malformed"), attributeValues);
+      fail("Expected an LDAP exception when providing a malformed assertion " +
+           "value");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+    }
+  }
 }

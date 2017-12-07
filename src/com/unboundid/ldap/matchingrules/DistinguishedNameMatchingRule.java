@@ -212,6 +212,52 @@ public final class DistinguishedNameMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
+                                 final ASN1OctetString[] attributeValues)
+         throws LDAPException
+  {
+    if ((assertionValue == null) || (attributeValues == null) ||
+        (attributeValues.length == 0))
+    {
+      return false;
+    }
+
+    final DN assertionValueDN;
+    try
+    {
+      assertionValueDN = new DN(assertionValue.stringValue());
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
+           le.getMessage(), le);
+    }
+
+    for (final ASN1OctetString attributeValue : attributeValues)
+    {
+      try
+      {
+        if (assertionValueDN.equals(new DN(attributeValue.stringValue())))
+        {
+          return true;
+        }
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
+    }
+
+    return false;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean matchesSubstring(final ASN1OctetString value,
                                   final ASN1OctetString subInitial,
                                   final ASN1OctetString[] subAny,

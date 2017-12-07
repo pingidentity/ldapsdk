@@ -25,6 +25,7 @@ package com.unboundid.ldap.matchingrules;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -201,6 +202,43 @@ public final class IntegerMatchingRule
          throws LDAPException
   {
     return normalize(value1).equals(normalize(value2));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
+                                 final ASN1OctetString[] attributeValues)
+         throws LDAPException
+  {
+    if ((assertionValue == null) || (attributeValues == null) ||
+        (attributeValues.length == 0))
+    {
+      return false;
+    }
+
+    final ASN1OctetString normalizedAssertionValue = normalize(assertionValue);
+
+    for (final ASN1OctetString attributeValue : attributeValues)
+    {
+      try
+      {
+        if (normalizedAssertionValue.equalsIgnoreType(
+             normalize(attributeValue)))
+        {
+          return true;
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    return false;
   }
 
 

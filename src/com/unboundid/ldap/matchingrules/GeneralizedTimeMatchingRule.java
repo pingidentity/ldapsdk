@@ -262,6 +262,53 @@ public final class GeneralizedTimeMatchingRule
    * {@inheritDoc}
    */
   @Override()
+  public boolean matchesAnyValue(final ASN1OctetString assertionValue,
+                                 final ASN1OctetString[] attributeValues)
+         throws LDAPException
+  {
+    if ((assertionValue == null) || (attributeValues == null) ||
+        (attributeValues.length == 0))
+    {
+      return false;
+    }
+
+    final Date assertionValueDate;
+    try
+    {
+      assertionValueDate = decodeGeneralizedTime(assertionValue.stringValue());
+    }
+    catch (final ParseException pe)
+    {
+      debugException(pe);
+      throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
+           ERR_GENERALIZED_TIME_INVALID_VALUE.get(pe.getMessage()), pe);
+    }
+
+    for (final ASN1OctetString attributeValue : attributeValues)
+    {
+      try
+      {
+        if (assertionValueDate.equals(
+             decodeGeneralizedTime(attributeValue.stringValue())))
+        {
+          return true;
+        }
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
+    }
+
+    return false;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public boolean matchesSubstring(final ASN1OctetString value,
                                   final ASN1OctetString subInitial,
                                   final ASN1OctetString[] subAny,
