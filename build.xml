@@ -77,6 +77,14 @@
 
   <!-- Define properties used for unit testing. -->
   <property name="testng.dir"        location="ext/testng" />
+  <property name="testng.fileset.dir"
+            location="${build.dir}/testng-fileset" />
+  <property name="testng.fileset.src.dir"
+            location="${build-src.dir}/testngfileset" />
+  <property name="testng.fileset.classes.dir"
+            location="${testng.fileset.dir}/classes" />
+  <property name="testng.fileset.descriptor"
+            location="${testng.fileset.dir}/ldapsdk-fileset.xml" />
   <property name="unit.src.dir"      location="tests/unit/src" />
   <property name="unit.classes.dir"  location="${build.dir}/test/classes" />
   <property name="unit.report.dir"   location="${build.dir}/test/report" />
@@ -764,6 +772,31 @@
       </classpath>
     </javac>
 
+    <!-- Generate the TestNG fileset descriptor. -->
+    <mkdir dir="${testng.fileset.dir}" />
+    <mkdir dir="${testng.fileset.classes.dir}" />
+    <javac srcdir="${testng.fileset.src.dir}"
+           destdir="${testng.fileset.classes.dir}"
+           source="1.7" target="1.7" deprecation="true" fork="true"
+           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="true">
+      <compilerarg value="-Xlint:all" />
+      <classpath>
+        <fileset dir="${testng.dir}">
+          <include name="*.jar" />
+        </fileset>
+        <path refid="instrument.classes" />
+      </classpath>
+    </javac>
+    <taskdef name="generateTestNGFilesetDescriptor"
+             className="com.unboundid.buildtools.testngfileset.GenerateTestNGFilesetDescriptor">
+      <classpath>
+        <pathelement location="${testng.fileset.classes.dir}" />
+      </classpath>
+    </taskdef>
+    <generateTestNGFilesetDescriptor file="${testng.fileset.descriptor}" />
+
     <!-- Run the unit tests -->
     <mkdir dir="${unit.temp.dir}" />
     <mkdir dir="${unit.report.dir}" />
@@ -787,7 +820,7 @@
           <include name="*.jar" />
         </fileset>
       </classpath>
-      <xmlfileset dir="${testng.dir}" includes="ldapsdk-fileset.xml" />
+      <xmlfileset dir="${testng.fileset.dir}" includes="ldapsdk-fileset.xml" />
       <jvmarg value="-server" />
       <jvmarg value="-noverify" />
       <jvmarg value="-Xms${MEM}" />
