@@ -206,6 +206,117 @@ public final class IPAddressArgumentValueValidator
 
 
   /**
+   * Indicates whether the provided string represents a valid IPv4 or IPv6
+   * address.
+   *
+   * @param  s  The string for which to make the determination.
+   *
+   * @return  {@code true} if the provided string represents a valid IPv4 or
+   *          IPv6 address, or {@code false} if not.
+   */
+  public static boolean isValidNumericIPAddress(final String s)
+  {
+    return isValidNumericIPv4Address(s) ||
+         isValidNumericIPv6Address(s);
+  }
+
+
+
+  /**
+   * Indicates whether the provided string is a valid IPv4 address.
+   *
+   * @param  s  The string for which to make the determination.
+   *
+   * @return  {@code true} if the provided string represents a valid IPv4
+   *          address, or {@code false} if not.
+   */
+  public static boolean isValidNumericIPv4Address(final String s)
+  {
+    if ((s == null) || (s.length() == 0))
+    {
+      return false;
+    }
+
+    for (final char c : s.toCharArray())
+    {
+      if ((c == '.') || ((c >= '0') && (c <= '9')))
+      {
+        // This character is allowed in an IPv4 address.
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+    try
+    {
+      InetAddress.getByName(s);
+      return true;
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return false;
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the provided string is a valid IPv6 address.
+   *
+   * @param  s  The string for which to make the determination.
+   *
+   * @return  {@code true} if the provided string represents a valid IPv6
+   *          address, or {@code false} if not.
+   */
+  public static boolean isValidNumericIPv6Address(final String s)
+  {
+    if ((s == null) || (s.length() == 0))
+    {
+      return false;
+    }
+
+    boolean colonFound = false;
+    for (final char c : s.toCharArray())
+    {
+      if (c == ':')
+      {
+        // This character is allowed in an IPv6 address, and you can't have a
+        // valid IPv6 address without colons.
+        colonFound = true;
+      }
+      else if ((c == '.') || ((c >= '0') && (c <= '9')) ||
+           ((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F')))
+      {
+        // This character is allowed in an IPv6 address.
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+    if (colonFound)
+    {
+      try
+      {
+        InetAddress.getByName(s);
+        return true;
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    return false;
+  }
+
+
+
+  /**
    * Retrieves a string representation of this argument value validator.
    *
    * @return  A string representation of this argument value validator.

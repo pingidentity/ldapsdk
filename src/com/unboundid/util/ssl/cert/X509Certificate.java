@@ -1802,6 +1802,53 @@ public final class X509Certificate
 
 
   /**
+   * Indicates whether the current time is within the certificate's validity
+   * window.
+   *
+   * @return  {@code true} if the current time is within the certificate's
+   *          validity window, or {@code false} if not.
+   */
+  public boolean isWithinValidityWindow()
+  {
+    return isWithinValidityWindow(System.currentTimeMillis());
+  }
+
+
+
+  /**
+   * Indicates whether the provided {@code Date} represents a time within the
+   * certificate's validity window.
+   *
+   * @param  date  The {@code Date} for which to make the determination.  It
+   *               must not be {@code null}.
+   *
+   * @return  {@code true} if the provided {@code Date} is within the
+   *          certificate's validity window, or {@code false} if not.
+   */
+  public boolean isWithinValidityWindow(final Date date)
+  {
+    return isWithinValidityWindow(date.getTime());
+  }
+
+
+
+  /**
+   * Indicates whether the specified time is within the certificate's validity
+   * window.
+   *
+   * @param  time  The time to for which to make the determination.
+   *
+   * @return  {@code true} if the specified time is within the certificate's
+   *          validity window, or {@code false} if not.
+   */
+  public boolean isWithinValidityWindow(final long time)
+  {
+    return ((time >= notBefore) && (time <= notAfter));
+  }
+
+
+
+  /**
    * Retrieves the certificate subject DN.
    *
    * @return  The certificate subject DN.

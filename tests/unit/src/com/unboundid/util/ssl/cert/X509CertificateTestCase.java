@@ -2840,4 +2840,60 @@ public final class X509CertificateTestCase
          c.getIssuerUniqueID(), c.getSubjectUniqueID(), extensions);
     cert.verifySignature(null);
   }
+
+
+
+  /**
+   * Provides test coverage for the {@code isWithinValidityWindow} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsWithinValidityWindow()
+         throws Exception
+  {
+    final long notBefore = System.currentTimeMillis();
+    final long notAfter = notBefore + (365L * 24L * 60L * 60L * 1000L);
+
+    final byte[] modulusBytes = new byte[256];
+    modulusBytes[0] = 0x40;
+    modulusBytes[255] = 0x01;
+    final BigInteger modulus = new BigInteger(modulusBytes);
+
+    final BigInteger exponent = BigInteger.valueOf(65537L);
+
+    final RSAPublicKey publicKey = new RSAPublicKey(modulus, exponent);
+
+    final X509Certificate c = new X509Certificate(X509CertificateVersion.V1,
+         BigInteger.valueOf(123456789L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(), null,
+         new ASN1BitString(new boolean[1024]),
+         new DN("CN=Issuer,O=Example Corp,C=US"), notBefore, notAfter,
+         new DN("CN=ldap.example.com,O=Example Corp,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(), null,
+         publicKey.encode(), publicKey, null, null);
+
+    // NOTE:  For some moronic reasons, certificates tend to use UTCTime instead
+    // of generalized time when encoding notBefore and notAfter values, despite
+    // the spec allowing either one, and despite UTCTime only supporting a
+    // two-digit year and no sub-second component.  So we can't check for
+    // exact equivalence  of the notBefore and notAfter values.  Instead, we'll
+    // test with values at least 2000 milliseconds away from those values.  And
+    // just call the version that doesn't take any arguments to get coverage.
+    c.isWithinValidityWindow();
+
+    assertTrue(c.isWithinValidityWindow(c.getNotBeforeDate()));
+    assertTrue(c.isWithinValidityWindow(c.getNotBeforeTime()));
+
+    assertFalse(c.isWithinValidityWindow(c.getNotBeforeTime() - 2000L));
+
+    assertTrue(c.isWithinValidityWindow(c.getNotBeforeTime() + 2000L));
+
+    assertTrue(c.isWithinValidityWindow(c.getNotAfterDate()));
+    assertTrue(c.isWithinValidityWindow(c.getNotAfterTime()));
+
+    assertTrue(c.isWithinValidityWindow(c.getNotAfterTime() - 2000L));
+
+    assertFalse(c.isWithinValidityWindow(c.getNotAfterTime() + 2000L));
+  }
 }

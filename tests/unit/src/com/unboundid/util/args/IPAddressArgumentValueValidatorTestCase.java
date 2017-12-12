@@ -278,6 +278,55 @@ public final class IPAddressArgumentValueValidatorTestCase
 
 
   /**
+   * Tests the {@code isValidNumericIPAddress} method.
+   *
+   * @param  valueString  The string to validate.
+   * @param  isValid      Indicates whether the string represents a valid IP
+   *                      address.
+   * @param  isIPv6       Indicates whether the string represents an IPv6
+   *                      address.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "testData")
+  public void testIsValidNumericIPAddress(final String valueString,
+                                          final boolean isValid,
+                                          final boolean isIPv6)
+         throws Exception
+  {
+    assertEquals(
+         IPAddressArgumentValueValidator.isValidNumericIPAddress(valueString),
+         isValid);
+
+    if (isValid)
+    {
+      if (isIPv6)
+      {
+        assertFalse(IPAddressArgumentValueValidator.isValidNumericIPv4Address(
+             valueString));
+        assertTrue(IPAddressArgumentValueValidator.isValidNumericIPv6Address(
+             valueString));
+      }
+      else
+      {
+        assertTrue(IPAddressArgumentValueValidator.isValidNumericIPv4Address(
+             valueString));
+        assertFalse(IPAddressArgumentValueValidator.isValidNumericIPv6Address(
+             valueString));
+      }
+    }
+    else
+    {
+      assertFalse(IPAddressArgumentValueValidator.isValidNumericIPv4Address(
+           valueString));
+      assertFalse(IPAddressArgumentValueValidator.isValidNumericIPv6Address(
+           valueString));
+    }
+  }
+
+
+
+  /**
    * Retrieves a set of test data.  Each element of the outer array will be an
    * array with the following three elements:
    * <OL>

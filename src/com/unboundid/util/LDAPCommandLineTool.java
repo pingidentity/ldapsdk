@@ -1256,7 +1256,7 @@ public abstract class LDAPCommandLineTool
         }
       }
 
-      TrustManager tm;
+      final TrustManager tm;
       if (trustAll.isPresent())
       {
         tm = new TrustAllTrustManager(false);
@@ -1294,22 +1294,29 @@ public abstract class LDAPCommandLineTool
         tm = new TrustStoreTrustManager(trustStorePath.getValue(), pw,
              trustStoreFormat.getValue(), true);
       }
-      else
+      else if (promptTrustManager.get() != null)
       {
         tm = promptTrustManager.get();
-        if (tm == null)
+      }
+      else
+      {
+        final ArrayList<String> expectedAddresses = new ArrayList<String>(5);
+        if (useSSL.isPresent() || useStartTLS.isPresent())
         {
-          final AggregateTrustManager atm = new AggregateTrustManager(false,
-               JVMDefaultTrustManager.getInstance(),
-               new PromptTrustManager());
-          if (promptTrustManager.compareAndSet(null, atm))
-          {
-            tm = atm;
-          }
-          else
-          {
-            tm = promptTrustManager.get();
-          }
+          expectedAddresses.addAll(host.getValues());
+        }
+
+        final AggregateTrustManager atm = new AggregateTrustManager(false,
+             JVMDefaultTrustManager.getInstance(),
+             new PromptTrustManager(null, true, expectedAddresses, null,
+                  null));
+        if (promptTrustManager.compareAndSet(null, atm))
+        {
+          tm = atm;
+        }
+        else
+        {
+          tm = promptTrustManager.get();
         }
       }
 
