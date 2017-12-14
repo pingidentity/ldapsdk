@@ -51,7 +51,6 @@ public class LDAPSDKUsageExceptionTestCase
     assertNotNull(e.toString());
 
     assertNotNull(e.getExceptionMessage());
-    assertEquals(e.getExceptionMessage(), "foo");
 
     assertNotNull(StaticUtils.getStackTrace(e));
   }
@@ -80,8 +79,34 @@ public class LDAPSDKUsageExceptionTestCase
     assertNotNull(e.toString());
 
     assertNotNull(e.getExceptionMessage());
-    assertEquals(e.getExceptionMessage(), "foo");
 
     assertNotNull(StaticUtils.getStackTrace(e));
+  }
+
+
+
+  /**
+   * Provides coverage for the {@code getExceptionMessage} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetExceptionMessage()
+         throws Exception
+  {
+    final LDAPSDKUsageException lue = new LDAPSDKUsageException(
+         "This is the message", new NullPointerException("NPE"));
+
+    final String defaultMessage = lue.getExceptionMessage(false, false);
+    assertFalse(defaultMessage.contains("trace="));
+    assertFalse(defaultMessage.contains("cause="));
+
+    final String messageWithCause = lue.getExceptionMessage(true, false);
+    assertFalse(messageWithCause.contains("trace="));
+    assertTrue(messageWithCause.contains("cause="));
+
+    final String messageWithTrace = lue.getExceptionMessage(false, true);
+    assertTrue(messageWithTrace.contains("trace="));
+    assertTrue(messageWithTrace.contains("cause="));
   }
 }

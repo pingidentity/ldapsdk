@@ -34,6 +34,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -281,7 +282,7 @@ public final class TrustStoreTrustManager
 
       throw new CertificateException(
            ERR_TRUSTSTORE_CANNOT_LOAD.get(trustStoreFile, trustStoreFormat,
-                                          String.valueOf(e)),
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
     finally
@@ -319,7 +320,7 @@ public final class TrustStoreTrustManager
 
       throw new CertificateException(
            ERR_TRUSTSTORE_CANNOT_GET_TRUST_MANAGERS.get(trustStoreFile,
-                trustStoreFormat, String.valueOf(e)),
+                trustStoreFormat, StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

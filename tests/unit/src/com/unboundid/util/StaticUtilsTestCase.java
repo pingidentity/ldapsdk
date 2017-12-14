@@ -2435,4 +2435,38 @@ public class StaticUtilsTestCase
     }
     assertEquals(StaticUtils.byteArray(intArray), byteArray);
   }
+
+
+
+  /**
+   * Provides coverage for the {@code getExceptionMessage} method with a generic
+   * exception.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetExceptionMessageWithGenericException()
+         throws Exception
+  {
+    final Exception e = new Exception("This is the exception",
+         new Exception("This is the cause"));
+
+    final String defaultMessage =
+         StaticUtils.getExceptionMessage(e, false, false);
+    assertFalse(defaultMessage.contains("trace="));
+    assertFalse(defaultMessage.contains("caused by"));
+    assertFalse(defaultMessage.contains("cause="));
+
+    final String messageWithCause =
+         StaticUtils.getExceptionMessage(e, true, false);
+    assertFalse(messageWithCause.contains("trace="));
+    assertTrue(messageWithCause.contains("caused by"));
+    assertFalse(messageWithCause.contains("cause="));
+
+    final String messageWithTrace =
+         StaticUtils.getExceptionMessage(e, false, true);
+    assertTrue(messageWithTrace.contains("trace="));
+    assertFalse(messageWithTrace.contains("caused by"));
+    assertTrue(messageWithTrace.contains("cause="));
+  }
 }

@@ -234,4 +234,16 @@ public final class LDAPRuntimeException
   {
     return ldapException.getExceptionMessage();
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getExceptionMessage(final boolean includeStackTrace,
+                                    final boolean includeCause)
+  {
+    return ldapException.getExceptionMessage(includeStackTrace, includeCause);
+  }
 }

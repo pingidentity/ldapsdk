@@ -47,6 +47,7 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StreamDirectoryValuesIntermediateResponse;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
@@ -373,7 +374,7 @@ public final class DumpDNs
       catch (final IOException ioe)
       {
         err("Unable to open output file '", f.getAbsolutePath(),
-             " for writing:  ", String.valueOf(ioe));
+             " for writing:  ", StaticUtils.getExceptionMessage(ioe));
         return ResultCode.LOCAL_ERROR;
       }
     }

@@ -80,7 +80,7 @@ public final class LDAPSDKUsageException
     if (cause != null)
     {
       buffer.append(", cause=");
-      buffer.append(cause.toString());
+      buffer.append(StaticUtils.getExceptionMessage(cause));
     }
 
     buffer.append(')');

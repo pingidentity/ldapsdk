@@ -128,6 +128,31 @@ public final class Debug
 
 
   /**
+   * The name of the system property that will be used to indicate whether the
+   * LDAP SDK should default to including information about the exception's
+   * cause in an exception message obtained from the
+   * {@link StaticUtils#getExceptionMessage(Throwable)} method.  By default,
+   * the cause will not be included in most messages.
+   */
+  public static final String PROPERTY_INCLUDE_CAUSE_IN_EXCEPTION_MESSAGES =
+       "com.unboundid.ldap.sdk.debug.includeCauseInExceptionMessages";
+
+
+
+  /**
+   * The name of the system property that will be used to indicate whether the
+   * LDAP SDK should default to including a full stack trace (albeit in
+   * condensed form) in an exception message obtained from the
+   * {@link StaticUtils#getExceptionMessage(Throwable)} method.  By default,
+   * stack traces will not be included in most messages.
+   */
+  public static final String
+       PROPERTY_INCLUDE_STACK_TRACE_IN_EXCEPTION_MESSAGES =
+            "com.unboundid.ldap.sdk.debug.includeStackTraceInExceptionMessages";
+
+
+
+  /**
    * The name that will be used for the Java logger that will actually handle
    * the debug messages if debugging is enabled.
    */

@@ -177,4 +177,45 @@ public class LDAPPersistExceptionTestCase
 
     assertNull(e.getCause());
   }
+
+
+
+  /**
+   * Provides coverage for the {@code getExceptionMessage} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetExceptionMessage()
+         throws Exception
+  {
+    final String[] referralURLs =
+    {
+      "ldap://ds1.example.com:389/dc=example,dc=com",
+      "ldap://ds2.example.com:389/dc=example,dc=com"
+    };
+
+    final Control[] responseControls =
+    {
+      new Control("1.2.3.4"),
+      new Control("1.2.3.5")
+    };
+
+    final LDAPPersistException lpe = new LDAPPersistException(
+         new LDAPException(ResultCode.NO_SUCH_OBJECT,
+              "The entry does not exist", "dc=example,dc=com",
+              referralURLs, responseControls, new NullPointerException("NPE")));
+
+    final String defaultMessage = lpe.getExceptionMessage(false, false);
+    assertFalse(defaultMessage.contains("trace="));
+    assertFalse(defaultMessage.contains("cause="));
+
+    final String messageWithCause = lpe.getExceptionMessage(true, false);
+    assertFalse(messageWithCause.contains("trace="));
+    assertTrue(messageWithCause.contains("cause="));
+
+    final String messageWithTrace = lpe.getExceptionMessage(false, true);
+    assertTrue(messageWithTrace.contains("trace="));
+    assertTrue(messageWithTrace.contains("cause="));
+  }
 }

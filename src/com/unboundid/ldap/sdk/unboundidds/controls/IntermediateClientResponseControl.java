@@ -31,6 +31,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -188,8 +189,9 @@ public final class IntermediateClientResponseControl
     catch (final Exception e)
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_ICRESP_CONTROL_VALUE_NOT_SEQUENCE.get(
-                                   String.valueOf(e)), e);
+           ERR_ICRESP_CONTROL_VALUE_NOT_SEQUENCE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
 
     this.value = IntermediateClientResponseValue.decode(valueSequence);

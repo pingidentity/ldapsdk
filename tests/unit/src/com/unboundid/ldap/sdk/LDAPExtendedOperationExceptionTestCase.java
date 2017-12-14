@@ -182,4 +182,27 @@ public final class LDAPExtendedOperationExceptionTestCase
 
     assertNotNull(e.toString());
   }
+
+
+
+  /**
+   * Provides coverage for the {@code getExceptionMessage} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetExceptionMessage()
+         throws Exception
+  {
+    final LDAPExtendedOperationException le =
+         new LDAPExtendedOperationException(new ExtendedResult(1,
+              ResultCode.OTHER, "The operation failed", null, null, "1.2.3.4",
+              new ASN1OctetString("value"), null));
+
+    final String defaultMessage = le.getExceptionMessage(false, false);
+    assertFalse(defaultMessage.contains("trace="));
+
+    final String messageWithTrace = le.getExceptionMessage(false, true);
+    assertTrue(messageWithTrace.contains("trace="));
+  }
 }

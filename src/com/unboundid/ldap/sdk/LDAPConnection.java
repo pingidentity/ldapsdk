@@ -869,7 +869,8 @@ public final class LDAPConnection
       setDisconnectInfo(DisconnectType.LOCAL_ERROR, null, e);
       connectionInternals = null;
       throw new LDAPException(ResultCode.CONNECT_ERROR,
-           ERR_CONN_CONNECT_ERROR.get(getHostPort(), String.valueOf(e)), e);
+           ERR_CONN_CONNECT_ERROR.get(getHostPort(), getExceptionMessage(e)),
+           e);
     }
 
     if (connectionOptions.useSchema())

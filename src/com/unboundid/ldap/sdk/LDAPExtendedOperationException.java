@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -125,11 +126,24 @@ public class LDAPExtendedOperationException
   @Override()
   public void toString(final StringBuilder buffer)
   {
+    super.toString(buffer);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer, final boolean includeCause,
+                       final boolean includeStackTrace)
+  {
     buffer.append("LDAPException(resultCode=");
     buffer.append(getResultCode());
 
     final String errorMessage = getMessage();
-    if (errorMessage != null)
+    final String diagnosticMessage = getDiagnosticMessage();
+    if ((errorMessage != null) && (! errorMessage.equals(diagnosticMessage)))
     {
       buffer.append(", errorMessage='");
       buffer.append(errorMessage);
@@ -144,11 +158,18 @@ public class LDAPExtendedOperationException
       buffer.append('\'');
     }
 
-    final String responseName = getExtendedResult().getExtendedResultName();
+    final String responseName = extendedResult.getExtendedResultName();
     if ((responseName != null) && (! responseName.equals(responseOID)))
     {
       buffer.append(", responseName='");
       buffer.append(responseName);
+      buffer.append('\'');
+    }
+
+    if (diagnosticMessage != null)
+    {
+      buffer.append(", diagnosticMessage='");
+      buffer.append(diagnosticMessage);
       buffer.append('\'');
     }
 
@@ -157,14 +178,6 @@ public class LDAPExtendedOperationException
     {
       buffer.append(", matchedDN='");
       buffer.append(matchedDN);
-      buffer.append('\'');
-    }
-
-    final String diagnosticMessage = getDiagnosticMessage();
-    if (diagnosticMessage != null)
-    {
-      buffer.append(", diagnosticMessage='");
-      buffer.append(diagnosticMessage);
       buffer.append('\'');
     }
 
@@ -206,10 +219,20 @@ public class LDAPExtendedOperationException
       buffer.append('}');
     }
 
-    buffer.append(", ldapSDKVersion=");
-    buffer.append(Version.NUMERIC_VERSION_STRING);
-    buffer.append(", revision='");
-    buffer.append(Version.REVISION_ID);
-    buffer.append("')");
+    if (includeStackTrace)
+    {
+      buffer.append(", trace='");
+      StaticUtils.getStackTrace(getStackTrace(), buffer);
+      buffer.append('\'');
+    }
+
+    final String ldapSDKVersionString = ", ldapSDKVersion=" +
+         Version.NUMERIC_VERSION_STRING + ", revision=" + Version.REVISION_ID;
+    if (buffer.indexOf(ldapSDKVersionString) < 0)
+    {
+      buffer.append(ldapSDKVersionString);
+    }
+
+    buffer.append(')');
   }
 }

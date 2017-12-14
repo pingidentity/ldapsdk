@@ -22,8 +22,10 @@ package com.unboundid.ldap.sdk.persist;
 
 
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -144,9 +146,29 @@ public final class LDAPPersistException
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("LDAPPersistException(message='");
-    buffer.append(getMessage());
-    buffer.append('\'');
+    super.toString(buffer);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer, final boolean includeCause,
+                       final boolean includeStackTrace)
+  {
+    buffer.append("LDAPException(resultCode=");
+    buffer.append(getResultCode());
+
+    final String errorMessage = getMessage();
+    final String diagnosticMessage = getDiagnosticMessage();
+    if ((errorMessage != null) && (! errorMessage.equals(diagnosticMessage)))
+    {
+      buffer.append(", errorMessage='");
+      buffer.append(errorMessage);
+      buffer.append('\'');
+    }
 
     if (partiallyDecodedObject != null)
     {
@@ -154,13 +176,84 @@ public final class LDAPPersistException
       buffer.append(partiallyDecodedObject);
     }
 
-    final Throwable cause = getCause();
-    if (cause != null)
+    if (diagnosticMessage != null)
     {
-      buffer.append(", cause=");
-      buffer.append(StaticUtils.getExceptionMessage(cause));
+      buffer.append(", diagnosticMessage='");
+      buffer.append(diagnosticMessage);
+      buffer.append('\'');
     }
 
-    buffer.append(')');
+    final String matchedDN = getMatchedDN();
+    if (matchedDN != null)
+    {
+      buffer.append(", matchedDN='");
+      buffer.append(matchedDN);
+      buffer.append('\'');
+    }
+
+    final String[] referralURLs = getReferralURLs();
+    if (referralURLs.length > 0)
+    {
+      buffer.append(", referralURLs={");
+
+      for (int i=0; i < referralURLs.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append('\'');
+        buffer.append(referralURLs[i]);
+        buffer.append('\'');
+      }
+
+      buffer.append('}');
+    }
+
+    final Control[] responseControls = getResponseControls();
+    if (responseControls.length > 0)
+    {
+      buffer.append(", responseControls={");
+
+      for (int i=0; i < responseControls.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append(responseControls[i]);
+      }
+
+      buffer.append('}');
+    }
+
+    if (includeStackTrace)
+    {
+      buffer.append(", trace='");
+      StaticUtils.getStackTrace(getStackTrace(), buffer);
+      buffer.append('\'');
+    }
+
+    if (includeCause || includeStackTrace)
+    {
+      final Throwable cause = getCause();
+      if (cause != null)
+      {
+        buffer.append(", cause=");
+        buffer.append(StaticUtils.getExceptionMessage(cause, true,
+             includeStackTrace));
+      }
+    }
+
+    final String ldapSDKVersionString = ", ldapSDKVersion=" +
+         Version.NUMERIC_VERSION_STRING + ", revision=" + Version.REVISION_ID;
+    if (buffer.indexOf(ldapSDKVersionString) < 0)
+    {
+      buffer.append(ldapSDKVersionString);
+    }
+
+    buffer.append("')");
   }
 }

@@ -31,6 +31,7 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -259,8 +260,10 @@ public final class KeyStoreKeyManager
     {
       debugException(e);
 
-      throw new KeyStoreException(ERR_KEYSTORE_CANNOT_GET_KEY_MANAGERS.get(
-           keyStoreFile, keyStoreFormat, String.valueOf(e)), e);
+      throw new KeyStoreException(
+           ERR_KEYSTORE_CANNOT_GET_KEY_MANAGERS.get(keyStoreFile,
+                keyStoreFormat, StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

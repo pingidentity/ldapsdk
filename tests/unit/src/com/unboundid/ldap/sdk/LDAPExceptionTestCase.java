@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.net.ConnectException;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -1174,5 +1176,33 @@ public class LDAPExceptionTestCase
       new Object[] { ResultCode.NO_OPERATION },
       new Object[] { ResultCode.valueOf(999) }
     };
+  }
+
+
+
+  /**
+   * Provides coverage for the {@code getExceptionMessage} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetExceptionMessage()
+         throws Exception
+  {
+    final LDAPException le = new LDAPException(ResultCode.CONNECT_ERROR,
+         "The connection attempt failed",
+         new ConnectException("The connection attempt failed"));
+
+    final String defaultMessage = le.getExceptionMessage(false, false);
+    assertFalse(defaultMessage.contains("trace="));
+    assertFalse(defaultMessage.contains("cause="));
+
+    final String messageWithCause = le.getExceptionMessage(true, false);
+    assertFalse(messageWithCause.contains("trace="));
+    assertTrue(messageWithCause.contains("cause="));
+
+    final String messageWithTrace = le.getExceptionMessage(false, true);
+    assertTrue(messageWithTrace.contains("trace="));
+    assertTrue(messageWithTrace.contains("cause="));
   }
 }

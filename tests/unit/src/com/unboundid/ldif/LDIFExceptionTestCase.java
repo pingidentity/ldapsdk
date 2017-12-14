@@ -203,4 +203,31 @@ public class LDIFExceptionTestCase
 
     assertNotNull(le.toString());
   }
+
+
+
+  /**
+   * Provides coverage for the {@code getExceptionMessage} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetExceptionMessage()
+         throws Exception
+  {
+    final LDIFException le = new LDIFException("Could not parse", 1, true,
+         new NullPointerException("NPE"));
+
+    final String defaultMessage = le.getExceptionMessage(false, false);
+    assertFalse(defaultMessage.contains("trace="));
+    assertFalse(defaultMessage.contains("cause="));
+
+    final String messageWithCause = le.getExceptionMessage(true, false);
+    assertFalse(messageWithCause.contains("trace="));
+    assertTrue(messageWithCause.contains("cause="));
+
+    final String messageWithTrace = le.getExceptionMessage(false, true);
+    assertTrue(messageWithTrace.contains("trace="));
+    assertTrue(messageWithTrace.contains("cause="));
+  }
 }

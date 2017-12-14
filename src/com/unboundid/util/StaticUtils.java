@@ -1317,10 +1317,14 @@ public final class StaticUtils
       buffer.append(", cause=");
       getStackTrace(cause, buffer);
     }
-    buffer.append(", ldapSDKVersion=");
-    buffer.append(Version.NUMERIC_VERSION_STRING);
-    buffer.append(", revision=");
-    buffer.append(Version.REVISION_ID);
+
+    final String ldapSDKVersionString = ", ldapSDKVersion=" +
+         Version.NUMERIC_VERSION_STRING + ", revision=" + Version.REVISION_ID;
+    if (buffer.indexOf(ldapSDKVersionString) < 0)
+    {
+      buffer.append(ldapSDKVersionString);
+    }
+
     buffer.append(')');
   }
 
@@ -1405,6 +1409,42 @@ public final class StaticUtils
    */
   public static String getExceptionMessage(final Throwable t)
   {
+    final boolean includeCause =
+         Boolean.getBoolean(Debug.PROPERTY_INCLUDE_CAUSE_IN_EXCEPTION_MESSAGES);
+    final boolean includeStackTrace = Boolean.getBoolean(
+         Debug.PROPERTY_INCLUDE_STACK_TRACE_IN_EXCEPTION_MESSAGES);
+
+    return getExceptionMessage(t, includeCause, includeStackTrace);
+  }
+
+
+
+  /**
+   * Retrieves a string representation of the provided {@code Throwable} object
+   * suitable for use in a message.  For runtime exceptions and errors, then a
+   * full stack trace for the exception will be provided.  For exception types
+   * defined in the LDAP SDK, then its {@code getExceptionMessage} method will
+   * be used to get the string representation.  For all other types of
+   * exceptions, then the standard string representation will be used.
+   * <BR><BR>
+   * For all types of exceptions, the message will also include the cause if one
+   * exists.
+   *
+   * @param  t                  The {@code Throwable} for which to generate the
+   *                            exception message.
+   * @param  includeCause       Indicates whether to include information about
+   *                            the cause (if any) in the exception message.
+   * @param  includeStackTrace  Indicates whether to include a condensed
+   *                            representation of the stack trace in the
+   *                            exception message.
+   *
+   * @return  A string representation of the provided {@code Throwable} object
+   *          suitable for use in a message.
+   */
+  public static String getExceptionMessage(final Throwable t,
+                                           final boolean includeCause,
+                                           final boolean includeStackTrace)
+  {
     if (t == null)
     {
       return ERR_NO_EXCEPTION.get();
@@ -1419,16 +1459,82 @@ public final class StaticUtils
     {
       buffer.append(((LDAPSDKRuntimeException) t).getExceptionMessage());
     }
+    else if (t instanceof NullPointerException)
+    {
+      buffer.append("NullPointerException(");
+
+      final StackTraceElement[] stackTraceElements = t.getStackTrace();
+      for (int i=0; i < stackTraceElements.length; i++)
+      {
+        final StackTraceElement e = stackTraceElements[i];
+        if (i > 0)
+        {
+          buffer.append(" / ");
+        }
+
+        buffer.append(e.getFileName());
+
+        final int lineNumber = e.getLineNumber();
+        if (lineNumber > 0)
+        {
+          buffer.append(':');
+          buffer.append(lineNumber);
+        }
+        else if (e.isNativeMethod())
+        {
+          buffer.append(":native");
+        }
+        else
+        {
+          buffer.append(":unknown");
+        }
+
+        if (e.getClassName().contains("unboundid"))
+        {
+          if (i < (stackTraceElements.length - 1))
+          {
+            buffer.append(" ...");
+          }
+
+          break;
+        }
+      }
+
+      buffer.append(')');
+    }
+    else if ((t.getMessage() == null) || t.getMessage().isEmpty() ||
+         t.getMessage().equalsIgnoreCase("null"))
+    {
+      getStackTrace(t, buffer);
+    }
     else
     {
-      return getStackTrace(t);
+      buffer.append(t.getClass().getSimpleName());
+      buffer.append('(');
+      buffer.append(t.getMessage());
+      buffer.append(')');
+
+      if (includeStackTrace)
+      {
+        buffer.append(" trace=");
+        getStackTrace(t, buffer);
+      }
+      else if (includeCause)
+      {
+        final Throwable cause = t.getCause();
+        if (cause != null)
+        {
+          buffer.append(" caused by ");
+          buffer.append(getExceptionMessage(cause));
+        }
+      }
     }
 
-    final Throwable cause = t.getCause();
-    if (cause != null)
+    final String ldapSDKVersionString = ", ldapSDKVersion=" +
+         Version.NUMERIC_VERSION_STRING + ", revision=" + Version.REVISION_ID;
+    if (buffer.indexOf(ldapSDKVersionString) < 0)
     {
-      buffer.append(" caused by ");
-      buffer.append(getExceptionMessage(cause));
+      buffer.append(ldapSDKVersionString);
     }
 
     return buffer.toString();

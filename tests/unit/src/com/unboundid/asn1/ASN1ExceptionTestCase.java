@@ -60,4 +60,31 @@ public class ASN1ExceptionTestCase
     assertNotNull(ae2.getCause());
     assertEquals(ae2.getCause(), ae);
   }
+
+
+
+  /**
+   * Provides coverage for the {@code getExceptionMessage} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetExceptionMessage()
+         throws Exception
+  {
+    final ASN1Exception ae = new ASN1Exception("This is the message",
+         new NullPointerException("NPE"));
+
+    final String defaultMessage = ae.getExceptionMessage(false, false);
+    assertFalse(defaultMessage.contains("trace="));
+    assertFalse(defaultMessage.contains("cause="));
+
+    final String messageWithCause = ae.getExceptionMessage(true, false);
+    assertFalse(messageWithCause.contains("trace="));
+    assertTrue(messageWithCause.contains("cause="));
+
+    final String messageWithTrace = ae.getExceptionMessage(false, true);
+    assertTrue(messageWithTrace.contains("trace="));
+    assertTrue(messageWithTrace.contains("cause="));
+  }
 }

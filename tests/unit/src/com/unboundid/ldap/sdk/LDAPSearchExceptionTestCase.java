@@ -292,4 +292,32 @@ public class LDAPSearchExceptionTestCase
       new Object[] { ResultCode.valueOf(999) }
     };
   }
+
+
+
+  /**
+   * Provides coverage for the {@code getExceptionMessage} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetExceptionMessage()
+         throws Exception
+  {
+    final LDAPSearchException lse = new LDAPSearchException(
+         ResultCode.OTHER, "The search failed",
+         new NullPointerException("NPE"));
+
+    final String defaultMessage = lse.getExceptionMessage(false, false);
+    assertFalse(defaultMessage.contains("trace="));
+    assertFalse(defaultMessage.contains("cause="));
+
+    final String messageWithCause = lse.getExceptionMessage(true, false);
+    assertFalse(messageWithCause.contains("trace="));
+    assertTrue(messageWithCause.contains("cause="));
+
+    final String messageWithTrace = lse.getExceptionMessage(false, true);
+    assertTrue(messageWithTrace.contains("trace="));
+    assertTrue(messageWithTrace.contains("cause="));
+  }
 }

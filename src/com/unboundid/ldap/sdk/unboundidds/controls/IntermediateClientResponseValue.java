@@ -381,7 +381,8 @@ public final class IntermediateClientResponseValue
             debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ICRESP_CANNOT_DECODE_UPSTREAM_RESPONSE.get(
-                      String.valueOf(e)), e);
+                      getExceptionMessage(e)),
+                 e);
           }
           break;
 
@@ -401,7 +402,8 @@ public final class IntermediateClientResponseValue
             debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ICRESP_CANNOT_DECODE_UPSTREAM_SECURE.get(
-                      String.valueOf(e)), e);
+                      getExceptionMessage(e)),
+                 e);
           }
           break;
 

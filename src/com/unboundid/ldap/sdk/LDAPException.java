@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
@@ -587,21 +588,42 @@ public class LDAPException
   @Override()
   public void toString(final StringBuilder buffer)
   {
+    final boolean includeCause =
+         Boolean.getBoolean(Debug.PROPERTY_INCLUDE_CAUSE_IN_EXCEPTION_MESSAGES);
+    final boolean includeStackTrace = Boolean.getBoolean(
+         Debug.PROPERTY_INCLUDE_STACK_TRACE_IN_EXCEPTION_MESSAGES);
+
+    toString(buffer, includeCause, includeStackTrace);
+  }
+
+
+
+  /**
+   * Appends a string representation of this {@code LDAPException} to the
+   * provided buffer.
+   *
+   * @param  buffer             The buffer to which the information should be
+   *                            appended.  This must not be {@code null}.
+   * @param  includeCause       Indicates whether to include information about
+   *                            the cause (if any) in the exception message.
+   * @param  includeStackTrace  Indicates whether to include a condensed
+   *                            representation of the stack trace in the
+   *                            exception message.  If a stack trace is
+   *                            included, then the cause (if any) will
+   *                            automatically be included, regardless of the
+   *                            value of the {@code includeCause} argument.
+   */
+  public void toString(final StringBuilder buffer, final boolean includeCause,
+                       final boolean includeStackTrace)
+  {
     buffer.append("LDAPException(resultCode=");
     buffer.append(resultCode);
 
     final String errorMessage = getMessage();
-    if (errorMessage != null)
+    if ((errorMessage != null) && (! errorMessage.equals(diagnosticMessage)))
     {
       buffer.append(", errorMessage='");
       buffer.append(errorMessage);
-      buffer.append('\'');
-    }
-
-    if (matchedDN != null)
-    {
-      buffer.append(", matchedDN='");
-      buffer.append(matchedDN);
       buffer.append('\'');
     }
 
@@ -609,6 +631,13 @@ public class LDAPException
     {
       buffer.append(", diagnosticMessage='");
       buffer.append(diagnosticMessage);
+      buffer.append('\'');
+    }
+
+    if (matchedDN != null)
+    {
+      buffer.append(", matchedDN='");
+      buffer.append(matchedDN);
       buffer.append('\'');
     }
 
@@ -648,11 +677,32 @@ public class LDAPException
       buffer.append('}');
     }
 
-    buffer.append(", ldapSDKVersion=");
-    buffer.append(Version.NUMERIC_VERSION_STRING);
-    buffer.append(", revision='");
-    buffer.append(Version.REVISION_ID);
-    buffer.append("')");
+    if (includeStackTrace)
+    {
+      buffer.append(", trace='");
+      StaticUtils.getStackTrace(getStackTrace(), buffer);
+      buffer.append('\'');
+    }
+
+    if (includeCause || includeStackTrace)
+    {
+      final Throwable cause = getCause();
+      if (cause != null)
+      {
+        buffer.append(", cause=");
+        buffer.append(StaticUtils.getExceptionMessage(cause, true,
+             includeStackTrace));
+      }
+    }
+
+    final String ldapSDKVersionString = ", ldapSDKVersion=" +
+         Version.NUMERIC_VERSION_STRING + ", revision=" + Version.REVISION_ID;
+    if (buffer.indexOf(ldapSDKVersionString) < 0)
+    {
+      buffer.append(ldapSDKVersionString);
+    }
+
+    buffer.append(')');
   }
 
 
@@ -664,5 +714,19 @@ public class LDAPException
   public final String getExceptionMessage()
   {
     return toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public final String getExceptionMessage(final boolean includeCause,
+                                          final boolean includeStackTrace)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer, includeCause, includeStackTrace);
+    return buffer.toString();
   }
 }

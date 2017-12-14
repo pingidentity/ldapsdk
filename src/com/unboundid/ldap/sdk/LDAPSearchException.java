@@ -231,7 +231,19 @@ public final class LDAPSearchException
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("LDAPSearchException(resultCode=");
+    super.toString(buffer);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer, final boolean includeCause,
+                       final boolean includeStackTrace)
+  {
+    buffer.append("LDAPException(resultCode=");
     buffer.append(getResultCode());
     buffer.append(", numEntries=");
     buffer.append(searchResult.getEntryCount());
@@ -239,10 +251,18 @@ public final class LDAPSearchException
     buffer.append(searchResult.getReferenceCount());
 
     final String errorMessage = getMessage();
-    if (errorMessage != null)
+    final String diagnosticMessage = getDiagnosticMessage();
+    if ((errorMessage != null) && (! errorMessage.equals(diagnosticMessage)))
     {
       buffer.append(", errorMessage='");
       buffer.append(errorMessage);
+      buffer.append('\'');
+    }
+
+    if (diagnosticMessage != null)
+    {
+      buffer.append(", diagnosticMessage='");
+      buffer.append(diagnosticMessage);
       buffer.append('\'');
     }
 
@@ -292,10 +312,31 @@ public final class LDAPSearchException
       buffer.append('}');
     }
 
-    buffer.append(", ldapSDKVersion=");
-    buffer.append(Version.NUMERIC_VERSION_STRING);
-    buffer.append(", revision='");
-    buffer.append(Version.REVISION_ID);
+    if (includeStackTrace)
+    {
+      buffer.append(", trace='");
+      StaticUtils.getStackTrace(getStackTrace(), buffer);
+      buffer.append('\'');
+    }
+
+    if (includeCause || includeStackTrace)
+    {
+      final Throwable cause = getCause();
+      if (cause != null)
+      {
+        buffer.append(", cause=");
+        buffer.append(StaticUtils.getExceptionMessage(cause, true,
+             includeStackTrace));
+      }
+    }
+
+    final String ldapSDKVersionString = ", ldapSDKVersion=" +
+         Version.NUMERIC_VERSION_STRING + ", revision=" + Version.REVISION_ID;
+    if (buffer.indexOf(ldapSDKVersionString) < 0)
+    {
+      buffer.append(ldapSDKVersionString);
+    }
+
     buffer.append("')");
   }
 }

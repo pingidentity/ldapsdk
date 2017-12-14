@@ -414,7 +414,8 @@ public final class IntermediateClientRequestValue
             debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ICREQ_CANNOT_DECODE_DOWNSTREAM_REQUEST.get(
-                      String.valueOf(e)), e);
+                      getExceptionMessage(e)),
+                 e);
           }
           break;
 
@@ -434,7 +435,8 @@ public final class IntermediateClientRequestValue
             debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ICREQ_CANNOT_DECODE_DOWNSTREAM_SECURE.get(
-                      String.valueOf(e)), e);
+                      getExceptionMessage(e)),
+                 e);
           }
           break;
 

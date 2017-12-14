@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.unboundid.ldap.sdk.Version;
+import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
@@ -228,6 +230,34 @@ public final class LDIFException
   @Override()
   public void toString(final StringBuilder buffer)
   {
+    final boolean includeCause =
+         Boolean.getBoolean(Debug.PROPERTY_INCLUDE_CAUSE_IN_EXCEPTION_MESSAGES);
+    final boolean includeStackTrace = Boolean.getBoolean(
+         Debug.PROPERTY_INCLUDE_STACK_TRACE_IN_EXCEPTION_MESSAGES);
+
+    toString(buffer, includeCause, includeStackTrace);
+  }
+
+
+
+  /**
+   * Appends a string representation of this {@code LDIFException} to the
+   * provided buffer.
+   *
+   * @param  buffer             The buffer to which the information should be
+   *                            appended.  This must not be {@code null}.
+   * @param  includeCause       Indicates whether to include information about
+   *                            the cause (if any) in the exception message.
+   * @param  includeStackTrace  Indicates whether to include a condensed
+   *                            representation of the stack trace in the
+   *                            exception message.  If a stack trace is
+   *                            included, then the cause (if any) will
+   *                            automatically be included, regardless of the
+   *                            value of the {@code includeCause} argument.
+   */
+  public void toString(final StringBuilder buffer, final boolean includeCause,
+                       final boolean includeStackTrace)
+  {
     buffer.append("LDIFException(lineNumber=");
     buffer.append(lineNumber);
     buffer.append(", mayContinueReading=");
@@ -245,17 +275,32 @@ public final class LDIFException
       }
     }
 
-    final Throwable cause = getCause();
-    if (cause == null)
+    if (includeStackTrace)
     {
-      buffer.append("')");
+      buffer.append(", trace='");
+      StaticUtils.getStackTrace(getStackTrace(), buffer);
+      buffer.append('\'');
     }
-    else
+
+    if (includeCause || includeStackTrace)
     {
-      buffer.append("', cause=");
-      StaticUtils.getStackTrace(cause, buffer);
-      buffer.append(')');
+      final Throwable cause = getCause();
+      if (cause != null)
+      {
+        buffer.append(", cause=");
+        buffer.append(StaticUtils.getExceptionMessage(cause, true,
+             includeStackTrace));
+      }
     }
+
+    final String ldapSDKVersionString = ", ldapSDKVersion=" +
+         Version.NUMERIC_VERSION_STRING + ", revision=" + Version.REVISION_ID;
+    if (buffer.indexOf(ldapSDKVersionString) < 0)
+    {
+      buffer.append(ldapSDKVersionString);
+    }
+
+    buffer.append(')');
   }
 
 
@@ -267,5 +312,19 @@ public final class LDIFException
   public String getExceptionMessage()
   {
     return toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getExceptionMessage(final boolean includeCause,
+                                    final boolean includeStackTrace)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer, includeCause, includeStackTrace);
+    return buffer.toString();
   }
 }
