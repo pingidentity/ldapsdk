@@ -1,11 +1,11 @@
 @echo off
 
-rem Copyright 2012-2017 Ping Identity Corporation
+rem Copyright 2012-2018 Ping Identity Corporation
 rem All Rights Reserved.
 rem
 rem -----
 rem
-rem Copyright (C) 2012-2017 Ping Identity Corporation
+rem Copyright (C) 2012-2018 Ping Identity Corporation
 rem This program is free software; you can redistribute it and/or modify
 rem it under the terms of the GNU General Public License (GPLv2 only)
 rem or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
