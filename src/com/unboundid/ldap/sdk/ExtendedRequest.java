@@ -36,6 +36,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
+import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
@@ -338,16 +339,23 @@ public class ExtendedRequest
     try
     {
       // Send the request to the server.
+      final long responseTimeout = getResponseTimeoutMillis(connection);
       debugLDAPRequest(Level.INFO, this, messageID, connection);
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumExtendedRequests();
-      connection.sendMessage(message);
+      if (this instanceof StartTLSExtendedRequest)
+      {
+        connection.sendMessage(message, 50L);
+      }
+      else
+      {
+        connection.sendMessage(message, responseTimeout);
+      }
 
       // Wait for and process the response.
       final LDAPResponse response;
       try
       {
-        final long responseTimeout = getResponseTimeoutMillis(connection);
         if (responseTimeout > 0)
         {
           response = responseQueue.poll(responseTimeout, TimeUnit.MILLISECONDS);
@@ -397,23 +405,11 @@ public class ExtendedRequest
          new LDAPMessage(messageID,  this, getControls());
 
 
-    // Set the appropriate timeout on the socket.
-    try
-    {
-      InternalSDKHelper.setSoTimeout(connection,
-           (int) getResponseTimeoutMillis(connection));
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumExtendedRequests();
-    connection.sendMessage(message);
+    connection.sendMessage(message, getResponseTimeoutMillis(connection));
 
     while (true)
     {

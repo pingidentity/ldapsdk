@@ -197,7 +197,7 @@ public abstract class SASLBindRequest
       debugLDAPRequest(Level.INFO, this, msgID, connection);
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumBindRequests();
-      connection.sendMessage(requestMessage);
+      connection.sendMessage(requestMessage, timeoutMillis);
 
       // Wait for and process the response.
       final LDAPResponse response;
@@ -251,22 +251,11 @@ public abstract class SASLBindRequest
                                      final long timeoutMillis)
             throws LDAPException
   {
-    // Set the appropriate timeout on the socket.
-    try
-    {
-      InternalSDKHelper.setSoTimeout(connection, (int) timeoutMillis);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-
     final int msgID = requestMessage.getMessageID();
     debugLDAPRequest(Level.INFO, this, msgID, connection);
     final long requestTime = System.nanoTime();
     connection.getConnectionStatistics().incrementNumBindRequests();
-    connection.sendMessage(requestMessage);
+    connection.sendMessage(requestMessage, timeoutMillis);
 
     while (true)
     {

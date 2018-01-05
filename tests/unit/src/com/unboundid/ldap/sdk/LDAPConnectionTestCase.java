@@ -3909,7 +3909,7 @@ public class LDAPConnectionTestCase
     assertNotNull(conn.toString());
 
     conn.sendMessage(new LDAPMessage(conn.nextMessageID(),
-         new UnbindRequestProtocolOp()));
+         new UnbindRequestProtocolOp()), 10000L);
   }
 
 

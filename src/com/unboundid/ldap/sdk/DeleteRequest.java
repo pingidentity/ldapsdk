@@ -341,6 +341,7 @@ public final class DeleteRequest
     // this class as the message acceptor.  Otherwise, create an async helper
     // and use it as the message acceptor.
     final AsyncRequestID asyncRequestID;
+    final long timeout = getResponseTimeoutMillis(connection);
     if (resultListener == null)
     {
       asyncRequestID = null;
@@ -354,7 +355,6 @@ public final class DeleteRequest
       connection.registerResponseAcceptor(messageID, helper);
       asyncRequestID = helper.getAsyncRequestID();
 
-      final long timeout = getResponseTimeoutMillis(connection);
       if (timeout > 0L)
       {
         final Timer timer = connection.getTimer();
@@ -371,7 +371,7 @@ public final class DeleteRequest
     {
       debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumDeleteRequests();
-      connection.sendMessage(message);
+      connection.sendMessage(message, timeout);
       return asyncRequestID;
     }
     catch (final LDAPException le)
@@ -415,25 +415,13 @@ public final class DeleteRequest
          new LDAPMessage(messageID,  this, getControls());
 
 
-    // Set the appropriate timeout on the socket.
-    try
-    {
-      InternalSDKHelper.setSoTimeout(connection,
-           (int) getResponseTimeoutMillis(connection));
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumDeleteRequests();
     try
     {
-      connection.sendMessage(message);
+      connection.sendMessage(message, getResponseTimeoutMillis(connection));
     }
     catch (final LDAPException le)
     {

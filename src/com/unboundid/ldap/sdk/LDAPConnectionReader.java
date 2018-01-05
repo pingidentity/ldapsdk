@@ -44,7 +44,6 @@ import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             InteractiveTransactionAbortedExtendedResult;
-import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.WakeableSleeper;
@@ -144,32 +143,6 @@ final class LDAPConnectionReader
     startTLSException    = null;
     startTLSOutputStream = null;
     startTLSSleeper      = new WakeableSleeper();
-
-    if (! connectionInternals.synchronousMode())
-    {
-      // We don't want to set an SO_TIMEOUT that is too short, but we don't
-      // necessarily want to make it unlimited.  As a compromise, set it equal
-      // to the connect timeout for the connection (which might be unlimited,
-      // but that's up to the user to decide).
-      final LDAPConnectionOptions options = connection.getConnectionOptions();
-      final int connectTimeout = options.getConnectTimeoutMillis();
-      try
-      {
-        if (connectTimeout > 0)
-        {
-          InternalSDKHelper.setSoTimeout(connection, connectTimeout);
-        }
-        else
-        {
-          InternalSDKHelper.setSoTimeout(connection, 0);
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        throw new IOException(le.getMessage(), le);
-      }
-    }
   }
 
 
@@ -267,11 +240,12 @@ final class LDAPConnectionReader
                    connection.getConnectionOptions();
               try
               {
-                final int connectTimeout = connectionOptions.
-                     getConnectTimeoutMillis();
-                if (connectTimeout > 0)
+                final int responseTimeoutMillis =
+                     (int) connectionOptions.getResponseTimeoutMillis();
+                if (responseTimeoutMillis > 0)
                 {
-                  InternalSDKHelper.setSoTimeout(connection, connectTimeout);
+                  InternalSDKHelper.setSoTimeout(connection,
+                       responseTimeoutMillis);
                 }
                 else
                 {
@@ -889,32 +863,47 @@ final class LDAPConnectionReader
     {
       this.sslSocketFactory = sslSocketFactory;
 
-      while (true)
+      // Since the connection isn't operating in synchronous mode, we'll want to
+      // use a relatively small SO_TIMEOUT for the connection during this
+      // process so that it'll be more responsive.  The original SO_TIMEOUT will
+      // be restored after the TLS negotiation.
+      final int originalSOTimeout = InternalSDKHelper.getSoTimeout(connection);
+      try
       {
-        if (startTLSOutputStream != null)
-        {
-          final OutputStream outputStream = startTLSOutputStream;
-          startTLSOutputStream = null;
-          return outputStream;
-        }
-        else if (thread == null)
-        {
-          if (startTLSException == null)
-          {
-            throw new LDAPException(ResultCode.LOCAL_ERROR,
-                 ERR_CONNREADER_STARTTLS_FAILED_NO_EXCEPTION.get());
-          }
-          else
-          {
-            final Exception e = startTLSException;
-            startTLSException = null;
+        InternalSDKHelper.setSoTimeout(connection, 50);
 
-            throw new LDAPException(ResultCode.LOCAL_ERROR,
-                 ERR_CONNREADER_STARTTLS_FAILED.get(getExceptionMessage(e)), e);
+        while (true)
+        {
+          if (startTLSOutputStream != null)
+          {
+            final OutputStream outputStream = startTLSOutputStream;
+            startTLSOutputStream = null;
+            return outputStream;
           }
-        }
+          else if (thread == null)
+          {
+            if (startTLSException == null)
+            {
+              throw new LDAPException(ResultCode.LOCAL_ERROR,
+                   ERR_CONNREADER_STARTTLS_FAILED_NO_EXCEPTION.get());
+            }
+            else
+            {
+              final Exception e = startTLSException;
+              startTLSException = null;
 
-        startTLSSleeper.sleep(10);
+              throw new LDAPException(ResultCode.LOCAL_ERROR,
+                   ERR_CONNREADER_STARTTLS_FAILED.get(getExceptionMessage(e)),
+                   e);
+            }
+          }
+
+          startTLSSleeper.sleep(10);
+        }
+      }
+      finally
+      {
+        InternalSDKHelper.setSoTimeout(connection, originalSOTimeout);
       }
     }
   }

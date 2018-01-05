@@ -549,16 +549,16 @@ public final class SimpleBindRequest
     try
     {
       // Send the request to the server.
+      final long responseTimeout = getResponseTimeoutMillis(connection);
       debugLDAPRequest(Level.INFO, this, messageID, connection);
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumBindRequests();
-      connection.sendMessage(message);
+      connection.sendMessage(message, responseTimeout);
 
       // Wait for and process the response.
       final LDAPResponse response;
       try
       {
-        final long responseTimeout = getResponseTimeoutMillis(connection);
         if (responseTimeout > 0)
         {
           response = responseQueue.poll(responseTimeout, TimeUnit.MILLISECONDS);
@@ -613,25 +613,13 @@ public final class SimpleBindRequest
          new LDAPMessage(messageID, this, getControls());
 
 
-    // Set the appropriate timeout on the socket.
-    try
-    {
-      InternalSDKHelper.setSoTimeout(connection,
-           (int) getResponseTimeoutMillis(connection));
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumBindRequests();
     try
     {
-      connection.sendMessage(message);
+      connection.sendMessage(message, getResponseTimeoutMillis(connection));
     }
     catch (final LDAPException le)
     {

@@ -1380,6 +1380,7 @@ public final class SearchRequest
     // this class as the message acceptor.  Otherwise, create an async helper
     // and use it as the message acceptor.
     final AsyncRequestID asyncRequestID;
+    final long timeout = getResponseTimeoutMillis(connection);
     if (resultListener == null)
     {
       asyncRequestID = null;
@@ -1392,7 +1393,6 @@ public final class SearchRequest
       connection.registerResponseAcceptor(messageID, helper);
       asyncRequestID = helper.getAsyncRequestID();
 
-      final long timeout = getResponseTimeoutMillis(connection);
       if (timeout > 0L)
       {
         final Timer timer = connection.getTimer();
@@ -1409,7 +1409,7 @@ public final class SearchRequest
     {
       debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumSearchRequests();
-      connection.sendMessage(message);
+      connection.sendMessage(message, timeout);
       return asyncRequestID;
     }
     catch (final LDAPException le)
@@ -1453,25 +1453,14 @@ public final class SearchRequest
          new LDAPMessage(messageID,  this, getControls());
 
 
-    // Set the appropriate timeout on the socket.
-    final long responseTimeout = getResponseTimeoutMillis(connection);
-    try
-    {
-      InternalSDKHelper.setSoTimeout(connection, (int) responseTimeout);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-
     // Send the request to the server.
+    final long responseTimeout = getResponseTimeoutMillis(connection);
     final long requestTime = System.nanoTime();
     debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumSearchRequests();
     try
     {
-      connection.sendMessage(message);
+      connection.sendMessage(message, responseTimeout);
     }
     catch (final LDAPException le)
     {

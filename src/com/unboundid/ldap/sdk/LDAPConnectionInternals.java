@@ -198,6 +198,13 @@ final class LDAPConnectionInternals
                          options.getLingerTimeoutSeconds());
       socket.setTcpNoDelay(options.useTCPNoDelay());
 
+      final int soTimeout =
+           Math.max(0, (int) options.getResponseTimeoutMillis());
+      debug(Level.INFO, DebugType.CONNECT,
+           "Setting the SO_TIMEOUT value for connection " + connection +
+                " to " + soTimeout + "ms.");
+      socket.setSoTimeout(soTimeout);
+
       outputStream     = new BufferedOutputStream(socket.getOutputStream());
       connectionReader = new LDAPConnectionReader(connection, this);
     }
@@ -491,13 +498,18 @@ final class LDAPConnectionInternals
   /**
    * Sends the provided LDAP message to the directory server.
    *
-   * @param  message     The LDAP message to be sent.
-   * @param  allowRetry  Indicates whether to allow retrying the send after a
-   *                     reconnect.
+   * @param  message            The LDAP message to be sent.
+   * @param  sendTimeoutMillis  The maximum length of time, in milliseconds, to
+   *                            block while trying to send the request.  If this
+   *                            is less than or equal to zero, then no send
+   *                            timeout will be enforced.
+   * @param  allowRetry         Indicates whether to allow retrying the send
+   *                            after a reconnect.
    *
    * @throws  LDAPException  If a problem occurs while sending the message.
    */
-  void sendMessage(final LDAPMessage message, final boolean allowRetry)
+  void sendMessage(final LDAPMessage message, final long sendTimeoutMillis,
+                   final boolean allowRetry)
        throws LDAPException
   {
     if (! isConnected())
@@ -523,6 +535,24 @@ final class LDAPConnectionInternals
       debugException(lre);
       lre.throwLDAPException();
     }
+
+
+    try
+    {
+      final int soTimeout = Math.max(0, (int) sendTimeoutMillis);
+      if (debugEnabled())
+      {
+        debug(Level.INFO, DebugType.CONNECT,
+             "Setting the SO_TIMEOUT value for connection " + connection +
+                  " to " + soTimeout + "ms.");
+      }
+      socket.setSoTimeout(soTimeout);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+    }
+
 
     try
     {
@@ -569,7 +599,7 @@ final class LDAPConnectionInternals
 
         try
         {
-          sendMessage(message, false);
+          sendMessage(message, sendTimeoutMillis, false);
           return;
         }
         catch (final Exception e)

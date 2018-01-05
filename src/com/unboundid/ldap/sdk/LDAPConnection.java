@@ -1586,8 +1586,10 @@ public final class LDAPConnection
         }
 
         connectionStatistics.incrementNumUnbindRequests();
-        sendMessage(new LDAPMessage(messageID,
-             new UnbindRequestProtocolOp(), controls));
+        sendMessage(
+             new LDAPMessage(messageID, new UnbindRequestProtocolOp(),
+                  controls),
+             connectionOptions.getResponseTimeoutMillis());
       }
       catch (final Exception e)
       {
@@ -1878,8 +1880,10 @@ public final class LDAPConnection
            createAbandonRequestString(messageID, controls), abandonMessageID,
            this);
     }
-    sendMessage(new LDAPMessage(abandonMessageID,
-         new AbandonRequestProtocolOp(messageID), controls));
+    sendMessage(
+         new LDAPMessage(abandonMessageID,
+              new AbandonRequestProtocolOp(messageID), controls),
+         connectionOptions.getResponseTimeoutMillis());
   }
 
 
@@ -1916,8 +1920,10 @@ public final class LDAPConnection
            createAbandonRequestString(messageID, controls), abandonMessageID,
            this);
     }
-    sendMessage(new LDAPMessage(abandonMessageID,
-         new AbandonRequestProtocolOp(messageID), controls));
+    sendMessage(
+         new LDAPMessage(abandonMessageID,
+              new AbandonRequestProtocolOp(messageID), controls),
+         connectionOptions.getResponseTimeoutMillis());
   }
 
 
@@ -4340,11 +4346,15 @@ public final class LDAPConnection
   /**
    * Sends the provided LDAP message to the server over this connection.
    *
-   * @param  message  The LDAP message to send to the target server.
+   * @param  message            The LDAP message to send to the target server.
+   * @param  sendTimeoutMillis  The maximum length of time, in milliseconds, to
+   *                            block while trying to send the request.  If this
+   *                            is less than or equal to zero, then no send
+   *                            timeout will be enforced.
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  void sendMessage(final LDAPMessage message)
+  void sendMessage(final LDAPMessage message, final long sendTimeoutMillis)
          throws LDAPException
   {
     if (needsReconnect.compareAndSet(true, false))
@@ -4362,7 +4372,7 @@ public final class LDAPConnection
     {
       @SuppressWarnings("deprecation")
       final boolean autoReconnect = connectionOptions.autoReconnect();
-      internals.sendMessage(message, autoReconnect);
+      internals.sendMessage(message, sendTimeoutMillis, autoReconnect);
       lastCommunicationTime = System.currentTimeMillis();
     }
   }
