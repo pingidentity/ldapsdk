@@ -557,8 +557,9 @@ public final class LDAPThreadLocalConnectionPool
   @Override()
   public void close(final boolean unbind, final int numThreads)
   {
+    final boolean healthCheckThreadAlreadySignaled = closed;
     closed = true;
-    healthCheckThread.stopRunning();
+    healthCheckThread.stopRunning(! healthCheckThreadAlreadySignaled);
 
     if (numThreads > 1)
     {

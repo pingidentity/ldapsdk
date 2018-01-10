@@ -121,28 +121,37 @@ class LDAPConnectionPoolHealthCheckThread
 
 
   /**
-   * Indicates that this health check thread should stop running.  This method
-   * will not return until the thread has stopped running.
+   * Indicates that this health check thread should stop running.
+   *
+   * @param  wait  Indicates whether to wait for the thread to actually stop
+   *               running before returning.  If this is {@code true}, then this
+   *               method will not return until the thread has actually stopped.
+   *               If this is {@code false}, then the thread will be signaled
+   *               to stop, but the thread may still be running when this method
+   *               returns.
    */
-  void stopRunning()
+  void stopRunning(final boolean wait)
   {
     stopRequested.set(true);
     wakeUp();
 
-    final Thread t = thread;
-    if (t != null)
+    if (wait)
     {
-      try
+      final Thread t = thread;
+      if (t != null)
       {
-        t.join();
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-
-        if (e instanceof InterruptedException)
+        try
         {
-          Thread.currentThread().interrupt();
+          t.join();
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+
+          if (e instanceof InterruptedException)
+          {
+            Thread.currentThread().interrupt();
+          }
         }
       }
     }
