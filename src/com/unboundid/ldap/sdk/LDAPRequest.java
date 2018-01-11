@@ -211,7 +211,18 @@ public abstract class LDAPRequest
   {
     if ((responseTimeout < 0L) && (connection != null))
     {
-      return connection.getConnectionOptions().getResponseTimeoutMillis();
+      if (this instanceof ExtendedRequest)
+      {
+        final ExtendedRequest extendedRequest = (ExtendedRequest) this;
+        return connection.getConnectionOptions().
+             getExtendedOperationResponseTimeoutMillis(
+                  extendedRequest.getOID());
+      }
+      else
+      {
+        return connection.getConnectionOptions().getResponseTimeoutMillis(
+             getOperationType());
+      }
     }
     else
     {

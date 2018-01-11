@@ -215,7 +215,9 @@ public final class InternalSDKHelper
     connection.sendMessage(
          new LDAPMessage(messageID, new ExtendedRequest(cancelRequest),
               controls),
-         connection.getConnectionOptions().getResponseTimeoutMillis());
+         connection.getConnectionOptions().
+              getExtendedOperationResponseTimeoutMillis(
+                   CancelExtendedRequest.CANCEL_REQUEST_OID));
   }
 
 

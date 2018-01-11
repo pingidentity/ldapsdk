@@ -24,6 +24,8 @@ package com.unboundid.ldap.sdk;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.EnumSet;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.testng.annotations.Test;
@@ -31,7 +33,32 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
+import com.unboundid.ldap.sdk.extensions.CancelExtendedRequest;
+import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
+import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            DeregisterYubiKeyOTPDeviceExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            EndAdministrativeSessionExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            GenerateTOTPSharedSecretExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            GetConnectionIDExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            GetPasswordQualityRequirementsExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            PasswordPolicyStateExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            RegisterYubiKeyOTPDeviceExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            RevokeTOTPSharedSecretExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            StartAdministrativeSessionExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            ValidateTOTPPasswordExtendedRequest;
+import com.unboundid.util.Debug;
+import com.unboundid.util.DebugType;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.SynchronizedSocketFactory;
@@ -71,8 +98,8 @@ public class LDAPConnectionOptionsTestCase
     assertTrue(opts.useReuseAddress());
     assertFalse(opts.useSynchronousMode());
     assertTrue(opts.useTCPNoDelay());
-    assertEquals(opts.getConnectTimeoutMillis(), 60000L);
-    assertEquals(opts.getResponseTimeoutMillis(), 300000L);
+    assertEquals(opts.getConnectTimeoutMillis(), 10_000L);
+    assertEquals(opts.getResponseTimeoutMillis(), 300_000L);
     assertFalse(opts.abandonOnTimeout());
     assertEquals(opts.getMaxMessageSize(), (20 * 1024 * 1024));
     assertNull(opts.getDisconnectHandler());
@@ -82,6 +109,51 @@ public class LDAPConnectionOptionsTestCase
     assertFalse(opts.usePooledSchema());
     assertEquals(opts.getReceiveBufferSize(), 0);
     assertEquals(opts.getSendBufferSize(), 0);
+
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ABANDON), 10_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ADD), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.BIND), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.COMPARE), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.DELETE), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.EXTENDED),
+         300_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY_DN),
+         30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.SEARCH), 300_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.UNBIND), 10_000L);
+
+    for (final String oid :
+      Arrays.asList(
+           PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID,
+           StartTLSExtendedRequest.STARTTLS_REQUEST_OID,
+           WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID,
+           DeregisterYubiKeyOTPDeviceExtendedRequest.
+                DEREGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           EndAdministrativeSessionExtendedRequest.
+                END_ADMIN_SESSION_REQUEST_OID,
+           GenerateTOTPSharedSecretExtendedRequest.
+                GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
+           GetConnectionIDExtendedRequest.GET_CONNECTION_ID_REQUEST_OID,
+           GetPasswordQualityRequirementsExtendedRequest.
+                OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
+           PasswordPolicyStateExtendedRequest.
+                PASSWORD_POLICY_STATE_REQUEST_OID,
+           RegisterYubiKeyOTPDeviceExtendedRequest.
+                REGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           RevokeTOTPSharedSecretExtendedRequest.
+                REVOKE_TOTP_SHARED_SECRET_REQUEST_OID,
+           StartAdministrativeSessionExtendedRequest.
+                START_ADMIN_SESSION_REQUEST_OID,
+           ValidateTOTPPasswordExtendedRequest.
+                VALIDATE_TOTP_PASSWORD_REQUEST_OID))
+    {
+      assertEquals(opts.getExtendedOperationResponseTimeoutMillis(oid),
+           30_000L);
+      assertEquals(
+           opts.getExtendedOperationResponseTimeoutMillis(oid + ".12345"),
+           300_000L);
+    }
 
     final String vmVendor =
          StaticUtils.toLowerCase(System.getProperty("java.vm.vendor"));
@@ -180,7 +252,6 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(LDAPConnectionOptions.DEFAULT_AUTO_RECONNECT, false);
     assertFalse(opts.autoReconnect());
     assertNotNull(opts.toString());
 
@@ -203,7 +274,6 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(LDAPConnectionOptions.DEFAULT_FOLLOW_REFERRALS, false);
     assertFalse(opts.followReferrals());
     assertNotNull(opts.toString());
 
@@ -226,7 +296,6 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(LDAPConnectionOptions.DEFAULT_REFERRAL_HOP_LIMIT, 5);
     assertEquals(opts.getReferralHopLimit(), 5);
     assertNotNull(opts.toString());
 
@@ -290,7 +359,6 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(LDAPConnectionOptions.DEFAULT_USE_KEEPALIVE, true);
     assertTrue(opts.useKeepAlive());
     assertNotNull(opts.toString());
 
@@ -313,11 +381,8 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(LDAPConnectionOptions.DEFAULT_USE_LINGER, true);
-
     assertTrue(opts.useLinger());
-    assertEquals(opts.getLingerTimeoutSeconds(),
-         LDAPConnectionOptions.DEFAULT_LINGER_TIMEOUT_SECONDS);
+    assertEquals(opts.getLingerTimeoutSeconds(), 5);
     assertNotNull(opts.toString());
 
     opts.setUseLinger(false, 0);
@@ -341,7 +406,6 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(LDAPConnectionOptions.DEFAULT_USE_REUSE_ADDRESS, true);
     assertTrue(opts.useReuseAddress());
     assertNotNull(opts.toString());
 
@@ -364,7 +428,6 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(LDAPConnectionOptions.DEFAULT_USE_TCP_NODELAY, true);
     assertTrue(opts.useTCPNoDelay());
     assertNotNull(opts.toString());
 
@@ -387,8 +450,6 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(LDAPConnectionOptions.DEFAULT_CAPTURE_CONNECT_STACK_TRACE,
-                 false);
     assertFalse(opts.captureConnectStackTrace());
     assertNotNull(opts.toString());
 
@@ -411,8 +472,7 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(opts.getConnectTimeoutMillis(),
-         LDAPConnectionOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS);
+    assertEquals(opts.getConnectTimeoutMillis(), 10_000);
     assertNotNull(opts.toString());
 
     opts.setConnectTimeoutMillis(0);
@@ -434,21 +494,338 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(opts.getResponseTimeoutMillis(),
-                 LDAPConnectionOptions.DEFAULT_RESPONSE_TIMEOUT_MILLIS);
+    assertEquals(opts.getResponseTimeoutMillis(), 300_000L);
     assertNotNull(opts.toString());
+
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ABANDON), 10_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ADD), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.BIND), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.COMPARE), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.DELETE), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.EXTENDED),
+         300_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY), 30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY_DN),
+         30_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.SEARCH), 300_000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.UNBIND), 10_000L);
+
+    for (final String oid :
+      Arrays.asList(
+           PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID,
+           StartTLSExtendedRequest.STARTTLS_REQUEST_OID,
+           WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID,
+           DeregisterYubiKeyOTPDeviceExtendedRequest.
+                DEREGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           EndAdministrativeSessionExtendedRequest.
+                END_ADMIN_SESSION_REQUEST_OID,
+           GenerateTOTPSharedSecretExtendedRequest.
+                GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
+           GetConnectionIDExtendedRequest.GET_CONNECTION_ID_REQUEST_OID,
+           GetPasswordQualityRequirementsExtendedRequest.
+                OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
+           PasswordPolicyStateExtendedRequest.
+                PASSWORD_POLICY_STATE_REQUEST_OID,
+           RegisterYubiKeyOTPDeviceExtendedRequest.
+                REGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           RevokeTOTPSharedSecretExtendedRequest.
+                REVOKE_TOTP_SHARED_SECRET_REQUEST_OID,
+           StartAdministrativeSessionExtendedRequest.
+                START_ADMIN_SESSION_REQUEST_OID,
+           ValidateTOTPPasswordExtendedRequest.
+                VALIDATE_TOTP_PASSWORD_REQUEST_OID))
+    {
+      assertEquals(opts.getExtendedOperationResponseTimeoutMillis(oid),
+           30_000L);
+      assertEquals(
+           opts.getExtendedOperationResponseTimeoutMillis(oid + ".12345"),
+           300_000L);
+    }
+
 
     opts.setResponseTimeoutMillis(0L);
     assertEquals(opts.getResponseTimeoutMillis(), 0L);
     assertNotNull(opts.toString());
 
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ABANDON), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ADD), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.BIND), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.COMPARE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.DELETE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.EXTENDED), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY_DN), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.SEARCH), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.UNBIND), 0L);
+
+    for (final String oid :
+      Arrays.asList(
+           PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID,
+           StartTLSExtendedRequest.STARTTLS_REQUEST_OID,
+           WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID,
+           DeregisterYubiKeyOTPDeviceExtendedRequest.
+                DEREGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           EndAdministrativeSessionExtendedRequest.
+                END_ADMIN_SESSION_REQUEST_OID,
+           GenerateTOTPSharedSecretExtendedRequest.
+                GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
+           GetConnectionIDExtendedRequest.GET_CONNECTION_ID_REQUEST_OID,
+           GetPasswordQualityRequirementsExtendedRequest.
+                OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
+           PasswordPolicyStateExtendedRequest.
+                PASSWORD_POLICY_STATE_REQUEST_OID,
+           RegisterYubiKeyOTPDeviceExtendedRequest.
+                REGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           RevokeTOTPSharedSecretExtendedRequest.
+                REVOKE_TOTP_SHARED_SECRET_REQUEST_OID,
+           StartAdministrativeSessionExtendedRequest.
+                START_ADMIN_SESSION_REQUEST_OID,
+           ValidateTOTPPasswordExtendedRequest.
+                VALIDATE_TOTP_PASSWORD_REQUEST_OID))
+    {
+      assertEquals(opts.getExtendedOperationResponseTimeoutMillis(oid), 0L);
+      assertEquals(
+           opts.getExtendedOperationResponseTimeoutMillis(oid + ".12345"), 0L);
+    }
+
+
     opts.setResponseTimeoutMillis(5000L);
     assertEquals(opts.getResponseTimeoutMillis(), 5000L);
     assertNotNull(opts.toString());
 
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ABANDON), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ADD), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.BIND), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.COMPARE), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.DELETE), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.EXTENDED), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY_DN), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.SEARCH), 5000L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.UNBIND), 5000L);
+
+    for (final String oid :
+      Arrays.asList(
+           PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID,
+           StartTLSExtendedRequest.STARTTLS_REQUEST_OID,
+           WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID,
+           DeregisterYubiKeyOTPDeviceExtendedRequest.
+                DEREGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           EndAdministrativeSessionExtendedRequest.
+                END_ADMIN_SESSION_REQUEST_OID,
+           GenerateTOTPSharedSecretExtendedRequest.
+                GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
+           GetConnectionIDExtendedRequest.GET_CONNECTION_ID_REQUEST_OID,
+           GetPasswordQualityRequirementsExtendedRequest.
+                OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
+           PasswordPolicyStateExtendedRequest.
+                PASSWORD_POLICY_STATE_REQUEST_OID,
+           RegisterYubiKeyOTPDeviceExtendedRequest.
+                REGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           RevokeTOTPSharedSecretExtendedRequest.
+                REVOKE_TOTP_SHARED_SECRET_REQUEST_OID,
+           StartAdministrativeSessionExtendedRequest.
+                START_ADMIN_SESSION_REQUEST_OID,
+           ValidateTOTPPasswordExtendedRequest.
+                VALIDATE_TOTP_PASSWORD_REQUEST_OID))
+    {
+      assertEquals(opts.getExtendedOperationResponseTimeoutMillis(oid), 5000L);
+      assertEquals(
+           opts.getExtendedOperationResponseTimeoutMillis(oid + ".12345"),
+           5000L);
+    }
+
+
     opts.setResponseTimeoutMillis(-1L);
     assertEquals(opts.getResponseTimeoutMillis(), 0L);
     assertNotNull(opts.toString());
+
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ABANDON), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ADD), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.BIND), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.COMPARE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.DELETE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.EXTENDED), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY_DN), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.SEARCH), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.UNBIND), 0L);
+
+    for (final String oid :
+      Arrays.asList(
+           PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID,
+           StartTLSExtendedRequest.STARTTLS_REQUEST_OID,
+           WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID,
+           DeregisterYubiKeyOTPDeviceExtendedRequest.
+                DEREGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           EndAdministrativeSessionExtendedRequest.
+                END_ADMIN_SESSION_REQUEST_OID,
+           GenerateTOTPSharedSecretExtendedRequest.
+                GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
+           GetConnectionIDExtendedRequest.GET_CONNECTION_ID_REQUEST_OID,
+           GetPasswordQualityRequirementsExtendedRequest.
+                OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
+           PasswordPolicyStateExtendedRequest.
+                PASSWORD_POLICY_STATE_REQUEST_OID,
+           RegisterYubiKeyOTPDeviceExtendedRequest.
+                REGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           RevokeTOTPSharedSecretExtendedRequest.
+                REVOKE_TOTP_SHARED_SECRET_REQUEST_OID,
+           StartAdministrativeSessionExtendedRequest.
+                START_ADMIN_SESSION_REQUEST_OID,
+           ValidateTOTPPasswordExtendedRequest.
+                VALIDATE_TOTP_PASSWORD_REQUEST_OID))
+    {
+      assertEquals(opts.getExtendedOperationResponseTimeoutMillis(oid), 0L);
+      assertEquals(
+           opts.getExtendedOperationResponseTimeoutMillis(oid + ".12345"), 0L);
+    }
+
+
+    opts.setResponseTimeoutMillis(OperationType.SEARCH, 1234L);
+    assertEquals(opts.getResponseTimeoutMillis(), 0L);
+    assertNotNull(opts.toString());
+
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ABANDON), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ADD), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.BIND), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.COMPARE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.DELETE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.EXTENDED), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY_DN), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.SEARCH), 1234L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.UNBIND), 0L);
+
+    for (final String oid :
+      Arrays.asList(
+           PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID,
+           StartTLSExtendedRequest.STARTTLS_REQUEST_OID,
+           WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID,
+           DeregisterYubiKeyOTPDeviceExtendedRequest.
+                DEREGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           EndAdministrativeSessionExtendedRequest.
+                END_ADMIN_SESSION_REQUEST_OID,
+           GenerateTOTPSharedSecretExtendedRequest.
+                GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
+           GetConnectionIDExtendedRequest.GET_CONNECTION_ID_REQUEST_OID,
+           GetPasswordQualityRequirementsExtendedRequest.
+                OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
+           PasswordPolicyStateExtendedRequest.
+                PASSWORD_POLICY_STATE_REQUEST_OID,
+           RegisterYubiKeyOTPDeviceExtendedRequest.
+                REGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           RevokeTOTPSharedSecretExtendedRequest.
+                REVOKE_TOTP_SHARED_SECRET_REQUEST_OID,
+           StartAdministrativeSessionExtendedRequest.
+                START_ADMIN_SESSION_REQUEST_OID,
+           ValidateTOTPPasswordExtendedRequest.
+                VALIDATE_TOTP_PASSWORD_REQUEST_OID))
+    {
+      assertEquals(opts.getExtendedOperationResponseTimeoutMillis(oid), 0L);
+      assertEquals(
+           opts.getExtendedOperationResponseTimeoutMillis(oid + ".12345"), 0L);
+    }
+
+
+    opts.setResponseTimeoutMillis(OperationType.EXTENDED, 5678L);
+    assertEquals(opts.getResponseTimeoutMillis(), 0L);
+    assertNotNull(opts.toString());
+
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ABANDON), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ADD), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.BIND), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.COMPARE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.DELETE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.EXTENDED), 5678L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY_DN), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.SEARCH), 1234L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.UNBIND), 0L);
+
+    for (final String oid :
+      Arrays.asList(
+           PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID,
+           StartTLSExtendedRequest.STARTTLS_REQUEST_OID,
+           WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID,
+           DeregisterYubiKeyOTPDeviceExtendedRequest.
+                DEREGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           EndAdministrativeSessionExtendedRequest.
+                END_ADMIN_SESSION_REQUEST_OID,
+           GenerateTOTPSharedSecretExtendedRequest.
+                GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
+           GetConnectionIDExtendedRequest.GET_CONNECTION_ID_REQUEST_OID,
+           GetPasswordQualityRequirementsExtendedRequest.
+                OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
+           PasswordPolicyStateExtendedRequest.
+                PASSWORD_POLICY_STATE_REQUEST_OID,
+           RegisterYubiKeyOTPDeviceExtendedRequest.
+                REGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           RevokeTOTPSharedSecretExtendedRequest.
+                REVOKE_TOTP_SHARED_SECRET_REQUEST_OID,
+           StartAdministrativeSessionExtendedRequest.
+                START_ADMIN_SESSION_REQUEST_OID,
+           ValidateTOTPPasswordExtendedRequest.
+                VALIDATE_TOTP_PASSWORD_REQUEST_OID))
+    {
+      assertEquals(opts.getExtendedOperationResponseTimeoutMillis(oid), 5678L);
+      assertEquals(
+           opts.getExtendedOperationResponseTimeoutMillis(oid + ".12345"),
+           5678L);
+    }
+
+
+    opts.setExtendedOperationResponseTimeoutMillis(
+         CancelExtendedRequest.CANCEL_REQUEST_OID, 9999L);
+    assertEquals(opts.getResponseTimeoutMillis(), 0L);
+    assertNotNull(opts.toString());
+
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ABANDON), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.ADD), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.BIND), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.COMPARE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.DELETE), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.EXTENDED), 5678L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.MODIFY_DN), 0L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.SEARCH), 1234L);
+    assertEquals(opts.getResponseTimeoutMillis(OperationType.UNBIND), 0L);
+
+    for (final String oid :
+      Arrays.asList(
+           PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID,
+           StartTLSExtendedRequest.STARTTLS_REQUEST_OID,
+           WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID,
+           DeregisterYubiKeyOTPDeviceExtendedRequest.
+                DEREGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           EndAdministrativeSessionExtendedRequest.
+                END_ADMIN_SESSION_REQUEST_OID,
+           GenerateTOTPSharedSecretExtendedRequest.
+                GENERATE_TOTP_SHARED_SECRET_REQUEST_OID,
+           GetConnectionIDExtendedRequest.GET_CONNECTION_ID_REQUEST_OID,
+           GetPasswordQualityRequirementsExtendedRequest.
+                OID_GET_PASSWORD_QUALITY_REQUIREMENTS_REQUEST,
+           PasswordPolicyStateExtendedRequest.
+                PASSWORD_POLICY_STATE_REQUEST_OID,
+           RegisterYubiKeyOTPDeviceExtendedRequest.
+                REGISTER_YUBIKEY_OTP_DEVICE_REQUEST_OID,
+           RevokeTOTPSharedSecretExtendedRequest.
+                REVOKE_TOTP_SHARED_SECRET_REQUEST_OID,
+           StartAdministrativeSessionExtendedRequest.
+                START_ADMIN_SESSION_REQUEST_OID,
+           ValidateTOTPPasswordExtendedRequest.
+                VALIDATE_TOTP_PASSWORD_REQUEST_OID))
+    {
+      assertEquals(opts.getExtendedOperationResponseTimeoutMillis(oid), 5678L);
+      assertEquals(
+           opts.getExtendedOperationResponseTimeoutMillis(oid + ".12345"),
+           5678L);
+    }
+
+    assertEquals(
+         opts.getExtendedOperationResponseTimeoutMillis(
+              CancelExtendedRequest.CANCEL_REQUEST_OID),
+         9999L);
   }
 
 
@@ -461,8 +838,7 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(opts.abandonOnTimeout(),
-         LDAPConnectionOptions.DEFAULT_ABANDON_ON_TIMEOUT);
+    assertEquals(opts.abandonOnTimeout(), false);
     assertNotNull(opts.toString());
 
     opts.setAbandonOnTimeout(true);
@@ -484,8 +860,7 @@ public class LDAPConnectionOptionsTestCase
   {
     final LDAPConnectionOptions opts = new LDAPConnectionOptions();
 
-    assertEquals(opts.getMaxMessageSize(),
-                 LDAPConnectionOptions.DEFAULT_MAX_MESSAGE_SIZE);
+    assertEquals(opts.getMaxMessageSize(), 20_971_520);
     assertNotNull(opts.toString());
 
     opts.setMaxMessageSize(0);
@@ -834,5 +1209,147 @@ public class LDAPConnectionOptionsTestCase
     conn.close();
 
     ds.shutDown(true);
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code getSystemProperty} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetSystemProperty()
+         throws Exception
+  {
+    final boolean originalDebugEnabled = Debug.debugEnabled();
+    final EnumSet<DebugType> originalDebugTypes = Debug.getDebugTypes();
+    Debug.setEnabled(true, EnumSet.of(DebugType.LDAP));
+
+    try
+    {
+      System.setProperty("booleanPropertyName", "true");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("booleanPropertyName", true),
+           true);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("booleanPropertyName",
+                false),
+           true);
+
+      System.setProperty("booleanPropertyName", "false");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("booleanPropertyName", true),
+           false);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("booleanPropertyName",
+                false),
+           false);
+
+      System.setProperty("booleanPropertyName", "malformed");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("booleanPropertyName", true),
+           true);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("booleanPropertyName",
+                false),
+           false);
+
+      System.clearProperty("booleanPropertyName");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("booleanPropertyName", true),
+           true);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("booleanPropertyName",
+                false),
+           false);
+
+
+      System.setProperty("intPropertyName", "1234");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("intPropertyName", 1234),
+           1234);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("intPropertyName", 5678),
+           1234);
+
+      System.setProperty("intPropertyName", "-5678");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("intPropertyName", -1234),
+           -5678);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("intPropertyName", -5678),
+           -5678);
+
+      System.setProperty("intPropertyName", "malformed");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("intPropertyName", 1234),
+           1234);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("intPropertyName", 5678),
+           5678);
+
+      System.clearProperty("intPropertyName");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("intPropertyName", 1234),
+           1234);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("intPropertyName", 5678),
+           5678);
+
+
+      System.setProperty("longPropertyName", "1234");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName",
+                1234L).longValue(),
+           1234L);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName",
+                5678L).longValue(),
+           1234L);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName",
+                null).longValue(),
+           1234L);
+
+      System.setProperty("longPropertyName", "-5678");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName",
+                -1234L).longValue(),
+           -5678L);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName",
+                -5678L).longValue(),
+           -5678L);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName",
+                null).longValue(),
+           -5678L);
+
+      System.setProperty("longPropertyName", "malformed");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName",
+                1234L).longValue(),
+           1234L);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName",
+                5678L).longValue(),
+           5678L);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName", null),
+           null);
+
+      System.clearProperty("longPropertyName");
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName", null),
+           null);
+      assertEquals(
+           LDAPConnectionOptions.getSystemProperty("longPropertyName", null),
+           null);
+    }
+    finally
+    {
+      Debug.setEnabled(originalDebugEnabled, originalDebugTypes);
+    }
   }
 }

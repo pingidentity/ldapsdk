@@ -1589,7 +1589,7 @@ public final class LDAPConnection
         sendMessage(
              new LDAPMessage(messageID, new UnbindRequestProtocolOp(),
                   controls),
-             connectionOptions.getResponseTimeoutMillis());
+             connectionOptions.getResponseTimeoutMillis(OperationType.UNBIND));
       }
       catch (final Exception e)
       {
@@ -1883,7 +1883,7 @@ public final class LDAPConnection
     sendMessage(
          new LDAPMessage(abandonMessageID,
               new AbandonRequestProtocolOp(messageID), controls),
-         connectionOptions.getResponseTimeoutMillis());
+         connectionOptions.getResponseTimeoutMillis(OperationType.ABANDON));
   }
 
 
@@ -1923,7 +1923,7 @@ public final class LDAPConnection
     sendMessage(
          new LDAPMessage(abandonMessageID,
               new AbandonRequestProtocolOp(messageID), controls),
-         connectionOptions.getResponseTimeoutMillis());
+         connectionOptions.getResponseTimeoutMillis(OperationType.ABANDON));
   }
 
 
