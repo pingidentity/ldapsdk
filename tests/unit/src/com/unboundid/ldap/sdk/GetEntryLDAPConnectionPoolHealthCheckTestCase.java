@@ -141,12 +141,16 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     {
       healthCheck.ensureConnectionValidAfterException(c1,
            new LDAPException(ResultCode.SERVER_DOWN));
-      fail("Expected an exception when testing a connection after an " +
-           "unacceptable exception");
+      // Even though the exception indicates that the connection is unusable,
+      // the health check will still pass, so we will consider the connection
+      // still valid.
     }
     catch (LDAPException le)
     {
-      // This was expected.
+      fail(
+           "Got an unexpected exception when testing a connection after an " +
+                "unacceptable exception",
+           le);
     }
 
 
@@ -236,11 +240,16 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     {
       healthCheck.ensureConnectionValidAfterException(adminConnection,
            new LDAPException(ResultCode.NO_SUCH_OBJECT));
-      fail("Expected an exception when testing ValidAfterException_32");
+      // No exception is expected in this case because NO_SUCH_OBJECT isn't a
+      // failure result that the SDK believes to indicate that the server is
+      // down.
     }
     catch (LDAPException le)
     {
-      // This was expected.
+      fail(
+           "Got an unexpected exception when testing a connection after an " +
+                "unacceptable exception",
+           le);
     }
 
     try
@@ -270,12 +279,14 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     {
       healthCheck.ensureConnectionValidAfterException(adminConnection,
            new LDAPException(ResultCode.SERVER_DOWN));
-      fail("Expected an exception when testing a connection after an " +
-           "unacceptable exception");
+      // The entry is there, so the health check will pass.
     }
     catch (LDAPException le)
     {
-      // This was expected.
+      fail(
+           "Got an unexpected exception when testing a connection after an " +
+                "unacceptable exception",
+           le);
     }
 
     adminConnection.close();
@@ -340,18 +351,8 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     healthCheck.ensureConnectionValidForContinuedUse(c1);
     healthCheck.ensureConnectionValidAfterException(c1,
          new LDAPException(ResultCode.NO_SUCH_OBJECT));
-
-    try
-    {
-      healthCheck.ensureConnectionValidAfterException(c1,
-           new LDAPException(ResultCode.SERVER_DOWN));
-      fail("Expected an exception when testing a connection after an " +
-           "unacceptable exception");
-    }
-    catch (LDAPException le)
-    {
-      // This was expected.
-    }
+    healthCheck.ensureConnectionValidAfterException(c1,
+         new LDAPException(ResultCode.SERVER_DOWN));
 
 
     pool.releaseConnection(c1);
@@ -369,18 +370,8 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     healthCheck.ensureConnectionValidForContinuedUse(adminConnection);
     healthCheck.ensureConnectionValidAfterException(adminConnection,
          new LDAPException(ResultCode.NO_SUCH_OBJECT));
-
-    try
-    {
-      healthCheck.ensureConnectionValidAfterException(adminConnection,
-           new LDAPException(ResultCode.SERVER_DOWN));
-      fail("Expected an exception when testing a connection after an " +
-           "unacceptable exception");
-    }
-    catch (LDAPException le)
-    {
-      // This was expected.
-    }
+    healthCheck.ensureConnectionValidAfterException(adminConnection,
+         new LDAPException(ResultCode.SERVER_DOWN));
 
 
     // Re-add the test entry and ensure that the health checks still behave
@@ -393,18 +384,8 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     healthCheck.ensureConnectionValidForContinuedUse(adminConnection);
     healthCheck.ensureConnectionValidAfterException(adminConnection,
          new LDAPException(ResultCode.NO_SUCH_OBJECT));
-
-    try
-    {
-      healthCheck.ensureConnectionValidAfterException(adminConnection,
-           new LDAPException(ResultCode.SERVER_DOWN));
-      fail("Expected an exception when testing a connection after an " +
-           "unacceptable exception");
-    }
-    catch (LDAPException le)
-    {
-      // This was expected.
-    }
+    healthCheck.ensureConnectionValidAfterException(adminConnection,
+         new LDAPException(ResultCode.SERVER_DOWN));
 
     adminConnection.close();
     pool.close();
@@ -471,12 +452,16 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     {
       healthCheck.ensureConnectionValidAfterException(c1,
            new LDAPException(ResultCode.SERVER_DOWN));
-      fail("Expected an exception when testing a connection after an " +
-           "unacceptable exception");
+      // Even though the exception indicates that the connection is unusable,
+      // the health check will still pass, so we will consider the connection
+      // still valid.
     }
     catch (LDAPException le)
     {
-      // This was expected.
+      fail(
+           "Got an unexpected exception when testing a connection after an " +
+                "unacceptable exception",
+           le);
     }
 
     pool.releaseConnection(c1);
@@ -543,12 +528,16 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     {
       healthCheck.ensureConnectionValidAfterException(c1,
            new LDAPException(ResultCode.SERVER_DOWN));
-      fail("Expected an exception when testing a connection after an " +
-           "unacceptable exception");
+      // Even though the exception indicates that the connection is unusable,
+      // the health check will still pass, so we will consider the connection
+      // still valid.
     }
     catch (LDAPException le)
     {
-      // This was expected.
+      fail(
+           "Got an unexpected exception when testing a connection after an " +
+                "unacceptable exception",
+           le);
     }
 
 

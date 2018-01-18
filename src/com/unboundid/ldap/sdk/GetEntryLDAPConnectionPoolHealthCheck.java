@@ -319,9 +319,8 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
                    final LDAPException exception)
          throws LDAPException
   {
-    super.ensureConnectionValidAfterException(connection, exception);
-
-    if (invokeOnException)
+    if (invokeOnException &&
+         (! ResultCode.isConnectionUsable(exception.getResultCode())))
     {
       getEntry(connection);
     }
