@@ -161,6 +161,7 @@ public final class ConnectionPoolOptionsTestCase
               new JSONField("invoke-background-health-checks", false),
               new JSONField("invoke-checkout-health-checks", true),
               new JSONField("invoke-create-health-checks", true),
+              new JSONField("invoke-authentication-health-checks", true),
               new JSONField("invoke-exception-health-checks", false),
               new JSONField("invoke-release-health-checks", true),
               new JSONField("maximum-connection-age-millis", 300000L),

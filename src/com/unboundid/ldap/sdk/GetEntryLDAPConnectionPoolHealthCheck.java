@@ -69,6 +69,10 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
 
 
 
+  // Indicates whether to invoke the test after a connection has been
+  // authenticated.
+  private final boolean invokeAfterAuthentication;
+
   // Indicates whether to invoke the test during background health checks.
   private final boolean invokeForBackgroundChecks;
 
@@ -112,7 +116,11 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    * @param  invokeOnCreate             Indicates whether to test for the
    *                                    existence of the target entry whenever a
    *                                    new connection is created for use in the
-   *                                    pool.
+   *                                    pool.  Note that this check will be
+   *                                    performed immediately after the
+   *                                    connection has been established and
+   *                                    before any attempt has been made to
+   *                                    authenticate that connection.
    * @param  invokeOnCheckout           Indicates whether to test for the
    *                                    existence of the target entry
    *                                    immediately before a connection is
@@ -135,7 +143,65 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
               final boolean invokeForBackgroundChecks,
               final boolean invokeOnException)
   {
+    this(entryDN, maxResponseTime, invokeOnCreate, false, invokeOnCheckout,
+         invokeOnRelease, invokeForBackgroundChecks, invokeOnException);
+  }
+
+
+
+  /**
+   * Creates a new instance of this get entry LDAP connection pool health check.
+   *
+   * @param  entryDN
+   *              The DN of the entry to retrieve from the target server.  If
+   *              this is {@code null}, then the server's root DSE will be used.
+   * @param  maxResponseTime
+   *              The maximum length of time in milliseconds that should be
+   *              allowed when attempting to retrieve the entry.  If the
+   *              provided value is less than or equal to zero, then the
+   *              default value of 30000 milliseconds (30 seconds) will be used.
+   * @param  invokeOnCreate
+   *              Indicates whether to test for the existence of the target
+   *              entry whenever a new connection is created for use in the
+   *              pool.  Note that this check will be performed immediately
+   *              after the connection has been established and before any
+   *              attempt has been made to authenticate that connection.
+   * @param  invokeAfterAuthentication
+   *              Indicates whether to test for the existence of the target
+   *              entry immediately after a connection has been authenticated.
+   *              This includes immediately after a newly-created connection
+   *              has been authenticated, after a call to the connection pool's
+   *              {@code bindAndRevertAuthentication} method, and after a call
+   *              to the connection pool's
+   *              {@code releaseAndReAuthenticateConnection} method.  Note that
+   *              even if this is {@code true}, the health check will only be
+   *              performed if the provided bind result indicates that the bind
+   *              was successful.
+   * @param  invokeOnCheckout
+   *              Indicates whether to test for the existence of the target
+   *              entry immediately before a connection is checked out of the
+   *              pool.
+   * @param  invokeOnRelease
+   *              Indicates whether to test for the existence of the target
+   *              entry immediately after a connection has been released back
+   *              to the pool.
+   * @param  invokeForBackgroundChecks
+   *              Indicates whether to test for the existence of the target
+   *              entry during periodic background health checks.
+   * @param  invokeOnException
+   *              Indicates whether to test for the existence of the target
+   *              entry if an exception is encountered when using the
+   *              connection.
+   */
+  public GetEntryLDAPConnectionPoolHealthCheck(final String entryDN,
+              final long maxResponseTime, final boolean invokeOnCreate,
+              final boolean invokeAfterAuthentication,
+              final boolean invokeOnCheckout, final boolean invokeOnRelease,
+              final boolean invokeForBackgroundChecks,
+              final boolean invokeOnException)
+  {
     this.invokeOnCreate            = invokeOnCreate;
+    this.invokeAfterAuthentication = invokeAfterAuthentication;
     this.invokeOnCheckout          = invokeOnCheckout;
     this.invokeOnRelease           = invokeOnRelease;
     this.invokeForBackgroundChecks = invokeForBackgroundChecks;
@@ -174,6 +240,23 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
          throws LDAPException
   {
     if (invokeOnCreate)
+    {
+      getEntry(connection);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void ensureConnectionValidAfterAuthentication(
+                   final LDAPConnection connection, final BindResult bindResult)
+         throws LDAPException
+  {
+    if (invokeAfterAuthentication &&
+         (bindResult.getResultCode() == ResultCode.SUCCESS))
     {
       getEntry(connection);
     }
@@ -291,6 +374,24 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
 
   /**
    * Indicates whether this health check will test for the existence of the
+   * target entry after a connection has been authenticated, including after
+   * authenticating a newly-created connection, as well as after calls to the
+   * connection pool's {@code bindAndRevertAuthentication} and
+   * {@code releaseAndReAuthenticateConnection} methods.
+   *
+   * @return  {@code true} if this health check will test for the existence of
+   *          the target entry whenever a connection has been authenticated, or
+   *          {@code false} if not.
+   */
+  public boolean invokeAfterAuthentication()
+  {
+    return invokeAfterAuthentication;
+  }
+
+
+
+  /**
+   * Indicates whether this health check will test for the existence of the
    * target entry whenever a connection is to be checked out for use.
    *
    * @return  {@code true} if this health check will test for the existence of
@@ -398,6 +499,8 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
     buffer.append(maxResponseTime);
     buffer.append(", invokeOnCreate=");
     buffer.append(invokeOnCreate);
+    buffer.append(", invokeAfterAuthentication=");
+    buffer.append(invokeAfterAuthentication);
     buffer.append(", invokeOnCheckout=");
     buffer.append(invokeOnCheckout);
     buffer.append(", invokeOnRelease=");

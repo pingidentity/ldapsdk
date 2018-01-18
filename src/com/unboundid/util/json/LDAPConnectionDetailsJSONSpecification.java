@@ -1075,6 +1075,16 @@ import static com.unboundid.util.json.JSONMessages.*;
  *     it is not present, then a default of {@code false} will be assumed.
  *   </LI>
  *   <LI>
+ *     "invoke-authentication-health-checks" -- Indicates whether the connection
+ *     pool should invoke health check processing on connections just after they
+ *     have been authenticated.  This includes after a successful bind on a
+ *     newly-created connection, and after calls to the connection pool's
+ *     {@code bindAndRevertAuthentication} and
+ *     {@code releaseAndReAuthenticateConnection} methods.  If this field is
+ *     present, then its value must be a boolean.  If it is not present, then a
+ *     default of {@code false} will be assumed.
+ *   </LI>
+ *   <LI>
  *     "invoke-exception-health-checks" -- Indicates whether the connection pool
  *     should invoke health check processing on connections just after an
  *     exception is caught that might indicate that the connection is no longer

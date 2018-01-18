@@ -111,6 +111,21 @@ final class ConnectionPoolOptions
 
   /**
    * The name of the field that may be used to indicate whether connection pool
+   * health checks should be invoked on newly-authenticated connections.  This
+   * includes immediately after a newly-created connection has been
+   * authenticated, as well as after any call to a connection pool's
+   * {@code bindAndRevertAuthentication} or
+   * {@code releaseAndReAuthenticateConnection} methods.  If this field is
+   * present, then its value must be a boolean.  If it is absent, then a default
+   * of {@code false} will be assumed.
+   */
+  private static final String FIELD_INVOKE_AUTHENTICATION_HEALTH_CHECKS =
+       "invoke-authentication-health-checks";
+
+
+
+  /**
+   * The name of the field that may be used to indicate whether connection pool
    * health checks should be periodically performed against available
    * connections in the background.  If this field is present, then its value
    * must be a boolean.  If it is absent, then a default of {@code true} will be
@@ -278,6 +293,7 @@ final class ConnectionPoolOptions
        throws LDAPException
   {
     boolean create                   = true;
+    boolean invokeAuthentication     = false;
     boolean invokeBackground         = true;
     boolean invokeCheckout           = false;
     boolean invokeCreate             = false;
@@ -305,6 +321,7 @@ final class ConnectionPoolOptions
            FIELD_HEALTH_CHECK_GET_ENTRY_TIMEOUT_MILLIS,
            FIELD_HEALTH_CHECK_INTERVAL_MILLIS,
            FIELD_INITIAL_CONNECT_THREADS,
+           FIELD_INVOKE_AUTHENTICATION_HEALTH_CHECKS,
            FIELD_INVOKE_BACKGROUND_HEALTH_CHECKS,
            FIELD_INVOKE_CHECKOUT_HEALTH_CHECKS,
            FIELD_INVOKE_CREATE_HEALTH_CHECKS,
@@ -317,6 +334,9 @@ final class ConnectionPoolOptions
 
       create = LDAPConnectionDetailsJSONSpecification.getBoolean(o,
            FIELD_CREATE_IF_NECESSARY, create);
+
+      invokeAuthentication = LDAPConnectionDetailsJSONSpecification.getBoolean(
+           o, FIELD_INVOKE_AUTHENTICATION_HEALTH_CHECKS, invokeAuthentication);
 
       invokeBackground = LDAPConnectionDetailsJSONSpecification.getBoolean(o,
            FIELD_INVOKE_BACKGROUND_HEALTH_CHECKS, invokeBackground);
@@ -446,8 +466,8 @@ final class ConnectionPoolOptions
     else
     {
       healthCheck = new GetEntryLDAPConnectionPoolHealthCheck(getDN,
-           getEntryTimeout, invokeCreate, invokeCheckout, invokeRelease,
-           invokeBackground, invokeException);
+           getEntryTimeout, invokeCreate, invokeAuthentication, invokeCheckout,
+           invokeRelease, invokeBackground, invokeException);
     }
   }
 

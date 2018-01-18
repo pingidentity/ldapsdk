@@ -107,7 +107,7 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
 
     GetEntryLDAPConnectionPoolHealthCheck newHealthCheck =
          new GetEntryLDAPConnectionPoolHealthCheck(getTestBaseDN(), 60000L,
-                  true, true, true, true, true);
+                  true, true, true, true, true, true);
     pool.setHealthCheck(newHealthCheck);
     healthCheck = pool.getHealthCheck();
     assertNotNull(healthCheck);
@@ -119,6 +119,7 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
                  new DN(getTestBaseDN()));
     assertEquals(newHealthCheck.getMaxResponseTimeMillis(), 60000L);
     assertTrue(newHealthCheck.invokeOnCreate());
+    assertTrue(newHealthCheck.invokeAfterAuthentication());
     assertTrue(newHealthCheck.invokeOnCheckout());
     assertTrue(newHealthCheck.invokeOnRelease());
     assertTrue(newHealthCheck.invokeForBackgroundChecks());
@@ -128,6 +129,8 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     assertNotNull(c1);
 
     healthCheck.ensureNewConnectionValid(c1);
+    healthCheck.ensureConnectionValidAfterAuthentication(c1,
+         new BindResult(1, ResultCode.SUCCESS, null, null, null, null));
     healthCheck.ensureConnectionValidForCheckout(c1);
     healthCheck.ensureConnectionValidForRelease(c1);
     healthCheck.ensureConnectionValidForContinuedUse(c1);
@@ -166,6 +169,36 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     catch (LDAPException le)
     {
       // This was expected.
+    }
+
+
+    try
+    {
+      healthCheck.ensureConnectionValidAfterAuthentication(adminConnection,
+           new BindResult(1, ResultCode.SUCCESS, null, null, null, null));
+      fail("Expected an exception when testing " +
+           "ConnectionValidAfterAuthentication");
+    }
+    catch (LDAPException le)
+    {
+      // This was expected.
+    }
+
+
+    try
+    {
+      healthCheck.ensureConnectionValidAfterAuthentication(adminConnection,
+           new BindResult(1, ResultCode.INVALID_CREDENTIALS, null, null, null,
+                null));
+    }
+    catch (LDAPException le)
+    {
+      // This was not expected.  The health check should not have done anything
+      // if the bind result indicates the bind did not succeed.
+      fail(
+           "Did not expect an exception after " +
+                "ConnectionValidAfterAuthentication with a failed bind",
+           le);
     }
 
 
@@ -284,6 +317,7 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
                  new DN(getTestBaseDN()));
     assertEquals(newHealthCheck.getMaxResponseTimeMillis(), 60000L);
     assertFalse(newHealthCheck.invokeOnCreate());
+    assertFalse(newHealthCheck.invokeAfterAuthentication());
     assertFalse(newHealthCheck.invokeOnCheckout());
     assertFalse(newHealthCheck.invokeOnRelease());
     assertFalse(newHealthCheck.invokeForBackgroundChecks());
@@ -299,6 +333,8 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     assertNotNull(c1);
 
     healthCheck.ensureNewConnectionValid(c1);
+    healthCheck.ensureConnectionValidAfterAuthentication(c1,
+         new BindResult(1, ResultCode.SUCCESS, null, null, null, null));
     healthCheck.ensureConnectionValidForCheckout(c1);
     healthCheck.ensureConnectionValidForRelease(c1);
     healthCheck.ensureConnectionValidForContinuedUse(c1);
@@ -409,6 +445,7 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
     assertEquals(new DN(newHealthCheck.getEntryDN()), new DN(""));
     assertEquals(newHealthCheck.getMaxResponseTimeMillis(), 30000L);
     assertTrue(newHealthCheck.invokeOnCreate());
+    assertFalse(newHealthCheck.invokeAfterAuthentication());
     assertTrue(newHealthCheck.invokeOnCheckout());
     assertTrue(newHealthCheck.invokeOnRelease());
     assertTrue(newHealthCheck.invokeForBackgroundChecks());
@@ -486,6 +523,7 @@ public class GetEntryLDAPConnectionPoolHealthCheckTestCase
                  new DN(getTestBaseDN()));
     assertEquals(newHealthCheck.getMaxResponseTimeMillis(), 60000L);
     assertTrue(newHealthCheck.invokeOnCreate());
+    assertFalse(newHealthCheck.invokeAfterAuthentication());
     assertTrue(newHealthCheck.invokeOnCheckout());
     assertTrue(newHealthCheck.invokeOnRelease());
     assertTrue(newHealthCheck.invokeForBackgroundChecks());
