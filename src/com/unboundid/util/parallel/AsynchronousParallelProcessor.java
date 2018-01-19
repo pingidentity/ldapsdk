@@ -43,15 +43,15 @@ import com.unboundid.util.ThreadSafetyLevel;
  * complete.  To prevent a backlog of input or output items, a maximum
  * capacity should be set on the {@code pendingQueue} and {@code outputQueue}
  * if one is used.
- * <p/>
+ * <BR><BR>
  * The {@link ParallelProcessor} passed into the constructor is wholly owned
  * by this instance.  It should not be used elsewhere after constructing this
  * instance.  It will be shut down when this instance's {@code shutdown()}
  * method is called.
- * <p/>
+ * <BR><BR>
  * When this AsynchronousParallelProcessor is no longer needed, {@code shutdown}
  * must be called to terminate all worker threads.
- * <p/>
+ * <BR><BR>
  * This class is intended to only be used internally by the SDK.
  *
  * @param <I>  The type of the input items of {@code processAll}.

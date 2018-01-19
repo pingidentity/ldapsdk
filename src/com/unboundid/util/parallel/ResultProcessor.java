@@ -31,11 +31,11 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 /**
  * Processes the result of an invocation of {@code Processor#process()}.
- * <p/>
+ * <BR><BR>
  * When used in the AsynchronousParallelProcessor class, implementing classes
  * do not have to be thread-safe--only a single thread will invoke the
  * {@code processResult} method at a time.
- * <p/>
+ * <BR><BR>
  * This class is intended to only be used internally by the SDK.
  */
 @InternalUseOnly()

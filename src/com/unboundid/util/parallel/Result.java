@@ -32,7 +32,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 /**
  * Encapsulates the input value, result, and any exception thrown by
  * {@code Processor#process()}.
- * <p/>
+ * <BR><BR>
  * This class is intended to only be used internally by the SDK.
  *
  * @param <I>  The type of the input item.

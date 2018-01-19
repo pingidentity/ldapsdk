@@ -33,7 +33,7 @@ import com.unboundid.util.ThreadSafetyLevel;
  * Processes a single input item and returns the result.  Implementations must
  * be 100% thread-safe as they are typically used to process input items
  * in parallel.
- * <p/>
+ * <BR><BR>
  * This class is intended to only be used internally by the SDK.
  *
  * @param <I>  The type of the input item.
