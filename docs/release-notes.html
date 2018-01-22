@@ -6,6 +6,149 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.4</h3>
+
+              <p>
+                The following changes were made between the 4.0.3 and 4.0.4 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the way that the LDAP SDK generates exception messages to make them more
+                  user-friendly.  They are now less likely to include stack traces, and they are
+                  less likely to include repeated information like LDAP SDK build information and
+                  information duplicated from an exception's cause.  Ideally, suppressing stack
+                  trace information in exception messages will not significantly impact the
+                  ability to troubleshoot problems, but stack traces remain available through the
+                  LDAP SDK's debugging framework, and either or both the
+                  <tt>com.unboundid.ldap.sdk.debug.includeStackTraceInExceptionMessages</tt> and
+                  <tt>com.unboundid.ldap.sdk.debug.includeCauseInExceptionMessages</tt> system
+                  properties can be set to "true" to cause the corresponding information to be
+                  included in exception messages when applicable.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed an issue that could cause multiple application threads to block in the
+                  course of closing a connection pool.  When calling the connection pool's
+                  <tt>close</tt> method, the health check thread will be shut down, and the
+                  calling thread will block until it has actually stopped.  Once the health
+                  check thread has stopped, then any idle connections in the pool will be closed.
+                  Connections that are actively being used will not be directly affected by this
+                  but will instead be closed when they are released back to the pool.  Previously,
+                  if the health check thread had not yet been stopped (for example, if it's in
+                  the middle of an expensive or stalled health check operation), then any thread
+                  releasing a connection back to the pool that was in the shutdown process would
+                  also be blocked until the health check thread had exited.  This is no longer the
+                  case, and only the first thread to call a connection pool's <tt>close</tt>
+                  method has the potential to block.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the way that the LDAP SDK sends messages so that it is more resilient to
+                  stalls in the TLS negotiation process.  Java's <tt>SSLSocket</tt> implementation
+                  has the potential to block indefinitely until TLS negotiation has completed, and
+                  the only way to break out of that stall is to use the <tt>SO_TIMEOUT</tt> socket
+                  option.  This was primarily an issue for connections operating in
+                  non-synchronous mode, as connections using synchronous mode already used the
+                  <tt>SO_TIMEOUT</tt> option to enforce response timeouts.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>GetEntryLDAPConnectionPoolHealthCheck</tt> class to provide
+                  support for invoking the health check after a pooled connection has been
+                  authenticated.  This will primarily be used when creating a new connection for
+                  use in the connection pool, but it also applies to calls to the connection
+                  pool's <tt>bindAndRevertAuthentication</tt> and
+                  <tt>releaseAndReAuthenticateConnection</tt> methods.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the <tt>GetEntryLDAPConnectionPoolHealthCheck</tt> class that
+                  caused it to behave incorrectly when checking the validity of a connection after
+                  an <tt>LDAPException</tt>.  The intended behavior was to only perform a search
+                  to retrieve the target entry if the exception's result code indicated that the
+                  connection may no longer be valid.  Instead, it erroneously of always failing
+                  the health check if the result code indicated that the connection may no longer
+                  be valid, and always performing the search if the result code suggested that the
+                  connection should still be valid.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>Attribute.hasValue</tt> method to be more efficient for
+                  attributes with multiple values, and especially for attributes with a large
+                  number of values and/or attributes with more complicated matching rules (like
+                  attributes with a distinguished name or generalized time syntax).  This should
+                  also provide a similar improvement for the <tt>Filter.matchesEntry</tt> method
+                  for equality filters that target attributes with multiple values.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the prompt trust manager (which can interactively prompt the user about
+                  whether to trust a server certificate chain) to provide better output
+                  formatting and more warnings about potential reasons that the presented
+                  certificate chain might be considered non-trustworthy.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>LDAPConnectionOptions</tt> class to make a number of changes.
+                  <ul>
+                    <li>
+                      The initial default connect timeout has been reduced from 60,000
+                      milliseconds (one minute) to 10,000 milliseconds (10 seconds).  This timeout
+                      only covers the length of time required to establish the TCP connection
+                      between the client and the server, and does not include the time required to
+                      perform any operations on that connection (for example, an initial bind
+                      request to authenticate the connection), nor does it include the time
+                      required to perform TLS negotiation if the connection is to be secure.  Ten
+                      seconds should be more than enough time for this to happen even on the
+                      slowest of network links, and a shorter timeout can help reduce the
+                      appearance of unresponsiveness if there is no response to the connection
+                      attempts.  This initial connection timeout can still be overridden using the
+                      <tt>LDAPConnectionOptions.setConnectTimeoutMillis</tt> method.
+                    </li>
+                    <li>
+                      The initial default response timeout has been reduced from 300,000
+                      milliseconds (five minutes) to 30,000 milliseconds (30 seconds) for most
+                      types of operations, including add, bind, compare, delete, modify, and
+                      modify DN operations, as well as for certain types of extended operations.
+                      Search operations and non-whitelisted extended operations will continue to
+                      use the original default response timeout of 300,000 milliseconds.  Using a
+                      shorter response timeout for operations that should complete quickly helps
+                      avoid blocking for an unreasonably long period of time if the server is
+                      unresponsive.  A long default timeout is still required for search
+                      operations because it is possible for very expensive searches to take a
+                      very long time before returning any kind of response messages.  It is still
+                      possible to set a default response type that applies to all types of
+                      operations, but it is now also possible to customize the default response
+                      timeout separately for each type of operation, and per request OID for
+                      extended operations.  It also remains possible to set a custom response
+                      timeout for each individual request using the
+                      <tt>LDAPRequest.setResponseTimeoutMillis</tt> method.
+                    </li>
+                    <li>
+                      A number of system properties have been defined that can be used to override
+                      the LDAP SDK's default value for a number of settings in the
+                      <tt>LDAPConnectionOptions</tt> class, including the default connect and
+                      response timeouts.  All of these new system properties are defined in String
+                      constants in the <tt>LDAPConnectionOptions</tt> class and are listed in the
+                      Javadoc documentation for that class.
+                    </li>
+                  </ul>
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 4.0.3</h3>
 
               <p>
