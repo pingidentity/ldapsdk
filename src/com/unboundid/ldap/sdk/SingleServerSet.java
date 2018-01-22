@@ -42,11 +42,19 @@ import static com.unboundid.util.Validator.*;
 public final class SingleServerSet
        extends ServerSet
 {
+  // The bind request to use to authenticate connections created by this
+  // server set.
+  private final BindRequest bindRequest;
+
   // The port number of the target server.
   private final int port;
 
   // The set of connection options to use.
   private final LDAPConnectionOptions connectionOptions;
+
+  // The post-connect processor to invoke against connections created by this
+  // server set.
+  private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory to use to establish connections.
   private final SocketFactory socketFactory;
@@ -137,12 +145,48 @@ public final class SingleServerSet
                          final SocketFactory socketFactory,
                          final LDAPConnectionOptions connectionOptions)
   {
+    this(address, port, socketFactory, connectionOptions, null, null);
+  }
+
+
+
+  /**
+   * Creates a new single server set with the specified address and port, and
+   * using the provided socket factory.
+   *
+   * @param  address               The address of the directory server to which
+   *                               the connections should be established.  It
+   *                               must not be {@code null}.
+   * @param  port                  The port of the directory server to which the
+   *                               connections should be established.  It must
+   *                               be between 1 and 65535, inclusive.
+   * @param  socketFactory         The socket factory to use to create the
+   *                               underlying connections.
+   * @param  connectionOptions     The set of connection options to use for the
+   *                               underlying connections.
+   * @param  bindRequest           The bind request that should be used to
+   *                               authenticate newly-established connections.
+   *                               It may be {@code null} if this server set
+   *                               should not perform any authentication.
+   * @param  postConnectProcessor  The post-connect processor that should be
+   *                               invoked on newly-established connections.  It
+   *                               may be {@code null} if this server set should
+   *                               not perform any post-connect processing.
+   */
+  public SingleServerSet(final String address, final int port,
+                         final SocketFactory socketFactory,
+                         final LDAPConnectionOptions connectionOptions,
+                         final BindRequest bindRequest,
+                         final PostConnectProcessor postConnectProcessor)
+  {
     ensureNotNull(address);
     ensureTrue((port > 0) && (port < 65536),
                "SingleServerSet.port must be between 1 and 65535.");
 
     this.address = address;
-    this.port    = port;
+    this.port = port;
+    this.bindRequest = bindRequest;
+    this.postConnectProcessor = postConnectProcessor;
 
     if (socketFactory == null)
     {
@@ -223,10 +267,49 @@ public final class SingleServerSet
    * {@inheritDoc}
    */
   @Override()
+  public boolean includesAuthentication()
+  {
+    return (bindRequest != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean includesPostConnectProcessing()
+  {
+    return (postConnectProcessor != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public LDAPConnection getConnection()
          throws LDAPException
   {
-    return new LDAPConnection(socketFactory, connectionOptions, address, port);
+    return getConnection(null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public LDAPConnection getConnection(
+                             final LDAPConnectionPoolHealthCheck healthCheck)
+         throws LDAPException
+  {
+    final LDAPConnection connection =
+         new LDAPConnection(socketFactory, connectionOptions, address, port);
+    doBindPostConnectAndHealthCheckProcessing(connection, bindRequest,
+         postConnectProcessor, healthCheck);
+    return connection;
   }
 
 
@@ -241,6 +324,10 @@ public final class SingleServerSet
     buffer.append(address);
     buffer.append(':');
     buffer.append(port);
+    buffer.append(", includesAuthentication=");
+    buffer.append(bindRequest != null);
+    buffer.append(", includesPostConnectProcessing=");
+    buffer.append(postConnectProcessor != null);
     buffer.append(')');
   }
 }

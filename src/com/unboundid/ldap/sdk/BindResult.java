@@ -149,7 +149,15 @@ public class BindResult
   {
     super(exception.toLDAPResult());
 
-    serverSASLCredentials = null;
+    if (exception instanceof LDAPBindException)
+    {
+      serverSASLCredentials =
+           ((LDAPBindException) exception).getServerSASLCredentials();
+    }
+    else
+    {
+      serverSASLCredentials = null;
+    }
   }
 
 

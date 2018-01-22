@@ -31,6 +31,7 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.util.Debug.*;
+import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.Validator.*;
 
 
@@ -254,6 +255,46 @@ public final class FailoverServerSet
                            final SocketFactory socketFactory,
                            final LDAPConnectionOptions connectionOptions)
   {
+    this(addresses, ports, socketFactory, connectionOptions, null, null);
+  }
+
+
+
+  /**
+   * Creates a new failover server set with the specified set of directory
+   * server addresses and port numbers.  It will use the provided socket factory
+   * to create the underlying sockets.
+   *
+   * @param  addresses             The addresses of the directory servers to
+   *                               which the connections should be established.
+   *                               It must not be {@code null} or empty.
+   * @param  ports                 The ports of the directory servers to which
+   *                               the connections should be established.  It
+   *                               must not be {@code null}, and it must have
+   *                               the same number of elements as the
+   *                               {@code addresses} array.  The order of
+   *                               elements in the {@code addresses} array must
+   *                               correspond to the order of elements in the
+   *                               {@code ports} array.
+   * @param  socketFactory         The socket factory to use to create the
+   *                               underlying connections.
+   * @param  connectionOptions     The set of connection options to use for the
+   *                               underlying connections.
+   * @param  bindRequest           The bind request that should be used to
+   *                               authenticate newly-established connections.
+   *                               It may be {@code null} if this server set
+   *                               should not perform any authentication.
+   * @param  postConnectProcessor  The post-connect processor that should be
+   *                               invoked on newly-established connections.  It
+   *                               may be {@code null} if this server set should
+   *                               not perform any post-connect processing.
+   */
+  public FailoverServerSet(final String[] addresses, final int[] ports,
+                           final SocketFactory socketFactory,
+                           final LDAPConnectionOptions connectionOptions,
+                           final BindRequest bindRequest,
+                           final PostConnectProcessor postConnectProcessor)
+  {
     ensureNotNull(addresses, ports);
     ensureTrue(addresses.length > 0,
                "FailoverServerSet.addresses must not be empty.");
@@ -286,7 +327,8 @@ public final class FailoverServerSet
     serverSets = new ServerSet[addresses.length];
     for (int i=0; i < serverSets.length; i++)
     {
-      serverSets[i] = new SingleServerSet(addresses[i], ports[i], sf, co);
+      serverSets[i] = new SingleServerSet(addresses[i], ports[i], sf, co,
+           bindRequest, postConnectProcessor);
     }
   }
 
@@ -297,18 +339,16 @@ public final class FailoverServerSet
    * server sets.
    *
    * @param  serverSets  The server sets between which failover should occur.
-   *                     It must not be {@code null} or empty.
+   *                     It must not be {@code null} or empty.  All of the
+   *                     provided sets must have the same return value for their
+   *                     {@link #includesAuthentication()} method, and all of
+   *                     the provided sets must have the same return value for
+   *                     their {@link #includesPostConnectProcessing()}
+   *                     method.
    */
   public FailoverServerSet(final ServerSet... serverSets)
   {
-    ensureNotNull(serverSets);
-    ensureFalse(serverSets.length == 0,
-         "FailoverServerSet.serverSets must not be empty.");
-
-    this.serverSets = serverSets;
-
-    reOrderOnFailover = new AtomicBoolean(false);
-    maxFailoverConnectionAge = null;
+    this(toList(serverSets));
   }
 
 
@@ -318,7 +358,12 @@ public final class FailoverServerSet
    * server sets.
    *
    * @param  serverSets  The server sets between which failover should occur.
-   *                     It must not be {@code null} or empty.
+   *                     It must not be {@code null} or empty.  All of the
+   *                     provided sets must have the same return value for their
+   *                     {@link #includesAuthentication()} method, and all of
+   *                     the provided sets must have the same return value for
+   *                     their {@link #includesPostConnectProcessing()}
+   *                     method.
    */
   public FailoverServerSet(final List<ServerSet> serverSets)
   {
@@ -328,6 +373,48 @@ public final class FailoverServerSet
 
     this.serverSets = new ServerSet[serverSets.size()];
     serverSets.toArray(this.serverSets);
+
+    boolean anySupportsAuthentication = false;
+    boolean allSupportAuthentication = true;
+    boolean anySupportsPostConnectProcessing = false;
+    boolean allSupportPostConnectProcessing = true;
+    for (final ServerSet serverSet : this.serverSets)
+    {
+      if (serverSet.includesAuthentication())
+      {
+        anySupportsAuthentication = true;
+      }
+      else
+      {
+        allSupportAuthentication = false;
+      }
+
+      if (serverSet.includesPostConnectProcessing())
+      {
+        anySupportsPostConnectProcessing = true;
+      }
+      else
+      {
+        allSupportPostConnectProcessing = false;
+      }
+    }
+
+    if (anySupportsAuthentication)
+    {
+      ensureTrue(allSupportAuthentication,
+           "When creating a FailoverServerSet from a collection of server " +
+                "sets, either all of those sets must include authentication, " +
+                "or none of those sets may include authentication.");
+    }
+
+    if (anySupportsPostConnectProcessing)
+    {
+      ensureTrue(allSupportPostConnectProcessing,
+           "When creating a FailoverServerSet from a collection of server " +
+                "sets, either all of those sets must include post-connect " +
+                "processing, or none of those sets may include post-connect " +
+                "processing.");
+    }
 
     reOrderOnFailover = new AtomicBoolean(false);
     maxFailoverConnectionAge = null;
@@ -445,6 +532,28 @@ public final class FailoverServerSet
     {
       this.maxFailoverConnectionAge = 0L;
     }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean includesAuthentication()
+  {
+    return serverSets[0].includesAuthentication();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean includesPostConnectProcessing()
+  {
+    return serverSets[0].includesPostConnectProcessing();
   }
 
 

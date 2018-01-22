@@ -155,6 +155,10 @@ public final class RoundRobinDNSServerSet
   private final AtomicReference<ObjectPair<InetAddress[],Long>>
        resolvedAddressesWithTimeout;
 
+  // The bind request to use to authenticate connections created by this
+  // server set.
+  private final BindRequest bindRequest;
+
   // The properties that will be used to initialize the JNDI context, if any.
   private final Hashtable<String,String> jndiProperties;
 
@@ -166,6 +170,10 @@ public final class RoundRobinDNSServerSet
 
   // The maximum length of time, in milliseconds, to cache resolved addresses.
   private final long cacheTimeoutMillis;
+
+  // The post-connect processor to invoke against connections created by this
+  // server set.
+  private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory to use to establish connections.
   private final SocketFactory socketFactory;
@@ -303,14 +311,105 @@ public final class RoundRobinDNSServerSet
                                 final SocketFactory socketFactory,
                                 final LDAPConnectionOptions connectionOptions)
   {
+    this(hostname, port, selectionMode, cacheTimeoutMillis, providerURL,
+         jndiProperties, dnsRecordTypes, socketFactory, connectionOptions, null,
+         null);
+  }
+
+
+
+  /**
+   * Creates a new round-robin DNS server set with the provided information.
+   *
+   * @param  hostname              The hostname to be resolved to one or more
+   *                               addresses.  It must not be {@code null}.
+   * @param  port                  The port to use to connect to the server.
+   *                               Note that even if the provided hostname
+   *                               resolves to multiple addresses, the same
+   *                               port must be used for all addresses.
+   * @param  selectionMode         The selection mode that should be used if the
+   *                               hostname resolves to multiple addresses.  It
+   *                               must not be {@code null}.
+   * @param  cacheTimeoutMillis    The maximum length of time in milliseconds to
+   *                               cache addresses resolved from the provided
+   *                               hostname.  Caching resolved addresses can
+   *                               result in better performance and can reduce
+   *                               the number of requests to the name service.
+   *                               A that is less than or equal to zero
+   *                               indicates that no caching should be used.
+   * @param  providerURL           The JNDI provider URL that should be used
+   *                               when communicating with the DNS server.  If
+   *                               both {@code providerURL} and
+   *                               {@code jndiProperties} are {@code null},
+   *                               then then JNDI will not be used to interact
+   *                               with DNS and the hostname resolution will be
+   *                               performed via the underlying system's name
+   *                               service mechanism (which may make use of
+   *                               other services instead of or in addition to
+   *                               DNS).  If this is non-{@code null}, then only
+   *                               DNS will be used to perform the name
+   *                               resolution.  A value of "dns:" indicates that
+   *                               the underlying system's DNS configuration
+   *                               should be used.
+   * @param  jndiProperties        A set of JNDI-related properties that should
+   *                               be used when initializing the context for
+   *                               interacting with the DNS server via JNDI.  If
+   *                               both {@code providerURL} and
+   *                               {@code jndiProperties} are {@code null}, then
+   *                               JNDI will not be used to interact with DNS
+   *                               and the hostname resolution will be
+   *                               performed via the underlying system's name
+   *                               service mechanism (which may make use of
+   *                               other services instead of or in addition to
+   *                               DNS).  If {@code providerURL} is
+   *                               {@code null} and {@code jndiProperties} is
+   *                               non-{@code null}, then the provided
+   *                               properties must specify the URL.
+   * @param  dnsRecordTypes        Specifies the types of DNS records that will
+   *                               be used to obtain the addresses for the
+   *                               specified hostname.  This will only be used
+   *                               if at least one of {@code providerURL} and
+   *                               {@code jndiProperties} is non-{@code null}.
+   *                               If this is {@code null} or empty, then a
+   *                               default record type of "A" (indicating IPv4
+   *                               addresses) will be used.
+   * @param  socketFactory         The socket factory to use to establish the
+   *                               connections.  It may be {@code null} if the
+   *                               JVM-default socket factory should be used.
+   * @param  connectionOptions     The set of connection options that should be
+   *                               used for the connections.  It may be
+   *                               {@code null} if a default set of connection
+   *                               options should be used.
+   * @param  bindRequest           The bind request that should be used to
+   *                               authenticate newly-established connections.
+   *                               It may be {@code null} if this server set
+   *                               should not perform any authentication.
+   * @param  postConnectProcessor  The post-connect processor that should be
+   *                               invoked on newly-established connections.  It
+   *                               may be {@code null} if this server set should
+   *                               not perform any post-connect processing.
+   */
+  public RoundRobinDNSServerSet(final String hostname, final int port,
+                                final AddressSelectionMode selectionMode,
+                                final long cacheTimeoutMillis,
+                                final String providerURL,
+                                final Properties jndiProperties,
+                                final String[] dnsRecordTypes,
+                                final SocketFactory socketFactory,
+                                final LDAPConnectionOptions connectionOptions,
+                                final BindRequest bindRequest,
+                                final PostConnectProcessor postConnectProcessor)
+  {
     Validator.ensureNotNull(hostname);
     Validator.ensureTrue((port >= 1) && (port <= 65535));
     Validator.ensureNotNull(selectionMode);
 
-    this.hostname      = hostname;
-    this.port          = port;
+    this.hostname = hostname;
+    this.port = port;
     this.selectionMode = selectionMode;
-    this.providerURL   = providerURL;
+    this.providerURL = providerURL;
+    this.bindRequest = bindRequest;
+    this.postConnectProcessor = postConnectProcessor;
 
     if (jndiProperties == null)
     {
@@ -530,6 +629,28 @@ public final class RoundRobinDNSServerSet
    * {@inheritDoc}
    */
   @Override()
+  public boolean includesAuthentication()
+  {
+    return (bindRequest != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean includesPostConnectProcessing()
+  {
+    return (postConnectProcessor != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -557,10 +678,8 @@ public final class RoundRobinDNSServerSet
       {
         conn.connect(hostname, a, port,
              connectionOptions.getConnectTimeoutMillis());
-        if (healthCheck != null)
-        {
-          healthCheck.ensureNewConnectionValid(conn);
-        }
+        doBindPostConnectAndHealthCheckProcessing(conn, bindRequest,
+             postConnectProcessor, healthCheck);
         close = false;
         return conn;
       }
@@ -824,6 +943,10 @@ public final class RoundRobinDNSServerSet
       buffer.append('\'');
     }
 
+    buffer.append(", includesAuthentication=");
+    buffer.append(bindRequest != null);
+    buffer.append(", includesPostConnectProcessing=");
+    buffer.append(postConnectProcessor != null);
     buffer.append(')');
   }
 }

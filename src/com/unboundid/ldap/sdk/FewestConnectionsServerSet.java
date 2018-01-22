@@ -94,6 +94,10 @@ import static com.unboundid.util.Validator.*;
 public final class FewestConnectionsServerSet
        extends ServerSet
 {
+  // The bind request to use to authenticate connections created by this
+  // server set.
+  private final BindRequest bindRequest;
+
   // The port numbers of the target servers.
   private final int[] ports;
 
@@ -103,6 +107,10 @@ public final class FewestConnectionsServerSet
   // A list of the potentially-established connections created by this server
   // set.
   private final List<LDAPConnection> establishedConnections;
+
+  // The post-connect processor to invoke against connections created by this
+  // server set.
+  private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory to use to establish connections.
   private final SocketFactory socketFactory;
@@ -210,6 +218,46 @@ public final class FewestConnectionsServerSet
               final SocketFactory socketFactory,
               final LDAPConnectionOptions connectionOptions)
   {
+    this(addresses, ports, socketFactory, connectionOptions, null, null);
+  }
+
+
+
+  /**
+   * Creates a new fewest connections server set with the specified set of
+   * directory server addresses and port numbers.  It will use the provided
+   * socket factory to create the underlying sockets.
+   *
+   * @param  addresses             The addresses of the directory servers to
+   *                               which the connections should be established.
+   *                               It must not be {@code null} or empty.
+   * @param  ports                 The ports of the directory servers to which
+   *                               the connections should be established.  It
+   *                               must not be {@code null}, and it must have
+   *                               the same number of elements as the
+   *                               {@code addresses} array.  The order of
+   *                               elements in the {@code addresses} array must
+   *                               correspond to the order of elements in the
+   *                               {@code ports} array.
+   * @param  socketFactory         The socket factory to use to create the
+   *                               underlying connections.
+   * @param  connectionOptions     The set of connection options to use for the
+   *                               underlying connections.
+   * @param  bindRequest           The bind request that should be used to
+   *                               authenticate newly-established connections.
+   *                               It may be {@code null} if this server set
+   *                               should not perform any authentication.
+   * @param  postConnectProcessor  The post-connect processor that should be
+   *                               invoked on newly-established connections.  It
+   *                               may be {@code null} if this server set should
+   *                               not perform any post-connect processing.
+   */
+  public FewestConnectionsServerSet(final String[] addresses, final int[] ports,
+              final SocketFactory socketFactory,
+              final LDAPConnectionOptions connectionOptions,
+              final BindRequest bindRequest,
+              final PostConnectProcessor postConnectProcessor)
+  {
     ensureNotNull(addresses, ports);
     ensureTrue(addresses.length > 0,
                "FewestConnectionsServerSet.addresses must not be empty.");
@@ -218,7 +266,9 @@ public final class FewestConnectionsServerSet
                     "be the same size.");
 
     this.addresses = addresses;
-    this.ports     = ports;
+    this.ports = ports;
+    this.bindRequest = bindRequest;
+    this.postConnectProcessor = postConnectProcessor;
 
     establishedConnections = new ArrayList<LDAPConnection>(100);
 
@@ -293,6 +343,28 @@ public final class FewestConnectionsServerSet
   public LDAPConnectionOptions getConnectionOptions()
   {
     return connectionOptions;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean includesAuthentication()
+  {
+    return (bindRequest != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean includesPostConnectProcessing()
+  {
+    return (postConnectProcessor != null);
   }
 
 
@@ -381,20 +453,8 @@ public final class FewestConnectionsServerSet
         {
           final LDAPConnection conn = new LDAPConnection(socketFactory,
                connectionOptions, p.getFirst(), p.getSecond());
-          if (healthCheck != null)
-          {
-            try
-            {
-              healthCheck.ensureNewConnectionValid(conn);
-            }
-            catch (final LDAPException le)
-            {
-              debugException(le);
-              conn.close();
-              throw le;
-            }
-          }
-
+          doBindPostConnectAndHealthCheckProcessing(conn, bindRequest,
+               postConnectProcessor, healthCheck);
           establishedConnections.add(conn);
           return conn;
         }
@@ -434,6 +494,27 @@ public final class FewestConnectionsServerSet
       buffer.append(ports[i]);
     }
 
-    buffer.append("})");
+    buffer.append("}, includesAuthentication=");
+    buffer.append(bindRequest != null);
+    buffer.append(", includesPostConnectProcessing=");
+    buffer.append(postConnectProcessor != null);
+    buffer.append(", establishedConnections=");
+
+    synchronized (this)
+    {
+      final Iterator<LDAPConnection> iterator =
+           establishedConnections.iterator();
+      while (iterator.hasNext())
+      {
+        final LDAPConnection conn = iterator.next();
+        if (! conn.isConnected())
+        {
+          iterator.remove();
+        }
+      }
+      buffer.append(establishedConnections.size());
+    }
+
+    buffer.append(')');
   }
 }

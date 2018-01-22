@@ -197,7 +197,9 @@ public final class LDAPThreadLocalConnectionPool
   {
     ensureNotNull(connection);
 
-    this.postConnectProcessor = postConnectProcessor;
+    // NOTE:  The post-connect processor (if any) will be used in the server
+    // set that we create rather than in the connection pool itself.
+    this.postConnectProcessor = null;
 
     healthCheck               = new LDAPConnectionPoolHealthCheck();
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
@@ -213,11 +215,12 @@ public final class LDAPThreadLocalConnectionPool
     }
 
 
+    bindRequest = connection.getLastBindRequest();
     serverSet = new SingleServerSet(connection.getConnectedAddress(),
                                     connection.getConnectedPort(),
                                     connection.getLastUsedSocketFactory(),
-                                    connection.getConnectionOptions());
-    bindRequest = connection.getLastBindRequest();
+                                    connection.getConnectionOptions(),
+                                    bindRequest, postConnectProcessor);
 
     connections = new ConcurrentHashMap<Thread,LDAPConnection>();
     connections.put(Thread.currentThread(), connection);
@@ -272,7 +275,15 @@ public final class LDAPThreadLocalConnectionPool
    * @param  bindRequest     The bind request to use to authenticate the
    *                         connections that are established.  It may be
    *                         {@code null} if no authentication should be
-   *                         performed on the connections.
+   *                         performed on the connections.  Note that if the
+   *                         server set is configured to perform
+   *                         authentication, this bind request should be the
+   *                         same bind request used by the server set.  This
+   *                         is important because even though the server set
+   *                         may be used to perform the initial authentication
+   *                         on a newly established connection, this connection
+   *                         pool may still need to re-authenticate the
+   *                         connection.
    */
   public LDAPThreadLocalConnectionPool(final ServerSet serverSet,
                                        final BindRequest bindRequest)
@@ -293,11 +304,24 @@ public final class LDAPThreadLocalConnectionPool
    * @param  bindRequest           The bind request to use to authenticate the
    *                               connections that are established.  It may be
    *                               {@code null} if no authentication should be
-   *                               performed on the connections.
+   *                               performed on the connections.  Note that if
+   *                               the server set is configured to perform
+   *                               authentication, this bind request should be
+   *                               the same bind request used by the server set.
+   *                               This is important because even though the
+   *                               server set may be used to perform the
+   *                               initial authentication on a newly
+   *                               established connection, this connection
+   *                               pool may still need to re-authenticate the
+   *                               connection.
    * @param  postConnectProcessor  A processor that should be used to perform
    *                               any post-connect processing for connections
    *                               in this pool.  It may be {@code null} if no
-   *                               special processing is needed.
+   *                               special processing is needed.  Note that if
+   *                               the server set is configured with a
+   *                               non-{@code null} post-connect processor, then
+   *                               the post-connect processor provided to the
+   *                               pool must be {@code null}.
    */
   public LDAPThreadLocalConnectionPool(final ServerSet serverSet,
               final BindRequest bindRequest,
@@ -308,6 +332,20 @@ public final class LDAPThreadLocalConnectionPool
     this.serverSet            = serverSet;
     this.bindRequest          = bindRequest;
     this.postConnectProcessor = postConnectProcessor;
+
+    if (serverSet.includesAuthentication())
+    {
+      ensureTrue((bindRequest != null),
+           "LDAPThreadLocalConnectionPool.bindRequest must not be null if " +
+                "serverSet.includesAuthentication returns true");
+    }
+
+    if (serverSet.includesPostConnectProcessing())
+    {
+      ensureTrue((postConnectProcessor == null),
+           "LDAPThreadLocalConnectionPool.postConnectProcessor must be null " +
+                "if serverSet.includesPostConnectProcessing returns true.");
+    }
 
     healthCheck               = new LDAPConnectionPoolHealthCheck();
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
@@ -403,27 +441,24 @@ public final class LDAPThreadLocalConnectionPool
 
 
     // Authenticate the connection if appropriate.
-    BindResult bindResult = null;
-    try
+    if ((bindRequest != null) && (! serverSet.includesAuthentication()))
     {
-      if (bindRequest != null)
+      BindResult bindResult;
+      try
       {
         bindResult = c.bind(bindRequest.duplicate());
       }
-    }
-    catch (final LDAPBindException lbe)
-    {
-      debugException(lbe);
-      bindResult = lbe.getBindResult();
-    }
-    catch (final LDAPException le)
-    {
-      debugException(le);
-      bindResult = new BindResult(le);
-    }
+      catch (final LDAPBindException lbe)
+      {
+        debugException(lbe);
+        bindResult = lbe.getBindResult();
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+        bindResult = new BindResult(le);
+      }
 
-    if (bindResult != null)
-    {
       try
       {
         healthCheck.ensureConnectionValidAfterAuthentication(c, bindResult);

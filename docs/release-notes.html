@@ -57,6 +57,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDAP SDK's <tt>ServerSet</tt> implementations so that they can
+                  perform authentication and post-connect processing.  This can improve resiliency
+                  against certain types of certain types of processing failures, and can allow
+                  health checks against newly established connections to succeed in certain cases
+                  in which they might have previously failed (for example, if the server is
+                  configured to reject requests from unauthenticated clients).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>GetEntryLDAPConnectionPoolHealthCheck</tt> class to provide
                   support for invoking the health check after a pooled connection has been
                   authenticated.  This will primarily be used when creating a new connection for

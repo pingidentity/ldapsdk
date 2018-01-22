@@ -130,6 +130,10 @@ public final class DNSSRVRecordServerSet
 
 
 
+  // The bind request to use to authenticate connections created by this
+  // server set.
+  private final BindRequest bindRequest;
+
   // The properties that will be used to initialize the JNDI context.
   private final Hashtable<String,String> jndiProperties;
 
@@ -139,6 +143,10 @@ public final class DNSSRVRecordServerSet
   // The maximum length of time in milliseconds that previously-retrieved
   // information should be considered valid.
   private final long ttlMillis;
+
+  // The post-connect processor to invoke against connections created by this
+  // server set.
+  private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory that should be used to create connections.
   private final SocketFactory socketFactory;
@@ -247,8 +255,65 @@ public final class DNSSRVRecordServerSet
                                final SocketFactory socketFactory,
                                final LDAPConnectionOptions connectionOptions)
   {
-    this.socketFactory     = socketFactory;
+    this(recordName, providerURL, jndiProperties, ttlMillis, socketFactory,
+         connectionOptions, null, null);
+  }
+
+
+
+  /**
+   * Creates a new instance of this server set that will use the provided
+   * settings.
+   *
+   * @param  recordName            The name of the DNS SRV record to retrieve.
+   *                               If this is {@code null}, then a default
+   *                               record name of "_ldap._tcp" will be used.
+   * @param  providerURL           The JNDI provider URL that may be used to
+   *                               specify the DNS server(s) to use.  If this is
+   *                               not specified, then a default URL of
+   *                               "dns:" will be used, which will attempt to
+   *                               determine the appropriate servers from the
+   *                               underlying system configuration.
+   * @param  jndiProperties        A set of JNDI-related properties that should
+   *                               be be used when initializing the context for
+   *                               interacting with the DNS server via JNDI.
+   *                               If this is {@code null}, then a default set
+   *                               of properties will be used.
+   * @param  ttlMillis             Specifies the maximum length of time in
+   *                               milliseconds that DNS information should be
+   *                               cached before it needs to be retrieved
+   *                               again.  A value less than or equal to zero
+   *                               will use the default TTL of one hour.
+   * @param  socketFactory         The socket factory that will be used when
+   *                               creating connections.  It may be
+   *                               {@code null} if the JVM-default socket
+   *                               factory should be used.
+   * @param  connectionOptions     The set of connection options that should be
+   *                               used for the connections that are created.
+   *                               It may be {@code null} if the default
+   *                               connection options should be used.
+   * @param  bindRequest           The bind request that should be used to
+   *                               authenticate newly-established connections.
+   *                               It may be {@code null} if this server set
+   *                               should not perform any authentication.
+   * @param  postConnectProcessor  The post-connect processor that should be
+   *                               invoked on newly-established connections.  It
+   *                               may be {@code null} if this server set should
+   *                               not perform any post-connect processing.
+   */
+  public DNSSRVRecordServerSet(final String recordName,
+                               final String providerURL,
+                               final Properties jndiProperties,
+                               final long ttlMillis,
+                               final SocketFactory socketFactory,
+                               final LDAPConnectionOptions connectionOptions,
+                               final BindRequest bindRequest,
+                               final PostConnectProcessor postConnectProcessor)
+  {
+    this.socketFactory = socketFactory;
     this.connectionOptions = connectionOptions;
+    this.bindRequest = bindRequest;
+    this.postConnectProcessor = postConnectProcessor;
 
     recordSet = null;
 
@@ -392,6 +457,28 @@ public final class DNSSRVRecordServerSet
    * {@inheritDoc}
    */
   @Override()
+  public boolean includesAuthentication()
+  {
+    return (bindRequest != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean includesPostConnectProcessing()
+  {
+    return (postConnectProcessor != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -439,11 +526,13 @@ public final class DNSSRVRecordServerSet
     LDAPException firstException = null;
     for (final SRVRecord r : recordSet.getOrderedRecords())
     {
-      final LDAPConnection conn;
       try
       {
-        conn = new LDAPConnection(socketFactory, connectionOptions,
-             r.getAddress(), r.getPort());
+        final LDAPConnection connection = new LDAPConnection(socketFactory,
+             connectionOptions, r.getAddress(), r.getPort());
+        doBindPostConnectAndHealthCheckProcessing(connection, bindRequest,
+             postConnectProcessor, healthCheck);
+        return connection;
       }
       catch (final LDAPException le)
       {
@@ -452,29 +541,7 @@ public final class DNSSRVRecordServerSet
         {
           firstException = le;
         }
-
-        continue;
       }
-
-      if (healthCheck != null)
-      {
-        try
-        {
-          healthCheck.ensureNewConnectionValid(conn);
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-          if (firstException == null)
-          {
-            firstException = le;
-          }
-
-          continue;
-        }
-      }
-
-      return conn;
     }
 
     // If we've gotten here, then we couldn't connect to any of the servers.
@@ -510,6 +577,10 @@ public final class DNSSRVRecordServerSet
       connectionOptions.toString(buffer);
     }
 
+    buffer.append(", includesAuthentication=");
+    buffer.append(bindRequest != null);
+    buffer.append(", includesPostConnectProcessing=");
+    buffer.append(postConnectProcessor != null);
     buffer.append(')');
   }
 }

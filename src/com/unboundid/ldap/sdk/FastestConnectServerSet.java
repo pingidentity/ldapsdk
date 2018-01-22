@@ -93,11 +93,19 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
 public final class FastestConnectServerSet
        extends ServerSet
 {
+  // The bind request to use to authenticate connections created by this
+  // server set.
+  private final BindRequest bindRequest;
+
   // The port numbers of the target servers.
   private final int[] ports;
 
   // The set of connection options to use for new connections.
   private final LDAPConnectionOptions connectionOptions;
+
+  // The post-connect processor to invoke against connections created by this
+  // server set.
+  private final PostConnectProcessor postConnectProcessor;
 
   // The socket factory to use to establish connections.
   private final SocketFactory socketFactory;
@@ -205,6 +213,46 @@ public final class FastestConnectServerSet
                                  final SocketFactory socketFactory,
                                  final LDAPConnectionOptions connectionOptions)
   {
+    this(addresses, ports, socketFactory, connectionOptions, null, null);
+  }
+
+
+
+  /**
+   * Creates a new fastest connect server set with the specified set of
+   * directory server addresses and port numbers.  It will use the provided
+   * socket factory to create the underlying sockets.
+   *
+   * @param  addresses             The addresses of the directory servers to
+   *                               which the connections should be established.
+   *                               It must not be {@code null} or empty.
+   * @param  ports                 The ports of the directory servers to which
+   *                               the connections should be established.  It
+   *                               must not be {@code null}, and it must have
+   *                               the same number of elements as the
+   *                               {@code addresses} array.  The order of
+   *                               elements in the {@code addresses} array must
+   *                               correspond to the order of elements in the
+   *                               {@code ports} array.
+   * @param  socketFactory         The socket factory to use to create the
+   *                               underlying connections.
+   * @param  connectionOptions     The set of connection options to use for the
+   *                               underlying connections.
+   * @param  bindRequest           The bind request that should be used to
+   *                               authenticate newly-established connections.
+   *                               It may be {@code null} if this server set
+   *                               should not perform any authentication.
+   * @param  postConnectProcessor  The post-connect processor that should be
+   *                               invoked on newly-established connections.  It
+   *                               may be {@code null} if this server set should
+   *                               not perform any post-connect processing.
+   */
+  public FastestConnectServerSet(final String[] addresses, final int[] ports,
+              final SocketFactory socketFactory,
+              final LDAPConnectionOptions connectionOptions,
+              final BindRequest bindRequest,
+              final PostConnectProcessor postConnectProcessor)
+  {
     Validator.ensureNotNull(addresses, ports);
     Validator.ensureTrue(addresses.length > 0,
          "RoundRobinServerSet.addresses must not be empty.");
@@ -213,7 +261,9 @@ public final class FastestConnectServerSet
               "size.");
 
     this.addresses = addresses;
-    this.ports     = ports;
+    this.ports = ports;
+    this.bindRequest = bindRequest;
+    this.postConnectProcessor = postConnectProcessor;
 
     if (socketFactory == null)
     {
@@ -294,6 +344,28 @@ public final class FastestConnectServerSet
    * {@inheritDoc}
    */
   @Override()
+  public boolean includesAuthentication()
+  {
+    return (bindRequest != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean includesPostConnectProcessing()
+  {
+    return (postConnectProcessor != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public LDAPConnection getConnection()
          throws LDAPException
   {
@@ -325,8 +397,8 @@ public final class FastestConnectServerSet
     for (int i=0; i < connectThreads.length; i++)
     {
       connectThreads[i] = new FastestConnectThread(addresses[i], ports[i],
-           socketFactory, connectionOptions, healthCheck, resultQueue,
-           connectionSelected);
+           socketFactory, connectionOptions, bindRequest, postConnectProcessor,
+           healthCheck, resultQueue, connectionSelected);
     }
 
     for (final FastestConnectThread t : connectThreads)
@@ -428,6 +500,10 @@ public final class FastestConnectServerSet
       buffer.append(ports[i]);
     }
 
-    buffer.append("})");
+    buffer.append("}, includesAuthentication=");
+    buffer.append(bindRequest != null);
+    buffer.append(", includesPostConnectProcessing=");
+    buffer.append(postConnectProcessor != null);
+    buffer.append(')');
   }
 }

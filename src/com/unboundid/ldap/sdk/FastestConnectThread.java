@@ -44,6 +44,10 @@ final class FastestConnectThread
   // been selected by the server set.
   private final AtomicBoolean connectionSelected;
 
+  // The bind request to use to authenticate connections created by this
+  // server set.
+  private final BindRequest bindRequest;
+
   // The queue that should be used to return the result to the server set.
   private final BlockingQueue<Object> resultQueue;
 
@@ -57,6 +61,10 @@ final class FastestConnectThread
   // connection.
   private final LDAPConnectionPoolHealthCheck healthCheck;
 
+  // The post-connect processor to invoke against connections created by this
+  // server set.
+  private final PostConnectProcessor postConnectProcessor;
+
   // The address to which the connection should be established.
   private final String address;
 
@@ -66,27 +74,37 @@ final class FastestConnectThread
    * Creates a new instance of this connect thread with the provided
    * information.
    *
-   * @param  address             The address of the server to which the
-   *                             connection should be established.
-   * @param  port                The port of the server to which the connection
-   *                             should be established.
-   * @param  socketFactory       The socket factory that should be used for the
-   *                             connection.
-   * @param  connectionOptions   The set of connection options that should be
-   *                             used for the connection.
-   * @param  healthCheck         The health check to use to evaluate the
-   *                             suitability of the established connection.  It
-   *                             may be {@code null} if no health check is
-   *                             needed.
-   * @param  resultQueue         The queue that should be used to return the
-   *                             result to the server set.
-   * @param  connectionSelected  A flag that will be used to indicate whether a
-   *                             connection has already been selected by the
-   *                             associated server set.
+   * @param  address               The address of the server to which the
+   *                               connection should be established.
+   * @param  port                  The port of the server to which the
+   *                               connection should be established.
+   * @param  socketFactory         The socket factory that should be used for
+   *                               the connection.
+   * @param  connectionOptions     The set of connection options that should be
+   *                               used for the connection.
+   * @param  bindRequest           The bind request that should be used to
+   *                               authenticate newly-established connections.
+   *                               It may be {@code null} if this server set
+   *                               should not perform any authentication.
+   * @param  postConnectProcessor  The post-connect processor that should be
+   *                               invoked on newly-established connections.  It
+   *                               may be {@code null} if this server set should
+   *                               not perform any post-connect processing.
+   * @param  healthCheck           The health check to use to evaluate the
+   *                               suitability of the established connection.
+   *                               It may be {@code null} if no health check is
+   *                               needed.
+   * @param  resultQueue           The queue that should be used to return the
+   *                               result to the server set.
+   * @param  connectionSelected    A flag that will be used to indicate whether
+   *                               a connection has already been selected by the
+   *                               associated server set.
    */
   FastestConnectThread(final String address, final int port,
                        final SocketFactory socketFactory,
                        final LDAPConnectionOptions connectionOptions,
+                       final BindRequest bindRequest,
+                       final PostConnectProcessor postConnectProcessor,
                        final LDAPConnectionPoolHealthCheck healthCheck,
                        final BlockingQueue<Object> resultQueue,
                        final AtomicBoolean connectionSelected)
@@ -94,10 +112,12 @@ final class FastestConnectThread
     super("Fastest Connect Thread for " + address + ':' + port);
     setDaemon(true);
 
-    this.address            = address;
-    this.port               = port;
-    this.healthCheck        = healthCheck;
-    this.resultQueue        = resultQueue;
+    this.address = address;
+    this.port = port;
+    this.bindRequest = bindRequest;
+    this.postConnectProcessor = postConnectProcessor;
+    this.healthCheck = healthCheck;
+    this.resultQueue = resultQueue;
     this.connectionSelected = connectionSelected;
 
     connection = new LDAPConnection(socketFactory, connectionOptions);
@@ -117,12 +137,8 @@ final class FastestConnectThread
     try
     {
       connection.connect(address, port);
-
-      if (healthCheck != null)
-      {
-        healthCheck.ensureNewConnectionValid(connection);
-      }
-
+      ServerSet.doBindPostConnectAndHealthCheckProcessing(connection,
+           bindRequest, postConnectProcessor, healthCheck);
       returned = (connectionSelected.compareAndSet(false, true) &&
           resultQueue.offer(connection));
     }

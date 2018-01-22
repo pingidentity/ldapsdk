@@ -56,10 +56,43 @@ public abstract class ServerSet
 
 
   /**
+   * Indicates whether connections created by this server set will be
+   * authenticated.
+   *
+   * @return  {@code true} if connections created by this server set will be
+   *          authenticated, or {@code false} if not.
+   */
+  public boolean includesAuthentication()
+  {
+    return false;
+  }
+
+
+
+  /**
+   * Indicates whether connections created by this server set will have
+   * post-connect processing performed.
+   *
+   * @return  {@code true} if connections created by this server set will have
+   *          post-connect processing performed, or {@code false} if not.
+   */
+  public boolean includesPostConnectProcessing()
+  {
+    return false;
+  }
+
+
+
+  /**
    * Attempts to establish a connection to one of the directory servers in this
-   * server set.  The connection should be established but unauthenticated.  The
-   * caller may determine the server to which the connection is established
-   * using the {@link LDAPConnection#getConnectedAddress} and
+   * server set.  The connection that is returned must be established.  The
+   * {@link #includesAuthentication()} must return true if and only if the
+   * connection will also be authenticated, and the
+   * {@link #includesPostConnectProcessing()} method must return true if and
+   * only if pre-authentication and post-authentication post-connect processing
+   * will have been performed.  The caller may determine the server to which the
+   * connection is established using the
+   * {@link LDAPConnection#getConnectedAddress} and
    * {@link LDAPConnection#getConnectedPort} methods.
    *
    * @return  An {@code LDAPConnection} object that is established to one of the
@@ -76,14 +109,29 @@ public abstract class ServerSet
   /**
    * Attempts to establish a connection to one of the directory servers in this
    * server set, using the provided health check to further validate the
-   * connection.  The connection should be established but unauthenticated.
-   * The caller may determine the server to which the connection is established
-   * using the {@link LDAPConnection#getConnectedAddress} and
+   * connection.  The connection that is returned must be established.  The
+   * {@link #includesAuthentication()} must return true if and only if the
+   * connection will also be authenticated, and the
+   * {@link #includesPostConnectProcessing()} method must return true if and
+   * only if pre-authentication and post-authentication post-connect processing
+   * will have been performed.  The caller may determine the server to which the
+   * connection is established using the
+   * {@link LDAPConnection#getConnectedAddress} and
    * {@link LDAPConnection#getConnectedPort} methods.
    *
-   * @param  healthCheck  The health check to use to make the determination, or
-   *                      {@code null} if no additional health check should be
-   *                      performed.
+   * @param  healthCheck  The health check to use to verify the health of the
+   *                      newly-created connection.  It may be {@code null} if
+   *                      no additional health check should be performed.  If it
+   *                      is non-{@code null} and this server set performs
+   *                      authentication, then the health check's
+   *                      {@code ensureConnectionValidAfterAuthentication}
+   *                      method will be invoked immediately after the bind
+   *                      operation is processed (regardless of whether the bind
+   *                      was successful or not).  And regardless of whether
+   *                      this server set performs authentication, the
+   *                      health check's {@code ensureNewConnectionValid}
+   *                      method must be invoked on the connection to ensure
+   *                      that it is valid immediately before it is returned.
    *
    * @return  An {@code LDAPConnection} object that is established to one of the
    *          servers in this server set.
@@ -112,6 +160,126 @@ public abstract class ServerSet
     }
 
     return c;
+  }
+
+
+
+  /**
+   * Performs the appropriate bind, post-connect, and health check processing
+   * for  the provided connection, in the provided order.  The processing
+   * performed will include:
+   * <OL>
+   *   <LI>
+   *     If the provided {@code postConnectProcessor} is not {@code null}, then
+   *     invoke its {@code processPreAuthenticatedConnection} method on the
+   *     provided connection.  If this method throws an {@code LDAPException},
+   *     then it will propagated up to the caller of this method.
+   *   </LI>
+   *   <LI>
+   *     If the provided {@code bindRequest} is not {@code null}, then
+   *     authenticate the connection using that request.  If the provided
+   *     {@code healthCheck} is also not {@code null}, then invoke its
+   *     {@code ensureConnectionValidAfterAuthentication} method on the
+   *     connection, even if the bind was not successful.  If the health check
+   *     throws an {@code LDAPException}, then it will be propagated up to the
+   *     caller of this method.  If there is no health check or if it did not
+   *     throw an exception but the bind attempt did throw an exception, then
+   *     propagate that exception instead.
+   *   </LI>
+   *   <LI>
+   *     If the provided {@code postConnectProcessor} is not {@code null}, then
+   *     invoke its {@code processPostAuthenticatedConnection} method on the
+   *     provided connection.  If this method throws an {@code LDAPException},
+   *     then it will propagated up to the caller of this method.
+   *   </LI>
+   *   <LI>
+   *     If the provided {@code healthCheck} is not {@code null}, then invoke
+   *     its {@code ensureNewConnectionValid} method on the provided connection.
+   *     If this method throws an {@code LDAPException}, then it will be
+   *     propagated up to the caller of this method.
+   *   </LI>
+   * </OL>
+   *
+   * @param  connection            The connection to be processed.  It must not
+   *                               be {@code null}, and it must be established.
+   *                               Note that if an {@code LDAPException} is
+   *                               thrown by this method or anything that it
+   *                               calls, then the connection will have been
+   *                               closed before that exception has been
+   *                               propagated up to the caller of this method.
+   * @param  bindRequest           The bind request to use to authenticate the
+   *                               connection.  It may be {@code null} if no
+   *                               authentication should be performed.
+   * @param  postConnectProcessor  The post-connect processor to invoke on the
+   *                               provided connection.  It may be {@code null}
+   *                               if no post-connect processing should be
+   *                               performed.
+   * @param  healthCheck           The health check to use to verify the health
+   *                               of connection.  It may be {@code null} if no
+   *                               health check processing should be performed.
+   *
+   * @throws  LDAPException  If a problem is encountered during any of the
+   *                         processing performed by this method.  If an
+   *                         exception is thrown, then the provided connection
+   *                         will have been closed.
+   */
+  protected static void doBindPostConnectAndHealthCheckProcessing(
+                             final LDAPConnection connection,
+                             final BindRequest bindRequest,
+                             final PostConnectProcessor postConnectProcessor,
+                             final LDAPConnectionPoolHealthCheck healthCheck)
+            throws LDAPException
+  {
+    try
+    {
+      if (postConnectProcessor != null)
+      {
+        postConnectProcessor.processPreAuthenticatedConnection(connection);
+      }
+
+      if (bindRequest != null)
+      {
+        BindResult bindResult;
+        LDAPException bindException = null;
+        try
+        {
+          bindResult = connection.bind(bindRequest.duplicate());
+        }
+        catch (final LDAPException le)
+        {
+          debugException(le);
+          bindException = le;
+          bindResult = new BindResult(le);
+        }
+
+        if (healthCheck != null)
+        {
+          healthCheck.ensureConnectionValidAfterAuthentication(connection,
+               bindResult);
+        }
+
+        if (bindException != null)
+        {
+          throw bindException;
+        }
+      }
+
+      if (postConnectProcessor != null)
+      {
+        postConnectProcessor.processPostAuthenticatedConnection(connection);
+      }
+
+      if (healthCheck != null)
+      {
+        healthCheck.ensureNewConnectionValid(connection);
+      }
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      connection.closeWithoutUnbind();
+      throw le;
+    }
   }
 
 
