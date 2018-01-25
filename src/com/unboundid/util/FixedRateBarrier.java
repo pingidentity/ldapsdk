@@ -64,16 +64,18 @@ import static com.unboundid.util.Debug.*;
  * time is R times the target per interval.  That is, 10% of the way through
  * the interval, approximately 10% of the actions have been performed, and
  * 80% of the way through the interval, 80% of the actions have been performed.
+ * <p>
+ * It's possible to wait for multiple "actions" in one call with
+ * {@link #await(int)}. An example use is rate limiting writing bytes out to
+ * a file. You could configure a FixedRateBarrier to only allow 1M bytes to
+ * be written per second, and then call {@link #await(int)} with the size of
+ * the byte buffer to write. The call to {@link #await(int)} would block until
+ * writing out the buffer would not exceed the desired rate.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class FixedRateBarrier
        implements Serializable
 {
-  /**
-   * The serial version UID for this serializable class.
-   */
-  private static final long serialVersionUID = -3490156685189909611L;
-
   /**
    * The minimum number of milliseconds that Thread.sleep() can handle
    * accurately.  This varies from platform to platform, so we measure it
@@ -82,7 +84,6 @@ public final class FixedRateBarrier
    * to spin calling Thread.yield().
    */
   private static final long minSleepMillis;
-
   static
   {
     // Calibrate the minimum number of milliseconds that we can reliably
@@ -93,7 +94,7 @@ public final class FixedRateBarrier
     // three different measurements Solaris x86 (10 ms), RedHat Linux (2 ms),
     // Windows 7 (1 ms).
 
-    final List<Long> minSleepMillisMeasurements = new ArrayList<Long>();
+    final List<Long> minSleepMillisMeasurements = new ArrayList<>(11);
 
     for (int i = 0; i < 11; i++)
     {
@@ -121,6 +122,14 @@ public final class FixedRateBarrier
           "Minimum sleep measurements = " + minSleepMillisMeasurements;
     debug(Level.INFO, DebugType.OTHER, message);
   }
+
+
+
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -9048370191248737239L;
+
 
 
   // This tracks when this class is shut down.  Calls to await() after
@@ -214,6 +223,54 @@ public final class FixedRateBarrier
    */
   public synchronized boolean await()
   {
+    return await(1);
+  }
+
+
+
+  /**
+   * This method waits until it is time for the next {@code count} 'actions'
+   * to be performed based on the specified interval duration and target per
+   * interval.  To achieve the target rate, it's recommended that on average
+   * {@code count} is small relative to {@code perInterval} (and the
+   * {@code count} must not be larger than {@code perInterval}).  A
+   * {@code count} value will not be split across intervals, and due to timing
+   * issues, it's possible that a {@code count} that barely fits in the
+   * current interval will need to wait until the next interval.  If it's not
+   * possible to use smaller 'count' values, then increase {@code perInterval}
+   * and {@code intervalDurationMs} by the same relative amount.  As an
+   * example, if {@code count} is on average 1/10 as big as
+   * {@code perInterval}, then you can expect to attain 90% of the target
+   * rate.  Increasing {@code perInterval} and {@code intervalDurationMs} by
+   * 10x means that 99% of the target rate can be achieved.
+   * <p>
+   * This method can be called by multiple threads simultaneously.  This method
+   * returns immediately if shutdown has been requested.
+   *
+   * @param  count  The number of 'actions' being performed.  It must be less
+   *                than or equal to {@code perInterval}, and is recommended to
+   *                be fairly small relative to {@code perInterval} so that it
+   *                is easier to achieve the desired rate and exhibit smoother
+   *                performance.
+   *
+   * @return  {@code true} if shutdown has been requested and {@code} false
+   *          otherwise.
+   */
+  public synchronized boolean await(final int count)
+  {
+    if (count > perInterval)
+    {
+      Validator.ensureTrue(false,
+           "FixedRateBarrier.await(int) count value " + count +
+                " exceeds perInterval value " + perInterval +
+                ".  The provided count value must be less than or equal to " +
+                "the perInterval value.");
+    }
+    else if (count <= 0)
+    {
+      return shutdownRequested;
+    }
+
     // Loop forever until we are requested to shutdown or it is time to perform
     // the next 'action' in which case we break from the loop.
     while (!shutdownRequested)
@@ -262,11 +319,14 @@ public final class FixedRateBarrier
       final double expectedRemaining = intervalFractionRemaining * perInterval;
       final long actualRemaining = perInterval - countInThisInterval;
 
-      if (actualRemaining >= expectedRemaining)
+      final long countBehind =
+              (long)Math.ceil(actualRemaining - expectedRemaining);
+
+      if (count <= countBehind)
       {
-        // We are on schedule or behind schedule so let the next 'action'
+        // We are on schedule or behind schedule so let the 'action(s)'
         // happen.
-        countInThisInterval++;
+        countInThisInterval += count;
         break;
       }
       else
@@ -274,20 +334,21 @@ public final class FixedRateBarrier
         // If we can sleep until it's time to leave this barrier, then do
         // so to keep from spinning on a CPU doing Thread.yield().
 
-        final double gapIterations = expectedRemaining - actualRemaining;
+        final long countNeeded = count - countBehind;
         final long remainingMillis =
-             (long) Math.floor(millisBetweenIterations * gapIterations);
+             (long) Math.floor(millisBetweenIterations * countNeeded);
 
         if (remainingMillis >= minSleepMillis)
         {
           // Cap how long we sleep so that we can respond to a change in the
           // rate without too much delay.
-          final long waitTime = Math.min(remainingMillis, 10);
           try
           {
             // We need to wait here instead of Thread.sleep so that we don't
-            // block setRate.
-            this.wait(waitTime);
+            // block setRate.  Also, cap how long we sleep so that we can
+            // respond to a change in the rate without too much delay.
+            final long waitTime = Math.min(remainingMillis, 10);
+            wait(waitTime);
           }
           catch (final InterruptedException e)
           {
@@ -323,7 +384,7 @@ public final class FixedRateBarrier
    */
   public synchronized ObjectPair<Long,Integer> getTargetRate()
   {
-    return new ObjectPair<Long,Integer>(
+    return new ObjectPair<>(
          (intervalDurationNanos / (1000L * 1000L)),
          perInterval);
   }

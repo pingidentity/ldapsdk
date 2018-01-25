@@ -39,6 +39,7 @@ public class FixedRateBarrierTestCase
    * @param  perInterval         The per interval value to use when constructing
    *                             the FixedRateBarrier.
    * @param  numAwaitCalls       The number of times to call await.
+   * @param  countPerAwait       The count to pass into await.
    * @param  minTimeMS           The minimum number of milliseconds that calling
    *                             await for the specified amount of time should
    *                             take.
@@ -50,6 +51,7 @@ public class FixedRateBarrierTestCase
   public void testAwait(final long intervalDurationMS,
                         final int perInterval,
                         final int numAwaitCalls,
+                        final int countPerAwait,
                         final long minTimeMS,
                         final long maxTimeMS)
   {
@@ -62,7 +64,15 @@ public class FixedRateBarrierTestCase
 
     for (int i = 0; i < numAwaitCalls; i++)
     {
-      boolean isShutdownRequested = barrier.await();
+      final boolean isShutdownRequested;
+      if (countPerAwait == 1)
+      {
+        isShutdownRequested = barrier.await();
+      }
+      else
+      {
+        isShutdownRequested = barrier.await(countPerAwait);
+      }
       assertTrue(!isShutdownRequested);
     }
 
@@ -93,10 +103,45 @@ public class FixedRateBarrierTestCase
     // but we have very conservative estimates to avoid false positives
     // with test failures.
     return new Object[][]{
-         new Object[]{100,   100, 100,  50, 150},
-         new Object[]{100,    10,  20, 100, 400},
-         new Object[]{1000, 1000,  10,   0, 100},
+         //           interval-ms  per-interval  #await  count  min-ms  max-ms
+         new Object[]{        100,          100,    100,     1,     50,    150},
+         new Object[]{        100,           10,     20,     1,    100,    400},
+         new Object[]{       1000,         1000,     10,     1,      0,    100},
+
+         new Object[]{        100,          100,     20,     5,     50,    150},
+         new Object[]{        100,           10,      4,     5,    100,    400},
+         new Object[]{       1000,         1000,      2,     5,      0,    100},
+
+         new Object[]{        100,          100,      5,    20,     50,    150},
     };
+  }
+
+
+
+  /**
+   * Tests the {@link FixedRateBarrier#await(int)} method with values that are
+   * at, near, or in excess of the boundary conditions.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAwaitWithBoundaryValues()
+         throws Exception
+  {
+    final FixedRateBarrier barrier = new FixedRateBarrier(1000L, 100);
+    assertFalse(barrier.await(0));
+    assertFalse(barrier.await(-1));
+
+    try
+    {
+      barrier.await(1001);
+      fail("Expected an exception with an await argument that exceeds " +
+           "perInterval");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This was expected.
+    }
   }
 
 
