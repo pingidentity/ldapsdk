@@ -6,6 +6,41 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.5</h3>
+
+              <p>
+                The following changes were made between the 4.0.4 and 4.0.5 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added support for two new UnboundID/Ping-proprietary request controls.  The
+                  reject unindexed search request control can be used to indicate that the server
+                  should reject a search request if it cannot be efficiently processed using
+                  server indexes, even if the requester has the unindexed-search privilege.  The
+                  permit unindexed search request control can be used to indicate that the server
+                  should process the search request even if it is unindexed, as long as the
+                  requester has the unindexed-search-with-control privilege.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>FixedBarrier.await(int)</tt> method that can be used to
+                  request rate limiting for the specified number of occurrences, rather than just
+                  a single occurrence.  This can be used to make it easier to impose rate limiting
+                  in instances where the event that you're limiting doesn't fit into the
+                  existing paradigm.  For example, it could be used to implement a rate-limited
+                  output stream in which you want to be able to specify the number of bytes being
+                  written at a time, instead of requiring a separate <tt>await()</tt> call for
+                  each byte being written.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 4.0.4</h3>
 
               <p>
