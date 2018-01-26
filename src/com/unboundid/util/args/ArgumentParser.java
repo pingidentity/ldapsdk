@@ -2831,10 +2831,36 @@ public final class ArgumentParser
 
     for (final Argument a : p.namedArgs)
     {
+      // If the argument was provided on the command line, then that will always
+      // override anything that might be in the properties file.
       if (a.getNumOccurrences() > 0)
       {
-        // The argument was provided on the command line, and that will always
-        // override anything that might be in the properties file.
+        continue;
+      }
+
+
+      // If the argument is part of an exclusive argument set, and if one of
+      // the other arguments in that set was provided on the command line, then
+      // don't look in the properties file for a value for the argument.
+      boolean exclusiveArgumentHasValue = false;
+exclusiveArgumentLoop:
+      for (final Set<Argument> exclusiveArgumentSet : exclusiveArgumentSets)
+      {
+        if (exclusiveArgumentSet.contains(a))
+        {
+          for (final Argument exclusiveArg : exclusiveArgumentSet)
+          {
+            if (exclusiveArg.getNumOccurrences() > 0)
+            {
+              exclusiveArgumentHasValue = true;
+              break exclusiveArgumentLoop;
+            }
+          }
+        }
+      }
+
+      if (exclusiveArgumentHasValue)
+      {
         continue;
       }
 

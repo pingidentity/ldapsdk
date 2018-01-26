@@ -546,6 +546,69 @@ public class LDAPCommandLineToolTestCase
 
 
   /**
+   * Test the behavior when trying to using a properties file that has a value
+   * set for an argument in an exclusive argument set when another argument in
+   * that set was provided on the command line.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testPropertiesFileHandlingOfArgumentsInAnExclusiveSet()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDSWithSSL();
+
+    LDAPSearch ldapSearch = new LDAPSearch(null, null);
+
+    final File wrongPasswordFile = createTempFile("wrong-password");
+
+    final File propertiesFile = createTempFile();
+    assertTrue(propertiesFile.exists());
+    assertTrue(propertiesFile.delete());
+    assertFalse(propertiesFile.exists());
+
+    ResultCode rc = ldapSearch.runTool(
+         "--generatePropertiesFile", propertiesFile.getAbsolutePath(),
+         "--hostname", "127.0.0.1",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--useSSL",
+         "--trustAll",
+         "--bindDN", "cn=Directory Manager",
+         "--bindPasswordFile", wrongPasswordFile.getAbsolutePath());
+    assertEquals(rc, ResultCode.SUCCESS);
+
+
+    // Make sure that an attempt to run ldapsearch with that properties file and
+    // values for other necessary arguments (but no password) will fail with an
+    // "invalid credentials" result because it's picking up the wrong password
+    // from the bindPasswordFile property set in the properties file.
+    ldapSearch = new LDAPSearch(null, null);
+    rc = ldapSearch.runTool(
+         "--propertiesFilePath", propertiesFile.getAbsolutePath(),
+         "--baseDN", "",
+         "--scope", "base",
+         "(objectClass=*)");
+    assertEquals(rc, ResultCode.INVALID_CREDENTIALS);
+
+
+    // Issue the same command, but this time provide the right password as a
+    // command-line argument.  This should succeed because the bind password
+    // provided on the command line will override the value of the bind password
+    // file set in the properties file because they're part of an exclusive
+    // argument set.
+    ldapSearch = new LDAPSearch(null, null);
+    rc = ldapSearch.runTool(
+         "--propertiesFilePath", propertiesFile.getAbsolutePath(),
+         "--bindPassword", "password",
+         "--baseDN", "",
+         "--scope", "base",
+         "(objectClass=*)");
+    assertEquals(rc, ResultCode.SUCCESS);
+  }
+
+
+
+  /**
    * Tests the behavior with a properties file that covers a range of use cases.
    *
    * @throws  Exception  If an unexpected problem occurs.
