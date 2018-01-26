@@ -98,7 +98,11 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.PasswordPolicyRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            PermitUnindexedSearchRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             RealAttributesOnlyRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            RejectUnindexedSearchRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             ReturnConflictEntriesRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -182,7 +186,9 @@ public final class LDAPSearch
   private BooleanArgument includeSubentries = null;
   private BooleanArgument joinRequireMatch = null;
   private BooleanArgument manageDsaIT = null;
+  private BooleanArgument permitUnindexedSearch = null;
   private BooleanArgument realAttributesOnly = null;
+  private BooleanArgument rejectUnindexedSearch = null;
   private BooleanArgument retryFailedOperations = null;
   private BooleanArgument separateOutputFilePerSearch = null;
   private BooleanArgument suppressBase64EncodedValueComments = null;
@@ -494,8 +500,7 @@ public final class LDAPSearch
     timeLimitSeconds.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(timeLimitSeconds);
 
-    final LinkedHashSet<String> derefAllowedValues =
-         new LinkedHashSet<String>(4);
+    final LinkedHashSet<String> derefAllowedValues = new LinkedHashSet<>(4);
     derefAllowedValues.add("never");
     derefAllowedValues.add("always");
     derefAllowedValues.add("search");
@@ -643,7 +648,7 @@ public final class LDAPSearch
     parser.addArgument(teeResultsToStandardOut);
 
     final LinkedHashSet<String> outputFormatAllowedValues =
-         new LinkedHashSet<String>(4);
+         new LinkedHashSet<>(4);
     outputFormatAllowedValues.add("ldif");
     outputFormatAllowedValues.add("json");
     outputFormatAllowedValues.add("csv");
@@ -762,7 +767,7 @@ public final class LDAPSearch
     parser.addArgument(includeReplicationConflictEntries);
 
     final LinkedHashSet<String> softDeleteAllowedValues =
-         new LinkedHashSet<String>(3);
+         new LinkedHashSet<>(3);
     softDeleteAllowedValues.add("with-non-deleted-entries");
     softDeleteAllowedValues.add("without-non-deleted-entries");
     softDeleteAllowedValues.add("deleted-entries-in-undeleted-form");
@@ -899,7 +904,7 @@ public final class LDAPSearch
 
     final LinkedHashSet<String>
          suppressOperationalAttributeUpdatesAllowedValues =
-              new LinkedHashSet<String>(4);
+         new LinkedHashSet<>(4);
     suppressOperationalAttributeUpdatesAllowedValues.add("last-access-time");
     suppressOperationalAttributeUpdatesAllowedValues.add("last-login-time");
     suppressOperationalAttributeUpdatesAllowedValues.add("last-login-ip");
@@ -961,6 +966,32 @@ public final class LDAPSearch
     virtualListView.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(virtualListView);
+
+    rejectUnindexedSearch = new BooleanArgument(null, "rejectUnindexedSearch",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_REJECT_UNINDEXED_SEARCH.get());
+    rejectUnindexedSearch.addLongIdentifier("rejectUnindexedSearches", true);
+    rejectUnindexedSearch.addLongIdentifier("rejectUnindexed", true);
+    rejectUnindexedSearch.addLongIdentifier("rejectIfUnindexed", true);
+    rejectUnindexedSearch.addLongIdentifier("reject-unindexed-search", true);
+    rejectUnindexedSearch.addLongIdentifier("reject-unindexed-searches", true);
+    rejectUnindexedSearch.addLongIdentifier("reject-unindexed", true);
+    rejectUnindexedSearch.addLongIdentifier("reject-if-unindexed", true);
+    rejectUnindexedSearch.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(rejectUnindexedSearch);
+
+    permitUnindexedSearch = new BooleanArgument(null, "permitUnindexedSearch",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_PERMIT_UNINDEXED_SEARCH.get());
+    permitUnindexedSearch.addLongIdentifier("permitUnindexedSearches", true);
+    permitUnindexedSearch.addLongIdentifier("permitUnindexed", true);
+    permitUnindexedSearch.addLongIdentifier("permitIfUnindexed", true);
+    permitUnindexedSearch.addLongIdentifier("permit-unindexed-search", true);
+    permitUnindexedSearch.addLongIdentifier("permit-unindexed-searches", true);
+    permitUnindexedSearch.addLongIdentifier("permit-unindexed", true);
+    permitUnindexedSearch.addLongIdentifier("permit-if-unindexed", true);
+    permitUnindexedSearch.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(permitUnindexedSearch);
 
     excludeAttribute = new StringArgument(null, "excludeAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
@@ -1101,6 +1132,11 @@ public final class LDAPSearch
     // The virtualListView argument requires the sortOrder argument.
     parser.addDependentArgumentSet(virtualListView, sortOrder);
 
+    // The rejectUnindexedSearch and permitUnindexedSearch arguments can't be
+    // used together.
+    parser.addExclusiveArgumentSet(rejectUnindexedSearch,
+         permitUnindexedSearch);
+
     // The separateOutputFilePerSearch argument requires the outputFile
     // argument.  It also requires either the filter, filterFile or ldapURLFile
     // argument.
@@ -1159,7 +1195,7 @@ public final class LDAPSearch
   @Override()
   protected List<Control> getBindControls()
   {
-    final ArrayList<Control> bindControls = new ArrayList<Control>(10);
+    final ArrayList<Control> bindControls = new ArrayList<>(10);
 
     if (bindControl.isPresent())
     {
@@ -1578,7 +1614,7 @@ public final class LDAPSearch
     // sort order and pre-create the control.
     if (sortOrder.isPresent())
     {
-      final ArrayList<SortKey> sortKeyList = new ArrayList<SortKey>(5);
+      final ArrayList<SortKey> sortKeyList = new ArrayList<>(5);
       final StringTokenizer tokenizer =
            new StringTokenizer(sortOrder.getValue(), ", ");
       while (tokenizer.hasMoreTokens())
@@ -1803,8 +1839,7 @@ public final class LDAPSearch
 
 
     // See if any entry transformations need to be applied.
-    final ArrayList<EntryTransformation> transformations =
-         new ArrayList<EntryTransformation>(5);
+    final ArrayList<EntryTransformation> transformations = new ArrayList<>(5);
     if (excludeAttribute.isPresent())
     {
       transformations.add(new ExcludeAttributeTransformation(null,
@@ -2087,7 +2122,7 @@ public final class LDAPSearch
 
       // Get the set of requested attributes, as a combination of the
       // requestedAttribute argument values and any trailing arguments.
-      final ArrayList<String> attrList = new ArrayList<String>(10);
+      final ArrayList<String> attrList = new ArrayList<>(10);
       if (requestedAttribute.isPresent())
       {
         attrList.addAll(requestedAttribute.getValues());
@@ -2716,7 +2751,7 @@ public final class LDAPSearch
    */
   private List<Control> getSearchControls()
   {
-    final ArrayList<Control> controls = new ArrayList<Control>(10);
+    final ArrayList<Control> controls = new ArrayList<>(10);
 
     if (searchControl.isPresent())
     {
@@ -2807,7 +2842,7 @@ public final class LDAPSearch
     if (excludeBranch.isPresent())
     {
       final ArrayList<String> dns =
-           new ArrayList<String>(excludeBranch.getValues().size());
+           new ArrayList<>(excludeBranch.getValues().size());
       for (final DN dn : excludeBranch.getValues())
       {
         dns.add(dn.toString());
@@ -2882,6 +2917,16 @@ public final class LDAPSearch
 
       controls.add(new SuppressOperationalAttributeUpdateRequestControl(
            suppressTypes));
+    }
+
+    if (rejectUnindexedSearch.isPresent())
+    {
+      controls.add(new RejectUnindexedSearchRequestControl());
+    }
+
+    if (permitUnindexedSearch.isPresent())
+    {
+      controls.add(new PermitUnindexedSearchRequestControl());
     }
 
     return controls;
@@ -3008,8 +3053,7 @@ public final class LDAPSearch
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(5);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(5);
 
     String[] args =
     {

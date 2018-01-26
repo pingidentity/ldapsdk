@@ -307,8 +307,24 @@ public final class LDAPSearchTestCase
          "--suppressOperationalAttributeUpdates", "last-login-ip",
          "--suppressOperationalAttributeUpdates", "lastmod",
          "--realAttributesOnly",
+         "--rejectUnindexedSearch",
          "--wrapColumn", "0",
          "--dereferencePolicy", "search",
+         "(objectClass=*)",
+         "*",
+         "+",
+         // NOTE:  This will be treated as a trailing argument and not a named
+         // argument, which will cause the tool to generate a warning.
+         "--help");
+
+    // Perform another search that includes arguments that aren't compatible
+    // with those used in the first search.
+    LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--baseDN", "",
+         "--scope", "base",
+         "--permitUnindexedSearch",
          "(objectClass=*)",
          "*",
          "+",
