@@ -532,8 +532,6 @@ public class MonitorManagerTestCase
       assertNotNull(e.getIndexName());
 
       assertNotNull(e.getBackendID());
-
-      assertNotNull(e.getBaseDN());
     }
 
     conn.close();
