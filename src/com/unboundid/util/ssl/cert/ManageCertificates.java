@@ -1905,8 +1905,11 @@ public final class ManageCertificates
     genCSRParser.addArgument(genCSRAlias);
 
     final BooleanArgument genCSRReplace = new BooleanArgument(null,
-         "replace-existing-certificate", 1,
+         "use-existing-key-pair", 1,
          INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_REPLACE_DESC.get());
+    genCSRReplace.addLongIdentifier("use-existing-keypair", true);
+    genCSRReplace.addLongIdentifier("useExistingKeyPair", true);
+    genCSRReplace.addLongIdentifier("replace-existing-certificate", true);
     genCSRReplace.addLongIdentifier("replaceExistingCertificate", true);
     genCSRReplace.addLongIdentifier("replace-certificate", true);
     genCSRReplace.addLongIdentifier("replaceCertificate", true);
@@ -2162,7 +2165,7 @@ public final class ManageCertificates
            "--keystore-password-file",
                 getPlatformSpecificPath("config", "keystore.pin"),
            "--alias", "server-cert",
-           "--replace-existing-certificate",
+           "--use-existing-key-pair",
            "--inherit-extensions",
            "--output-file", "server-cert.csr"
          },
@@ -5176,7 +5179,7 @@ public final class ManageCertificates
 
     // See if the keystore already has a key entry with the specified alias.
     // If so, then it may or may not be an error.  This can happen if we
-    // generated a certificate signing request from an existing keypair, and
+    // generated a certificate signing request from an existing key pair, and
     // now want to import the signed certificate.  If that is the case, then we
     // will replace the existing key entry with a new one that contains the full
     // new certificate chain and the existing private key, but only if the
@@ -5184,7 +5187,7 @@ public final class ManageCertificates
     // of the existing chain in that alias.
     if (hasKeyAlias(keystore, alias))
     {
-      // Make sure that the existing keypair uses the same public key as the
+      // Make sure that the existing key pair uses the same public key as the
       // new certificate we are importing.
       final PrivateKey existingPrivateKey;
       final Certificate[] existingChain;
@@ -6394,7 +6397,7 @@ public final class ManageCertificates
       }
 
 
-      // Get the certificate to replace, along with its keypair.
+      // Get the certificate to replace, along with its key pair.
       final X509Certificate certToReplace;
       final KeyPair keyPair;
       try
@@ -6763,7 +6766,7 @@ public final class ManageCertificates
 
 
     // If we're going to generate a self-signed certificate or a certificate
-    // signing request, then we first need to generate a keypair.  Put together
+    // signing request, then we first need to generate a key pair.  Put together
     // the appropriate set of keytool arguments and then generate a self-signed
     // certificate.
     if (isGenerateCertificate || isGenerateCSR)
@@ -7032,7 +7035,7 @@ public final class ManageCertificates
     }
 
 
-    // Get the signing certificate and its keypair.
+    // Get the signing certificate and its key pair.
     final PrivateKey issuerPrivateKey;
     final X509Certificate issuerCertificate;
     try
@@ -11960,7 +11963,7 @@ public final class ManageCertificates
            "--keystore", keystorePath,
            "--keystore-password-file", keystorePWPath,
            "--alias", "server-cert",
-           "--replace-existing-certificate",
+           "--use-existing-key-pair",
            "--inherit-extensions",
            "--display-keytool-command"
          },

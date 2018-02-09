@@ -53,6 +53,18 @@ ${TARGET="offline"}                <br>
                   when provided with the correct passphrase.
                   <br><br>
                 </li>
+
+                <li>
+                  Updated the <tt>manage-certificates</tt> tool to change the primary name for the
+                  existing <tt>--replace-existing-certificate</tt> argument in the
+                  <tt>generate-certificate-signing-request</tt> subcommand to be
+                  <tt>--use-existing-key-pair</tt>, and updated the usage information to make it
+                  clearer that using this option will not cause the keystore to be updated.
+                  The former <tt>--replace-existing-certificate</tt> identifier can still be used
+                  and will behave in exactly the same way as before, so there is no change in
+                  functionality.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

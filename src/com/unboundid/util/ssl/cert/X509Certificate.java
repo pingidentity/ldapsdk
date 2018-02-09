@@ -1149,7 +1149,7 @@ public final class X509Certificate
                    final X509CertificateExtension... extensions)
          throws CertException
   {
-    // Generate the keypair for the certificate.
+    // Generate the key pair for the certificate.
     final KeyPairGenerator keyPairGenerator;
     try
     {
