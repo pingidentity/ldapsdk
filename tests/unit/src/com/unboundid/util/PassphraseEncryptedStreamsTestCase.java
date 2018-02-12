@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.crypto.Cipher;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1Integer;
@@ -304,6 +306,82 @@ public final class PassphraseEncryptedStreamsTestCase
 
 
   /**
+   * Tests the behavior when writing trying to decode a passphrase-encrypted
+   * stream header when no passphrase was provided.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeWithoutPassphrase()
+         throws Exception
+  {
+    // Define the data to be encrypted.
+    final List<String> linesToEncrypt = Arrays.asList(
+         "This is some data that will be encrypted.",
+         "So is this.",
+         "And this.");
+
+
+    // Get the path to a file to which encrypted data will be written.
+    final File encryptedFile = createTempFile();
+    assertTrue(encryptedFile.delete());
+
+
+    // Write the data to an encrypted file.
+    try (FileOutputStream fileOutputStream =
+              new FileOutputStream(encryptedFile);
+         PassphraseEncryptedOutputStream passphraseEncryptedOutputStream =
+              new PassphraseEncryptedOutputStream("passphrase",
+                   fileOutputStream);
+         PrintStream printStream =
+              new PrintStream(passphraseEncryptedOutputStream))
+    {
+      assertNotNull(passphraseEncryptedOutputStream.getEncryptionHeader());
+
+      for (final String line : linesToEncrypt)
+      {
+        printStream.println(line);
+      }
+    }
+
+
+    // Try to read back the encrypted data, but don't provide a passphrase.
+    PassphraseEncryptedStreamHeader encryptionHeader;
+    try (FileInputStream fileInputStream =
+              new FileInputStream(encryptedFile))
+    {
+      encryptionHeader =
+           PassphraseEncryptedStreamHeader.readFrom(fileInputStream, null);
+      assertNotNull(encryptionHeader);
+      assertFalse(encryptionHeader.isSecretKeyAvailable());
+      assertNotNull(encryptionHeader.toString());
+
+      // This should fail because the header was created without a passphrase.
+      try
+      {
+        encryptionHeader.createCipher(Cipher.ENCRYPT_MODE);
+      }
+      catch (final InvalidKeyException e)
+      {
+        // This was expected.
+      }
+    }
+
+
+    // Make sure that we can decode the header with the correct passphrase and
+    // that it now works properly.
+    encryptionHeader = PassphraseEncryptedStreamHeader.decode(
+         encryptionHeader.getEncodedHeader(), "passphrase".toCharArray());
+    assertNotNull(encryptionHeader);
+    assertTrue(encryptionHeader.isSecretKeyAvailable());
+    assertNotNull(encryptionHeader.toString());
+
+    encryptionHeader.createCipher(Cipher.ENCRYPT_MODE);
+  }
+
+
+
+  /**
    * Tests the behavior when writing an encrypted stream using one passphrase,
    * and then using a different passphrase when trying to decrypt the stream.
    *
@@ -513,6 +591,8 @@ public final class PassphraseEncryptedStreamsTestCase
 
       assertNotNull(header.getEncodedHeader());
       assertEquals(header.getEncodedHeader(), encodedHeader);
+
+      assertTrue(header.isSecretKeyAvailable());
 
       assertNotNull(header.toString());
     }

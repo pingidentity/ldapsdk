@@ -269,7 +269,8 @@ public final class PassphraseEncryptedStreamHeader
    * information.
    *
    * @param  passphrase                  The passphrase to use to generate the
-   *                                     encryption key.
+   *                                     encryption key.  It must not be
+   *                                     {@code null}.
    * @param  keyFactoryAlgorithm         The key factory algorithm used to
    *                                     generate the encryption key from the
    *                                     passphrase.  It must not be
@@ -471,6 +472,14 @@ public final class PassphraseEncryptedStreamHeader
    *                      passphrase-encrypted stream header.  It must not be
    *                      {@code null}.
    * @param  passphrase   The passphrase to use to generate the encryption key.
+   *                      If this is {@code null}, then the header will be
+   *                      read, but no attempt will be made to validate the MAC,
+   *                      and it will not be possible to use this header to
+   *                      actually perform encryption or decryption.  Providing
+   *                      a {@code null} value is primarily useful if
+   *                      information in the header (especially the key
+   *                      identifier) is needed to determine what passphrase to
+   *                      use.
    *
    * @return  The passphrase-encrypted stream header that was read from the
    *          provided input stream.
@@ -559,7 +568,14 @@ public final class PassphraseEncryptedStreamHeader
    * @param  encodedHeader  The bytes that comprise the header to decode.  It
    *                        must not be {@code null} or empty.
    * @param  passphrase     The passphrase to use to generate the encryption
-   *                        key.
+   *                        key.  If this is {@code null}, then the header will
+   *                        be read, but no attempt will be made to validate the
+   *                        MAC, and it will not be possible to use this header
+   *                        to actually perform encryption or decryption.
+   *                        Providing a {@code null} value is primarily useful
+   *                        if information in the header (especially the key
+   *                        identifier) is needed to determine what passphrase
+   *                        to use.
    *
    * @return  The passphrase-encrypted stream header that was decoded from the
    *          provided byte array.
@@ -628,8 +644,14 @@ public final class PassphraseEncryptedStreamHeader
    *                         must not be {@code null} or empty.
    * @param  headerSequence  The header sequence portion of the encoded header.
    * @param  passphrase      The passphrase to use to generate the encryption
-   *                         key.
-   * @
+   *                         key.  If this is {@code null}, then the header will
+   *                         be read, but no attempt will be made to validate
+   *                         the MAC, and it will not be possible to use this
+   *                         header to actually perform encryption or
+   *                         decryption. Providing a {@code null} value is
+   *                         primarily useful if information in the header
+   *                         (especially the key identifier) is needed to
+   *                         determine what passphrase to use.
    *
    * @return  The passphrase-encrypted stream header that was decoded from the
    *          provided ASN.1 sequence.
@@ -719,31 +741,40 @@ public final class PassphraseEncryptedStreamHeader
       // Compute a MAC of the appropriate header elements and verify that it
       // matches the value contained in the header.  If it doesn't match, then
       // it means the provided passphrase was invalid.
-      final SecretKeyFactory keyFactory =
-           SecretKeyFactory.getInstance(keyFactoryAlgorithm);
-      final String cipherAlgorithm = cipherTransformation.substring(0,
-           cipherTransformation.indexOf('/'));
-      final PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, keyFactorySalt,
-           keyFactoryIterationCount, keyFactoryKeyLengthBits);
-      final SecretKeySpec secretKey = new SecretKeySpec(
-           keyFactory.generateSecret(pbeKeySpec).getEncoded(), cipherAlgorithm);
-
-      final ByteStringBuffer macBuffer = new ByteStringBuffer();
-      for (int i=0; i < headerElements.length; i++)
+      final SecretKey secretKey;
+      if (passphrase == null)
       {
-        if (i != macValuePos)
-        {
-          macBuffer.append(headerElements[i].encode());
-        }
+        secretKey = null;
       }
-
-      final Mac mac = Mac.getInstance(macAlgorithm);
-      mac.init(secretKey);
-      final byte[] computedMacValue = mac.doFinal(macBuffer.toByteArray());
-      if (! Arrays.equals(computedMacValue, macValue))
+      else
       {
-        throw new InvalidKeyException(
-             ERR_PW_ENCRYPTED_HEADER_SEQUENCE_BAD_PW.get());
+        final SecretKeyFactory keyFactory =
+             SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+        final String cipherAlgorithm = cipherTransformation.substring(0,
+             cipherTransformation.indexOf('/'));
+        final PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, keyFactorySalt,
+             keyFactoryIterationCount, keyFactoryKeyLengthBits);
+        secretKey = new SecretKeySpec(
+             keyFactory.generateSecret(pbeKeySpec).getEncoded(),
+             cipherAlgorithm);
+
+        final ByteStringBuffer macBuffer = new ByteStringBuffer();
+        for (int i=0; i < headerElements.length; i++)
+        {
+          if (i != macValuePos)
+          {
+            macBuffer.append(headerElements[i].encode());
+          }
+        }
+
+        final Mac mac = Mac.getInstance(macAlgorithm);
+        mac.init(secretKey);
+        final byte[] computedMacValue = mac.doFinal(macBuffer.toByteArray());
+        if (! Arrays.equals(computedMacValue, macValue))
+        {
+          throw new InvalidKeyException(
+               ERR_PW_ENCRYPTED_HEADER_SEQUENCE_BAD_PW.get());
+        }
       }
 
       return new PassphraseEncryptedStreamHeader(keyFactoryAlgorithm,
@@ -776,12 +807,21 @@ public final class PassphraseEncryptedStreamHeader
    *
    * @return  The {@code Cipher} instance that was created.
    *
+   * @throws  InvalidKeyException  If no passphrase was provided when decoding
+   *                               this passphrase-encrypted stream header.
+   *
    * @throws  GeneralSecurityException  If a problem is encountered while
    *                                    creating the cipher.
    */
   Cipher createCipher(final int mode)
-         throws GeneralSecurityException
+         throws InvalidKeyException, GeneralSecurityException
   {
+    if (secretKey == null)
+    {
+      throw new InvalidKeyException(
+           ERR_PW_ENCRYPTED_HEADER_NO_KEY_AVAILABLE.get());
+    }
+
     final Cipher cipher = Cipher.getInstance(cipherTransformation);
     cipher.init(mode, secretKey,
          new IvParameterSpec(cipherInitializationVector));
@@ -912,6 +952,23 @@ public final class PassphraseEncryptedStreamHeader
 
 
   /**
+   * Indicates whether this passphrase-encrypted stream header includes a secret
+   * key.  If this header was read or decoded with no passphrase provided, then
+   * it will not have a secret key, which means the MAC will not have been
+   * validated and it cannot be used to encrypt or decrypt data.
+   *
+   * @return  {@code true} if this passphrase-encrypted stream header includes a
+   *          secret key and can be used to encrypt or decrypt data, or
+   *          {@code false} if not.
+   */
+  public boolean isSecretKeyAvailable()
+  {
+    return (secretKey != null);
+  }
+
+
+
+  /**
    * Retrieves a string representation of this passphrase-encrypted stream
    * header.
    *
@@ -961,6 +1018,8 @@ public final class PassphraseEncryptedStreamHeader
     buffer.append(macAlgorithm);
     buffer.append("', macValueLengthBytes=");
     buffer.append(macValue.length);
+    buffer.append(", secretKeyAvailable=");
+    buffer.append(isSecretKeyAvailable());
     buffer.append(", encodedHeaderLengthBytes=");
     buffer.append(encodedHeader.length);
     buffer.append(')');
