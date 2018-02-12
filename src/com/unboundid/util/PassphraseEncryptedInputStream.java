@@ -25,6 +25,7 @@ package com.unboundid.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 
@@ -70,12 +71,16 @@ public final class PassphraseEncryptedInputStream
    *                         the encryption header read from the provided input
    *                         stream.
    *
+   * @throws  InvalidKeyException  If the MAC contained in the header does not
+   *                               match the expected value.
+   *
    * @throws  GeneralSecurityException  If a problem occurs while attempting to
    *                                    initialize the decryption.
    */
   public PassphraseEncryptedInputStream(final String passphrase,
                                         final InputStream wrappedInputStream)
-         throws IOException, LDAPException, GeneralSecurityException
+         throws IOException, LDAPException, InvalidKeyException,
+                GeneralSecurityException
   {
     this(passphrase.toCharArray(), wrappedInputStream);
   }
@@ -100,15 +105,20 @@ public final class PassphraseEncryptedInputStream
    *                         the encryption header read from the provided input
    *                         stream.
    *
+   * @throws  InvalidKeyException  If the MAC contained in the header does not
+   *                               match the expected value.
+   *
    * @throws  GeneralSecurityException  If a problem occurs while attempting to
    *                                    initialize the decryption.
    */
   public PassphraseEncryptedInputStream(final char[] passphrase,
                                         final InputStream wrappedInputStream)
-         throws IOException, LDAPException, GeneralSecurityException
+         throws IOException, LDAPException, InvalidKeyException,
+                GeneralSecurityException
   {
-    this(passphrase, wrappedInputStream,
-         PassphraseEncryptedStreamHeader.readFrom(wrappedInputStream));
+    this(wrappedInputStream,
+         PassphraseEncryptedStreamHeader.readFrom(wrappedInputStream,
+              passphrase));
   }
 
 
@@ -117,10 +127,6 @@ public final class PassphraseEncryptedInputStream
    * Creates a new passphrase-encrypted input stream using the provided
    * information.
    *
-   * @param  passphrase          The passphrase used to generate the encryption
-   *                             key when the corresponding
-   *                             {@link PassphraseEncryptedOutputStream} was
-   *                             created.
    * @param  wrappedInputStream  The input stream from which the encrypted data
    *                             will be read.
    * @param  encryptionHeader    The encryption header with the information
@@ -131,43 +137,13 @@ public final class PassphraseEncryptedInputStream
    * @throws  GeneralSecurityException  If a problem occurs while attempting to
    *                                    initialize the decryption.
    */
-  public PassphraseEncryptedInputStream(final String passphrase,
-              final InputStream wrappedInputStream,
-              final PassphraseEncryptedStreamHeader encryptionHeader)
-         throws GeneralSecurityException
-  {
-    this(passphrase.toCharArray(), wrappedInputStream, encryptionHeader);
-  }
-
-
-
-  /**
-   * Creates a new passphrase-encrypted input stream using the provided
-   * information.
-   *
-   * @param  passphrase          The passphrase used to generate the encryption
-   *                             key when the corresponding
-   *                             {@link PassphraseEncryptedOutputStream} was
-   *                             created.
-   * @param  wrappedInputStream  The input stream from which the encrypted data
-   *                             will be read.
-   * @param  encryptionHeader    The encryption header with the information
-   *                             needed (in conjunction with the given
-   *                             passphrase) to decrypt the data read from the
-   *                             provided input stream.
-   *
-   * @throws  GeneralSecurityException  If a problem occurs while attempting to
-   *                                    initialize the decryption.
-   */
-  public PassphraseEncryptedInputStream(final char[] passphrase,
-              final InputStream wrappedInputStream,
+  public PassphraseEncryptedInputStream(final InputStream wrappedInputStream,
               final PassphraseEncryptedStreamHeader encryptionHeader)
          throws GeneralSecurityException
   {
     this.encryptionHeader = encryptionHeader;
 
-    final Cipher cipher =
-         encryptionHeader.createCipher(Cipher.DECRYPT_MODE, passphrase);
+    final Cipher cipher = encryptionHeader.createCipher(Cipher.DECRYPT_MODE);
     cipherInputStream = new CipherInputStream(wrappedInputStream, cipher);
   }
 

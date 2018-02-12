@@ -154,6 +154,22 @@ public final class PassphraseEncryptedOutputStream
 
 
 
+  /**
+   * The algorithm that will be used when generating a MAC of the header
+   * contents when using the baseline encryption strength.
+   */
+  private static final String BASELINE_MAC_ALGORITHM = "HmacSHA256";
+
+
+
+  /**
+   * The algorithm that will be used when generating a MAC of the header
+   * contents when using strong encryption.
+   */
+  private static final String STRONG_MAC_ALGORITHM = "HmacSHA512";
+
+
+
   // The cipher output stream that will be used to actually write the
   // encrypted output.
   private final CipherOutputStream cipherOutputStream;
@@ -345,11 +361,13 @@ public final class PassphraseEncryptedOutputStream
     random.nextBytes(cipherInitializationVector);
 
     final int keyFactoryIterationCount;
+    final String macAlgorithm;
     PassphraseEncryptedStreamHeader header = null;
     CipherOutputStream cipherStream = null;
     if (useStrongEncryption)
     {
       keyFactoryIterationCount = STRONG_KEY_FACTORY_ITERATION_COUNT;
+      macAlgorithm = STRONG_MAC_ALGORITHM;
 
       final Boolean supportsStrongEncryption = SUPPORTS_STRONG_ENCRYPTION.get();
       if ((supportsStrongEncryption == null) ||
@@ -357,14 +375,13 @@ public final class PassphraseEncryptedOutputStream
       {
         try
         {
-          header = new PassphraseEncryptedStreamHeader(
+          header = new PassphraseEncryptedStreamHeader(passphrase,
                STRONG_KEY_FACTORY_ALGORITHM, keyFactoryIterationCount,
                keyFactorySalt, STRONG_KEY_FACTORY_KEY_LENGTH_BITS,
                CIPHER_TRANSFORMATION, cipherInitializationVector,
-               keyIdentifier);
+               keyIdentifier, macAlgorithm);
 
-          final Cipher cipher =
-               header.createCipher(Cipher.ENCRYPT_MODE, passphrase);
+          final Cipher cipher = header.createCipher(Cipher.ENCRYPT_MODE);
           if (writeHeaderToStream)
           {
             header.writeTo(wrappedOutputStream);
@@ -383,17 +400,18 @@ public final class PassphraseEncryptedOutputStream
     else
     {
       keyFactoryIterationCount = BASELINE_KEY_FACTORY_ITERATION_COUNT;
+      macAlgorithm = BASELINE_MAC_ALGORITHM;
     }
 
     if (cipherStream == null)
     {
-      header = new PassphraseEncryptedStreamHeader(
+      header = new PassphraseEncryptedStreamHeader(passphrase,
            BASELINE_KEY_FACTORY_ALGORITHM, keyFactoryIterationCount,
            keyFactorySalt, BASELINE_KEY_FACTORY_KEY_LENGTH_BITS,
-           CIPHER_TRANSFORMATION, cipherInitializationVector, keyIdentifier);
+           CIPHER_TRANSFORMATION, cipherInitializationVector, keyIdentifier,
+           macAlgorithm);
 
-      final Cipher cipher =
-           header.createCipher(Cipher.ENCRYPT_MODE, passphrase);
+      final Cipher cipher = header.createCipher(Cipher.ENCRYPT_MODE);
       if (writeHeaderToStream)
       {
         header.writeTo(wrappedOutputStream);

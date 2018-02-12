@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -173,8 +174,8 @@ public final class PassphraseEncryptedStreamsTestCase
     try (FileInputStream fileInputStream =
               new FileInputStream(encryptedFile);
          PassphraseEncryptedInputStream passphraseEncryptedInputStream =
-              new PassphraseEncryptedInputStream("passphrase",
-                   fileInputStream, encryptionHeader);
+              new PassphraseEncryptedInputStream(fileInputStream,
+                   encryptionHeader);
          InputStreamReader inputStreamReader =
               new InputStreamReader(passphraseEncryptedInputStream);
          BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
@@ -298,6 +299,61 @@ public final class PassphraseEncryptedStreamsTestCase
 
     // Make sure that the decrypted data matches the data we originally wrote.
     assertEquals(decryptedLines, linesToEncrypt);
+  }
+
+
+
+  /**
+   * Tests the behavior when writing an encrypted stream using one passphrase,
+   * and then using a different passphrase when trying to decrypt the stream.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { InvalidKeyException.class })
+  public void testWithDifferentPassphrases()
+         throws Exception
+  {
+    // Define the data to be encrypted.
+    final List<String> linesToEncrypt = Arrays.asList(
+         "This is some data that will be encrypted.",
+         "So is this.",
+         "And this.");
+
+
+    // Get the path to a file to which encrypted data will be written.
+    final File encryptedFile = createTempFile();
+    assertTrue(encryptedFile.delete());
+
+
+    // Write the data to an encrypted file.
+    try (FileOutputStream fileOutputStream =
+              new FileOutputStream(encryptedFile);
+         PassphraseEncryptedOutputStream passphraseEncryptedOutputStream =
+              new PassphraseEncryptedOutputStream("passphrase",
+                   fileOutputStream);
+         PrintStream printStream =
+              new PrintStream(passphraseEncryptedOutputStream))
+    {
+      assertNotNull(passphraseEncryptedOutputStream.getEncryptionHeader());
+
+      for (final String line : linesToEncrypt)
+      {
+        printStream.println(line);
+      }
+    }
+
+
+    // Try to read back the encrypted data, but provide the wrong passphrase.
+    try (FileInputStream fileInputStream =
+              new FileInputStream(encryptedFile);
+         PassphraseEncryptedInputStream passphraseEncryptedInputStream =
+              new PassphraseEncryptedInputStream("wrong-passphrase",
+                   fileInputStream))
+    {
+      passphraseEncryptedInputStream.getEncryptionHeader();
+      fail("Expected an exception when providing the wrong passphrase when " +
+           "creating a PassphraseEncryptedInputStream");
+    }
   }
 
 
@@ -429,7 +485,8 @@ public final class PassphraseEncryptedStreamsTestCase
       final byte[] encodedHeader = header.getEncodedHeader();
       assertNotNull(encodedHeader);
 
-      header = PassphraseEncryptedStreamHeader.decode(encodedHeader);
+      header = PassphraseEncryptedStreamHeader.decode(encodedHeader,
+           "passphrase".toCharArray());
       assertNotNull(header);
 
       assertNotNull(header.getKeyFactoryAlgorithm());
@@ -451,6 +508,9 @@ public final class PassphraseEncryptedStreamsTestCase
       assertNotNull(header.getKeyIdentifier());
       assertEquals(header.getKeyIdentifier(), "the-key-identifier");
 
+      assertNotNull(header.getMACAlgorithm());
+      assertEquals(header.getMACAlgorithm(), "HmacSHA256");
+
       assertNotNull(header.getEncodedHeader());
       assertEquals(header.getEncodedHeader(), encodedHeader);
 
@@ -470,7 +530,8 @@ public final class PassphraseEncryptedStreamsTestCase
          throws Exception
   {
     PassphraseEncryptedStreamHeader.readFrom(
-         new ByteArrayInputStream(StaticUtils.NO_BYTES));
+         new ByteArrayInputStream(StaticUtils.NO_BYTES),
+         "passphrase".toCharArray());
   }
 
 
@@ -486,7 +547,8 @@ public final class PassphraseEncryptedStreamsTestCase
   {
     final ByteArrayInputStream byteArrayInputStream =
          new ByteArrayInputStream("BadMagic".getBytes("UTF-8"));
-    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream);
+    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream,
+         "passphrase".toCharArray());
   }
 
 
@@ -503,7 +565,8 @@ public final class PassphraseEncryptedStreamsTestCase
   {
     final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
          PassphraseEncryptedStreamHeader.MAGIC_BYTES);
-    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream);
+    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream,
+         "passphrase".toCharArray());
   }
 
 
@@ -524,7 +587,8 @@ public final class PassphraseEncryptedStreamsTestCase
 
     final ByteArrayInputStream byteArrayInputStream =
          new ByteArrayInputStream(buffer.toByteArray());
-    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream);
+    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream,
+         "passphrase".toCharArray());
   }
 
 
@@ -562,7 +626,13 @@ public final class PassphraseEncryptedStreamsTestCase
               new byte[16]),
          new ASN1OctetString(
               PassphraseEncryptedStreamHeader.TYPE_KEY_IDENTIFIER,
-              "key-identifier"));
+              "key-identifier"),
+         new ASN1OctetString(
+              PassphraseEncryptedStreamHeader.TYPE_MAC_ALGORITHM,
+              "HmacSHA256"),
+         new ASN1OctetString(
+              PassphraseEncryptedStreamHeader.TYPE_MAC_ALGORITHM,
+              StaticUtils.getBytes("bad-mac")));
 
     final ByteStringBuffer buffer = new ByteStringBuffer();
     buffer.append(PassphraseEncryptedStreamHeader.MAGIC_BYTES);
@@ -570,7 +640,8 @@ public final class PassphraseEncryptedStreamsTestCase
 
     final ByteArrayInputStream byteArrayInputStream =
          new ByteArrayInputStream(buffer.toByteArray());
-    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream);
+    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream,
+         "passphrase".toCharArray());
   }
 
 
@@ -615,7 +686,8 @@ public final class PassphraseEncryptedStreamsTestCase
 
     final ByteArrayInputStream byteArrayInputStream =
          new ByteArrayInputStream(buffer.toByteArray());
-    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream);
+    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream,
+         "passphrase".toCharArray());
   }
 
 
@@ -643,7 +715,8 @@ public final class PassphraseEncryptedStreamsTestCase
 
     final ByteArrayInputStream byteArrayInputStream =
          new ByteArrayInputStream(buffer.toByteArray());
-    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream);
+    PassphraseEncryptedStreamHeader.readFrom(byteArrayInputStream,
+         "passphrase".toCharArray());
   }
 
 
@@ -658,7 +731,8 @@ public final class PassphraseEncryptedStreamsTestCase
   public void testDecodeArrayTooShort()
          throws Exception
   {
-    PassphraseEncryptedStreamHeader.decode(StaticUtils.NO_BYTES);
+    PassphraseEncryptedStreamHeader.decode(StaticUtils.NO_BYTES,
+         "passphrase".toCharArray());
   }
 
 
@@ -673,7 +747,8 @@ public final class PassphraseEncryptedStreamsTestCase
   public void testDecodeArrayWithBadMagic()
          throws Exception
   {
-    PassphraseEncryptedStreamHeader.decode(new byte[50]);
+    PassphraseEncryptedStreamHeader.decode(new byte[50],
+         "passphrase".toCharArray());
   }
 
 
@@ -691,6 +766,7 @@ public final class PassphraseEncryptedStreamsTestCase
     final byte[] headerBytes = new byte[50];
     System.arraycopy(PassphraseEncryptedStreamHeader.MAGIC_BYTES, 0,
          headerBytes, 0, PassphraseEncryptedStreamHeader.MAGIC_BYTES.length);
-    PassphraseEncryptedStreamHeader.decode(headerBytes);
+    PassphraseEncryptedStreamHeader.decode(headerBytes,
+         "passphrase".toCharArray());
   }
 }
