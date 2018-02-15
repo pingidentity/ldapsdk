@@ -55,6 +55,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added new <tt>RateLimitedInputStream</tt> and <tt>RateLimitedOutputStream</tt>
+                  classes that can be used to impose a maximum rate (in bytes per second) at which
+                  data can be read from a wrapped input stream or written to a wrapped output
+                  stream.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>manage-certificates</tt> tool to change the primary name for the
                   existing <tt>--replace-existing-certificate</tt> argument in the
                   <tt>generate-certificate-signing-request</tt> subcommand to be
