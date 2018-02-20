@@ -128,13 +128,10 @@ public final class ToolInvocationLogger
     // that path, but to facilitate unit testing, we'll allow it to be
     // overridden by a Java system property so that we can have our own custom
     // path.
-    final String instanceRootPath =
-         System.getProperty(PROPERTY_TEST_INSTANCE_ROOT);
+    String instanceRootPath = System.getProperty(PROPERTY_TEST_INSTANCE_ROOT);
     if (instanceRootPath == null)
     {
-      // FIXME -- Uncomment the next line (and make instanceRootPath non-final)
-      // when we actually want to enable tool invocation logging.
-      // instanceRootPath = System.getenv("INSTANCE_ROOT");
+      instanceRootPath = System.getenv("INSTANCE_ROOT");
       if (instanceRootPath == null)
       {
         return ToolInvocationLogDetails.createDoNotLogDetails(commandName);
