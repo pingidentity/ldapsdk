@@ -47,6 +47,7 @@ import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
@@ -370,6 +371,26 @@ public final class LDAPDebugger
          description, false, true, true, false);
     codeLogFile.addLongIdentifier("code-log-file", true);
     parser.addArgument(codeLogFile);
+
+
+    // If --listenUsingSSL is provided, then the --keyStorePath argument must
+    // also be provided.
+    final Argument keyStorePathArgument =
+         parser.getNamedArgument("keyStorePath");
+    parser.addDependentArgumentSet(listenUsingSSL, keyStorePathArgument);
+
+
+    // If the listenUsingSSL argument is provided, then one of the
+    // --keyStorePassword, --keyStorePasswordFile, or
+    // --promptForKeyStorePassword arguments.
+    final Argument keyStorePasswordArgument =
+         parser.getNamedArgument("keyStorePassword");
+    final Argument keyStorePasswordFileArgument =
+         parser.getNamedArgument("keyStorePasswordFile");
+    final Argument promptForKeyStorePasswordArgument =
+         parser.getNamedArgument("promptForKeyStorePassword");
+    parser.addDependentArgumentSet(listenUsingSSL, keyStorePasswordArgument,
+         keyStorePasswordFileArgument, promptForKeyStorePasswordArgument);
   }
 
 
