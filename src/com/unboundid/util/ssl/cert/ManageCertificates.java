@@ -1404,6 +1404,9 @@ public final class ManageCertificates
     genCertReplace.addLongIdentifier("replace-existing", true);
     genCertReplace.addLongIdentifier("replaceExisting", true);
     genCertReplace.addLongIdentifier("replace", true);
+    genCertReplace.addLongIdentifier("use-existing-key-pair", true);
+    genCertReplace.addLongIdentifier("use-existing-keypair", true);
+    genCertReplace.addLongIdentifier("useExistingKeypair", true);
     genCertParser.addArgument(genCertReplace);
 
     final DNArgument genCertSubjectDN = new DNArgument(null, "subject-dn",
@@ -6577,8 +6580,17 @@ public final class ManageCertificates
 
 
         // Generate the self-signed certificate.
-        final long notBefore = System.currentTimeMillis();
-        final long notAfter = notBefore + TimeUnit.DAYS.toMillis(365L);
+        final long notBefore;
+        if (validityStartTime == null)
+        {
+          notBefore = System.currentTimeMillis();
+        }
+        else
+        {
+          notBefore = validityStartTime.getTime();
+        }
+
+        final long notAfter = notBefore + TimeUnit.DAYS.toMillis(daysValid);
 
         final X509Certificate certificate;
         final Certificate[] chain;

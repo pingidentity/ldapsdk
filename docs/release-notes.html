@@ -63,6 +63,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed a <tt>manage-certificates</tt> bug in which the validity start time and
+                  validity duration values would be ignored when generating a self-signed
+                  certificate intended to replace an existing certificate.  In that case, the tool
+                  would have always used the current time as the start time and a duration of one
+                  year.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>manage-certificates</tt> tool to change the primary name for the
                   existing <tt>--replace-existing-certificate</tt> argument in the
                   <tt>generate-certificate-signing-request</tt> subcommand to be
