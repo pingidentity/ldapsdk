@@ -86,6 +86,12 @@ import static com.unboundid.util.Validator.*;
  *       written.</LI>
  *   <LI>A flag that indicates whether to generate a signature for the LDIF data
  *       as it is written.</LI>
+ *   <LI>The path to a file containing a passphrase to use to generate the
+ *       encryption key.</LI>
+ *   <LI>The ID of the encryption settings definition to use to generate the
+ *       encryption key.</LI>
+ *   <LI>The maximum rate in megabytes per second at which the LDIF file should
+ *       be written.</LI>
  * </UL>
  */
 @NotMutable()
@@ -132,6 +138,25 @@ public final class ExportTask
    * be encrypted as it is written.
    */
   private static final String ATTR_ENCRYPT = "ds-task-export-encrypt-ldif";
+
+
+
+  /**
+   * The name of the attribute used to specify the path to a file that contains
+   * the passphrase to use to generate the encryption key.
+   */
+  private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+       "ds-task-export-encryption-passphrase-file";
+
+
+
+  /**
+   * The name of the attribute used to specify the path to a file that contains
+   * the ID of the encryption settings definition to use to generate the
+   * encryption key.
+   */
+  private static final String ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID =
+       "ds-task-export-encryption-settings-definition-id";
 
 
 
@@ -194,6 +219,15 @@ public final class ExportTask
    * written.
    */
   private static final String ATTR_LDIF_FILE = "ds-task-export-ldif-file";
+
+
+
+  /**
+   * The name of the attribute used to specify the maximum LDIF write rate in
+   * megabytes per second.
+   */
+  private static final String ATTR_MAX_MEGABYTES_PER_SECOND =
+       "ds-task-export-max-megabytes-per-second";
 
 
 
@@ -348,6 +382,29 @@ public final class ExportTask
 
 
   /**
+   * The task property that will be used for the encryption passphrase file.
+   */
+  private static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
+       new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+            INFO_DISPLAY_NAME_ENCRYPTION_PASSPHRASE_FILE.get(),
+            INFO_DESCRIPTION_ENCRYPTION_PASSPHRASE_FILE.get(),
+            String.class, false, false, true);
+
+
+
+  /**
+   * The task property that will be used for the encryption settings definition
+   * ID.
+   */
+  private static final TaskProperty PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID =
+       new TaskProperty(ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID,
+            INFO_DISPLAY_NAME_ENCRYPTION_SETTINGS_DEFINITION_ID.get(),
+            INFO_DESCRIPTION_ENCRYPTION_SETTINGS_DEFINITION_ID.get(),
+            String.class, false, false, true);
+
+
+
+  /**
    * The task property for the sign flag.
    */
   private static final TaskProperty PROPERTY_SIGN =
@@ -358,9 +415,21 @@ public final class ExportTask
 
 
   /**
+   * The task property that will be used for the maximum write rate in megabytes
+   * per second.
+   */
+  private static final TaskProperty PROPERTY_MAX_MEGABYTES_PER_SECOND =
+       new TaskProperty(ATTR_MAX_MEGABYTES_PER_SECOND,
+            INFO_DISPLAY_NAME_EXPORT_MAX_MEGABYTES_PER_SECOND.get(),
+            INFO_DESCRIPTION_EXPORT_MAX_MEGABYTES_PER_SECOND.get(),
+            Long.class, false, false, true);
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 5489855404880345160L;
+  private static final long serialVersionUID = -6807534587873728959L;
 
 
 
@@ -378,6 +447,9 @@ public final class ExportTask
 
   // The column at which to wrap long lines.
   private final int wrapColumn;
+
+  // The maximum write rate in megabytes per second.
+  private final Integer maxMegabytesPerSecond;
 
   // The set of attributes to exclude from the export.
   private final List<String> excludeAttributes;
@@ -400,6 +472,14 @@ public final class ExportTask
   // The backend ID of the backend to export.
   private final String backendID;
 
+  // The path to a file containing the passphrase to use to generate the
+  // encryption key.
+  private final String encryptionPassphraseFile;
+
+  // The identifier for the encryption settings definition to use to generate
+  // the encryption key.
+  private final String encryptionSettingsDefinitionID;
+
   // The path to the LDIF file to generate.
   private final String ldifFile;
 
@@ -413,19 +493,22 @@ public final class ExportTask
    */
   public ExportTask()
   {
-    appendToLDIF      = false;
-    compress          = false;
-    encrypt           = false;
-    sign              = false;
-    wrapColumn        = -1;
+    appendToLDIF = false;
+    compress = false;
+    encrypt = false;
+    sign = false;
+    wrapColumn = -1;
+    maxMegabytesPerSecond = null;
+    encryptionPassphraseFile = null;
+    encryptionSettingsDefinitionID = null;
     excludeAttributes = null;
-    excludeBranches   = null;
-    excludeFilters    = null;
+    excludeBranches = null;
+    excludeFilters = null;
     includeAttributes = null;
-    includeBranches   = null;
-    includeFilters    = null;
-    backendID         = null;
-    ldifFile          = null;
+    includeBranches = null;
+    includeFilters = null;
+    backendID = null;
+    ldifFile = null;
   }
 
 
@@ -530,19 +613,144 @@ public final class ExportTask
                     final List<String> notifyOnCompletion,
                     final List<String> notifyOnError)
   {
+    this(taskID, backendID, ldifFile, appendToLDIF, includeBranches,
+         excludeBranches, includeFilters, excludeFilters, includeAttributes,
+         excludeAttributes, wrapColumn, compress, encrypt, null, null, sign,
+         null, scheduledStartTime, dependencyIDs, failedDependencyAction,
+         notifyOnCompletion, notifyOnError);
+  }
+
+
+
+  /**
+   * Creates a new export task with the provided information.
+   *
+   * @param  taskID                          The task ID to use for this task.
+   *                                         If it is {@code null} then a UUID
+   *                                         will be generated for use as the
+   *                                         task ID.
+   * @param  backendID                       The backend ID of the backend to be
+   *                                         exported.  It must not be
+   *                                         {@code null}.
+   * @param  ldifFile                        The path to the LDIF file to be
+   *                                         written.  It may be an absolute
+   *                                         path or one that is relative to the
+   *                                         server root.  It must not be
+   *                                         {@code null}.
+   * @param  appendToLDIF                    Indicates whether to an append to
+   *                                         any existing file rather than
+   *                                         overwriting it.
+   * @param  includeBranches                 The set of base DNs of entries to
+   *                                         include in the export.  It may be
+   *                                         {@code null} or empty if no entries
+   *                                         should be excluded based on their
+   *                                         location.
+   * @param  excludeBranches                 The set of base DNs of entries to
+   *                                         exclude from the export.  It may be
+   *                                         {@code null} or empty if no entries
+   *                                         should be excluded based on their
+   *                                         location.
+   * @param  includeFilters                  The set of filters to use to match
+   *                                         entries that should be included in
+   *                                         the export.  It may be {@code null}
+   *                                         or empty if no entries should be
+   *                                         excluded based on their content.
+   * @param  excludeFilters                  The set of filters to use to match
+   *                                         entries that should be excluded
+   *                                         from the export.  It may be
+   *                                         {@code null} or empty if no entries
+   *                                         should be excluded based on their
+   *                                         content.
+   * @param  includeAttributes               The set of attributes that should
+   *                                         be included in exported entries.
+   *                                         It may be {@code null} or empty if
+   *                                         all attributes should be included.
+   * @param  excludeAttributes               The set of attributes that should
+   *                                         be excluded from exported entries.
+   *                                         It may be {@code null} or empty if
+   *                                         no attributes should be excluded.
+   * @param  wrapColumn                      The column at which long lines
+   *                                         should be wrapped.  It may be less
+   *                                         than or equal to zero to indicate
+   *                                         that long lines should not be
+   *                                         wrapped.
+   * @param  compress                        Indicates whether the LDIF data
+   *                                         should be compressed as it is
+   *                                         written.
+   * @param  encrypt                         Indicates whether the LDIF data
+   *                                         should be encrypted as it is
+   *                                         written.
+   * @param  encryptionPassphraseFile        The path to a file containing the
+   *                                         passphrase to use to generate the
+   *                                         encryption key.  It amy be
+   *                                         {@code null} if the LDIF file is
+   *                                         not to be encrypted, or if the key
+   *                                         should be obtained in some other
+   *                                         way.
+   * @param  encryptionSettingsDefinitionID  The ID of the encryption settings
+   *                                         definition use to generate the
+   *                                         encryption key.  It may be
+   *                                         {@code null} if the LDIF file is
+   *                                         not to be encrypted, or if the key
+   *                                         should be obtained in some other
+   *                                         way.
+   * @param  sign                            Indicates whether to include a
+   *                                         signed hash of the content in the
+   *                                         exported data.
+   * @param  maxMegabytesPerSecond           The maximum rate in megabytes per
+   *                                         second at which the LDIF file
+   *                                         should be written.
+   * @param  scheduledStartTime              The time that this task should
+   *                                         start running.
+   * @param  dependencyIDs                   The list of task IDs that will be
+   *                                         required to complete before this
+   *                                         task will be eligible to start.
+   * @param  failedDependencyAction          Indicates what action should be
+   *                                         taken if any of the dependencies
+   *                                         for this task do not complete
+   *                                         successfully.
+   * @param  notifyOnCompletion              The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         when this task completes.
+   * @param  notifyOnError                   The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         if this task does not complete
+   *                                         successfully.
+   */
+  public ExportTask(final String taskID, final String backendID,
+                    final String ldifFile, final boolean appendToLDIF,
+                    final List<String> includeBranches,
+                    final List<String> excludeBranches,
+                    final List<String> includeFilters,
+                    final List<String> excludeFilters,
+                    final List<String> includeAttributes,
+                    final List<String> excludeAttributes, final int wrapColumn,
+                    final boolean compress, final boolean encrypt,
+                    final String encryptionPassphraseFile,
+                    final String encryptionSettingsDefinitionID,
+                    final boolean sign, final Integer maxMegabytesPerSecond,
+                    final Date scheduledStartTime,
+                    final List<String> dependencyIDs,
+                    final FailedDependencyAction failedDependencyAction,
+                    final List<String> notifyOnCompletion,
+                    final List<String> notifyOnError)
+  {
     super(taskID, EXPORT_TASK_CLASS, scheduledStartTime,
           dependencyIDs, failedDependencyAction, notifyOnCompletion,
           notifyOnError);
 
     ensureNotNull(backendID, ldifFile);
 
-    this.backendID    = backendID;
-    this.ldifFile     = ldifFile;
+    this.backendID = backendID;
+    this.ldifFile = ldifFile;
     this.appendToLDIF = appendToLDIF;
-    this.wrapColumn   = wrapColumn;
-    this.compress     = compress;
-    this.encrypt      = encrypt;
-    this.sign         = sign;
+    this.wrapColumn = wrapColumn;
+    this.compress = compress;
+    this.encrypt = encrypt;
+    this.encryptionPassphraseFile = encryptionPassphraseFile;
+    this.encryptionSettingsDefinitionID = encryptionSettingsDefinitionID;
+    this.sign = sign;
+    this.maxMegabytesPerSecond = maxMegabytesPerSecond;
 
     if (includeBranches == null)
     {
@@ -690,8 +898,23 @@ public final class ExportTask
     encrypt = parseBooleanValue(entry, ATTR_ENCRYPT, false);
 
 
+    // Get the path to the encryption passphrase file.  It may be absent.
+    encryptionPassphraseFile =
+         entry.getAttributeValue(ATTR_ENCRYPTION_PASSPHRASE_FILE);
+
+
+    // Get the encryption settings definition ID.  It may be absent.
+    encryptionSettingsDefinitionID =
+         entry.getAttributeValue(ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID);
+
+
     // Get the sign flag.  It may be absent.
     sign = parseBooleanValue(entry, ATTR_SIGN, false);
+
+
+    // Get the maximum write rate in megabytes per second.  It may be absent.
+    maxMegabytesPerSecond =
+         entry.getAttributeValueAsInteger(ATTR_MAX_MEGABYTES_PER_SECOND);
   }
 
 
@@ -711,19 +934,22 @@ public final class ExportTask
   {
     super(EXPORT_TASK_CLASS, properties);
 
-    boolean  a  = false;
-    boolean  c  = false;
-    boolean  e  = false;
-    boolean  s  = false;
-    long     w  = 0;
-    String   b  = null;
-    String   l  = null;
-    String[] eA = StaticUtils.NO_STRINGS;
-    String[] eB = StaticUtils.NO_STRINGS;
-    String[] eF = StaticUtils.NO_STRINGS;
-    String[] iA = StaticUtils.NO_STRINGS;
-    String[] iB = StaticUtils.NO_STRINGS;
-    String[] iF = StaticUtils.NO_STRINGS;
+    boolean  a         = false;
+    boolean  c         = false;
+    boolean  e         = false;
+    boolean  s         = false;
+    Integer  maxMB     = null;
+    long     w         = 0;
+    String   b         = null;
+    String   encID     = null;
+    String   encPWFile = null;
+    String   l         = null;
+    String[] eA        = StaticUtils.NO_STRINGS;
+    String[] eB        = StaticUtils.NO_STRINGS;
+    String[] eF        = StaticUtils.NO_STRINGS;
+    String[] iA        = StaticUtils.NO_STRINGS;
+    String[] iB        = StaticUtils.NO_STRINGS;
+    String[] iF        = StaticUtils.NO_STRINGS;
 
     for (final Map.Entry<TaskProperty,List<Object>> entry :
          properties.entrySet())
@@ -780,9 +1006,30 @@ public final class ExportTask
       {
         e = parseBoolean(p, values, e);
       }
+      else if (attrName.equalsIgnoreCase(ATTR_ENCRYPTION_PASSPHRASE_FILE))
+      {
+        encPWFile = parseString(p, values, encPWFile);
+      }
+      else if (attrName.equalsIgnoreCase(
+           ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID))
+      {
+        encID = parseString(p, values, encID);
+      }
       else if (attrName.equalsIgnoreCase(ATTR_SIGN))
       {
         s = parseBoolean(p, values, s);
+      }
+      else if (attrName.equalsIgnoreCase(ATTR_MAX_MEGABYTES_PER_SECOND))
+      {
+        final Long maxMBLong = parseLong(p, values, null);
+        if (maxMBLong == null)
+        {
+          maxMB = null;
+        }
+        else
+        {
+          maxMB = maxMBLong.intValue();
+        }
       }
     }
 
@@ -798,19 +1045,22 @@ public final class ExportTask
                                    getTaskEntryDN()));
     }
 
-    backendID         = b;
-    ldifFile          = l;
-    appendToLDIF      = a;
+    backendID = b;
+    ldifFile = l;
+    appendToLDIF = a;
     includeAttributes = Collections.unmodifiableList(Arrays.asList(iA));
     excludeAttributes = Collections.unmodifiableList(Arrays.asList(eA));
-    includeBranches   = Collections.unmodifiableList(Arrays.asList(iB));
-    excludeBranches   = Collections.unmodifiableList(Arrays.asList(eB));
-    includeFilters    = Collections.unmodifiableList(Arrays.asList(iF));
-    excludeFilters    = Collections.unmodifiableList(Arrays.asList(eF));
-    wrapColumn        = (int) w;
-    compress          = c;
-    encrypt           = e;
-    sign              = s;
+    includeBranches = Collections.unmodifiableList(Arrays.asList(iB));
+    excludeBranches = Collections.unmodifiableList(Arrays.asList(eB));
+    includeFilters = Collections.unmodifiableList(Arrays.asList(iF));
+    excludeFilters = Collections.unmodifiableList(Arrays.asList(eF));
+    wrapColumn = (int) w;
+    compress = c;
+    encrypt = e;
+    encryptionPassphraseFile = encPWFile;
+    encryptionSettingsDefinitionID = encID;
+    sign = s;
+    maxMegabytesPerSecond = maxMB;
   }
 
 
@@ -1009,6 +1259,38 @@ public final class ExportTask
 
 
   /**
+   * Retrieves the path to a file that contains the passphrase to use to
+   * generate the encryption key.
+   *
+   * @return  The path to a file that contains the passphrase to use to
+   *          generate the encryption key, or {@code null} if the LDIF file
+   *          should not be encrypted or if the encryption key should be
+   *          obtained through some other means.
+   */
+  public String getEncryptionPassphraseFile()
+  {
+    return encryptionPassphraseFile;
+  }
+
+
+
+  /**
+   * Retrieves the identifier of the encryption settings definition to use to
+   * generate the encryption key.
+   *
+   * @return  The identifier of the encryption settings definition to use to
+   *          generate the encryption key, or {@code null} if the LDIF file
+   *          should not be encrypted or if the encryption key should be
+   *          obtained through some other means.
+   */
+  public String getEncryptionSettingsDefinitionID()
+  {
+    return encryptionSettingsDefinitionID;
+  }
+
+
+
+  /**
    * Indicates whether the exported LDIF data should include a signed hash.
    *
    * @return  {@code true} if the exported LDIF data should include a signed
@@ -1017,6 +1299,21 @@ public final class ExportTask
   public boolean sign()
   {
     return sign;
+  }
+
+
+
+  /**
+   * Retrieves the maximum rate, in megabytes per second, at which the LDIF file
+   * should be written.
+   *
+   * @return  The maximum rate, in megabytes per second, at which the LDIF file
+   *          should be written, or {@code null} if the writing should not be
+   *          rate limited.
+   */
+  public Integer getMaxMegabytesPerSecond()
+  {
+    return maxMegabytesPerSecond;
   }
 
 
@@ -1038,7 +1335,7 @@ public final class ExportTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(13);
+    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(20);
 
     attrs.add(new Attribute(ATTR_BACKEND_ID, backendID));
     attrs.add(new Attribute(ATTR_LDIF_FILE, ldifFile));
@@ -1082,6 +1379,24 @@ public final class ExportTask
       attrs.add(new Attribute(ATTR_WRAP_COLUMN, String.valueOf(wrapColumn)));
     }
 
+    if (encryptionPassphraseFile != null)
+    {
+      attrs.add(new Attribute(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+           encryptionPassphraseFile));
+    }
+
+    if (encryptionSettingsDefinitionID != null)
+    {
+      attrs.add(new Attribute(ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID,
+           encryptionSettingsDefinitionID));
+    }
+
+    if (maxMegabytesPerSecond != null)
+    {
+      attrs.add(new Attribute(ATTR_MAX_MEGABYTES_PER_SECOND,
+           String.valueOf(maxMegabytesPerSecond)));
+    }
+
     return attrs;
   }
 
@@ -1106,7 +1421,10 @@ public final class ExportTask
          PROPERTY_WRAP_COLUMN,
          PROPERTY_COMPRESS,
          PROPERTY_ENCRYPT,
-         PROPERTY_SIGN);
+         PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
+         PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID,
+         PROPERTY_SIGN,
+         PROPERTY_MAX_MEGABYTES_PER_SECOND);
 
     return Collections.unmodifiableList(propList);
   }
@@ -1160,8 +1478,42 @@ public final class ExportTask
     props.put(PROPERTY_ENCRYPT,
               Collections.<Object>unmodifiableList(Arrays.asList(encrypt)));
 
+    if (encryptionPassphraseFile == null)
+    {
+      props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE, Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              encryptionPassphraseFile)));
+    }
+
+    if (encryptionSettingsDefinitionID == null)
+    {
+      props.put(PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID,
+           Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              encryptionSettingsDefinitionID)));
+    }
+
     props.put(PROPERTY_SIGN,
               Collections.<Object>unmodifiableList(Arrays.asList(sign)));
+
+    if (maxMegabytesPerSecond == null)
+    {
+      props.put(PROPERTY_MAX_MEGABYTES_PER_SECOND, Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_MAX_MEGABYTES_PER_SECOND,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              maxMegabytesPerSecond.longValue())));
+    }
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

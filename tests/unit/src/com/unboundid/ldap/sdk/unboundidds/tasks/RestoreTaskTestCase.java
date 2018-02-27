@@ -69,6 +69,8 @@ public class RestoreTaskTestCase
 
     assertFalse(t.verifyOnly());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
     assertEquals(t.getAdditionalObjectClasses().get(0),
@@ -104,6 +106,8 @@ public class RestoreTaskTestCase
     assertNull(t.getBackupID());
 
     assertTrue(t.verifyOnly());
+
+    assertNull(t.getEncryptionPassphraseFile());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -165,6 +169,57 @@ public class RestoreTaskTestCase
 
     assertFalse(t.verifyOnly());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertNotNull(t.getAdditionalObjectClasses());
+    assertEquals(t.getAdditionalObjectClasses().size(), 1);
+    assertEquals(t.getAdditionalObjectClasses().get(0),
+                 "ds-task-restore");
+
+    assertNotNull(t.getAdditionalAttributes());
+    assertFalse(t.getAdditionalAttributes().isEmpty());
+
+    assertNotNull(t.createTaskEntry());
+  }
+
+
+
+  /**
+   * Tests the second constructor with valid values for all arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructor2bAll()
+         throws Exception
+  {
+    List<String> dependencyIDs = Arrays.asList("dep1", "dep2");
+    List<String> notifyOnCompletion = Arrays.asList("peon@example.com");
+    List<String> notifyOnError = Arrays.asList("admin@example.com");
+
+    Date d = new Date();
+
+    RestoreTask t = new RestoreTask("foo", "bak/userRoot", "my-backup", false,
+                                    "passphrase.txt", d, dependencyIDs,
+                                    FailedDependencyAction.CANCEL,
+                                    notifyOnCompletion, notifyOnError);
+
+    assertNotNull(t);
+
+    assertEquals(t.getTaskClassName(),
+                 "com.unboundid.directory.server.tasks.RestoreTask");
+
+    assertNotNull(t.getBackupDirectory());
+    assertEquals(t.getBackupDirectory(), "bak/userRoot");
+
+    assertNotNull(t.getBackupID());
+    assertEquals(t.getBackupID(), "my-backup");
+
+    assertFalse(t.verifyOnly());
+
+    assertNotNull(t.getEncryptionPassphraseFile());
+    assertEquals(t.getEncryptionPassphraseFile(), "passphrase.txt");
+
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
     assertEquals(t.getAdditionalObjectClasses().get(0),
@@ -201,6 +256,8 @@ public class RestoreTaskTestCase
     assertNull(t.getBackupID());
 
     assertTrue(t.verifyOnly());
+
+    assertNull(t.getEncryptionPassphraseFile());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -289,6 +346,7 @@ public class RestoreTaskTestCase
                   "ds-backup-directory-path: bak/userRoot",
                   "ds-backup-id: my-backup",
                   "ds-verify-only: false",
+                  "ds-task-restore-encryption-passphrase-file: passphrase.txt",
                   "ds-task-scheduled-start-time: 20080101000000Z",
                   "ds-task-actual-start-time: 20080101000000Z",
                   "ds-task-completion-time: 20080101010101Z",
@@ -432,6 +490,10 @@ public class RestoreTaskTestCase
       {
         properties.put(p, Arrays.<Object>asList(Boolean.TRUE));
       }
+      else if (name.equals("ds-task-restore-encryption-passphrase-file"))
+      {
+        properties.put(p, Arrays.<Object>asList("passphrase.txt"));
+      }
     }
 
     RestoreTask t = new RestoreTask(properties);
@@ -443,6 +505,9 @@ public class RestoreTaskTestCase
     assertEquals(t.getBackupID(), "foo");
 
     assertTrue(t.verifyOnly());
+
+    assertNotNull(t.getEncryptionPassphraseFile());
+    assertEquals(t.getEncryptionPassphraseFile(), "passphrase.txt");
 
     Map<TaskProperty,List<Object>> props = t.getTaskPropertyValues();
     for (TaskProperty p : Task.getCommonTaskProperties())

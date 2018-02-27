@@ -94,6 +94,8 @@ import static com.unboundid.util.Validator.*;
  *       encrypted.</LI>
  *   <LI>A flag that indicates whether to skip schema validation for the data
  *       that is imported.</LI>
+ *   <LI>The path to a file containing a passphrase to use to generate the
+ *       encryption key.</LI>
  * </UL>
  */
 @NotMutable()
@@ -133,6 +135,15 @@ public final class ImportTask
    */
   private static final String ATTR_CLEAR_BACKEND =
        "ds-task-import-clear-backend";
+
+
+
+  /**
+   * The name of the attribute used to specify the path to a file that contains
+   * the passphrase to use to generate the encryption key.
+   */
+  private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+       "ds-task-import-encryption-passphrase-file";
 
 
 
@@ -422,6 +433,17 @@ public final class ImportTask
 
 
   /**
+   * The task property that will be used for the encryption passphrase file.
+   */
+  private static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
+       new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+            INFO_DISPLAY_NAME_ENCRYPTION_PASSPHRASE_FILE.get(),
+            INFO_DESCRIPTION_ENCRYPTION_PASSPHRASE_FILE.get(),
+            String.class, false, false, true);
+
+
+
+  /**
    * The task property for the skip schema validation flag.
    */
   private static final TaskProperty PROPERTY_SKIP_SCHEMA_VALIDATION =
@@ -453,7 +475,7 @@ public final class ImportTask
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -8451067488894354839L;
+  private static final long serialVersionUID = 9114913680318281750L;
 
 
 
@@ -506,6 +528,10 @@ public final class ImportTask
   // The backend ID of the backend to import.
   private final String backendID;
 
+  // The path to a file containing the passphrase to use to generate the
+  // encryption key.
+  private final String encryptionPassphraseFile;
+
   // The path to the reject file to write.
   private final String rejectFile;
 
@@ -519,23 +545,24 @@ public final class ImportTask
    */
   public ImportTask()
   {
-    append               = false;
-    clearBackend         = false;
-    isCompressed         = false;
-    isEncrypted          = false;
-    overwriteRejects     = false;
-    replaceExisting      = false;
+    append = false;
+    clearBackend = false;
+    isCompressed = false;
+    isEncrypted = false;
+    overwriteRejects = false;
+    replaceExisting = false;
     skipSchemaValidation = false;
-    stripTrailingSpaces  = false;
-    excludeAttributes    = null;
-    excludeBranches      = null;
-    excludeFilters       = null;
-    includeAttributes    = null;
-    includeBranches      = null;
-    includeFilters       = null;
-    ldifFiles            = null;
-    backendID            = null;
-    rejectFile           = null;
+    stripTrailingSpaces = false;
+    encryptionPassphraseFile = null;
+    excludeAttributes = null;
+    excludeBranches = null;
+    excludeFilters = null;
+    includeAttributes = null;
+    includeBranches = null;
+    includeFilters = null;
+    ldifFiles = null;
+    backendID = null;
+    rejectFile = null;
   }
 
 
@@ -789,6 +816,134 @@ public final class ImportTask
                     final List<String> notifyOnCompletion,
                     final List<String> notifyOnError)
   {
+    this(taskID, ldifFiles, backendID, append, replaceExisting, rejectFile,
+         overwriteRejects, clearBackend, includeBranches, excludeBranches,
+         includeFilters, excludeFilters, includeAttributes, excludeAttributes,
+         isCompressed, isEncrypted, null, skipSchemaValidation,
+         stripTrailingSpaces, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, notifyOnCompletion, notifyOnError);
+  }
+
+
+
+  /**
+   * Creates a new import task with the provided information.
+   *
+   * @param  taskID                    The task ID to use for this task.  If it
+   *                                   is {@code null} then a UUID will be
+   *                                   generated for use as the task ID.
+   * @param  ldifFiles                 The paths to the LDIF file containing the
+   *                                   data to be imported.  The paths may be
+   *                                   either absolute or relative to the server
+   *                                   install root.  It must not be
+   *                                   {@code null} or empty.
+   * @param  backendID                 The backend ID of the backend into which
+   *                                   the data should be imported.  It may be
+   *                                   {@code null} only if one or more include
+   *                                   branches was specified.
+   * @param  append                    Indicates whether to append to the
+   *                                   existing data rather than overwriting it.
+   * @param  replaceExisting           Indicates whether to replace existing
+   *                                   entries when appending to the database.
+   * @param  rejectFile                The path to a file into which
+   *                                   information will be written about
+   *                                   rejected entries.  It may be {@code null}
+   *                                   if no reject file is to be maintained.
+   * @param  overwriteRejects          Indicates whether to overwrite an
+   *                                   existing rejects file rather than
+   *                                   appending to it.
+   * @param  clearBackend              Indicates whether to clear data below all
+   *                                   base DNs in the backend.  It must be
+   *                                   {@code true} if the backend was specified
+   *                                   using a backend ID and no include
+   *                                   branches are specified and {@code append}
+   *                                   is {@code false}.  If include branches
+   *                                   were specified, or if data is being
+   *                                   appended to the backend, then it may be
+   *                                   either {@code true} or {@code false}.
+   * @param  includeBranches           The set of base DNs below which to import
+   *                                   the data.  It may be {@code null} or
+   *                                   empty if a backend ID was specified and
+   *                                   data should be imported below all base
+   *                                   DNs defined in the backend.  Otherwise,
+   *                                   at least one include branch must be
+   *                                   provided, and any data not under one of
+   *                                   the include branches will be excluded
+   *                                   from the import.  All include branches
+   *                                   must be within the scope of the same
+   *                                   backend.
+   * @param  excludeBranches           The set of base DNs to exclude from the
+   *                                   import.  It may be {@code null} or empty
+   *                                   if no data is to be excluded based on its
+   *                                   location.
+   * @param  includeFilters            The set of filters to use to determine
+   *                                   which entries should be included in the
+   *                                   import.  It may be {@code null} or empty
+   *                                   if no data is to be excluded based on its
+   *                                   content.
+   * @param  excludeFilters            The set of filters to use to determine
+   *                                   which entries should be excluded from the
+   *                                   import.  It may be {@code null} or empty
+   *                                   if no data is to be excluded based on its
+   *                                   content.
+   * @param  includeAttributes         The set of attributes to include in the
+   *                                   entries being imported.  It may be
+   *                                   {@code null} or empty if no attributes
+   *                                   should be excluded from the import.
+   * @param  excludeAttributes         The set of attributes to exclude from the
+   *                                   entries being imported.  It may be
+   *                                   {@code null} or empty if no attributes
+   *                                   should be excluded from the import.
+   * @param  isCompressed              Indicates whether the data in the LDIF
+   *                                   file(s) is compressed.
+   * @param  isEncrypted               Indicates whether the data in the LDIF
+   *                                   file(s) is encrypted.
+   * @param  encryptionPassphraseFile  The path to a file containing the
+   *                                   passphrase to use to generate the
+   *                                   encryption key.  It amy be {@code null}
+   *                                   if the backup is not to be encrypted, or
+   *                                   if the key should be obtained in some
+   *                                   other way.
+   * @param  skipSchemaValidation      Indicates whether to skip schema
+   *                                   validation during the import.
+   * @param  stripTrailingSpaces       Indicates whether to strip illegal
+   *                                   trailing spaces found in LDIF records
+   *                                   rather than rejecting those records.
+   * @param  scheduledStartTime        The time that this task should start
+   *                                   running.
+   * @param  dependencyIDs             The list of task IDs that will be
+   *                                   required to complete before this task
+   *                                   will be eligible to start.
+   * @param  failedDependencyAction    Indicates what action should be taken if
+   *                                   any of the dependencies for this task do
+   *                                   not complete successfully.
+   * @param  notifyOnCompletion        The list of e-mail addresses of
+   *                                   individuals that should be notified when
+   *                                   this task completes.
+   * @param  notifyOnError             The list of e-mail addresses of
+   *                                   individuals that should be notified if
+   *                                   this task does not complete successfully.
+   */
+  public ImportTask(final String taskID, final List<String> ldifFiles,
+                    final String backendID, final boolean append,
+                    final boolean replaceExisting, final String rejectFile,
+                    final boolean overwriteRejects, final boolean clearBackend,
+                    final List<String> includeBranches,
+                    final List<String> excludeBranches,
+                    final List<String> includeFilters,
+                    final List<String> excludeFilters,
+                    final List<String> includeAttributes,
+                    final List<String> excludeAttributes,
+                    final boolean isCompressed, final boolean isEncrypted,
+                    final String encryptionPassphraseFile,
+                    final boolean skipSchemaValidation,
+                    final boolean stripTrailingSpaces,
+                    final Date scheduledStartTime,
+                    final List<String> dependencyIDs,
+                    final FailedDependencyAction failedDependencyAction,
+                    final List<String> notifyOnCompletion,
+                    final List<String> notifyOnError)
+  {
     super(taskID, IMPORT_TASK_CLASS, scheduledStartTime,
           dependencyIDs, failedDependencyAction, notifyOnCompletion,
           notifyOnError);
@@ -801,17 +956,18 @@ public final class ImportTask
     ensureTrue(clearBackend || append ||
                 ((includeBranches != null) && (! includeBranches.isEmpty())));
 
-    this.ldifFiles            = Collections.unmodifiableList(ldifFiles);
-    this.backendID            = backendID;
-    this.append               = append;
-    this.replaceExisting      = replaceExisting;
-    this.rejectFile           = rejectFile;
-    this.overwriteRejects     = overwriteRejects;
-    this.clearBackend         = clearBackend;
-    this.isCompressed         = isCompressed;
-    this.isEncrypted          = isEncrypted;
+    this.ldifFiles = Collections.unmodifiableList(ldifFiles);
+    this.backendID = backendID;
+    this.append = append;
+    this.replaceExisting = replaceExisting;
+    this.rejectFile = rejectFile;
+    this.overwriteRejects = overwriteRejects;
+    this.clearBackend = clearBackend;
+    this.isCompressed = isCompressed;
+    this.isEncrypted = isEncrypted;
+    this.encryptionPassphraseFile = encryptionPassphraseFile;
     this.skipSchemaValidation = skipSchemaValidation;
-    this.stripTrailingSpaces  = stripTrailingSpaces;
+    this.stripTrailingSpaces = stripTrailingSpaces;
 
     if (includeBranches == null)
     {
@@ -952,6 +1108,11 @@ public final class ImportTask
     isEncrypted = parseBooleanValue(entry, ATTR_IS_ENCRYPTED, false);
 
 
+    // Get the path to the encryption passphrase file.  It may be absent.
+    encryptionPassphraseFile =
+         entry.getAttributeValue(ATTR_ENCRYPTION_PASSPHRASE_FILE);
+
+
     // Get the skipSchemaValidation flag.  It may be absent.
     skipSchemaValidation = parseBooleanValue(entry, ATTR_SKIP_SCHEMA_VALIDATION,
                                              false);
@@ -988,6 +1149,7 @@ public final class ImportTask
     boolean  ss = false;
     boolean  st = false;
     String   b  = null;
+    String   pF = null;
     String   rF = null;
     String[] eA = StaticUtils.NO_STRINGS;
     String[] eB = StaticUtils.NO_STRINGS;
@@ -1064,6 +1226,10 @@ public final class ImportTask
       {
         e = parseBoolean(p, values, e);
       }
+      else if (attrName.equalsIgnoreCase(ATTR_ENCRYPTION_PASSPHRASE_FILE))
+      {
+        pF = parseString(p, values, pF);
+      }
       else if (attrName.equalsIgnoreCase(ATTR_SKIP_SCHEMA_VALIDATION))
       {
         ss = parseBoolean(p, values, ss);
@@ -1087,23 +1253,24 @@ public final class ImportTask
                                    getTaskEntryDN()));
     }
 
-    backendID            = b;
-    ldifFiles            = Collections.unmodifiableList(Arrays.asList(l));
-    append               = a;
-    replaceExisting      = r;
-    rejectFile           = rF;
-    overwriteRejects     = o;
-    clearBackend         = cB;
-    includeAttributes    = Collections.unmodifiableList(Arrays.asList(iA));
-    excludeAttributes    = Collections.unmodifiableList(Arrays.asList(eA));
-    includeBranches      = Collections.unmodifiableList(Arrays.asList(iB));
-    excludeBranches      = Collections.unmodifiableList(Arrays.asList(eB));
-    includeFilters       = Collections.unmodifiableList(Arrays.asList(iF));
-    excludeFilters       = Collections.unmodifiableList(Arrays.asList(eF));
-    isCompressed         = c;
-    isEncrypted          = e;
+    backendID = b;
+    ldifFiles = Collections.unmodifiableList(Arrays.asList(l));
+    append = a;
+    replaceExisting = r;
+    rejectFile = rF;
+    overwriteRejects = o;
+    clearBackend = cB;
+    includeAttributes = Collections.unmodifiableList(Arrays.asList(iA));
+    excludeAttributes = Collections.unmodifiableList(Arrays.asList(eA));
+    includeBranches = Collections.unmodifiableList(Arrays.asList(iB));
+    excludeBranches = Collections.unmodifiableList(Arrays.asList(eB));
+    includeFilters = Collections.unmodifiableList(Arrays.asList(iF));
+    excludeFilters = Collections.unmodifiableList(Arrays.asList(eF));
+    isCompressed = c;
+    isEncrypted = e;
+    encryptionPassphraseFile = pF;
     skipSchemaValidation = ss;
-    stripTrailingSpaces  = st;
+    stripTrailingSpaces = st;
   }
 
 
@@ -1348,6 +1515,22 @@ public final class ImportTask
 
 
   /**
+   * Retrieves the path to a file that contains the passphrase to use to
+   * generate the encryption key.
+   *
+   * @return  The path to a file that contains the passphrase to use to
+   *          generate the encryption key, or {@code null} if the LDIF file is
+   *          not encrypted or if the encryption key should be obtained through
+   *          some other means.
+   */
+  public String getEncryptionPassphraseFile()
+  {
+    return encryptionPassphraseFile;
+  }
+
+
+
+  /**
    * Indicates whether the server should skip schema validation processing when
    * performing the import.
    *
@@ -1393,7 +1576,7 @@ public final class ImportTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(16);
+    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(20);
 
     attrs.add(new Attribute(ATTR_LDIF_FILE, ldifFiles));
     attrs.add(new Attribute(ATTR_APPEND, String.valueOf(append)));
@@ -1453,6 +1636,12 @@ public final class ImportTask
       attrs.add(new Attribute(ATTR_EXCLUDE_FILTER, excludeFilters));
     }
 
+    if (encryptionPassphraseFile != null)
+    {
+      attrs.add(new Attribute(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+           encryptionPassphraseFile));
+    }
+
     return attrs;
   }
 
@@ -1480,6 +1669,7 @@ public final class ImportTask
          PROPERTY_EXCLUDE_ATTRIBUTE,
          PROPERTY_IS_COMPRESSED,
          PROPERTY_IS_ENCRYPTED,
+         PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
          PROPERTY_SKIP_SCHEMA_VALIDATION,
          PROPERTY_STRIP_TRAILING_SPACES);
 
@@ -1561,6 +1751,17 @@ public final class ImportTask
     props.put(PROPERTY_IS_ENCRYPTED,
               Collections.<Object>unmodifiableList(Arrays.asList(
                    isEncrypted)));
+
+    if (encryptionPassphraseFile == null)
+    {
+      props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE, Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              encryptionPassphraseFile)));
+    }
 
     props.put(PROPERTY_SKIP_SCHEMA_VALIDATION,
               Collections.<Object>unmodifiableList(Arrays.asList(

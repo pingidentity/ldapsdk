@@ -36,6 +36,7 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.args.DurationArgument;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
 import static com.unboundid.util.Validator.*;
@@ -80,6 +81,14 @@ import static com.unboundid.util.Validator.*;
  *       as a checksum for verifying the integrity of the backup.</LI>
  *   <LI>A flag that indicates whether to sign the backup hash in order to
  *       prevent anyone from tampering with it.</LI>
+ *   <LI>The path to a file containing a passphrase to use to generate the
+ *       encryption key.</LI>
+ *   <LI>The ID of the encryption settings definition to use to generate the
+ *       encryption key.</LI>
+ *   <LI>The maximum rate in megabytes per second at which the backup should be
+ *       written.</LI>
+ *   <LI>The minimum number of previous full backups to retain.</LI>
+ *   <LI>The minimum age of previous full backups to retain.</LI>
  * </UL>
 
  */
@@ -144,6 +153,25 @@ public final class BackupTask
 
 
   /**
+   * The name of the attribute used to specify the path to a file that contains
+   * the passphrase to use to generate the encryption key.
+   */
+  private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+       "ds-task-backup-encryption-passphrase-file";
+
+
+
+  /**
+   * The name of the attribute used to specify the path to a file that contains
+   * the ID of the encryption settings definition to use to generate the
+   * encryption key.
+   */
+  private static final String ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID =
+       "ds-task-backup-encryption-settings-definition-id";
+
+
+
+  /**
    * The name of the attribute used to indicate whether to create a hash of the
    * backup.
    */
@@ -169,6 +197,33 @@ public final class BackupTask
 
 
   /**
+   * The name of the attribute used to specify the maximum backup write rate in
+   * megabytes per second.
+   */
+  private static final String ATTR_MAX_MEGABYTES_PER_SECOND =
+       "ds-task-backup-max-megabytes-per-second";
+
+
+
+  /**
+   * The name of the attribute used to specify the minimum age of previous full
+   * backups to retain.
+   */
+  private static final String ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE =
+       "ds-task-backup-retain-previous-full-backup-age";
+
+
+
+  /**
+   * The name of the attribute used to specify the number of previous full
+   * backups to retain.
+   */
+  private static final String ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT =
+       "ds-task-backup-retain-previous-full-backup-count";
+
+
+
+  /**
    * The name of the attribute used to indicate whether to sign the hash of the
    * backup.
    */
@@ -188,9 +243,9 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_BACKUP_DIRECTORY =
        new TaskProperty(ATTR_BACKUP_DIRECTORY,
-                        INFO_DISPLAY_NAME_BACKUP_DIRECTORY.get(),
-                        INFO_DESCRIPTION_BACKUP_DIRECTORY_BACKUP.get(),
-                        String.class, true, false, false);
+            INFO_DISPLAY_NAME_BACKUP_DIRECTORY.get(),
+            INFO_DESCRIPTION_BACKUP_DIRECTORY_BACKUP.get(),
+            String.class, true, false, false);
 
 
 
@@ -199,8 +254,8 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_BACKEND_ID =
        new TaskProperty(ATTR_BACKEND_ID, INFO_DISPLAY_NAME_BACKEND_ID.get(),
-                        INFO_DESCRIPTION_BACKEND_ID_BACKUP.get(), String.class,
-                        false, true, false);
+            INFO_DESCRIPTION_BACKEND_ID_BACKUP.get(), String.class, false, true,
+            false);
 
 
 
@@ -209,8 +264,8 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_BACKUP_ID =
        new TaskProperty(ATTR_BACKUP_ID, INFO_DISPLAY_NAME_BACKUP_ID.get(),
-                        INFO_DESCRIPTION_BACKUP_ID_BACKUP.get(), String.class,
-                        false, false, true);
+            INFO_DESCRIPTION_BACKUP_ID_BACKUP.get(), String.class, false, false,
+            true);
 
 
 
@@ -219,8 +274,8 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_INCREMENTAL =
        new TaskProperty(ATTR_INCREMENTAL, INFO_DISPLAY_NAME_INCREMENTAL.get(),
-                        INFO_DESCRIPTION_INCREMENTAL.get(), Boolean.class,
-                        false, false, false);
+            INFO_DESCRIPTION_INCREMENTAL.get(), Boolean.class, false, false,
+            false);
 
 
 
@@ -229,9 +284,9 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_INCREMENTAL_BASE_ID =
        new TaskProperty(ATTR_INCREMENTAL_BASE_ID,
-                        INFO_DISPLAY_NAME_INCREMENTAL_BASE_ID.get(),
-                        INFO_DESCRIPTION_INCREMENTAL_BASE_ID.get(),
-                        String.class, false, false, true);
+            INFO_DISPLAY_NAME_INCREMENTAL_BASE_ID.get(),
+            INFO_DESCRIPTION_INCREMENTAL_BASE_ID.get(), String.class, false,
+            false, true);
 
 
 
@@ -240,8 +295,8 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_COMPRESS =
        new TaskProperty(ATTR_COMPRESS, INFO_DISPLAY_NAME_COMPRESS.get(),
-                        INFO_DESCRIPTION_COMPRESS_BACKUP.get(), Boolean.class,
-                        false, false, false);
+            INFO_DESCRIPTION_COMPRESS_BACKUP.get(), Boolean.class, false, false,
+            false);
 
 
 
@@ -250,8 +305,31 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_ENCRYPT =
        new TaskProperty(ATTR_ENCRYPT, INFO_DISPLAY_NAME_ENCRYPT.get(),
-                        INFO_DESCRIPTION_ENCRYPT_BACKUP.get(), Boolean.class,
-                        false, false, false);
+            INFO_DESCRIPTION_ENCRYPT_BACKUP.get(), Boolean.class, false, false,
+            false);
+
+
+
+  /**
+   * The task property that will be used for the encryption passphrase file.
+   */
+  private static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
+       new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+            INFO_DISPLAY_NAME_ENCRYPTION_PASSPHRASE_FILE.get(),
+            INFO_DESCRIPTION_ENCRYPTION_PASSPHRASE_FILE.get(),
+            String.class, false, false, true);
+
+
+
+  /**
+   * The task property that will be used for the encryption settings definition
+   * ID.
+   */
+  private static final TaskProperty PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID =
+       new TaskProperty(ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID,
+            INFO_DISPLAY_NAME_ENCRYPTION_SETTINGS_DEFINITION_ID.get(),
+            INFO_DESCRIPTION_ENCRYPTION_SETTINGS_DEFINITION_ID.get(),
+            String.class, false, false, true);
 
 
 
@@ -260,8 +338,8 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_HASH =
        new TaskProperty(ATTR_HASH, INFO_DISPLAY_NAME_HASH.get(),
-                        INFO_DESCRIPTION_HASH_BACKUP.get(), Boolean.class,
-                        false, false, false);
+            INFO_DESCRIPTION_HASH_BACKUP.get(), Boolean.class, false, false,
+            false);
 
 
 
@@ -270,16 +348,51 @@ public final class BackupTask
    */
   private static final TaskProperty PROPERTY_SIGN_HASH =
        new TaskProperty(ATTR_SIGN_HASH, INFO_DISPLAY_NAME_SIGN_HASH.get(),
-                        INFO_DESCRIPTION_SIGN_HASH_BACKUP.get(), Boolean.class,
-                        false, false, false);
+            INFO_DESCRIPTION_SIGN_HASH_BACKUP.get(), Boolean.class, false,
+            false, false);
 
+
+
+  /**
+   * The task property that will be used for the maximum write rate in megabytes
+   * per second.
+   */
+  private static final TaskProperty PROPERTY_MAX_MEGABYTES_PER_SECOND =
+       new TaskProperty(ATTR_MAX_MEGABYTES_PER_SECOND,
+            INFO_DISPLAY_NAME_BACKUP_MAX_MEGABYTES_PER_SECOND.get(),
+            INFO_DESCRIPTION_BACKUP_MAX_MEGABYTES_PER_SECOND.get(),
+            Long.class, false, false, true);
+
+
+
+  /**
+   * The task property that will be used for the retain previous full backup
+   * age.
+   */
+  private static final TaskProperty PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_AGE =
+       new TaskProperty(ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE,
+            INFO_DISPLAY_NAME_BACKUP_RETAIN_AGE.get(),
+            INFO_DESCRIPTION_BACKUP_RETAIN_AGE.get(),
+            String.class, false, false, true);
+
+
+
+  /**
+   * The task property that will be used for the retain previous full backup
+   * count.
+   */
+  private static final TaskProperty PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_COUNT =
+       new TaskProperty(ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT,
+            INFO_DISPLAY_NAME_BACKUP_RETAIN_COUNT.get(),
+            INFO_DESCRIPTION_BACKUP_RETAIN_COUNT.get(),
+            Long.class, false, false, true);
 
 
 
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 8680226715226034105L;
+  private static final long serialVersionUID = 2637190942057174423L;
 
 
 
@@ -298,6 +411,12 @@ public final class BackupTask
   // Indicates whether to perform an incremental backup.
   private final boolean incremental;
 
+  // The maximum backup write rate in megabytes per second.
+  private final Integer maxMegabytesPerSecond;
+
+  // The retain previous full backup count.
+  private final Integer retainPreviousFullBackupCount;
+
   // The backend IDs of the backends to back up.
   private final List<String> backendIDs;
 
@@ -307,8 +426,19 @@ public final class BackupTask
   // The backup ID to use for the backup.
   private final String backupID;
 
+  // The path to a file containing the passphrase to use to generate the
+  // encryption key.
+  private final String encryptionPassphraseFile;
+
+  // The identifier for the encryption settings definition to use to generate
+  // the encryption key.
+  private final String encryptionSettingsDefinitionID;
+
   // The backup ID of the backup to use as the base for the incremental backup.
   private final String incrementalBaseID;
+
+  // The retain previous full backup age.
+  private final String retainPreviousFullBackupAge;
 
 
 
@@ -320,15 +450,20 @@ public final class BackupTask
    */
   public BackupTask()
   {
-    compress          = false;
-    encrypt           = false;
-    hash              = false;
-    signHash          = false;
-    incremental       = false;
-    backendIDs        = null;
-    backupDirectory   = null;
-    backupID          = null;
+    compress = false;
+    encrypt = false;
+    hash = false;
+    signHash = false;
+    incremental = false;
+    maxMegabytesPerSecond = null;
+    retainPreviousFullBackupCount = null;
+    backendIDs = null;
+    backupDirectory = null;
+    backupID = null;
+    encryptionPassphraseFile = null;
+    encryptionSettingsDefinitionID = null;
     incrementalBaseID = null;
+    retainPreviousFullBackupAge = null;
   }
 
 
@@ -425,20 +560,135 @@ public final class BackupTask
                     final List<String> notifyOnCompletion,
                     final List<String> notifyOnError)
   {
+    this(taskID, backupDirectory, backendIDs, backupID, incremental,
+         incrementalBaseID, compress, encrypt, null, null, hash, signHash,
+         null, null, null, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, notifyOnCompletion, notifyOnError);
+  }
+
+
+
+  /**
+   * Creates a new restore task with the provided information.
+   *
+   * @param  taskID                          The task ID to use for this task.
+   *                                         If it is {@code null} then a UUID
+   *                                         will be generated for use as the
+   *                                         task ID.
+   * @param  backupDirectory                 The path to the directory on the
+   *                                         server into which the backup should
+   *                                         be written.  If a single backend is
+   *                                         to be archived, then this should be
+   *                                         the path to the specific backup
+   *                                         directory for that backend.  If
+   *                                         multiple backends are to be
+   *                                         archived, then this should be the
+   *                                         parent of the directories for each
+   *                                         of the backends.  It must not be
+   *                                         {@code null}.
+   * @param  backendIDs                      A list of the backend IDs of the
+   *                                         backends to archive.  It may be
+   *                                         {@code null} or empty if all
+   *                                         supported backends should be
+   *                                         archived.
+   * @param  backupID                        The backup ID to use for this
+   *                                         backup.  It may be {@code null} to
+   *                                         indicate that the server should
+   *                                         generate the backup ID.
+   * @param  incremental                     Indicates whether to perform an
+   *                                         incremental backup rather than a
+   *                                         full backup.
+   * @param  incrementalBaseID               The backup ID of the existing
+   *                                         backup on which to base the
+   *                                         incremental backup.  It may be
+   *                                         {@code null} if this is not an
+   *                                         incremental backup or if it should
+   *                                         be based on the most recent backup.
+   * @param  compress                        Indicates whether the backup should
+   *                                         be compressed.
+   * @param  encrypt                         Indicates whether the backup should
+   *                                         be encrypted.
+   * @param  encryptionPassphraseFile        The path to a file containing the
+   *                                         passphrase to use to generate the
+   *                                         encryption key.  It amy be
+   *                                         {@code null} if the backup is not
+   *                                         to be encrypted, or if the key
+   *                                         should be obtained in some other
+   *                                         way.
+   * @param  encryptionSettingsDefinitionID  The ID of the encryption settings
+   *                                         definition use to generate the
+   *                                         encryption key.  It may be
+   *                                         {@code null} if the backup is not
+   *                                         to be encrypted, or if the key
+   *                                         should be obtained in some other
+   *                                         way.
+   * @param  hash                            Indicates whether to generate a
+   *                                         hash of the backup contents.
+   * @param  signHash                        Indicates whether to sign the hash
+   *                                         of the backup contents.
+   * @param  maxMegabytesPerSecond           The maximum rate in megabytes per
+   *                                         second at which the backup should
+   *                                         be written.
+   * @param  retainPreviousFullBackupCount   The minimum number of previous
+   *                                         backups to retain.
+   * @param  retainPreviousFullBackupAge     A string representation of the
+   *                                         minimum age of previous backups to
+   *                                         retain.  The age should be
+   *                                         formatted in the same way as values
+   *                                         for the {@link DurationArgument}
+   *                                         class.
+   * @param  scheduledStartTime              The time that this task should
+   *                                         start running.
+   * @param  dependencyIDs                   The list of task IDs that will be
+   *                                         required to complete before this
+   *                                         task will be eligible to start.
+   * @param  failedDependencyAction          Indicates what action should be
+   *                                         taken if any of the dependencies
+   *                                         for this task do not complete
+   *                                         successfully.
+   * @param  notifyOnCompletion              The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         when this task completes.
+   * @param  notifyOnError                   The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         if this task does not complete
+   *                                         successfully.
+   */
+  public BackupTask(final String taskID, final String backupDirectory,
+                    final List<String> backendIDs, final String backupID,
+                    final boolean incremental, final String incrementalBaseID,
+                    final boolean compress, final boolean encrypt,
+                    final String encryptionPassphraseFile,
+                    final String encryptionSettingsDefinitionID,
+                    final boolean hash, final boolean signHash,
+                    final Integer maxMegabytesPerSecond,
+                    final Integer retainPreviousFullBackupCount,
+                    final String retainPreviousFullBackupAge,
+                    final Date scheduledStartTime,
+                    final List<String> dependencyIDs,
+                    final FailedDependencyAction failedDependencyAction,
+                    final List<String> notifyOnCompletion,
+                    final List<String> notifyOnError)
+  {
     super(taskID, BACKUP_TASK_CLASS, scheduledStartTime,
           dependencyIDs, failedDependencyAction, notifyOnCompletion,
           notifyOnError);
 
     ensureNotNull(backupDirectory);
 
-    this.backupDirectory   = backupDirectory;
-    this.backupID          = backupID;
-    this.incremental       = incremental;
+    this.backupDirectory = backupDirectory;
+    this.backupID = backupID;
+    this.incremental = incremental;
     this.incrementalBaseID = incrementalBaseID;
-    this.compress          = compress;
-    this.encrypt           = encrypt;
-    this.hash              = hash;
-    this.signHash          = signHash;
+    this.compress = compress;
+    this.encrypt = encrypt;
+    this.encryptionPassphraseFile = encryptionPassphraseFile;
+    this.encryptionSettingsDefinitionID = encryptionSettingsDefinitionID;
+    this.hash = hash;
+    this.signHash = signHash;
+    this.maxMegabytesPerSecond = maxMegabytesPerSecond;
+    this.retainPreviousFullBackupCount = retainPreviousFullBackupCount;
+    this.retainPreviousFullBackupAge = retainPreviousFullBackupAge;
 
     if (backendIDs == null)
     {
@@ -499,12 +749,37 @@ public final class BackupTask
     encrypt = parseBooleanValue(entry, ATTR_ENCRYPT, false);
 
 
+    // Get the path to the encryption passphrase file.  It may be absent.
+    encryptionPassphraseFile =
+         entry.getAttributeValue(ATTR_ENCRYPTION_PASSPHRASE_FILE);
+
+
+    // Get the encryption settings definition ID.  It may be absent.
+    encryptionSettingsDefinitionID =
+         entry.getAttributeValue(ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID);
+
+
     // Determine whether to hash the backup.  It may be absent.
     hash = parseBooleanValue(entry, ATTR_HASH, false);
 
 
     // Determine whether to sign the hash.  It may be absent.
     signHash = parseBooleanValue(entry, ATTR_SIGN_HASH, false);
+
+
+    // Get the maximum write rate in megabytes per second.  It may be absent.
+    maxMegabytesPerSecond =
+         entry.getAttributeValueAsInteger(ATTR_MAX_MEGABYTES_PER_SECOND);
+
+
+    // Get the retain previous full backup count.  It may be absent.
+    retainPreviousFullBackupCount = entry.getAttributeValueAsInteger(
+         ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT);
+
+
+    // Get the retain previous full backup age.  It may be absent.
+    retainPreviousFullBackupAge = entry.getAttributeValue(
+         ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE);
   }
 
 
@@ -524,15 +799,20 @@ public final class BackupTask
   {
     super(BACKUP_TASK_CLASS, properties);
 
-    boolean  c     = false;
-    boolean  e     = false;
-    boolean  h     = false;
-    boolean  i     = false;
-    boolean  s     = false;
-    String   bDir  = null;
-    String   bkID  = null;
-    String   incID = null;
-    String[] beIDs = StaticUtils.NO_STRINGS;
+    boolean  c           = false;
+    boolean  e           = false;
+    boolean  h           = false;
+    boolean  i           = false;
+    boolean  s           = false;
+    Integer  maxMB       = null;
+    Integer  retainCount = null;
+    String   bDir        = null;
+    String   bkID        = null;
+    String   incID       = null;
+    String   encID       = null;
+    String   encPWFile   = null;
+    String   retainAge   = null;
+    String[] beIDs       = StaticUtils.NO_STRINGS;
 
     for (final Map.Entry<TaskProperty,List<Object>> entry :
          properties.entrySet())
@@ -569,6 +849,15 @@ public final class BackupTask
       {
         e = parseBoolean(p, values, e);
       }
+      else if (attrName.equalsIgnoreCase(ATTR_ENCRYPTION_PASSPHRASE_FILE))
+      {
+        encPWFile = parseString(p, values, encPWFile);
+      }
+      else if (attrName.equalsIgnoreCase(
+           ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID))
+      {
+        encID = parseString(p, values, encID);
+      }
       else if (attrName.equalsIgnoreCase(ATTR_HASH))
       {
         h = parseBoolean(p, values, h);
@@ -576,6 +865,35 @@ public final class BackupTask
       else if (attrName.equalsIgnoreCase(ATTR_SIGN_HASH))
       {
         s = parseBoolean(p, values, s);
+      }
+      else if (attrName.equalsIgnoreCase(ATTR_MAX_MEGABYTES_PER_SECOND))
+      {
+        final Long maxMBLong = parseLong(p, values, null);
+        if (maxMBLong == null)
+        {
+          maxMB = null;
+        }
+        else
+        {
+          maxMB = maxMBLong.intValue();
+        }
+      }
+      else if (attrName.equalsIgnoreCase(
+           ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT))
+      {
+        final Long retainCountLong = parseLong(p, values, null);
+        if (retainCountLong == null)
+        {
+          retainCount = null;
+        }
+        else
+        {
+          retainCount = retainCountLong.intValue();
+        }
+      }
+      else if (attrName.equalsIgnoreCase(ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE))
+      {
+        retainAge = parseString(p, values, retainAge);
       }
     }
 
@@ -585,15 +903,20 @@ public final class BackupTask
                                    getTaskEntryDN()));
     }
 
-    backupDirectory   = bDir;
-    backendIDs        = Arrays.asList(beIDs);
-    backupID          = bkID;
-    incremental       = i;
+    backupDirectory = bDir;
+    backendIDs = Arrays.asList(beIDs);
+    backupID = bkID;
+    incremental = i;
     incrementalBaseID = incID;
-    compress          = c;
-    encrypt           = e;
-    hash              = h;
-    signHash          = s;
+    compress = c;
+    encrypt = e;
+    encryptionPassphraseFile = encPWFile;
+    encryptionSettingsDefinitionID = encID;
+    hash = h;
+    signHash = s;
+    maxMegabytesPerSecond = maxMB;
+    retainPreviousFullBackupCount = retainCount;
+    retainPreviousFullBackupAge = retainAge;
   }
 
 
@@ -735,6 +1058,38 @@ public final class BackupTask
 
 
   /**
+   * Retrieves the path to a file that contains the passphrase to use to
+   * generate the encryption key.
+   *
+   * @return  The path to a file that contains the passphrase to use to
+   *          generate the encryption key, or {@code null} if the backup should
+   *          not be encrypted or if the encryption key should be obtained
+   *          through some other means.
+   */
+  public String getEncryptionPassphraseFile()
+  {
+    return encryptionPassphraseFile;
+  }
+
+
+
+  /**
+   * Retrieves the identifier of the encryption settings definition to use to
+   * generate the encryption key.
+   *
+   * @return  The identifier of the encryption settings definition to use to
+   *          generate the encryption key, or {@code null} if the backup should
+   *          not be encrypted or if the encryption key should be obtained
+   *          through some other means.
+   */
+  public String getEncryptionSettingsDefinitionID()
+  {
+    return encryptionSettingsDefinitionID;
+  }
+
+
+
+  /**
    * Indicates whether the server should generate a hash of the backup.
    *
    * @return  {@code true} if the server should generate a hash of the backup,
@@ -761,6 +1116,53 @@ public final class BackupTask
 
 
   /**
+   * Retrieves the maximum rate, in megabytes per second, at which the backup
+   * should be written.
+   *
+   * @return  The maximum rate, in megabytes per second, at which the backup
+   *          should be written, or {@code null} if the writing should not be
+   *          rate limited.
+   */
+  public Integer getMaxMegabytesPerSecond()
+  {
+    return maxMegabytesPerSecond;
+  }
+
+
+
+  /**
+   * Retrieves the minimum number of previous full backups that should be
+   * retained if the new backup is created successfully.
+   *
+   * @return  The minimum number of previous full backups that should be
+   *          retained if the new backup is created successfully, or
+   *          {@code null} if no backups should be removed or if the backup age
+   *          should be the only retention criteria.
+   */
+  public Integer getRetainPreviousFullBackupCount()
+  {
+    return retainPreviousFullBackupCount;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of the minimum age of previous full
+   * backups that should be retained if the new backup is created successfully.
+   *
+   * @return  A string representation fo the minimum age of previous full
+   *          backups that should be retained if the new backup is created
+   *          successfully, or {@code null} if no backups should be removed or
+   *          if the backup count should be the only retention criteria.
+   */
+  public String getRetainPreviousFullBackupAge()
+  {
+    return retainPreviousFullBackupAge;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -777,7 +1179,7 @@ public final class BackupTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(9);
+    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(20);
 
     attrs.add(new Attribute(ATTR_BACKUP_DIRECTORY, backupDirectory));
     attrs.add(new Attribute(ATTR_INCREMENTAL,  String.valueOf(incremental)));
@@ -805,6 +1207,36 @@ public final class BackupTask
       attrs.add(new Attribute(ATTR_INCREMENTAL_BASE_ID, incrementalBaseID));
     }
 
+    if (encryptionPassphraseFile != null)
+    {
+      attrs.add(new Attribute(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+           encryptionPassphraseFile));
+    }
+
+    if (encryptionSettingsDefinitionID != null)
+    {
+      attrs.add(new Attribute(ATTR_ENCRYPTION_SETTINGS_DEFINITION_ID,
+           encryptionSettingsDefinitionID));
+    }
+
+    if (maxMegabytesPerSecond != null)
+    {
+      attrs.add(new Attribute(ATTR_MAX_MEGABYTES_PER_SECOND,
+           String.valueOf(maxMegabytesPerSecond)));
+    }
+
+    if (retainPreviousFullBackupCount != null)
+    {
+      attrs.add(new Attribute(ATTR_RETAIN_PREVIOUS_FULL_BACKUP_COUNT,
+           String.valueOf(retainPreviousFullBackupCount)));
+    }
+
+    if (retainPreviousFullBackupAge != null)
+    {
+      attrs.add(new Attribute(ATTR_RETAIN_PREVIOUS_FULL_BACKUP_AGE,
+           retainPreviousFullBackupAge));
+    }
+
     return attrs;
   }
 
@@ -824,8 +1256,13 @@ public final class BackupTask
          PROPERTY_INCREMENTAL_BASE_ID,
          PROPERTY_COMPRESS,
          PROPERTY_ENCRYPT,
+         PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
+         PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID,
          PROPERTY_HASH,
-         PROPERTY_SIGN_HASH);
+         PROPERTY_SIGN_HASH,
+         PROPERTY_MAX_MEGABYTES_PER_SECOND,
+         PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_COUNT,
+         PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_AGE);
 
     return Collections.unmodifiableList(propList);
   }
@@ -877,11 +1314,69 @@ public final class BackupTask
     props.put(PROPERTY_ENCRYPT,
               Collections.<Object>unmodifiableList(Arrays.asList(encrypt)));
 
+    if (encryptionPassphraseFile == null)
+    {
+      props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE, Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              encryptionPassphraseFile)));
+    }
+
+    if (encryptionSettingsDefinitionID == null)
+    {
+      props.put(PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID,
+           Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              encryptionSettingsDefinitionID)));
+    }
+
     props.put(PROPERTY_HASH,
               Collections.<Object>unmodifiableList(Arrays.asList(hash)));
 
     props.put(PROPERTY_SIGN_HASH,
               Collections.<Object>unmodifiableList(Arrays.asList(signHash)));
+
+    if (maxMegabytesPerSecond == null)
+    {
+      props.put(PROPERTY_MAX_MEGABYTES_PER_SECOND, Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_MAX_MEGABYTES_PER_SECOND,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              maxMegabytesPerSecond.longValue())));
+    }
+
+    if (retainPreviousFullBackupCount == null)
+    {
+      props.put(PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_COUNT,
+           Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_COUNT,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              retainPreviousFullBackupCount.longValue())));
+    }
+
+    if (retainPreviousFullBackupAge == null)
+    {
+      props.put(PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_AGE,
+           Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_RETAIN_PREVIOUS_FULL_BACKUP_AGE,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              retainPreviousFullBackupAge)));
+    }
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

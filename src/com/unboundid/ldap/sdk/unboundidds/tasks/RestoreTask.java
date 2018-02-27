@@ -66,6 +66,8 @@ import static com.unboundid.util.Validator.*;
  *       only to verify it to determine whether it appears to be valid (e.g.,
  *       validate the digest and/or signature, make sure that the backend
  *       considers it valid, etc.).</LI>
+ *   <LI>The path to a file containing a passphrase to use to generate the
+ *       encryption key.</LI>
  * </UL>
 
  */
@@ -97,6 +99,15 @@ public final class RestoreTask
    * restore.
    */
   private static final String ATTR_BACKUP_ID = "ds-backup-id";
+
+
+
+  /**
+   * The name of the attribute used to specify the path to a file that contains
+   * the passphrase to use to generate the encryption key.
+   */
+  private static final String ATTR_ENCRYPTION_PASSPHRASE_FILE =
+       "ds-task-restore-encryption-passphrase-file";
 
 
 
@@ -138,6 +149,17 @@ public final class RestoreTask
 
 
   /**
+   * The task property that will be used for the encryption passphrase file.
+   */
+  private static final TaskProperty PROPERTY_ENCRYPTION_PASSPHRASE_FILE =
+       new TaskProperty(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+            INFO_DISPLAY_NAME_ENCRYPTION_PASSPHRASE_FILE.get(),
+            INFO_DESCRIPTION_ENCRYPTION_PASSPHRASE_FILE.get(),
+            String.class, false, false, true);
+
+
+
+  /**
    * The task property for the verify only flag.
    */
   private static final TaskProperty PROPERTY_VERIFY_ONLY =
@@ -150,7 +172,7 @@ public final class RestoreTask
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -196339437379274643L;
+  private static final long serialVersionUID = -8441221098187125379L;
 
 
 
@@ -159,6 +181,10 @@ public final class RestoreTask
 
   // The path to the backup directory containing the backup to restore.
   private final String backupDirectory;
+
+  // The path to a file containing the passphrase to use to generate the
+  // encryption key.
+  private final String encryptionPassphraseFile;
 
   // The backup ID of the backup to restore.
   private final String backupID;
@@ -173,9 +199,10 @@ public final class RestoreTask
    */
   public RestoreTask()
   {
-    verifyOnly      = false;
+    verifyOnly = false;
     backupDirectory = null;
-    backupID        = null;
+    backupID = null;
+    encryptionPassphraseFile = null;
   }
 
 
@@ -246,6 +273,60 @@ public final class RestoreTask
                      final List<String> notifyOnCompletion,
                      final List<String> notifyOnError)
   {
+    this(taskID, backupDirectory, backupID, verifyOnly, null,
+         scheduledStartTime, dependencyIDs, failedDependencyAction,
+         notifyOnCompletion, notifyOnError);
+  }
+
+
+
+  /**
+   * Creates a new restore task with the provided information.
+   *
+   * @param  taskID                    The task ID to use for this task.  If it
+   *                                   is {@code null} then a UUID will be
+   *                                   generated for use as the task ID.
+   * @param  backupDirectory           The path to the directory on the server
+   *                                   containing the backup to restore.  It may
+   *                                   be an absolute path or relative to the
+   *                                   server root directory.  It must not be
+   *                                   {@code null}.
+   * @param  backupID                  The backup ID of the backup to restore.
+   *                                   If this is {@code null} then the most
+   *                                   recent backup in the specified backup
+   *                                   directory will be restored.
+   * @param  verifyOnly                Indicates whether to only verify the
+   *                                   backup without restoring it.
+   * @param  encryptionPassphraseFile  The path to a file containing the
+   *                                   passphrase to use to generate the
+   *                                   encryption key.  It amy be {@code null}
+   *                                   if the backup is not to be encrypted, or
+   *                                   if the key should be obtained in some
+   *                                   other way.
+   * @param  scheduledStartTime        The time that this task should start
+   *                                   running.
+   * @param  dependencyIDs             The list of task IDs that will be
+   *                                   required to complete before this task
+   *                                   will be eligible to start.
+   * @param  failedDependencyAction    Indicates what action should be taken if
+   *                                   any of the dependencies for this task do
+   *                                   not complete successfully.
+   * @param  notifyOnCompletion        The list of e-mail addresses of
+   *                                   individuals that should be notified when
+   *                                   this task completes.
+   * @param  notifyOnError             The list of e-mail addresses of
+   *                                   individuals that should be notified if
+   *                                   this task does not complete successfully.
+   */
+  public RestoreTask(final String taskID, final String backupDirectory,
+                     final String backupID, final boolean verifyOnly,
+                     final String encryptionPassphraseFile,
+                     final Date scheduledStartTime,
+                     final List<String> dependencyIDs,
+                     final FailedDependencyAction failedDependencyAction,
+                     final List<String> notifyOnCompletion,
+                     final List<String> notifyOnError)
+  {
     super(taskID, RESTORE_TASK_CLASS, scheduledStartTime,
           dependencyIDs, failedDependencyAction, notifyOnCompletion,
           notifyOnError);
@@ -253,8 +334,9 @@ public final class RestoreTask
     ensureNotNull(backupDirectory);
 
     this.backupDirectory = backupDirectory;
-    this.backupID        = backupID;
-    this.verifyOnly      = verifyOnly;
+    this.backupID = backupID;
+    this.verifyOnly = verifyOnly;
+    this.encryptionPassphraseFile = encryptionPassphraseFile;
   }
 
 
@@ -288,6 +370,11 @@ public final class RestoreTask
 
     // Get the verifyOnly flag.  It may be absent.
     verifyOnly = parseBooleanValue(entry, ATTR_VERIFY_ONLY, false);
+
+
+    // Get the path to the encryption passphrase file.  It may be absent.
+    encryptionPassphraseFile =
+         entry.getAttributeValue(ATTR_ENCRYPTION_PASSPHRASE_FILE);
   }
 
 
@@ -309,6 +396,7 @@ public final class RestoreTask
 
     boolean v = false;
     String  b = null;
+    String  f = null;
     String  i = null;
 
     for (final Map.Entry<TaskProperty,List<Object>> entry :
@@ -330,6 +418,10 @@ public final class RestoreTask
       {
         v = parseBoolean(p, values, v);
       }
+      else if (attrName.equalsIgnoreCase(ATTR_ENCRYPTION_PASSPHRASE_FILE))
+      {
+        f = parseString(p, values, f);
+      }
     }
 
     if (b == null)
@@ -339,8 +431,9 @@ public final class RestoreTask
     }
 
     backupDirectory = b;
-    backupID        = i;
-    verifyOnly      = v;
+    backupID = i;
+    verifyOnly = v;
+    encryptionPassphraseFile = f;
   }
 
 
@@ -410,6 +503,22 @@ public final class RestoreTask
 
 
   /**
+   * Retrieves the path to a file that contains the passphrase to use to
+   * generate the encryption key.
+   *
+   * @return  The path to a file that contains the passphrase to use to
+   *          generate the encryption key, or {@code null} if the backup is
+   *          not encrypted or if the encryption key should be obtained through
+   *          some other means.
+   */
+  public String getEncryptionPassphraseFile()
+  {
+    return encryptionPassphraseFile;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -426,7 +535,7 @@ public final class RestoreTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(3);
+    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(10);
 
     attrs.add(new Attribute(ATTR_BACKUP_DIRECTORY, backupDirectory));
     attrs.add(new Attribute(ATTR_VERIFY_ONLY, String.valueOf(verifyOnly)));
@@ -434,6 +543,12 @@ public final class RestoreTask
     if (backupID != null)
     {
       attrs.add(new Attribute(ATTR_BACKUP_ID, backupID));
+    }
+
+    if (encryptionPassphraseFile != null)
+    {
+      attrs.add(new Attribute(ATTR_ENCRYPTION_PASSPHRASE_FILE,
+           encryptionPassphraseFile));
     }
 
     return attrs;
@@ -450,7 +565,8 @@ public final class RestoreTask
     final List<TaskProperty> propList = Arrays.asList(
          PROPERTY_BACKUP_DIRECTORY,
          PROPERTY_BACKUP_ID,
-         PROPERTY_VERIFY_ONLY);
+         PROPERTY_VERIFY_ONLY,
+         PROPERTY_ENCRYPTION_PASSPHRASE_FILE);
 
     return Collections.unmodifiableList(propList);
   }
@@ -481,6 +597,17 @@ public final class RestoreTask
 
     props.put(PROPERTY_VERIFY_ONLY,
               Collections.<Object>unmodifiableList(Arrays.asList(verifyOnly)));
+
+    if (encryptionPassphraseFile == null)
+    {
+      props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE, Collections.emptyList());
+    }
+    else
+    {
+      props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
+         Collections.<Object>unmodifiableList(Arrays.asList(
+              encryptionPassphraseFile)));
+    }
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

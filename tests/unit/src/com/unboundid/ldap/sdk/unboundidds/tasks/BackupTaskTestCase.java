@@ -81,9 +81,19 @@ public class BackupTaskTestCase
 
     assertFalse(t.encrypt());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertNull(t.getEncryptionSettingsDefinitionID());
+
     assertFalse(t.hash());
 
     assertFalse(t.signHash());
+
+    assertNull(t.getMaxMegabytesPerSecond());
+
+    assertNull(t.getRetainPreviousFullBackupCount());
+
+    assertNull(t.getRetainPreviousFullBackupAge());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -132,9 +142,19 @@ public class BackupTaskTestCase
 
     assertFalse(t.encrypt());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertNull(t.getEncryptionSettingsDefinitionID());
+
     assertFalse(t.hash());
 
     assertFalse(t.signHash());
+
+    assertNull(t.getMaxMegabytesPerSecond());
+
+    assertNull(t.getRetainPreviousFullBackupCount());
+
+    assertNull(t.getRetainPreviousFullBackupAge());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -211,9 +231,99 @@ public class BackupTaskTestCase
 
     assertFalse(t.encrypt());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertNull(t.getEncryptionSettingsDefinitionID());
+
     assertTrue(t.hash());
 
     assertFalse(t.signHash());
+
+    assertNull(t.getMaxMegabytesPerSecond());
+
+    assertNull(t.getRetainPreviousFullBackupCount());
+
+    assertNull(t.getRetainPreviousFullBackupAge());
+
+    assertNotNull(t.getAdditionalObjectClasses());
+    assertEquals(t.getAdditionalObjectClasses().size(), 1);
+    assertEquals(t.getAdditionalObjectClasses().get(0),
+                 "ds-task-backup");
+
+    assertNotNull(t.getAdditionalAttributes());
+    assertFalse(t.getAdditionalAttributes().isEmpty());
+
+    assertNotNull(t.createTaskEntry());
+  }
+
+
+
+  /**
+   * Tests the second constructor with valid values for all arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructor2bAll()
+         throws Exception
+  {
+    List<String> backendIDs = Arrays.asList("userRoot", "adminRoot");
+    List<String> dependencyIDs = Arrays.asList("dep1", "dep2");
+    List<String> notifyOnCompletion = Arrays.asList("peon@example.com");
+    List<String> notifyOnError = Arrays.asList("admin@example.com");
+
+    Date d = new Date();
+
+    BackupTask t = new BackupTask("foo", "bak", backendIDs, "baz", true, "bar",
+         true, true, "passphrase.txt", "definition", true, true, 100, 5,
+         "3 days", d, dependencyIDs, FailedDependencyAction.CANCEL,
+         notifyOnCompletion, notifyOnError);
+
+    assertNotNull(t);
+
+    assertEquals(t.getTaskClassName(),
+                 "com.unboundid.directory.server.tasks.BackupTask");
+
+    assertNotNull(t.getBackupDirectory());
+    assertEquals(t.getBackupDirectory(), "bak");
+
+    assertNotNull(t.getBackendIDs());
+    assertEquals(t.getBackendIDs().size(), 2);
+    assertEquals(t.getBackendIDs().get(0), "userRoot");
+    assertEquals(t.getBackendIDs().get(1), "adminRoot");
+
+    assertFalse(t.backupAll());
+
+    assertNotNull(t.getBackupID());
+    assertEquals(t.getBackupID(), "baz");
+
+    assertTrue(t.incremental());
+
+    assertNotNull(t.getIncrementalBaseID());
+    assertEquals(t.getIncrementalBaseID(), "bar");
+
+    assertTrue(t.compress());
+
+    assertTrue(t.encrypt());
+
+    assertNotNull(t.getEncryptionPassphraseFile());
+    assertEquals(t.getEncryptionPassphraseFile(), "passphrase.txt");
+
+    assertNotNull(t.getEncryptionSettingsDefinitionID());
+    assertEquals(t.getEncryptionSettingsDefinitionID(), "definition");
+
+    assertTrue(t.hash());
+
+    assertTrue(t.signHash());
+
+    assertNotNull(t.getMaxMegabytesPerSecond());
+    assertEquals(t.getMaxMegabytesPerSecond().intValue(), 100);
+
+    assertNotNull(t.getRetainPreviousFullBackupCount());
+    assertEquals(t.getRetainPreviousFullBackupCount().intValue(), 5);
+
+    assertNotNull(t.getRetainPreviousFullBackupAge());
+    assertEquals(t.getRetainPreviousFullBackupAge(), "3 days");
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -265,9 +375,19 @@ public class BackupTaskTestCase
 
     assertFalse(t.encrypt());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertNull(t.getEncryptionSettingsDefinitionID());
+
     assertTrue(t.hash());
 
     assertFalse(t.signHash());
+
+    assertNull(t.getMaxMegabytesPerSecond());
+
+    assertNull(t.getRetainPreviousFullBackupCount());
+
+    assertNull(t.getRetainPreviousFullBackupAge());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -367,6 +487,11 @@ public class BackupTaskTestCase
                   "ds-task-backup-encrypt: true",
                   "ds-task-backup-hash: true",
                   "ds-task-backup-sign-hash: true",
+                  "ds-task-backup-encryption-settings-passphrase-file: pw.txt",
+                  "ds-task-backup-encryption-settings-definition-id: def",
+                  "ds-task-backup-max-megabytes-per-second: 100",
+                  "ds-task-backup-retain-previous-full-backup-count: 5",
+                  "ds-task-backup-retain-previous-full-backup-age: 3 days",
                   "ds-task-scheduled-start-time: 20080101000000Z",
                   "ds-task-actual-start-time: 20080101000000Z",
                   "ds-task-completion-time: 20080101010101Z",
@@ -584,6 +709,14 @@ public class BackupTaskTestCase
       {
         properties.put(p, Arrays.<Object>asList(Boolean.TRUE));
       }
+      else if (name.equals("ds-task-backup-encryption-passphrase-file"))
+      {
+        properties.put(p, Arrays.<Object>asList("passphrase.txt"));
+      }
+      else if (name.equals("ds-task-backup-encryption-settings-definition-id"))
+      {
+        properties.put(p, Arrays.<Object>asList("definition"));
+      }
       else if (name.equals("ds-task-backup-hash"))
       {
         properties.put(p, Arrays.<Object>asList(Boolean.TRUE));
@@ -591,6 +724,18 @@ public class BackupTaskTestCase
       else if (name.equals("ds-task-backup-sign-hash"))
       {
         properties.put(p, Arrays.<Object>asList(Boolean.TRUE));
+      }
+      else if (name.equals("ds-task-backup-max-megabytes-per-second"))
+      {
+        properties.put(p, Arrays.<Object>asList(Long.valueOf(100)));
+      }
+      else if (name.equals("ds-task-backup-retain-previous-full-backup-count"))
+      {
+        properties.put(p, Arrays.<Object>asList(Long.valueOf(5)));
+      }
+      else if (name.equals("ds-task-backup-retain-previous-full-backup-age"))
+      {
+        properties.put(p, Arrays.<Object>asList("3 days"));
       }
       else if (name.equals("ds-task-backup-incremental"))
       {
@@ -624,9 +769,24 @@ public class BackupTaskTestCase
 
     assertTrue(t.encrypt());
 
+    assertNotNull(t.getEncryptionPassphraseFile());
+    assertEquals(t.getEncryptionPassphraseFile(), "passphrase.txt");
+
+    assertNotNull(t.getEncryptionSettingsDefinitionID());
+    assertEquals(t.getEncryptionSettingsDefinitionID(), "definition");
+
     assertTrue(t.hash());
 
     assertTrue(t.signHash());
+
+    assertNotNull(t.getMaxMegabytesPerSecond());
+    assertEquals(t.getMaxMegabytesPerSecond().intValue(), 100);
+
+    assertNotNull(t.getRetainPreviousFullBackupCount());
+    assertEquals(t.getRetainPreviousFullBackupCount().intValue(), 5);
+
+    assertNotNull(t.getRetainPreviousFullBackupAge());
+    assertEquals(t.getRetainPreviousFullBackupAge(), "3 days");
 
     Map<TaskProperty,List<Object>> props = t.getTaskPropertyValues();
     for (TaskProperty p : Task.getCommonTaskProperties())

@@ -95,7 +95,13 @@ public class ExportTaskTestCase
 
     assertFalse(t.encrypt());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertNull(t.getEncryptionSettingsDefinitionID());
+
     assertFalse(t.sign());
+
+    assertNull(t.getMaxMegabytesPerSecond());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -212,7 +218,110 @@ public class ExportTaskTestCase
 
     assertFalse(t.encrypt());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertNull(t.getEncryptionSettingsDefinitionID());
+
     assertTrue(t.sign());
+
+    assertNull(t.getMaxMegabytesPerSecond());
+
+    assertNotNull(t.getAdditionalObjectClasses());
+    assertEquals(t.getAdditionalObjectClasses().size(), 1);
+    assertEquals(t.getAdditionalObjectClasses().get(0),
+                 "ds-task-export");
+
+    assertNotNull(t.getAdditionalAttributes());
+    assertFalse(t.getAdditionalAttributes().isEmpty());
+
+    assertNotNull(t.createTaskEntry());
+  }
+
+
+
+  /**
+   * Tests the second constructor with valid values for all arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructor2bAll()
+         throws Exception
+  {
+    List<String> includeBranches = Arrays.asList("dc=example,dc=com");
+    List<String> excludeBranches = Arrays.asList("ou=local,dc=example,dc=com");
+    List<String> includeFilters = Arrays.asList("(objectClass=person)");
+    List<String> excludeFilters = Arrays.asList("(objectClass=localPerson)");
+    List<String> includeAttrs = Arrays.asList("cn", "sn");
+    List<String> excludeAttrs = Arrays.asList("userPassword");
+    List<String> dependencyIDs = Arrays.asList("dep1", "dep2");
+    List<String> notifyOnCompletion = Arrays.asList("peon@example.com");
+    List<String> notifyOnError = Arrays.asList("admin@example.com");
+
+    Date d = new Date();
+
+    ExportTask t = new ExportTask("foo", "userRoot", "data.ldif", false,
+         includeBranches, excludeBranches, includeFilters, excludeFilters,
+         includeAttrs, excludeAttrs, 80, true, true, "passphrase.txt",
+         "definition", true, 100, d, dependencyIDs,
+         FailedDependencyAction.CANCEL, notifyOnCompletion, notifyOnError);
+
+    assertNotNull(t);
+
+    assertEquals(t.getTaskClassName(),
+                 "com.unboundid.directory.server.tasks.ExportTask");
+
+    assertNotNull(t.getBackendID());
+    assertEquals(t.getBackendID(), "userRoot");
+
+    assertNotNull(t.getLDIFFile());
+    assertEquals(t.getLDIFFile(), "data.ldif");
+
+    assertFalse(t.appendToLDIF());
+
+    assertNotNull(t.getIncludeBranches());
+    assertEquals(t.getIncludeBranches().size(), 1);
+    assertEquals(new DN(t.getIncludeBranches().get(0)),
+                 new DN("dc=example,dc=com"));
+
+    assertNotNull(t.getExcludeBranches());
+    assertEquals(t.getExcludeBranches().size(), 1);
+    assertEquals(new DN(t.getExcludeBranches().get(0)),
+                 new DN("ou=local,dc=example,dc=com"));
+
+    assertNotNull(t.getIncludeFilters());
+    assertEquals(t.getIncludeFilters().size(), 1);
+    assertEquals(t.getIncludeFilters().get(0), "(objectClass=person)");
+
+    assertNotNull(t.getExcludeFilters());
+    assertEquals(t.getExcludeFilters().size(), 1);
+    assertEquals(t.getExcludeFilters().get(0), "(objectClass=localPerson)");
+
+    assertNotNull(t.getIncludeAttributes());
+    assertEquals(t.getIncludeAttributes().size(), 2);
+    assertEquals(t.getIncludeAttributes().get(0), "cn");
+    assertEquals(t.getIncludeAttributes().get(1), "sn");
+
+    assertNotNull(t.getExcludeAttributes());
+    assertEquals(t.getExcludeAttributes().size(), 1);
+    assertEquals(t.getExcludeAttributes().get(0), "userPassword");
+
+    assertEquals(t.getWrapColumn(), 80);
+
+    assertTrue(t.compress());
+
+    assertTrue(t.encrypt());
+
+    assertNotNull(t.getEncryptionPassphraseFile());
+    assertEquals(t.getEncryptionPassphraseFile(), "passphrase.txt");
+
+    assertNotNull(t.getEncryptionSettingsDefinitionID());
+    assertEquals(t.getEncryptionSettingsDefinitionID(), "definition");
+
+    assertTrue(t.sign());
+
+    assertNotNull(t.getMaxMegabytesPerSecond());
+    assertEquals(t.getMaxMegabytesPerSecond().intValue(), 100);
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -292,7 +401,13 @@ public class ExportTaskTestCase
 
     assertTrue(t.encrypt());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertNull(t.getEncryptionSettingsDefinitionID());
+
     assertTrue(t.sign());
+
+    assertNull(t.getMaxMegabytesPerSecond());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -404,6 +519,9 @@ public class ExportTaskTestCase
                   "ds-task-export-wrap-column: 80",
                   "ds-task-export-compress-ldif: false",
                   "ds-task-export-encrypt-ldif: false",
+                  "ds-task-export-encryption-settings-passphrase-file: pw.txt",
+                  "ds-task-export-encryption-settings-definition-id: def",
+                  "ds-task-export-max-megabytes-per-second: 100",
                   "ds-task-export-sign-hash: true",
                   "ds-task-scheduled-start-time: 20080101000000Z",
                   "ds-task-actual-start-time: 20080101000000Z",
@@ -636,9 +754,21 @@ public class ExportTaskTestCase
       {
         properties.put(p, Arrays.<Object>asList(Boolean.TRUE));
       }
+      else if (name.equals("ds-task-export-encryption-passphrase-file"))
+      {
+        properties.put(p, Arrays.<Object>asList("passphrase.txt"));
+      }
+      else if (name.equals("ds-task-export-encryption-settings-definition-id"))
+      {
+        properties.put(p, Arrays.<Object>asList("definition"));
+      }
       else if (name.equals("ds-task-export-sign-hash"))
       {
         properties.put(p, Arrays.<Object>asList(Boolean.TRUE));
+      }
+      else if (name.equals("ds-task-export-max-megabytes-per-second"))
+      {
+        properties.put(p, Arrays.<Object>asList(Long.valueOf(100)));
       }
       else if (name.equals("ds-task-export-include-attribute"))
       {
@@ -706,7 +836,16 @@ public class ExportTaskTestCase
 
     assertTrue(t.encrypt());
 
+    assertNotNull(t.getEncryptionPassphraseFile());
+    assertEquals(t.getEncryptionPassphraseFile(), "passphrase.txt");
+
+    assertNotNull(t.getEncryptionSettingsDefinitionID());
+    assertEquals(t.getEncryptionSettingsDefinitionID(), "definition");
+
     assertTrue(t.sign());
+
+    assertNotNull(t.getMaxMegabytesPerSecond());
+    assertEquals(t.getMaxMegabytesPerSecond().intValue(), 100);
 
     Map<TaskProperty,List<Object>> props = t.getTaskPropertyValues();
     for (TaskProperty p : Task.getCommonTaskProperties())

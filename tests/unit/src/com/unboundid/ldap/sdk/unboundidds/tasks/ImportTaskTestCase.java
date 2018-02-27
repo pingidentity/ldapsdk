@@ -101,6 +101,8 @@ public class ImportTaskTestCase
 
     assertFalse(t.isEncrypted());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
     assertFalse(t.skipSchemaValidation());
 
     assertFalse(t.stripTrailingSpaces());
@@ -230,6 +232,8 @@ public class ImportTaskTestCase
     assertTrue(t.isCompressed());
 
     assertFalse(t.isEncrypted());
+
+    assertNull(t.getEncryptionPassphraseFile());
 
     assertTrue(t.skipSchemaValidation());
 
@@ -389,6 +393,111 @@ public class ImportTaskTestCase
 
     assertFalse(t.isEncrypted());
 
+    assertNull(t.getEncryptionPassphraseFile());
+
+    assertTrue(t.skipSchemaValidation());
+
+    assertTrue(t.stripTrailingSpaces());
+
+    assertNotNull(t.getAdditionalObjectClasses());
+    assertEquals(t.getAdditionalObjectClasses().size(), 1);
+    assertEquals(t.getAdditionalObjectClasses().get(0),
+                 "ds-task-import");
+
+    assertNotNull(t.getAdditionalAttributes());
+    assertFalse(t.getAdditionalAttributes().isEmpty());
+
+    assertNotNull(t.createTaskEntry());
+  }
+
+
+
+  /**
+   * Tests the third constructor with valid values for all arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructor3bAll()
+         throws Exception
+  {
+    List<String> ldifFiles = Arrays.asList("bar", "baz");
+    List<String> includeBranches = Arrays.asList("dc=example,dc=com");
+    List<String> excludeBranches = Arrays.asList("ou=local,dc=example,dc=com");
+    List<String> includeFilters = Arrays.asList("(objectClass=person)");
+    List<String> excludeFilters = Arrays.asList("(objectClass=localPerson)");
+    List<String> includeAttrs = Arrays.asList("cn", "sn");
+    List<String> excludeAttrs = Arrays.asList("userPassword");
+    List<String> dependencyIDs = Arrays.asList("dep1", "dep2");
+    List<String> notifyOnCompletion = Arrays.asList("peon@example.com");
+    List<String> notifyOnError = Arrays.asList("admin@example.com");
+
+    Date d = new Date();
+
+    ImportTask t = new ImportTask("foo", ldifFiles, "userRoot", false, false,
+         "rejects.ldif", true, true, includeBranches, excludeBranches,
+         includeFilters, excludeFilters, includeAttrs, excludeAttrs, true, true,
+         "passphrase.txt", true, true, d, dependencyIDs,
+         FailedDependencyAction.CANCEL, notifyOnCompletion, notifyOnError);
+
+    assertNotNull(t);
+
+    assertEquals(t.getTaskClassName(),
+                 "com.unboundid.directory.server.tasks.ImportTask");
+
+    assertNotNull(t.getLDIFFiles());
+    assertEquals(t.getLDIFFiles().size(), 2);
+    assertEquals(t.getLDIFFiles().get(0), "bar");
+    assertEquals(t.getLDIFFiles().get(1), "baz");
+
+    assertNotNull(t.getBackendID());
+    assertEquals(t.getBackendID(), "userRoot");
+
+    assertFalse(t.append());
+
+    assertFalse(t.replaceExistingEntries());
+
+    assertNotNull(t.getRejectFile());
+    assertEquals(t.getRejectFile(), "rejects.ldif");
+
+    assertTrue(t.overwriteRejectFile());
+
+    assertTrue(t.clearBackend());
+
+    assertNotNull(t.getIncludeBranches());
+    assertEquals(t.getIncludeBranches().size(), 1);
+    assertEquals(new DN(t.getIncludeBranches().get(0)),
+                 new DN("dc=example,dc=com"));
+
+    assertNotNull(t.getExcludeBranches());
+    assertEquals(t.getExcludeBranches().size(), 1);
+    assertEquals(new DN(t.getExcludeBranches().get(0)),
+                 new DN("ou=local,dc=example,dc=com"));
+
+    assertNotNull(t.getIncludeFilters());
+    assertEquals(t.getIncludeFilters().size(), 1);
+    assertEquals(t.getIncludeFilters().get(0), "(objectClass=person)");
+
+    assertNotNull(t.getExcludeFilters());
+    assertEquals(t.getExcludeFilters().size(), 1);
+    assertEquals(t.getExcludeFilters().get(0), "(objectClass=localPerson)");
+
+    assertNotNull(t.getIncludeAttributes());
+    assertEquals(t.getIncludeAttributes().size(), 2);
+    assertEquals(t.getIncludeAttributes().get(0), "cn");
+    assertEquals(t.getIncludeAttributes().get(1), "sn");
+
+    assertNotNull(t.getExcludeAttributes());
+    assertEquals(t.getExcludeAttributes().size(), 1);
+    assertEquals(t.getExcludeAttributes().get(0), "userPassword");
+
+    assertTrue(t.isCompressed());
+
+    assertTrue(t.isEncrypted());
+
+    assertNotNull(t.getEncryptionPassphraseFile());
+    assertEquals(t.getEncryptionPassphraseFile(), "passphrase.txt");
+
     assertTrue(t.skipSchemaValidation());
 
     assertTrue(t.stripTrailingSpaces());
@@ -508,6 +617,7 @@ public class ImportTaskTestCase
                   "ds-task-import-strip-trailing-spaces: true",
                   "ds-task-import-is-compressed: false",
                   "ds-task-import-is-encrypted: false",
+                  "ds-task-import-encryption-passphrase-file: passphrase.txt",
                   "ds-task-import-backend-id: userRoot",
                   "ds-task-import-clear-backend: true",
                   "ds-task-scheduled-start-time: 20080101000000Z",
@@ -792,6 +902,10 @@ public class ImportTaskTestCase
       {
         properties.put(p, Arrays.<Object>asList(Boolean.FALSE));
       }
+      else if (name.equals("ds-task-import-encryption-passphrase-file"))
+      {
+        properties.put(p, Arrays.<Object>asList("passphrase.txt"));
+      }
       else if (name.equals("ds-task-import-is-compressed"))
       {
         properties.put(p, Arrays.<Object>asList(Boolean.TRUE));
@@ -858,6 +972,9 @@ public class ImportTaskTestCase
     assertTrue(t.isCompressed());
 
     assertFalse(t.isEncrypted());
+
+    assertNotNull(t.getEncryptionPassphraseFile());
+    assertEquals(t.getEncryptionPassphraseFile(), "passphrase.txt");
 
     assertTrue(t.skipSchemaValidation());
 
