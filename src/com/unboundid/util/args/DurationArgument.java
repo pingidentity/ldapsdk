@@ -23,7 +23,6 @@ package com.unboundid.util.args;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +50,7 @@ import static com.unboundid.util.args.ArgsMessages.*;
  *   <LI>Minutes -- m, min, mins, minute, minutes</LI>
  *   <LI>Hours -- h, hr, hrs, hour, hours</LI>
  *   <LI>Days -- d, day, days</LI>
+ *   <LI>Weeks -- w, week, weeks</LI>
  * </UL>
  *
  * There may be zero or more spaces between the integer portion and the unit
@@ -245,39 +245,33 @@ public final class DurationArgument
       }
 
       minValueNanos = lowerBoundUnit.toNanos(lowerBound);
-      final String lowerBoundUnitName = lowerBoundUnit.name();
-      if (lowerBoundUnitName.equals("NANOSECONDS"))
+      switch (lowerBoundUnit)
       {
-        lowerBoundStr = minValueNanos + "ns";
-      }
-      else if (lowerBoundUnitName.equals("MICROSECONDS"))
-      {
-        lowerBoundStr = lowerBound + "us";
-      }
-      else if (lowerBoundUnitName.equals("MILLISECONDS"))
-      {
-        lowerBoundStr = lowerBound + "ms";
-      }
-      else if (lowerBoundUnitName.equals("SECONDS"))
-      {
-        lowerBoundStr = lowerBound + "s";
-      }
-      else if (lowerBoundUnitName.equals("MINUTES"))
-      {
-        lowerBoundStr = lowerBound + "m";
-      }
-      else if (lowerBoundUnitName.equals("HOURS"))
-      {
-        lowerBoundStr = lowerBound + "h";
-      }
-      else if (lowerBoundUnitName.equals("DAYS"))
-      {
-        lowerBoundStr = lowerBound + "d";
-      }
-      else
-      {
-        throw new LDAPSDKUsageException(
-             ERR_DURATION_UNSUPPORTED_LOWER_BOUND_UNIT.get(lowerBoundUnitName));
+        case NANOSECONDS:
+          lowerBoundStr = minValueNanos + "ns";
+          break;
+        case MICROSECONDS:
+          lowerBoundStr = lowerBound + "us";
+          break;
+        case MILLISECONDS:
+          lowerBoundStr = lowerBound + "ms";
+          break;
+        case SECONDS:
+          lowerBoundStr = lowerBound + "s";
+          break;
+        case MINUTES:
+          lowerBoundStr = lowerBound + "m";
+          break;
+        case HOURS:
+          lowerBoundStr = lowerBound + "h";
+          break;
+        case DAYS:
+          lowerBoundStr = lowerBound + "d";
+          break;
+        default:
+          throw new LDAPSDKUsageException(
+               ERR_DURATION_UNSUPPORTED_LOWER_BOUND_UNIT.get(
+                    lowerBoundUnit.name()));
       }
     }
 
@@ -295,39 +289,33 @@ public final class DurationArgument
       }
 
       maxValueNanos = upperBoundUnit.toNanos(upperBound);
-      final String upperBoundUnitName = upperBoundUnit.name();
-      if (upperBoundUnitName.equals("NANOSECONDS"))
+      switch (upperBoundUnit)
       {
-        upperBoundStr = minValueNanos + "ns";
-      }
-      else if (upperBoundUnitName.equals("MICROSECONDS"))
-      {
-        upperBoundStr = upperBound + "us";
-      }
-      else if (upperBoundUnitName.equals("MILLISECONDS"))
-      {
-        upperBoundStr = upperBound + "ms";
-      }
-      else if (upperBoundUnitName.equals("SECONDS"))
-      {
-        upperBoundStr = upperBound + "s";
-      }
-      else if (upperBoundUnitName.equals("MINUTES"))
-      {
-        upperBoundStr = upperBound + "m";
-      }
-      else if (upperBoundUnitName.equals("HOURS"))
-      {
-        upperBoundStr = upperBound + "h";
-      }
-      else if (upperBoundUnitName.equals("DAYS"))
-      {
-        upperBoundStr = upperBound + "d";
-      }
-      else
-      {
-        throw new LDAPSDKUsageException(
-             ERR_DURATION_UNSUPPORTED_UPPER_BOUND_UNIT.get(upperBoundUnitName));
+        case NANOSECONDS:
+          upperBoundStr = minValueNanos + "ns";
+          break;
+        case MICROSECONDS:
+          upperBoundStr = upperBound + "us";
+          break;
+        case MILLISECONDS:
+          upperBoundStr = upperBound + "ms";
+          break;
+        case SECONDS:
+          upperBoundStr = upperBound + "s";
+          break;
+        case MINUTES:
+          upperBoundStr = upperBound + "m";
+          break;
+        case HOURS:
+          upperBoundStr = upperBound + "h";
+          break;
+        case DAYS:
+          upperBoundStr = upperBound + "d";
+          break;
+        default:
+          throw new LDAPSDKUsageException(
+               ERR_DURATION_UNSUPPORTED_UPPER_BOUND_UNIT.get(
+                    upperBoundUnit.name()));
       }
     }
 
@@ -338,7 +326,7 @@ public final class DurationArgument
     }
 
     valueNanos = null;
-    validators = new ArrayList<ArgumentValueValidator>(5);
+    validators = new ArrayList<>(5);
   }
 
 
@@ -358,8 +346,7 @@ public final class DurationArgument
     minValueNanos     = source.minValueNanos;
     lowerBoundStr     = source.lowerBoundStr;
     upperBoundStr     = source.upperBoundStr;
-    validators        =
-         new ArrayList<ArgumentValueValidator>(source.validators);
+    validators        = new ArrayList<>(source.validators);
     valueNanos        = null;
   }
 
@@ -415,7 +402,7 @@ public final class DurationArgument
       return Collections.emptyList();
     }
 
-    return Collections.unmodifiableList(Arrays.asList(nanosToDuration(v)));
+    return Collections.singletonList(nanosToDuration(v));
   }
 
 
@@ -567,7 +554,7 @@ public final class DurationArgument
   {
     // The string must not be empty.
     final String lowerStr = StaticUtils.toLowerCase(durationString);
-    if (lowerStr.length() == 0)
+    if (lowerStr.isEmpty())
     {
       throw new ArgumentException(ERR_DURATION_EMPTY_VALUE.get());
     }
@@ -660,7 +647,14 @@ public final class DurationArgument
              unitStr.equals("day") ||
              unitStr.equals("days"))
     {
-      integerPortion *= 86400L;
+      integerPortion *= 86_400L;
+      unitFromString = TimeUnit.SECONDS;
+    }
+    else if (unitStr.equals("w") ||
+             unitStr.equals("week") ||
+             unitStr.equals("weeks"))
+    {
+      integerPortion *= 604_800;
       unitFromString = TimeUnit.SECONDS;
     }
     else
@@ -755,45 +749,58 @@ public final class DurationArgument
    */
   public static String nanosToDuration(final long nanos)
   {
-    if (nanos == 86400000000000L)
+    if (nanos == 0)
+    {
+      return "0 nanoseconds";
+    }
+
+    if (nanos == 604_800_000_000_000L)
+    {
+      return "1 week";
+    }
+    else if ((nanos % 604_800_000_000_000L) == 0L)
+    {
+      return (nanos / 604_800_000_000_000L) + " weeks";
+    }
+    else if (nanos == 86_400_000_000_000L)
     {
       return "1 day";
     }
-    else if ((nanos % 86400000000000L) == 0L)
+    else if ((nanos % 86_400_000_000_000L) == 0L)
     {
-      return (nanos / 86400000000000L) + " days";
+      return (nanos / 86_400_000_000_000L) + " days";
     }
-    else if (nanos == 3600000000000L)
+    else if (nanos == 3_600_000_000_000L)
     {
       return "1 hour";
     }
-    else if ((nanos % 3600000000000L) == 0L)
+    else if ((nanos % 3_600_000_000_000L) == 0L)
     {
-      return (nanos / 3600000000000L) + " hours";
+      return (nanos / 3_600_000_000_000L) + " hours";
     }
-    else if (nanos == 60000000000L)
+    else if (nanos == 60_000_000_000L)
     {
       return "1 minute";
     }
-    else if ((nanos % 60000000000L) == 0L)
+    else if ((nanos % 60_000_000_000L) == 0L)
     {
-      return (nanos / 60000000000L) + " minutes";
+      return (nanos / 60_000_000_000L) + " minutes";
     }
-    else if (nanos == 1000000000L)
+    else if (nanos == 1_000_000_000L)
     {
       return "1 second";
     }
-    else if ((nanos % 1000000000L) == 0L)
+    else if ((nanos % 1_000_000_000L) == 0L)
     {
-      return (nanos / 1000000000L) + " seconds";
+      return (nanos / 1_000_000_000L) + " seconds";
     }
-    else if (nanos == 1000000L)
+    else if (nanos == 1_000_000L)
     {
       return "1 millisecond";
     }
-    else if ((nanos % 1000000L) == 0L)
+    else if ((nanos % 1_000_000L) == 0L)
     {
-     return (nanos / 1000000L) + " milliseconds";
+     return (nanos / 1_000_000L) + " milliseconds";
     }
     else if (nanos == 1000L)
     {

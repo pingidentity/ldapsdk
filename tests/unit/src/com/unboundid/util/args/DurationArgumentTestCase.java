@@ -412,6 +412,24 @@ public class DurationArgumentTestCase
 
 
   /**
+   * Tests the {@code nanosToDuration} method with the provided values.
+   *
+   * @param  nanos             The value to provide to the method.
+   * @param  expectedDuration  The expected return value from the method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "nanosToDurationValues")
+  public void testNanosToDuration(final long nanos,
+                                  final String expectedDuration)
+         throws Exception
+  {
+    assertEquals(DurationArgument.nanosToDuration(nanos), expectedDuration);
+  }
+
+
+
+  /**
    * Retrieves a set of valid values that may be used for testing.
    *
    * @return  A set of valid values that may be used for testing.
@@ -467,6 +485,11 @@ public class DurationArgumentTestCase
       new Object[] { "7890 d", 7890L, TimeUnit.DAYS },
       new Object[] { "7890 day", 7890L, TimeUnit.DAYS },
       new Object[] { "7890 days", 7890L, TimeUnit.DAYS },
+
+      new Object[] { "1w", 7L, TimeUnit.DAYS },
+      new Object[] { "2 w", 14L, TimeUnit.DAYS },
+      new Object[] { "3 week", 21L, TimeUnit.DAYS },
+      new Object[] { "4 weeks", 28L, TimeUnit.DAYS },
     };
   }
 
@@ -489,6 +512,138 @@ public class DurationArgumentTestCase
       new Object[] { " 1234s" }, // Space before integer portion
       new Object[] { "0s" }, // Below the minimum
       new Object[] { "5m" }, // Above the maximum
+    };
+  }
+
+
+
+  /**
+   * Retrieves a set of values that can be used for testing the
+   * {@code nanosToDuration} method.
+   *
+   * @return  A set of values that can be used for testing the
+   *          {@code nanosToDuration} method.
+   */
+  @DataProvider(name = "nanosToDurationValues")
+  public Object[][] getNanosToDurationValues()
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(7L, TimeUnit.DAYS),
+        "1 week"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(14L, TimeUnit.DAYS),
+        "2 weeks"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(1L, TimeUnit.DAYS),
+        "1 day"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(2L, TimeUnit.DAYS),
+        "2 days"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(1L, TimeUnit.HOURS),
+        "1 hour"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(2L, TimeUnit.HOURS),
+        "2 hours"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(1L, TimeUnit.MINUTES),
+        "1 minute"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(2L, TimeUnit.MINUTES),
+        "2 minutes"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(1L, TimeUnit.SECONDS),
+        "1 second"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(2L, TimeUnit.SECONDS),
+        "2 seconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(1L, TimeUnit.MILLISECONDS),
+        "1 millisecond"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(2L, TimeUnit.MILLISECONDS),
+        "2 milliseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(1L, TimeUnit.MICROSECONDS),
+        "1 microsecond"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(2L, TimeUnit.MICROSECONDS),
+        "2 microseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(1L, TimeUnit.NANOSECONDS),
+        "1 nanosecond"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(2L, TimeUnit.NANOSECONDS),
+        "2 nanoseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(0L, TimeUnit.DAYS),
+        "0 nanoseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(0L, TimeUnit.HOURS),
+        "0 nanoseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(0L, TimeUnit.MINUTES),
+        "0 nanoseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(0L, TimeUnit.SECONDS),
+        "0 nanoseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(0L, TimeUnit.MILLISECONDS),
+        "0 nanoseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(0L, TimeUnit.MICROSECONDS),
+        "0 nanoseconds"
+      },
+      new Object[]
+      {
+        TimeUnit.NANOSECONDS.convert(0L, TimeUnit.NANOSECONDS),
+        "0 nanoseconds"
+      }
     };
   }
 }
