@@ -22,8 +22,11 @@ package com.unboundid.ldap.sdk.unboundidds.examples;
 
 
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,6 +39,10 @@ import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.PassphraseEncryptedOutputStream;
+import com.unboundid.util.PasswordReader;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -51,6 +58,7 @@ public class SummarizeAccessLogTestCase
   private File dataFile2;
   private File longFilterFile;
   private File compressedFile;
+  private File encryptedFile;
 
   // The timestamp used for the last message.
   private long lastTimestamp;
@@ -426,13 +434,32 @@ public class SummarizeAccessLogTestCase
     longFilterFile = createTempFile(longFilterLines);
 
     compressedFile = createTempFile();
-    final PrintStream ps = new PrintStream(new GZIPOutputStream(
-         new FileOutputStream(compressedFile)));
-    for (final String s : lines)
+    try (final FileOutputStream fileOutputStream =
+              new FileOutputStream(compressedFile);
+         final GZIPOutputStream gzipOutputStream =
+              new GZIPOutputStream(fileOutputStream);
+         final PrintStream printStream = new PrintStream(gzipOutputStream))
     {
-      ps.println(s);
+      for (final String s : lines)
+      {
+        printStream.println(s);
+      }
     }
-    ps.close();
+
+    encryptedFile = createTempFile();
+    try (final FileOutputStream fileOutputStream =
+              new FileOutputStream(encryptedFile);
+         final PassphraseEncryptedOutputStream encryptedOutputStream =
+              new PassphraseEncryptedOutputStream("password", fileOutputStream);
+         final GZIPOutputStream gzipOutputStream =
+              new GZIPOutputStream(encryptedOutputStream);
+         final PrintStream printStream = new PrintStream(gzipOutputStream))
+    {
+      for (final String s : lines)
+      {
+        printStream.println(s);
+      }
+    }
   }
 
 
@@ -538,6 +565,222 @@ public class SummarizeAccessLogTestCase
 
     ResultCode rc = SummarizeAccessLog.main(args, null, null);
     assertEquals(rc, ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Provides test coverage for the summarize-access-log tool with an encrypted
+   * file when the correct encryption passphrase is entered via an interactive
+   * prompt.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedFileWithPromptCorrect()
+         throws Exception
+  {
+    final String[] args =
+    {
+      "--isCompressed",
+      "--promptForEncryptionPassphrase",
+      encryptedFile.getAbsolutePath()
+    };
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.append(StaticUtils.EOL_BYTES);
+    buffer.append("password");
+    buffer.append(StaticUtils.EOL_BYTES);
+
+    final ByteArrayInputStream in =
+         new ByteArrayInputStream(buffer.toByteArray());
+    final BufferedReader passwordReader =
+         new BufferedReader(new InputStreamReader(in));
+
+    try
+    {
+      PasswordReader.setTestReader(passwordReader);
+
+      final ResultCode rc = SummarizeAccessLog.main(args, null, null);
+      assertEquals(rc, ResultCode.SUCCESS);
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
+  }
+
+
+
+  /**
+   * Provides test coverage for the summarize-access-log tool with an encrypted
+   * file when an incorrect encryption passphrase is entered via an interactive
+   * prompt.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedFileWithPromptWrongPassphrase()
+         throws Exception
+  {
+    final String[] args =
+    {
+      "--isCompressed",
+      "--promptForEncryptionPassphrase",
+      encryptedFile.getAbsolutePath()
+    };
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.append(StaticUtils.EOL_BYTES);
+    buffer.append("wrong");
+    buffer.append(StaticUtils.EOL_BYTES);
+
+    final ByteArrayInputStream in =
+         new ByteArrayInputStream(buffer.toByteArray());
+    final BufferedReader passwordReader =
+         new BufferedReader(new InputStreamReader(in));
+
+    try
+    {
+      PasswordReader.setTestReader(passwordReader);
+
+      final ResultCode rc = SummarizeAccessLog.main(args, null, null);
+      assertFalse(rc == ResultCode.SUCCESS);
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
+  }
+
+
+
+  /**
+   * Provides test coverage for the summarize-access-log tool with an encrypted
+   * file when the correct encryption passphrase is provided in a valid file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedFileWithValidFile()
+         throws Exception
+  {
+    final File passphraseFile = createTempFile("password");
+
+    final String[] args =
+    {
+      "--isCompressed",
+      "--encryptionPassphraseFile", passphraseFile.getAbsolutePath(),
+      encryptedFile.getAbsolutePath()
+    };
+
+    final ResultCode rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Provides test coverage for the summarize-access-log tool with an encrypted
+   * file when the wrong encryption passphrase is provided in an otherwise-valid
+   * file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedFileWithFileContainingWrongPassword()
+         throws Exception
+  {
+    final File passphraseFile = createTempFile("wrong");
+
+    final String[] args =
+    {
+      "--isCompressed",
+      "--encryptionPassphraseFile", passphraseFile.getAbsolutePath(),
+      encryptedFile.getAbsolutePath()
+    };
+
+    final ResultCode rc = SummarizeAccessLog.main(args, null, null);
+    assertFalse(rc == ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Provides test coverage for the summarize-access-log tool with an encrypted
+   * file when the encryption passphrase is provided in an empty file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedFileWithEmptyFile()
+         throws Exception
+  {
+    final File emptyFile = createTempFile();
+
+    final String[] args =
+    {
+      "--isCompressed",
+      "--encryptionPassphraseFile", emptyFile.getAbsolutePath(),
+      encryptedFile.getAbsolutePath()
+    };
+
+    final ResultCode rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
+   * Provides test coverage for the summarize-access-log tool with an encrypted
+   * file when the encryption passphrase is provided in a file that contains
+   * multiple lines.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedFileWithMultiLineFile()
+         throws Exception
+  {
+    final File multiLineFile = createTempFile(
+         "password",
+         "password");
+
+    final String[] args =
+    {
+      "--isCompressed",
+      "--encryptionPassphraseFile", multiLineFile.getAbsolutePath(),
+      encryptedFile.getAbsolutePath()
+    };
+
+    final ResultCode rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
+   * Provides test coverage for the summarize-access-log tool with an encrypted
+   * file when the encryption passphrase is provided in a file that contains
+   * only a single blank line.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedFileWithSingleBlankLine()
+         throws Exception
+  {
+    final File fileWithSingleBlankLine = createTempFile("");
+
+    final String[] args =
+    {
+      "--isCompressed",
+      "--encryptionPassphraseFile", fileWithSingleBlankLine.getAbsolutePath(),
+      encryptedFile.getAbsolutePath()
+    };
+
+    final ResultCode rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.PARAM_ERROR);
   }
 
 
