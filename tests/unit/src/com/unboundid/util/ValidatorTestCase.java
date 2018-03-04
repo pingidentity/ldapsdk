@@ -297,6 +297,61 @@ public class ValidatorTestCase
 
 
   /**
+   * Tests the {@code violation} method with a message but no cause.
+   */
+  @Test()
+  public void testViolationWithoutCause()
+  {
+    final String message = "This is the message.";
+
+    try
+    {
+      Validator.violation(message);
+      fail("Expected an exception when calling Validator.violation with no " +
+           "cause");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      assertNotNull(e.getMessage());
+      assertEquals(e.getMessage(), message);
+
+      assertNull(e.getCause());
+    }
+
+    try
+    {
+      Validator.violation(message, null);
+      fail("Expected an exception when calling Validator.violation with a " +
+           "null cause");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      assertNotNull(e.getMessage());
+      assertEquals(e.getMessage(), message);
+
+      assertNull(e.getCause());
+    }
+
+    final RuntimeException cause = new RuntimeException();
+    try
+    {
+      Validator.violation(message, cause);
+      fail("Expected an exception when calling Validator.violation with a " +
+           "non-null cause");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      assertNotNull(e.getMessage());
+      assertEquals(e.getMessage(), message);
+
+      assertNotNull(e.getCause());
+      assertEquals(e.getCause(), cause);
+    }
+  }
+
+
+
+  /**
    * Provides a set of test elements to use when testing the
    * {@code ensureNotNull} method variant that takes a single argument.
    *

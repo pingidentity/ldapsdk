@@ -352,4 +352,42 @@ public final class Validator
       throw e;
     }
   }
+
+
+
+  /**
+   * Indicates that an expected condition was not true by throwing an
+   * {@link LDAPSDKUsageException} with the provided information.
+   *
+   * @param  message  The message to use for the resulting exception.  It must
+   *                  not be {@code null}.
+   *
+   * @throws  LDAPSDKUsageException  To indicate that a violation occurred.
+   */
+  public static void violation(final String message)
+         throws LDAPSDKUsageException
+  {
+    violation(message, null);
+  }
+
+
+
+  /**
+   * Indicates that an expected condition was not true by throwing an
+   * {@link LDAPSDKUsageException} with the provided information.
+   *
+   * @param  message  The message to use for the resulting exception.  It must
+   *                  not be {@code null}.
+   * @param  cause    The exception that triggered the violation.  It may be
+   *                  {@code null} if there is no associated exception.
+   *
+   * @throws  LDAPSDKUsageException  To indicate that a violation occurred.
+   */
+  public static void violation(final String message, final Throwable cause)
+         throws LDAPSDKUsageException
+  {
+    final LDAPSDKUsageException e = new LDAPSDKUsageException(message, cause);
+    debugCodingError(e);
+    throw e;
+  }
 }

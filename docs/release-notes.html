@@ -63,6 +63,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new <tt>CloseableLock</tt> class that provides the same basic
+                  functionality as a Java <tt>ReentrantLock</tt>, but can also be used with Java's
+                  try-with-resources facility.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a <tt>manage-certificates</tt> bug in which the validity start time and
                   validity duration values would be ignored when generating a self-signed
                   certificate intended to replace an existing certificate.  In that case, the tool
