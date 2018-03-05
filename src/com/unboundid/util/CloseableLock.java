@@ -47,6 +47,10 @@ import static com.unboundid.util.UtilityMessages.*;
  * try (final CloseableLock.Lock lock =
  *           closeableLock.tryLock(5L, TimeUnit.SECONDS))
  * {
+ *   // NOTE:  If you don't reference the lock object inside the try block, the
+ *   // compiler will issue a warning.
+ *   lock.avoidCompilerWarning();
+ *
  *   // Do something while the lock is held.  The lock will automatically be
  *   // released once code execution leaves this block.
  * }
@@ -259,9 +263,11 @@ public final class CloseableLock
 
 
   /**
-   * Retrieves the number of threads currently waiting to acquire this lock.
+   * Retrieves an estimate of the number of threads currently waiting to acquire
+   * this lock.
    *
-   * @return  The number of threads currently waiting to acquire this lock.
+   * @return  An estimate of the number of threads currently waiting to acquire
+   *          this lock.
    */
   public int getQueueLength()
   {
@@ -305,6 +311,19 @@ public final class CloseableLock
     private Lock(final ReentrantLock lock)
     {
       this.lock = lock;
+    }
+
+
+
+    /**
+     * This method does nothing.  However, calling it inside a try block when
+     * used in the try-with-resources framework can help avoid a compiler
+     * warning that the JVM will give you if you don't reference the
+     * {@code Closeable} object inside the try block.
+     */
+    public void avoidCompilerWarning()
+    {
+      // No implementation is required.
     }
 
 

@@ -60,7 +60,7 @@ public final class CloseableLockTestCase
 
     try (final CloseableLock.Lock l1 = lock.lock())
     {
-      assertNotNull(l1);
+      l1.avoidCompilerWarning();
 
       assertFalse(lock.isFair());
       assertTrue(lock.isLocked());
@@ -73,7 +73,7 @@ public final class CloseableLockTestCase
 
       try (final CloseableLock.Lock l2 = lock.lockInterruptibly())
       {
-        assertNotNull(l2);
+        l2.avoidCompilerWarning();
 
         assertFalse(lock.isFair());
         assertTrue(lock.isLocked());
@@ -86,7 +86,7 @@ public final class CloseableLockTestCase
 
         try (final CloseableLock.Lock l3 = lock.tryLock(1L, TimeUnit.SECONDS))
         {
-          assertNotNull(l3);
+          l3.avoidCompilerWarning();
 
           assertFalse(lock.isFair());
           assertTrue(lock.isLocked());
@@ -116,7 +116,7 @@ public final class CloseableLockTestCase
           assertEquals(lock.getQueueLength(), 0);
           assertNotNull(lock.toString());
 
-          assertNotNull(l3);
+          l3.avoidCompilerWarning();
         }
 
         assertFalse(lock.isFair());
@@ -128,7 +128,7 @@ public final class CloseableLockTestCase
         assertEquals(lock.getQueueLength(), 0);
         assertNotNull(lock.toString());
 
-        assertNotNull(l2);
+        l2.avoidCompilerWarning();
       }
 
       assertFalse(lock.isFair());
@@ -140,7 +140,7 @@ public final class CloseableLockTestCase
       assertEquals(lock.getQueueLength(), 0);
       assertNotNull(lock.toString());
 
-      assertNotNull(l1);
+      l1.avoidCompilerWarning();
     }
 
     assertFalse(lock.isFair());
