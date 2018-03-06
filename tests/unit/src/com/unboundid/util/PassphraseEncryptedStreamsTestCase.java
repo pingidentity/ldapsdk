@@ -568,7 +568,7 @@ public final class PassphraseEncryptedStreamsTestCase
       assertNotNull(header);
 
       assertNotNull(header.getKeyFactoryAlgorithm());
-      assertEquals(header.getKeyFactoryAlgorithm(), "PBKDF2WithHmacSHA256");
+      assertEquals(header.getKeyFactoryAlgorithm(), "PBKDF2WithHmacSHA1");
 
       assertEquals(header.getKeyFactoryIterationCount(), 16_384);
 
@@ -688,7 +688,7 @@ public final class PassphraseEncryptedStreamsTestCase
               PassphraseEncryptedStreamHeader.ENCODING_VERSION_1 + 1),
          new ASN1OctetString(
               PassphraseEncryptedStreamHeader.TYPE_KEY_FACTORY_ALGORITHM,
-              "PBKDF2WithHmacSHA256"),
+              "PBKDF2WithHmacSHA1"),
          new ASN1Integer(
               PassphraseEncryptedStreamHeader.TYPE_KEY_FACTORY_ITERATION_COUNT,
               16_384),
@@ -741,7 +741,7 @@ public final class PassphraseEncryptedStreamsTestCase
               PassphraseEncryptedStreamHeader.ENCODING_VERSION_1),
          new ASN1OctetString(
               PassphraseEncryptedStreamHeader.TYPE_KEY_FACTORY_ALGORITHM,
-              "PBKDF2WithHmacSHA256"),
+              "PBKDF2WithHmacSHA1"),
          new ASN1Integer(
               PassphraseEncryptedStreamHeader.TYPE_KEY_FACTORY_ITERATION_COUNT,
               16_384),
@@ -787,7 +787,7 @@ public final class PassphraseEncryptedStreamsTestCase
               PassphraseEncryptedStreamHeader.ENCODING_VERSION_1),
          new ASN1OctetString(
               PassphraseEncryptedStreamHeader.TYPE_KEY_FACTORY_ALGORITHM,
-              "PBKDF2WithHmacSHA256"));
+              "PBKDF2WithHmacSHA1"));
 
     final ByteStringBuffer buffer = new ByteStringBuffer();
     buffer.append(PassphraseEncryptedStreamHeader.MAGIC_BYTES);
