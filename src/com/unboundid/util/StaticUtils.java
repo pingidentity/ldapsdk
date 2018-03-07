@@ -67,6 +67,13 @@ public final class StaticUtils
 
 
   /**
+   * A pre-allocated empty character array.
+   */
+  public static final char[] NO_CHARS = new char[0];
+
+
+
+  /**
    * A pre-allocated empty control array.
    */
   public static final Control[] NO_CONTROLS = new Control[0];

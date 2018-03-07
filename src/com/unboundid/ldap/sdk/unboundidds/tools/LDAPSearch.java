@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPOutputStream;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
@@ -122,6 +123,7 @@ import com.unboundid.util.FilterFileReader;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.OutputFormat;
+import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.TeeOutputStream;
 import com.unboundid.util.ThreadSafety;
@@ -175,10 +177,12 @@ public final class LDAPSearch
   // The set of arguments supported by this program.
   private BooleanArgument accountUsable = null;
   private BooleanArgument authorizationIdentity = null;
+  private BooleanArgument compressOutput = null;
   private BooleanArgument continueOnError = null;
   private BooleanArgument countEntries = null;
   private BooleanArgument dontWrap = null;
   private BooleanArgument dryRun = null;
+  private BooleanArgument encryptOutput = null;
   private BooleanArgument followReferrals = null;
   private BooleanArgument hideRedactedValueCount = null;
   private BooleanArgument getUserResourceLimits = null;
@@ -206,6 +210,7 @@ public final class LDAPSearch
   private DNArgument moveSubtreeFrom = null;
   private DNArgument moveSubtreeTo = null;
   private DNArgument proxyV1As = null;
+  private FileArgument encryptionPassphraseFile = null;
   private FileArgument filterFile = null;
   private FileArgument ldapURLFile = null;
   private FileArgument outputFile = null;
@@ -274,6 +279,9 @@ public final class LDAPSearch
 
   // The list of entry transformations to apply.
   private volatile List<EntryTransformation> entryTransformations = null;
+
+  // The encryption passphrase to use if the output is to be encrypted.
+  private String encryptionPassphrase = null;
 
 
 
@@ -628,6 +636,33 @@ public final class LDAPSearch
     outputFile.addLongIdentifier("output-file", true);
     outputFile.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(outputFile);
+
+    compressOutput = new BooleanArgument(null, "compressOutput", 1,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_COMPRESS_OUTPUT.get());
+    compressOutput.addLongIdentifier("compress-output", true);
+    compressOutput.addLongIdentifier("compress", true);
+    compressOutput.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
+    parser.addArgument(compressOutput);
+
+    encryptOutput = new BooleanArgument(null, "encryptOutput", 1,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_ENCRYPT_OUTPUT.get());
+    encryptOutput.addLongIdentifier("encrypt-output", true);
+    encryptOutput.addLongIdentifier("encrypt", true);
+    encryptOutput.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
+    parser.addArgument(encryptOutput);
+
+    encryptionPassphraseFile = new FileArgument(null,
+         "encryptionPassphraseFile", false, 1, null,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_ENCRYPTION_PW_FILE.get(), true, true,
+         true, false);
+    encryptionPassphraseFile.addLongIdentifier("encryption-passphrase-file",
+         true);
+    encryptionPassphraseFile.addLongIdentifier("encryptionPasswordFile", true);
+    encryptionPassphraseFile.addLongIdentifier("encryption-password-file",
+         true);
+    encryptionPassphraseFile.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
+    parser.addArgument(encryptionPassphraseFile);
 
     separateOutputFilePerSearch = new BooleanArgument(null,
          "separateOutputFilePerSearch", 1,
@@ -1185,6 +1220,23 @@ public final class LDAPSearch
     // together.
     parser.addDependentArgumentSet(moveSubtreeFrom, moveSubtreeTo);
     parser.addDependentArgumentSet(moveSubtreeTo, moveSubtreeFrom);
+
+
+    // The compressOutput argument can only be used if an output file is
+    // specified and results aren't going to be teed.
+    parser.addDependentArgumentSet(compressOutput, outputFile);
+    parser.addExclusiveArgumentSet(compressOutput, teeResultsToStandardOut);
+
+
+    // The encryptOutput argument can only be used if an output file is
+    // specified and results aren't going to be teed.
+    parser.addDependentArgumentSet(encryptOutput, outputFile);
+    parser.addExclusiveArgumentSet(encryptOutput, teeResultsToStandardOut);
+
+
+    // The encryptionPassphraseFile argument can only be used if the
+    // encryptOutput argument is also provided.
+    parser.addDependentArgumentSet(encryptionPassphraseFile, encryptOutput);
   }
 
 
@@ -2006,6 +2058,40 @@ public final class LDAPSearch
   @Override()
   public ResultCode doToolProcessing()
   {
+    // If we should encrypt the output, then get the encryption passphrase.
+    if (encryptOutput.isPresent())
+    {
+      if (encryptionPassphraseFile.isPresent())
+      {
+        try
+        {
+          encryptionPassphrase = ToolUtils.readEncryptionPassphraseFromFile(
+               encryptionPassphraseFile.getValue());
+        }
+        catch (final LDAPException e)
+        {
+          Debug.debugException(e);
+          wrapErr(0, WRAP_COLUMN, e.getMessage());
+          return e.getResultCode();
+        }
+      }
+      else
+      {
+        try
+        {
+          encryptionPassphrase = ToolUtils.promptForEncryptionPassphrase(false,
+               true, getOut(), getErr());
+        }
+        catch (final LDAPException e)
+        {
+          Debug.debugException(e);
+          wrapErr(0, WRAP_COLUMN, e.getMessage());
+          return e.getResultCode();
+        }
+      }
+    }
+
+
     // If we should use an output file, then set that up now.  Otherwise, write
     // the header to standard output.
     if (outputFile.isPresent())
@@ -2014,15 +2100,25 @@ public final class LDAPSearch
       {
         try
         {
-          final FileOutputStream fos =
-               new FileOutputStream(outputFile.getValue());
+          OutputStream s = new FileOutputStream(outputFile.getValue());
+
+          if (encryptOutput.isPresent())
+          {
+            s = new PassphraseEncryptedOutputStream(encryptionPassphrase, s);
+          }
+
+          if (compressOutput.isPresent())
+          {
+            s = new GZIPOutputStream(s);
+          }
+
           if (teeResultsToStandardOut.isPresent())
           {
-            outStream = new PrintStream(new TeeOutputStream(fos, getOut()));
+            outStream = new PrintStream(new TeeOutputStream(s, getOut()));
           }
           else
           {
-            outStream = new PrintStream(fos);
+            outStream = new PrintStream(s);
           }
           errStream = outStream;
         }
@@ -2537,14 +2633,26 @@ public final class LDAPSearch
       {
         final String path = outputFile.getValue().getAbsolutePath() + '.' +
              outputFileCounter.getAndIncrement();
-        final FileOutputStream fos = new FileOutputStream(path);
+
+        OutputStream s = new FileOutputStream(path);
+
+        if (encryptOutput.isPresent())
+        {
+          s = new PassphraseEncryptedOutputStream(encryptionPassphrase, s);
+        }
+
+        if (compressOutput.isPresent())
+        {
+          s = new GZIPOutputStream(s);
+        }
+
         if (teeResultsToStandardOut.isPresent())
         {
-          outStream = new PrintStream(new TeeOutputStream(fos, getOut()));
+          outStream = new PrintStream(new TeeOutputStream(s, getOut()));
         }
         else
         {
-          outStream = new PrintStream(fos);
+          outStream = new PrintStream(s);
         }
         errStream = outStream;
       }

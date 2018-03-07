@@ -289,6 +289,7 @@ public final class LDAPModify
   private DNArgument proxyV1As = null;
   private DNArgument uniquenessBaseDN = null;
   private DurationArgument assuredReplicationTimeout = null;
+  private FileArgument encryptionPassphraseFile = null;
   private FileArgument ldifFile = null;
   private FileArgument modifyEntriesMatchingFiltersFromFile = null;
   private FileArgument modifyEntriesWithDNsFromFile = null;
@@ -517,6 +518,20 @@ public final class LDAPModify
     ldifFile.addLongIdentifier("file-name", true);
     ldifFile.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(ldifFile);
+
+
+    encryptionPassphraseFile = new FileArgument(null,
+         "encryptionPassphraseFile", false, 1, null,
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_ENCRYPTION_PW_FILE.get(), true, true,
+         true, false);
+    encryptionPassphraseFile.addLongIdentifier("encryption-passphrase-file",
+         true);
+    encryptionPassphraseFile.addLongIdentifier("encryptionPasswordFile", true);
+    encryptionPassphraseFile.addLongIdentifier("encryption-password-file",
+         true);
+    encryptionPassphraseFile.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
+    parser.addArgument(encryptionPassphraseFile);
 
 
     characterSet = new StringArgument('i', "characterSet", false, 1,
@@ -1430,6 +1445,24 @@ public final class LDAPModify
     }
 
 
+    // If an encryption passphrase file was specified, then read its value.
+    String encryptionPassphrase = null;
+    if (encryptionPassphraseFile.isPresent())
+    {
+      try
+      {
+        encryptionPassphrase = ToolUtils.readEncryptionPassphraseFromFile(
+             encryptionPassphraseFile.getValue());
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, WRAP_COLUMN, e.getMessage());
+        return e.getResultCode();
+      }
+    }
+
+
     LDAPConnectionPool connectionPool = null;
     LDIFReader         ldifReader     = null;
     LDIFWriter         rejectWriter   = null;
@@ -1589,25 +1622,28 @@ public final class LDAPModify
 
 
       // Create an LDIF reader that will be used to read the changes to process.
-      if (ldifFile.isPresent())
+      try
       {
-        final File[] ldifFiles = ldifFile.getValues().toArray(new File[0]);
-        try
+        final InputStream ldifInputStream;
+        if (ldifFile.isPresent())
         {
-          ldifReader = new LDIFReader(ldifFiles, 0, null, null,
-               characterSet.getValue());
+          ldifInputStream = ToolUtils.getInputStreamForLDIFFiles(
+               ldifFile.getValues(), encryptionPassphrase, getOut(),
+               getErr()).getFirst();
         }
-        catch (final Exception e)
+        else
         {
-          Debug.debugException(e);
-          commentToErr(ERR_LDAPMODIFY_CANNOT_CREATE_LDIF_READER.get(
-               StaticUtils.getExceptionMessage(e)));
-          return ResultCode.LOCAL_ERROR;
+          ldifInputStream = in;
         }
+
+        ldifReader = new LDIFReader(ldifInputStream, 0, null, null,
+             characterSet.getValue());
       }
-      else
+      catch (final Exception e)
       {
-        ldifReader = new LDIFReader(in, 0, null, null, characterSet.getValue());
+        commentToErr(ERR_LDAPMODIFY_CANNOT_CREATE_LDIF_READER.get(
+             StaticUtils.getExceptionMessage(e)));
+        return ResultCode.LOCAL_ERROR;
       }
 
       if (stripTrailingSpaces.isPresent())

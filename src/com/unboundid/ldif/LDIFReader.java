@@ -23,11 +23,9 @@ package com.unboundid.ldif;
 
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -482,39 +480,9 @@ public final class LDIFReader
     {
       throw new IOException(ERR_READ_NO_LDIF_FILES.get());
     }
-    else if (files.length == 1)
-    {
-      return new FileInputStream(files[0]);
-    }
     else
     {
-      final File spacerFile =
-           File.createTempFile("ldif-reader-spacer", ".ldif");
-      spacerFile.deleteOnExit();
-
-      final BufferedWriter spacerWriter =
-           new BufferedWriter(new FileWriter(spacerFile));
-      try
-      {
-        spacerWriter.newLine();
-        spacerWriter.newLine();
-      }
-      finally
-      {
-        spacerWriter.close();
-      }
-
-      final File[] returnArray = new File[(files.length * 2) - 1];
-      returnArray[0] = files[0];
-
-      int pos = 1;
-      for (int i=1; i < files.length; i++)
-      {
-        returnArray[pos++] = spacerFile;
-        returnArray[pos++] = files[i];
-      }
-
-      return new AggregateInputStream(returnArray);
+      return new AggregateInputStream(true, files);
     }
   }
 

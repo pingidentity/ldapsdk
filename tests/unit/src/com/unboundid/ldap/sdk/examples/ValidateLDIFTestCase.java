@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.examples;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.unboundid.ldap.sdk.schema.EntryValidator;
@@ -37,6 +38,8 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFWriter;
+import com.unboundid.util.PassphraseEncryptedOutputStream;
+import com.unboundid.util.PasswordReader;
 
 
 
@@ -48,6 +51,9 @@ public class ValidateLDIFTestCase
 {
   // The path to a compressed version of a valid LDIF file.
   private File compressedLDIF;
+
+  // The path to a compressed and encrypted version of a valid LDIF file.
+  private File encryptedLDIF;
 
   // The path to an invalid LDIF file.
   private File invalidLDIF;
@@ -147,10 +153,30 @@ public class ValidateLDIFTestCase
 
     compressedLDIF = createTempFile();
     compressedLDIF.delete();
-    final FileInputStream is = new FileInputStream(validLDIF);
-    final GZIPOutputStream os =
+    FileInputStream is = new FileInputStream(validLDIF);
+    OutputStream os =
          new GZIPOutputStream(new FileOutputStream(compressedLDIF));
     final byte[] buffer = new byte[8192];
+    while (true)
+    {
+      final int bytesRead = is.read(buffer);
+      if (bytesRead < 0)
+      {
+        break;
+      }
+      else
+      {
+        os.write(buffer, 0, bytesRead);
+      }
+    }
+    is.close();
+    os.close();
+
+    encryptedLDIF = createTempFile();
+    encryptedLDIF.delete();
+    is = new FileInputStream(validLDIF);
+    os = new GZIPOutputStream(new PassphraseEncryptedOutputStream("passphrase",
+         new FileOutputStream(encryptedLDIF)));
     while (true)
     {
       final int bytesRead = is.read(buffer);
@@ -378,6 +404,79 @@ public class ValidateLDIFTestCase
     };
     assertEquals(ValidateLDIF.main(args, null, null),
                  ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Performs a test with an encrypted LDIF file when the passphrase is
+   * provided in a file.
+   * <BR><BR>
+   * Access to a Directory Server instance is required for complete processing.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedLDIFWithPassphraseFromFile()
+         throws Exception
+  {
+    if (! isDirectoryInstanceAvailable())
+    {
+      return;
+    }
+
+    final File passphraseFile = createTempFile("passphrase");
+
+    String[] args =
+    {
+      "-h", getTestHost(),
+      "-p", String.valueOf(getTestPort()),
+      "-D", getTestBindDN(),
+      "-w", getTestBindPassword(),
+      "-f", encryptedLDIF.getAbsolutePath(),
+      "--encryptionPassphraseFile", passphraseFile.getAbsolutePath(),
+      "-c"
+    };
+    assertEquals(ValidateLDIF.main(args, null, null), ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Performs a test with an encrypted LDIF file when the passphrase is
+   * provided at an interactive prompt.
+   * <BR><BR>
+   * Access to a Directory Server instance is required for complete processing.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptedLDIFWithPromptedPassphrase()
+         throws Exception
+  {
+    if (! isDirectoryInstanceAvailable())
+    {
+      return;
+    }
+
+    try
+    {
+      PasswordReader.setTestReaderLines("passphrase");
+
+      String[] args =
+      {
+        "-h", getTestHost(),
+        "-p", String.valueOf(getTestPort()),
+        "-D", getTestBindDN(),
+        "-w", getTestBindPassword(),
+        "-f", encryptedLDIF.getAbsolutePath()
+      };
+      assertEquals(ValidateLDIF.main(args, null, null), ResultCode.SUCCESS);
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
   }
 
 

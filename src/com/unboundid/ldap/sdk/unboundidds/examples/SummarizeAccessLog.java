@@ -22,10 +22,8 @@ package com.unboundid.ldap.sdk.unboundidds.examples;
 
 
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -33,7 +31,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -67,12 +64,11 @@ import com.unboundid.ldap.sdk.unboundidds.logs.OperationAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.SearchRequestAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.SearchResultAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.UnbindRequestAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
-import com.unboundid.util.PassphraseEncryptedInputStream;
-import com.unboundid.util.PasswordReader;
 import com.unboundid.util.ReverseComparator;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -154,12 +150,11 @@ public final class SummarizeAccessLog
   // Variables used for accessing argument information.
   private ArgumentParser  argumentParser;
 
-  // And argument which may be used to indicate that the log files are
+  // An argument which may be used to indicate that the log files are
   // compressed.
   private BooleanArgument isCompressed;
 
-  // Arguments used to specify the encryption passphrase.
-  private BooleanArgument promptForEncryptionPassphrase;
+  // An argument used to specify the encryption passphrase.
   private FileArgument    encryptionPassphraseFile;
 
   // The decimal format that will be used for this class.
@@ -548,32 +543,24 @@ public final class SummarizeAccessLog
     argumentParser = parser;
 
     // Add an argument that makes it possible to read a compressed log file.
+    // Note that this argument is no longer needed for dealing with compressed
+    // files, since the tool will automatically detect whether a file is
+    // compressed.  However, the argument is still provided for the purpose of
+    // backward compatibility.
     String description = "Indicates that the log file is compressed.";
     isCompressed = new BooleanArgument('c', "isCompressed", description);
     isCompressed.addLongIdentifier("is-compressed", true);
     isCompressed.addLongIdentifier("compressed", true);
+    isCompressed.setHidden(true);
     parser.addArgument(isCompressed);
-
-
-    // Add an argument that indicates that the tool should prompt for an
-    // encryption passphrase.
-    description = "Indicates that the log file is encrypted and that the " +
-         "tool should interactively prompt for the encryption passphrase.";
-    promptForEncryptionPassphrase = new BooleanArgument(null,
-         "promptForEncryptionPassphrase", 1, description);
-    promptForEncryptionPassphrase.addLongIdentifier(
-         "prompt-for-encryption-passphrase", true);
-    promptForEncryptionPassphrase.addLongIdentifier(
-         "promptForEncryptionPassword", true);
-    promptForEncryptionPassphrase.addLongIdentifier(
-         "prompt-for-encryption-password", true);
-    parser.addArgument(promptForEncryptionPassphrase);
 
 
     // Add an argument that indicates that the tool should read the encryption
     // passphrase from a file.
     description = "Indicates that the log file is encrypted and that the " +
-         "encryption passphrase is contained in the specified file.";
+         "encryption passphrase is contained in the specified file.  If " +
+         "the log data is encrypted and this argument is not provided, then " +
+         "the tool will interactively prompt for the encryption passphrase.";
     encryptionPassphraseFile = new FileArgument(null,
          "encryptionPassphraseFile", false, 1, null, description, true, true,
          true, false);
@@ -583,12 +570,6 @@ public final class SummarizeAccessLog
     encryptionPassphraseFile.addLongIdentifier("encryption-password-file",
          true);
     parser.addArgument(encryptionPassphraseFile);
-
-
-     // Ensure that the --promptForEncryptionPassphrase and
-    // --encryptionPassphraseFile arguments cannot be used together.
-    parser.addExclusiveArgumentSet(promptForEncryptionPassphrase,
-         encryptionPassphraseFile);
   }
 
 
@@ -627,65 +608,18 @@ public final class SummarizeAccessLog
   public ResultCode doToolProcessing()
   {
     String encryptionPassphrase = null;
-    if (promptForEncryptionPassphrase.isPresent())
+    if (encryptionPassphraseFile.isPresent())
     {
-      while (true)
+      try
       {
-        getOut().print("Enter the encryption passphrase: ");
-
-        final char[] pwChars;
-        try
-        {
-          pwChars = PasswordReader.readPasswordChars();
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-          err("Unable to read the encryption passphrase entered at the " +
-               "prompt:  " + getExceptionMessage(le));
-          return le.getResultCode();
-        }
-
-        if ((pwChars == null) || (pwChars.length == 0))
-        {
-          err();
-          err("The encryption passphrase must not be empty.");
-          err();
-          continue;
-        }
-
-        encryptionPassphrase = new String(pwChars);
-        Arrays.fill(pwChars, '\u0000');
-        break;
+        encryptionPassphrase = ToolUtils.readEncryptionPassphraseFromFile(
+             encryptionPassphraseFile.getValue());
       }
-    }
-    else if (encryptionPassphraseFile.isPresent())
-    {
-      try (FileReader fileReader =
-                new FileReader(encryptionPassphraseFile.getValue());
-           BufferedReader bufferedReader = new BufferedReader(fileReader))
-      {
-        encryptionPassphrase = bufferedReader.readLine();
-        if (encryptionPassphrase == null)
-        {
-          err("The encryption passphrase file is empty.");
-          return ResultCode.PARAM_ERROR;
-        }
-        else if (bufferedReader.readLine() != null)
-        {
-          err("The encryption passphrase file has multiple lines  It must " +
-               "contain exactly one line.");
-          return ResultCode.PARAM_ERROR;
-        }
-        else if (encryptionPassphrase.isEmpty())
-        {
-          err("The encryption passphrase is empty.");
-          return ResultCode.PARAM_ERROR;
-        }
-      }
-      catch (final Exception e)
+      catch (final LDAPException e)
       {
         Debug.debugException(e);
+        err(e.getMessage());
+        return e.getResultCode();
       }
     }
 
@@ -701,15 +635,28 @@ public final class SummarizeAccessLog
       {
         inputStream = new FileInputStream(f);
 
-        if (encryptionPassphrase != null)
+        final ObjectPair<InputStream,String> p =
+             ToolUtils.getPossiblyPassphraseEncryptedInputStream(inputStream,
+                  encryptionPassphrase,
+                  (! encryptionPassphraseFile.isPresent()),
+                  "Log file '" + path + "' is encrypted.  Please enter the " +
+                       "encryption passphrase:",
+                  "ERROR:  The provided passphrase was incorrect.",
+                  getOut(), getErr());
+        inputStream = p.getFirst();
+        if ((p.getSecond() != null) && (encryptionPassphrase == null))
         {
-          inputStream = new PassphraseEncryptedInputStream(
-               encryptionPassphrase, inputStream);
+          encryptionPassphrase = p.getSecond();
         }
 
         if (isCompressed.isPresent())
         {
           inputStream = new GZIPInputStream(inputStream);
+        }
+        else
+        {
+          inputStream =
+               ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
         }
 
         reader = new AccessLogReader(new InputStreamReader(inputStream));

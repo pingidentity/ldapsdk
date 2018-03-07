@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Map;
@@ -45,6 +46,8 @@ import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFWriter;
+import com.unboundid.util.PassphraseEncryptedInputStream;
+import com.unboundid.util.PasswordReader;
 
 
 
@@ -1601,6 +1604,7 @@ public final class SplitLDIFTestCase
          throws Exception
   {
     final File outputDir = createTempDir();
+    final File passphraseFile = createTempFile("passphrase");
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -1610,6 +1614,8 @@ public final class SplitLDIFTestCase
          "--targetLDIFBasePath",
               outputDir.getAbsolutePath() + File.separator + "output.ldif",
          "--compressTarget",
+         "--encryptTarget",
+         "--encryptionPassphraseFile", passphraseFile.getAbsolutePath(),
          "--splitBaseDN", "ou=People,dc=example,dc=com",
          "--addEntriesOutsideSplitBaseDNToDedicatedSet",
          "--addEntriesOutsideSplitBaseDNToAllSets",
@@ -1622,7 +1628,8 @@ public final class SplitLDIFTestCase
     assertEquals(outputDir.listFiles().length, 5);
 
     assertEquals(
-         readEntries(outputDir, "output.ldif.outside-split", true, true).size(),
+         readEntries(outputDir, "output.ldif.outside-split", true, true,
+              true).size(),
          2);
 
 
@@ -1633,13 +1640,13 @@ public final class SplitLDIFTestCase
     // 26 entries below the split base will be split individually, for a total
     // of 38 entries.
     final int set1Count =
-         readEntries(outputDir, "output.ldif.set1", true, true).size();
+         readEntries(outputDir, "output.ldif.set1", true, true, true).size();
     final int set2Count =
-         readEntries(outputDir, "output.ldif.set2", true, true).size();
+         readEntries(outputDir, "output.ldif.set2", true, true, true).size();
     final int set3Count =
-         readEntries(outputDir, "output.ldif.set3", true, true).size();
+         readEntries(outputDir, "output.ldif.set3", true, true, true).size();
     final int set4Count =
-         readEntries(outputDir, "output.ldif.set4", true, true).size();
+         readEntries(outputDir, "output.ldif.set4", true, true, true).size();
 
     assertTrue(set1Count > 3);
     assertTrue(set2Count > 3);
@@ -1880,7 +1887,7 @@ public final class SplitLDIFTestCase
          30);
 
     final Map<DN,Entry> errorMap =
-         readEntries(outputDir, "output.ldif.errors", false, false);
+         readEntries(outputDir, "output.ldif.errors", false, false, false);
     assertEquals(errorMap.size(), 26);
   }
 
@@ -2403,7 +2410,7 @@ public final class SplitLDIFTestCase
          30);
 
     final Map<DN,Entry> errorMap =
-         readEntries(outputDir, "output.ldif.errors", false, false);
+         readEntries(outputDir, "output.ldif.errors", false, false, false);
     assertEquals(errorMap.size(), 26);
   }
 
@@ -3135,7 +3142,7 @@ public final class SplitLDIFTestCase
          30);
 
     final Map<DN,Entry> errorMap =
-         readEntries(outputDir, "output.ldif.errors", false, false);
+         readEntries(outputDir, "output.ldif.errors", false, false, false);
     assertEquals(errorMap.size(), 26);
   }
 
@@ -3324,23 +3331,34 @@ public final class SplitLDIFTestCase
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    final ResultCode rc = SplitLDIF.main(out, out,
-         "split-using-hash-on-rdn",
-         "--sourceLDIF", flatDITFile.getAbsolutePath(),
-         "--targetLDIFBasePath",
-              outputDir.getAbsolutePath() + File.separator + "output.ldif",
-         "--compressTarget",
-         "--splitBaseDN", "ou=People,dc=example,dc=com",
-         "--addEntriesOutsideSplitBaseDNToDedicatedSet",
-         "--addEntriesOutsideSplitBaseDNToAllSets",
-         "--numSets", "4");
-    assertEquals(rc, ResultCode.SUCCESS);
+    try
+    {
+      PasswordReader.setTestReaderLines("passphrase", "passphrase");
+
+      final ResultCode rc = SplitLDIF.main(out, out,
+           "split-using-hash-on-rdn",
+           "--sourceLDIF", flatDITFile.getAbsolutePath(),
+           "--targetLDIFBasePath",
+           outputDir.getAbsolutePath() + File.separator + "output.ldif",
+           "--compressTarget",
+           "--encryptTarget",
+           "--splitBaseDN", "ou=People,dc=example,dc=com",
+           "--addEntriesOutsideSplitBaseDNToDedicatedSet",
+           "--addEntriesOutsideSplitBaseDNToAllSets",
+           "--numSets", "4");
+      assertEquals(rc, ResultCode.SUCCESS);
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
 
     assertNotNull(outputDir.listFiles());
     assertEquals(outputDir.listFiles().length, 5);
 
     assertEquals(
-         readEntries(outputDir, "output.ldif.outside-split", true, true).size(),
+         readEntries(outputDir, "output.ldif.outside-split", true, true,
+              true).size(),
          2);
 
 
@@ -3351,13 +3369,13 @@ public final class SplitLDIFTestCase
     // 26 entries below the split base will be split individually, for a total
     // of 38 entries.
     final int set1Count =
-         readEntries(outputDir, "output.ldif.set1", true, true).size();
+         readEntries(outputDir, "output.ldif.set1", true, true, true).size();
     final int set2Count =
-         readEntries(outputDir, "output.ldif.set2", true, true).size();
+         readEntries(outputDir, "output.ldif.set2", true, true, true).size();
     final int set3Count =
-         readEntries(outputDir, "output.ldif.set3", true, true).size();
+         readEntries(outputDir, "output.ldif.set3", true, true, true).size();
     final int set4Count =
-         readEntries(outputDir, "output.ldif.set4", true, true).size();
+         readEntries(outputDir, "output.ldif.set4", true, true, true).size();
 
     assertTrue(set1Count > 3);
     assertTrue(set2Count > 3);
@@ -3414,7 +3432,8 @@ public final class SplitLDIFTestCase
     assertEquals(outputDir.listFiles().length, 5);
 
     assertEquals(
-         readEntries(outputDir, "output.ldif.outside-split", true, true).size(),
+         readEntries(outputDir, "output.ldif.outside-split", true, true,
+              false).size(),
          2);
 
 
@@ -3425,13 +3444,13 @@ public final class SplitLDIFTestCase
     // 26 entries below the split base will be split individually, for a total
     // of 38 entries.
     final int set1Count =
-         readEntries(outputDir, "output.ldif.set1", true, true).size();
+         readEntries(outputDir, "output.ldif.set1", true, true, false).size();
     final int set2Count =
-         readEntries(outputDir, "output.ldif.set2", true, true).size();
+         readEntries(outputDir, "output.ldif.set2", true, true, false).size();
     final int set3Count =
-         readEntries(outputDir, "output.ldif.set3", true, true).size();
+         readEntries(outputDir, "output.ldif.set3", true, true, false).size();
     final int set4Count =
-         readEntries(outputDir, "output.ldif.set4", true, true).size();
+         readEntries(outputDir, "output.ldif.set4", true, true, false).size();
 
     assertTrue(set1Count > 3);
     assertTrue(set2Count > 3);
@@ -3519,7 +3538,7 @@ public final class SplitLDIFTestCase
                                                final String filename)
           throws Exception
   {
-    return readEntries(dir, filename, true, false);
+    return readEntries(dir, filename, true, false, false);
   }
 
 
@@ -3535,6 +3554,7 @@ public final class SplitLDIFTestCase
    * @param  checkParent   Indicates whether to ensure that the parent entry
    *                       exists for all entries below the split base DN.
    * @param  isCompressed  Indicates whether the input file is compressed.
+   * @param  isEncrypted   Indicates whether the input file is encrypted.
    *
    * @return  A map of the entries read from the specified file.
    *
@@ -3543,21 +3563,27 @@ public final class SplitLDIFTestCase
   private static TreeMap<DN,Entry> readEntries(final File dir,
                                                final String filename,
                                                final boolean checkParent,
-                                               final boolean isCompressed)
+                                               final boolean isCompressed,
+                                               final boolean isEncrypted)
           throws Exception
   {
     final DN splitBaseDN = new DN("ou=People,dc=example,dc=com");
 
-    final LDIFReader r;
     final File f = new File(dir, filename);
+
+    InputStream inputStream = new FileInputStream(f);
+    if (isEncrypted)
+    {
+      inputStream =
+           new PassphraseEncryptedInputStream("passphrase", inputStream);
+    }
+
     if (isCompressed)
     {
-      r = new LDIFReader(new GZIPInputStream(new FileInputStream(f)));
+      inputStream = new GZIPInputStream(inputStream);
     }
-    else
-    {
-      r = new LDIFReader(f);
-    }
+
+    final LDIFReader r = new LDIFReader(inputStream);
 
     final TreeMap<DN,Entry> m = new TreeMap<DN,Entry>();
     while (true)

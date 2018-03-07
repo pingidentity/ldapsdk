@@ -25,8 +25,11 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.zip.GZIPOutputStream;
 
 import org.testng.annotations.Test;
 
@@ -43,6 +46,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionInMemoryExtendedOperationHandler;
 import com.unboundid.util.Base64;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.PassphraseEncryptedOutputStream;
+import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
 
 
@@ -2343,6 +2348,139 @@ public final class LDAPModifyTestCase
     // Ensure that the output file exists and is not empty.
     assertTrue(outputFile.exists());
     assertTrue(outputFile.length() > 0L);
+  }
+
+
+
+  /**
+   * Tests the ability to process compressed and encrypted LDIF data when the
+   * encryption passphrase is provided in a file that isn't a valid passphrase
+   * file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCompressedAndEncryptedInputWithPassphraseFromMalformedFile()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(false, false);
+
+    final File inputFile = createTempFile();
+    assertTrue(inputFile.delete());
+
+    final PrintStream printStream = new PrintStream(new GZIPOutputStream(
+         new PassphraseEncryptedOutputStream("passphrase", new FileOutputStream(
+              inputFile))));
+    printStream.println("dn: dc=example,dc=com");
+    printStream.println("changetype: add");
+    printStream.println("objectClass: top");
+    printStream.println("objectClass: domain");
+    printStream.println("dc: example");
+    printStream.close();
+
+    final File passphraseFile = createTempFile(); // Shouldn't be empty.
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPModify.main(null, out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--bindDN", "cn=Directory Manager",
+              "--bindPassword", "password",
+              "--ldifFile", inputFile.getAbsolutePath(),
+              "--encryptionPassphraseFile", passphraseFile.getAbsolutePath()),
+         ResultCode.PARAM_ERROR,
+         new String(out.toByteArray(), "UTF-8"));
+  }
+
+
+
+  /**
+   * Tests the ability to process compressed and encrypted LDIF data when the
+   * encryption passphrase is provided in a file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCompressedAndEncryptedInputWithPassphraseFromFile()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(false, false);
+
+    final File inputFile = createTempFile();
+    assertTrue(inputFile.delete());
+
+    final PrintStream printStream = new PrintStream(new GZIPOutputStream(
+         new PassphraseEncryptedOutputStream("passphrase", new FileOutputStream(
+              inputFile))));
+    printStream.println("dn: dc=example,dc=com");
+    printStream.println("changetype: add");
+    printStream.println("objectClass: top");
+    printStream.println("objectClass: domain");
+    printStream.println("dc: example");
+    printStream.close();
+
+    final File passphraseFile = createTempFile("passphrase");
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPModify.main(null, out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--bindDN", "cn=Directory Manager",
+              "--bindPassword", "password",
+              "--ldifFile", inputFile.getAbsolutePath(),
+              "--encryptionPassphraseFile", passphraseFile.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         new String(out.toByteArray(), "UTF-8"));
+  }
+
+
+
+  /**
+   * Tests the ability to process compressed and encrypted LDIF data when the
+   * encryption passphrase is provided at an interactive prompt.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCompressedAndEncryptedInputWithPassphraseFromPrompt()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(false, false);
+
+    final File inputFile = createTempFile();
+    assertTrue(inputFile.delete());
+
+    final PrintStream printStream = new PrintStream(new GZIPOutputStream(
+         new PassphraseEncryptedOutputStream("passphrase", new FileOutputStream(
+              inputFile))));
+    printStream.println("dn: dc=example,dc=com");
+    printStream.println("changetype: add");
+    printStream.println("objectClass: top");
+    printStream.println("objectClass: domain");
+    printStream.println("dc: example");
+    printStream.close();
+
+    try
+    {
+      PasswordReader.setTestReaderLines("passphrase");
+
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
+      assertEquals(
+           LDAPModify.main(null, out, out,
+                "--hostname", "localhost",
+                "--port", String.valueOf(ds.getListenPort()),
+                "--bindDN", "cn=Directory Manager",
+                "--bindPassword", "password",
+                "--ldifFile", inputFile.getAbsolutePath()),
+           ResultCode.SUCCESS,
+           new String(out.toByteArray(), "UTF-8"));
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
   }
 
 

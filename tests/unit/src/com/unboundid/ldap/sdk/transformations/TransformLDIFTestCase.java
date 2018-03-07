@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.transformations;
 
 
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,6 +46,9 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFReader;
+import com.unboundid.util.PassphraseEncryptedInputStream;
+import com.unboundid.util.PassphraseEncryptedOutputStream;
+import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.json.JSONObject;
 import com.unboundid.util.json.JSONString;
@@ -2014,6 +2018,476 @@ public final class TransformLDIFTestCase
     final File expectedTargetFile =
          new File(sourceLDIFFile.getAbsolutePath() + ".scrambled");
     assertFalse(expectedTargetFile.exists());
+  }
+
+
+
+  /**
+   * Tests the tool's behavior when dealing with compressed and encrypted data
+   * when using a passphrase obtained from a file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptionWithPassphraseFromFile()
+         throws Exception
+  {
+    // Define the source data that will be used for testing.
+    final String[] sourceLines =
+    {
+      "dn: dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: domain",
+      "dc: example",
+      "description: domain",
+      "",
+      "dn: ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: organizationalUnit",
+      "ou: People",
+      "description: orgUnit",
+      "",
+      "dn: uid=user.1,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.1",
+      "givenName: User",
+      "sn: 1",
+      "cn: User 1",
+      "userPassword: {CLEAR}password",
+      "description: user",
+      "",
+      "dn: uid=user.2,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.2",
+      "givenName: User",
+      "sn: 2",
+      "cn: User 2",
+      "userPassword: {CLEAR}password",
+      "description: user",
+      "",
+      "dn: uid=user.3,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.3",
+      "givenName: User",
+      "sn: 3",
+      "cn: User 3",
+      "userPassword: {CLEAR}password",
+      "description: user",
+      "",
+      "dn: uid=user.4,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.4",
+      "givenName: User",
+      "sn: 4",
+      "cn: User 4",
+      "userPassword: {CLEAR}password",
+      "description: user",
+      "",
+      "dn: uid=user.5,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.5",
+      "givenName: User",
+      "sn: 5",
+      "cn: User 5",
+      "userPassword: {CLEAR}password",
+      "description: user"
+    };
+
+
+    // Create the LDIF file to scramble  It will be compressed and encrypted.
+    final File sourceLDIFFile = createTempFile();
+    assertTrue(sourceLDIFFile.delete());
+
+    final PrintStream printStream = new PrintStream(new GZIPOutputStream(
+         new PassphraseEncryptedOutputStream("passphrase",
+              new FileOutputStream(sourceLDIFFile))));
+    for (final String line : sourceLines)
+    {
+      printStream.println(line);
+    }
+    printStream.close();
+
+    final File passphraseFile = createTempFile("passphrase");
+
+    final File outputFile = runTool(
+         "--sourceLDIF", sourceLDIFFile.getAbsolutePath(),
+         "--scrambleAttribute", "uid",
+         "--scrambleAttribute", "description",
+         "--scrambleAttribute", "userPassword",
+         "--processDNs",
+         "--schemaPath", singleSchemaFile.getAbsolutePath(),
+         "--compressTarget",
+         "--encryptTarget",
+         "--encryptionPassphraseFile", passphraseFile.getAbsolutePath());
+
+    final LDIFReader reader = new LDIFReader(new GZIPInputStream(
+         new BufferedInputStream(new PassphraseEncryptedInputStream(
+              "passphrase", new BufferedInputStream(new FileInputStream(
+                   outputFile))))));
+
+    Entry e = reader.readEntry();
+    assertNotNull(e);
+    assertDNsEqual(e.getDN(), "dc=example,dc=com");
+    assertTrue(e.hasAttribute("description"));
+    assertFalse(e.hasAttributeValue("description", "domain"));
+
+    e = reader.readEntry();
+    assertNotNull(e);
+    assertDNsEqual(e.getDN(), "ou=People,dc=example,dc=com");
+    assertTrue(e.hasAttribute("description"));
+    assertFalse(e.hasAttributeValue("description", "orgUnit"));
+
+    for (int i=1; i <= 5; i++)
+    {
+      e = reader.readEntry();
+      assertNotNull(e);
+
+      assertTrue(e.getDN().startsWith("uid="));
+      assertTrue(e.getDN().endsWith(",ou=People,dc=example,dc=com"));
+      assertFalse(e.getDN().equals(
+           "uid=user." + i + ",ou=People,dc=example,dc=com"));
+
+      assertTrue(e.hasAttribute("uid"));
+      assertFalse(e.hasAttributeValue("uid", "user." + i));
+
+      assertTrue(e.hasAttribute("description"));
+      assertFalse(e.hasAttributeValue("description", "user"));
+
+      assertTrue(e.hasAttribute("userPassword"));
+      assertFalse(e.hasAttributeValue("userPassword", "{CLEAR}password"));
+      assertTrue(e.getAttributeValue("userPassword").startsWith("{CLEAR}"));
+    }
+
+    assertNull(reader.readEntry());
+
+    reader.close();
+  }
+
+
+
+  /**
+   * Tests the tool's behavior when dealing with compressed and encrypted data
+   * when using a passphrase obtained via interactive prompting.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptionWithPassphraseFromPrompt()
+         throws Exception
+  {
+    // Define the source data that will be used for testing.
+    final String[] sourceLines =
+    {
+      "dn: dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: domain",
+      "dc: example",
+      "description: domain",
+      "",
+      "dn: ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: organizationalUnit",
+      "ou: People",
+      "description: orgUnit",
+      "",
+      "dn: uid=user.1,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.1",
+      "givenName: User",
+      "sn: 1",
+      "cn: User 1",
+      "userPassword: {CLEAR}password",
+      "description: user",
+      "",
+      "dn: uid=user.2,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.2",
+      "givenName: User",
+      "sn: 2",
+      "cn: User 2",
+      "userPassword: {CLEAR}password",
+      "description: user",
+      "",
+      "dn: uid=user.3,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.3",
+      "givenName: User",
+      "sn: 3",
+      "cn: User 3",
+      "userPassword: {CLEAR}password",
+      "description: user",
+      "",
+      "dn: uid=user.4,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.4",
+      "givenName: User",
+      "sn: 4",
+      "cn: User 4",
+      "userPassword: {CLEAR}password",
+      "description: user",
+      "",
+      "dn: uid=user.5,ou=People,dc=example,dc=com",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: user.5",
+      "givenName: User",
+      "sn: 5",
+      "cn: User 5",
+      "userPassword: {CLEAR}password",
+      "description: user"
+    };
+
+
+    // Create the LDIF file to scramble  It will be compressed and encrypted.
+    final File sourceLDIFFile = createTempFile();
+    assertTrue(sourceLDIFFile.delete());
+
+    final PrintStream printStream = new PrintStream(new GZIPOutputStream(
+         new PassphraseEncryptedOutputStream("passphrase",
+              new FileOutputStream(sourceLDIFFile))));
+    for (final String line : sourceLines)
+    {
+      printStream.println(line);
+    }
+    printStream.close();
+
+    final File outputFile;
+    try
+    {
+      PasswordReader.setTestReaderLines("passphrase");
+
+      outputFile = runTool(
+           "--sourceLDIF", sourceLDIFFile.getAbsolutePath(),
+           "--scrambleAttribute", "uid",
+           "--scrambleAttribute", "description",
+           "--scrambleAttribute", "userPassword",
+           "--processDNs",
+           "--schemaPath", singleSchemaFile.getAbsolutePath(),
+           "--compressTarget",
+           "--encryptTarget");
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
+
+    final LDIFReader reader = new LDIFReader(new GZIPInputStream(
+         new BufferedInputStream(new PassphraseEncryptedInputStream(
+              "passphrase", new BufferedInputStream(new FileInputStream(
+                   outputFile))))));
+
+    Entry e = reader.readEntry();
+    assertNotNull(e);
+    assertDNsEqual(e.getDN(), "dc=example,dc=com");
+    assertTrue(e.hasAttribute("description"));
+    assertFalse(e.hasAttributeValue("description", "domain"));
+
+    e = reader.readEntry();
+    assertNotNull(e);
+    assertDNsEqual(e.getDN(), "ou=People,dc=example,dc=com");
+    assertTrue(e.hasAttribute("description"));
+    assertFalse(e.hasAttributeValue("description", "orgUnit"));
+
+    for (int i=1; i <= 5; i++)
+    {
+      e = reader.readEntry();
+      assertNotNull(e);
+
+      assertTrue(e.getDN().startsWith("uid="));
+      assertTrue(e.getDN().endsWith(",ou=People,dc=example,dc=com"));
+      assertFalse(e.getDN().equals(
+           "uid=user." + i + ",ou=People,dc=example,dc=com"));
+
+      assertTrue(e.hasAttribute("uid"));
+      assertFalse(e.hasAttributeValue("uid", "user." + i));
+
+      assertTrue(e.hasAttribute("description"));
+      assertFalse(e.hasAttributeValue("description", "user"));
+
+      assertTrue(e.hasAttribute("userPassword"));
+      assertFalse(e.hasAttributeValue("userPassword", "{CLEAR}password"));
+      assertTrue(e.getAttributeValue("userPassword").startsWith("{CLEAR}"));
+    }
+
+    assertNull(reader.readEntry());
+
+    reader.close();
+  }
+
+
+
+  /**
+   * Tests the tool's behavior when dealing with compressed and encrypted data
+   * when using a passphrase obtained via interactive prompting and the input
+   * is not encrypted.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEncryptionWithPassphraseFromPromptUnencryptedInput()
+         throws Exception
+  {
+    // Create the LDIF file to scramble.
+    final File sourceLDIFFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: domain",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "description: orgUnit",
+         "",
+         "dn: uid=user.1,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.1",
+         "givenName: User",
+         "sn: 1",
+         "cn: User 1",
+         "userPassword: {CLEAR}password",
+         "description: user",
+         "",
+         "dn: uid=user.2,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.2",
+         "givenName: User",
+         "sn: 2",
+         "cn: User 2",
+         "userPassword: {CLEAR}password",
+         "description: user",
+         "",
+         "dn: uid=user.3,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.3",
+         "givenName: User",
+         "sn: 3",
+         "cn: User 3",
+         "userPassword: {CLEAR}password",
+         "description: user",
+         "",
+         "dn: uid=user.4,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.4",
+         "givenName: User",
+         "sn: 4",
+         "cn: User 4",
+         "userPassword: {CLEAR}password",
+         "description: user",
+         "",
+         "dn: uid=user.5,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.5",
+         "givenName: User",
+         "sn: 5",
+         "cn: User 5",
+         "userPassword: {CLEAR}password",
+         "description: user");
+
+    final File outputFile;
+    try
+    {
+      PasswordReader.setTestReaderLines("passphrase", "passphrase");
+
+      outputFile = runTool(
+           "--sourceLDIF", sourceLDIFFile.getAbsolutePath(),
+           "--scrambleAttribute", "uid",
+           "--scrambleAttribute", "description",
+           "--scrambleAttribute", "userPassword",
+           "--processDNs",
+           "--schemaPath", singleSchemaFile.getAbsolutePath(),
+           "--encryptTarget");
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
+
+    final LDIFReader reader = new LDIFReader(new PassphraseEncryptedInputStream(
+         "passphrase", new FileInputStream(outputFile)));
+
+    Entry e = reader.readEntry();
+    assertNotNull(e);
+    assertDNsEqual(e.getDN(), "dc=example,dc=com");
+    assertTrue(e.hasAttribute("description"));
+    assertFalse(e.hasAttributeValue("description", "domain"));
+
+    e = reader.readEntry();
+    assertNotNull(e);
+    assertDNsEqual(e.getDN(), "ou=People,dc=example,dc=com");
+    assertTrue(e.hasAttribute("description"));
+    assertFalse(e.hasAttributeValue("description", "orgUnit"));
+
+    for (int i=1; i <= 5; i++)
+    {
+      e = reader.readEntry();
+      assertNotNull(e);
+
+      assertTrue(e.getDN().startsWith("uid="));
+      assertTrue(e.getDN().endsWith(",ou=People,dc=example,dc=com"));
+      assertFalse(e.getDN().equals(
+           "uid=user." + i + ",ou=People,dc=example,dc=com"));
+
+      assertTrue(e.hasAttribute("uid"));
+      assertFalse(e.hasAttributeValue("uid", "user." + i));
+
+      assertTrue(e.hasAttribute("description"));
+      assertFalse(e.hasAttributeValue("description", "user"));
+
+      assertTrue(e.hasAttribute("userPassword"));
+      assertFalse(e.hasAttributeValue("userPassword", "{CLEAR}password"));
+      assertTrue(e.getAttributeValue("userPassword").startsWith("{CLEAR}"));
+    }
+
+    assertNull(reader.readEntry());
+
+    reader.close();
   }
 
 

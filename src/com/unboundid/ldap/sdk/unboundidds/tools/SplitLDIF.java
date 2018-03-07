@@ -22,9 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -38,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.unboundid.ldap.sdk.Filter;
@@ -50,8 +47,9 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.CommandLineTool;
-import com.unboundid.util.AggregateInputStream;
 import com.unboundid.util.Debug;
+import com.unboundid.util.ObjectPair;
+import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -142,8 +140,10 @@ public final class SplitLDIF
   private BooleanArgument addEntriesOutsideSplitBaseDNToAllSets = null;
   private BooleanArgument addEntriesOutsideSplitBaseDNToDedicatedSet = null;
   private BooleanArgument compressTarget = null;
+  private BooleanArgument encryptTarget = null;
   private BooleanArgument sourceCompressed = null;
   private DNArgument splitBaseDN = null;
+  private FileArgument encryptionPassphraseFile = null;
   private FileArgument schemaPath = null;
   private FileArgument sourceLDIF = null;
   private FileArgument targetLDIFBasePath = null;
@@ -329,6 +329,25 @@ public final class SplitLDIF
     compressTarget.addLongIdentifier("compress-target", true);
     compressTarget.addLongIdentifier("compress-output", true);
     parser.addArgument(compressTarget);
+
+    encryptTarget = new BooleanArgument(null, "encryptTarget",
+         INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_ENCRYPT_TARGET.get());
+    encryptTarget.addLongIdentifier("encryptOutput", true);
+    encryptTarget.addLongIdentifier("encrypt", true);
+    encryptTarget.addLongIdentifier("encrypt-target", true);
+    encryptTarget.addLongIdentifier("encrypt-output", true);
+    parser.addArgument(encryptTarget);
+
+    encryptionPassphraseFile = new FileArgument(null,
+         "encryptionPassphraseFile", false, 1, null,
+         INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_ENCRYPT_PW_FILE.get(), true, true,
+         true, false);
+    encryptionPassphraseFile.addLongIdentifier("encryptionPasswordFile", true);
+    encryptionPassphraseFile.addLongIdentifier("encryption-passphrase-file",
+         true);
+    encryptionPassphraseFile.addLongIdentifier("encryption-password-file",
+         true);
+    parser.addArgument(encryptionPassphraseFile);
 
     splitBaseDN = new DNArgument('b', "splitBaseDN", true, 1, null,
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_SPLIT_BASE_DN.get());
@@ -620,6 +639,25 @@ public final class SplitLDIF
     }
 
 
+    // If an encryption passphrase file is provided, then get the passphrase
+    // from it.
+    String encryptionPassphrase = null;
+    if (encryptionPassphraseFile.isPresent())
+    {
+      try
+      {
+        encryptionPassphrase = ToolUtils.readEncryptionPassphraseFromFile(
+             encryptionPassphraseFile.getValue());
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        wrapErr(0, MAX_OUTPUT_LINE_LENGTH, e.getMessage());
+        return e.getResultCode();
+      }
+    }
+
+
     // Figure out which subcommand was selected, and create the appropriate
     // translator to use to perform the processing.
     final SplitLDIFTranslator translator;
@@ -680,46 +718,21 @@ public final class SplitLDIF
     final LDIFReader ldifReader;
     try
     {
-      InputStream inputStream;
+      final InputStream inputStream;
       if (sourceLDIF.isPresent())
       {
-        final List<File> sourceFiles = sourceLDIF.getValues();
-        final ArrayList<InputStream> fileInputStreams =
-             new ArrayList<InputStream>(2*sourceFiles.size());
-        for (final File f : sourceFiles)
+        final ObjectPair<InputStream,String> p =
+             ToolUtils.getInputStreamForLDIFFiles(sourceLDIF.getValues(),
+                  encryptionPassphrase, getOut(), getErr());
+        inputStream = p.getFirst();
+        if ((encryptionPassphrase == null) && (p.getSecond() != null))
         {
-          if (! fileInputStreams.isEmpty())
-          {
-            // Go ahead and ensure that there are at least new end-of-line
-            // markers between each file.  Otherwise, it's possible for entries
-            // to run together.
-            final byte[] doubleEOL = new byte[StaticUtils.EOL_BYTES.length * 2];
-            System.arraycopy(StaticUtils.EOL_BYTES, 0, doubleEOL, 0,
-                 StaticUtils.EOL_BYTES.length);
-            System.arraycopy(StaticUtils.EOL_BYTES, 0, doubleEOL,
-                 StaticUtils.EOL_BYTES.length, StaticUtils.EOL_BYTES.length);
-            fileInputStreams.add(new ByteArrayInputStream(doubleEOL));
-          }
-          fileInputStreams.add(new FileInputStream(f));
-        }
-
-        if (fileInputStreams.size() == 1)
-        {
-          inputStream = fileInputStreams.get(0);
-        }
-        else
-        {
-          inputStream = new AggregateInputStream(fileInputStreams);
+          encryptionPassphrase = p.getSecond();
         }
       }
       else
       {
         inputStream = System.in;
-      }
-
-      if (sourceCompressed.isPresent())
-      {
-        inputStream = new GZIPInputStream(inputStream);
       }
 
       ldifReader = new LDIFReader(inputStream, numThreads.getValue(),
@@ -770,6 +783,29 @@ readLoop:
             try
             {
               s = new FileOutputStream(f);
+
+              if (encryptTarget.isPresent())
+              {
+                if (encryptionPassphrase == null)
+                {
+                  try
+                  {
+                    encryptionPassphrase =
+                         ToolUtils.promptForEncryptionPassphrase(false, true,
+                              getOut(), getErr());
+                  }
+                  catch (final LDAPException ex)
+                  {
+                    Debug.debugException(ex);
+                    wrapErr(0, MAX_OUTPUT_LINE_LENGTH, ex.getMessage());
+                    return ex.getResultCode();
+                  }
+                }
+
+                s = new PassphraseEncryptedOutputStream(encryptionPassphrase,
+                     s);
+              }
+
               if (compressTarget.isPresent())
               {
                 s = new GZIPOutputStream(s);
@@ -932,6 +968,29 @@ readLoop:
             try
             {
               s = new FileOutputStream(f);
+
+              if (encryptTarget.isPresent())
+              {
+                if (encryptionPassphrase == null)
+                {
+                  try
+                  {
+                    encryptionPassphrase =
+                         ToolUtils.promptForEncryptionPassphrase(false, true,
+                              getOut(), getErr());
+                  }
+                  catch (final LDAPException ex)
+                  {
+                    Debug.debugException(ex);
+                    wrapErr(0, MAX_OUTPUT_LINE_LENGTH, ex.getMessage());
+                    return ex.getResultCode();
+                  }
+                }
+
+                s = new PassphraseEncryptedOutputStream(encryptionPassphrase,
+                     s);
+              }
+
               if (compressTarget.isPresent())
               {
                 s = new GZIPOutputStream(s);

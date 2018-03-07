@@ -22,6 +22,7 @@ package com.unboundid.util;
 
 
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -101,14 +102,51 @@ public final class AggregateInputStream
   public AggregateInputStream(final File... files)
          throws IOException
   {
+    this(false, files);
+  }
+
+
+
+  /**
+   * Creates a new aggregate input stream that will read data from the specified
+   * files.
+   *
+   * @param  ensureBlankLinesBetweenFiles  Indicates whether to ensure that
+   *                                       there is at least one completely
+   *                                       blank line between files.  This may
+   *                                       be useful when blank lines are
+   *                                       used as delimiters (for example, when
+   *                                       reading LDIF data), there is a chance
+   *                                       that the files may not end with blank
+   *                                       lines, and the inclusion of extra
+   *                                       blank lines between files will not
+   *                                       cause any harm.
+   * @param  files                         The set of files to be read by this
+   *                                       aggregate input stream.  It must not
+   *                                       be {@code null}.
+   *
+   * @throws  IOException  If a problem is encountered while attempting to
+   *                       create input streams for the provided files.
+   */
+  public AggregateInputStream(final boolean ensureBlankLinesBetweenFiles,
+                              final File... files)
+         throws IOException
+  {
     Validator.ensureNotNull(files);
 
-    final ArrayList<InputStream> streamList =
-         new ArrayList<InputStream>(files.length);
+    final ArrayList<InputStream> streamList = new ArrayList<>(2 * files.length);
 
     IOException ioException = null;
     for (final File f : files)
     {
+      if (ensureBlankLinesBetweenFiles && (! streamList.isEmpty()))
+      {
+        final ByteStringBuffer buffer = new ByteStringBuffer(4);
+        buffer.append(StaticUtils.EOL_BYTES);
+        buffer.append(StaticUtils.EOL_BYTES);
+        streamList.add(new ByteArrayInputStream(buffer.toByteArray()));
+      }
+
       try
       {
         streamList.add(new FileInputStream(f));

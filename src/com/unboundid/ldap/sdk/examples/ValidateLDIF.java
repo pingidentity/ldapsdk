@@ -42,11 +42,13 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
+import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.ldif.DuplicateValueBehavior;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFReaderEntryTranslator;
 import com.unboundid.ldif.LDIFWriter;
+import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -172,6 +174,7 @@ public final class ValidateLDIF
   private FileArgument    schemaDirectory;
   private FileArgument    ldifFile;
   private FileArgument    rejectFile;
+  private FileArgument    encryptionPassphraseFile;
   private IntegerArgument numThreads;
   private StringArgument  ignoreSyntaxViolationsForAttribute;
 
@@ -409,17 +412,45 @@ public final class ValidateLDIF
   public void addNonLDAPArguments(final ArgumentParser parser)
          throws ArgumentException
   {
-    String description = "The path to the LDIF file to process.";
+    String description = "The path to the LDIF file to process.  The tool " +
+         "will automatically attempt to detect whether the file is " +
+         "encrypted or compressed.";
     ldifFile = new FileArgument('f', "ldifFile", true, 1, "{path}", description,
                                 true, true, true, false);
     ldifFile.addLongIdentifier("ldif-file", true);
     parser.addArgument(ldifFile);
 
+
+    // Add an argument that makes it possible to read a compressed LDIF file.
+    // Note that this argument is no longer needed for dealing with compressed
+    // files, since the tool will automatically detect whether a file is
+    // compressed.  However, the argument is still provided for the purpose of
+    // backward compatibility.
     description = "Indicates that the specified LDIF file is compressed " +
                   "using gzip compression.";
     isCompressed = new BooleanArgument('c', "isCompressed", description);
     isCompressed.addLongIdentifier("is-compressed", true);
+    isCompressed.setHidden(true);
     parser.addArgument(isCompressed);
+
+
+    // Add an argument that indicates that the tool should read the encryption
+    // passphrase from a file.
+    description = "Indicates that the specified LDIF file is encrypted and " +
+         "that the encryption passphrase is contained in the specified " +
+         "file.  If the LDIF data is encrypted and this argument is not " +
+         "provided, then the tool will interactively prompt for the " +
+         "encryption passphrase.";
+    encryptionPassphraseFile = new FileArgument(null,
+         "encryptionPassphraseFile", false, 1, null, description, true, true,
+         true, false);
+    encryptionPassphraseFile.addLongIdentifier("encryption-passphrase-file",
+         true);
+    encryptionPassphraseFile.addLongIdentifier("encryptionPasswordFile", true);
+    encryptionPassphraseFile.addLongIdentifier("encryption-password-file",
+         true);
+    parser.addArgument(encryptionPassphraseFile);
+
 
     description = "The path to the file to which rejected entries should be " +
                   "written.";
@@ -634,6 +665,7 @@ public final class ValidateLDIF
       }
       catch (final Exception e)
       {
+        Debug.debugException(e);
         err("Unable to read schema from files in directory " +
             schemaDir.getAbsolutePath() + ":  " + getExceptionMessage(e));
         return ResultCode.LOCAL_ERROR;
@@ -649,9 +681,28 @@ public final class ValidateLDIF
       }
       catch (final LDAPException le)
       {
+        Debug.debugException(le);
         err("Unable to connect to the directory server and read the schema:  ",
             le.getMessage());
         return le.getResultCode();
+      }
+    }
+
+
+    // Get the encryption passphrase, if it was provided.
+    String encryptionPassphrase = null;
+    if (encryptionPassphraseFile.isPresent())
+    {
+      try
+      {
+        encryptionPassphrase = ToolUtils.readEncryptionPassphraseFromFile(
+             encryptionPassphraseFile.getValue());
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        err(e.getMessage());
+        return e.getResultCode();
       }
     }
 
@@ -693,14 +744,29 @@ public final class ValidateLDIF
     try
     {
       InputStream inputStream = new FileInputStream(ldifFile.getValue());
+
+      inputStream = ToolUtils.getPossiblyPassphraseEncryptedInputStream(
+           inputStream, encryptionPassphrase, false,
+           "LDIF file '" + ldifFile.getValue().getPath() +
+                "' is encrypted.  Please enter the encryption passphrase:",
+             "ERROR:  The provided passphrase was incorrect.",
+             getOut(), getErr()).getFirst();
+
       if (isCompressed.isPresent())
       {
         inputStream = new GZIPInputStream(inputStream);
       }
+      else
+      {
+        inputStream =
+             ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
+      }
+
       ldifReader = new LDIFReader(inputStream, numThreads.getValue(), this);
     }
     catch (final Exception e)
     {
+      Debug.debugException(e);
       err("Unable to open the LDIF reader:  ", getExceptionMessage(e));
       return ResultCode.LOCAL_ERROR;
     }
@@ -728,6 +794,7 @@ public final class ValidateLDIF
       }
       catch (final Exception e)
       {
+        Debug.debugException(e);
         err("Unable to create the reject writer:  ", getExceptionMessage(e));
         return ResultCode.LOCAL_ERROR;
       }
@@ -751,6 +818,7 @@ public final class ValidateLDIF
         }
         catch (final LDIFException le)
         {
+          Debug.debugException(le);
           malformedEntries.incrementAndGet();
 
           if (resultCode == ResultCode.SUCCESS)
@@ -780,6 +848,7 @@ public final class ValidateLDIF
             }
             catch (final IOException ioe)
             {
+              Debug.debugException(ioe);
               err("Unable to write to the reject file:",
                   getExceptionMessage(ioe));
               err("LDIF parse failure that triggered the rejection:  ",
@@ -790,6 +859,7 @@ public final class ValidateLDIF
         }
         catch (final IOException ioe)
         {
+          Debug.debugException(ioe);
 
           if (rejectWriter != null)
           {
@@ -803,6 +873,7 @@ public final class ValidateLDIF
             }
             catch (final Exception ex)
             {
+              Debug.debugException(ex);
               err("I/O error reading from LDIF:", getExceptionMessage(ioe));
               return ResultCode.LOCAL_ERROR;
             }
@@ -844,7 +915,10 @@ public final class ValidateLDIF
       {
         ldifReader.close();
       }
-      catch (final Exception e) {}
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
 
       try
       {
@@ -853,7 +927,10 @@ public final class ValidateLDIF
           rejectWriter.close();
         }
       }
-      catch (final Exception e) {}
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
     }
   }
 
@@ -885,7 +962,10 @@ public final class ValidateLDIF
           {
             rejectWriter.writeEntry(entry, listToString(invalidReasons));
           }
-          catch (final IOException ioe) {}
+          catch (final IOException ioe)
+          {
+            Debug.debugException(ioe);
+          }
         }
       }
     }

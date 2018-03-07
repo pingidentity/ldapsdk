@@ -23,6 +23,8 @@ package com.unboundid.util;
 
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -159,8 +161,37 @@ public final class PasswordReader
 
 
   /**
+   * Specifies the lines that should be used as input when reading the password.
+   * This should only be set when running unit tests, and the
+   * {@link #setTestReader(BufferedReader)} method should be called with a value
+   * of {@code null} before the end of the test to ensure that the password
+   * reader is reverted back to its normal behavior.
+   *
+   * @param  lines  The lines of input that should be provided to the password
+   *                reader instead of actually obtaining them interactively.
+   *                It must not be {@code null} but may be empty.
+   */
+  @InternalUseOnly()
+  public static void setTestReaderLines(final String... lines)
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    for (final String line : lines)
+    {
+      buffer.append(line);
+      buffer.append(StaticUtils.EOL_BYTES);
+    }
+
+    TEST_READER = new BufferedReader(new InputStreamReader(
+         new ByteArrayInputStream(buffer.toByteArray())));
+  }
+
+
+
+  /**
    * Specifies the input stream from which to read the password.  This should
-   * only be set when running unit tests.
+   * only be set when running unit tests, and this method should be called
+   * again with a value of {@code null} before the end of the test to ensure
+   * that the password reader is reverted back to its normal behavior.
    *
    * @param  reader  The input stream from which to read the password.  It may
    *                 be {@code null} to obtain the password from the normal

@@ -582,8 +582,6 @@ public class SummarizeAccessLogTestCase
   {
     final String[] args =
     {
-      "--isCompressed",
-      "--promptForEncryptionPassphrase",
       encryptedFile.getAbsolutePath()
     };
 
@@ -625,8 +623,6 @@ public class SummarizeAccessLogTestCase
   {
     final String[] args =
     {
-      "--isCompressed",
-      "--promptForEncryptionPassphrase",
       encryptedFile.getAbsolutePath()
     };
 

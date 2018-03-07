@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,6 +40,8 @@ import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.ldif.LDIFReader;
+import com.unboundid.util.PassphraseEncryptedInputStream;
+import com.unboundid.util.PasswordReader;
 import com.unboundid.util.json.JSONObject;
 import com.unboundid.util.json.JSONObjectReader;
 
@@ -1745,5 +1748,181 @@ public final class LDAPSearchTestCase
               "--moveSubtreeFrom", "ou=Groups,dc=example,dc=com",
               "(uid=aaron.adams)"),
          ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
+   * Provides test coverage for the ability to compress and encrypt the LDIF
+   * output when the encryption passphrase is provided in a file that is
+   * malformed.
+   *
+   * @throws  Exception  if an unexpected problem occurs.
+   */
+  @Test()
+  public void testCompressAndEncryptOutputWithPassphraseFromMalformedFile()
+         throws Exception
+  {
+    final File outputFile = createTempFile();
+    final File passphraseFile = createTempFile(); // Shouldn't be empty.
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--dereferencePolicy", "find",
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--compressOutput",
+              "--encryptOutput",
+              "--encryptionPassphraseFile", passphraseFile.getAbsolutePath(),
+              "--sortOrder", "-sn,+givenName,uid",
+              "--virtualListView", "0:100:1:0",
+              "(objectClass=person)",
+              "givenName",
+              "sn"),
+         ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
+   * Provides test coverage for the ability to compress and encrypt the LDIF
+   * output when the encryption passphrase is provided in a file.
+   *
+   * @throws  Exception  if an unexpected problem occurs.
+   */
+  @Test()
+  public void testCompressAndEncryptOutputWithPassphraseFromFile()
+         throws Exception
+  {
+    final File outputFile = createTempFile();
+    final File passphraseFile = createTempFile("passphrase");
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--dereferencePolicy", "find",
+              "--outputFile", outputFile.getAbsolutePath(),
+              "--compressOutput",
+              "--encryptOutput",
+              "--encryptionPassphraseFile", passphraseFile.getAbsolutePath(),
+              "--sortOrder", "-sn,+givenName,uid",
+              "--virtualListView", "0:100:1:0",
+              "(objectClass=person)",
+              "givenName",
+              "sn"),
+         ResultCode.SUCCESS);
+
+    final LDIFReader ldifReader = new LDIFReader(new GZIPInputStream(
+         new PassphraseEncryptedInputStream("passphrase",
+              new FileInputStream(outputFile))));
+
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=ezra.edwards,ou=People,dc=example,dc=com",
+              "givenName: Ezra",
+              "sn: Edwards"));
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=dolly.duke,ou=People,dc=example,dc=com",
+              "givenName: Dolly",
+              "sn: Duke"));
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=chester.cooper,ou=People,dc=example,dc=com",
+              "givenName: Chester",
+              "sn: Cooper"));
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=brenda.brown,ou=People,dc=example,dc=com",
+              "givenName: Brenda",
+              "sn: Brown"));
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=aaron.adams,ou=People,dc=example,dc=com",
+              "givenName: Aaron",
+              "sn: Adams"));
+    assertNull(ldifReader.readEntry());
+
+    ldifReader.close();
+  }
+
+
+
+  /**
+   * Provides test coverage for the ability to compress and encrypt the LDIF
+   * output when the encryption passphrase is provided at an interactive prompt.
+   *
+   * @throws  Exception  if an unexpected problem occurs.
+   */
+  @Test()
+  public void testCompressAndEncryptOutputWithPassphraseFromPrompt()
+         throws Exception
+  {
+    final File outputFile = createTempFile();
+
+    try
+    {
+      PasswordReader.setTestReaderLines("passphrase", "passphrase");
+
+      assertEquals(
+           LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+                "--hostname", "localhost",
+                "--port", String.valueOf(ds.getListenPort()),
+                "--baseDN", "dc=example,dc=com",
+                "--scope", "sub",
+                "--dereferencePolicy", "find",
+                "--outputFile", outputFile.getAbsolutePath(),
+                "--compressOutput",
+                "--encryptOutput",
+                "--sortOrder", "-sn,+givenName,uid",
+                "--virtualListView", "0:100:1:0",
+                "(objectClass=person)",
+                "givenName",
+                "sn"),
+           ResultCode.SUCCESS);
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
+
+    final LDIFReader ldifReader = new LDIFReader(new GZIPInputStream(
+         new PassphraseEncryptedInputStream("passphrase",
+              new FileInputStream(outputFile))));
+
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=ezra.edwards,ou=People,dc=example,dc=com",
+              "givenName: Ezra",
+              "sn: Edwards"));
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=dolly.duke,ou=People,dc=example,dc=com",
+              "givenName: Dolly",
+              "sn: Duke"));
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=chester.cooper,ou=People,dc=example,dc=com",
+              "givenName: Chester",
+              "sn: Cooper"));
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=brenda.brown,ou=People,dc=example,dc=com",
+              "givenName: Brenda",
+              "sn: Brown"));
+    assertEquals(ldifReader.readEntry(),
+         new Entry(
+              "dn: uid=aaron.adams,ou=People,dc=example,dc=com",
+              "givenName: Aaron",
+              "sn: Adams"));
+    assertNull(ldifReader.readEntry());
+
+    ldifReader.close();
   }
 }
