@@ -99,7 +99,8 @@ public final class ToolUtils
       final Class<?> serverStaticUtilsClass = Class.forName(
            "com.unboundid.directory.server.util.StaticUtils");
       m = serverStaticUtilsClass.getMethod(
-           "getPassphraseForEncryptionSettingsID", String.class);
+           "getPassphraseForEncryptionSettingsID", String.class,
+           PrintStream.class, PrintStream.class);
     }
     catch (final Exception e)
     {
@@ -867,7 +868,7 @@ public final class ToolUtils
       {
         final Object passphraseObject =
              GET_PASSPHRASE_FOR_ENCRYPTION_SETTINGS_ID_METHOD.invoke(null,
-                  streamHeaderShell.getKeyIdentifier());
+                  streamHeaderShell.getKeyIdentifier(), out, err);
         if ((passphraseObject != null) && (passphraseObject instanceof String))
         {
           final char[] passphraseChars =
