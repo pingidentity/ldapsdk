@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
+import javax.crypto.BadPaddingException;
 
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -698,7 +699,22 @@ public final class SummarizeAccessLog
           Debug.debugException(ioe);
           err("Error reading from access log file ", f.getAbsolutePath(),
               ":  ", getExceptionMessage(ioe));
-          return ResultCode.LOCAL_ERROR;
+
+          if ((ioe.getCause() != null) &&
+               (ioe.getCause() instanceof BadPaddingException))
+          {
+            err("This error is likely because the log is encrypted and the " +
+                 "server still has the log file open.  It is recommended " +
+                 "that you only try to examine encrypted logs after they " +
+                 "have been rotated.  You can use the rotate-log tool to " +
+                 "force a rotation at any time.  Attempting to proceed with " +
+                 "just the data that was successfully read.");
+            break;
+          }
+          else
+          {
+            return ResultCode.LOCAL_ERROR;
+          }
         }
         catch (final LogException le)
         {
@@ -807,6 +823,10 @@ public final class SummarizeAccessLog
         ((numFiles == 1) ? " file" : " files"),
         " covering a total duration of ",
         millisToHumanReadableDuration(logDurationMillis));
+    if (logLines == 0)
+    {
+      return ResultCode.SUCCESS;
+    }
 
     out();
 
