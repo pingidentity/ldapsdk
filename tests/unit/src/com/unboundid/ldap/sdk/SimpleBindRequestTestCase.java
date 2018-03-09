@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.protocol.LDAPMessage;
 
 
@@ -1393,22 +1394,72 @@ public class SimpleBindRequestTestCase
 
   /**
    * Tests to ensure that the LDAP SDK will reject attempts to perform a simple
-   * bind with a DN but without a password.  Note that processing for this test
-   * will only be performed if a Directory Server instance is available.
+   * bind with a DN but without a password, when operating in synchronous mode.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testRejectBindWithDNButNoPassword()
+  public void testRejectBindWithDNButNoPasswordSyncMode()
          throws Exception
   {
-    if (! isDirectoryInstanceAvailable())
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    final LDAPConnectionOptions options = new LDAPConnectionOptions();
+    options.setUseSynchronousMode(true);
+
+    final LDAPConnection conn = ds.getConnection(options);
+    final SimpleBindRequest bindRequest =
+         new SimpleBindRequest("cn=Directory Manager", "");
+
+    try
     {
-      return;
+      bindRequest.process(conn, 1);
+      fail("Expected an exception when binding with a DN but no password");
+    }
+    catch (LDAPException le)
+    {
+      assertEquals(le.getResultCode(), ResultCode.PARAM_ERROR);
     }
 
-    LDAPConnection conn = getUnauthenticatedConnection();
-    SimpleBindRequest bindRequest = new SimpleBindRequest(getTestBindDN(), "");
+
+    // Reconfigure the connection so that it will allow binds with a DN but no
+    // password.
+    conn.getConnectionOptions().setBindWithDNRequiresPassword(false);
+    try
+    {
+      bindRequest.process(conn, 1);
+    }
+    catch (LDAPException le)
+    {
+      // The server will still likely reject the operation, but we should at
+      // least verify that it wasn't a parameter error.
+      assertFalse(le.getResultCode() == ResultCode.PARAM_ERROR);
+    }
+
+    conn.getConnectionOptions().setBindWithDNRequiresPassword(true);
+    conn.close();
+  }
+
+
+
+  /**
+   * Tests to ensure that the LDAP SDK will reject attempts to perform a simple
+   * bind with a DN but without a password, when operating in asynchronous mode.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRejectBindWithDNButNoPasswordAsyncMode()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    final LDAPConnectionOptions options = new LDAPConnectionOptions();
+    options.setUseSynchronousMode(false);
+
+    final LDAPConnection conn = ds.getConnection(options);
+    final SimpleBindRequest bindRequest =
+         new SimpleBindRequest("cn=Directory Manager", "");
 
     try
     {

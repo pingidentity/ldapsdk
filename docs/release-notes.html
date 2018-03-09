@@ -14,6 +14,15 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed a bug in simple bind request processing in which the LDAP SDK would only
+                  reject a bind request that contains a DN but no password (subject to the
+                  <tt>LDAPConnectionOptions.bindWithDNRequiresPassword()</tt> setting) when using
+                  the default asynchronous mode, but not when configured to operate in synchronous
+                  mode.
+                  <br><br>
+                </li>
+
+                <li>
                   Added support for two new UnboundID/Ping-proprietary request controls.  The
                   reject unindexed search request control can be used to indicate that the server
                   should reject a search request if it cannot be efficiently processed using

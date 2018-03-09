@@ -513,14 +513,6 @@ public final class SimpleBindRequest
   protected BindResult process(final LDAPConnection connection, final int depth)
             throws LDAPException
   {
-    if (connection.synchronousMode())
-    {
-      @SuppressWarnings("deprecation")
-      final boolean autoReconnect =
-           connection.getConnectionOptions().autoReconnect();
-      return processSync(connection, autoReconnect);
-    }
-
     // See if a bind DN was provided without a password.  If that is the case
     // and this should not be allowed, then throw an exception.
     if (password != null)
@@ -535,6 +527,14 @@ public final class SimpleBindRequest
       }
     }
 
+
+    if (connection.synchronousMode())
+    {
+      @SuppressWarnings("deprecation")
+      final boolean autoReconnect =
+           connection.getConnectionOptions().autoReconnect();
+      return processSync(connection, autoReconnect);
+    }
 
     // Create the LDAP message.
     messageID = connection.nextMessageID();
