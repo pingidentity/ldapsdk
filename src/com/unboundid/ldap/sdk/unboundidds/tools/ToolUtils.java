@@ -222,6 +222,57 @@ public final class ToolUtils
                                                      final PrintStream err)
           throws LDAPException
   {
+    return promptForEncryptionPassphrase(allowEmpty, confirm,
+         INFO_TOOL_UTILS_ENCRYPTION_PW_PROMPT.get(),
+         INFO_TOOL_UTILS_ENCRYPTION_PW_CONFIRM.get(), out, err);
+  }
+
+
+
+  /**
+   * Interactively prompts the user for an encryption passphrase.
+   *
+   * @param  allowEmpty     Indicates whether the encryption passphrase is
+   *                        allowed to be empty.  If this is {@code false}, then
+   *                        the user will be re-prompted for the passphrase if
+   *                        the value they enter is empty.
+   * @param  confirm        Indicates whether the user will asked to confirm the
+   *                        passphrase.  If this is {@code true}, then the user
+   *                        will have to enter the same passphrase twice.  If
+   *                        this is {@code false}, then the user will only be
+   *                        prompted once.
+   * @param  initialPrompt  The initial prompt that will be presented to the
+   *                        user.  It must not be {@code null} or empty.
+   * @param  confirmPrompt  The prompt that will be presented to the user when
+   *                        asked to confirm the passphrase.  It may be
+   *                        {@code null} only if {@code confirm} is
+   *                        {@code false}.
+   * @param  out            The {@code PrintStream} that will be used for
+   *                        standard output.  It must not be {@code null}.
+   * @param  err            The {@code PrintStream} that will be used for
+   *                        standard error.  It must not be {@code null}.
+   *
+   * @return  The encryption passphrase provided by the user.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to obtain
+   *                         the passphrase from the user.
+   */
+  public static String promptForEncryptionPassphrase(final boolean allowEmpty,
+                            final boolean confirm,
+                            final CharSequence initialPrompt,
+                            final CharSequence confirmPrompt,
+                            final PrintStream out, final PrintStream err)
+          throws LDAPException
+  {
+    Validator.ensureTrue(
+         ((initialPrompt != null) && (initialPrompt.length() > 0)),
+         "TestUtils.promptForEncryptionPassphrase.initialPrompt must not be " +
+              "null or empty.");
+    Validator.ensureTrue(
+         ((! confirm) ||
+              ((confirmPrompt != null) && (confirmPrompt.length() > 0))),
+         "TestUtils.promptForEncryptionPassphrase.confirmPrompt must not be " +
+              "null or empty when confirm is true.");
     Validator.ensureTrue((out != null),
          "ToolUtils.promptForEncryptionPassphrase.out must not be null");
     Validator.ensureTrue((err != null),
@@ -234,7 +285,7 @@ public final class ToolUtils
 
       try
       {
-        wrapPrompt(INFO_TOOL_UTILS_ENCRYPTION_PW_PROMPT.get(), true, out);
+        wrapPrompt(initialPrompt, true, out);
 
         passphraseChars = PasswordReader.readPasswordChars();
         if ((passphraseChars == null) || (passphraseChars.length == 0))
@@ -253,7 +304,7 @@ public final class ToolUtils
 
         if (confirm)
         {
-          wrapPrompt(INFO_TOOL_UTILS_ENCRYPTION_PW_CONFIRM.get(), true, out);
+          wrapPrompt(confirmPrompt, true, out);
 
           confirmChars = PasswordReader.readPasswordChars();
           if ((confirmChars == null) ||
@@ -902,7 +953,8 @@ public final class ToolUtils
       try
       {
         promptedPassphrase =
-             promptForEncryptionPassphrase(false, false, out, err);
+             promptForEncryptionPassphrase(false, false, passphrasePrompt, null,
+                  out, err);
       }
       catch (final LDAPException e)
       {
