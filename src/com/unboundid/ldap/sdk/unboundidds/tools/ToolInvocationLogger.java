@@ -690,16 +690,24 @@ public final class ToolInvocationLogger
             StandardOpenOption.APPEND, // Append to file if it already exists.
             StandardOpenOption.DSYNC); // Synchronously flush file on writing.
 
-    final Set<PosixFilePermission> filePermissionsSet = EnumSet.of(
-            PosixFilePermission.OWNER_READ,   // Grant owner read access.
-            PosixFilePermission.OWNER_WRITE); // Grant owner write access.
-
-    final FileAttribute<Set<PosixFilePermission>> filePermissionsAttribute=
-            PosixFilePermissions.asFileAttribute(filePermissionsSet);
+    final FileAttribute<?>[] fileAttributes;
+    if (StaticUtils.isWindows())
+    {
+      fileAttributes = new FileAttribute<?>[0];
+    }
+    else
+    {
+      final Set<PosixFilePermission> filePermissionsSet = EnumSet.of(
+              PosixFilePermission.OWNER_READ,   // Grant owner read access.
+              PosixFilePermission.OWNER_WRITE); // Grant owner write access.
+      final FileAttribute<Set<PosixFilePermission>> filePermissionsAttribute =
+              PosixFilePermissions.asFileAttribute(filePermissionsSet);
+      fileAttributes = new FileAttribute<?>[] { filePermissionsAttribute };
+    }
 
     try (FileChannel fileChannel =
               FileChannel.open(logFile.toPath(), openOptionsSet,
-                   filePermissionsAttribute))
+                   fileAttributes))
     {
       try (FileLock fileLock =
                 acquireFileLock(fileChannel, logFile, toolErrorStream))
