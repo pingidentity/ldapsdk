@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import java.util.ArrayList;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -51,7 +53,10 @@ public class ToolMessagesTestCase
 
     assertEquals(ToolMessages.valueOf(m.name()), m);
 
-    assertNotNull(m.get());
+    try
+    {
+      m.get();
+    } catch (final Exception e) {}
 
     try
     {
@@ -59,6 +64,62 @@ public class ToolMessagesTestCase
     } catch (final Exception e) {}
 
     assertNotNull(m.toString());
+  }
+
+
+
+  /**
+   * Tests to ensure that message format strings are generated properly without
+   * any exceptions when provided with an expected set of arguments.
+   *
+   * @param  m  The message key for which to make the determination.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "messageKeys")
+  public void testMessageGetWithArgsWithoutException(final ToolMessages m)
+         throws Exception
+  {
+    final String formatString = m.toString();
+
+    final ArrayList<Object> argList = new ArrayList<>(20);
+    for (int i=0; i < 20; i++)
+    {
+      final boolean hasToken;
+      if (formatString.contains("{" + i + '}'))
+      {
+        argList.add("arg" + i);
+        hasToken = true;
+      }
+      else if (formatString.contains("{" + i + ",number,"))
+      {
+        argList.add(i);
+        hasToken = true;
+      }
+      else
+      {
+        hasToken = false;
+      }
+
+      if (hasToken && ((argList.size() - 1) != i))
+      {
+        fail("CertMessages." + m.name() + " has a format string that " +
+             "contains {" + i + "} without {" + (i-1) + "}:  " +
+             m.toString());
+      }
+    }
+
+    if (argList.isEmpty())
+    {
+      assertNotNull(m.get());
+    }
+    else
+    {
+      final Object[] argArray = new Object[argList.size()];
+      argList.toArray(argArray);
+
+      assertNotNull(m.get(argArray));
+    }
   }
 
 

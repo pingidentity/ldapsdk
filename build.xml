@@ -829,6 +829,7 @@
       <jvmarg value="-XX:+UseMembar" />
       <jvmarg value="-Demma.coverage.out.file=${coverage.collected.dir}/unit.emma" />
       <jvmarg value="-Demma.coverage.out.merge=false" />
+      <jvmarg value="-Dcom.unboundid.ldap.sdk.RunningUnitTests=true" />
       <jvmarg value="-Dbasedir=${basedir}" />
       <jvmarg value="-Dunit.resource.dir=${unit.resource.dir}" />
       <jvmarg value="-Djava.io.tmpdir=${unit.temp.dir}" />

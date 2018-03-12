@@ -1109,7 +1109,7 @@ public final class ManageCertificates
            "--alias", "server-cert",
            "--certificate-file", "server-cert.crt"
          },
-         INFO_MANAGE_CERTS_SC_IMPORT_CERT_EXAMPLE_1.get());
+         INFO_MANAGE_CERTS_SC_IMPORT_CERT_EXAMPLE_1.get("server-cert.crt"));
     importCertExamples.put(
          new String[]
          {
@@ -1428,7 +1428,8 @@ public final class ManageCertificates
     final TimestampArgument genCertNotBefore = new TimestampArgument(null,
          "validity-start-time", false, 1,
          INFO_MANAGE_CERTS_PLACEHOLDER_TIMESTAMP.get(),
-         INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_VALIDITY_START_TIME_DESC.get());
+         INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_VALIDITY_START_TIME_DESC.get(
+              "20180102123456"));
     genCertNotBefore.addLongIdentifier("validityStartTime", true);
     genCertNotBefore.addLongIdentifier("not-before", true);
     genCertNotBefore.addLongIdentifier("notBefore", true);
@@ -2407,7 +2408,8 @@ public final class ManageCertificates
     final TimestampArgument signCSRNotBefore = new TimestampArgument(null,
          "validity-start-time", false, 1,
          INFO_MANAGE_CERTS_PLACEHOLDER_TIMESTAMP.get(),
-         INFO_MANAGE_CERTS_SC_SIGN_CSR_ARG_VALIDITY_START_TIME_DESC.get());
+         INFO_MANAGE_CERTS_SC_SIGN_CSR_ARG_VALIDITY_START_TIME_DESC.get(
+              "20180102123456"));
     signCSRNotBefore.addLongIdentifier("validityStartTime", true);
     signCSRNotBefore.addLongIdentifier("not-before", true);
     signCSRNotBefore.addLongIdentifier("notBefore", true);
@@ -2733,7 +2735,8 @@ public final class ManageCertificates
            "--signing-certificate-alias", "ca-cert",
            "--include-requested-extensions"
          },
-         INFO_MANAGE_CERTS_SC_SIGN_CSR_EXAMPLE_1.get());
+         INFO_MANAGE_CERTS_SC_SIGN_CSR_EXAMPLE_1.get(
+              getPlatformSpecificPath("config", "keystore")));
     signCSRExamples.put(
          new String[]
          {
@@ -2750,7 +2753,8 @@ public final class ManageCertificates
            "--include-requested-extensions",
            "--issuer-alternative-name-email-address", "ca@example.com",
          },
-         INFO_MANAGE_CERTS_SC_SIGN_CSR_EXAMPLE_2.get());
+         INFO_MANAGE_CERTS_SC_SIGN_CSR_EXAMPLE_2.get(
+              getPlatformSpecificPath("config", "keystore")));
 
     final SubCommand signCSRSubCommand = new SubCommand(
          "sign-certificate-signing-request",
@@ -3490,7 +3494,8 @@ public final class ManageCertificates
                 getPlatformSpecificPath("config", "keystore.pin"),
            "--verbose"
          },
-         INFO_MANAGE_CERTS_SC_TRUST_SERVER_EXAMPLE_1.get());
+         INFO_MANAGE_CERTS_SC_TRUST_SERVER_EXAMPLE_1.get(
+              getPlatformSpecificPath("config", "keystore")));
     trustServerExamples.put(
          new String[]
          {
@@ -3505,7 +3510,8 @@ public final class ManageCertificates
            "--alias", "ds-start-tls-cert",
            "--no-prompt"
          },
-         INFO_MANAGE_CERTS_SC_TRUST_SERVER_EXAMPLE_2.get());
+         INFO_MANAGE_CERTS_SC_TRUST_SERVER_EXAMPLE_2.get(
+              getPlatformSpecificPath("config", "keystore")));
 
     final SubCommand trustServerSubCommand = new SubCommand(
          "trust-server-certificate",
@@ -3604,7 +3610,8 @@ public final class ManageCertificates
                 getPlatformSpecificPath("config", "keystore.pin"),
            "--alias", "server-cert"
          },
-         INFO_MANAGE_CERTS_SC_CHECK_USABILITY_EXAMPLE_1.get());
+         INFO_MANAGE_CERTS_SC_CHECK_USABILITY_EXAMPLE_1.get(
+              getPlatformSpecificPath("config", "keystore")));
 
     final SubCommand checkUsabilitySubCommand = new SubCommand(
          "check-certificate-usability",

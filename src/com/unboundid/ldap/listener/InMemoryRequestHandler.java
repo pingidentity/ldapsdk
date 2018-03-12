@@ -315,7 +315,7 @@ public final class InMemoryRequestHandler
     if (baseDNSet.contains(changeLogBaseDN))
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_MEM_HANDLER_CHANGELOG_BASE_DN.get());
+           ERR_MEM_HANDLER_CHANGELOG_BASE_DN.get(changeLogBaseDN));
     }
 
     maxChangelogEntries = config.getMaxChangeLogEntries();
@@ -437,7 +437,7 @@ public final class InMemoryRequestHandler
     if (baseDNs.contains(subschemaSubentryDN))
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_MEM_HANDLER_SCHEMA_BASE_DN.get());
+           ERR_MEM_HANDLER_SCHEMA_BASE_DN.get(subschemaSubentryDN));
     }
 
     if (maxChangelogEntries > 0)

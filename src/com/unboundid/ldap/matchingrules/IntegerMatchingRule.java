@@ -377,7 +377,7 @@ public final class IntegerMatchingRule
             if ((i != 0) || (valueStr.length() == 1))
             {
               throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
-                                      ERR_INTEGER_INVALID_CHARACTER.get());
+                   ERR_INTEGER_INVALID_CHARACTER.get(i));
             }
             break;
 
@@ -426,7 +426,7 @@ public final class IntegerMatchingRule
           if ((i != 0) || (valueBytes.length == 1))
           {
             throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
-                                    ERR_INTEGER_INVALID_CHARACTER.get());
+                 ERR_INTEGER_INVALID_CHARACTER.get(i));
           }
           break;
 

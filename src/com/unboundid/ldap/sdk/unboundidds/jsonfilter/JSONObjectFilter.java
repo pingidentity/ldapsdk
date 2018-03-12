@@ -928,6 +928,50 @@ public abstract class JSONObjectFilter
 
 
   /**
+   * Creates a string representation of the provided field path.  The path will
+   * be constructed by using the JSON value representations of the field paths
+   * (with each path element surrounded by quotation marks and including any
+   * appropriate escaping) and using the period as a delimiter between each
+   * path element.
+   *
+   * @param  fieldPath  The field path to process.
+   *
+   * @return  A string representation of the provided field path.
+   */
+  static String fieldPathToName(final List<String> fieldPath)
+  {
+    if (fieldPath == null)
+    {
+      return "null";
+    }
+    else if (fieldPath.isEmpty())
+    {
+      return "";
+    }
+    else if (fieldPath.size() == 1)
+    {
+      return new JSONString(fieldPath.get(0)).toString();
+    }
+    else
+    {
+      final StringBuilder buffer = new StringBuilder();
+      for (final String pathElement : fieldPath)
+      {
+        if (buffer.length() > 0)
+        {
+          buffer.append('.');
+        }
+
+        new JSONString(pathElement).toString(buffer);
+      }
+
+      return buffer.toString();
+    }
+  }
+
+
+
+  /**
    * Retrieves a hash code for this JSON object filter.
    *
    * @return  A hash code for this JSON object filter.

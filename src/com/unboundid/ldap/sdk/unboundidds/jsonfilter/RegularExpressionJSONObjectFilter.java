@@ -637,7 +637,7 @@ public final class RegularExpressionJSONObjectFilter
       throw new JSONException(
            ERR_REGEX_FILTER_DECODE_INVALID_REGEX.get(
                 String.valueOf(filterObject), FIELD_REGULAR_EXPRESSION,
-                StaticUtils.getExceptionMessage(e)),
+                fieldPathToName(fieldPath), StaticUtils.getExceptionMessage(e)),
            e);
     }
 

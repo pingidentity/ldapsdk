@@ -834,4 +834,37 @@ public final class JSONObjectFilterTestCase
     assertEquals(f.hashCode(),
          new EqualsJSONObjectFilter("foo", new JSONString("bar")).hashCode());
   }
+
+
+
+  /**
+   * Tests the {@code fieldPathToName} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testFieldPathToName()
+         throws Exception
+  {
+    assertNotNull(JSONObjectFilter.fieldPathToName(null));
+    assertEquals(JSONObjectFilter.fieldPathToName(null), "null");
+
+    assertNotNull(
+         JSONObjectFilter.fieldPathToName(Collections.<String>emptyList()));
+    assertEquals(
+         JSONObjectFilter.fieldPathToName(Collections.<String>emptyList()),
+         "");
+
+    assertNotNull(
+         JSONObjectFilter.fieldPathToName(Collections.singletonList("foo")));
+    assertEquals(
+         JSONObjectFilter.fieldPathToName(Collections.singletonList("foo")),
+         "\"foo\"");
+
+    assertNotNull(
+         JSONObjectFilter.fieldPathToName(Arrays.asList("foo", "bar")));
+    assertEquals(
+         JSONObjectFilter.fieldPathToName(Arrays.asList("foo", "bar")),
+         "\"foo\".\"bar\"");
+  }
 }

@@ -535,7 +535,7 @@ public final class JSONObjectReader
       final int byteReadInt = (byteRead & 0xFF);
       if ((byteRead & 0xFF) <= 0x1F)
       {
-        throw new JSONException(ERR_OBJECT_UNESCAPED_CONTROL_CHAR.get(
+        throw new JSONException(ERR_OBJECT_READER_UNESCAPED_CONTROL_CHAR.get(
              currentObjectBytes.length(), byteToCharString(byteRead)));
       }
       else

@@ -35,6 +35,7 @@ import org.testng.ITestListener;
 import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
 import org.testng.annotations.Test;
+import org.testng.internal.IConfigurationListener;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 
@@ -45,7 +46,7 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
  * information about tests as they run.
  */
 public class LDAPSDKTestListener
-       implements ITestListener
+       implements ITestListener, IConfigurationListener
 {
   // The number of tests that have failed.
   private int numFailed;
@@ -85,6 +86,7 @@ public class LDAPSDKTestListener
    *
    * @param  context  The text context.
    */
+  @Override()
   public synchronized void onStart(final ITestContext context)
   {
     System.err.println("     Class       Tests      Tests");
@@ -107,6 +109,7 @@ public class LDAPSDKTestListener
    *
    * @param  context  The text context.
    */
+  @Override()
   public synchronized void onFinish(final ITestContext context)
   {
     printRightAligned(System.currentTimeMillis() - lastClassStartTime, 11);
@@ -172,6 +175,7 @@ public class LDAPSDKTestListener
    *
    * @param  result  The test result for the test.
    */
+  @Override()
   public synchronized void onTestStart(final ITestResult result)
   {
     IClass testClass = result.getTestClass();
@@ -264,6 +268,7 @@ public class LDAPSDKTestListener
    *
    * @param  result  The test result for the test.
    */
+  @Override()
   public synchronized void onTestSkipped(final ITestResult result)
   {
     System.err.println("********** Skipped test " +
@@ -278,6 +283,7 @@ public class LDAPSDKTestListener
    *
    * @param  result  The test result for the test.
    */
+  @Override()
   public synchronized void onTestSuccess(final ITestResult result)
   {
     numPassed++;
@@ -290,6 +296,7 @@ public class LDAPSDKTestListener
    *
    * @param  result  The test result for the test.
    */
+  @Override()
   public synchronized void onTestFailure(final ITestResult result)
   {
     numFailed++;
@@ -330,6 +337,7 @@ public class LDAPSDKTestListener
    *
    * @param  result  The test result for the test.
    */
+  @Override()
   public synchronized void onTestFailedButWithinSuccessPercentage(
                                 final ITestResult result)
   {
@@ -346,5 +354,76 @@ public class LDAPSDKTestListener
     System.err.println();
     System.err.println();
     System.err.println();
+  }
+
+
+
+  /**
+   * Performs any necessary processing after test configuration has completed
+   * successfully.
+   *
+   * @param  result  The test result for the test.
+   */
+  @Override()
+  public synchronized void onConfigurationSuccess(final ITestResult result)
+  {
+    // No implementation required
+  }
+
+
+
+  /**
+   * Performs any necessary processing after test configuration has failed.
+   *
+   * @param  result  The test result for the test.
+   */
+  @Override()
+  public void onConfigurationFailure(final ITestResult result)
+  {
+    numFailed++;
+
+    String name = result.getTestClass().getName() + '.' +
+         result.getMethod().getMethodName();
+    if (failedTests.containsKey(name))
+    {
+      failedTests.put(name, (failedTests.get(name)+1));
+    }
+    else
+    {
+      failedTests.put(name, 1);
+    }
+
+    System.err.println();
+    System.err.println();
+    System.err.println();
+    System.err.println("********** CONFIGURATION FAILED **********");
+    System.err.println("Time:  " + new Date());
+    System.err.println("Test Method:  " + result.getTestClass().getName() +
+                       '.' + result.getMethod().getMethodName());
+    Object[] params = result.getParameters();
+    if ((params != null) && (params.length > 0))
+    {
+      System.err.println("Parameters: " + Arrays.toString(params));
+    }
+    result.getThrowable().printStackTrace();
+    System.err.println();
+    System.err.println();
+    System.err.println();
+  }
+
+
+
+  /**
+   * Performs any necessary processing after test configuration has been
+   * skipped.
+   *
+   * @param  result  The test result for the test.
+   */
+  @Override()
+  public void onConfigurationSkip(final ITestResult result)
+  {
+    System.err.println("********** Skipped test configuration " +
+                       result.getTestClass().getName() + '.' +
+                       result.getMethod().getMethodName());
   }
 }

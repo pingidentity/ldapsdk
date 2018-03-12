@@ -351,6 +351,26 @@ public class GenerateMessages
 
         // Add a set of constants to the source file.
         w("  /**");
+        w("   * The name of the properties file containing the default");
+        w("   * message strings.");
+        w("   */");
+        w("  static final String PROPERTIES_FILE_NAME =");
+        w("       \"" + propertiesFileName + "\";");
+        w();
+        w();
+        w();
+        w("  /**");
+        w("   * Indicates whether the unit tests are currently running.");
+        w("   */");
+        w("  private static final boolean IS_WITHIN_UNIT_TESTS =");
+        w("       Boolean.getBoolean(" +
+             "\"com.unboundid.ldap.sdk.RunningUnitTests\") ||");
+        w("       Boolean.getBoolean(" +
+             "\"com.unboundid.directory.server.RunningUnitTests\");");
+        w();
+        w();
+        w();
+        w("  /**");
         w("   * The resource bundle that will be used to load the properties ",
           "file.");
         w("   */");
@@ -426,7 +446,7 @@ public class GenerateMessages
         w("    {");
         w("      if (RESOURCE_BUNDLE == null)");
         w("      {");
-        w("        return defaultText;");
+        w("        s = defaultText;");
         w("      }");
         w("      else");
         w("      {");
@@ -441,6 +461,25 @@ public class GenerateMessages
         w("        MESSAGE_STRINGS.putIfAbsent(this, s);");
         w("      }");
         w("    }");
+        w();
+        w("    if (IS_WITHIN_UNIT_TESTS &&");
+        w("        (s.contains(\"{0}\") || s.contains(\"{0,number,0}\") ||");
+        w("         s.contains(\"{1}\") || s.contains(\"{1,number,0}\") ||");
+        w("         s.contains(\"{2}\") || s.contains(\"{2,number,0}\") ||");
+        w("         s.contains(\"{3}\") || s.contains(\"{3,number,0}\") ||");
+        w("         s.contains(\"{4}\") || s.contains(\"{4,number,0}\") ||");
+        w("         s.contains(\"{5}\") || s.contains(\"{5,number,0}\") ||");
+        w("         s.contains(\"{6}\") || s.contains(\"{6,number,0}\") ||");
+        w("         s.contains(\"{7}\") || s.contains(\"{7,number,0}\") ||");
+        w("         s.contains(\"{8}\") || s.contains(\"{8,number,0}\") ||");
+        w("         s.contains(\"{9}\") || s.contains(\"{9,number,0}\") ||");
+        w("         s.contains(\"{10}\") ||  s.contains(\"{10,number,0}\")))");
+        w("    {");
+        w("         throw new IllegalArgumentException(");
+        w("              \"Message \" + getClass().getName() + '.' + name() +");
+        w("                   \" contains an un-replaced token:  \" + s);");
+        w("    }");
+        w();
         w("    return s;");
         w("  }");
 
@@ -480,10 +519,44 @@ public class GenerateMessages
         w("      }");
         w("      MESSAGES.putIfAbsent(this, f);");
         w("    }");
+        w();
+        w("    final String formattedMessage;");
         w("    synchronized (f)");
         w("    {");
-        w("      return f.format(args);");
+        w("      formattedMessage = f.format(args);");
         w("    }");
+        w();
+        w("    if (IS_WITHIN_UNIT_TESTS &&");
+        w("        (formattedMessage.contains(\"{0}\") ||");
+        w("         formattedMessage.contains(\"{0,number,01}\") ||");
+        w("         formattedMessage.contains(\"{1}\") ||");
+        w("         formattedMessage.contains(\"{1,number,0}\") ||");
+        w("         formattedMessage.contains(\"{2}\") ||");
+        w("         formattedMessage.contains(\"{2,number,0}\") ||");
+        w("         formattedMessage.contains(\"{3}\") ||");
+        w("         formattedMessage.contains(\"{3,number,0}\") ||");
+        w("         formattedMessage.contains(\"{4}\") ||");
+        w("         formattedMessage.contains(\"{4,number,0}\") ||");
+        w("         formattedMessage.contains(\"{5}\") ||");
+        w("         formattedMessage.contains(\"{5,number,0}\") ||");
+        w("         formattedMessage.contains(\"{6}\") ||");
+        w("         formattedMessage.contains(\"{6,number,0}\") ||");
+        w("         formattedMessage.contains(\"{7}\") ||");
+        w("         formattedMessage.contains(\"{7,number,0}\") ||");
+        w("         formattedMessage.contains(\"{8}\") ||");
+        w("         formattedMessage.contains(\"{8,number,0}\") ||");
+        w("         formattedMessage.contains(\"{9}\") ||");
+        w("         formattedMessage.contains(\"{9,number,0}\") ||");
+        w("         formattedMessage.contains(\"{10}\") ||");
+        w("         formattedMessage.contains(\"{10,number,0}\")))");
+        w("    {");
+        w("         throw new IllegalArgumentException(");
+        w("              \"Message \" + getClass().getName() + '.' + name() +");
+        w("                   \" contains an un-replaced token:  \" +" +
+             " formattedMessage);");
+        w("    }");
+        w();
+        w("    return f.format(args);");
         w("  }");
 
 
@@ -499,7 +572,28 @@ public class GenerateMessages
         w("  @Override()");
         w("  public String toString()");
         w("  {");
-        w("    return get();");
+        w("    String s = MESSAGE_STRINGS.get(this);");
+        w("    if (s == null)");
+        w("    {");
+        w("      if (RESOURCE_BUNDLE == null)");
+        w("      {");
+        w("        s = defaultText;");
+        w("      }");
+        w("      else");
+        w("      {");
+        w("        try");
+        w("        {");
+        w("          s = RESOURCE_BUNDLE.getString(name());");
+        w("        }");
+        w("        catch (final Exception e)");
+        w("        {");
+        w("          s = defaultText;");
+        w("        }");
+        w("        MESSAGE_STRINGS.putIfAbsent(this, s);");
+        w("      }");
+        w("    }");
+        w();
+        w("    return s;");
         w("  }");
 
 

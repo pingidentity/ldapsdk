@@ -348,7 +348,8 @@ final class SecurityOptions
                  trustStoreType.equals("PKCS12")))
           {
             throw new LDAPException(ResultCode.PARAM_ERROR,
-                 ERR_SECURITY_OPTIONS_INVALID_TS_TYPE.get(trustStoreType));
+                 ERR_SECURITY_OPTIONS_INVALID_TS_TYPE.get(
+                      FIELD_TRUST_STORE_TYPE, trustStoreType));
           }
 
           trustStorePIN = LDAPConnectionDetailsJSONSpecification.getString(o,

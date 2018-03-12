@@ -102,6 +102,15 @@ public final class StaticUtils
 
 
   /**
+   * Indicates whether the unit tests are currently running.
+   */
+  private static final boolean IS_WITHIN_UNIT_TESTS =
+       Boolean.getBoolean("com.unboundid.ldap.sdk.RunningUnitTests") ||
+       Boolean.getBoolean("com.unboundid.directory.server.RunningUnitTests");
+
+
+
+  /**
    * The width of the terminal window, in columns.
    */
   public static final int TERMINAL_WIDTH_COLUMNS;
@@ -3071,5 +3080,19 @@ public final class StaticUtils
     }
 
     return byteArray;
+  }
+
+
+
+
+  /**
+   * Indicates whether the unit tests are currently running in this JVM.
+   *
+   * @return  {@code true} if the unit tests are currently running, or
+   *          {@code false} if not.
+   */
+  public static boolean isWithinUnitTest()
+  {
+    return IS_WITHIN_UNIT_TESTS;
   }
 }

@@ -503,7 +503,7 @@ public final class PKCS10CertificateSigningRequest
                 Debug.debugException(e);
                 throw new CertException(
                      ERR_CSR_DECODE_CANNOT_PARSE_EXT_ATTR.get(
-                          StaticUtils.getExceptionMessage(e)),
+                          p.getFirst(), StaticUtils.getExceptionMessage(e)),
                      e);
               }
             }

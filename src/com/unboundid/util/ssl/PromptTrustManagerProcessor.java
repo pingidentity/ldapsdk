@@ -144,7 +144,8 @@ final class PromptTrustManagerProcessor
         {
           final long expiredSecondsAgo = Math.round(
                ((currentTime - chain[i].getNotAfterTime()) / 1000.0d));
-          warningMessages.add(WARN_PROMPT_PROCESSOR_CERT_EXPIRED.get(identifier,
+          warningMessages.add(WARN_PROMPT_PROCESSOR_CERT_EXPIRED.get(
+               identifier, String.valueOf(chain[i].getSubjectDN()),
                formatDate(chain[i].getNotAfterDate()),
                StaticUtils.secondsToHumanReadableDuration(expiredSecondsAgo)));
         }
@@ -153,7 +154,8 @@ final class PromptTrustManagerProcessor
           final long secondsUntilValid = Math.round(
                ((chain[i].getNotBeforeTime() - currentTime) / 1000.0d));
           warningMessages.add(WARN_PROMPT_PROCESSOR_CERT_NOT_YET_VALID.get(
-               identifier, formatDate(chain[i].getNotBeforeDate()),
+               identifier, String.valueOf(chain[i].getSubjectDN()),
+               formatDate(chain[i].getNotBeforeDate()),
                StaticUtils.secondsToHumanReadableDuration(
                     secondsUntilValid)));
         }
