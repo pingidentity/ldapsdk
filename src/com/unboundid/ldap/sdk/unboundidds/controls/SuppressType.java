@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -126,5 +127,39 @@ public enum SuppressType
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the suppress type with the specified name.
+   *
+   * @param  name  The name of the suppress type to retrieve.  It must not be
+   *               {@code null}.
+   *
+   * @return  The requested suppress type, or {@code null} if no such type is
+   *          defined.
+   */
+  public static SuppressType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "lastaccesstime":
+      case "last-access-time":
+      case "last_access_time":
+        return LAST_ACCESS_TIME;
+      case "lastlogintime":
+      case "last-login-time":
+      case "last_login_time":
+        return LAST_LOGIN_TIME;
+      case "lastloginip":
+      case "last-login-ip":
+      case "last_login_ip":
+        return LAST_LOGIN_IP;
+      case "lastmod":
+        return LASTMOD;
+      default:
+        return null;
+    }
   }
 }

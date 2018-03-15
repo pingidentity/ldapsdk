@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -110,5 +111,33 @@ public enum RouteToBackendSetRoutingType
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the route to backend set routing type with the specified name.
+   *
+   * @param  name  The name of the route to backend set routing type to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested route to backend set routing type, or {@code null}
+   *          if no such type is defined.
+   */
+  public static RouteToBackendSetRoutingType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "absoluterouting":
+      case "absolute-routing":
+      case "absolute_routing":
+        return ABSOLUTE_ROUTING;
+      case "routinghint":
+      case "routing-hint":
+      case "routing_hint":
+        return ROUTING_HINT;
+      default:
+        return null;
+    }
   }
 }

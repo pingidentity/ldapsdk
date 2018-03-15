@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -215,5 +216,39 @@ public enum MatchingEntryCountType
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the matching entry count type with the specified name.
+   *
+   * @param  name  The name of the matching entry count type to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested matching entry count type, or {@code null} if no
+   *          such type is defined.
+   */
+  public static MatchingEntryCountType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "examinedcount":
+      case "examined-count":
+      case "examined_count":
+        return EXAMINED_COUNT;
+      case "unexaminedcount":
+      case "unexamined-count":
+      case "unexamined_count":
+        return UNEXAMINED_COUNT;
+      case "upperbound":
+      case "upper-bound":
+      case "upper_bound":
+        return UPPER_BOUND;
+      case "unknown":
+        return UNKNOWN;
+      default:
+        return null;
+    }
   }
 }

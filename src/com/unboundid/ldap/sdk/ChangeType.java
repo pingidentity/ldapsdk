@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -97,33 +98,39 @@ public enum ChangeType
   /**
    * Retrieves the change type with the specified name.
    *
-   * @param  name  The name of the change type to retrieve.
+   * @param  name  The name of the change type to retrieve.  It must not be
+   *               {@code null}.
    *
    * @return  The requested change type, or {@code null} if no such change type
    *          is defined.
    */
   public static ChangeType forName(final String name)
   {
-    final String lowerName = toLowerCase(name);
-    if (lowerName.equals("add"))
+    switch (StaticUtils.toLowerCase(name))
     {
-      return ADD;
-    }
-    else if (lowerName.equals("delete"))
-    {
-      return DELETE;
-    }
-    else if (lowerName.equals("modify"))
-    {
-      return MODIFY;
-    }
-    else if (lowerName.equals("moddn") || lowerName.equals("modrdn"))
-    {
-      return MODIFY_DN;
-    }
-    else
-    {
-      return null;
+      case "add":
+        return ADD;
+      case "delete":
+      case "del":
+        return DELETE;
+      case "modify":
+      case "mod":
+        return MODIFY;
+      case "modifydn":
+      case "modify-dn":
+      case "modify_dn":
+      case "moddn":
+      case "mod-dn":
+      case "mod_dn":
+      case "modifyrdn":
+      case "modify-rdn":
+      case "modify_rdn":
+      case "modrdn":
+      case "mod-rdn":
+      case "mod_rdn":
+        return MODIFY_DN;
+      default:
+        return null;
     }
   }
 

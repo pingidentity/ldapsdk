@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.StaticUtils;
+
+
+
 /**
  * This enum defines the set of possible error behavior values that may be used
  * in the multi-update extended request.
@@ -129,5 +133,35 @@ public enum MultiUpdateErrorBehavior
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the multi-update error behavior with the specified name.
+   *
+   * @param  name  The name of the multi-update error behavior to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested multi-update error behavior, or {@code null} if no
+   *          such behavior is defined.
+   */
+  public static MultiUpdateErrorBehavior forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "atomic":
+        return ATOMIC;
+      case "abortonerror":
+      case "abort-on-error":
+      case "abort_on_error":
+        return ABORT_ON_ERROR;
+      case "continueonerror":
+      case "continue-on-error":
+      case "continue_on_error":
+        return CONTINUE_ON_ERROR;
+      default:
+        return null;
+    }
   }
 }

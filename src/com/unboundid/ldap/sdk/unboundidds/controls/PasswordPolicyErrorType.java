@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -197,6 +198,71 @@ public enum PasswordPolicyErrorType
       case 8:
         return PASSWORD_IN_HISTORY;
 
+      default:
+        return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the password policy error type with the specified name.
+   *
+   * @param  name  The name of the password policy error type to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested password policy error type, or {@code null} if no
+   *          such type is defined.
+   */
+  public static PasswordPolicyErrorType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "passwordexpired":
+      case "password-expired":
+      case "password_expired":
+      case "password expired":
+        return PASSWORD_EXPIRED;
+      case "accountlocked":
+      case "account-locked":
+      case "account_locked":
+      case "account locked":
+        return ACCOUNT_LOCKED;
+      case "changeafterreset":
+      case "change-after-reset":
+      case "change_after_reset":
+      case "change after reset":
+        return CHANGE_AFTER_RESET;
+      case "passwordmodnotallowed":
+      case "password-mod-not-allowed":
+      case "password_mod_not_allowed":
+      case "password mod not allowed":
+        return PASSWORD_MOD_NOT_ALLOWED;
+      case "mustsupplyoldpassword":
+      case "must-supply-old-password":
+      case "must_supply_old_password":
+      case "must supply old password":
+        return MUST_SUPPLY_OLD_PASSWORD;
+      case "insufficientpasswordquality":
+      case "insufficient-password-quality":
+      case "insufficient_password_quality":
+      case "insufficient password quality":
+        return INSUFFICIENT_PASSWORD_QUALITY;
+      case "passwordtooshort":
+      case "password-too-short":
+      case "password_too_short":
+      case "password too short":
+        return PASSWORD_TOO_SHORT;
+      case "passwordtooyoung":
+      case "password-too-young":
+      case "password_too_young":
+      case "password too young":
+        return PASSWORD_TOO_YOUNG;
+      case "passwordinhistory":
+      case "password-in-history":
+      case "password_in_history":
+      case "password in history":
+        return PASSWORD_IN_HISTORY;
       default:
         return null;
     }

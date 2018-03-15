@@ -22,6 +22,7 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -127,5 +128,31 @@ public enum PKCS8PrivateKeyVersion
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the PKCS #8 private key version with the specified name.
+   *
+   * @param  name  The name of the PKCS #8 private key version to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested PKCS #8 private key version, or {@code null} if no
+   *          such version is defined.
+   */
+  public static PKCS8PrivateKeyVersion forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "1":
+      case "v1":
+        return V1;
+      case "2":
+      case "v2":
+        return V2;
+      default:
+        return null;
+    }
   }
 }

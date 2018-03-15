@@ -25,6 +25,8 @@ package com.unboundid.util.ssl.cert;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -228,5 +230,76 @@ public final class RSAPrivateKeyTestCase
          throws Exception
   {
     new RSAPrivateKey(new ASN1OctetString("malformed"));
+  }
+
+
+
+  /**
+   * Tests the {@code forName} method with automated tests based on the actual
+   * name of the enum values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testForNameAutomated()
+         throws Exception
+  {
+    for (final RSAPrivateKeyVersion value :
+         RSAPrivateKeyVersion.values())
+    {
+      for (final String name : getNames(value.name(), value.getName()))
+      {
+        assertNotNull(RSAPrivateKeyVersion.forName(name));
+        assertEquals(RSAPrivateKeyVersion.forName(name), value);
+      }
+    }
+
+    assertNull(RSAPrivateKeyVersion.forName("some undefined name"));
+  }
+
+
+
+  /**
+   * Retrieves a set of names for testing the {@code forName} method based on
+   * the provided set of names.
+   *
+   * @param  baseNames  The base set of names to use to generate the full set of
+   *                    names.  It must not be {@code null} or empty.
+   *
+   * @return  The full set of names to use for testing.
+   */
+  private static Set<String> getNames(final String... baseNames)
+  {
+    final HashSet<String> nameSet = new HashSet<>(10);
+    for (final String name : baseNames)
+    {
+      nameSet.add(name);
+      nameSet.add(name.toLowerCase());
+      nameSet.add(name.toUpperCase());
+
+      final String nameWithDashesInsteadOfUnderscores = name.replace('_', '-');
+      nameSet.add(nameWithDashesInsteadOfUnderscores);
+      nameSet.add(nameWithDashesInsteadOfUnderscores.toLowerCase());
+      nameSet.add(nameWithDashesInsteadOfUnderscores.toUpperCase());
+
+      final String nameWithUnderscoresInsteadOfDashes = name.replace('-', '_');
+      nameSet.add(nameWithUnderscoresInsteadOfDashes);
+      nameSet.add(nameWithUnderscoresInsteadOfDashes.toLowerCase());
+      nameSet.add(nameWithUnderscoresInsteadOfDashes.toUpperCase());
+
+      final StringBuilder nameWithoutUnderscoresOrDashes = new StringBuilder();
+      for (final char c : name.toCharArray())
+      {
+        if ((c != '-') && (c != '_'))
+        {
+          nameWithoutUnderscoresOrDashes.append(c);
+        }
+      }
+      nameSet.add(nameWithoutUnderscoresOrDashes.toString());
+      nameSet.add(nameWithoutUnderscoresOrDashes.toString().toLowerCase());
+      nameSet.add(nameWithoutUnderscoresOrDashes.toString().toUpperCase());
+    }
+
+    return nameSet;
   }
 }

@@ -22,6 +22,7 @@ package com.unboundid.ldif;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -56,4 +57,30 @@ public enum TrailingSpaceBehavior
    * be rejected.
    */
   REJECT;
+
+
+
+  /**
+   * Retrieves the trailing space behavior with the specified name.
+   *
+   * @param  name  The name of the trailing space behavior to retrieve.  It must
+   *               not be {@code null}.
+   *
+   * @return  The requested trailing space behavior, or {@code null} if no such
+   *          behavior is defined.
+   */
+  public static TrailingSpaceBehavior forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "strip":
+        return STRIP;
+      case "retain":
+        return RETAIN;
+      case "reject":
+        return REJECT;
+      default:
+        return null;
+    }
+  }
 }

@@ -22,6 +22,7 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -135,5 +136,34 @@ public enum X509CertificateVersion
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the X.509 certificate version with the specified name.
+   *
+   * @param  name  The name of the X.509 certificate version to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested X.509 certificate version, or {@code null} if no
+   *          such version is defined.
+   */
+  public static X509CertificateVersion forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "1":
+      case "v1":
+        return V1;
+      case "2":
+      case "v2":
+        return V2;
+      case "3":
+      case "v3":
+        return V3;
+      default:
+        return null;
+    }
   }
 }

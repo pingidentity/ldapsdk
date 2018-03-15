@@ -23,6 +23,7 @@ package com.unboundid.util.ssl.cert;
 
 
 import com.unboundid.util.OID;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -187,6 +188,64 @@ public enum ExtendedKeyUsageID
     else
     {
       return id.name;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the extended key usage ID with the specified name.
+   *
+   * @param  name  The name of the extended key usage ID to retrieve.  It must
+   *               not be {@code null}.
+   *
+   * @return  The requested extended key usage ID, or {@code null} if no such ID
+   *          is defined.
+   */
+  public static ExtendedKeyUsageID forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "tlsserverauthentication":
+      case "tls-server-authentication":
+      case "tls_server_authentication":
+      case "tls server authentication":
+      case "serverauth":
+      case "server-auth":
+      case "server_auth":
+      case "server auth":
+        return TLS_SERVER_AUTHENTICATION;
+      case "tlsclientauthentication":
+      case "tls-client-authentication":
+      case "tls_client_authentication":
+      case "tls client authentication":
+      case "clientauth":
+      case "client-auth":
+      case "client_auth":
+      case "client auth":
+        return TLS_CLIENT_AUTHENTICATION;
+      case "codesigning":
+      case "code-signing":
+      case "code_signing":
+      case "code signing":
+        return CODE_SIGNING;
+      case "emailprotection":
+      case "email-protection":
+      case "email_protection":
+      case "email protection":
+        return EMAIL_PROTECTION;
+      case "timestamping":
+      case "time-stamping":
+      case "time_stamping":
+      case "time stamping":
+        return TIME_STAMPING;
+      case "ocspsigning":
+      case "ocsp-signing":
+      case "ocsp_signing":
+      case "ocsp signing":
+        return OCSP_SIGNING;
+      default:
+        return null;
     }
   }
 }

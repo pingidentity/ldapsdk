@@ -169,55 +169,48 @@ public enum TaskState
    */
   public static TaskState forName(final String name)
   {
-    final String lowerName = toLowerCase(name);
-
-    if (lowerName.equals("canceled_before_starting"))
+    switch (toLowerCase(name))
     {
-      return CANCELED_BEFORE_STARTING;
-    }
-    else if (lowerName.equals("completed_successfully"))
-    {
-      return COMPLETED_SUCCESSFULLY;
-    }
-    else if (lowerName.equals("completed_with_errors"))
-    {
-      return COMPLETED_WITH_ERRORS;
-    }
-    else if (lowerName.equals("disabled"))
-    {
-      return DISABLED;
-    }
-    else if (lowerName.equals("running"))
-    {
-      return RUNNING;
-    }
-    else if (lowerName.equals("stopped_by_administrator"))
-    {
-      return STOPPED_BY_ADMINISTRATOR;
-    }
-    else if (lowerName.equals("stopped_by_error"))
-    {
-      return STOPPED_BY_ERROR;
-    }
-    else if (lowerName.equals("stopped_by_shutdown"))
-    {
-      return STOPPED_BY_SHUTDOWN;
-    }
-    else if (lowerName.equals("unscheduled"))
-    {
-      return UNSCHEDULED;
-    }
-    else if (lowerName.equals("waiting_on_dependency"))
-    {
-      return WAITING_ON_DEPENDENCY;
-    }
-    else if (lowerName.equals("waiting_on_start_time"))
-    {
-      return WAITING_ON_START_TIME;
-    }
-    else
-    {
-      return null;
+      case "canceledbeforestarting":
+      case "canceled-before-starting":
+      case "canceled_before_starting":
+        return CANCELED_BEFORE_STARTING;
+      case "completedsuccessfully":
+      case "completed-successfully":
+      case "completed_successfully":
+        return COMPLETED_SUCCESSFULLY;
+      case "completedwitherrors":
+      case "completed-with-errors":
+      case "completed_with_errors":
+        return COMPLETED_WITH_ERRORS;
+      case "disabled":
+        return DISABLED;
+      case "running":
+        return RUNNING;
+      case "stoppedbyadministrator":
+      case "stopped-by-administrator":
+      case "stopped_by_administrator":
+        return STOPPED_BY_ADMINISTRATOR;
+      case "stoppedbyerror":
+      case "stopped-by-error":
+      case "stopped_by_error":
+        return STOPPED_BY_ERROR;
+      case "stoppedbyshutdown":
+      case "stopped-by-shutdown":
+      case "stopped_by_shutdown":
+        return STOPPED_BY_SHUTDOWN;
+      case "unscheduled":
+        return UNSCHEDULED;
+      case "waitingondependency":
+      case "waiting-on-dependency":
+      case "waiting_on_dependency":
+        return WAITING_ON_DEPENDENCY;
+      case "waitingonstarttime":
+      case "waiting-on-start-time":
+      case "waiting_on_start_time":
+        return WAITING_ON_START_TIME;
+      default:
+        return null;
     }
   }
 

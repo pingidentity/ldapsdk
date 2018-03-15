@@ -126,16 +126,29 @@ public enum ExpectedValueType
    */
   public static ExpectedValueType forName(final String name)
   {
-    final String lowerName = StaticUtils.toLowerCase(name);
-    for (final ExpectedValueType t : values())
+    switch (StaticUtils.toLowerCase(name))
     {
-      if (t.name.equals(lowerName))
-      {
-        return t;
-      }
+      case "boolean":
+        return BOOLEAN;
+      case "emptyarray":
+      case "empty-array":
+      case "empty_array":
+        return EMPTY_ARRAY;
+      case "nonemptyarray":
+      case "non-empty-array":
+      case "non_empty_array":
+        return NON_EMPTY_ARRAY;
+      case "null":
+        return NULL;
+      case "number":
+        return NUMBER;
+      case "object":
+        return OBJECT;
+      case "string":
+        return STRING;
+      default:
+        return null;
     }
-
-    return null;
   }
 
 

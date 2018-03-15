@@ -22,6 +22,7 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -125,5 +126,29 @@ public enum PKCS10CertificateSigningRequestVersion
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the CSR version with the specified name.
+   *
+   * @param  name  The name of the CSR version to retrieve.  It must not be
+   *               {@code null}.
+   *
+   * @return  The requested CSR version, or {@code null} if no such version is
+   *          defined.
+   */
+  public static PKCS10CertificateSigningRequestVersion forName(
+                                                            final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "1":
+      case "v1":
+        return V1;
+      default:
+        return null;
+    }
   }
 }

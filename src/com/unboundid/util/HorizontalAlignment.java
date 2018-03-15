@@ -109,4 +109,30 @@ public enum HorizontalAlignment
       buffer.append(' ');
     }
   }
+
+
+
+  /**
+   * Retrieves the horizontal alignment value with the specified name.
+   *
+   * @param  name  The name of the horizontal alignment value to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested horizontal alignment value, or {@code null} if no
+   *          such value is defined.
+   */
+  public static HorizontalAlignment forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "left":
+        return LEFT;
+      case "center":
+        return CENTER;
+      case "right":
+        return RIGHT;
+      default:
+        return null;
+    }
+  }
 }

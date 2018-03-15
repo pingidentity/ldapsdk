@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.StaticUtils;
+
+
+
 /**
  * This enum defines a set of change type values that may be used in conjunction
  * with the set notification destination extended request.
@@ -113,5 +117,32 @@ public enum SetNotificationDestinationChangeType
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the set notification destination change type with the specified
+   * name.
+   *
+   * @param  name  The name of the set notification destination change type to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested set notification destination change type, or
+   *          {@code null} if no such type is defined.
+   */
+  public static SetNotificationDestinationChangeType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "replace":
+        return REPLACE;
+      case "add":
+        return ADD;
+      case "delete":
+        return DELETE;
+      default:
+        return null;
+    }
   }
 }

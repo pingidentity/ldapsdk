@@ -1,9 +1,9 @@
 /*
- * Copyright 2015-2018 Ping Identity Corporation
+ * Copyright 2018 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2015-2018 Ping Identity Corporation
+ * Copyright (C) 2018 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.extensions;
+package com.unboundid.util;
 
 
 
@@ -32,52 +32,26 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 
 
 /**
- * This class provides a set of test cases for the set notification destination
- * change type enum.
+ * This class provides a set of test cases for the thread safety level enum.
  */
-public final class SetNotificationDestinationChangeTypeTestCase
+public final class ThreadSafetyLevelTestCase
        extends LDAPSDKTestCase
 {
   /**
-   * Provides test coverage for the change types enum.
+   * Provides basic functionality for the operation type enum.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testChangeTypes()
+  public void testBasic()
          throws Exception
   {
-    assertEquals(SetNotificationDestinationChangeType.REPLACE.intValue(), 0);
-    assertEquals(SetNotificationDestinationChangeType.valueOf(0),
-         SetNotificationDestinationChangeType.REPLACE);
-
-    assertEquals(SetNotificationDestinationChangeType.ADD.intValue(), 1);
-    assertEquals(SetNotificationDestinationChangeType.valueOf(1),
-         SetNotificationDestinationChangeType.ADD);
-
-    assertEquals(SetNotificationDestinationChangeType.DELETE.intValue(), 2);
-    assertEquals(SetNotificationDestinationChangeType.valueOf(2),
-         SetNotificationDestinationChangeType.DELETE);
-
-    for (final SetNotificationDestinationChangeType t :
-         SetNotificationDestinationChangeType.values())
+    assertNotNull(ThreadSafetyLevel.values());
+    for (final ThreadSafetyLevel l : ThreadSafetyLevel.values())
     {
-      assertEquals(SetNotificationDestinationChangeType.valueOf(t.intValue()),
-           t);
-      assertEquals(SetNotificationDestinationChangeType.valueOf(t.name()),
-           t);
-    }
-
-    assertNull(SetNotificationDestinationChangeType.valueOf(3));
-
-    try
-    {
-      SetNotificationDestinationChangeType.valueOf("undefined");
-      fail("Expected an exception from an undefined string valueOf");
-    }
-    catch (final IllegalArgumentException e)
-    {
-      // This was expected.
+      assertNotNull(l);
+      assertNotNull(l.name());
+      assertEquals(ThreadSafetyLevel.valueOf(l.name()), l);
     }
   }
 
@@ -93,18 +67,16 @@ public final class SetNotificationDestinationChangeTypeTestCase
   public void testForNameAutomated()
          throws Exception
   {
-    for (final SetNotificationDestinationChangeType value :
-         SetNotificationDestinationChangeType.values())
+    for (final ThreadSafetyLevel value : ThreadSafetyLevel.values())
     {
       for (final String name : getNames(value.name()))
       {
-        assertNotNull(SetNotificationDestinationChangeType.forName(name));
-        assertEquals(SetNotificationDestinationChangeType.forName(name), value);
+        assertNotNull(ThreadSafetyLevel.forName(name));
+        assertEquals(ThreadSafetyLevel.forName(name), value);
       }
     }
 
-    assertNull(SetNotificationDestinationChangeType.forName(
-         "some undefined name"));
+    assertNull(ThreadSafetyLevel.forName("some undefined name"));
   }
 
 

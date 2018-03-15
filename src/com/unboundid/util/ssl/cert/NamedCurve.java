@@ -297,4 +297,29 @@ public enum NamedCurve
       return curve.name;
     }
   }
+
+
+
+  /**
+   * Retrieves the named curve with the specified name.
+   *
+   * @param  name  The name of the named curve to retrieve.  It must not be
+   *               {@code null}.
+   *
+   * @return  The requested named curve, or {@code null} if no such curve is
+   *          defined.
+   */
+  public static NamedCurve forName(final String name)
+  {
+    for (final NamedCurve namedCurve : NamedCurve.values())
+    {
+      if (namedCurve.name.equalsIgnoreCase(name) ||
+           namedCurve.name().equalsIgnoreCase(name))
+      {
+        return namedCurve;
+      }
+    }
+
+    return null;
+  }
 }

@@ -103,16 +103,21 @@ public enum SASLQualityOfProtection
    */
   public static SASLQualityOfProtection forName(final String name)
   {
-    final String lowerName = StaticUtils.toLowerCase(name.replace('_', '-'));
-    for (final SASLQualityOfProtection p : values())
+    switch (StaticUtils.toLowerCase(name))
     {
-      if (p.qopString.equals(lowerName))
-      {
-        return p;
-      }
+      case "auth":
+        return AUTH;
+      case "authint":
+      case "auth-int":
+      case "auth_int":
+        return AUTH_INT;
+      case "authconf":
+      case "auth-conf":
+      case "auth_conf":
+        return AUTH_CONF;
+      default:
+        return null;
     }
-
-    return null;
   }
 
 

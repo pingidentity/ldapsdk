@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -145,5 +146,40 @@ public enum AssuredReplicationServerResultCode
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the assured replication server result code with the specified
+   * name.
+   *
+   * @param  name  The name of the assured replication server result code to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested assured replication server result code, or
+   *          {@code null} if no such result code is defined.
+   */
+  public static AssuredReplicationServerResultCode forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "complete":
+        return COMPLETE;
+      case "timeout":
+        return TIMEOUT;
+      case "conflict":
+        return CONFLICT;
+      case "servershutdown":
+      case "server-shutdown":
+      case "server_shutdown":
+        return SERVER_SHUTDOWN;
+      case "unavailable":
+        return UNAVAILABLE;
+      case "duplicate":
+        return DUPLICATE;
+      default:
+        return null;
+    }
   }
 }

@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
+
+
+
 /**
  * This enum defines the modes which may be used with the content
  * synchronization request control.  See the documentation for the
@@ -101,6 +105,34 @@ public enum ContentSyncRequestMode
     else
     {
       return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the content synchronization request mode with the specified name.
+   *
+   * @param  name  The name of the content synchronization request mode to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested content sync request mode, or {@code null} if no
+   *          such mode is defined.
+   */
+  public static ContentSyncRequestMode forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "refreshonly":
+      case "refresh-only":
+      case "refresh_only":
+        return REFRESH_ONLY;
+      case "refreshandpersist":
+      case "refresh-and-persist":
+      case "refresh_and_persist":
+        return REFRESH_AND_PERSIST;
+      default:
+        return null;
     }
   }
 }

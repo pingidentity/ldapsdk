@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -209,6 +210,40 @@ public enum UniquenessValidationLevel
       case 2:
         return ALL_BACKEND_SETS;
       case 3:
+        return ALL_AVAILABLE_BACKEND_SERVERS;
+      default:
+        return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the uniqueness validation level with the specified name.
+   *
+   * @param  name  The name of the uniqueness validation level to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested uniqueness validation level, or {@code null} if no
+   *          such level is defined.
+   */
+  public static UniquenessValidationLevel forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "none":
+        return NONE;
+      case "allsubtreeviews":
+      case "all-subtree-views":
+      case "all_subtree_views":
+        return ALL_SUBTREE_VIEWS;
+      case "allbackendsets":
+      case "all-backend-sets":
+      case "all_backend_sets":
+        return ALL_BACKEND_SETS;
+      case "allavailablebackendservers":
+      case "all-available-backend-servers":
+      case "all_available_backend_servers":
         return ALL_AVAILABLE_BACKEND_SERVERS;
       default:
         return null;

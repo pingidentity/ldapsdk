@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.schema;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -112,22 +113,35 @@ public enum AttributeUsage
   /**
    * Retrieves the attribute usage value with the specified name.
    *
-   * @param  name  The name of the attribute usage to retrieve.
+   * @param  name  The name of the attribute usage to retrieve.  It must not be
+   *               {@code null}.
    *
    * @return  The attribute usage with the specified name, or {@code null} if
    *          there is no usage with the given name.
    */
   public static AttributeUsage forName(final String name)
   {
-    for (final AttributeUsage u : values())
+    switch (StaticUtils.toLowerCase(name))
     {
-      if (u.name.equalsIgnoreCase(name))
-      {
-        return u;
-      }
+      case "userapplications":
+      case "user-applications":
+      case "user_applications":
+        return USER_APPLICATIONS;
+      case "directoryoperation":
+      case "directory-operation":
+      case "directory_operation":
+        return DIRECTORY_OPERATION;
+      case "distributedoperation":
+      case "distributed-operation":
+      case "distributed_operation":
+        return DISTRIBUTED_OPERATION;
+      case "dsaoperation":
+      case "dsa-operation":
+      case "dsa_operation":
+        return DSA_OPERATION;
+      default:
+        return null;
     }
-
-    return null;
   }
 
 

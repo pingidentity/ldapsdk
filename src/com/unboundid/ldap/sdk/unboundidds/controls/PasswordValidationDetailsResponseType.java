@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -137,5 +138,42 @@ public enum PasswordValidationDetailsResponseType
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the password validation details response type with the specified
+   * name.
+   *
+   * @param  name  The name of the password validation details response type to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested password validation details response type, or
+   *          {@code null} if no such type is defined.
+   */
+  public static PasswordValidationDetailsResponseType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "validationdetails":
+      case "validation-details":
+      case "validation_details":
+        return VALIDATION_DETAILS;
+      case "nopasswordprovided":
+      case "no-password-provided":
+      case "no_password_provided":
+        return NO_PASSWORD_PROVIDED;
+      case "multiplepasswordsprovided":
+      case "multiple-passwords-provided":
+      case "multiple_passwords_provided":
+        return MULTIPLE_PASSWORDS_PROVIDED;
+      case "novalidationattempted":
+      case "no-validation-attempted":
+      case "no_validation_attempted":
+        return NO_VALIDATION_ATTEMPTED;
+      default:
+        return null;
+    }
   }
 }

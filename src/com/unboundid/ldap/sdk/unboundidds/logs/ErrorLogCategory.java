@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -210,4 +211,76 @@ public enum ErrorLogCategory
    * The error log category used for messages about the server version.
    */
   VERSION;
+
+
+
+  /**
+   * Retrieves the error log category with the specified name.
+   *
+   * @param  name  The name of the error log category to retrieve.  It must not
+   *               be {@code null}.
+   *
+   * @return  The requested error log category, or {@code null} if no such
+   *          category is defined.
+   */
+  public static ErrorLogCategory forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "accesscontrol":
+      case "access-control":
+      case "access_control":
+        return ACCESS_CONTROL;
+      case "admin":
+        return ADMIN;
+      case "admintool":
+      case "admin-tool":
+      case "admin_tool":
+        return ADMIN_TOOL;
+      case "backend":
+        return BACKEND;
+      case "config":
+        return CONFIG;
+      case "core":
+        return CORE;
+      case "dsconfig":
+        return DSCONFIG;
+      case "extensions":
+        return EXTENSIONS;
+      case "jeb":
+        return JEB;
+      case "log":
+        return LOG;
+      case "plugin":
+        return PLUGIN;
+      case "protocol":
+        return PROTOCOL;
+      case "proxy":
+        return PROXY;
+      case "quicksetup":
+        return QUICKSETUP;
+      case "replication":
+        return REPLICATION;
+      case "runtimeinformation":
+      case "runtime-information":
+      case "runtime_information":
+        return RUNTIME_INFORMATION;
+      case "schema":
+        return SCHEMA;
+      case "task":
+        return TASK;
+      case "thirdparty":
+      case "third-party":
+      case "third_party":
+        return THIRD_PARTY;
+      case "tools":
+        return TOOLS;
+      case "util":
+        return UTIL;
+      case "version":
+        return VERSION;
+      default:
+        return null;
+    }
+  }
 }

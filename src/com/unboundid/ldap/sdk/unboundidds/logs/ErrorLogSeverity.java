@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -100,5 +101,51 @@ public enum ErrorLogSeverity
    * The severity that will be used for warning messages about conditions that
    * may impact the operation of the server or one of its components.
    */
-  SEVERE_WARNING
+  SEVERE_WARNING;
+
+
+
+  /**
+   * Retrieves the error log severity with the specified name.
+   *
+   * @param  name  The name of the error log severity to retrieve.  It must not
+   *               be {@code null}.
+   *
+   * @return  The requested error log severity, or {@code null} if no such
+   *          severity is defined.
+   */
+  public static ErrorLogSeverity forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "debug":
+        return DEBUG;
+      case "fatalerror":
+      case "fatal-error":
+      case "fatal_error":
+        return FATAL_ERROR;
+      case "information":
+        return INFORMATION;
+      case "milderror":
+      case "mild-error":
+      case "mild_error":
+        return MILD_ERROR;
+      case "mildwarning":
+      case "mild-warning":
+      case "mild_warning":
+        return MILD_WARNING;
+      case "notice":
+        return NOTICE;
+      case "severeerror":
+      case "severe-error":
+      case "severe_error":
+        return SEVERE_ERROR;
+      case "severewarning":
+      case "severe-warning":
+      case "severe_warning":
+        return SEVERE_WARNING;
+      default:
+        return null;
+    }
+  }
 }

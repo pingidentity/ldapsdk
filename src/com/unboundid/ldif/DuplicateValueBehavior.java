@@ -22,6 +22,7 @@ package com.unboundid.ldif;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -56,4 +57,30 @@ public enum DuplicateValueBehavior
    * rejected.
    */
   REJECT;
+
+
+
+  /**
+   * Retrieves the duplicate value behavior with the specified name.
+   *
+   * @param  name  The name of the duplicate value behavior to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested duplicate value behavior, or {@code null} if no such
+   *          behavior is defined.
+   */
+  public static DuplicateValueBehavior forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "strip":
+        return STRIP;
+      case "retain":
+        return RETAIN;
+      case "reject":
+        return REJECT;
+      default:
+        return null;
+    }
+  }
 }

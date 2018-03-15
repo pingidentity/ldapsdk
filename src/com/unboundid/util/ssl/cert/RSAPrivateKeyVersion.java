@@ -22,6 +22,7 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -115,5 +116,31 @@ public enum RSAPrivateKeyVersion
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the RSA private key version with the specified name.
+   *
+   * @param  name  The name of the RSA private key version to retrieve.  It must
+   *               not be {@code null}.
+   *
+   * @return  The requested RSA private key version, or {@code null} if no such
+   *          version is defined.
+   */
+  public static RSAPrivateKeyVersion forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "twoprime":
+      case "two-prime":
+      case "two_prime":
+        return TWO_PRIME;
+      case "multi":
+        return MULTI;
+      default:
+        return null;
+    }
   }
 }

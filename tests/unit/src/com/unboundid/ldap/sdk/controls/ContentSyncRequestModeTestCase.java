@@ -22,6 +22,9 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
@@ -117,5 +120,75 @@ public final class ContentSyncRequestModeTestCase
     }
 
     assertNull(ContentSyncRequestMode.valueOf(-1));
+  }
+
+
+
+  /**
+   * Tests the {@code forName} method with automated tests based on the actual
+   * name of the enum values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testForNameAutomated()
+         throws Exception
+  {
+    for (final ContentSyncRequestMode value : ContentSyncRequestMode.values())
+    {
+      for (final String name : getNames(value.name()))
+      {
+        assertNotNull(ContentSyncRequestMode.forName(name));
+        assertEquals(ContentSyncRequestMode.forName(name), value);
+      }
+    }
+
+    assertNull(ContentSyncRequestMode.forName("some undefined name"));
+  }
+
+
+
+  /**
+   * Retrieves a set of names for testing the {@code forName} method based on
+   * the provided set of names.
+   *
+   * @param  baseNames  The base set of names to use to generate the full set of
+   *                    names.  It must not be {@code null} or empty.
+   *
+   * @return  The full set of names to use for testing.
+   */
+  private static Set<String> getNames(final String... baseNames)
+  {
+    final HashSet<String> nameSet = new HashSet<>(10);
+    for (final String name : baseNames)
+    {
+      nameSet.add(name);
+      nameSet.add(name.toLowerCase());
+      nameSet.add(name.toUpperCase());
+
+      final String nameWithDashesInsteadOfUnderscores = name.replace('_', '-');
+      nameSet.add(nameWithDashesInsteadOfUnderscores);
+      nameSet.add(nameWithDashesInsteadOfUnderscores.toLowerCase());
+      nameSet.add(nameWithDashesInsteadOfUnderscores.toUpperCase());
+
+      final String nameWithUnderscoresInsteadOfDashes = name.replace('-', '_');
+      nameSet.add(nameWithUnderscoresInsteadOfDashes);
+      nameSet.add(nameWithUnderscoresInsteadOfDashes.toLowerCase());
+      nameSet.add(nameWithUnderscoresInsteadOfDashes.toUpperCase());
+
+      final StringBuilder nameWithoutUnderscoresOrDashes = new StringBuilder();
+      for (final char c : name.toCharArray())
+      {
+        if ((c != '-') && (c != '_'))
+        {
+          nameWithoutUnderscoresOrDashes.append(c);
+        }
+      }
+      nameSet.add(nameWithoutUnderscoresOrDashes.toString());
+      nameSet.add(nameWithoutUnderscoresOrDashes.toString().toLowerCase());
+      nameSet.add(nameWithoutUnderscoresOrDashes.toString().toUpperCase());
+    }
+
+    return nameSet;
   }
 }

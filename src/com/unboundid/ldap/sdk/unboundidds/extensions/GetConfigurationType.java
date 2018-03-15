@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -192,5 +193,31 @@ public enum GetConfigurationType
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the get configuration type value with the specified name.
+   *
+   * @param  name  The name of the get configuration type value to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested get configuration type value, or {@code null} if no
+   *          such value is defined.
+   */
+  public static GetConfigurationType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "active":
+        return ACTIVE;
+      case "baseline":
+        return BASELINE;
+      case "archived":
+        return ARCHIVED;
+      default:
+        return null;
+    }
   }
 }

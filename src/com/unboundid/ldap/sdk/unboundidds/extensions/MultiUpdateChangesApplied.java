@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.StaticUtils;
+
+
+
 /**
  * This enum defines the set of possible values for the element of a
  * multi-update result which indicates whether any updates were applied to
@@ -118,5 +122,31 @@ public enum MultiUpdateChangesApplied
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the multi-update changes applied value with the specified name.
+   *
+   * @param  name  The name of the multi-update changes applied value to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested multi-update changes applied value, or {@code null}
+   *          if no such value is defined.
+   */
+  public static MultiUpdateChangesApplied forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "none":
+        return NONE;
+      case "all":
+        return ALL;
+      case "partial":
+        return PARTIAL;
+      default:
+        return null;
+    }
   }
 }

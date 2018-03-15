@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
+
+
+
 /**
  * This enum defines the synchronization states for entries returned with the
  * content synchronization state control.  See the documentation for the
@@ -127,6 +131,42 @@ public enum ContentSyncInfoType
     else
     {
       return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the content synchronization info type with the specified name.
+   *
+   * @param  name  The name of the content synchronization info type to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested content sync info type, or {@code null} if no such
+   *          type is defined.
+   */
+  public static ContentSyncInfoType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "newcookie":
+      case "new-cookie":
+      case "new_cookie":
+        return NEW_COOKIE;
+      case "refreshdelete":
+      case "refresh-delete":
+      case "refresh_delete":
+        return REFRESH_DELETE;
+      case "refreshpresent":
+      case "refresh-present":
+      case "refresh_present":
+        return REFRESH_PRESENT;
+      case "syncidset":
+      case "sync-id-set":
+      case "sync_id_set":
+        return SYNC_ID_SET;
+      default:
+        return null;
     }
   }
 }

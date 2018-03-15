@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -100,4 +101,66 @@ public enum OperationType
    * The operation type that will be used for unbind operations.
    */
   UNBIND;
+
+
+
+  /**
+   * Retrieves the operation type with the specified name.
+   *
+   * @param  name  The name of the operation type to retrieve.  It must not be
+   *               {@code null}.
+   *
+   * @return  The requested operation type, or {@code null} if no such operation
+   *          type is defined.
+   */
+  public static OperationType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "abandon":
+        return ABANDON;
+      case "add":
+        return ADD;
+      case "bind":
+        return BIND;
+      case "compare":
+        return COMPARE;
+      case "delete":
+      case "del":
+        return DELETE;
+      case "extended":
+      case "extendedoperation":
+      case "extended-operation":
+      case "extended_operation":
+      case "extendedop":
+      case "extended-op":
+      case "extended_op":
+      case "extop":
+      case "ext-op":
+      case "ext_op":
+        return EXTENDED;
+      case "modify":
+      case "mod":
+        return MODIFY;
+      case "modifydn":
+      case "modify-dn":
+      case "modify_dn":
+      case "moddn":
+      case "mod-dn":
+      case "mod_dn":
+      case "modifyrdn":
+      case "modify-rdn":
+      case "modify_rdn":
+      case "modrdn":
+      case "mod-rdn":
+      case "mod_rdn":
+        return MODIFY_DN;
+      case "search":
+        return SEARCH;
+      case "unbind":
+        return UNBIND;
+      default:
+        return null;
+    }
+  }
 }

@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -142,6 +143,43 @@ public enum UniquenessMultipleAttributeBehavior
       case 2:
         return UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_IN_SAME_ENTRY;
       case 3:
+        return UNIQUE_IN_COMBINATION;
+      default:
+        return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the uniqueness multiple attribute behavior with the specified
+   * name.
+   *
+   * @param  name  The name of the uniqueness multiple attribute behavior to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested uniqueness multiple attribute behavior, or
+   *          {@code null} if no such behavior is defined.
+   */
+  public static UniquenessMultipleAttributeBehavior forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "uniquewithineachattribute":
+      case "unique-within-each-attribute":
+      case "unique_within_each_attribute":
+        return UNIQUE_WITHIN_EACH_ATTRIBUTE;
+      case "uniqueacrossallattributesincludinginsameentry":
+      case "unique-across-all-attributes-including-in-same-entry":
+      case "unique_across_all_attributes_including_in_same_entry":
+        return UNIQUE_ACROSS_ALL_ATTRIBUTES_INCLUDING_IN_SAME_ENTRY;
+      case "uniqueacrossallattributesexceptinsameentry":
+      case "unique-across-all-attributes-except-in-same-entry":
+      case "unique_across_all_attributes_except_in_same_entry":
+        return UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_IN_SAME_ENTRY;
+      case "uniqueincombination":
+      case "unique-in-combination":
+      case "unique_in_combination":
         return UNIQUE_IN_COMBINATION;
       default:
         return null;

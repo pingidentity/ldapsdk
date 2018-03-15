@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -123,6 +124,36 @@ public enum AssuredReplicationLocalLevel
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the local assurance level with the specified name.
+   *
+   * @param  name  The name of the local assurance level to retrieve.  It must
+   *               not be {@code null}.
+   *
+   * @return  The requested local assurance level, or {@code null} if no such
+   *          level is defined.
+   */
+  public static AssuredReplicationLocalLevel forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "none":
+        return NONE;
+      case "receivedanyserver":
+      case "received-any-server":
+      case "received_any_server":
+        return RECEIVED_ANY_SERVER;
+      case "processedallservers":
+      case "processed-all-servers":
+      case "processed_all_servers":
+        return PROCESSED_ALL_SERVERS;
+      default:
+        return null;
+    }
   }
 
 

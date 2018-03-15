@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -89,22 +90,30 @@ public enum AlarmSeverity
   /**
    * Retrieves the alarm severity with the specified name.
    *
-   * @param  name  The name of the alarm severity to retrieve.
+   * @param  name  The name of the alarm severity to retrieve.  It must not be
+   *               {@code null}.
    *
    * @return  The alarm severity with the specified name, or {@code null} if
    *          there is no alarm severity with the given name.
    */
   public static AlarmSeverity forName(final String name)
   {
-    final String upperName = name.toUpperCase();
-    for (final AlarmSeverity s : values())
+    switch (StaticUtils.toLowerCase(name))
     {
-      if (upperName.equals(s.name()))
-      {
-        return s;
-      }
+      case "indeterminate":
+        return INDETERMINATE;
+      case "normal":
+        return NORMAL;
+      case "warning":
+        return WARNING;
+      case "minor":
+        return MINOR;
+      case "major":
+        return MAJOR;
+      case "critical":
+        return CRITICAL;
+      default:
+        return null;
     }
-
-    return null;
   }
 }

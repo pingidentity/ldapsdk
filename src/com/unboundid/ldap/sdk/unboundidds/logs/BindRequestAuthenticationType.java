@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -63,4 +64,30 @@ public enum BindRequestAuthenticationType
    * The authentication type that will be used for simple authentication.
    */
   SIMPLE;
+
+
+
+  /**
+   * Retrieves the authentication type with the specified name.
+   *
+   * @param  name  The name of the authentication type to retrieve.  It must not
+   *               be {@code null}.
+   *
+   * @return  The requested authentication type, or {@code null} if no such type
+   *          is defined.
+   */
+  public static BindRequestAuthenticationType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "internal":
+        return INTERNAL;
+      case "sasl":
+        return SASL;
+      case "simple":
+        return SIMPLE;
+      default:
+        return null;
+    }
+  }
 }

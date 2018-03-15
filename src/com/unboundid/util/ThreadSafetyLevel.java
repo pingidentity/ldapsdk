@@ -107,5 +107,57 @@ public enum ThreadSafetyLevel
    * The associated method may not be considered threadsafe and should not be
    * invoked concurrently by multiple threads.
    */
-  METHOD_NOT_THREADSAFE
+  METHOD_NOT_THREADSAFE;
+
+
+
+  /**
+   * Retrieves the thread safety level with the specified name.
+   *
+   * @param  name  The name of the thread safety level to retrieve.  It must not
+   *               be {@code null}.
+   *
+   * @return  The requested thread safety level, or {@code null} if no such
+   *          level is defined.
+   */
+  public static ThreadSafetyLevel forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "completelythreadsafe":
+      case "completely-threadsafe":
+      case "completely_threadsafe":
+        return COMPLETELY_THREADSAFE;
+      case "mostlythreadsafe":
+      case "mostly-threadsafe":
+      case "mostly_threadsafe":
+        return MOSTLY_THREADSAFE;
+      case "mostlynotthreadsafe":
+      case "mostly-not-threadsafe":
+      case "mostly_not_threadsafe":
+        return MOSTLY_NOT_THREADSAFE;
+      case "notthreadsafe":
+      case "not-threadsafe":
+      case "not_threadsafe":
+        return NOT_THREADSAFE;
+      case "interfacethreadsafe":
+      case "interface-threadsafe":
+      case "interface_threadsafe":
+        return INTERFACE_THREADSAFE;
+      case "interfacenotthreadsafe":
+      case "interface-not-threadsafe":
+      case "interface_not_threadsafe":
+        return INTERFACE_NOT_THREADSAFE;
+      case "methodthreadsafe":
+      case "method-threadsafe":
+      case "method_threadsafe":
+        return METHOD_THREADSAFE;
+      case "methodnotthreadsafe":
+      case "method-not-threadsafe":
+      case "method_not_threadsafe":
+        return METHOD_NOT_THREADSAFE;
+      default:
+        return null;
+    }
+  }
 }

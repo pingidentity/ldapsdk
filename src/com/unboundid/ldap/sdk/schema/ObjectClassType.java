@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.schema;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -93,22 +94,25 @@ public enum ObjectClassType
   /**
    * Retrieves the object class type value with the specified name.
    *
-   * @param  name  The name of the object class type to retrieve.
+   * @param  name  The name of the object class type to retrieve.  It must not
+   *               be {@code null}.
    *
    * @return  The object class type with the specified name, or {@code null} if
    *          there is no type with the given name.
    */
   public static ObjectClassType forName(final String name)
   {
-    for (final ObjectClassType t : values())
+    switch (StaticUtils.toLowerCase(name))
     {
-      if (t.name.equalsIgnoreCase(name))
-      {
-        return t;
-      }
+      case "abstract":
+        return ABSTRACT;
+      case "structural":
+        return STRUCTURAL;
+      case "auxiliary":
+        return AUXILIARY;
+      default:
+        return null;
     }
-
-    return null;
   }
 
 

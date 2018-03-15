@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -139,6 +140,47 @@ public enum PersistentSearchChangeType
       case 8:
         return MODIFY_DN;
 
+      default:
+        return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the persistent search change type with the specified name.
+   *
+   * @param  name  The name of the change type for which to retrieve the name.
+   *               It must not be {@code null}.
+   *
+   * @return  The requested persistent search change type, or {@code null} if
+   *          there is no change type with the given name.
+   */
+  public static PersistentSearchChangeType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "add":
+        return ADD;
+      case "delete":
+      case "del":
+        return DELETE;
+      case "modify":
+      case "mod":
+        return MODIFY;
+      case "modifydn":
+      case "modify-dn":
+      case "modify_dn":
+      case "moddn":
+      case "mod-dn":
+      case "mod_dn":
+      case "modifyrdn":
+      case "modify-rdn":
+      case "modify_rdn":
+      case "modrdn":
+      case "mod-rdn":
+      case "mod_rdn":
+        return MODIFY_DN;
       default:
         return null;
     }

@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk.persist;
 
 
 
+import com.unboundid.util.StaticUtils;
+
+
+
 /**
  * This enumeration defines a set of options that indicate how the value of a
  * field or getter method may be used in the process of constructing a search
@@ -94,4 +98,36 @@ public enum FilterUsage
    * value in that object.
    */
   EXCLUDED;
+
+
+
+  /**
+   * Retrieves the filter usage with the specified name.
+   *
+   * @param  name  The name of the filter usage to retrieve.  It must not be
+   *               {@code null}.
+   *
+   * @return  The requested filter usage, or {@code null} if no such usage is
+   *          defined.
+   */
+  public static FilterUsage forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "required":
+        return REQUIRED;
+      case "alwaysallowed":
+      case "always-allowed":
+      case "always_allowed":
+        return ALWAYS_ALLOWED;
+      case "conditionallyallowed":
+      case "conditionally-allowed":
+      case "conditionally_allowed":
+        return CONDITIONALLY_ALLOWED;
+      case "excluded":
+        return EXCLUDED;
+      default:
+        return null;
+    }
+  }
 }

@@ -267,85 +267,77 @@ public enum DisconnectType
    */
   public static DisconnectType forName(final String name)
   {
-    final String lowerName = toLowerCase(name);
-    if (lowerName.equals("unbind"))
+    switch (toLowerCase(name))
     {
-      return UNBIND;
+      case "unbind":
+        return UNBIND;
+      case "closedwithoutunbind":
+      case "closed-without-unbind":
+      case "closed_without_unbind":
+        return CLOSED_WITHOUT_UNBIND;
+      case "bindfailed":
+      case "bind-failed":
+      case "bind_failed":
+        return BIND_FAILED;
+      case "reconnect":
+        return RECONNECT;
+      case "referral":
+        return REFERRAL;
+      case "serverclosedwithnotice":
+      case "server-closed-with-notice":
+      case "server_closed_with_notice":
+        return SERVER_CLOSED_WITH_NOTICE;
+      case "serverclosedwithoutnotice":
+      case "server-closed-without-notice":
+      case "server_closed_without_notice":
+        return SERVER_CLOSED_WITHOUT_NOTICE;
+      case "ioerror":
+      case "io-error":
+      case "io_error":
+        return IO_ERROR;
+      case "decodeerror":
+      case "decode-error":
+      case "decode_error":
+        return DECODE_ERROR;
+      case "localerror":
+      case "local-error":
+      case "local_error":
+        return LOCAL_ERROR;
+      case "securityproblem":
+      case "security-problem":
+      case "security_problem":
+        return SECURITY_PROBLEM;
+      case "poolclosed":
+      case "pool-closed":
+      case "pool_closed":
+        return POOL_CLOSED;
+      case "poolcreationfailure":
+      case "pool-creation-failure":
+      case "pool_creation_failure":
+        return POOL_CREATION_FAILURE;
+      case "pooledconnectiondefunct":
+      case "pooled-connection-defunct":
+      case "pooled_connection_defunct":
+        return POOLED_CONNECTION_DEFUNCT;
+      case "pooledconnectionexpired":
+      case "pooled-connection-expired":
+      case "pooled_connection_expired":
+        return POOLED_CONNECTION_EXPIRED;
+      case "pooledconnectionunneeded":
+      case "pooled-connection-unneeded":
+      case "pooled_connection_unneeded":
+        return POOLED_CONNECTION_UNNEEDED;
+      case "unknown":
+        return UNKNOWN;
+      case "closedbyfinalizer":
+      case "closed-by-finalizer":
+      case "closed_by_finalizer":
+        return CLOSED_BY_FINALIZER;
+      case "other":
+        return OTHER;
+      default:
+        return null;
     }
-    if (lowerName.equals("closed_without_unbind"))
-    {
-      return CLOSED_WITHOUT_UNBIND;
-    }
-    else if (lowerName.equals("bind_failed"))
-    {
-      return BIND_FAILED;
-    }
-    else if (lowerName.equals("reconnect"))
-    {
-      return RECONNECT;
-    }
-    else if (lowerName.equals("referral"))
-    {
-      return REFERRAL;
-    }
-    else if (lowerName.equals("server_closed_with_notice"))
-    {
-      return SERVER_CLOSED_WITH_NOTICE;
-    }
-    else if (lowerName.equals("server_closed_without_notice"))
-    {
-      return SERVER_CLOSED_WITHOUT_NOTICE;
-    }
-    else if (lowerName.equals("io_error"))
-    {
-      return IO_ERROR;
-    }
-    else if (lowerName.equals("decode_error"))
-    {
-      return DECODE_ERROR;
-    }
-    else if (lowerName.equals("local_error"))
-    {
-      return LOCAL_ERROR;
-    }
-    else if (lowerName.equals("security_problem"))
-    {
-      return SECURITY_PROBLEM;
-    }
-    else if (lowerName.equals("pool_closed"))
-    {
-      return POOL_CLOSED;
-    }
-    else if (lowerName.equals("pool_creation_failure"))
-    {
-      return POOL_CREATION_FAILURE;
-    }
-    else if (lowerName.equals("pooled_connection_defunct"))
-    {
-      return POOLED_CONNECTION_DEFUNCT;
-    }
-    else if (lowerName.equals("pooled_connection_expired"))
-    {
-      return POOLED_CONNECTION_EXPIRED;
-    }
-    else if (lowerName.equals("pooled_connection_unneeded"))
-    {
-      return POOLED_CONNECTION_UNNEEDED;
-    }
-    else if (lowerName.equals("unknown"))
-    {
-      return UNKNOWN;
-    }
-    else if (lowerName.equals("closed_by_finalizer"))
-    {
-      return CLOSED_BY_FINALIZER;
-    }
-    else if (lowerName.equals("other"))
-    {
-      return OTHER;
-    }
-
-    return null;
   }
 
 

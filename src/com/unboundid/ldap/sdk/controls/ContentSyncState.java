@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
+
+
+
 /**
  * This enum defines the synchronization states for entries returned with the
  * content synchronization state control.  See the documentation for the
@@ -124,6 +128,34 @@ public enum ContentSyncState
     else
     {
       return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the content synchronization state with the specified name.
+   *
+   * @param  name  The name of the content synchronization state to retrieve.
+   *               It must not be {@code null}.
+   *
+   * @return  The requested content synchronization state, or {@code null} if no
+   *          such state is defined.
+   */
+  public static ContentSyncState forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "present":
+        return PRESENT;
+      case "add":
+        return ADD;
+      case "modify":
+        return MODIFY;
+      case "delete":
+        return DELETE;
+      default:
+        return null;
     }
   }
 }

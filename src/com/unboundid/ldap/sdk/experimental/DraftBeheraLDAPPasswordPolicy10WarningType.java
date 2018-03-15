@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.experimental;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -76,6 +77,37 @@ public enum DraftBeheraLDAPPasswordPolicy10WarningType
   public String getName()
   {
     return name;
+  }
+
+
+
+  /**
+   * Retrieves the password policy warning type with the specified name.
+   *
+   * @param  name  The name of the password policy warning type to retrieve.  It
+   *               must not be {@code null}.
+   *
+   * @return  The requested password policy warning type, or {@code null} if no
+   *          such type is defined.
+   */
+  public static DraftBeheraLDAPPasswordPolicy10WarningType
+                     forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "timebeforeexpiration":
+      case "time-before-expiration":
+      case "time_before_expiration":
+      case "time before expiration":
+        return TIME_BEFORE_EXPIRATION;
+      case "graceloginsremaining":
+      case "grace-logins-remaining":
+      case "grace_logins_remaining":
+      case "grace logins remaining":
+        return GRACE_LOGINS_REMAINING;
+      default:
+        return null;
+    }
   }
 
 

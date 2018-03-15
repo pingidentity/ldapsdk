@@ -130,49 +130,37 @@ public enum DebugType
   /**
    * Retrieves the debug type with the specified name.
    *
-   * @param  name  The name of the debug type to retrieve.
+   * @param  name  The name of the debug type to retrieve.  It must not be
+   *               {@code null}.
    *
    * @return  The requested debug type, or {@code null} if there is no such
    *          debug type.
    */
   public static DebugType forName(final String name)
   {
-    final String lowerName = toLowerCase(name);
-
-    if (lowerName.equals("asn1"))
+    switch (toLowerCase(name))
     {
-      return ASN1;
+      case "asn1":
+        return ASN1;
+      case "connect":
+        return CONNECT;
+      case "exception":
+        return EXCEPTION;
+      case "ldap":
+        return LDAP;
+      case "ldif":
+        return LDIF;
+      case "monitor":
+        return MONITOR;
+      case "codingerror":
+      case "coding-error":
+      case "coding_error":
+        return CODING_ERROR;
+      case "other":
+        return OTHER;
+      default:
+        return null;
     }
-    else if (lowerName.equals("connect"))
-    {
-      return CONNECT;
-    }
-    else if (lowerName.equals("exception"))
-    {
-      return EXCEPTION;
-    }
-    else if (lowerName.equals("ldap"))
-    {
-      return LDAP;
-    }
-    else if (lowerName.equals("ldif"))
-    {
-      return LDIF;
-    }
-    else if (lowerName.equals("monitor"))
-    {
-      return MONITOR;
-    }
-    else if (lowerName.equals("coding-error"))
-    {
-      return CODING_ERROR;
-    }
-    else if (lowerName.equals("other"))
-    {
-      return OTHER;
-    }
-
-    return null;
   }
 
 

@@ -116,27 +116,18 @@ public enum AlertSeverity
    */
   public static AlertSeverity forName(final String name)
   {
-    final String lowerName = StaticUtils.toLowerCase(name);
-
-    if (lowerName.equals("error"))
+    switch (StaticUtils.toLowerCase(name))
     {
-      return ERROR;
-    }
-    else if (lowerName.equals("fatal"))
-    {
-      return FATAL;
-    }
-    else if (lowerName.equals("info"))
-    {
-      return INFO;
-    }
-    else if (lowerName.equals("warning"))
-    {
-      return WARNING;
-    }
-    else
-    {
-      return null;
+      case "info":
+        return INFO;
+      case "warning":
+        return WARNING;
+      case "error":
+        return ERROR;
+      case "fatal":
+        return FATAL;
+      default:
+        return null;
     }
   }
 

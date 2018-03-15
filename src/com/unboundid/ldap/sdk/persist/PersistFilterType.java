@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk.persist;
 
 
 
+import com.unboundid.util.StaticUtils;
+
+
+
 /**
  * This enum defines a set of filter types for filters that may be generated
  * for an object using the LDAP SDK persistence framework.  Classes created by
@@ -92,4 +96,50 @@ public enum PersistFilterType
    * like "(attrName~=value)".
    */
   APPROXIMATELY_EQUAL_TO;
+
+
+
+  /**
+   * Retrieves the filter type with the specified name.
+   *
+   * @param  name  The name of the filter type to retrieve.  It must not be
+   *               {@code null}.
+   *
+   * @return  The requested filter type, or {@code null} if no such type is
+   *          defined.
+   */
+  public static PersistFilterType forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "presence":
+        return PRESENCE;
+      case "equality":
+        return EQUALITY;
+      case "startswith":
+      case "starts-with":
+      case "starts_with":
+        return STARTS_WITH;
+      case "endswith":
+      case "ends-with":
+      case "ends_with":
+        return ENDS_WITH;
+      case "contains":
+        return CONTAINS;
+      case "greaterorequal":
+      case "greater-or-equal":
+      case "greater_or_equal":
+        return GREATER_OR_EQUAL;
+      case "lessorequal":
+      case "less-or-equal":
+      case "less_or_equal":
+        return LESS_OR_EQUAL;
+      case "approximatelyequalto":
+      case "approximately-equal-to":
+      case "approximately_equal_to":
+        return APPROXIMATELY_EQUAL_TO;
+      default:
+        return null;
+    }
+  }
 }

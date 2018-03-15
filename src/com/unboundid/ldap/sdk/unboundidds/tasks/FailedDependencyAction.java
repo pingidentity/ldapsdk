@@ -102,30 +102,24 @@ public enum FailedDependencyAction
   /**
    * Retrieves the failed dependency action with the specified name.
    *
-   * @param  name  The name of the failed dependency action to retrieve.
+   * @param  name  The name of the failed dependency action to retrieve.  It
+   *               must not be {@code null}.
    *
    * @return  The requested failed dependency action, or {@code null} if there
    *          is no action with the given name.
    */
   public static FailedDependencyAction forName(final String name)
   {
-    final String lowerName = toLowerCase(name);
-
-    if (lowerName.equals("process"))
+    switch (toLowerCase(name))
     {
-      return PROCESS;
-    }
-    else if (lowerName.equals("cancel"))
-    {
-      return CANCEL;
-    }
-    else if (lowerName.equals("disable"))
-    {
-      return DISABLE;
-    }
-    else
-    {
-      return null;
+      case "process":
+        return PROCESS;
+      case "cancel":
+        return CANCEL;
+      case "disable":
+        return DISABLE;
+      default:
+        return null;
     }
   }
 

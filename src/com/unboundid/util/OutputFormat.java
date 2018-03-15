@@ -47,4 +47,32 @@ public enum OutputFormat
    * Indicates that the output should be formatted as comma-separated values.
    */
   CSV;
+
+
+
+  /**
+   * Retrieves the output format value with the specified name.
+   *
+   * @param  name  The name of the output format value to retrieve.  It must not
+   *               be {@code null}.
+   *
+   * @return  The requested output format value, or {@code null} if no such
+   *          format is defined.
+   */
+  public static OutputFormat forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "columns":
+        return COLUMNS;
+      case "tabdelimitedtext":
+      case "tab-delimited-text":
+      case "tab_delimited_text":
+        return TAB_DELIMITED_TEXT;
+      case "csv":
+        return CSV;
+      default:
+        return null;
+    }
+  }
 }

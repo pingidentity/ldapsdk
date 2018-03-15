@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -151,5 +152,47 @@ public enum GetPasswordQualityRequirementsTargetType
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the get password quality requirements target type with the
+   * specified name.
+   *
+   * @param  name  The name of the get password quality requirements target type
+   *               to retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested get password quality requirements target type, or
+   *          {@code null} if no such type is defined.
+   */
+  public static GetPasswordQualityRequirementsTargetType forName(
+                                                              final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "addwithdefaultpasswordpolicy":
+      case "add-with-default-password-policy":
+      case "add_with_default_password_policy":
+        return ADD_WITH_DEFAULT_PASSWORD_POLICY;
+      case "addwithspecifiedpasswordpolicy":
+      case "add-with-specified-password-policy":
+      case "add_with_specified_password_policy":
+        return ADD_WITH_SPECIFIED_PASSWORD_POLICY;
+      case "selfchangeforauthorizationidentity":
+      case "self-change-for-authorization-identity":
+      case "self_change_for_authorization_identity":
+        return SELF_CHANGE_FOR_AUTHORIZATION_IDENTITY;
+      case "selfchangeforspecifieduser":
+      case "self-change-for-specified-user":
+      case "self_change_for_specified_user":
+        return SELF_CHANGE_FOR_SPECIFIED_USER;
+      case "administrativeresetforspecifieduser":
+      case "administrative-reset-for-specified-user":
+      case "administrative_reset_for_specified_user":
+        return ADMINISTRATIVE_RESET_FOR_SPECIFIED_USER;
+      default:
+        return null;
+    }
   }
 }

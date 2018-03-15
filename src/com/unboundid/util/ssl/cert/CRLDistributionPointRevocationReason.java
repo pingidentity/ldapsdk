@@ -27,6 +27,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import com.unboundid.asn1.ASN1BitString;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -212,5 +213,58 @@ public enum CRLDistributionPointRevocationReason
     }
 
     return new ASN1BitString(type, bits);
+  }
+
+
+
+  /**
+   * Retrieves the CRL distribution point revocation reason with the specified
+   * name.
+   *
+   * @param  name  The name of the CRL distribution point revocation reason to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested CRL distribution point revocation reason, or
+   *          {@code null} if no such reason is defined.
+   */
+  public static CRLDistributionPointRevocationReason forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "unspecified":
+        return UNSPECIFIED;
+      case "keycompromise":
+      case "key-compromise":
+      case "key_compromise":
+        return KEY_COMPROMISE;
+      case "cacompromise":
+      case "ca-compromise":
+      case "ca_compromise":
+        return CA_COMPROMISE;
+      case "affiliationchanged":
+      case "affiliation-changed":
+      case "affiliation_changed":
+        return AFFILIATION_CHANGED;
+      case "superseded":
+        return SUPERSEDED;
+      case "cessationofoperation":
+      case "cessation-of-operation":
+      case "cessation_of_operation":
+        return CESSATION_OF_OPERATION;
+      case "certificatehold":
+      case "certificate-hold":
+      case "certificate_hold":
+        return CERTIFICATE_HOLD;
+      case "privilegewithdrawn":
+      case "privilege-withdrawn":
+      case "privilege_withdrawn":
+        return PRIVILEGE_WITHDRAWN;
+      case "aacompromise":
+      case "aa-compromise":
+      case "aa_compromise":
+        return AA_COMPROMISE;
+      default:
+        return null;
+    }
   }
 }

@@ -204,23 +204,31 @@ public enum SubtreeAccessibilityState
   /**
    * Retrieves the subtree accessibility state with the provided name.
    *
-   * @param  name  The name for the subtree accessibility state to retrieve.
+   * @param  name  The name for the subtree accessibility state to retrieve.  It
+   *               must not be {@code null}.
    *
    * @return  The subtree accessibility state with the specified name, or
    *          {@code null} if no state has the provided name.
    */
   public static SubtreeAccessibilityState forName(final String name)
   {
-    final String lowerName = StaticUtils.toLowerCase(name).replace('_', '-');
-    for (final SubtreeAccessibilityState s : values())
+    switch (StaticUtils.toLowerCase(name))
     {
-      if (s.stateName.equals(lowerName))
-      {
-        return s;
-      }
+      case "accessible":
+        return ACCESSIBLE;
+      case "readonlybindallowed":
+      case "read-only-bind-allowed":
+      case "read_only_bind_allowed":
+        return READ_ONLY_BIND_ALLOWED;
+      case "readonlybinddenied":
+      case "read-only-bind-denied":
+      case "read_only_bind_denied":
+        return READ_ONLY_BIND_DENIED;
+      case "hidden":
+        return HIDDEN;
+      default:
+        return null;
     }
-
-    return null;
   }
 
 

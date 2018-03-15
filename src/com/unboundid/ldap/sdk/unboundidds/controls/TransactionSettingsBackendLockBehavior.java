@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -149,5 +150,43 @@ public enum TransactionSettingsBackendLockBehavior
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the transaction settings backend lock behavior with the specified
+   * name.
+   *
+   * @param  name  The name of the transaction settings backend lock behavior to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested transaction settings backend lock behavior, or
+   *          {@code null} if no such behavior is defined.
+   */
+  public static TransactionSettingsBackendLockBehavior forName(
+                                                            final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "donotacquire":
+      case "do-not-acquire":
+      case "do_not_acquire":
+        return DO_NOT_ACQUIRE;
+      case "acquireafterretries":
+      case "acquire-after-retries":
+      case "acquire_after_retries":
+        return ACQUIRE_AFTER_RETRIES;
+      case "acquirebeforeretries":
+      case "acquire-before-retries":
+      case "acquire_before_retries":
+        return ACQUIRE_BEFORE_RETRIES;
+      case "acquirebeforeinitialattempt":
+      case "acquire-before-initial-attempt":
+      case "acquire_before_initial_attempt":
+        return ACQUIRE_BEFORE_INITIAL_ATTEMPT;
+      default:
+        return null;
+    }
   }
 }

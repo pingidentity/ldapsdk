@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -139,6 +140,40 @@ public enum AssuredReplicationRemoteLevel
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the remote assurance level with the specified name.
+   *
+   * @param  name  The name of the remote assurance level to retrieve.  It must
+   *               not be {@code null}.
+   *
+   * @return  The requested remote assurance level, or {@code null} if no such
+   *          level is defined.
+   */
+  public static AssuredReplicationRemoteLevel forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "none":
+        return NONE;
+      case "receivedanyremotelocation":
+      case "received-any-remote-location":
+      case "received_any_remote_location":
+        return RECEIVED_ANY_REMOTE_LOCATION;
+      case "receivedallremotelocations":
+      case "received-all-remote-locations":
+      case "received_all_remote_locations":
+        return RECEIVED_ALL_REMOTE_LOCATIONS;
+      case "processedallremoteservers":
+      case "processed-all-remote-servers":
+      case "processed_all_remote_servers":
+        return PROCESSED_ALL_REMOTE_SERVERS;
+      default:
+        return null;
+    }
   }
 
 

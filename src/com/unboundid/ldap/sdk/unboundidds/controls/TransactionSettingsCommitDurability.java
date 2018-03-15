@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -137,5 +138,38 @@ public enum TransactionSettingsCommitDurability
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the transaction settings commit durability with the specified
+   * name.
+   *
+   * @param  name  The name of the transaction settings commit durability to
+   *               retrieve.  It must not be {@code null}.
+   *
+   * @return  The requested transaction settings commit durability, or
+   *          {@code null} if no such durability is defined.
+   */
+  public static TransactionSettingsCommitDurability forName(final String name)
+  {
+    switch (StaticUtils.toLowerCase(name))
+    {
+      case "nonsynchronous":
+      case "non-synchronous":
+      case "non_synchronous":
+        return NON_SYNCHRONOUS;
+      case "partiallysynchronous":
+      case "partially-synchronous":
+      case "partially_synchronous":
+        return PARTIALLY_SYNCHRONOUS;
+      case "fullysynchronous":
+      case "fully-synchronous":
+      case "fully_synchronous":
+        return FULLY_SYNCHRONOUS;
+      default:
+        return null;
+    }
   }
 }

@@ -44,6 +44,7 @@ import javax.net.SocketFactory;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadLocalRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -138,7 +139,35 @@ public final class RoundRobinDNSServerSet
      * The address selection mode that will cause connection attempts to be made
      * in a round-robin order.
      */
-    ROUND_ROBIN,
+    ROUND_ROBIN;
+
+
+
+    /**
+     * Retrieves the address selection mode with the specified name.
+     *
+     * @param  name  The name of the address selection mode to retrieve.  It
+     *              must not be {@code null}.
+     *
+     * @return  The requested address selection mode, or {@code null} if no such
+     *          change mode is defined.
+     */
+    public static AddressSelectionMode forName(final String name)
+    {
+      switch (StaticUtils.toLowerCase(name))
+      {
+        case "failover":
+          return FAILOVER;
+        case "random":
+          return RANDOM;
+        case "roundrobin":
+        case "round-robin":
+        case "round_robin":
+          return ROUND_ROBIN;
+        default:
+          return null;
+      }
+    }
   }
 
 

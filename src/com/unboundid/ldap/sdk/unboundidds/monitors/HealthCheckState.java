@@ -119,40 +119,32 @@ public enum HealthCheckState
   /**
    * Retrieves the health check state with the specified name.
    *
-   * @param  name  The name of the health check state to retrieve.
+   * @param  name  The name of the health check state to retrieve.  It must not
+   *               be {@code null}.
    *
    * @return  The health check state with the specified name, or {@code null} if
    *          there is no health check state with the given name.
    */
   public static HealthCheckState forName(final String name)
   {
-    final String lowerName = StaticUtils.toLowerCase(name);
-
-    if (lowerName.equals("available"))
+    switch (StaticUtils.toLowerCase(name))
     {
-      return AVAILABLE;
-    }
-    else if (lowerName.equals("degraded"))
-    {
-      return DEGRADED;
-    }
-    else if (lowerName.equals("unavailable"))
-    {
-      return UNAVAILABLE;
-    }
-    else if (lowerName.equals("no-local-servers") ||
-             lowerName.equals("no_local_servers"))
-    {
-      return NO_LOCAL_SERVERS;
-    }
-    else if (lowerName.equals("no-remote-servers") ||
-             lowerName.equals("no_remote_servers"))
-    {
-      return NO_REMOTE_SERVERS;
-    }
-    else
-    {
-      return null;
+      case "available":
+        return AVAILABLE;
+      case "degraded":
+        return DEGRADED;
+      case "unavailable":
+        return UNAVAILABLE;
+      case "nolocalservers":
+      case "no-local-servers":
+      case "no_local_servers":
+        return NO_LOCAL_SERVERS;
+      case "noremoteservers":
+      case "no-remote-servers":
+      case "no_remote_servers":
+        return NO_REMOTE_SERVERS;
+      default:
+        return null;
     }
   }
 

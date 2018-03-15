@@ -22,8 +22,6 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
-import java.util.EnumSet;
-
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -146,17 +144,38 @@ public enum AttributeRight
    */
   public static AttributeRight forName(final String name)
   {
-    final String lowerName = toLowerCase(name);
-
-    for (final AttributeRight r : EnumSet.allOf(AttributeRight.class))
+    switch (toLowerCase(name))
     {
-      if (r.name.equals(lowerName))
-      {
-        return r;
-      }
+      case "search":
+        return SEARCH;
+      case "read":
+        return READ;
+      case "compare":
+        return COMPARE;
+      case "write":
+        return WRITE;
+      case "selfwriteadd":
+      case "selfwrite-add":
+      case "selfwrite_add":
+      case "self-write-add":
+      case "self_write_add":
+        return SELFWRITE_ADD;
+      case "selfwritedelete":
+      case "selfwrite-delete":
+      case "selfwrite_delete":
+      case "self-write-delete":
+      case "self_write_delete":
+      case "selfwritedel":
+      case "selfwrite-del":
+      case "selfwrite_del":
+      case "self-write-del":
+      case "self_write_del":
+        return SELFWRITE_DELETE;
+      case "proxy":
+        return PROXY;
+      default:
+        return null;
     }
-
-    return null;
   }
 
 
