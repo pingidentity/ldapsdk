@@ -97,6 +97,7 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             MatchingEntryCountRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.OverrideSearchLimitsRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.PasswordPolicyRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             PermitUnindexedSearchRequestControl;
@@ -239,6 +240,7 @@ public final class LDAPSearch
   private StringArgument matchingEntryCountControl = null;
   private StringArgument operationPurpose = null;
   private StringArgument outputFormat = null;
+  private StringArgument overrideSearchLimit = null;
   private StringArgument persistentSearch = null;
   private StringArgument proxyAs = null;
   private StringArgument redactAttribute = null;
@@ -260,6 +262,8 @@ public final class LDAPSearch
        matchedValuesRequestControl = null;
   private volatile MatchingEntryCountRequestControl
        matchingEntryCountRequestControl = null;
+  private volatile OverrideSearchLimitsRequestControl
+       overrideSearchLimitsRequestControl = null;
   private volatile PersistentSearchRequestControl
        persistentSearchRequestControl = null;
   private volatile ServerSideSortRequestControl sortRequestControl = null;
@@ -916,6 +920,16 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(operationPurpose);
 
+    overrideSearchLimit = new StringArgument(null, "overrideSearchLimit",
+         false, 0, INFO_LDAPSEARCH_NAME_VALUE_PLACEHOLDER.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_OVERRIDE_SEARCH_LIMIT.get());
+    overrideSearchLimit.addLongIdentifier("overrideSearchLimits", true);
+    overrideSearchLimit.addLongIdentifier("override-search-limit", true);
+    overrideSearchLimit.addLongIdentifier("override-search-limits", true);
+    overrideSearchLimit.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(overrideSearchLimit);
+
     persistentSearch = new StringArgument('C', "persistentSearch", false, 1,
          "ps[:changetype[:changesonly[:entrychgcontrols]]]",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_PERSISTENT_SEARCH.get());
@@ -1534,6 +1548,50 @@ public final class LDAPSearch
            true, examineCount, alwaysExamine, allowUnindexed,
            skipResolvingExplodedIndexes, fastShortCircuitThreshold,
            slowShortCircuitThreshold, debug);
+    }
+
+
+    // If we should include the override search limits request control, then
+    // validate the provided values.
+    if (overrideSearchLimit.isPresent())
+    {
+      final LinkedHashMap<String,String> properties = new LinkedHashMap<>(10);
+      for (final String value : overrideSearchLimit.getValues())
+      {
+        final int equalPos = value.indexOf('=');
+        if (equalPos < 0)
+        {
+          throw new ArgumentException(
+               ERR_LDAPSEARCH_OVERRIDE_LIMIT_NO_EQUAL.get(
+                    overrideSearchLimit.getIdentifierString()));
+        }
+        else if (equalPos == 0)
+        {
+          throw new ArgumentException(
+               ERR_LDAPSEARCH_OVERRIDE_LIMIT_EMPTY_PROPERTY_NAME.get(
+                    overrideSearchLimit.getIdentifierString()));
+        }
+
+        final String propertyName = value.substring(0, equalPos);
+        if (properties.containsKey(propertyName))
+        {
+          throw new ArgumentException(
+               ERR_LDAPSEARCH_OVERRIDE_LIMIT_DUPLICATE_PROPERTY_NAME.get(
+                    overrideSearchLimit.getIdentifierString(), propertyName));
+        }
+
+        if (equalPos == (value.length() - 1))
+        {
+          throw new ArgumentException(
+               ERR_LDAPSEARCH_OVERRIDE_LIMIT_EMPTY_PROPERTY_VALUE.get(
+                    overrideSearchLimit.getIdentifierString(), propertyName));
+        }
+
+        properties.put(propertyName, value.substring(equalPos+1));
+      }
+
+      overrideSearchLimitsRequestControl =
+           new OverrideSearchLimitsRequestControl(properties, false);
     }
 
 
@@ -2879,6 +2937,11 @@ public final class LDAPSearch
     if (matchingEntryCountRequestControl != null)
     {
       controls.add(matchingEntryCountRequestControl);
+    }
+
+    if (overrideSearchLimitsRequestControl != null)
+    {
+      controls.add(overrideSearchLimitsRequestControl);
     }
 
     if (persistentSearchRequestControl != null)

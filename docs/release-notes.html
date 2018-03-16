@@ -23,15 +23,25 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Added support for two new UnboundID/Ping-proprietary request controls.  The
-                  reject unindexed search request control can be used to indicate that the server
-                  should reject a search request if it cannot be efficiently processed using
-                  server indexes, even if the requester has the unindexed-search privilege.  The
-                  permit unindexed search request control can be used to indicate that the server
-                  should process the search request even if it is unindexed, as long as the
-                  requester has the unindexed-search-with-control privilege.  The
-                  <tt>ldapsearch</tt> tool has also been updated allow these controls to be
-                  included in the search requests that it generates.
+                  Added support for two new UnboundID/Ping-proprietary request controls that can
+                  help clients prevent inadvertently requesting unindexed searches.  The reject
+                  unindexed search request control can be used to indicate that the server should
+                  reject a search request if it cannot be efficiently processed using server
+                  indexes, even if the requester has the unindexed-search privilege.  The permit
+                  unindexed search request control can be used to indicate that the server should
+                  process the search request even if it is unindexed, as long as the requester has
+                  the unindexed-search-with-control privilege.  The <tt>ldapsearch</tt> tool has
+                  also been updated allow these controls to be included in the search requests
+                  that it generates.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for a new UnboundID/Ping-proprietary request control that can be
+                  included in a search request to indicate that the client wishes to override an
+                  internal limit that might otherwise be in effect for that operation.  The
+                  <tt>ldapsearch</tt> tool has been updated to allow this control to be included
+                  in the search requests that it generates.
                   <br><br>
                 </li>
 

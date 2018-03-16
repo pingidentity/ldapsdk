@@ -302,6 +302,8 @@ public final class LDAPSearchTestCase
               "examineCount=100:alwaysExamine:allowUnindexed" +
                    ":skipResolvingExplodedIndexes:fastShortCircuitThreshold=5" +
                    ":slowShortCircuitThreshold=100:debug",
+         "--overrideSearchLimit", "name1=value1",
+         "--overrideSearchLimit", "name2=value2",
          "--operationPurpose", "Testing",
          "--persistentSearch", "ps:add,del,mod,moddn:true:true",
          "--proxyAs", "u:jdoe",
@@ -669,6 +671,60 @@ public final class LDAPSearchTestCase
               "--baseDN", "dc=example,dc=com",
               "--searchScope", "sub",
               "--matchingEntryCountControl", "examineCount=0:unrecognized",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
+   * Tests to ensure that the tool properly handles invalid values for the
+   * --overrideSearchLimit argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithInvalidOverrideSearchLimitsControl()
+         throws Exception
+  {
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--searchScope", "sub",
+              "--overrideSearchLimit", "noEqualSign",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--searchScope", "sub",
+              "--overrideSearchLimit", "=startsWithEqualSign",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--searchScope", "sub",
+              "--overrideSearchLimit", "endsWithEqualSign=",
+              "(objectClass=*)"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--searchScope", "sub",
+              "--overrideSearchLimit", "duplicatePropertyName=value1",
+              "--overrideSearchLimit", "duplicatePropertyName=value2",
               "(objectClass=*)"),
          ResultCode.PARAM_ERROR);
   }
