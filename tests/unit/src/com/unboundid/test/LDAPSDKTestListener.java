@@ -22,6 +22,8 @@ package com.unboundid.test;
 
 
 
+import java.io.File;
+import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -38,6 +40,8 @@ import org.testng.annotations.Test;
 import org.testng.internal.IConfigurationListener;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.NullOutputStream;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -48,6 +52,9 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 public class LDAPSDKTestListener
        implements ITestListener, IConfigurationListener
 {
+  // The file to which the test log file is being written.
+  private File testLogFile;
+
   // The number of tests that have failed.
   private int numFailed;
 
@@ -59,6 +66,9 @@ public class LDAPSDKTestListener
 
   // The time processing started on the last class.
   private long lastClassStartTime;
+
+  // A writer that records messages in a log file.
+  private PrintStream logWriter;
 
   // The name of the last class run.
   private String lastClass;
@@ -76,7 +86,11 @@ public class LDAPSDKTestListener
     lastClassStartTime = System.currentTimeMillis();
     lastClass          = null;
     lastMethod         = null;
-    failedTests        = new LinkedHashMap<String,Integer>();
+    failedTests        = new LinkedHashMap<>(10);
+    logWriter          = NullOutputStream.getPrintStream();
+    numFailed          = 0;
+    numPassed          = 0;
+    testLogFile        = null;
   }
 
 
@@ -89,11 +103,38 @@ public class LDAPSDKTestListener
   @Override()
   public synchronized void onStart(final ITestContext context)
   {
-    System.err.println("     Class       Tests      Tests");
-    System.err.println("  Time (ms)     Passed     Failed  " +
-                       "Test Class Name");
-    System.err.println("  ---------  ---------  ---------  " +
-                       "------------------------------");
+    try
+    {
+      final String baseDirString = System.getProperty("basedir");
+      if (baseDirString == null)
+      {
+        throw new AssertionError("basedir is not set");
+      }
+
+      final File baseDir = new File(baseDirString);
+      final File buildDir = new File(baseDir, "build");
+      final File testDir = new File(buildDir, "test");
+      final File reportDir = new File(testDir, "report");
+      if (! reportDir.exists())
+      {
+        throw new AssertionError("Test report dir '" +
+             reportDir.getAbsolutePath() + "' does not exist.");
+      }
+
+      testLogFile = new File(reportDir, "test.log");
+      logWriter = new PrintStream(testLogFile);
+    }
+    catch (final Throwable t)
+    {
+      throw new RuntimeException(
+           "ERROR:  Unable to open test logger:  " +
+                StaticUtils.getStackTrace(t),
+           t);
+    }
+
+    log("     Class       Tests      Tests");
+    log("  Time (ms)     Passed     Failed  Test Class Name");
+    log("  ---------  ---------  ---------  ------------------------------");
 
     // Sometimes the output gets muddled when System.out and System.err are
     // going to different streams.  On Windows (at least), this makes the
@@ -115,57 +156,63 @@ public class LDAPSDKTestListener
     printRightAligned(System.currentTimeMillis() - lastClassStartTime, 11);
     printRightAligned(numPassed, 11);
     printRightAligned(numFailed, 11);
-    System.err.print("  ");
+    logWithoutNewline("  ");
 
-    int dotPos = lastClass.lastIndexOf('.');
+    final int dotPos = lastClass.lastIndexOf('.');
     if (dotPos > 0)
     {
-      System.err.println(lastClass.substring(dotPos+1));
+      log(lastClass.substring(dotPos+1));
     }
     else
     {
-      System.err.println(lastClass);
+      log(lastClass);
     }
 
-    System.err.println();
-    System.err.println("All tests completed.");
+    log();
+    log("All tests completed.");
 
     if (! failedTests.isEmpty())
     {
-      System.err.println();
-      System.err.println("The following tests failed:  ");
+      log();
+      log("The following tests failed:  ");
 
-      for (String methodName : failedTests.keySet())
+      for (final String methodName : failedTests.keySet())
       {
-        int count = failedTests.get(methodName);
+        final int count = failedTests.get(methodName);
         if (count == 1)
         {
-          System.err.println("     " + methodName);
+          log("     " + methodName);
         }
         else
         {
-          System.err.println("     " + methodName + " (x" + count + ')');
+          log("     " + methodName + " (x" + count + ')');
         }
       }
     }
 
-    List<StackTraceElement[]> unclosedTraces =
+    final List<StackTraceElement[]> unclosedTraces =
          LDAPSDKTestCase.getUnclosedConnectionTraces();
     if (! unclosedTraces.isEmpty())
     {
-      System.err.println();
-      System.err.println("***** WARNING:  Unclosed connection(s) detected:");
-      for (StackTraceElement[] e : unclosedTraces)
+      log();
+      log("***** WARNING:  Unclosed connection(s) detected:");
+      for (final StackTraceElement[] e : unclosedTraces)
       {
-        System.err.println("Creation stack trace:");
+        log("Creation stack trace:");
         for (int i=1; i < e.length; i++)
         {
-          System.err.println("     " + e[i].toString());
+          log("     " + e[i].toString());
         }
 
-        System.err.println();
+        log();
       }
     }
+
+    logWriter.close();
+
+    System.err.println();
+    System.err.println("Test log results written to '" +
+         testLogFile.getAbsolutePath() + "'.");
   }
 
 
@@ -178,8 +225,8 @@ public class LDAPSDKTestListener
   @Override()
   public synchronized void onTestStart(final ITestResult result)
   {
-    IClass testClass = result.getTestClass();
-    String className = testClass.getName();
+    final IClass testClass = result.getTestClass();
+    final String className = testClass.getName();
     if (lastClass == null)
     {
       lastClassStartTime = System.currentTimeMillis();
@@ -190,16 +237,16 @@ public class LDAPSDKTestListener
       printRightAligned(System.currentTimeMillis() - lastClassStartTime, 11);
       printRightAligned(numPassed, 11);
       printRightAligned(numFailed, 11);
-      System.err.print("  ");
+      logWithoutNewline("  ");
 
-      int dotPos = lastClass.lastIndexOf('.');
+      final int dotPos = lastClass.lastIndexOf('.');
       if (dotPos > 0)
       {
-        System.err.println(lastClass.substring(dotPos+1));
+        log(lastClass.substring(dotPos+1));
       }
       else
       {
-        System.err.println(lastClass);
+        log(lastClass);
       }
 
       lastClassStartTime = System.currentTimeMillis();
@@ -207,23 +254,23 @@ public class LDAPSDKTestListener
     }
 
     // Make sure that the test class is a subclass of LDAPSDKTestCase
-    Class<?> c = testClass.getRealClass();
+    final Class<?> c = testClass.getRealClass();
     if (! (LDAPSDKTestCase.class.isAssignableFrom(c)))
     {
-      System.err.println();
-      System.err.println("WARNING:  Test class " + lastClass +
+      log();
+      log("WARNING:  Test class " + lastClass +
            " does not extend LDAPSDKTestCase");
-      System.err.println();
+      log();
     }
 
     // Make sure that the method has the @Test annotation.
-    ITestNGMethod testMethod = result.getMethod();
+    final ITestNGMethod testMethod = result.getMethod();
     lastMethod = testMethod.getMethodName();
 
-    Method m = testMethod.getMethod();
+    final Method m = testMethod.getMethod();
 
     boolean testAnnotationFound = false;
-    for (Annotation a : m.getAnnotations())
+    for (final Annotation a : m.getAnnotations())
     {
       if (a instanceof Test)
       {
@@ -233,10 +280,10 @@ public class LDAPSDKTestListener
 
     if (! testAnnotationFound)
     {
-      System.err.println();
-      System.err.println("WARNING:  Test method " + lastClass + '.' +
-           lastMethod + " does not have a @Test annotation");
-      System.err.println();
+      log();
+      log("WARNING:  Test method " + lastClass + '.' + lastMethod +
+           " does not have a @Test annotation");
+      log();
     }
   }
 
@@ -250,15 +297,15 @@ public class LDAPSDKTestListener
    * @param  number  The number to be printed.
    * @param  length  The expected length of the resulting string.
    */
-  private static void printRightAligned(final long number, final int length)
+  private void printRightAligned(final long number, final int length)
   {
-    String numberStr = String.valueOf(number);
+    final String numberStr = String.valueOf(number);
     for (int i=0; i < length - numberStr.length(); i++)
     {
-      System.err.print(' ');
+      logWithoutNewline(" ");
     }
 
-    System.err.print(numberStr);
+    logWithoutNewline(numberStr);
   }
 
 
@@ -271,9 +318,8 @@ public class LDAPSDKTestListener
   @Override()
   public synchronized void onTestSkipped(final ITestResult result)
   {
-    System.err.println("********** Skipped test " +
-                       result.getTestClass().getName() + '.' +
-                       result.getMethod().getMethodName());
+    log("********** Skipped test " + result.getTestClass().getName() + '.' +
+         result.getMethod().getMethodName());
   }
 
 
@@ -301,7 +347,7 @@ public class LDAPSDKTestListener
   {
     numFailed++;
 
-    String name = lastClass + '.' + lastMethod;
+    final String name = lastClass + '.' + lastMethod;
     if (failedTests.containsKey(name))
     {
       failedTests.put(name, (failedTests.get(name)+1));
@@ -311,22 +357,22 @@ public class LDAPSDKTestListener
       failedTests.put(name, 1);
     }
 
-    System.err.println();
-    System.err.println();
-    System.err.println();
-    System.err.println("********** TEST FAILED **********");
-    System.err.println("Time:  " + new Date());
-    System.err.println("Test Method:  " + result.getTestClass().getName() +
+    log();
+    log();
+    log();
+    log("********** TEST FAILED **********");
+    log("Time:  " + new Date());
+    log("Test Method:  " + result.getTestClass().getName() +
                        '.' + result.getMethod().getMethodName());
-    Object[] params = result.getParameters();
+    final Object[] params = result.getParameters();
     if ((params != null) && (params.length > 0))
     {
-      System.err.println("Parameters: " + Arrays.toString(params));
+      log("Parameters: " + Arrays.toString(params));
     }
-    result.getThrowable().printStackTrace();
-    System.err.println();
-    System.err.println();
-    System.err.println();
+    logStackTrace(result.getThrowable());
+    log();
+    log();
+    log();
   }
 
 
@@ -343,17 +389,17 @@ public class LDAPSDKTestListener
   {
     numFailed++;
 
-    System.err.println();
-    System.err.println();
-    System.err.println();
-    System.err.println("********** TEST FAILED WITHIN SUCCESS PERCENTAGE " +
+    log();
+    log();
+    log();
+    log("********** TEST FAILED WITHIN SUCCESS PERCENTAGE " +
                        "**********");
-    System.err.println("Test Method:  " + result.getTestClass().getName() +
+    log("Test Method:  " + result.getTestClass().getName() +
                        '.' + result.getMethod().getMethodName());
-    result.getThrowable().printStackTrace();
-    System.err.println();
-    System.err.println();
-    System.err.println();
+    logStackTrace(result.getThrowable());
+    log();
+    log();
+    log();
   }
 
 
@@ -382,7 +428,7 @@ public class LDAPSDKTestListener
   {
     numFailed++;
 
-    String name = result.getTestClass().getName() + '.' +
+    final String name = result.getTestClass().getName() + '.' +
          result.getMethod().getMethodName();
     if (failedTests.containsKey(name))
     {
@@ -393,22 +439,22 @@ public class LDAPSDKTestListener
       failedTests.put(name, 1);
     }
 
-    System.err.println();
-    System.err.println();
-    System.err.println();
-    System.err.println("********** CONFIGURATION FAILED **********");
-    System.err.println("Time:  " + new Date());
-    System.err.println("Test Method:  " + result.getTestClass().getName() +
+    log();
+    log();
+    log();
+    log("********** CONFIGURATION FAILED **********");
+    log("Time:  " + new Date());
+    log("Test Method:  " + result.getTestClass().getName() +
                        '.' + result.getMethod().getMethodName());
-    Object[] params = result.getParameters();
+    final Object[] params = result.getParameters();
     if ((params != null) && (params.length > 0))
     {
-      System.err.println("Parameters: " + Arrays.toString(params));
+      log("Parameters: " + Arrays.toString(params));
     }
-    result.getThrowable().printStackTrace();
-    System.err.println();
-    System.err.println();
-    System.err.println();
+    logStackTrace(result.getThrowable());
+    log();
+    log();
+    log();
   }
 
 
@@ -422,8 +468,69 @@ public class LDAPSDKTestListener
   @Override()
   public void onConfigurationSkip(final ITestResult result)
   {
-    System.err.println("********** Skipped test configuration " +
-                       result.getTestClass().getName() + '.' +
-                       result.getMethod().getMethodName());
+    log("********** Skipped test configuration " +
+         result.getTestClass().getName() + '.' +
+         result.getMethod().getMethodName());
+  }
+
+
+
+  /**
+   * Writes a blank line to both standard error and to the log file.
+   */
+  private void log()
+  {
+    System.err.println();
+    logWriter.println();
+    logWriter.flush();
+  }
+
+
+
+  /**
+   * Writes the provided message to both standard error and to the log file.
+   * The message will be followed by a newline.
+   *
+   * @param  message  The message to be logged.
+   */
+  private void log(final String message)
+  {
+    System.err.println(message);
+    logWriter.println(message);
+    logWriter.flush();
+  }
+
+
+
+  /**
+   * Writes the provided message to both standard error and to the log file.
+   * The message will not be followed by a newline.
+   *
+   * @param  message  The message to be logged.
+   */
+  private void logWithoutNewline(final String message)
+  {
+    System.err.print(message);
+    logWriter.print(message);
+    logWriter.flush();
+  }
+
+
+
+  /**
+   * Writes a stack trace of the provided {@code Throwable} object to both
+   * standard error and oth the log file.
+   *
+   * @param  t  The {@code Throwable} object to be printed.
+   */
+  private void logStackTrace(final Throwable t)
+  {
+    if (t == null)
+    {
+      return;
+    }
+
+    t.printStackTrace();
+    t.printStackTrace(logWriter);
   }
 }
