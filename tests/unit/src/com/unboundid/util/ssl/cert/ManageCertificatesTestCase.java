@@ -6413,6 +6413,67 @@ public final class ManageCertificatesTestCase
 
 
     // Check the usability for a certificate that has a signature algorithm that
+    // uses MD5.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+    assertTrue(csrFile.delete());
+    assertFalse(csrFile.exists());
+
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--signature-algorithm", "MD5withRSA");
+
+    assertTrue(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+
+    assertTrue(certFile.exists());
+    assertTrue(certFile.delete());
+    assertFalse(certFile.exists());
+
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--keystore", rootCAKeyStorePath,
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--days-valid", "365",
+         "--no-prompt");
+    assertTrue(certFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--no-prompt",
+         "--display-keytool-command");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "check-certificate-usability",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert");
+
+    manageCertificates(
+         "list-certificates",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--verbose");
+
+
+    // Check the usability for a certificate that has a signature algorithm that
     // uses SHA-1.
     assertTrue(ksFile.exists());
     assertTrue(ksFile.delete());
@@ -6465,6 +6526,95 @@ public final class ManageCertificatesTestCase
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert");
+
+    manageCertificates(
+         "list-certificates",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--verbose");
+
+
+    // Check the usability for a certificate that has a signature algorithm that
+    // uses SHA-256, but that was issued by a certificate with a signature
+    // algorithm that uses SHA-1.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+    assertTrue(csrFile.delete());
+    assertFalse(csrFile.exists());
+
+    manageCertificates(
+         "generate-self-signed-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", rootCACertificateAlias,
+         "--subject-dn", "CN=Example Root CA,O=Example Corporation,C=US",
+         "--days-valid", "7300",
+         "--key-algorithm", "RSA",
+         "--key-size-bits", "2048",
+         "--signature-algorithm", "SHA1withRSA",
+         "--subject-alternative-name-email-address", "ca@example.com",
+         "--basic-constraints-is-ca", "true",
+         "--key-usage", "key-cert-sign",
+         "--display-keytool-command");
+
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", csrFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--signature-algorithm", "SHA256withRSA",
+         "--key-usage", "digital-signature",
+         "--key-usage", "key-encipherment",
+         "--extended-key-usage", "server-auth",
+         "--extended-key-usage", "client-auth");
+
+    assertTrue(ksFile.exists());
+
+    assertTrue(csrFile.exists());
+
+    assertTrue(certFile.exists());
+    assertTrue(certFile.delete());
+    assertFalse(certFile.exists());
+
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", csrFile.getAbsolutePath(),
+         "--certificate-output-file", certFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--days-valid", "365",
+         "--include-requested-extensions",
+         "--no-prompt");
+    assertTrue(certFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", certFile.getAbsolutePath(),
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--no-prompt",
+         "--display-keytool-command");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "check-certificate-usability",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert");
+
+    manageCertificates(
+         "check-certificate-usability",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--allow-sha-1-signature-for-issuer-certificates");
 
     manageCertificates(
          "list-certificates",

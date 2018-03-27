@@ -24,6 +24,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated manage-certificates to add an
+                  --allow-sha-1-signature-for-issuer-certificates argument to the
+                  check-certificate-usability subcommand.  If this argument is provided, then the
+                  tool will continue to call out issuer certificates with a certificate whose
+                  signature is based on the weak SHA-1 message digest, but it will not cause the
+                  tool to exit with an error just because of that issue.  This argument has no
+                  effect for certificates that use a signature based on the extremely weak MD5
+                  digest, and it also does not have any effect if the server certificate at the
+                  head of the chain has a SHA-1-based signature.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a bug in the ldapsearch tool that could cause it to use an incorrect scope
                   when constructing search requests from LDAP URLs read from a file.
                   <br><br>

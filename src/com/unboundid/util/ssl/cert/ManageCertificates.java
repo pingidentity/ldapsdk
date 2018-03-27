@@ -3592,6 +3592,17 @@ public final class ManageCertificates
     checkUsabilityAlias.addLongIdentifier("nickname", true);
     checkUsabilityParser.addArgument(checkUsabilityAlias);
 
+    final BooleanArgument checkUsabilityIgnoreSHA1Signature =
+         new BooleanArgument(null,
+              "allow-sha-1-signature-for-issuer-certificates", 1,
+              INFO_MANAGE_CERTS_SC_CHECK_USABILITY_IGNORE_SHA1_WARNING_DESC.
+                   get());
+    checkUsabilityIgnoreSHA1Signature.addLongIdentifier(
+         "allow-sha1-signature-for-issuer-certificates", true);
+    checkUsabilityIgnoreSHA1Signature.addLongIdentifier(
+         "allowSHA1SignatureForIssuerCertificates", true);
+    checkUsabilityParser.addArgument(checkUsabilityIgnoreSHA1Signature);
+
     checkUsabilityParser.addRequiredArgumentSet(checkUsabilityKeystorePassword,
          checkUsabilityKeystorePasswordFile,
          checkUsabilityPromptForKeystorePassword);
@@ -8556,6 +8567,12 @@ public final class ManageCertificates
     // Make sure that none of the certificates has a signature algorithm that
     // uses MD5 or SHA-1.  If it uses an unrecognized signature algorithm, then
     // that's a warning.
+    boolean isIssuer = false;
+    final BooleanArgument ignoreSHA1WarningArg =
+         subCommandParser.getBooleanArgument(
+              "allow-sha-1-signature-for-issuer-certificates");
+    final boolean ignoreSHA1SignatureWarningForIssuerCertificates =
+         ((ignoreSHA1WarningArg != null) && ignoreSHA1WarningArg.isPresent());
     for (final X509Certificate c : chain)
     {
       final OID signatureAlgorithmOID = c.getSignatureAlgorithmOID();
@@ -8575,15 +8592,34 @@ public final class ManageCertificates
         {
           case MD2_WITH_RSA:
           case MD5_WITH_RSA:
-          case SHA_1_WITH_RSA:
-          case SHA_1_WITH_DSA:
-          case SHA_1_WITH_ECDSA:
             err();
             wrapErr(0, WRAP_COLUMN,
                  ERR_MANAGE_CERTS_CHECK_USABILITY_WEAK_SIG_ALG.get(
                       c.getSubjectDN(), id.getUserFriendlyName()));
             numErrors++;
             break;
+
+          case SHA_1_WITH_RSA:
+          case SHA_1_WITH_DSA:
+          case SHA_1_WITH_ECDSA:
+            if (isIssuer && ignoreSHA1SignatureWarningForIssuerCertificates)
+            {
+              err();
+              wrapErr(0, WRAP_COLUMN,
+                   WARN_MANAGE_CERTS_CHECK_USABILITY_ISSUER_WITH_SHA1_SIG.get(
+                        c.getSubjectDN(), id.getUserFriendlyName(),
+                        ignoreSHA1WarningArg.getIdentifierString()));
+            }
+            else
+            {
+              err();
+              wrapErr(0, WRAP_COLUMN,
+                   ERR_MANAGE_CERTS_CHECK_USABILITY_WEAK_SIG_ALG.get(
+                        c.getSubjectDN(), id.getUserFriendlyName()));
+              numErrors++;
+            }
+            break;
+
           case SHA_224_WITH_RSA:
           case SHA_224_WITH_DSA:
           case SHA_224_WITH_ECDSA:
@@ -8601,6 +8637,8 @@ public final class ManageCertificates
             break;
         }
       }
+
+      isIssuer = true;
     }
 
 
