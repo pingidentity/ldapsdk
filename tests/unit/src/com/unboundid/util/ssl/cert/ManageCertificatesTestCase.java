@@ -6003,7 +6003,7 @@ public final class ManageCertificatesTestCase
          "--signature-algorithm", "SHA256withRSA",
          "--subject-alternative-name-email-address", "ca@example.com",
          "--basic-constraints-is-ca", "true",
-         "--basic-constraints-maximum-path-length", "2",
+         "--basic-constraints-maximum-path-length", "0",
          "--key-usage", "key-cert-sign",
          "--display-keytool-command");
 
@@ -6035,7 +6035,14 @@ public final class ManageCertificatesTestCase
          "--keystore-password", "password",
          "--alias", intermediateCACertificateAlias,
          "--subject-dn",
-              "CN=Example Intermediate CA,O=Example Corporation,C=US");
+              "CN=Example Intermediate CA,O=Example Corporation,C=US",
+         "--basic-constraints-is-ca", "true",
+         "--key-usage", "digital-signature",
+         "--key-usage", "key-encipherment",
+         "--key-usage", "key-cert-sign",
+         "--key-usage", "crl-sign",
+         "--extended-key-usage", "server-auth",
+         "--extended-key-usage", "client-auth");
 
     assertTrue(ksFile.exists());
 
@@ -6054,6 +6061,7 @@ public final class ManageCertificatesTestCase
          "--keystore-password", "password",
          "--signing-certificate-alias", rootCACertificateAlias,
          "--days-valid", "365",
+         "--include-requested-extensions",
          "--no-prompt");
     assertTrue(intermediateCertFile.exists());
 
@@ -6067,6 +6075,12 @@ public final class ManageCertificatesTestCase
          "--no-prompt",
          "--display-keytool-command");
 
+    manageCertificates(
+         "check-certificate-usability",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", intermediateCACertificateAlias);
+
     assertTrue(csrFile.exists());
     assertTrue(csrFile.delete());
     assertFalse(csrFile.exists());
@@ -6077,7 +6091,11 @@ public final class ManageCertificatesTestCase
          "--keystore", ksFile.getAbsolutePath(),
          "--keystore-password", "password",
          "--alias", "server-cert",
-         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US");
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--key-usage", "digital-signature",
+         "--key-usage", "key-encipherment",
+         "--extended-key-usage", "server-auth",
+         "--extended-key-usage", "client-auth");
 
     assertTrue(csrFile.exists());
 
@@ -6089,6 +6107,7 @@ public final class ManageCertificatesTestCase
          "--keystore-password", "password",
          "--signing-certificate-alias", intermediateCACertificateAlias,
          "--days-valid", "365",
+         "--include-requested-extensions",
          "--no-prompt");
     assertTrue(certFile.exists());
 

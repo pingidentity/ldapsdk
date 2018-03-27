@@ -14,6 +14,16 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated manage-certificates to fix an incorrect interpretation of the path
+                  length element of a basic constraints extension.  It was mistakenly
+                  interpreted to mean the maximum number of certificates that are allowed in a
+                  certificate chain containing that certificate, but it actually specifies the
+                  maximum number of intermediate certificates that are allowed between that
+                  issuer certificate and the subject certificate at the head of the chain.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a bug in the ldapsearch tool that could cause it to use an incorrect scope
                   when constructing search requests from LDAP URLs read from a file.
                   <br><br>

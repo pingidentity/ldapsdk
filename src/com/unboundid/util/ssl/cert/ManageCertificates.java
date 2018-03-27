@@ -1591,7 +1591,7 @@ public final class ManageCertificates
     final IntegerArgument genCertBasicConstraintsPathLength =
          new IntegerArgument(null, "basic-constraints-maximum-path-length",
               false, 1, null,
-              INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_BC_PATH_LENGTH_DESC.get(), 1,
+              INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_BC_PATH_LENGTH_DESC.get(), 0,
               Integer.MAX_VALUE);
     genCertBasicConstraintsPathLength.addLongIdentifier(
          "basicConstraintsMaximumPathLength", true);
@@ -2086,7 +2086,7 @@ public final class ManageCertificates
     final IntegerArgument genCSRBasicConstraintsPathLength =
          new IntegerArgument(null, "basic-constraints-maximum-path-length",
               false, 1, null,
-              INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_BC_PATH_LENGTH_DESC.get(), 1,
+              INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_BC_PATH_LENGTH_DESC.get(), 0,
               Integer.MAX_VALUE);
     genCSRBasicConstraintsPathLength.addLongIdentifier(
          "basicConstraintsMaximumPathLength", true);
@@ -2658,7 +2658,7 @@ public final class ManageCertificates
     final IntegerArgument signCSRBasicConstraintsPathLength =
          new IntegerArgument(null, "basic-constraints-maximum-path-length",
               false, 1, null,
-              INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_BC_PATH_LENGTH_DESC.get(), 1,
+              INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_BC_PATH_LENGTH_DESC.get(), 0,
               Integer.MAX_VALUE);
     signCSRBasicConstraintsPathLength.addLongIdentifier(
          "basicConstraintsMaximumPathLength", true);
@@ -8476,13 +8476,13 @@ public final class ManageCertificates
               numErrors++;
             }
             else if ((e.getPathLengthConstraint() != null) &&
-                 (chain.length > e.getPathLengthConstraint()))
+                 ((i - 1) > e.getPathLengthConstraint()))
             {
               err();
               wrapErr(0, WRAP_COLUMN,
                    ERR_MANAGE_CERTS_CHECK_USABILITY_ISSUER_CERT_BAD_BC_LENGTH.
                         get(c.getSubjectDN(), e.getPathLengthConstraint(),
-                             chain.length));
+                             chain[0].getSubjectDN(), (i-1)));
               numErrors++;
             }
             else
