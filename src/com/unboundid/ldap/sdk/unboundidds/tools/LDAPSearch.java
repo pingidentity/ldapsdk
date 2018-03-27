@@ -2480,7 +2480,7 @@ public final class LDAPSearch
 
           final SearchRequest searchRequest = new SearchRequest(
                new LDAPSearchListener(outputHandler, entryTransformations),
-               url.getBaseDN().toString(), scope.getValue(), derefPolicy,
+               url.getBaseDN().toString(), url.getScope(), derefPolicy,
                sizeLimit.getValue(), timeLimitSeconds.getValue(),
                typesOnly.isPresent(), url.getFilter(), url.getAttributes());
           final ResultCode rc =
