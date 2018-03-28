@@ -10834,6 +10834,7 @@ public final class ManageCertificates
                   new BufferedReader(new InputStreamReader(inputStream)))
         {
           boolean inKey = false;
+          boolean isRSAKey = false;
           final StringBuilder buffer = new StringBuilder();
           while (true)
           {
@@ -10865,7 +10866,8 @@ public final class ManageCertificates
               continue;
             }
 
-            if (line.equals("-----BEGIN PRIVATE KEY-----"))
+            if (line.equals("-----BEGIN PRIVATE KEY-----") ||
+                 line.equals("-----BEGIN RSA PRIVATE KEY-----"))
             {
               if (inKey)
               {
@@ -10882,9 +10884,14 @@ public final class ManageCertificates
               else
               {
                 inKey = true;
+                if (line.equals("-----BEGIN RSA PRIVATE KEY-----"))
+                {
+                  isRSAKey = true;
+                }
               }
             }
-            else if (line.equals("-----END PRIVATE KEY-----"))
+            else if (line.equals("-----END PRIVATE KEY-----") ||
+                 line.equals("-----END RSA PRIVATE KEY-----"))
             {
               if (! inKey)
               {
@@ -10894,7 +10901,7 @@ public final class ManageCertificates
               }
 
               inKey = false;
-              final byte[] pkBytes;
+              byte[] pkBytes;
               try
               {
                 pkBytes = Base64.decode(buffer.toString());
@@ -10907,6 +10914,11 @@ public final class ManageCertificates
                           f.getAbsolutePath(),
                           StaticUtils.getExceptionMessage(e)),
                      e);
+              }
+
+              if (isRSAKey)
+              {
+                pkBytes = PKCS8PrivateKey.wrapRSAPrivateKey(pkBytes);
               }
 
               try

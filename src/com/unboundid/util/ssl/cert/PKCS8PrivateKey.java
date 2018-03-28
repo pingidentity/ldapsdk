@@ -378,6 +378,43 @@ public final class PKCS8PrivateKey
 
 
   /**
+   * Wraps the provided RSA private key bytes inside a full PKCS #8 encoded
+   * private key.
+   *
+   * @param  rsaPrivateKeyBytes  The bytes that comprise just the RSA private
+   *                             key.
+   *
+   * @return  The bytes that comprise a PKCS #8 encoded representation of the
+   *          provided RSA private key.
+   *
+   * @throws  CertException  If a problem is encountered while trying to wrap
+   *                         the private key.
+   */
+  static byte[] wrapRSAPrivateKey(final byte[] rsaPrivateKeyBytes)
+         throws CertException
+  {
+    try
+    {
+      final ArrayList<ASN1Element> elements = new ArrayList<>(5);
+      elements.add(new ASN1Integer(PKCS8PrivateKeyVersion.V1.getIntValue()));
+      elements.add(new ASN1Sequence(new ASN1ObjectIdentifier(
+           PublicKeyAlgorithmIdentifier.RSA.getOID())));
+      elements.add(new ASN1OctetString(rsaPrivateKeyBytes));
+      return new ASN1Sequence(elements).encode();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_PRIVATE_KEY_WRAP_RSA_KEY_ERROR.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+  }
+
+
+
+  /**
    * Encodes this PKCS #8 private key to an ASN.1 element.
    *
    * @return  The encoded PKCS #8 private key.

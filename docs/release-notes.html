@@ -14,12 +14,27 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed a bug in the ldapsearch tool that could cause it to use an incorrect scope
+                  when constructing search requests from LDAP URLs read from a file.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated manage-certificates to fix an incorrect interpretation of the path
                   length element of a basic constraints extension.  It was mistakenly
                   interpreted to mean the maximum number of certificates that are allowed in a
                   certificate chain containing that certificate, but it actually specifies the
                   maximum number of intermediate certificates that are allowed between that
                   issuer certificate and the subject certificate at the head of the chain.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated manage-certificates to add support for importing PEM-encoded RSA private
+                  keys that are not wrapped in a PKCS #8 envelope (that is, from a file whose
+                  header contains "BEGIN RSA PRIVATE KEY" instead of "BEGIN PRIVATE KEY").
+                  Previously, it was only possible to import private keys using the PKCS #8
+                  format.
                   <br><br>
                 </li>
 
@@ -33,12 +48,6 @@ ${TARGET="offline"}                <br>
                   effect for certificates that use a signature based on the extremely weak MD5
                   digest, and it also does not have any effect if the server certificate at the
                   head of the chain has a SHA-1-based signature.
-                  <br><br>
-                </li>
-
-                <li>
-                  Fixed a bug in the ldapsearch tool that could cause it to use an incorrect scope
-                  when constructing search requests from LDAP URLs read from a file.
                   <br><br>
                 </li>
               </ul>

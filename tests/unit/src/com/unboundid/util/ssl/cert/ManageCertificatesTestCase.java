@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.security.Key;
@@ -1403,6 +1404,106 @@ public final class ManageCertificatesTestCase
          "--alias", rootCACertificateAlias,
          "--certificate-file", rootCACertificatePath,
          "--private-key-file", rootCAKeyPath,
+         "--no-prompt",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "JKS");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, false, true),
+         Collections.<String>emptySet());
+
+
+    // Import a single certificate and its private key into a JKS keystore
+    // that doesn't already exist.  Do not prompt about whether to trust the
+    // certificate.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(
+         "import-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", rootCACertificateAlias,
+         "--certificate-file", rootCACertificatePath,
+         "--private-key-file", rootCAKeyPath,
+         "--no-prompt",
+         "--display-keytool-command");
+
+    assertTrue(ksFile.exists());
+    keystore = getKeystore(ksFile.getAbsolutePath(), "JKS");
+    assertEquals(getAliases(keystore, true, true),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, true, false),
+         setOf(rootCACertificateAlias));
+    assertEquals(getAliases(keystore, false, true),
+         Collections.<String>emptySet());
+
+
+    // Import a single certificate and a raw RSA private key (not in a PKCS #8
+    // envelope) into a JKS keystore that doesn't already exist.  Do not prompt
+    // about whether to trust the certificate.
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    final StringBuilder pkcs8Base64Buffer = new StringBuilder();
+    try (final BufferedReader reader =
+              new BufferedReader(new FileReader(rootCAKeyPath)))
+    {
+      while (true)
+      {
+        final String line = reader.readLine();
+        if (line == null)
+        {
+          fail("Found the end of the file before the end footer");
+        }
+        else if (line.startsWith("-----BEGIN"))
+        {
+          assertEquals(pkcs8Base64Buffer.length(), 0);
+          continue;
+        }
+        else if (line.startsWith("-----END"))
+        {
+          assertTrue(pkcs8Base64Buffer.length() > 0);
+          break;
+        }
+        else
+        {
+          pkcs8Base64Buffer.append(line);
+        }
+      }
+    }
+
+    final byte[] pkcs8PrivateKeyBytes =
+         Base64.decode(pkcs8Base64Buffer.toString());
+    final ASN1Sequence pkcs8PrivateKeySequence =
+         ASN1Sequence.decodeAsSequence(pkcs8PrivateKeyBytes);
+
+    final byte[] rsaPrivateKey =
+         pkcs8PrivateKeySequence.elements()[2].getValue();
+    final File rsaPrivateKeyFile = createTempFile();
+    assertTrue(rsaPrivateKeyFile.delete());
+    try (final PrintWriter writer = new PrintWriter(rsaPrivateKeyFile))
+    {
+      writer.println("-----BEGIN RSA PRIVATE KEY-----");
+      writer.println(Base64.encode(rsaPrivateKey));
+      writer.println("-----END RSA PRIVATE KEY-----");
+    }
+
+    manageCertificates(
+         "import-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", rootCACertificateAlias,
+         "--certificate-file", rootCACertificatePath,
+         "--private-key-file", rsaPrivateKeyFile.getAbsolutePath(),
          "--no-prompt",
          "--display-keytool-command");
 

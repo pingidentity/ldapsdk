@@ -640,4 +640,60 @@ public final class PKCS8PrivateKeyTestCase
 
     assertNotNull(pkcs8PrivateKey.getPKCS8PrivateKeyBytes());
   }
+
+
+
+  /**
+   * Tests the behavior when trying to wrap an RSA private key in a PKCS #8
+   * private key envelope.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWrapRSAPrivateKey()
+         throws Exception
+  {
+    final File resourceDir = new File(System.getProperty("unit.resource.dir"));
+    final File keyStoreFile = new File(resourceDir, "cert-test-keystore");
+
+    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    try (FileInputStream inputStream = new FileInputStream(keyStoreFile))
+    {
+      keyStore.load(inputStream, "password".toCharArray());
+    }
+
+    final PrivateKey privateKey =
+         (PrivateKey) keyStore.getKey("rsa-cert", "password".toCharArray());
+    PKCS8PrivateKey pkcs8PrivateKey =
+         new PKCS8PrivateKey(privateKey.getEncoded());
+    final byte[] rsaPrivateKey =
+         pkcs8PrivateKey.getEncodedPrivateKey().getValue();
+    final byte[] wrappedRSAPrivateKey =
+         PKCS8PrivateKey.wrapRSAPrivateKey(rsaPrivateKey);
+
+    pkcs8PrivateKey = new PKCS8PrivateKey(wrappedRSAPrivateKey);
+
+    assertNotNull(pkcs8PrivateKey.getVersion());
+    assertEquals(pkcs8PrivateKey.getVersion(),
+         PKCS8PrivateKeyVersion.V1);
+
+    assertNotNull(pkcs8PrivateKey.getPrivateKeyAlgorithmOID());
+    assertEquals(pkcs8PrivateKey.getPrivateKeyAlgorithmOID(),
+         PublicKeyAlgorithmIdentifier.RSA.getOID());
+
+    assertNotNull(pkcs8PrivateKey.getPrivateKeyAlgorithmName());
+    assertEquals(pkcs8PrivateKey.getPrivateKeyAlgorithmName(), "RSA");
+
+    assertNotNull(pkcs8PrivateKey.getPrivateKeyAlgorithmNameOrOID());
+    assertEquals(pkcs8PrivateKey.getPrivateKeyAlgorithmNameOrOID(), "RSA");
+
+    assertNotNull(pkcs8PrivateKey.getEncodedPrivateKey());
+    assertEquals(pkcs8PrivateKey.getEncodedPrivateKey().getValue(),
+         rsaPrivateKey);
+
+    assertNotNull(pkcs8PrivateKey.getDecodedPrivateKey());
+    assertTrue(pkcs8PrivateKey.getDecodedPrivateKey() instanceof RSAPrivateKey);
+
+    assertNotNull(pkcs8PrivateKey.getPKCS8PrivateKeyBytes());
+  }
 }
