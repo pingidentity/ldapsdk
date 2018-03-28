@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.net.InetAddress;
 import java.security.Key;
 import java.security.KeyPair;
@@ -11561,83 +11560,68 @@ public final class ManageCertificates
                             final char[] keystorePassword)
           throws LDAPException
   {
+    File copyOfExistingKeystore = null;
+    final String timestamp =
+         StaticUtils.encodeGeneralizedTime(System.currentTimeMillis());
     if (keystorePath.exists())
     {
-      final String timestamp =
-           StaticUtils.encodeGeneralizedTime(System.currentTimeMillis());
-      final File newFile =
-           new File(keystorePath.getAbsolutePath() + ".new-" + timestamp);
-      try (FileOutputStream outputStream = new FileOutputStream(newFile))
+      copyOfExistingKeystore = new File(keystorePath.getAbsolutePath() +
+           ".backup-" + timestamp);
+      try
       {
-        keystore.store(outputStream, keystorePassword);
+        Files.copy(keystorePath.toPath(), copyOfExistingKeystore.toPath());
       }
       catch (final Exception e)
       {
         Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_MANAGE_CERTS_WRITE_KS_ERROR_WRITING_TO_TEMP_FILE.get(
-                  newFile.getAbsolutePath(),
-                  StaticUtils.getExceptionMessage(e)),
-             e);
-      }
-
-      final File oldFile =
-           new File(keystorePath.getAbsolutePath() + ".old-" + timestamp);
-      final Path ksPath = keystorePath.toPath();
-      final Path oldPath = oldFile.toPath();
-      try
-      {
-        Files.move(ksPath, oldPath);
-      }
-      catch (final Exception e)
-      {
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_MANAGE_CERTS_WRITE_KS_ERROR_RENAMING_EXISTING_FILE.get(
-                  keystorePath.getAbsolutePath(), oldFile.getAbsolutePath(),
-                  newFile.getAbsolutePath(),
-                  StaticUtils.getExceptionMessage(e)),
-             e);
-      }
-
-      try
-      {
-        final Path newPath = newFile.toPath();
-        Files.move(newPath, ksPath);
-      }
-      catch (final Exception e)
-      {
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_MANAGE_CERTS_WRITE_KS_ERROR_RENAMING_NEW_FILE.get(
-                  newFile.getAbsolutePath(), keystorePath.getAbsolutePath(),
-                  StaticUtils.getExceptionMessage(e),
-                  oldFile.getAbsolutePath()),
-             e);
-      }
-
-      try
-      {
-        Files.delete(oldPath);
-      }
-      catch (final Exception e)
-      {
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_MANAGE_CERTS_WRITE_KS_ERROR_DELETING_FILE.get(
-                  oldFile.getAbsolutePath(),
+             ERR_MANAGE_CERTS_WRITE_KS_ERROR_COPYING_EXISTING_KS.get(
+                  keystorePath.getAbsolutePath(),
+                  copyOfExistingKeystore.getAbsolutePath(),
                   StaticUtils.getExceptionMessage(e)),
              e);
       }
     }
-    else
+
+    try (final FileOutputStream outputStream =
+              new FileOutputStream(keystorePath))
     {
-      try (FileOutputStream outputStream = new FileOutputStream(keystorePath))
+      keystore.store(outputStream, keystorePassword);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      if (copyOfExistingKeystore == null)
       {
-        keystore.store(outputStream, keystorePassword);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MANAGE_CERTS_WRITE_KS_ERROR_WRITING_NEW_KS.get(
+                  keystorePath.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MANAGE_CERTS_WRITE_KS_ERROR_OVERWRITING_KS.get(
+                  keystorePath.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e),
+                  copyOfExistingKeystore.getAbsolutePath()),
+             e);
+      }
+    }
+
+    if (copyOfExistingKeystore != null)
+    {
+      try
+      {
+        Files.delete(copyOfExistingKeystore.toPath());
       }
       catch (final Exception e)
       {
         Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_MANAGE_CERTS_WRITE_KS_ERROR_WRITING_TO_NEW_FILE.get(
+             ERR_MANAGE_CERTS_WRITE_KS_ERROR_DELETING_KS_BACKUP.get(
+                  copyOfExistingKeystore.getAbsolutePath(),
                   keystorePath.getAbsolutePath(),
                   StaticUtils.getExceptionMessage(e)),
              e);
