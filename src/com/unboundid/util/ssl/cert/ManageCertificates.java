@@ -34,6 +34,8 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.net.InetAddress;
 import java.security.Key;
 import java.security.KeyPair;
@@ -11581,27 +11583,48 @@ public final class ManageCertificates
 
       final File oldFile =
            new File(keystorePath.getAbsolutePath() + ".old-" + timestamp);
-      if (! keystorePath.renameTo(oldFile))
+      final Path ksPath = keystorePath.toPath();
+      final Path oldPath = oldFile.toPath();
+      try
+      {
+        Files.move(ksPath, oldPath);
+      }
+      catch (final Exception e)
       {
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_MANAGE_CERTS_WRITE_KS_ERROR_RENAMING_EXISTING_FILE.get(
                   keystorePath.getAbsolutePath(), oldFile.getAbsolutePath(),
-                  newFile.getAbsolutePath()));
+                  newFile.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
       }
 
-      if (! newFile.renameTo(keystorePath))
+      try
+      {
+        final Path newPath = newFile.toPath();
+        Files.move(newPath, ksPath);
+      }
+      catch (final Exception e)
       {
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_MANAGE_CERTS_WRITE_KS_ERROR_RENAMING_NEW_FILE.get(
                   newFile.getAbsolutePath(), keystorePath.getAbsolutePath(),
-                  oldFile.getAbsolutePath()));
+                  StaticUtils.getExceptionMessage(e),
+                  oldFile.getAbsolutePath()),
+             e);
       }
 
-      if (! oldFile.delete())
+      try
+      {
+        Files.delete(oldPath);
+      }
+      catch (final Exception e)
       {
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_MANAGE_CERTS_WRITE_KS_ERROR_DELETING_FILE.get(
-                  oldFile.getAbsolutePath()));
+                  oldFile.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
     else

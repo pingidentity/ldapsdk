@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -346,13 +347,13 @@ public final class PromptTrustManager
       final File oldFile = new File(acceptedCertsFile + ".previous");
       if (oldFile.exists())
       {
-        oldFile.delete();
+        Files.delete(oldFile.toPath());
       }
 
-      cacheFile.renameTo(oldFile);
+      Files.move(cacheFile.toPath(), oldFile.toPath());
     }
 
-    tempFile.renameTo(cacheFile);
+    Files.move(tempFile.toPath(), cacheFile.toPath());
   }
 
 
