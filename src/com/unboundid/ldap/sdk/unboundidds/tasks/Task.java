@@ -728,6 +728,7 @@ public class Task
          new ReEncodeEntriesTask(),
          new RefreshEncryptionSettingsTask(),
          new ReloadGlobalIndexTask(),
+         new ReloadHTTPConnectionHandlerCertificatesTask(),
          new RestoreTask(),
          new RotateLogTask(),
          new SearchTask(),
@@ -1679,6 +1680,12 @@ public class Task
            ReloadGlobalIndexTask.RELOAD_GLOBAL_INDEX_TASK_CLASS))
       {
         return new ReloadGlobalIndexTask(entry);
+      }
+      else if (taskClass.equals(
+           ReloadHTTPConnectionHandlerCertificatesTask.
+                RELOAD_HTTP_CONNECTION_HANDLER_CERTIFICATES_TASK_CLASS))
+      {
+        return new ReloadHTTPConnectionHandlerCertificatesTask(entry);
       }
       else if (taskClass.equals(RestoreTask.RESTORE_TASK_CLASS))
       {
