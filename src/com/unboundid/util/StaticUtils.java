@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -210,16 +211,7 @@ public final class StaticUtils
       }
       else
       {
-        try
-        {
-          return s.getBytes("UTF-8");
-        }
-        catch (final Exception e)
-        {
-          // This should never happen.
-          debugException(e);
-          return s.getBytes();
-        }
+        return s.getBytes(StandardCharsets.UTF_8);
       }
     }
 
@@ -511,7 +503,7 @@ public final class StaticUtils
   {
     try
     {
-      return new String(b, "UTF-8");
+      return new String(b, StandardCharsets.UTF_8);
     }
     catch (final Exception e)
     {
@@ -539,7 +531,7 @@ public final class StaticUtils
   {
     try
     {
-      return new String(b, offset, length, "UTF-8");
+      return new String(b, offset, length, StandardCharsets.UTF_8);
     }
     catch (final Exception e)
     {
