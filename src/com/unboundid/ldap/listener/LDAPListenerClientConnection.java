@@ -431,6 +431,7 @@ public final class LDAPListenerClientConnection
         }
         catch (final LDAPException le)
         {
+          // This indicates that the client sent a malformed request.
           Debug.debugException(le);
           close(le);
           return;
@@ -624,12 +625,12 @@ public final class LDAPListenerClientConnection
             }
           }
         }
-        catch (final Exception e)
+        catch (final Throwable t)
         {
           close(new LDAPException(ResultCode.LOCAL_ERROR,
                ERR_CONN_EXCEPTION_IN_REQUEST_HANDLER.get(
                     String.valueOf(requestMessage),
-                    StaticUtils.getExceptionMessage(e))));
+                    StaticUtils.getExceptionMessage(t))));
           return;
         }
       }

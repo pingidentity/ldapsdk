@@ -20,6 +20,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the in-memory directory server so that it can better handle instances of
+                  java.lang.Error (and its subclasses) that may be thrown in the course of
+                  processing associated with a client connection.  These kinds of errors should not
+                  happen under normal circumstances, but it is possible for third-party code (for
+                  example, code associated with an InMemoryOperationInterceptor) to generate them,
+                  and it is possible for the JVM to throw them in extraordinary circumstances like
+                  out of memory error. In such cases, the thread responsible for processing
+                  requests from that client would exit without returning a response for the
+                  operation being processed and without closing the connection.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated manage-certificates to fix an incorrect interpretation of the path
                   length element of a basic constraints extension.  It was mistakenly
                   interpreted to mean the maximum number of certificates that are allowed in a
