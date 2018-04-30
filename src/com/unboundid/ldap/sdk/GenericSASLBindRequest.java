@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -226,7 +227,7 @@ public final class GenericSASLBindRequest
     constructorArgs.add(ToCodeArgHelper.createString(mechanism,
          "SASL Mechanism Name"));
     constructorArgs.add(ToCodeArgHelper.createByteArray(
-         "---redacted-SASL-credentials".getBytes(), true,
+         "---redacted-SASL-credentials".getBytes(StandardCharsets.UTF_8), true,
          "SASL Credentials"));
 
     final Control[] controls = getControls();

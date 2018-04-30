@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -249,7 +250,8 @@ final class ModRateThread
 
     if (increment)
     {
-      valueBytes[0] = String.valueOf(incrementAmount).getBytes();
+      valueBytes[0] =
+           String.valueOf(incrementAmount).getBytes(StandardCharsets.UTF_8);
       values[0] = new ASN1OctetString(valueBytes[0]);
 
       for (int i=0; i < attributes.length; i++)

@@ -25,6 +25,7 @@ package com.unboundid.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 
 
@@ -42,7 +43,7 @@ public final class PasswordReaderHelper
   public static void setTestPasswordReader(final String password)
   {
     final ByteArrayInputStream in = new ByteArrayInputStream(
-         (password + StaticUtils.EOL).getBytes());
+         (password + StaticUtils.EOL).getBytes(StandardCharsets.UTF_8));
     setTestPasswordReader(new BufferedReader(new InputStreamReader(in)));
   }
 

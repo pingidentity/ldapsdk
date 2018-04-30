@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -372,7 +373,7 @@ public abstract class SASLBindRequest
     constructorArgs.add(ToCodeArgHelper.createString(getSASLMechanismName(),
          "SASL Mechanism Name"));
     constructorArgs.add(ToCodeArgHelper.createByteArray(
-         "---redacted-SASL-credentials".getBytes(), true,
+         "---redacted-SASL-credentials".getBytes(StandardCharsets.UTF_8), true,
          "SASL Credentials"));
 
     final Control[] controls = getControls();

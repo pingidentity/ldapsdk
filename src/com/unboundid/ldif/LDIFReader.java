@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -519,9 +520,9 @@ public final class LDIFReader
   public LDIFReader(final InputStream inputStream, final int numParseThreads)
   {
     // UTF-8 is required by RFC 2849.  Java guarantees it's always available.
-    this(new BufferedReader(new InputStreamReader(inputStream,
-                                                  Charset.forName("UTF-8")),
-                            DEFAULT_BUFFER_SIZE),
+    this(new BufferedReader(
+         new InputStreamReader(inputStream, StandardCharsets.UTF_8),
+              DEFAULT_BUFFER_SIZE),
          numParseThreads);
   }
 
@@ -2336,7 +2337,7 @@ public final class LDIFReader
       try
       {
         final byte[] dnBytes = Base64.decode(line.substring(pos));
-        dn = new String(dnBytes, "UTF-8");
+        dn = new String(dnBytes, StandardCharsets.UTF_8);
       }
       catch (final ParseException pe)
       {
@@ -2469,7 +2470,7 @@ public final class LDIFReader
       try
       {
         final byte[] dnBytes = Base64.decode(line.substring(pos));
-        dn = new String(dnBytes, "UTF-8");
+        dn = new String(dnBytes, StandardCharsets.UTF_8);
       }
       catch (final ParseException pe)
       {
@@ -2707,7 +2708,7 @@ public final class LDIFReader
       try
       {
         final byte[] controlBytes = Base64.decode(line.substring(pos));
-        controlString =  new String(controlBytes, "UTF-8");
+        controlString =  new String(controlBytes, StandardCharsets.UTF_8);
       }
       catch (final ParseException pe)
       {
@@ -2972,7 +2973,7 @@ public final class LDIFReader
       try
       {
         final byte[] changeTypeBytes = Base64.decode(line.substring(pos));
-        return new String(changeTypeBytes, "UTF-8");
+        return new String(changeTypeBytes, StandardCharsets.UTF_8);
       }
       catch (final ParseException pe)
       {
@@ -3502,7 +3503,7 @@ public final class LDIFReader
         try
         {
           final byte[] dnBytes = Base64.decode(line.substring(pos));
-          attributeName = new String(dnBytes, "UTF-8");
+          attributeName = new String(dnBytes, StandardCharsets.UTF_8);
         }
         catch (final ParseException pe)
         {
@@ -3805,7 +3806,7 @@ public final class LDIFReader
       try
       {
         final byte[] dnBytes = Base64.decode(line.substring(pos));
-        newRDN = new String(dnBytes, "UTF-8");
+        newRDN = new String(dnBytes, StandardCharsets.UTF_8);
       }
       catch (final ParseException pe)
       {
@@ -3888,7 +3889,7 @@ public final class LDIFReader
       try
       {
         final byte[] changeTypeBytes = Base64.decode(line.substring(pos));
-        deleteOldRDNStr = new String(changeTypeBytes, "UTF-8");
+        deleteOldRDNStr = new String(changeTypeBytes, StandardCharsets.UTF_8);
       }
       catch (final ParseException pe)
       {
@@ -3984,7 +3985,7 @@ public final class LDIFReader
         try
         {
           final byte[] dnBytes = Base64.decode(line.substring(pos));
-          newSuperiorDN = new String(dnBytes, "UTF-8");
+          newSuperiorDN = new String(dnBytes, StandardCharsets.UTF_8);
         }
         catch (final ParseException pe)
         {

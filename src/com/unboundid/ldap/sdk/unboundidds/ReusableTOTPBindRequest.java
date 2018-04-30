@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -429,7 +430,8 @@ public final class ReusableTOTPBindRequest
     constructorArgs.add(ToCodeArgHelper.createString(getAuthorizationID(),
          "Authorization ID"));
     constructorArgs.add(ToCodeArgHelper.createByteArray(
-         "---redacted-secret---".getBytes(), true, "Shared Secret"));
+         "---redacted-secret---".getBytes(StandardCharsets.UTF_8), true,
+         "Shared Secret"));
     constructorArgs.add(ToCodeArgHelper.createString(
          ((getStaticPassword() == null) ? "null" : "---redacted-password---"),
          "Static Password"));
