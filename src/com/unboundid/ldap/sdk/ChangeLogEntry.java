@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -473,7 +474,8 @@ public class ChangeLogEntry
     final byte[] valueBytes = deletedEntryAttrs.getValueByteArray();
     if ((valueBytes.length > 0) && (valueBytes[valueBytes.length-1] == 0x00))
     {
-      final String valueStr = new String(valueBytes, 0, valueBytes.length-2);
+      final String valueStr = new String(valueBytes, 0, valueBytes.length-2,
+           StandardCharsets.UTF_8);
 
       final ArrayList<String> ldifLines = new ArrayList<String>();
       ldifLines.add("dn: " + targetDN);
