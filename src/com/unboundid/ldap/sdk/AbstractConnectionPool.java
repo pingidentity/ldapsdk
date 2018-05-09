@@ -2585,7 +2585,7 @@ requestLoop:
       {
         try
         {
-          final LDAPResult result = request.process(conn, 1);
+          final LDAPResult result = conn.processOperation(request);
           results.add(result);
           switch (result.getResultCode().intValue())
           {

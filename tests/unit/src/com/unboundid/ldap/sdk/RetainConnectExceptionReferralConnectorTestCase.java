@@ -147,8 +147,9 @@ public final class RetainConnectExceptionReferralConnectorTestCase
     try (final LDAPConnection conn = ds1.getConnection())
     {
       // Make sure that we can bind as a user that should exist in both servers.
-      BindResult bindResult = conn.bind("cn=User 1", "password");
-      assertResultCodeEquals(bindResult, ResultCode.SUCCESS);
+      assertResultCodeEquals(conn,
+           new SimpleBindRequest("cn=User 1", "password"),
+           ResultCode.SUCCESS);
 
 
       // Perform a search without following referrals to ensure that we get a
@@ -210,8 +211,9 @@ public final class RetainConnectExceptionReferralConnectorTestCase
 
       // Re-authenticate the connection as a user that only exists in the first
       // server.
-      bindResult = conn.bind("cn=User 2", "password");
-      assertResultCodeEquals(bindResult, ResultCode.SUCCESS);
+      assertResultCodeEquals(conn,
+           new SimpleBindRequest("cn=User 2", "password"),
+           ResultCode.SUCCESS);
 
 
       // Perform the search again.  This time, the referral connector should
@@ -236,8 +238,9 @@ public final class RetainConnectExceptionReferralConnectorTestCase
 
       // Revert the connection to an unauthenticated state with an anonymous
       // simple bind request.
-      bindResult = conn.bind("", "");
-      assertResultCodeEquals(bindResult, ResultCode.SUCCESS);
+      assertResultCodeEquals(conn,
+           new SimpleBindRequest("", ""),
+           ResultCode.SUCCESS);
 
 
       // Verify that the search once again succeeds after automatically

@@ -2249,53 +2249,15 @@ public final class LDAPConnection
   {
     ensureNotNull(bindRequest);
 
-    // We don't want to update the last bind request or update the cached
-    // schema for this connection if it included the retain identity control.
-    boolean hasRetainIdentityControl = false;
-    for (final Control c : bindRequest.getControls())
+    final BindResult bindResult = processBindOperation(bindRequest);
+    switch (bindResult.getResultCode().intValue())
     {
-      if (c.getOID().equals(
-               RetainIdentityRequestControl.RETAIN_IDENTITY_REQUEST_OID))
-      {
-        hasRetainIdentityControl = true;
-        break;
-      }
-    }
-
-    if (! hasRetainIdentityControl)
-    {
-      lastBindRequest = null;
-    }
-
-    final BindResult bindResult = bindRequest.process(this, 1);
-    if (bindResult.getResultCode().equals(ResultCode.SUCCESS))
-    {
-      if (! hasRetainIdentityControl)
-      {
-        lastBindRequest = bindRequest;
-        if (connectionOptions.useSchema())
-        {
-          try
-          {
-            cachedSchema = getCachedSchema(this);
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-          }
-        }
-      }
-
-      return bindResult;
-    }
-
-    if (bindResult.getResultCode().equals(ResultCode.SASL_BIND_IN_PROGRESS))
-    {
-      throw new SASLBindInProgressException(bindResult);
-    }
-    else
-    {
-      throw new LDAPBindException(bindResult);
+      case ResultCode.SUCCESS_INT_VALUE:
+        return bindResult;
+      case ResultCode.SASL_BIND_IN_PROGRESS_INT_VALUE:
+        throw new SASLBindInProgressException(bindResult);
+      default:
+        throw new LDAPBindException(bindResult);
     }
   }
 
@@ -4296,7 +4258,75 @@ public final class LDAPConnection
   public LDAPResult processOperation(final LDAPRequest request)
          throws LDAPException
   {
-    return request.process(this, 1);
+    if (request instanceof BindRequest)
+    {
+      // Bind request special processing.
+      return processBindOperation((BindRequest) request);
+    }
+    else
+    {
+      return request.process(this, 1);
+    }
+  }
+
+
+
+  /**
+   * Processes the provided bind request and returns the result.  This will also
+   * ensure that any appropriate updates are made to the last bind request and
+   * cached schema.
+   *
+   * @param  bindRequest  The bind request to be processed.
+   *
+   * @return  The result obtained from processing the request.
+   *
+   * @throws  LDAPException  If a problem occurs while sending the request or
+   *                         reading the response.  Note simply having a
+   *                         non-success result code in the response will not
+   *                         cause an exception to be thrown.
+   */
+  private BindResult processBindOperation(final BindRequest bindRequest)
+          throws LDAPException
+  {
+    // We don't want to update the last bind request or update the cached
+    // schema for this connection if it included the retain identity control.
+    boolean hasRetainIdentityControl = false;
+    for (final Control c : bindRequest.getControls())
+    {
+      if (c.getOID().equals(
+               RetainIdentityRequestControl.RETAIN_IDENTITY_REQUEST_OID))
+      {
+        hasRetainIdentityControl = true;
+        break;
+      }
+    }
+
+    if (! hasRetainIdentityControl)
+    {
+      lastBindRequest = null;
+    }
+
+    final BindResult bindResult = bindRequest.process(this, 1);
+    if (bindResult.getResultCode().equals(ResultCode.SUCCESS))
+    {
+      if (! hasRetainIdentityControl)
+      {
+        lastBindRequest = bindRequest;
+        if (connectionOptions.useSchema())
+        {
+          try
+          {
+            cachedSchema = getCachedSchema(this);
+          }
+          catch (final Exception e)
+          {
+            debugException(e);
+          }
+        }
+      }
+    }
+
+    return bindResult;
   }
 
 

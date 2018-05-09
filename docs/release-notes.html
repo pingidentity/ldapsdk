@@ -20,6 +20,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed a bug that could prevent certain client-side state information from being
+                  properly updated when processing a bind request using either the
+                  <tt>LDAPConnection.processOperation</tt> or the
+                  <tt>AbstractConnectionPool.processRequests</tt> methods.  This could cause the
+                  LDAP SDK to incorrectly believe that a connection was not authenticated when it
+                  actually was.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a <tt>LDAPRequest.setReferralConnector</tt> method that makes it possible
                   to set a custom referral connector on a per-request basis.  Also added a
                   <tt>RetainConnectExceptionReferralConnector</tt> class that makes it easier to
