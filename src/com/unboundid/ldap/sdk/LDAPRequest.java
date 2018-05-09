@@ -88,6 +88,9 @@ public abstract class LDAPRequest
   // from the associated connection.
   private long responseTimeout;
 
+  // The referral connector to use when following referrals.
+  private ReferralConnector referralConnector;
+
 
 
   /**
@@ -109,6 +112,7 @@ public abstract class LDAPRequest
     followReferrals = null;
     responseTimeout = -1L;
     intermediateResponseListener = null;
+    referralConnector = null;
   }
 
 
@@ -316,6 +320,61 @@ public abstract class LDAPRequest
   public final void setFollowReferrals(final Boolean followReferrals)
   {
     this.followReferrals = followReferrals;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public final ReferralConnector getReferralConnector(
+                                      final LDAPConnection connection)
+  {
+    if (referralConnector == null)
+    {
+      return connection.getReferralConnector();
+    }
+    else
+    {
+      return referralConnector;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the referral connector that has been set for this request.
+   *
+   * @return  The referral connector that has been set for this request, or
+   *          {@code null} if no referral connector has been set for this
+   *          request and the connection's default referral connector will be
+   *          used if necessary.
+   */
+  final ReferralConnector getReferralConnectorInternal()
+  {
+    return referralConnector;
+  }
+
+
+
+  /**
+   * Sets the referral connector that should be used to establish connections
+   * for the purpose of following any referrals encountered when processing this
+   * request.
+   *
+   * @param  referralConnector  The referral connector that should be used to
+   *                            establish connections for the purpose of
+   *                            following any referral encountered when
+   *                            processing this request.  It may be
+   *                            {@code null} to use the default referral handler
+   *                            for the connection on which the referral was
+   *                            received.
+   */
+  public final void setReferralConnector(
+                         final ReferralConnector referralConnector)
+  {
+    this.referralConnector = referralConnector;
   }
 
 

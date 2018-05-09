@@ -1033,7 +1033,7 @@ public final class ModifyDNRequest
           modifyDNRequest = this;
         }
 
-        final LDAPConnection referralConn = connection.getReferralConnector().
+        final LDAPConnection referralConn = getReferralConnector(connection).
              getReferralConnection(referralURL, connection);
         try
         {
@@ -1131,6 +1131,11 @@ public final class ModifyDNRequest
     if (followReferralsInternal() != null)
     {
       r.setFollowReferrals(followReferralsInternal());
+    }
+
+    if (getReferralConnectorInternal() != null)
+    {
+      r.setReferralConnector(getReferralConnectorInternal());
     }
 
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));

@@ -470,6 +470,26 @@ public final class InternalSDKHelper
 
 
   /**
+   * Retrieves the referral connector that has been set for the provided
+   * request.
+   *
+   * @param  request  The request for which to obtain the referral connector.
+   *
+   * @return  The referral connector that has been set for the provided request,
+   *          or {@code null} if no referral connector has been set for the
+   *          request and the connection's default referral connector will be
+   *          used if necessary.
+   */
+  @InternalUseOnly()
+  public static ReferralConnector getReferralConnectorInternal(
+                                       final LDAPRequest request)
+  {
+    return request.getReferralConnectorInternal();
+  }
+
+
+
+  /**
    * Retrieves the message ID that should be used for the next request sent
    * over the provided connection.
    *

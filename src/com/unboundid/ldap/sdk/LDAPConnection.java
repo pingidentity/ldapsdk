@@ -4116,6 +4116,7 @@ public final class LDAPConnection
            searchRequest.getFilter(), searchRequest.getAttributes());
 
       r.setFollowReferrals(searchRequest.followReferralsInternal());
+      r.setReferralConnector(searchRequest.getReferralConnectorInternal());
       r.setResponseTimeoutMillis(searchRequest.getResponseTimeoutMillis(null));
 
       if (searchRequest.hasControl())

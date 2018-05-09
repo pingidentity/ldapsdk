@@ -2692,6 +2692,7 @@ public final class InMemoryDirectoryServer
            searchRequest.getFilter(), searchRequest.getAttributes());
 
       r.setFollowReferrals(InternalSDKHelper.followReferralsInternal(r));
+      r.setReferralConnector(InternalSDKHelper.getReferralConnectorInternal(r));
       r.setResponseTimeoutMillis(searchRequest.getResponseTimeoutMillis(null));
       r.setControls(requestControlList);
     }

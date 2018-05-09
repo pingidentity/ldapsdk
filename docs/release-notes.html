@@ -20,6 +20,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a <tt>LDAPRequest.setReferralConnector</tt> method that makes it possible
+                  to set a custom referral connector on a per-request basis.  Also added a
+                  <tt>RetainConnectExceptionReferralConnector</tt> class that makes it easier to
+                  obtain the exception (if any) that was encountered on the last attempt to
+                  establish a connection for the purpose of following a referral.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the in-memory directory server so that it can better handle instances of
                   java.lang.Error (and its subclasses) that may be thrown in the course of
                   processing associated with a client connection.  These kinds of errors should not
@@ -684,7 +693,7 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  The ldpasearch tool has been updated so that the base DN argument is now
+                  The ldapsearch tool has been updated so that the base DN argument is now
                   optional in all circumstances.  Previously, you had to explicitly provide either
                   a base DN or an LDAP URL file, but this created a usability problem if you ran
                   ldapsearch in interactive mode and wanted to search with a null base DN (that

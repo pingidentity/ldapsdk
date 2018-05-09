@@ -676,7 +676,7 @@ public final class DeleteRequest
           deleteRequest = this;
         }
 
-        final LDAPConnection referralConn = connection.getReferralConnector().
+        final LDAPConnection referralConn = getReferralConnector(connection).
              getReferralConnection(referralURL, connection);
         try
         {
@@ -773,6 +773,11 @@ public final class DeleteRequest
     if (followReferralsInternal() != null)
     {
       r.setFollowReferrals(followReferralsInternal());
+    }
+
+    if (getReferralConnectorInternal() != null)
+    {
+      r.setReferralConnector(getReferralConnectorInternal());
     }
 
     r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));

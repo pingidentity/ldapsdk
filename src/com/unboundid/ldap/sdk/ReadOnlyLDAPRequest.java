@@ -133,6 +133,21 @@ public interface ReadOnlyLDAPRequest
 
 
   /**
+   * Retrieves the referral connector that should be used when establishing a
+   * connection for the purpose of automatically following a referral.
+   *
+   * @param  connection  The connection that may be used in the course of
+   *                     obtaining the appropriate referral connector.  It must
+   *                     not be {@code null}.
+   *
+   * @return  The referral connector that should be used for the purpose of
+   *          automatically following a referral.  It will not be {@code null}.
+   */
+  ReferralConnector getReferralConnector(LDAPConnection connection);
+
+
+
+  /**
    * Creates a new instance of this LDAP request that may be modified without
    * impacting this request.
    *
