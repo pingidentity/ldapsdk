@@ -1,39 +1,124 @@
-This is the source code and build environment for the UnboundID LDAP SDK for
-Java, a fast, comprehensive, and easy-to-use Java API for communicating with
-LDAP directory servers and performing related tasks like reading and writing
-LDIF, encoding and decoding data using Base64 and ASN.1 BER, and performing
-secure communication.
+UnboundID LDAP SDK for Java
 
-The LDAP SDK is open source under the terms of the GPLv2 and LGPLv2.1 licenses.
-It is also available under the non-open source UnboundID LDAP SDK Free Use
-License, which allows the LDAP SDK to be freely used in free or commercial
-applications as long as the LDAP SDK itself is not altered.  See the
-LICENSE-GPLv2.txt, LICENSE-LGPLv2.1.txt, and LICENSE-UnboundID-LDAPSDK.txt
-files for the specific details of each license.
+The UnboundID LDAP SDK for Java is a fast, powerful, user-friendly, and
+completely free Java library for communicating with LDAP directory servers. It
+offers better performance, better ease of use, and more features than other
+Java-based LDAP APIs. It is actively being developed and enhanced, and
+commercial support is available.
 
-The easiest way to build the LDAP SDK is to simply run the build.sh shell
-script (or the build.bat batch file on Windows systems) without any arguments,
-or to invoke Apache Ant directly and target the build.xml build file.  The
-resulting build files may be found in the build/package directory.
+The UnboundID LDAP SDK for Java is free to use and redistribute in open source
+or proprietary applications under the terms of any of the open source GPLv2 or
+LGPLv2.1, or the not-open-source-but-still-free-to-use UnboundID Free Use
+License. It does not have any third-party dependencies, so a single jar file is
+all you need to add top-notch LDAP support to your Java application. It can
+also be used in conjunction with most other JVM-based languages, as well as on
+the Android mobile platform.
 
-To ask questions, provide feedback, report bugs, submit feature requests, or
-engage in any other discussion about the LDAP SDK, you may use one of the
-following options:
+The full documentation for the LDAP SDK is available online at
+https://docs.ldap.com/ldap-sdk/docs/index.html. The API documentation (aka
+JavaDoc) for the UnboundID LDAP SDK for Java is available at
+https://docs.ldap.com/ldap-sdk/docs/javadoc/index.html. The LDAP.com website
+also has a lot of useful information about LDAP and directory services.
 
-- For bug reports and feature requests, use the GitHub issue tracker at
-  https://github.com/pingidentity/ldapsdk/issues
 
-- For questions, feedback, and other discussions, use the online discussion
+
+Advantages of the UnboundID LDAP SDK
+
+Some of the key advantages of the UnboundID LDAP SDK for Java include:
+
+* Full support for the LDAPv3 protocol as of the most recent specification
+  update, including all operation types, intermediate response messages, the
+  increment modification extension, and absolute true/false filters.
+
+* Built-in support for a wide range of official and de facto standard protocol
+  extensions, including controls, extended operations, and SASL mechanisms. The
+  LDAP SDK also includes APIs for developing support for any custom protocol
+  extensions that you may need but aren't included as part of the LDAP SDK.
+
+* A very convenient and user-friendly API that reduces the amount of code you
+  need to write in order to perform the desired operations.
+
+* A number of security-related features to help simplify secure communication
+  and ensure that all interaction with LDAP servers and data remains safe and
+  available to only properly-authorized users.
+
+* Powerful and flexible connection pooling, load balancing, and failover
+  support to help ensure that your application keeps working flawlessly even if
+  one or more of the directory servers becomes unavailable.
+
+* A simple yet powerful persistence framework that allows you to interact with
+  LDAP entries as if they were Java objects. The persistence framework works
+  with your existing schema and directory data without any changes so that it
+  remains compatible with other applications that may need to access it.
+
+* Enhanced support for a number of special entry types, including the root DSE,
+  subschema subentries, and changelog entries.
+
+* Support for a number of related APIs, including reading and writing LDIF
+  entries and change records (including parallelized encoding and decoding for
+  maximum performance), base64 encoding and decoding, and ASN.1 BER encoding
+  and decoding. There are also APIs to simplify the creation of LDAP-enabled
+  command-line tools.
+
+* Support for simplifying LDAP-based testing. The LDAP SDK includes an
+  in-memory directory server is available to allow you easily create one or
+  more simple LDAPv3-compliant servers to use in your testing frameworks. It
+  also provides a set of utility methods for making assertions about the
+  content stored in an LDAP directory server.
+
+* The LDAP SDK is provided as a single self-contained jar file with no
+  dependencies on anything outside of Java SE.
+
+* Commercial Support is available from Ping Identity.
+
+
+
+Getting the UnboundID LDAP SDK
+
+Packaged releases of the UnboundID LDAP SDK for Java are available for download
+from GitHub at https://github.com/pingidentity/ldapsdk/releases and from
+SourceForge at https://sourceforge.net/projects/ldap-sdk/files/.
+
+If you prefer to use the Maven tool to manage your library dependencies, then
+you can get the UnboundID LDAP SDK for Java in the Maven Central Repository
+with a GroupId of "com.unboundid" and an ArtifactId of "unboundid-ldapsdk".
+
+If you want to check out and build the LDAP SDK from source, then you can do
+that with the following git command:
+
+     git clone https://github.com/pingidentity/ldapsdk.git
+
+
+If you prefer subversion, you can instead use the command:
+
+     svn checkout https://github.com/pingidentity/ldapsdk/trunk ldapsdk-svn
+
+Once the code has been checked out, you can build the LDAP SDK by running the
+build.sh shell script on UNIX-based systems or build.bat batch file on Windows.
+Once the build has completed, the zip file containing the packaged LDAP SDK may
+be found in the build/package directory.
+
+
+
+How to get Help with the UnboundID LDAP SDK for Java
+
+If you run into a problem when using the LDAP SDK and you can't figure it out
+from the documentation, then there are a few ways that you can get help:
+
+* For bug reports and feature requests, use the GitHub issue tracker at
+  https://github.com/pingidentity/ldapsdk/issues.
+
+* For questions, feedback, and other discussions, use the online discussion
   forum at http://sourceforge.net/p/ldap-sdk/discussion/ or the
-  ldap-sdk-discuss@lists.sourceforge.net mailing list.  See
+  ldap-sdk-discuss@lists.sourceforge.net mailing list. See
   https://sourceforge.net/p/ldap-sdk/mailman/ldap-sdk-discuss/ for more
   information about this mailing list, including an archive and information
   about how to subscribe.
 
-- If you'd rather not have the communication in public, send an email message
+* If you'd rather not have the communication in public, send an email message
   to ldapsdk-support@pingidentity.com.
 
-- If you have an UnboundID or Ping Identity support contract, you may get
-  assistance with the LDAP SDK in the same way as for other UnboundID/Ping
-  Identity products.  Contact ldapsdk-support@pingidentity.com for more
-  information about obtaining a support contract specifically for the LDAP SDK.
+* If you have a support contract with Ping Identity, you may get assistance
+  with the LDAP SDK in the same way that you get support for other Ping
+  Identity products. Contact ldapsdk-support@pingidentity.com for more
+  information about obtaining a support contract for the LDAP SDK.
