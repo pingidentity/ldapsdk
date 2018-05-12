@@ -30,6 +30,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed a bug in schema handling that could arise if an object class definition
+                  did not specify the object class type (STRUCTURAL, AUXILIARY, or ABSTRACT).
+                  In some cases, the type could be incorrectly inherited from the superclass
+                  rather than assuming the default type of STRUCTURAL.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a <tt>LDAPRequest.setReferralConnector</tt> method that makes it possible
                   to set a custom referral connector on a per-request basis.  Also added a
                   <tt>RetainConnectExceptionReferralConnector</tt> class that makes it easier to

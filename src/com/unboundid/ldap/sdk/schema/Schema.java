@@ -605,7 +605,7 @@ public final class Schema
             m.put(toLowerCase(name), oc);
           }
 
-          switch (getOCType(oc, m))
+          switch (oc.getObjectClassType(null))
           {
             case ABSTRACT:
               sAbstract.add(oc);
@@ -1128,43 +1128,6 @@ public final class Schema
   public ReadOnlyEntry getSchemaEntry()
   {
     return schemaEntry;
-  }
-
-
-
-  /**
-   * Retrieves the object class type for the specified object class, recursively
-   * checking its parents as needed.
-   *
-   * @param  oc  The object class definition for which to make the
-   *             determination.
-   * @param  m   The map of defined object classes.
-   *
-   * @return  The object class type for the object class.
-   */
-  private static ObjectClassType getOCType(final ObjectClassDefinition oc,
-                                      final Map<String,ObjectClassDefinition> m)
-  {
-    ObjectClassType t = oc.getObjectClassType();
-    if (t != null)
-    {
-      return t;
-    }
-
-    for (final String s : oc.getSuperiorClasses())
-    {
-      final ObjectClassDefinition d = m.get(toLowerCase(s));
-      if (d != null)
-      {
-        t = getOCType(d, m);
-        if (t != null)
-        {
-          return t;
-        }
-      }
-    }
-
-    return ObjectClassType.STRUCTURAL;
   }
 
 

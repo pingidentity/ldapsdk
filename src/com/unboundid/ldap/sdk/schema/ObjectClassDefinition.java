@@ -849,10 +849,14 @@ public final class ObjectClassDefinition
 
 
   /**
-   * Retrieves the object class type for this object class.
+   * Retrieves the object class type for this object class.  This method will
+   * return {@code null} if this object class definition does not explicitly
+   * specify the object class type, although in that case, the object class type
+   * should be assumed to be {@link ObjectClassType#STRUCTURAL} as per RFC 4512
+   * section 4.1.1.
    *
    * @return  The object class type for this object class, or {@code null} if it
-   *          is not defined.
+   *          is not defined in the schema element.
    */
   public ObjectClassType getObjectClassType()
   {
@@ -864,29 +868,38 @@ public final class ObjectClassDefinition
   /**
    * Retrieves the object class type for this object class, recursively
    * examining superior classes if necessary to make the determination.
+   * <BR><BR>
+   * Note that versions of this method before the 4.0.6 release of the LDAP SDK
+   * operated under the incorrect assumption that if an object class definition
+   * did not explicitly specify the object class type, it would be inherited
+   * from its superclass.  The correct behavior, as per RFC 4512 section 4.1.1,
+   * is that if the object class type is not explicitly specified, it should be
+   * assumed to be {@link ObjectClassType#STRUCTURAL}.
    *
    * @param  schema  The schema to use to retrieve the definitions for the
-   *                 superior object classes.
+   *                 superior object classes.  As of LDAP SDK version 4.0.6,
+   *                 this argument is no longer used (and may be {@code null} if
+   *                 desired), but this version of the method has been preserved
+   *                 both for the purpose of retaining API compatibility with
+   *                 previous versions of the LDAP SDK, and to disambiguate it
+   *                 from the zero-argument version of the method that returns
+   *                 {@code null} if the object class type is not explicitly
+   *                 specified.
    *
-   * @return  The object class type for this object class.
+   * @return  The object class type for this object class, or
+   *          {@link ObjectClassType#STRUCTURAL} if it is not explicitly
+   *          defined.
    */
   public ObjectClassType getObjectClassType(final Schema schema)
   {
-    if (objectClassType != null)
+    if (objectClassType == null)
+    {
+      return ObjectClassType.STRUCTURAL;
+    }
+    else
     {
       return objectClassType;
     }
-
-    for (final String ocName : superiorClasses)
-    {
-      final ObjectClassDefinition d = schema.getObjectClass(ocName);
-      if (d != null)
-      {
-        return d.getObjectClassType(schema);
-      }
-    }
-
-    return ObjectClassType.STRUCTURAL;
   }
 
 
