@@ -1696,14 +1696,33 @@ valueLoop:
           break;
 
         default:
-          // If it's not a printable ASCII character, then hex-encode it.
-          if ((c < ' ') || (c > '~'))
+          // If it's a printable ASCII character that isn't covered by one of
+          // the above options, then just append it to the buffer.  Otherwise,
+          // hex-encode all bytes that comprise its UTF-8 representation, which
+          // might require special handling if it requires two Java characters
+          // to encode the Unicode character.
+          if ((c >= ' ') && (c <= '~'))
           {
-            hexEncode(c, buffer);
+            buffer.append(c);
+          }
+          else if (Character.isHighSurrogate(c))
+          {
+            if (((i+1) < length) &&
+                 Character.isLowSurrogate(valueString.charAt(i+1)))
+            {
+              final char c2 = valueString.charAt(++i);
+              final int codePoint = Character.toCodePoint(c, c2);
+              hexEncode(codePoint, buffer);
+            }
+            else
+            {
+              // This should never happen.
+              hexEncode(c, buffer);
+            }
           }
           else
           {
-            buffer.append(c);
+            hexEncode(c, buffer);
           }
           break;
       }

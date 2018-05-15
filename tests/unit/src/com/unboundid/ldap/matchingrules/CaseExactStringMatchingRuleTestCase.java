@@ -150,6 +150,30 @@ public class CaseExactStringMatchingRuleTestCase
       new Object[] { " ", "    " },
       new Object[] { "    ", " " },
       new Object[] { "  ", "    " },
+
+      new Object[]
+      {
+        "Latin Capital Letter OO \uA74E",
+        "Latin   Capital   Letter   OO   \uA74E"
+      },
+
+      new Object[]
+      {
+        "latin small letter oo \uA74F",
+        "latin small letter oo \uA74F"
+      },
+
+      new Object[]
+      {
+        "Deseret Capital Letter Long I \uD801\uDC00",
+        "Deseret Capital Letter Long I \uD801\uDC00"
+      },
+
+      new Object[]
+      {
+        "Smiley Face Emoji \uD83D\uDE00",
+        "Smiley Face Emoji \uD83D\uDE00"
+      }
     };
   }
 
@@ -459,6 +483,34 @@ public class CaseExactStringMatchingRuleTestCase
         SUBSTRING_TYPE_SUBFINAL,
         " jalape\u00F1o on a stick"
       },
+
+      new Object[]
+      {
+        "Latin Capital Letter OO \uA74E",
+        SUBSTRING_TYPE_SUBINITIAL,
+        "Latin Capital Letter OO \uA74E"
+      },
+
+      new Object[]
+      {
+        "latin small letter oo \uA74F",
+        SUBSTRING_TYPE_SUBINITIAL,
+        "latin small letter oo \uA74F"
+      },
+
+      new Object[]
+      {
+        "Deseret Capital Letter Long I \uD801\uDC00",
+        SUBSTRING_TYPE_SUBINITIAL,
+        "Deseret Capital Letter Long I \uD801\uDC00"
+      },
+
+      new Object[]
+      {
+        "Smiley Face Emoji \uD83D\uDE00",
+        SUBSTRING_TYPE_SUBINITIAL,
+        "Smiley Face Emoji \uD83D\uDE00"
+      }
     };
   }
 

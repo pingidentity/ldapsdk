@@ -570,7 +570,26 @@ public final class CaseIgnoreStringMatchingRule
       }
       else
       {
-        if (Character.isUpperCase(c))
+        if (Character.isHighSurrogate(c))
+        {
+          if (pos < buffer.length())
+          {
+            final char c2 = buffer.charAt(pos++);
+            if (Character.isLowSurrogate(c2))
+            {
+              final int codePoint = Character.toCodePoint(c, c2);
+              if (Character.isUpperCase(codePoint))
+              {
+                final int lowerCaseCodePoint = Character.toLowerCase(codePoint);
+                buffer.setCharAt((pos-2),
+                     Character.highSurrogate(lowerCaseCodePoint));
+                buffer.setCharAt((pos-1),
+                     Character.lowSurrogate(lowerCaseCodePoint));
+              }
+            }
+          }
+        }
+        else if (Character.isUpperCase(c))
         {
           buffer.setCharAt((pos-1), Character.toLowerCase(c));
         }

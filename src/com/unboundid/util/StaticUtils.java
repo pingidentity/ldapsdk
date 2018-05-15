@@ -1243,6 +1243,29 @@ public final class StaticUtils
 
 
   /**
+   * Appends a hex-encoded representation of the provided code point to the
+   * given buffer.  Each byte of the hex-encoded representation will be prefixed
+   * with a backslash.
+   *
+   * @param  codePoint  The code point to be encoded.
+   * @param  buffer     The buffer to which the hex-encoded representation
+   *                    should be appended.
+   */
+  public static void hexEncode(final int codePoint, final StringBuilder buffer)
+  {
+    final byte[] charBytes =
+         getBytes(new String(new int[] { codePoint }, 0, 1));
+
+    for (final byte b : charBytes)
+    {
+      buffer.append('\\');
+      toHex(b, buffer);
+    }
+  }
+
+
+
+  /**
    * Appends the Java code that may be used to create the provided byte
    * array to the given buffer.
    *

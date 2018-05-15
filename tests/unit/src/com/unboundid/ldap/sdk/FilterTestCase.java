@@ -35,7 +35,6 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.LDAPSDKUsageException;
-import com.unboundid.util.StaticUtils;
 
 
 
@@ -1378,105 +1377,66 @@ public class FilterTestCase
   public void testCreateEqualityFilterEscaping()
          throws Exception
   {
-    String valueString = "\\* Jos\u00e9 Jalape\u00f1o (on a stick) \\*";
-    Filter f = Filter.createEqualityFilter("foo", valueString);
+    final String valueString1 = "Jalape\u00f1o";
+    final String valueString2 = "Latin Capital Letter OO \uA74E";
+    final String valueString3 = "Deseret Capital Letter Long I \uD801\uDC00";
+    final String valueString4 = "Smiley Face Emoji \uD83D\uDE00";
 
-    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_EQUALITY);
+    final Filter f = Filter.createORFilter(
+         Filter.createEqualityFilter("cn", valueString1),
+         Filter.createEqualityFilter("cn", valueString2),
+         Filter.createEqualityFilter("cn", valueString3),
+         Filter.createEqualityFilter("cn", valueString4));
 
-    assertNotNull(f.getAttributeName());
-    assertEquals(f.getAttributeName(), "foo");
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_OR);
 
-    assertNotNull(f.getAssertionValue());
-    assertEquals(f.getAssertionValue(), valueString);
+    assertNull(f.getAttributeName());
 
-    assertNotNull(f.getAssertionValueBytes());
-    assertEquals(new String(f.getAssertionValueBytes(), "UTF-8"), valueString);
-
-    assertNotNull(f.getRawAssertionValue());
-    assertEquals(f.getRawAssertionValue().stringValue(), valueString);
+    assertNull(f.getAssertionValue());
 
     assertNotNull(f.getComponents());
-    assertEquals(f.getComponents().length, 0);
+    assertEquals(f.getComponents().length, 4);
 
-    assertNull(f.getNOTComponent());
-    assertNull(f.getSubInitialString());
-    assertNull(f.getSubInitialBytes());
-    assertNull(f.getRawSubInitialValue());
-    assertNull(f.getSubFinalString());
-    assertNull(f.getSubFinalBytes());
-    assertNull(f.getRawSubFinalValue());
-    assertNull(f.getMatchingRuleID());
-
-    assertNotNull(f.getSubAnyStrings());
-    assertEquals(f.getSubAnyStrings().length, 0);
-
-    assertNotNull(f.getSubAnyBytes());
-    assertEquals(f.getSubAnyBytes().length, 0);
-
-    assertNotNull(f.getRawSubAnyValues());
-    assertEquals(f.getRawSubAnyValues().length, 0);
-
-    String expectedFilterString =
-      "(foo=\\5c\\2a Jos\\c3\\a9 Jalape\\c3\\b1o \\28on a stick\\29 \\5c\\2a)";
-    String filterString = f.toString();
+    final String expectedFilterString =
+         "(|(cn=Jalape\\c3\\b1o)" +
+              "(cn=Latin Capital Letter OO \\ea\\9d\\8e)" +
+              "(cn=Deseret Capital Letter Long I \\f0\\90\\90\\80)" +
+              "(cn=Smiley Face Emoji \\f0\\9f\\98\\80))";
+    final String filterString = f.toString();
     assertEquals(filterString, expectedFilterString);
 
-    Filter decodedFromString = Filter.create(filterString);
+    final Filter decodedFromString = Filter.create(filterString);
     assertEquals(decodedFromString.toString(), filterString);
     assertEquals(decodedFromString.hashCode(), f.hashCode());
     assertEquals(decodedFromString, f);
     assertEquals(f.toNormalizedString(),
                  decodedFromString.toNormalizedString());
 
-    ASN1Element filterElement = f.encode();
-    Filter decodedFromElement = Filter.decode(filterElement);
+    final ASN1Element filterElement = f.encode();
+    final Filter decodedFromElement = Filter.decode(filterElement);
     assertEquals(decodedFromElement.toString(), filterString);
     assertEquals(decodedFromElement.hashCode(), f.hashCode());
     assertEquals(decodedFromElement, f);
     assertEquals(f.toNormalizedString(),
                  decodedFromElement.toNormalizedString());
 
-    assertEquals(
-         "(foo=" + Filter.encodeValue(valueString) + ")",
-         expectedFilterString);
-    assertEquals(
-         "(foo=" + Filter.encodeValue(valueString.getBytes("UTF-8")) + ")",
-         expectedFilterString);
+    final String minimallyEncodedFilterString =
+         "(|(cn=Jalape\u00f1o)" +
+              "(cn=Latin Capital Letter OO \uA74E)" +
+              "(cn=Deseret Capital Letter Long I \uD801\uDC00)" +
+              "(cn=Smiley Face Emoji \uD83D\uDE00))";
+    final Filter decodedFromMinimallyEncodedFilterString =
+         Filter.create(minimallyEncodedFilterString);
+    assertEquals(decodedFromMinimallyEncodedFilterString, f);
 
-
-    final byte[] valueBytes =
-    {
-      (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
-      (byte) 0xD5, (byte) 0x55, (byte) 'a',
-      (byte) 0xEA, (byte) 0xAA, (byte) 0xAA, (byte) 'b',
-      (byte) 0xF5, (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 'c',
-      (byte) 0xAA, (byte) 't', (byte) 'h', (byte) 'e', (byte) 'r', (byte) 'e'
-    };
-
-    f = Filter.createEqualityFilter("foo", valueBytes);
-
-    assertNotNull(f.getAttributeName());
-    assertEquals(f.getAttributeName(), "foo");
-
-    assertEquals(f.toString(),
-         "(foo=hello\\d5\\55a\\ea\\aa\\aab\\f5\\55\\55\\55" +
-              "c\\aa\\74\\68\\65\\72\\65)");
-
-    f = Filter.create(f.toString());
-    assertEquals(f.toString(),
-         "(foo=hello\\d5\\55a\\ea\\aa\\aab\\f5\\55\\55\\55" +
-              "c\\aa\\74\\68\\65\\72\\65)");
-
-    assertEquals(StaticUtils.toHex(f.getAssertionValueBytes()),
-         StaticUtils.toHex(valueBytes));
-
-    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
-    f.toCode(toCodeLines, 0, null, null);
-    assertFalse(toCodeLines.isEmpty());
-
-    toCodeLines.clear();
-    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
-    assertFalse(toCodeLines.isEmpty());
+    final String expectedNormalizedFilterString =
+         "(|(cn=jalape\\c3\\b1o)" +
+              "(cn=latin capital letter oo \\ea\\9d\\8f)" +
+              "(cn=deseret capital letter long i \\f0\\90\\90\\a8)" +
+              "(cn=smiley face emoji \\f0\\9f\\98\\80))";
+    assertEquals(f.toNormalizedString(), expectedNormalizedFilterString);
+    assertEquals(decodedFromMinimallyEncodedFilterString.toNormalizedString(),
+         expectedNormalizedFilterString);
   }
 
 

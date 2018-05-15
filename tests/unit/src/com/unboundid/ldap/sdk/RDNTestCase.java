@@ -1583,6 +1583,24 @@ public class RDNTestCase
         "cn=foo+sn=bar+givenName=",
         "cn=foo+givenname=+sn=bar"
       },
+
+      new Object[]
+      {
+        "cn=Latin Capital Letter OO \uA74E",
+        "cn=latin capital letter oo \\ea\\9d\\8f"
+      },
+
+      new Object[]
+      {
+        "cn=Deseret Capital Letter Long I \uD801\uDC00",
+        "cn=deseret capital letter long i \\f0\\90\\90\\a8"
+      },
+
+      new Object[]
+      {
+        "cn=Smiley face emoji \uD83D\uDE00",
+        "cn=smiley face emoji \\f0\\9f\\98\\80"
+      }
     };
   }
 

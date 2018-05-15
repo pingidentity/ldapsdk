@@ -1685,6 +1685,21 @@ attrNameLoop:
                      ERR_FILTER_UNEXPECTED_CLOSE_PAREN.get(filterString, l));
 
               default:
+                if (Character.isHighSurrogate(c))
+                {
+                  if (l <= r)
+                  {
+                    final char c2 = filterString.charAt(l);
+                    if (Character.isLowSurrogate(c2))
+                    {
+                      l++;
+                      final int codePoint = Character.toCodePoint(c, c2);
+                      buffer.append(new String(new int[] { codePoint }, 0, 1));
+                      break;
+                    }
+                  }
+                }
+
                 buffer.append(c);
                 break;
             }
@@ -4195,8 +4210,7 @@ attrNameLoop:
       switch (numBytesInUTF8CharacterWithFirstByte(valueBytes[i]))
       {
         case 1:
-          // This character is ASCII, but might still need to be escaped.  We'll
-          // escape anything
+          // This character is ASCII, but might still need to be escaped.
           if ((valueBytes[i] <= 0x1F) || // Non-printable ASCII characters.
               (valueBytes[i] == 0x28) || // Open parenthesis
               (valueBytes[i] == 0x29) || // Close parenthesis

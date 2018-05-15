@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed a number of issues with the way the LDAP SDK handled characters whose
+                  UTF-8 representation requires more than two bytes (and therefore requires two
+                  Java chars to represent a single character).  Issues related to these characters
+                  were found in code for matching rules, RDNs (and therefore DNs), and filters.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a bug in the ldapsearch tool that could cause it to use an incorrect scope
                   when constructing search requests from LDAP URLs read from a file.
                   <br><br>
