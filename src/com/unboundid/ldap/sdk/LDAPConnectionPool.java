@@ -239,7 +239,7 @@ public final class LDAPConnectionPool
 
   // The bind request to use to perform authentication whenever a new connection
   // is established.
-  private final BindRequest bindRequest;
+  private volatile BindRequest bindRequest;
 
   // The number of connections to be held in this pool.
   private final int numConnections;
@@ -294,7 +294,7 @@ public final class LDAPConnectionPool
   private final PostConnectProcessor postConnectProcessor;
 
   // The server set to use for establishing connections for use by this pool.
-  private final ServerSet serverSet;
+  private volatile ServerSet serverSet;
 
   // The user-friendly name assigned to this connection pool.
   private String connectionPoolName;
@@ -2310,6 +2310,46 @@ public final class LDAPConnectionPool
     // Get the age of the connection and see if it is expired.
     final long connectionAge = currentTime - connection.getConnectTime();
     return (connectionAge > maxAge);
+  }
+
+
+
+  /**
+   * Specifies the bind request that will be used to authenticate subsequent new
+   * connections that are established by this connection pool.  The
+   * authentication state for existing connections will not be altered unless
+   * one of the {@code bindAndRevertAuthentication} or
+   * {@code releaseAndReAuthenticateConnection} methods are invoked on those
+   * connections.
+   *
+   * @param  bindRequest  The bind request that will be used to authenticate new
+   *                      connections that are established by this pool, or
+   *                      that will be applied to existing connections via the
+   *                      {@code bindAndRevertAuthentication} or
+   *                      {@code releaseAndReAuthenticateConnection} method.  It
+   *                      may be {@code null} if new connections should be
+   *                      unauthenticated.
+   */
+  public void setBindRequest(final BindRequest bindRequest)
+  {
+    this.bindRequest = bindRequest;
+  }
+
+
+
+  /**
+   * Specifies the server set that should be used to establish new connections
+   * for use in this connection pool.  Existing connections will not be
+   * affected.
+   *
+   * @param  serverSet  The server set that should be used to establish new
+   *                    connections for use in this connection pool.  It must
+   *                    not be {@code null}.
+   */
+  public void setServerSet(final ServerSet serverSet)
+  {
+    ensureNotNull(serverSet);
+    this.serverSet = serverSet;
   }
 
 

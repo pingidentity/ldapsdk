@@ -46,6 +46,21 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new <tt>setBinRequest</tt> method to the <tt>LDAPConnectionPool</tt> and
+                  <tt>LDAPThreadLocalConnectionPool</tt> classes.  This makes it possible to
+                  change the credentials that will be used to authenticate newly created
+                  connections, and for existing connections that are re-authenticated with either
+                  the <tt>bindAndRevertAuthentication</tt> or the
+                  <tt>releaseAndReAuthenticateConnection</tt> methods.
+                </li>
+
+                <li>
+                  Added a new <tt>setServerSet</tt> method to the <tt>LDAPConnectionPool</tt> and
+                  <tt>LDAPThreadLocalConnectionPool</tt> classes.  This makes it possible to
+                  change the way that the pool establishes new connections.
+                </li>
+
+                <li>
                   Added a <tt>LDAPRequest.setReferralConnector</tt> method that makes it possible
                   to set a custom referral connector on a per-request basis.  Also added a
                   <tt>RetainConnectExceptionReferralConnector</tt> class that makes it easier to

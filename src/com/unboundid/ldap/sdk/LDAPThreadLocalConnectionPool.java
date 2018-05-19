@@ -95,7 +95,7 @@ public final class LDAPThreadLocalConnectionPool
 
   // The bind request to use to perform authentication whenever a new connection
   // is established.
-  private final BindRequest bindRequest;
+  private volatile BindRequest bindRequest;
 
   // The map of connections maintained for this connection pool.
   private final ConcurrentHashMap<Thread,LDAPConnection> connections;
@@ -135,7 +135,7 @@ public final class LDAPThreadLocalConnectionPool
   private final PostConnectProcessor postConnectProcessor;
 
   // The server set to use for establishing connections for use by this pool.
-  private final ServerSet serverSet;
+  private volatile ServerSet serverSet;
 
   // The user-friendly name assigned to this connection pool.
   private String connectionPoolName;
@@ -1163,6 +1163,46 @@ public final class LDAPThreadLocalConnectionPool
     // Get the age of the connection and see if it is expired.
     final long connectionAge = currentTime - connection.getConnectTime();
     return (connectionAge > maxConnectionAge);
+  }
+
+
+
+  /**
+   * Specifies the bind request that will be used to authenticate subsequent new
+   * connections that are established by this connection pool.  The
+   * authentication state for existing connections will not be altered unless
+   * one of the {@code bindAndRevertAuthentication} or
+   * {@code releaseAndReAuthenticateConnection} methods are invoked on those
+   * connections.
+   *
+   * @param  bindRequest  The bind request that will be used to authenticate new
+   *                      connections that are established by this pool, or
+   *                      that will be applied to existing connections via the
+   *                      {@code bindAndRevertAuthentication} or
+   *                      {@code releaseAndReAuthenticateConnection} method.  It
+   *                      may be {@code null} if new connections should be
+   *                      unauthenticated.
+   */
+  public void setBindRequest(final BindRequest bindRequest)
+  {
+    this.bindRequest = bindRequest;
+  }
+
+
+
+  /**
+   * Specifies the server set that should be used to establish new connections
+   * for use in this connection pool.  Existing connections will not be
+   * affected.
+   *
+   * @param  serverSet  The server set that should be used to establish new
+   *                    connections for use in this connection pool.  It must
+   *                    not be {@code null}.
+   */
+  public void setServerSet(final ServerSet serverSet)
+  {
+    ensureNotNull(serverSet);
+    this.serverSet = serverSet;
   }
 
 
