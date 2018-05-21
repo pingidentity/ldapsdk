@@ -47,7 +47,7 @@
 
     <organization>
       <name>Ping Identity Corporation</name>
-      <url>https://www.ldap.com/unboundid-ldap-sdk-for-java</url>
+      <url>https://github.com/pingidentity/ldapsdk</url>
     </organization>
 
     <developers>

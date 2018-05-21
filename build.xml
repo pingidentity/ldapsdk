@@ -622,8 +622,8 @@
     <mkdir dir="${package.dir}/www/javadoc" />
 
     <copydocs sourceDir="${docs.dir}" destinationDir="${package.dir}/www"
-              headerFile="${resource.dir}/website.header"
-              footerFile="${resource.dir}/website.footer" extension="html"
+              headerFile="${resource.dir}/localdoc.header"
+              footerFile="${resource.dir}/localdoc.footer" extension="html"
               target="website" ldapSdkHomeUrl="${LDAP_SDK_HOME_URL}"
               ldapSdkDocsBaseUrl="${LDAP_SDK_DOCS_BASE_URL}" />
 
