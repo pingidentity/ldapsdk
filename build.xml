@@ -347,7 +347,7 @@
         <attribute name="Source-Revision" value="${repository-info.revision}" />
         <attribute name="Implementation-Vendor" value="Ping Identity" />
         <attribute name="Implementation-URL"
-                   value="https://www.ldap.com/unboundid-ldap-sdk-for-java" />
+                   value="https://github.com/pingidentity/ldapsdk" />
         <attribute name="Bundle-ManifestVersion" value="2" />
         <attribute name="Bundle-Copyright"
                    value="Copyright 2008-${year} Ping Identity Corporation" />
