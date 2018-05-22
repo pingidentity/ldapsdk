@@ -23,6 +23,7 @@ package com.unboundid.util;
 
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1225,6 +1226,157 @@ public class ValuePatternTestCase
 
 
   /**
+   * Tests the behavior when trying to stream a file that does not exist.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testStreamNonexistentFile()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    new ValuePattern("[streamfile:" + f.getAbsolutePath() + ']');
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to stream a path that exists but is not a
+   * file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testStreamPathNotFile()
+         throws Exception
+  {
+    final File f = createTempDir();
+
+    new ValuePattern("[streamfile:" + f.getAbsolutePath() + ']');
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to stream an empty file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testStreamEmptyFile()
+         throws Exception
+  {
+    final File f = createTempFile();
+
+    new ValuePattern("[streamfile:" + f.getAbsolutePath() + ']');
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to stream a file that has a single line.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testStreamSingleLineFile()
+         throws Exception
+  {
+    final File f = createTempFile("hello");
+
+    final ValuePattern valuePattern =
+         new ValuePattern("[streamfile:" + f.getAbsolutePath() + ']');
+    for (int i=0; i < 10; i++)
+    {
+      assertEquals(valuePattern.nextValue(), "hello");
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to stream a file that has multiple lines,
+   * but still fewer lines than the queue size.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testStreamFromMultiLineFileBelowQueueSize()
+         throws Exception
+  {
+    final File f = createTempFile();
+    try (final PrintWriter w = new PrintWriter(f))
+    {
+      for (int i=0; i < 100; i++)
+      {
+        w.println("Hello " + i);
+      }
+    }
+
+    final ValuePattern valuePattern =
+         new ValuePattern("[streamfile:" + f.getAbsolutePath() + ']');
+    for (int i=0; i < 10; i++)
+    {
+      for (int j=0; j < 100; j++)
+      {
+        assertEquals(valuePattern.nextValue(), "Hello " + j);
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to stream a file that has multiple lines,
+   * and where the number of lines is larger than the queue size.  This will
+   * also inject pauses into the reading process to ensure that the reader
+   * thread has time to exit so that a new thread must be created to continue
+   * reading.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testStreamFromMultiLineFileAboveQueueSizeWithPauses()
+         throws Exception
+  {
+    final File f = createTempFile();
+    try (final PrintWriter w = new PrintWriter(f))
+    {
+      for (int i=0; i < 10_000; i++)
+      {
+        w.println("Hello " + i);
+      }
+    }
+
+    final StreamFileValuePatternComponent c =
+         new StreamFileValuePatternComponent(f.getAbsolutePath(), 100, 1L);
+
+    final StringBuilder buffer = new StringBuilder();
+    for (int i=0; i < 10; i++)
+    {
+      for (int j=0; j < 5000; j++)
+      {
+        buffer.setLength(0);
+        c.append(buffer);
+        assertEquals(buffer.toString(), "Hello " + j);
+      }
+
+      Thread.sleep(100L);
+
+      for (int j=5000; j < 10_000; j++)
+      {
+        buffer.setLength(0);
+        c.append(buffer);
+        assertEquals(buffer.toString(), "Hello " + j);
+      }
+    }
+  }
+
+
+
+  /**
    * Performs a test using an HTTP URL with an empty file.
    * <BR><BR>
    * To help tests run quickly, this will only be invoked if a Directory Server
@@ -1321,6 +1473,64 @@ public class ValuePatternTestCase
       final String s = p.nextValue();
       final int colonPos = s.indexOf(':');
       assertEquals(s.substring(0, colonPos), s.substring(colonPos+1));
+    }
+  }
+
+
+
+  /**
+   * Performs a simple test with a valid back-reference to a value obtained from
+   * a file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidBackReferenceToFileComponent()
+         throws Exception
+  {
+    final File f = createTempFile(
+         "line1",
+         "line2",
+         "line3",
+         "line4",
+         "line5");
+
+    final ValuePattern p = new ValuePattern("[sequentialfile:" +
+         f.getAbsolutePath() + "][ref:1]");
+
+    for (int i=1; i <= 5; i++)
+    {
+      final String s = p.nextValue();
+      assertEquals(s, "line" + i + "line" + i);
+    }
+  }
+
+
+
+  /**
+   * Performs a simple test with a valid back-reference to a value obtained from
+   * a file read via streaming.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidBackReferenceToStreamFileComponent()
+         throws Exception
+  {
+    final File f = createTempFile(
+         "line1",
+         "line2",
+         "line3",
+         "line4",
+         "line5");
+
+    final ValuePattern p = new ValuePattern("[streamfile:" +
+         f.getAbsolutePath() + "][ref:1]");
+
+    for (int i=1; i <= 5; i++)
+    {
+      final String s = p.nextValue();
+      assertEquals(s, "line" + i + "line" + i);
     }
   }
 

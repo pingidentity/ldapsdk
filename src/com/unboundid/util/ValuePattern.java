@@ -114,10 +114,20 @@ import static com.unboundid.util.UtilityMessages.*;
  *       cause randomly-selected lines from the specified local file to be used
  *       in place of the bracketed range.  To make it clear that the file
  *       contents are randomly accessed, you may use {@code randomfile} in place
- *       of {@code file}.</LI>
+ *       of {@code file}.  The entire file will be read into memory, so this may
+ *       not be a suitable option for very large files.</LI>
  *   <LI><CODE>[sequentialfile:///tmp/mydata.txt]</CODE> -- A URL reference that
  *       will cause lines from the specified local file, selected in sequential
- *       order, to be used in place of the bracketed range.</LI>
+ *       order, to be used in place of the bracketed range.  The entire file
+ *       will be read into memory, so this may not be a suitable option for very
+ *       large files.</LI>
+ *   <LI><CODE>[streamfile:///tmp/mydata.txt]</CODE> -- A URL reference that
+ *       will cause lines from the specified local file, selected in sequential
+ *       order, to be used in place of the bracketed range.  A background thread
+ *       will be used to read data from the file and place it into a queue so
+ *       that it is available quickly, but only a small amount of data will be
+ *       held in memory at any time, so this is a suitable option for very
+ *       large files.</LI>
  *   <LI><CODE>[http://server.example.com/tmp/mydata.txt]</CODE> -- A URL
  *       reference that will cause randomly-selected lines from the specified
  *       remote HTTP-accessible file to be used in place of the bracketed
@@ -394,6 +404,20 @@ public final class ValuePattern
         {
           debugException(ioe);
           throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
+               path, getExceptionMessage(ioe)), o+pos);
+        }
+      }
+      else if (bracketedToken.startsWith("streamfile:"))
+      {
+        final String path = bracketedToken.substring(11);
+        try
+        {
+          l.add(new StreamFileValuePatternComponent(path));
+        }
+        catch (final IOException ioe)
+        {
+          debugException(ioe);
+          throw new ParseException(ERR_STREAM_FILE_VALUE_PATTERN_NOT_USABLE.get(
                path, getExceptionMessage(ioe)), o+pos);
         }
       }
