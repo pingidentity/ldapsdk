@@ -1,5 +1,7 @@
 # UnboundID LDAP SDK for Java
 
+[Download the Latest Release of the LDAP SDK Here](https://github.com/pingidentity/ldapsdk/releases)
+
  The UnboundID LDAP SDK for Java is a fast, powerful, user-friendly, and completely free Java library for communicating with LDAP directory servers. It offers better performance, better ease of use, and more features than other Java-based LDAP APIs. It is actively being developed and enhanced, and commercial support is available.
 
 The UnboundID LDAP SDK for Java is free to use and redistribute in open source or proprietary applications under the terms of any of the open source [GPLv2](https://raw.githubusercontent.com/pingidentity/ldapsdk/master/LICENSE-GPLv2.txt) or [LGPLv2.1](https://raw.githubusercontent.com/pingidentity/ldapsdk/master/LICENSE-LGPLv2.1.txt) licenses, or the not-open-source-but-still-free-to-use [UnboundID Free Use License](https://raw.githubusercontent.com/pingidentity/ldapsdk/master/LICENSE-UnboundID-LDAPSDK.txt). It does not have any third-party dependencies, so a single jar file is all you need to add top-notch LDAP support to your Java application. It can also be used in conjunction with most other JVM-based languages, as well as on the Android mobile platform.
