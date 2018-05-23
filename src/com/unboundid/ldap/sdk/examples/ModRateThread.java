@@ -22,14 +22,12 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -76,23 +74,21 @@ final class ModRateThread
   // modifications.
   private final boolean increment;
 
-  // The set of characters to use for the generated values.
-  private final byte[] charSet;
-
   // The set of request controls to include in modify requests.
   private final Control[] modifyControls;
 
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
 
+  // The barrier to use for controlling the rate of modifies.  null if no
+  // rate-limiting should be used.
+  private final FixedRateBarrier fixedRateBarrier;
+
   // The amount by which to increment values.
   private final int incrementAmount;
 
   // The number of values to generate.
   private final int valueCount;
-
-  // The length in bytes of the values to generate.
-  private final int valueLength;
 
   // The connection to use for the modifications.
   private LDAPConnection connection;
@@ -123,9 +119,8 @@ final class ModRateThread
   // The value pattern to use for the entry DNs.
   private final ValuePattern entryDN;
 
-  // The barrier to use for controlling the rate of modifies.  null if no
-  // rate-limiting should be used.
-  private final FixedRateBarrier fixedRateBarrier;
+  // The value pattern to use to generate values.
+  private final ValuePattern valuePattern;
 
 
 
@@ -140,10 +135,7 @@ final class ModRateThread
    * @param  entryDN                    The value pattern to use for the entry
    *                                    DNs.
    * @param  attributes                 The names of the attributes to modify.
-   * @param  charSet                    The set of characters to include in the
-   *                                    generated values.
-   * @param  valueLength                The length in bytes to use for the
-   *                                    generated values.
+   * @param  valuePattern               The pattern to use to generate values.
    * @param  valueCount                 The number of values to generate for
    *                                    replace modifications.
    * @param  increment                  Indicates whether to use the increment
@@ -184,11 +176,11 @@ final class ModRateThread
    */
   ModRateThread(final ModRate modRate, final int threadNumber,
                 final LDAPConnection connection, final ValuePattern entryDN,
-                final String[] attributes, final byte[] charSet,
-                final int valueLength, final int valueCount,
-                final boolean increment, final int incrementAmount,
-                final Control[] modifyControls, final ValuePattern authzID,
-                final long randomSeed, final long iterationsBeforeReconnect,
+                final String[] attributes, final ValuePattern valuePattern,
+                final int valueCount, final boolean increment,
+                final int incrementAmount, final Control[] modifyControls,
+                final ValuePattern authzID, final long randomSeed,
+                final long iterationsBeforeReconnect,
                 final CyclicBarrier startBarrier, final AtomicLong modCounter,
                 final AtomicLong modDurations, final AtomicLong errorCounter,
                 final ResultCodeCounter rcCounter,
@@ -201,8 +193,7 @@ final class ModRateThread
     this.connection                = connection;
     this.entryDN                   = entryDN;
     this.attributes                = attributes;
-    this.charSet                   = charSet;
-    this.valueLength               = valueLength;
+    this.valuePattern              = valuePattern;
     this.valueCount                = valueCount;
     this.increment                 = increment;
     this.incrementAmount           = incrementAmount;
@@ -245,14 +236,11 @@ final class ModRateThread
     modThread.set(currentThread());
 
     final Modification[] mods = new Modification[attributes.length];
-    final byte[][] valueBytes = new byte[valueCount][valueLength];
-    final ASN1OctetString[] values = new ASN1OctetString[valueCount];
+    final String[] values = new String[valueCount];
 
     if (increment)
     {
-      valueBytes[0] =
-           String.valueOf(incrementAmount).getBytes(StandardCharsets.UTF_8);
-      values[0] = new ASN1OctetString(valueBytes[0]);
+      values[0] = String.valueOf(incrementAmount);
 
       for (int i=0; i < attributes.length; i++)
       {
@@ -316,12 +304,7 @@ final class ModRateThread
       {
         for (int i=0; i < valueCount; i++)
         {
-          for (int j=0; j < valueLength; j++)
-          {
-            valueBytes[i][j] = charSet[random.nextInt(charSet.length)];
-          }
-
-          values[i] = new ASN1OctetString(valueBytes[i]);
+          values[i] = valuePattern.nextValue();
         }
 
         for (int i=0; i < attributes.length; i++)

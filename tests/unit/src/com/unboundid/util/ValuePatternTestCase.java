@@ -25,7 +25,10 @@ package com.unboundid.util;
 import java.io.File;
 import java.io.PrintWriter;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.DataProvider;
@@ -910,6 +913,165 @@ public class ValuePatternTestCase
 
 
   /**
+   * Tests the behavior when trying to generate random characters without
+   * specifying a character set.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRandomCharactersWithoutCharacterSet()
+         throws Exception
+  {
+    final ValuePattern valuePattern = new ValuePattern("[random:10]");
+    for (int i=0; i < 100; i++)
+    {
+      final String s = valuePattern.nextValue();
+      assertNotNull(s);
+      assertEquals(s.length(), 10);
+      for (int j=0; j < 10; j++)
+      {
+        final char c = s.charAt(j);
+        assertTrue((c >= 'a') && (c <= 'z'));
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to generate random characters that specifies
+   * a character set.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRandomCharactersWithCharacterSet()
+         throws Exception
+  {
+    final ValuePattern valuePattern =
+         new ValuePattern("[random:10:0123456789abcdef]");
+    for (int i=0; i < 100; i++)
+    {
+      final String s = valuePattern.nextValue();
+      assertNotNull(s);
+      assertEquals(s.length(), 10);
+      for (int j=0; j < 10; j++)
+      {
+        final char c = s.charAt(j);
+        assertTrue(((c >= '0') && (c <= '9')) ||
+             ((c >= 'a') && (c <= 'f')));
+      }
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a random character set pattern
+   * that does not specify a character set and has a malformed length.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testRandomCharactersWithoutSetMalformedLength()
+         throws Exception
+  {
+    new ValuePattern("[random:invalid]");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a random character set pattern
+   * that does not specify a character set and has a length of zero.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testRandomCharactersWithoutSetZeroLength()
+         throws Exception
+  {
+    new ValuePattern("[random:0]");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a random character set pattern
+   * that does not specify a character set and has a negative length.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testRandomCharactersWithoutSetNegativeLength()
+         throws Exception
+  {
+    new ValuePattern("[random:-1]");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a random character set pattern
+   * that specifies a character set and has a malformed length.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testRandomCharactersWithSetMalformedLength()
+         throws Exception
+  {
+    new ValuePattern("[random:invalid:abcdef]");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a random character set pattern
+   * that specifies a character set and has a length of zero.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testRandomCharactersWithSetZeroLength()
+         throws Exception
+  {
+    new ValuePattern("[random:0:abcdef]");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a random character set pattern
+   * that specifies a character set and has a negative length.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testRandomCharactersWithSetNegativeLength()
+         throws Exception
+  {
+    new ValuePattern("[random:-1:abcdef]");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a random character set pattern
+   * that specifies an empty character set.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testRandomCharactersWithEmptySet()
+         throws Exception
+  {
+    new ValuePattern("[random:5:]");
+  }
+
+
+
+  /**
    * Performs a test using a file URL component with an empty file.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -1458,6 +1620,432 @@ public class ValuePatternTestCase
 
 
   /**
+   * Tests the behavior when using the timestamp pattern with the default
+   * settings.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTimestampDefault()
+         throws Exception
+  {
+    final ValuePattern p = new ValuePattern("[timestamp]");
+
+    final long beforeTime = System.currentTimeMillis();
+    final String value = p.nextValue();
+    final long afterTime = System.currentTimeMillis();
+
+    assertNotNull(value);
+    final Date date = StaticUtils.decodeGeneralizedTime(value);
+    final long time = date.getTime();
+
+    assertTrue((time >= beforeTime) && (time <= afterTime));
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min
+   * and max values but without a timestamp format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTimestampWithMinAndMaxWithoutFormat()
+         throws Exception
+  {
+    final String minString = "20180101000000.000Z";
+    final long minTime = StaticUtils.decodeGeneralizedTime(minString).getTime();
+
+    final String maxString = "20181231235959.999Z";
+    final long maxTime = StaticUtils.decodeGeneralizedTime(maxString).getTime();
+
+    final ValuePattern p = new ValuePattern(
+         "[timestamp:min=" + minString + ":max=" + maxString + ']');
+
+    for (int i=0; i < 100; i++)
+    {
+      final String value = p.nextValue();
+      assertNotNull(value);
+
+      final Date date = StaticUtils.decodeGeneralizedTime(value);
+      final long time = date.getTime();
+
+      assertTrue((time >= minTime) && (time <= maxTime));
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying a
+   * format of milliseconds and without min and max values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTimestampWithFormatMillisWithoutMinAndMax()
+         throws Exception
+  {
+    final ValuePattern p = new ValuePattern("[timestamp:format=milliseconds]");
+
+    final long beforeTime = System.currentTimeMillis();
+    final String value = p.nextValue();
+    final long afterTime = System.currentTimeMillis();
+
+    assertNotNull(value);
+    final long time = Long.parseLong(value);
+
+    assertTrue((time >= beforeTime) && (time <= afterTime));
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying a
+   * format of seconds and without min and max values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTimestampWithFormatSecondsWithoutMinAndMax()
+         throws Exception
+  {
+    final ValuePattern p = new ValuePattern("[timestamp:format=seconds]");
+
+    final long beforeTime = System.currentTimeMillis() / 1000L;
+    final String value = p.nextValue();
+    final long afterTime = System.currentTimeMillis() / 1000L;
+
+    assertNotNull(value);
+    final long time = Long.parseLong(value);
+
+    assertTrue((time >= beforeTime) && (time <= afterTime));
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying a
+   * custom format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTimestampWithFormatCustomWithoutMinAndMax()
+         throws Exception
+  {
+    final String formatString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    final ValuePattern p =
+         new ValuePattern("[timestamp:format=" + formatString + ']');
+
+    final long beforeTime = System.currentTimeMillis();
+    final String value = p.nextValue();
+    final long afterTime = System.currentTimeMillis();
+
+    assertNotNull(value);
+
+    final SimpleDateFormat dateFormat = new SimpleDateFormat(formatString);
+    dateFormat.setLenient(false);
+
+    final Date date = dateFormat.parse(value);
+    final long time = date.getTime();
+    assertTrue((time >= beforeTime) && (time <= afterTime));
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min,
+   * max, and format components when the format is milliseconds.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTimestampWithMinMaxAndFormatMillis()
+         throws Exception
+  {
+    final String minString = "20180101000000.000Z";
+    final long minTime = StaticUtils.decodeGeneralizedTime(minString).getTime();
+
+    final String maxString = "20181231235959.999Z";
+    final long maxTime = StaticUtils.decodeGeneralizedTime(maxString).getTime();
+
+    final ValuePattern p = new ValuePattern("[timestamp:min=" + minString +
+         ":max=" + maxString + ":format=milliseconds]");
+
+    final String value = p.nextValue();
+
+    assertNotNull(value);
+    final long time = Long.parseLong(value);
+
+    assertTrue((time >= minTime) && (time <= maxTime));
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min,
+   * max, and format components when the format is seconds.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTimestampWithMinMaxAndFormatSeconds()
+         throws Exception
+  {
+    final String minString = "20180101000000.000Z";
+    final long minTime =
+         StaticUtils.decodeGeneralizedTime(minString).getTime() / 1000L;
+
+    final String maxString = "20181231235959.999Z";
+    final long maxTime =
+         StaticUtils.decodeGeneralizedTime(maxString).getTime() / 1000L;
+
+    final ValuePattern p = new ValuePattern("[timestamp:min=" + minString +
+         ":max=" + maxString + ":format=seconds]");
+
+    final String value = p.nextValue();
+
+    assertNotNull(value);
+    final long time = Long.parseLong(value);
+
+    assertTrue((time >= minTime) && (time <= maxTime));
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min,
+   * max, and format components when using a custom format.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testTimestampWithMinMaxAndFormatCustom()
+         throws Exception
+  {
+    final String minString = "20180101000000.000Z";
+    final long minTime = StaticUtils.decodeGeneralizedTime(minString).getTime();
+
+    final String maxString = "20181231235959.999Z";
+    final long maxTime = StaticUtils.decodeGeneralizedTime(maxString).getTime();
+
+    final String formatString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    final ValuePattern p = new ValuePattern("[timestamp:min=" + minString +
+         ":max=" + maxString + ":format=" + formatString + ']');
+
+    for (int i=0; i < 100; i++)
+    {
+      final String value = p.nextValue();
+      assertNotNull(value);
+
+      final SimpleDateFormat dateFormat = new SimpleDateFormat(formatString);
+      dateFormat.setLenient(false);
+
+      final Date date = dateFormat.parse(value);
+      final long time = date.getTime();
+
+      assertTrue((time >= minTime) && (time <= maxTime));
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying a min
+   * value but not a max value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMinWithoutMax()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:min=20180101000000.000Z]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min
+   * and max values but without a timestamp format when the min value is
+   * malformed.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMalformedMin()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:min=malformed:max=20181231235959.999Z]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min
+   * and max values but without a timestamp format when the max value is
+   * malformed.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMalformedMaxWithoutFormat()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:min=20180101000000.000Z:max=malformed]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min
+   * and max values and also a format when the max value is malformed.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMalformedMaxWithFormat()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:min=20180101000000.000Z:max=malformed:" +
+         "format=milliseconds]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min
+   * and max values when the min and max values are equal.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMinEqualsMax()
+         throws Exception
+  {
+    new ValuePattern(
+         "[timestamp:min=20180101000000.000Z:max=20180101000000.000Z]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min
+   * and max values when the min value is after the max value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMinAfterMax()
+         throws Exception
+  {
+    new ValuePattern(
+         "[timestamp:min=20181231235959.999Z:max=20180101000000.000Z]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min,
+   * max, and format values when the min value is after the max value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMinAfterMaxWithFormat()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:min=20181231235959.999Z:" +
+         "max=20180101000000.000Z:format=milliseconds]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min
+   * and max values when the min value is chronologically before the max value,
+   * but when the max value comes first in the format string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMinAndMaxOrderSwapped()
+         throws Exception
+  {
+    new ValuePattern(
+         "[timestamp:max=20180101000000.000Z:min=20181231235959.999Z]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min,
+   * max, and format values when the format comes before the min and max.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithFormatBeforeMinAndMax()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:format=seconds:min=20180101000000.000Z:" +
+         "max=20181231235959.999Z]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern when specifying min,
+   * max, and format values when the format comes between the min and max.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithFormatBetweenMinAndMax()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:min=20180101000000.000Z:format=seconds:" +
+         "max=20181231235959.999Z]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern with a malformed
+   * format when not specifying min and max values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithoutMinAndMaxWithMalformedFormat()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:format=malformed]");
+  }
+
+
+
+  /**
+   * Tests the behavior when using the timestamp pattern with a malformed
+   * format when also specifying min and max values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ParseException.class })
+  public void testTimestampWithMinAndMaxWithMalformedFormat()
+         throws Exception
+  {
+    new ValuePattern("[timestamp:min=20180101000000.000Z:" +
+         "max=20181231235959.999Z:format=malformed]");
+  }
+
+
+
+  /**
    * Performs a simple test with a simple valid back-reference.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -1532,6 +2120,80 @@ public class ValuePatternTestCase
       final String s = p.nextValue();
       assertEquals(s, "line" + i + "line" + i);
     }
+  }
+
+
+
+  /**
+   * Performs a simple test with a valid back-reference to a value obtained from
+   * a timestamp component.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidBackReferenceToRandomCharactersComponent()
+         throws Exception
+  {
+    final ValuePattern p =
+         new ValuePattern("[random:8:0123456789abcdef]:[ref:1]");
+
+    final String s = p.nextValue();
+    final int colonPos = s.indexOf(':');
+    assertTrue(colonPos > 0);
+
+    final String hexString1 = s.substring(0, colonPos);
+    final String hexString2 = s.substring(colonPos+1);
+    assertEquals(hexString1, hexString2);
+  }
+
+
+
+  /**
+   * Performs a simple test with a valid back-reference to a value obtained from
+   * a timestamp component.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidBackReferenceToTimestampComponent()
+         throws Exception
+  {
+    final ValuePattern p = new ValuePattern("[timestamp]:[ref:1]");
+
+    final String s = p.nextValue();
+    final int colonPos = s.indexOf(':');
+    assertTrue(colonPos > 0);
+
+    final String timestamp1 = s.substring(0, colonPos);
+    final String timestamp2 = s.substring(colonPos+1);
+    assertEquals(timestamp1, timestamp2);
+
+    assertNotNull(StaticUtils.decodeGeneralizedTime(timestamp1));
+  }
+
+
+
+  /**
+   * Performs a simple test with a valid back-reference to a value obtained from
+   * a UUID component.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidBackReferenceToUUIDComponent()
+         throws Exception
+  {
+    final ValuePattern p = new ValuePattern("[uuid]:[ref:1]");
+
+    final String s = p.nextValue();
+    final int colonPos = s.indexOf(':');
+    assertTrue(colonPos > 0);
+
+    final String uuid1 = s.substring(0, colonPos);
+    final String uuid2 = s.substring(colonPos+1);
+    assertEquals(uuid1, uuid2);
+
+    assertNotNull(UUID.fromString(uuid1));
   }
 
 

@@ -102,6 +102,10 @@ import static com.unboundid.util.StaticUtils.*;
  *       attribute to modify.  Multiple attributes may be modified by providing
  *       multiple instances of this argument.  At least one attribute must be
  *       provided.</LI>
+ *   <LI>"--valuePattern {pattern}" -- specifies the pattern to use to generate
+ *       the value to use for each modification.  If this argument is provided,
+ *       then neither the "--valueLength" nor "--characterSet" arguments may be
+ *       given.</LI>
  *   <LI>"-l {num}" or "--valueLength {num}" -- specifies the length in bytes to
  *       use for the values of the target attributes.  If this is not provided,
  *       then a default length of 10 bytes will be used.</LI>
@@ -255,6 +259,9 @@ public final class ModRate
 
   // The argument used to specify the timestamp format.
   private StringArgument timestampFormat;
+
+  // The argument used to specify the pattern to use to generate values.
+  private StringArgument valuePattern;
 
   // The thread currently being used to run the searchrate tool.
   private volatile Thread runningThread;
@@ -516,11 +523,22 @@ public final class ModRate
     parser.addArgument(attribute);
 
 
+    description = "The pattern to use to generate values for the replace " +
+                  "modifications.  If this is provided, then neither the " +
+                  "--valueLength argument nor the --characterSet arguments " +
+                  "may be provided.";
+    valuePattern = new StringArgument(null, "valuePattern", false, 1,
+                                     "{pattern}", description);
+    valuePattern.setArgumentGroupName("Modification Arguments");
+    valuePattern.addLongIdentifier("value-pattern", true);
+    parser.addArgument(valuePattern);
+
+
     description = "The length in bytes to use when generating values for the " +
                   "replace modifications.  If this is not provided, then a " +
                   "default length of ten bytes will be used.";
-    valueLength = new IntegerArgument('l', "valueLength", true, 1, "{num}",
-                                      description, 1, Integer.MAX_VALUE, 10);
+    valueLength = new IntegerArgument('l', "valueLength", false, 1, "{num}",
+                                      description, 1, Integer.MAX_VALUE);
     valueLength.setArgumentGroupName("Modification Arguments");
     valueLength.addLongIdentifier("value-length", true);
     parser.addArgument(valueLength);
@@ -561,9 +579,8 @@ public final class ModRate
                   "the modifications.  It should only include ASCII " +
                   "characters.  If this is not provided, then a default set " +
                   "of lowercase alphabetic characters will be used.";
-    characterSet = new StringArgument('C', "characterSet", true, 1, "{chars}",
-                                      description,
-                                      "abcdefghijklmnopqrstuvwxyz");
+    characterSet = new StringArgument('C', "characterSet", false, 1, "{chars}",
+                                      description);
     characterSet.setArgumentGroupName("Modification Arguments");
     characterSet.addLongIdentifier("character-set", true);
     parser.addArgument(characterSet);
@@ -762,10 +779,18 @@ public final class ModRate
     parser.addDependentArgumentSet(incrementAmount, increment);
 
 
-    // Neither the valueLength nor valueCount arguments can be used if the
-    // increment argument is provided.
+    // None of the valueLength, valueCount, characterSet, or valuePattern
+    // arguments can be used if the increment argument is provided.
     parser.addExclusiveArgumentSet(increment, valueLength);
     parser.addExclusiveArgumentSet(increment, valueCount);
+    parser.addExclusiveArgumentSet(increment, characterSet);
+    parser.addExclusiveArgumentSet(increment, valuePattern);
+
+
+    // The valuePattern argument cannot be used with either the valueLength or
+    // characterSet arguments.
+    parser.addExclusiveArgumentSet(valuePattern, valueLength);
+    parser.addExclusiveArgumentSet(valuePattern, characterSet);
   }
 
 
@@ -946,10 +971,6 @@ public final class ModRate
     attribute.getValues().toArray(attrs);
 
 
-    // Get the character set as a byte array.
-    final byte[] charSet = getBytes(characterSet.getValue());
-
-
     // If the --ratePerSecond option was specified, then limit the rate
     // accordingly.
     FixedRateBarrier fixedRateBarrier = null;
@@ -1088,12 +1109,54 @@ public final class ModRate
         return le.getResultCode();
       }
 
+      final String valuePatternString;
+      if (valuePattern.isPresent())
+      {
+        valuePatternString = valuePattern.getValue();
+      }
+      else
+      {
+        final int length;
+        if (valueLength.isPresent())
+        {
+          length = valueLength.getValue();
+        }
+        else
+        {
+          length = 10;
+        }
+
+        final String charSet;
+        if (characterSet.isPresent())
+        {
+          charSet =
+               characterSet.getValue().replace("]", "]]").replace("[", "[[");
+        }
+        else
+        {
+          charSet = "abcdefghijklmnopqrstuvwxyz";
+        }
+
+        valuePatternString = "random:" + length + ':' + charSet;
+      }
+
+      final ValuePattern parsedValuePattern;
+      try
+      {
+        parsedValuePattern = new ValuePattern(valuePatternString);
+      }
+      catch (final ParseException e)
+      {
+        debugException(e);
+        err(e.getMessage());
+        return ResultCode.PARAM_ERROR;
+      }
+
       threads[i] = new ModRateThread(this, i, connection, dnPattern, attrs,
-           charSet, valueLength.getValue(), valueCount.getValue(),
-           increment.isPresent(), incrementAmount.getValue(), controlArray,
-           authzIDPattern, random.nextLong(),
-           iterationsBeforeReconnect.getValue(), barrier, modCounter,
-           modDurations, errorCounter, rcCounter, fixedRateBarrier);
+           parsedValuePattern, valueCount.getValue(), increment.isPresent(),
+           incrementAmount.getValue(), controlArray, authzIDPattern,
+           random.nextLong(), iterationsBeforeReconnect.getValue(), barrier,
+           modCounter, modDurations, errorCounter, rcCounter, fixedRateBarrier);
       threads[i].start();
     }
 

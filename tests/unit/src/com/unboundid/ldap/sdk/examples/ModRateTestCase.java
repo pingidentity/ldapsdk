@@ -467,7 +467,8 @@ public class ModRateTestCase
       "-t", "10",
       "-i", "1",
       "-r", "100",
-      "--variableRateData", repeatingRatesFile.getAbsolutePath()
+      "--variableRateData", repeatingRatesFile.getAbsolutePath(),
+      "--valuePattern", "[random:8:0123456789abcdef]"
     };
     assertEquals(ModRate.main(args, null, null), ResultCode.SUCCESS);
   }

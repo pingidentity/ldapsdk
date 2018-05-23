@@ -6,6 +6,53 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.7</h3>
+
+              <p>
+                The following changes were made between the 4.0.6 and 4.0.7 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the modrate tool to add a new "--valuePattern" argument that can be used
+                  to specify the pattern to use to generate new values.  This argument is an
+                  alternative to the "--valueLength" and "--characterSet" arguments and allows for
+                  more flexibility in the types of values that can be generated.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new "streamfile" value pattern component that operates like the existing
+                  "sequentialfile" component except that it limits the amount of the file that is
+                  read into memory at any given time, so it is more suitable for reading values
+                  from very large files.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new "timestamp" value pattern component that can be used to include
+                  either the current time or a randomly selected time from a given range in a
+                  variety of formats.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new "uuid" value pattern component that can be used to include a
+                  randomly generated universally unique identifier (UUID).
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new "random" value pattern component that can be used to include a
+                  specified number of randomly selected characters from a given character set.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 4.0.6</h3>
 
               <p>

@@ -62,6 +62,13 @@ import static com.unboundid.util.UtilityMessages.*;
  *       allowed by the {@link java.text.DecimalFormat} class to define how the
  *       resulting value should be formatted, and a closing square bracket to
  *       indicate the end of the range.</LI>
+ *   <LI>Randomly character ranges consist of an opening square bracket, the
+ *       word "random", a colon, the number of random characters to generate,
+ *       another colon, the set of characters to include, and a closing square
+ *       bracket.  For example, "[random:4:0123456789abcdef]" will generate a
+ *       string of four randomly selected characters from the set of hexadecimal
+ *       digits.  The final colon and character set may be omitted to use the
+ *       set of lowercase alphabetic characters.</LI>
  *   <LI>Strings read from a file specified by a given URL.  That file may be
  *       contained on the local filesystem (using a URL like
  *       "file:///tmp/mydata.txt") or read from a remote server via HTTP (using
@@ -70,7 +77,29 @@ import static com.unboundid.util.UtilityMessages.*;
  *       If this option is used, then that file must contain one value per line,
  *       and its contents will be read into memory and values from the file will
  *       be selected in a random order and used in place of the bracketed
- *       URL.</LI>
+ *       URL.  Alternately, a local file may be read in sequential order by
+ *       using "sequentialfile:" or "streamfile:" instead of "file:"; the former
+ *       will load the entire file into memory while the latter will only hold
+ *       a small amount of data in memory at any time.</LI>
+ *   <LI>Timestamps in a specified format.  A pattern of just "[timestamp]" will
+ *       be replaced with the current time, with millisecond precision, in the
+ *       generalized time format (for example, "20180102030405.678Z").  A value
+ *       A value of "[timestamp:format=XXX]" will be replaced with the current
+ *       time in the specified format, where the format value can be one of
+ *       "milliseconds" for the number of milliseconds since the epoch (January
+ *       1, 1970 at midnight UTC), "seconds" for the number of seconds since the
+ *       epoch, or any value supported by Java's {@code SimpleDateFormat} class.
+ *       A pattern of "[timestamp:min=XXX:max=XXX]" will be replaced with a
+ *       randomly selected timestamp in generalized time format between the
+ *       given minimum and maximum timestamps (inclusive), which must be in
+ *       generalized time format.  A pattern of
+ *       "[timestamp:min=XXX:max=XXX:format=XXX]" will be replaced with a
+ *       randomly selected timestamp in the specified format between the given
+ *       minimum and maximum timestamps (where the minimum and maximum
+ *       timestamp values must be in the generalized time format).
+ *   <LI>Randomly generated UUIDs (universally unique identifiers) as described
+ *       in <A HREF="http://www.ietf.org/rfc/rfc4122.txt">RFC 4122</A>.  These
+ *       UUIDs may be generated using a pattern string of "[uuid]".</LI>
  *   <LI>Back-references that will be replaced with the same value as the
  *       bracketed token in the specified position in the string.  For example,
  *       a component of "[ref:1]" will be replaced with the same value as used
@@ -110,6 +139,15 @@ import static com.unboundid.util.UtilityMessages.*;
  *       values at random between 0 and 1000, inclusive, and values will be
  *       padded with leading zeroes as necessary so that they are represented
  *       using four digits.</LI>
+ *   <LI><CODE>[random:5]</CODE> -- Will generate a string of five randomly
+ *       selected lowercase letters to be used in place of the bracketed
+ *       range.</LI>
+ *   <LI><CODE>[random:4:0123456789abcdef]</CODE> -- Will generate a string of
+ *       four randomly selected hexadecimal digits to be used in place of the
+ *       bracketed range.</LI>
+ *   <LI><CODE>[random:5:abcdefghijklmnopqrstuvwxyz]</CODE> -- Will generate a
+ *       string of five randomly selected lowercase letters to be used in place
+ *       of the bracketed range.</LI>
  *   <LI><CODE>[file:///tmp/mydata.txt]</CODE> -- A URL reference that will
  *       cause randomly-selected lines from the specified local file to be used
  *       in place of the bracketed range.  To make it clear that the file
@@ -128,10 +166,25 @@ import static com.unboundid.util.UtilityMessages.*;
  *       that it is available quickly, but only a small amount of data will be
  *       held in memory at any time, so this is a suitable option for very
  *       large files.</LI>
+ *   <LI><CODE>[timestamp]</CODE> -- The current time in generalized time
+ *       format, with millisecond precision.</LI>
+ *   <LI><CODE>[timestamp:format=milliseconds]</CODE> -- The current time
+ *       expressed as the number of milliseconds since January 1, 1970 at
+ *       midnight UTC (that is, the output of
+ *       {@code System.currentTimeMillis()}.</LI>
+ *   <LI><CODE>[timestamp:format=seconds]</CODE> -- The current time expressed
+ *       as the number of seconds since January 1, 1970 at midnight UTC.</LI>
+ *   <LI><CODE>[timestamp:format=yyyy-MM-dd'T'HH:mm:ss.SSSZ]</CODE> -- The
+ *       current time expressed in the specified format string.</LI>
+ *   <LI><CODE>[timestamp:min=20180101000000.000Z:max=20181231235959.999Z:
+ *       format=yyyyMMddHHmmss]</CODE> -- A randomly selected timestamp
+ *       sometime in the year 2018 in the specified format.</LI>
  *   <LI><CODE>[http://server.example.com/tmp/mydata.txt]</CODE> -- A URL
  *       reference that will cause randomly-selected lines from the specified
  *       remote HTTP-accessible file to be used in place of the bracketed
  *       range.</LI>
+ *   <LI><CODE>[uuid]</CODE> -- Will cause a randomly generated UUID to be used
+ *       in place of the bracketed range.</LI>
  * </UL>
  * <BR>
  * Examples of full value pattern strings include:
@@ -365,7 +418,12 @@ public final class ValuePattern
       }
 
       final String bracketedToken = s.substring(pos+1, closePos);
-      if (bracketedToken.startsWith("file:"))
+      if (bracketedToken.startsWith("random:"))
+      {
+        l.add(new RandomCharactersValuePatternComponent(bracketedToken,
+             r.nextLong()));
+      }
+      else if (bracketedToken.startsWith("file:"))
       {
         final String path = bracketedToken.substring(5);
         try
@@ -433,6 +491,15 @@ public final class ValuePattern
           throw new ParseException(ERR_HTTP_VALUE_PATTERN_NOT_USABLE.get(
                bracketedToken, getExceptionMessage(ioe)), o+pos);
         }
+      }
+      else if (bracketedToken.startsWith("timestamp"))
+      {
+        l.add(new TimestampValuePatternComponent(bracketedToken,
+             r.nextLong()));
+      }
+      else if (bracketedToken.equals("uuid"))
+      {
+        l.add(new UUIDValuePatternComponent());
       }
       else if (bracketedToken.startsWith("ref:"))
       {
