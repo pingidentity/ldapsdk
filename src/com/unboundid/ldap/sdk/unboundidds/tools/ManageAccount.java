@@ -1366,6 +1366,7 @@ public final class ManageAccount
     addTOTPSharedSecretValueArg.addLongIdentifier("operationValue", true);
     addTOTPSharedSecretValueArg.addLongIdentifier("totp-shared-secret", true);
     addTOTPSharedSecretValueArg.addLongIdentifier("operation-value", true);
+    addTOTPSharedSecretValueArg.setSensitive(true);
     addTOTPSharedSecretParser.addArgument(
          addTOTPSharedSecretValueArg);
 
@@ -1388,6 +1389,7 @@ public final class ManageAccount
     removeTOTPSharedSecretValueArg.addLongIdentifier("totp-shared-secret",
          true);
     removeTOTPSharedSecretValueArg.addLongIdentifier("operation-value", true);
+    removeTOTPSharedSecretValueArg.setSensitive(true);
     removeTOTPSharedSecretParser.addArgument(
          removeTOTPSharedSecretValueArg);
 
@@ -1408,6 +1410,7 @@ public final class ManageAccount
     setTOTPSharedSecretsValueArg.addLongIdentifier("operationValue", true);
     setTOTPSharedSecretsValueArg.addLongIdentifier("totp-shared-secret", true);
     setTOTPSharedSecretsValueArg.addLongIdentifier("operation-value", true);
+    setTOTPSharedSecretsValueArg.setSensitive(true);
     setTOTPSharedSecretsParser.addArgument(
          setTOTPSharedSecretsValueArg);
 
