@@ -454,7 +454,7 @@ public final class ToolInvocationLogger
    *                                  whose values may contain sensitive
    *                                  information, the value should have already
    *                                  been replaced with the string
-   *                                  "***REDACTED***".
+   *                                  "*****REDACTED*****".
    * @param  propertiesFileArguments  A list of the name-value pairs for any
    *                                  arguments obtained from a properties file
    *                                  rather than being supplied on the command
@@ -522,7 +522,7 @@ public final class ToolInvocationLogger
         if (value != null)
         {
           msgBuffer.append(' ');
-          msgBuffer.append(StaticUtils.cleanExampleCommandLineArgument(value));
+          msgBuffer.append(getCleanArgumentValue(name, value));
         }
 
         msgBuffer.append(StaticUtils.EOL);
@@ -548,7 +548,7 @@ public final class ToolInvocationLogger
       if (value != null)
       {
         msgBuffer.append(' ');
-        msgBuffer.append(StaticUtils.cleanExampleCommandLineArgument(value));
+        msgBuffer.append(getCleanArgumentValue(name, value));
       }
     }
     msgBuffer.append(StaticUtils.EOL);
@@ -563,6 +563,47 @@ public final class ToolInvocationLogger
       logMessageToFile(logMessageBytes, logFile,
            logDetails.getToolErrorStream());
     }
+  }
+
+
+
+  /**
+   * Retrieves a cleaned and possibly redacted version of the provided argument
+   * value.
+   *
+   * @param  name   The name for the argument.  It must not be {@code null}.
+   * @param  value  The value for the argument.  It must not be {@code null}.
+   *
+   * @return  A cleaned and possibly redacted version of the provided argument
+   *          value.
+   */
+  private static String getCleanArgumentValue(final String name,
+                                              final String value)
+  {
+    final String lowerName = StaticUtils.toLowerCase(name);
+    if (lowerName.contains("password") ||
+       lowerName.contains("passphrase") ||
+       lowerName.endsWith("-pin") ||
+       name.endsWith("Pin") ||
+       name.endsWith("PIN"))
+    {
+      if (! (lowerName.contains("passwordfile") ||
+           lowerName.contains("password-file") ||
+           lowerName.contains("passwordpath") ||
+           lowerName.contains("password-path") ||
+           lowerName.contains("passphrasefile") ||
+           lowerName.contains("passphrase-file") ||
+           lowerName.contains("passphrasepath") ||
+           lowerName.contains("passphrase-path")))
+      {
+        if (! StaticUtils.toLowerCase(value).contains("redacted"))
+        {
+          return "'*****REDACTED*****'";
+        }
+      }
+    }
+
+    return StaticUtils.cleanExampleCommandLineArgument(value);
   }
 
 

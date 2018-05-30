@@ -22,6 +22,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the manage-account tool so that the arguments related to TOTP secrets
+                  are marked sensitive.  This will ensure that the value is not displayed in the
+                  clear in certain cases like interactive mode output or tool invocation logging.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new "streamfile" value pattern component that operates like the existing
                   "sequentialfile" component except that it limits the amount of the file that is
                   read into memory at any given time, so it is more suitable for reading values
@@ -45,6 +52,14 @@ ${TARGET="offline"}                <br>
                 <li>
                   Added a new "random" value pattern component that can be used to include a
                   specified number of randomly selected characters from a given character set.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the tool invocation logger to add a failsafe mechanism for preventing
+                  passwords from being included in the log.  Although it will already mark redact
+                  the values of any arguments that are declared sensitive, it will now also redact
+                  the values of any arguments whose name suggests that their value is a password.
                   <br><br>
                 </li>
               </ul>

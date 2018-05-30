@@ -41,11 +41,13 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
@@ -700,6 +702,539 @@ public final class ToolInvocationLoggerTestCase
     {
       assertTrue(toolsPropertyFile.delete());
     }
+  }
+
+
+
+  /**
+   * Tests a failsafe measure that tries to ensure that passwords get redacted
+   * even if the associated argument is not marked sensitive.
+   *
+   * @param  argumentName  The name of the argument, without the dashes.
+   * @param  shouldRedact  Indicates whether the value should be redacted.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "PasswordRedactionFailsafeTestData")
+  public void testPasswordRedactionFailsafe(final String argumentName,
+                                            final boolean shouldRedact)
+         throws Exception
+  {
+    final File logFile1 = createTempFile();
+    final ToolInvocationLogDetails logDetails1 =
+         ToolInvocationLogDetails.createLogDetails("test-command", null,
+              Collections.singleton(logFile1), System.err);
+    ToolInvocationLogger.logLaunchMessage(logDetails1,
+         Collections.singletonList(
+              new ObjectPair<>("--" + argumentName, "argumentValue")),
+         Collections.<ObjectPair<String,String>>emptyList(), null);
+
+    final String log1 = readLog(logFile1);
+    if (shouldRedact)
+    {
+      assertTrue(
+           log1.contains(
+                "test-command --" + argumentName + " '*****REDACTED*****'"),
+           log1);
+    }
+    else
+    {
+      assertTrue(
+           log1.contains("test-command --" + argumentName + " argumentValue"),
+           log1);
+    }
+
+
+    final File logFile2 = createTempFile();
+    final ToolInvocationLogDetails logDetails2 =
+         ToolInvocationLogDetails.createLogDetails("test-command", null,
+              Collections.singleton(logFile2), System.err);
+    ToolInvocationLogger.logLaunchMessage(logDetails2,
+         Collections.singletonList(
+              new ObjectPair<>("--" + argumentName, "*****REDACTED*****")),
+         Collections.<ObjectPair<String,String>>emptyList(), null);
+
+    final String log2 = readLog(logFile2);
+    assertTrue(log2.contains(
+         "test-command --" + argumentName + " '*****REDACTED*****'"),
+         log2);
+
+
+    final File logFile3 = createTempFile();
+    final ToolInvocationLogDetails logDetails3 =
+         ToolInvocationLogDetails.createLogDetails("test-command", null,
+              Collections.singleton(logFile3), System.err);
+    ToolInvocationLogger.logLaunchMessage(logDetails3,
+         Collections.singletonList(
+              new ObjectPair<>("--" + argumentName, "already-redacted")),
+         Collections.<ObjectPair<String,String>>emptyList(), null);
+
+    final String log3 = readLog(logFile3);
+    assertTrue(log3.contains(
+         "test-command --" + argumentName + " already-redacted"),
+         log3);
+  }
+
+
+
+  /**
+   * Retrieves a set of test data for use by the
+   * {@link #testPasswordRedactionFailsafe} method.
+   *
+   * @return  A set of test data for use by the
+   *          {@code testPasswordRedactionFailsafe} method.
+   */
+  @DataProvider(name = "PasswordRedactionFailsafeTestData")
+  public Object[][] getPasswordRedactionFailsafeTestData()
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        "password",
+        true
+      },
+      new Object[]
+      {
+        "Password",
+        true
+      },
+      new Object[]
+      {
+        "PassWord",
+        true
+      },
+      new Object[]
+      {
+        "PASSWORD",
+        true
+      },
+      new Object[]
+      {
+        "password1",
+        true
+      },
+      new Object[]
+      {
+        "password-1",
+        true
+      },
+      new Object[]
+      {
+        "passwordfoo",
+        true
+      },
+      new Object[]
+      {
+        "passwordFoo",
+        true
+      },
+      new Object[]
+      {
+        "password-foo",
+        true
+      },
+      new Object[]
+      {
+        "bindpassword",
+        true
+      },
+      new Object[]
+      {
+        "bindPassword",
+        true
+      },
+      new Object[]
+      {
+        "bind-password",
+        true
+      },
+      new Object[]
+      {
+        "foopasswordbar",
+        true
+      },
+      new Object[]
+      {
+        "fooPasswordBar",
+        true
+      },
+      new Object[]
+      {
+        "foo-password-bar",
+        true
+      },
+      new Object[]
+      {
+        "passphrase",
+        true
+      },
+      new Object[]
+      {
+        "Passphrase",
+        true
+      },
+      new Object[]
+      {
+        "PassPhrase",
+        true
+      },
+      new Object[]
+      {
+        "PASSphrase",
+        true
+      },
+      new Object[]
+      {
+        "passphrase1",
+        true
+      },
+      new Object[]
+      {
+        "passphrase-1",
+        true
+      },
+      new Object[]
+      {
+        "passphrasefoo",
+        true
+      },
+      new Object[]
+      {
+        "passphraseFoo",
+        true
+      },
+      new Object[]
+      {
+        "passphrase-foo",
+        true
+      },
+      new Object[]
+      {
+        "bindpassphrase",
+        true
+      },
+      new Object[]
+      {
+        "bindPassphrase",
+        true
+      },
+      new Object[]
+      {
+        "bind-passphrase",
+        true
+      },
+      new Object[]
+      {
+        "foopassphrasebar",
+        true
+      },
+      new Object[]
+      {
+        "fooPassphraseBar",
+        true
+      },
+      new Object[]
+      {
+        "foo-passphrase-bar",
+        true
+      },
+      new Object[]
+      {
+        "pin",
+        true
+      },
+      new Object[]
+      {
+        "Pin",
+        true
+      },
+      new Object[]
+      {
+        "PIN",
+        true
+      },
+      new Object[]
+      {
+        "encryption-pin",
+        true
+      },
+      new Object[]
+      {
+        "encryptionPin",
+        true
+      },
+      new Object[]
+      {
+        "encryptionPIN",
+        true
+      },
+      new Object[]
+      {
+        "encryption-Pin",
+        true
+      },
+      new Object[]
+      {
+        "encryption-PIN",
+        true
+      },
+      new Object[]
+      {
+        "passwordfile",
+        false
+      },
+      new Object[]
+      {
+        "passwordFile",
+        false
+      },
+      new Object[]
+      {
+        "password-file",
+        false
+      },
+      new Object[]
+      {
+        "PasswordFile",
+        false
+      },
+      new Object[]
+      {
+        "Password-File",
+        false
+      },
+      new Object[]
+      {
+        "PassWordFile",
+        false
+      },
+      new Object[]
+      {
+        "PassWord-File",
+        false
+      },
+      new Object[]
+      {
+        "PASSWORDFILE",
+        false
+      },
+      new Object[]
+      {
+        "PASSWORD-FILE",
+        false
+      },
+      new Object[]
+      {
+        "passwordpath",
+        false
+      },
+      new Object[]
+      {
+        "passwordPath",
+        false
+      },
+      new Object[]
+      {
+        "password-path",
+        false
+      },
+      new Object[]
+      {
+        "PasswordPath",
+        false
+      },
+      new Object[]
+      {
+        "Password-Path",
+        false
+      },
+      new Object[]
+      {
+        "PassWordPath",
+        false
+      },
+      new Object[]
+      {
+        "PassWord-Path",
+        false
+      },
+      new Object[]
+      {
+        "PASSWORDPATH",
+        false
+      },
+      new Object[]
+      {
+        "PASSWORD-PATH",
+        false
+      },
+      new Object[]
+      {
+        "passphrasefile",
+        false
+      },
+      new Object[]
+      {
+        "passphraseFile",
+        false
+      },
+      new Object[]
+      {
+        "passphrase-file",
+        false
+      },
+      new Object[]
+      {
+        "PassphraseFile",
+        false
+      },
+      new Object[]
+      {
+        "Passphrase-File",
+        false
+      },
+      new Object[]
+      {
+        "PassPhraseFile",
+        false
+      },
+      new Object[]
+      {
+        "PassPhrase-File",
+        false
+      },
+      new Object[]
+      {
+        "PASSPHRASEFILE",
+        false
+      },
+      new Object[]
+      {
+        "PASSPHRASE-FILE",
+        false
+      },
+      new Object[]
+      {
+        "passphrasepath",
+        false
+      },
+      new Object[]
+      {
+        "passphrasePath",
+        false
+      },
+      new Object[]
+      {
+        "passphrase-path",
+        false
+      },
+      new Object[]
+      {
+        "PassphrasePath",
+        false
+      },
+      new Object[]
+      {
+        "Passphrase-Path",
+        false
+      },
+      new Object[]
+      {
+        "PassPhrasePath",
+        false
+      },
+      new Object[]
+      {
+        "PassPhrase-Path",
+        false
+      },
+      new Object[]
+      {
+        "PASSPHRASEPATH",
+        false
+      },
+      new Object[]
+      {
+        "PASSPHRASE-PATH",
+        false
+      },
+      new Object[]
+      {
+        "pinfile",
+        false
+      },
+      new Object[]
+      {
+        "pinFile",
+        false
+      },
+      new Object[]
+      {
+        "pin-File",
+        false
+      },
+      new Object[]
+      {
+        "Pinfile",
+        false
+      },
+      new Object[]
+      {
+        "PinFile",
+        false
+      },
+      new Object[]
+      {
+        "Pin-File",
+        false
+      },
+      new Object[]
+      {
+        "PINfile",
+        false
+      },
+      new Object[]
+      {
+        "PINFile",
+        false
+      },
+      new Object[]
+      {
+        "PIN-file",
+        false
+      },
+      new Object[]
+      {
+        "PIN-FILE",
+        false
+      },
+      new Object[]
+      {
+        "encryption-pin-file",
+        false
+      },
+      new Object[]
+      {
+        "encryptionPinFile",
+        false
+      },
+      new Object[]
+      {
+        "encryptionPINFile",
+        false
+      },
+      new Object[]
+      {
+        "encryption-Pin-File",
+        false
+      },
+      new Object[]
+      {
+        "encryption-PIN-file",
+        false
+      },
+    };
   }
 
 
