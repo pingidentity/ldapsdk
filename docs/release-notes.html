@@ -14,6 +14,24 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue in the LDAPConnectionPool and LDAPThreadLocalConnectionPool
+                  classes when created with a connection that is already established and
+                  authenticated (as opposed to being created from a server set and bind request).
+                  Internally, the LDAP SDK created its own server set and bind request from the
+                  provided connection's state information, but it incorrectly included bind
+                  credentials in the server set.  Under most circumstances, this would merely
+                  cause the LDAP SDK to send two bind requests (the second a duplicate of the
+                  first) when establishing a new connection as part of the pool.  However, it
+                  caused a bigger problem when using the new <tt>setBindRequest</tt> methods
+                  that were introduced in the 4.0.6 release.  Because the server set was
+                  created with bind credentials, the pool would create a connection that tried
+                  to use those old credentials before sending a second bind request with the
+                  new credentials, and this would fail if the old credentials were no longer
+                  valid.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the modrate tool to add a new "--valuePattern" argument that can be used
                   to specify the pattern to use to generate new values.  This argument is an
                   alternative to the "--valueLength" and "--characterSet" arguments and allows for

@@ -662,8 +662,8 @@ public final class LDAPConnectionPool
     serverSet = new SingleServerSet(connection.getConnectedAddress(),
                                     connection.getConnectedPort(),
                                     connection.getLastUsedSocketFactory(),
-                                    connection.getConnectionOptions(),
-                                    bindRequest, postConnectProcessor);
+                                    connection.getConnectionOptions(), null,
+                                    postConnectProcessor);
 
     final LDAPConnectionOptions opts = connection.getConnectionOptions();
     if (opts.usePooledSchema())

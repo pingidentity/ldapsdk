@@ -64,9 +64,99 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
     // Create a connection pool with connections authenticated using the first
     // set of credentials.
     try (final LDAPConnectionPool pool =
-         new LDAPConnectionPool(
-              new SingleServerSet("127.0.0.1", ds.getListenPort()),
-              new SimpleBindRequest("cn=User 1", "password1"), 1, 1))
+              new LDAPConnectionPool(
+                   new SingleServerSet("127.0.0.1", ds.getListenPort()),
+                   new SimpleBindRequest("cn=User 1", "password1"), 1, 1))
+    {
+      // Ensure that the connection is initially authenticated as User 1.
+      LDAPConnection conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 1");
+      pool.releaseConnection(conn);
+
+
+      // Set the bind request to authenticate connections as user 2.
+      pool.setBindRequest(new SimpleBindRequest("cn=User 2", "password2"));
+
+
+      // Make sure that the existing connection is still established as user 1.
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 1");
+
+
+      // Release and re-authenticate the connection and make sure that the
+      // connection is now authenticated as user 2.
+      pool.releaseAndReAuthenticateConnection(conn);
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 2");
+      pool.releaseConnection(conn);
+
+
+      // Set the bind request to null, which should cause connections to be
+      // unauthenticated.
+      pool.setBindRequest(null);
+
+
+      // Make sure that the existing connection is unchanged.
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 2");
+
+
+      // Release and re-authenticate the connection and make sure that the
+      // connection is now unauthenticated.
+      pool.releaseAndReAuthenticateConnection(conn);
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, null);
+
+
+      // Update the bind request to authenticate as user 3.
+      pool.setBindRequest(new SimpleBindRequest("cn=User 3", "password3"));
+
+
+      // Make sure that when a connection is released as defunct, it will be
+      // re-established with the nwe credentials.
+      pool.releaseDefunctConnection(conn);
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 3");
+      pool.releaseConnection(conn);
+    }
+    finally
+    {
+      ds.shutDown(true);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@link LDAPConnectionPool#setBindRequest} method
+   * for a connection pool created with an already-established connection rather
+   * than a server set and a bind request.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSetBindRequestForLDAPConnectionPoolFromConn()
+         throws Exception
+  {
+    // Create an in-memory directory server with three sets of authentication
+    // credentials.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    cfg.addAdditionalBindCredentials("cn=User 1", "password1");
+    cfg.addAdditionalBindCredentials("cn=User 2", "password2");
+    cfg.addAdditionalBindCredentials("cn=User 3", "password3");
+
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+
+    // Create a connection pool with connections authenticated using the first
+    // set of credentials.
+    try (final LDAPConnection connection =
+              new LDAPConnection("127.0.0.1", ds.getListenPort(),
+                   "cn=User 1", "password1");
+         final LDAPConnectionPool pool =
+              new LDAPConnectionPool(connection, 1, 1))
     {
       // Ensure that the connection is initially authenticated as User 1.
       LDAPConnection conn = pool.getConnection();
@@ -152,9 +242,100 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
     // Create a connection pool with connections authenticated using the first
     // set of credentials.
     try (final LDAPThreadLocalConnectionPool pool =
-         new LDAPThreadLocalConnectionPool(
-              new SingleServerSet("127.0.0.1", ds.getListenPort()),
-              new SimpleBindRequest("cn=User 1", "password1")))
+              new LDAPThreadLocalConnectionPool(
+                   new SingleServerSet("127.0.0.1", ds.getListenPort()),
+                   new SimpleBindRequest("cn=User 1", "password1")))
+    {
+      // Ensure that the connection is initially authenticated as User 1.
+      LDAPConnection conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 1");
+      pool.releaseConnection(conn);
+
+
+      // Set the bind request to authenticate connections as user 2.
+      pool.setBindRequest(new SimpleBindRequest("cn=User 2", "password2"));
+
+
+      // Make sure that the existing connection is still established as user 1.
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 1");
+
+
+      // Release and re-authenticate the connection and make sure that the
+      // connection is now authenticated as user 2.
+      pool.releaseAndReAuthenticateConnection(conn);
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 2");
+      pool.releaseConnection(conn);
+
+
+      // Set the bind request to null, which should cause connections to be
+      // unauthenticated.
+      pool.setBindRequest(null);
+
+
+      // Make sure that the existing connection is unchanged.
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 2");
+
+
+      // Release and re-authenticate the connection and make sure that the
+      // connection is now unauthenticated.
+      pool.releaseAndReAuthenticateConnection(conn);
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, null);
+
+
+      // Update the bind request to authenticate as user 3.
+      pool.setBindRequest(new SimpleBindRequest("cn=User 3", "password3"));
+
+
+      // Make sure that when a connection is released as defunct, it will be
+      // re-established with the nwe credentials.
+      pool.releaseDefunctConnection(conn);
+      conn = pool.getConnection();
+      assertAuthorizationDNEquals(conn, "cn=User 3");
+      pool.releaseConnection(conn);
+    }
+    finally
+    {
+      ds.shutDown(true);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the
+   * {@link LDAPThreadLocalConnectionPool#setBindRequest} method for a
+   * connection pool created with an already-established connection rather than
+   * a server set and a bind request.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSetBindRequestForLDAPThreadLocalConnectionPoolFromConn()
+         throws Exception
+  {
+    // Create an in-memory directory server with three sets of authentication
+    // credentials.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    cfg.addAdditionalBindCredentials("cn=User 1", "password1");
+    cfg.addAdditionalBindCredentials("cn=User 2", "password2");
+    cfg.addAdditionalBindCredentials("cn=User 3", "password3");
+
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+
+    // Create a connection pool with connections authenticated using the first
+    // set of credentials.
+    try (final LDAPConnection connection =
+              new LDAPConnection("127.0.0.1", ds.getListenPort(),
+                   "cn=User 1", "password1");
+         final LDAPThreadLocalConnectionPool pool =
+              new LDAPThreadLocalConnectionPool(connection))
     {
       // Ensure that the connection is initially authenticated as User 1.
       LDAPConnection conn = pool.getConnection();
@@ -244,9 +425,107 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
     try (final LDAPConnectionPool pool =
-         new LDAPConnectionPool(
-              new SingleServerSet("127.0.0.1", ds1.getListenPort()),
-              new SimpleBindRequest("cn=Directory Manager", "password"), 1, 1))
+              new LDAPConnectionPool(
+                   new SingleServerSet("127.0.0.1", ds1.getListenPort()),
+                   new SimpleBindRequest("cn=Directory Manager", "password"),
+                   1, 1))
+    {
+      // Make sure that the connection is initially established to ds1.
+      LDAPConnection conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds1.getListenPort());
+      pool.releaseConnection(conn);
+
+
+      // Update the server so that new connections will be established to ds2.
+      pool.setServerSet(new SingleServerSet("127.0.0.1", ds2.getListenPort()));
+
+
+      // Make sure that the existing connection is still connected to ds1.
+      conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds1.getListenPort());
+
+
+      // Release the connection as defunct and make sure that the new connection
+      // is connected to ds2.
+      pool.releaseDefunctConnection(conn);
+      conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds2.getListenPort());
+
+
+      // Try to set a null server set.  That should be rejected.
+      try
+      {
+        pool.setServerSet(null);
+        fail("Expected an exception when setting a null server set.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+
+      // It should still be possible to get new connections, and they should
+      // still be connected to ds2.
+      pool.releaseDefunctConnection(conn);
+      conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds2.getListenPort());
+
+
+      // Set the server set so that new connections will be established to ds3.
+      pool.setServerSet(new SingleServerSet("127.0.0.1", ds3.getListenPort()));
+
+
+      // Make sure that new connections are established to ds3.
+      pool.releaseDefunctConnection(conn);
+      conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds3.getListenPort());
+      pool.releaseConnection(conn);
+    }
+    finally
+    {
+      ds1.shutDown(true);
+      ds2.shutDown(true);
+      ds3.shutDown(true);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@link LDAPConnectionPool#setServerSet} method
+   * for a connection pool created with an already-established connection rather
+   * than a server set and a bind request.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSetServerSetForLDAPConnectionPoolFromConn()
+         throws Exception
+  {
+    // Create three different in-memory directory server instances to use for
+    // testing.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    cfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+
+    final InMemoryDirectoryServer ds1 =
+         new InMemoryDirectoryServer(new InMemoryDirectoryServerConfig(cfg));
+    ds1.startListening();
+
+    final InMemoryDirectoryServer ds2 =
+         new InMemoryDirectoryServer(new InMemoryDirectoryServerConfig(cfg));
+    ds2.startListening();
+
+    final InMemoryDirectoryServer ds3 =
+         new InMemoryDirectoryServer(new InMemoryDirectoryServerConfig(cfg));
+    ds3.startListening();
+
+
+    try (final LDAPConnection connection =
+              new LDAPConnection("127.0.0.1", ds1.getListenPort(),
+                   "cn=Directory Manager", "password");
+         final LDAPConnectionPool pool =
+              new LDAPConnectionPool(connection, 1, 1))
     {
       // Make sure that the connection is initially established to ds1.
       LDAPConnection conn = pool.getConnection();
@@ -339,9 +618,107 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
 
     try (final LDAPThreadLocalConnectionPool pool =
-         new LDAPThreadLocalConnectionPool(
-              new SingleServerSet("127.0.0.1", ds1.getListenPort()),
-              new SimpleBindRequest("cn=Directory Manager", "password")))
+              new LDAPThreadLocalConnectionPool(
+                   new SingleServerSet("127.0.0.1", ds1.getListenPort()),
+                   new SimpleBindRequest("cn=Directory Manager", "password")))
+    {
+      // Make sure that the connection is initially established to ds1.
+      LDAPConnection conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds1.getListenPort());
+      pool.releaseConnection(conn);
+
+
+      // Update the server so that new connections will be established to ds2.
+      pool.setServerSet(new SingleServerSet("127.0.0.1", ds2.getListenPort()));
+
+
+      // Make sure that the existing connection is still connected to ds1.
+      conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds1.getListenPort());
+
+
+      // Release the connection as defunct and make sure that the new connection
+      // is connected to ds2.
+      pool.releaseDefunctConnection(conn);
+      conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds2.getListenPort());
+
+
+      // Try to set a null server set.  That should be rejected.
+      try
+      {
+        pool.setServerSet(null);
+        fail("Expected an exception when setting a null server set.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+
+      // It should still be possible to get new connections, and they should
+      // still be connected to ds2.
+      pool.releaseDefunctConnection(conn);
+      conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds2.getListenPort());
+
+
+      // Set the server set so that new connections will be established to ds3.
+      pool.setServerSet(new SingleServerSet("127.0.0.1", ds3.getListenPort()));
+
+
+      // Make sure that new connections are established to ds3.
+      pool.releaseDefunctConnection(conn);
+      conn = pool.getConnection();
+      assertEquals(conn.getConnectedPort(), ds3.getListenPort());
+      pool.releaseConnection(conn);
+    }
+    finally
+    {
+      ds1.shutDown(true);
+      ds2.shutDown(true);
+      ds3.shutDown(true);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the
+   * {@link LDAPThreadLocalConnectionPool#setServerSet} method for a connection
+   * pool created with an already-established connection rather than a server
+   * set and a bind request.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSetServerSetForLDAPThreadLocalConnectionPoolFromConn()
+         throws Exception
+  {
+    // Create three different in-memory directory server instances to use for
+    // testing.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    cfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+
+    final InMemoryDirectoryServer ds1 =
+         new InMemoryDirectoryServer(new InMemoryDirectoryServerConfig(cfg));
+    ds1.startListening();
+
+    final InMemoryDirectoryServer ds2 =
+         new InMemoryDirectoryServer(new InMemoryDirectoryServerConfig(cfg));
+    ds2.startListening();
+
+    final InMemoryDirectoryServer ds3 =
+         new InMemoryDirectoryServer(new InMemoryDirectoryServerConfig(cfg));
+    ds3.startListening();
+
+
+    try (final LDAPConnection connection =
+              new LDAPConnection("127.0.0.1", ds1.getListenPort(),
+                   "cn=Directory Manager", "password");
+         final LDAPConnectionPool pool =
+              new LDAPConnectionPool(connection, 1, 1))
     {
       // Make sure that the connection is initially established to ds1.
       LDAPConnection conn = pool.getConnection();

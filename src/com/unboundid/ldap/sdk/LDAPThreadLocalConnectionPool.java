@@ -219,8 +219,8 @@ public final class LDAPThreadLocalConnectionPool
     serverSet = new SingleServerSet(connection.getConnectedAddress(),
                                     connection.getConnectedPort(),
                                     connection.getLastUsedSocketFactory(),
-                                    connection.getConnectionOptions(),
-                                    bindRequest, postConnectProcessor);
+                                    connection.getConnectionOptions(), null,
+                                    postConnectProcessor);
 
     connections = new ConcurrentHashMap<Thread,LDAPConnection>();
     connections.put(Thread.currentThread(), connection);
