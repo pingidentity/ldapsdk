@@ -1600,6 +1600,12 @@ public class RDNTestCase
       {
         "cn=Smiley face emoji \uD83D\uDE00",
         "cn=smiley face emoji \\f0\\9f\\98\\80"
+      },
+
+      new Object[]
+      {
+        "cn=United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8",
+        "cn=united states flag emoji \\f0\\9f\\87\\ba\\f0\\9f\\87\\b8"
       }
     };
   }

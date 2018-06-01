@@ -173,6 +173,12 @@ public class CaseExactStringMatchingRuleTestCase
       {
         "Smiley Face Emoji \uD83D\uDE00",
         "Smiley Face Emoji \uD83D\uDE00"
+      },
+
+      new Object[]
+      {
+        "United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8",
+        "United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8"
       }
     };
   }
@@ -510,6 +516,13 @@ public class CaseExactStringMatchingRuleTestCase
         "Smiley Face Emoji \uD83D\uDE00",
         SUBSTRING_TYPE_SUBINITIAL,
         "Smiley Face Emoji \uD83D\uDE00"
+      },
+
+      new Object[]
+      {
+        "United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8",
+        SUBSTRING_TYPE_SUBINITIAL,
+        "United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8"
       }
     };
   }

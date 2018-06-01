@@ -1381,12 +1381,14 @@ public class FilterTestCase
     final String valueString2 = "Latin Capital Letter OO \uA74E";
     final String valueString3 = "Deseret Capital Letter Long I \uD801\uDC00";
     final String valueString4 = "Smiley Face Emoji \uD83D\uDE00";
+    final String valueString5 = "U.S. Flag Emoji \uD83C\uDDFA\uD83C\uDDF8";
 
     final Filter f = Filter.createORFilter(
          Filter.createEqualityFilter("cn", valueString1),
          Filter.createEqualityFilter("cn", valueString2),
          Filter.createEqualityFilter("cn", valueString3),
-         Filter.createEqualityFilter("cn", valueString4));
+         Filter.createEqualityFilter("cn", valueString4),
+         Filter.createEqualityFilter("cn", valueString5));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_OR);
 
@@ -1395,13 +1397,14 @@ public class FilterTestCase
     assertNull(f.getAssertionValue());
 
     assertNotNull(f.getComponents());
-    assertEquals(f.getComponents().length, 4);
+    assertEquals(f.getComponents().length, 5);
 
     final String expectedFilterString =
          "(|(cn=Jalape\\c3\\b1o)" +
               "(cn=Latin Capital Letter OO \\ea\\9d\\8e)" +
               "(cn=Deseret Capital Letter Long I \\f0\\90\\90\\80)" +
-              "(cn=Smiley Face Emoji \\f0\\9f\\98\\80))";
+              "(cn=Smiley Face Emoji \\f0\\9f\\98\\80)" +
+              "(cn=U.S. Flag Emoji \\f0\\9f\\87\\ba\\f0\\9f\\87\\b8))";
     final String filterString = f.toString();
     assertEquals(filterString, expectedFilterString);
 
@@ -1424,7 +1427,8 @@ public class FilterTestCase
          "(|(cn=Jalape\u00f1o)" +
               "(cn=Latin Capital Letter OO \uA74E)" +
               "(cn=Deseret Capital Letter Long I \uD801\uDC00)" +
-              "(cn=Smiley Face Emoji \uD83D\uDE00))";
+              "(cn=Smiley Face Emoji \uD83D\uDE00)" +
+              "(cn=U.S. Flag Emoji \uD83C\uDDFA\uD83C\uDDF8))";
     final Filter decodedFromMinimallyEncodedFilterString =
          Filter.create(minimallyEncodedFilterString);
     assertEquals(decodedFromMinimallyEncodedFilterString, f);
@@ -1433,7 +1437,8 @@ public class FilterTestCase
          "(|(cn=jalape\\c3\\b1o)" +
               "(cn=latin capital letter oo \\ea\\9d\\8f)" +
               "(cn=deseret capital letter long i \\f0\\90\\90\\a8)" +
-              "(cn=smiley face emoji \\f0\\9f\\98\\80))";
+              "(cn=smiley face emoji \\f0\\9f\\98\\80)" +
+              "(cn=u.s. flag emoji \\f0\\9f\\87\\ba\\f0\\9f\\87\\b8))";
     assertEquals(f.toNormalizedString(), expectedNormalizedFilterString);
     assertEquals(decodedFromMinimallyEncodedFilterString.toNormalizedString(),
          expectedNormalizedFilterString);
