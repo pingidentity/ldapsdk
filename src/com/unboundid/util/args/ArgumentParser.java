@@ -24,11 +24,15 @@ package com.unboundid.util.args;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -357,19 +361,19 @@ public final class ArgumentParser
            this.minTrailingArgs, this.maxTrailingArgs));
     }
 
-    namedArgsByShortID    = new LinkedHashMap<Character,Argument>();
-    namedArgsByLongID     = new LinkedHashMap<String,Argument>();
-    namedArgs             = new ArrayList<Argument>();
-    trailingArgs          = new ArrayList<String>();
-    dependentArgumentSets = new ArrayList<ObjectPair<Argument,Set<Argument>>>();
-    exclusiveArgumentSets = new ArrayList<Set<Argument>>();
-    requiredArgumentSets  = new ArrayList<Set<Argument>>();
+    namedArgsByShortID    = new LinkedHashMap<>(20);
+    namedArgsByLongID     = new LinkedHashMap<>(20);
+    namedArgs             = new ArrayList<>(20);
+    trailingArgs          = new ArrayList<>(20);
+    dependentArgumentSets = new ArrayList<>(20);
+    exclusiveArgumentSets = new ArrayList<>(20);
+    requiredArgumentSets  = new ArrayList<>(20);
     parentSubCommand      = null;
     selectedSubCommand    = null;
-    subCommands           = new ArrayList<SubCommand>();
-    subCommandsByName     = new LinkedHashMap<String,SubCommand>(10);
+    subCommands           = new ArrayList<>(20);
+    subCommandsByName     = new LinkedHashMap<>(20);
     propertiesFileUsed    = null;
-    argumentsSetFromPropertiesFile = new ArrayList<String>();
+    argumentsSetFromPropertiesFile = new ArrayList<>(20);
   }
 
 
@@ -392,17 +396,16 @@ public final class ArgumentParser
     trailingArgsPlaceholder = source.trailingArgsPlaceholder;
 
     propertiesFileUsed = null;
-    argumentsSetFromPropertiesFile = new ArrayList<String>();
-    trailingArgs = new ArrayList<String>();
+    argumentsSetFromPropertiesFile = new ArrayList<>(20);
+    trailingArgs = new ArrayList<>(20);
 
-    namedArgs = new ArrayList<Argument>(source.namedArgs.size());
+    namedArgs = new ArrayList<>(source.namedArgs.size());
     namedArgsByLongID =
-         new LinkedHashMap<String,Argument>(source.namedArgsByLongID.size());
-    namedArgsByShortID = new LinkedHashMap<Character,Argument>(
-         source.namedArgsByShortID.size());
+         new LinkedHashMap<>(source.namedArgsByLongID.size());
+    namedArgsByShortID = new LinkedHashMap<>(source.namedArgsByShortID.size());
 
     final LinkedHashMap<String,Argument> argsByID =
-         new LinkedHashMap<String,Argument>(source.namedArgs.size());
+         new LinkedHashMap<>(source.namedArgs.size());
     for (final Argument sourceArg : source.namedArgs)
     {
       final Argument a = sourceArg.getCleanCopy();
@@ -431,14 +434,14 @@ public final class ArgumentParser
       }
     }
 
-    dependentArgumentSets = new ArrayList<ObjectPair<Argument,Set<Argument>>>(
-         source.dependentArgumentSets.size());
+    dependentArgumentSets =
+         new ArrayList<>(source.dependentArgumentSets.size());
     for (final ObjectPair<Argument,Set<Argument>> p :
          source.dependentArgumentSets)
     {
       final Set<Argument> sourceSet = p.getSecond();
       final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<Argument>(sourceSet.size());
+           new LinkedHashSet<>(sourceSet.size());
       for (final Argument a : sourceSet)
       {
         newSet.add(argsByID.get(a.getIdentifierString()));
@@ -455,7 +458,7 @@ public final class ArgumentParser
     for (final Set<Argument> sourceSet : source.exclusiveArgumentSets)
     {
       final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<Argument>(sourceSet.size());
+           new LinkedHashSet<>(sourceSet.size());
       for (final Argument a : sourceSet)
       {
         newSet.add(argsByID.get(a.getIdentifierString()));
@@ -465,11 +468,11 @@ public final class ArgumentParser
     }
 
     requiredArgumentSets =
-         new ArrayList<Set<Argument>>(source.requiredArgumentSets.size());
+         new ArrayList<>(source.requiredArgumentSets.size());
     for (final Set<Argument> sourceSet : source.requiredArgumentSets)
     {
       final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<Argument>(sourceSet.size());
+           new LinkedHashSet<>(sourceSet.size());
       for (final Argument a : sourceSet)
       {
         newSet.add(argsByID.get(a.getIdentifierString()));
@@ -479,9 +482,8 @@ public final class ArgumentParser
 
     parentSubCommand = subCommand;
     selectedSubCommand = null;
-    subCommands = new ArrayList<SubCommand>(source.subCommands.size());
-    subCommandsByName =
-         new LinkedHashMap<String,SubCommand>(source.subCommandsByName.size());
+    subCommands = new ArrayList<>(source.subCommands.size());
+    subCommandsByName = new LinkedHashMap<>(source.subCommandsByName.size());
     for (final SubCommand sc : source.subCommands)
     {
       subCommands.add(sc.getCleanCopy());
@@ -1225,7 +1227,7 @@ public final class ArgumentParser
     }
 
     final LinkedHashSet<Argument> argSet =
-         new LinkedHashSet<Argument>(dependentArguments);
+         new LinkedHashSet<>(dependentArguments);
     dependentArgumentSets.add(
          new ObjectPair<Argument,Set<Argument>>(targetArgument, argSet));
   }
@@ -1287,7 +1289,7 @@ public final class ArgumentParser
       }
     }
 
-    final LinkedHashSet<Argument> argSet = new LinkedHashSet<Argument>();
+    final LinkedHashSet<Argument> argSet = new LinkedHashSet<>(10);
     argSet.add(dependentArg1);
     if (remaining != null)
     {
@@ -1345,7 +1347,7 @@ public final class ArgumentParser
     }
 
     final LinkedHashSet<Argument> argSet =
-         new LinkedHashSet<Argument>(exclusiveArguments);
+         new LinkedHashSet<>(exclusiveArguments);
     exclusiveArgumentSets.add(Collections.unmodifiableSet(argSet));
   }
 
@@ -1403,10 +1405,14 @@ public final class ArgumentParser
       }
     }
 
-    final LinkedHashSet<Argument> argSet = new LinkedHashSet<Argument>();
+    final LinkedHashSet<Argument> argSet = new LinkedHashSet<>(10);
     argSet.add(arg1);
     argSet.add(arg2);
-    argSet.addAll(Arrays.asList(remaining));
+
+    if (remaining != null)
+    {
+      argSet.addAll(Arrays.asList(remaining));
+    }
 
     exclusiveArgumentSets.add(Collections.unmodifiableSet(argSet));
   }
@@ -1457,7 +1463,7 @@ public final class ArgumentParser
     }
 
     final LinkedHashSet<Argument> argSet =
-         new LinkedHashSet<Argument>(requiredArguments);
+         new LinkedHashSet<>(requiredArguments);
     requiredArgumentSets.add(Collections.unmodifiableSet(argSet));
   }
 
@@ -1515,10 +1521,14 @@ public final class ArgumentParser
       }
     }
 
-    final LinkedHashSet<Argument> argSet = new LinkedHashSet<Argument>();
+    final LinkedHashSet<Argument> argSet = new LinkedHashSet<>(10);
     argSet.add(arg1);
     argSet.add(arg2);
-    argSet.addAll(Arrays.asList(remaining));
+
+    if (remaining != null)
+    {
+      argSet.addAll(Arrays.asList(remaining));
+    }
 
     requiredArgumentSets.add(Collections.unmodifiableSet(argSet));
   }
@@ -1630,11 +1640,11 @@ public final class ArgumentParser
     }
 
     // Ensure that the caller isn't trying to create a nested subcommand.
-    if (this.parentSubCommand != null)
+    if (parentSubCommand != null)
     {
       throw new ArgumentException(
            ERR_PARSER_CANNOT_CREATE_NESTED_SUBCOMMAND.get(
-                this.parentSubCommand.getPrimaryName()));
+                parentSubCommand.getPrimaryName()));
     }
 
     // Ensure that this argument parser doesn't allow trailing arguments.
@@ -2394,7 +2404,10 @@ public final class ArgumentParser
     final PrintWriter w;
     try
     {
-      w = new PrintWriter(path);
+      // The java.util.Properties specification states that properties files
+      // should be read using the ISO 8859-1 character set.
+      w = new PrintWriter(new OutputStreamWriter(new FileOutputStream(path),
+           StandardCharsets.ISO_8859_1));
     }
     catch (final Exception e)
     {
@@ -2550,17 +2563,28 @@ public final class ArgumentParser
   private void handlePropertiesFile(final File propertiesFile)
           throws ArgumentException
   {
+    final String propertiesFilePath = propertiesFile.getAbsolutePath();
+
     final BufferedReader reader;
     try
     {
-      reader = new BufferedReader(new FileReader(propertiesFile));
+      // The java.util.Properties specification states that properties files
+      // should be read using the ISO 8859-1 character set, and that characters
+      // that cannot be encoded in that format should be represented using
+      // Unicode escapes that start with a backslash, a lowercase letter "u",
+      // and four hexadecimal digits.  To provide compatibility with the Java
+      // Properties file format (except we also support the same property
+      // appearing multiple times), we will also use that encoding and will
+      // support Unicode escape sequences.
+      reader = new BufferedReader(new InputStreamReader(
+           new FileInputStream(propertiesFile), StandardCharsets.ISO_8859_1));
     }
     catch (final Exception e)
     {
       Debug.debugException(e);
       throw new ArgumentException(
-           ERR_PARSER_CANNOT_OPEN_PROP_FILE.get(
-                propertiesFile.getAbsolutePath(), getExceptionMessage(e)),
+           ERR_PARSER_CANNOT_OPEN_PROP_FILE.get(propertiesFilePath,
+                getExceptionMessage(e)),
            e);
     }
 
@@ -2571,7 +2595,7 @@ public final class ArgumentParser
       boolean lineIsContinued = false;
       int lineNumber = 0;
       final ArrayList<ObjectPair<Integer,StringBuilder>> propertyLines =
-           new ArrayList<ObjectPair<Integer,StringBuilder>>(10);
+           new ArrayList<>(10);
       while (true)
       {
         String line;
@@ -2584,8 +2608,8 @@ public final class ArgumentParser
         {
           Debug.debugException(e);
           throw new ArgumentException(
-               ERR_PARSER_ERROR_READING_PROP_FILE.get(
-                    propertiesFile.getAbsolutePath(), getExceptionMessage(e)),
+               ERR_PARSER_ERROR_READING_PROP_FILE.get(propertiesFilePath,
+                    getExceptionMessage(e)),
                e);
         }
 
@@ -2598,7 +2622,7 @@ public final class ArgumentParser
           {
             throw new ArgumentException(
                  ERR_PARSER_PROP_FILE_MISSING_CONTINUATION.get(
-                      (lineNumber-1), propertiesFile.getAbsolutePath()));
+                      (lineNumber-1), propertiesFilePath));
           }
           break;
         }
@@ -2614,7 +2638,7 @@ public final class ArgumentParser
         {
           throw new ArgumentException(
                ERR_PARSER_PROP_FILE_UNEXPECTED_LEADING_SPACE.get(
-                    propertiesFile.getAbsolutePath(), lineNumber));
+                    propertiesFilePath, lineNumber));
         }
 
 
@@ -2626,7 +2650,7 @@ public final class ArgumentParser
           {
             throw new ArgumentException(
                  ERR_PARSER_PROP_FILE_MISSING_CONTINUATION.get(
-                      (lineNumber-1), propertiesFile.getAbsolutePath()));
+                      (lineNumber-1), propertiesFilePath));
           }
           continue;
         }
@@ -2648,8 +2672,8 @@ public final class ArgumentParser
         }
         else
         {
-          propertyLines.add(new ObjectPair<Integer,StringBuilder>(lineNumber,
-               new StringBuilder(line)));
+          propertyLines.add(
+               new ObjectPair<>(lineNumber, new StringBuilder(line)));
         }
 
         lineIsContinued = hasTrailingBackslash;
@@ -2665,15 +2689,17 @@ public final class ArgumentParser
       }
 
       final HashMap<String,ArrayList<String>> propertyMap =
-           new HashMap<String,ArrayList<String>>(propertyLines.size());
+           new HashMap<>(propertyLines.size());
       for (final ObjectPair<Integer,StringBuilder> p : propertyLines)
       {
-        final String line = p.getSecond().toString();
+        lineNumber = p.getFirst();
+        final String line = handleUnicodeEscapes(propertiesFilePath, lineNumber,
+             p.getSecond());
         final int equalPos = line.indexOf('=');
         if (equalPos <= 0)
         {
           throw new ArgumentException(ERR_PARSER_MALFORMED_PROP_LINE.get(
-               propertiesFile.getAbsolutePath(), p.getFirst(), line));
+               propertiesFilePath, lineNumber, line));
         }
 
         final String propertyName = line.substring(0, equalPos).trim();
@@ -2765,7 +2791,7 @@ public final class ArgumentParser
         ArrayList<String> valueList = propertyMap.get(canonicalPropertyName);
         if (valueList == null)
         {
-          valueList = new ArrayList<String>(5);
+          valueList = new ArrayList<>(5);
           propertyMap.put(canonicalPropertyName, valueList);
         }
         valueList.add(propertyValue);
@@ -2796,6 +2822,75 @@ public final class ArgumentParser
         Debug.debugException(e);
       }
     }
+  }
+
+
+
+  /**
+   * Retrieves a string that contains the contents of the provided buffer, but
+   * with any Unicode escape sequences converted to the appropriate character
+   * representation.
+   *
+   * @param  propertiesFilePath  The path to the properties file
+   * @param  lineNumber  The line number on which the property definition
+   *                     starts.
+   * @param  buffer      The buffer containing the data to be processed.  It
+   *                     must not be {@code null} but may be empty.
+   *
+   * @return  A string that contains the contents of the provided buffer, but
+   *          with any Unicode escape sequences converted to the appropriate
+   *          character representation.
+   *
+   * @throws  ArgumentException  If a malformed Unicode escape sequence is
+   *                             encountered.
+   */
+  static String handleUnicodeEscapes(final String propertiesFilePath,
+                                     final int lineNumber,
+                                     final StringBuilder buffer)
+         throws ArgumentException
+  {
+    int pos = 0;
+    while (pos < buffer.length())
+    {
+      final char c = buffer.charAt(pos);
+      if (c == '\\')
+      {
+        if (pos <= (buffer.length() - 5))
+        {
+          final char nextChar = buffer.charAt(pos+1);
+          if ((nextChar == 'u') || (nextChar == 'U'))
+          {
+            try
+            {
+              final String hexDigits = buffer.substring(pos+2, pos+6);
+              final byte[] bytes = fromHex(hexDigits);
+              final int i = ((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF);
+              buffer.setCharAt(pos, (char) i);
+              for (int j=0; j < 5; j++)
+              {
+                buffer.deleteCharAt(pos+1);
+              }
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+              throw new ArgumentException(
+                   ERR_PARSER_MALFORMED_UNICODE_ESCAPE.get(propertiesFilePath,
+                        lineNumber),
+                   e);
+            }
+          }
+          else
+          {
+            pos++;
+          }
+        }
+      }
+
+      pos++;
+    }
+
+    return buffer.toString();
   }
 
 
@@ -2947,7 +3042,7 @@ exclusiveArgumentLoop:
     }
 
     // First is a description of the command.
-    final ArrayList<String> lines = new ArrayList<String>(100);
+    final ArrayList<String> lines = new ArrayList<>(100);
     lines.addAll(wrapLine(commandDescription, maxWidth));
     lines.add("");
 
@@ -3031,11 +3126,11 @@ exclusiveArgumentLoop:
       // groups.
       boolean hasRequired = false;
       final LinkedHashMap<String,List<Argument>> argumentsByGroup =
-           new LinkedHashMap<String,List<Argument>>(10);
+           new LinkedHashMap<>(10);
       final ArrayList<Argument> argumentsWithoutGroup =
-           new ArrayList<Argument>(namedArgs.size());
+           new ArrayList<>(namedArgs.size());
       final ArrayList<Argument> usageArguments =
-           new ArrayList<Argument>(namedArgs.size());
+           new ArrayList<>(namedArgs.size());
       for (final Argument a : namedArgs)
       {
         if (a.isHidden())
@@ -3066,7 +3161,7 @@ exclusiveArgumentLoop:
           List<Argument> groupArgs = argumentsByGroup.get(argumentGroup);
           if (groupArgs == null)
           {
-            groupArgs = new ArrayList<Argument>(10);
+            groupArgs = new ArrayList<>(10);
             argumentsByGroup.put(argumentGroup, groupArgs);
           }
 
@@ -3164,7 +3259,7 @@ exclusiveArgumentLoop:
   private List<String> getSubCommandUsage(final int maxWidth)
   {
     // First is a description of the subcommand.
-    final ArrayList<String> lines = new ArrayList<String>(100);
+    final ArrayList<String> lines = new ArrayList<>(100);
     lines.addAll(wrapLine(selectedSubCommand.getDescription(), maxWidth));
     lines.add("");
 
@@ -3186,11 +3281,11 @@ exclusiveArgumentLoop:
       // groups.
       boolean hasRequired = false;
       final LinkedHashMap<String,List<Argument>> argumentsByGroup =
-           new LinkedHashMap<String,List<Argument>>(10);
+           new LinkedHashMap<>(10);
       final ArrayList<Argument> argumentsWithoutGroup =
-           new ArrayList<Argument>(parser.namedArgs.size());
+           new ArrayList<>(parser.namedArgs.size());
       final ArrayList<Argument> usageArguments =
-           new ArrayList<Argument>(parser.namedArgs.size());
+           new ArrayList<>(parser.namedArgs.size());
       for (final Argument a : parser.namedArgs)
       {
         if (a.isHidden())
@@ -3221,7 +3316,7 @@ exclusiveArgumentLoop:
           List<Argument> groupArgs = argumentsByGroup.get(argumentGroup);
           if (groupArgs == null)
           {
-            groupArgs = new ArrayList<Argument>(10);
+            groupArgs = new ArrayList<>(10);
             argumentsByGroup.put(argumentGroup, groupArgs);
           }
 

@@ -74,6 +74,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the argument parser's properties file support so that it expects the
+                  file to use the ISO 8859-1 encoding, and to support Unicode escape sequences
+                  that are comprised of a backslash followed by the letter u and four hexadecimal
+                  digits.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the tool invocation logger to add a failsafe mechanism for preventing
                   passwords from being included in the log.  Although it will already mark redact
                   the values of any arguments that are declared sensitive, it will now also redact

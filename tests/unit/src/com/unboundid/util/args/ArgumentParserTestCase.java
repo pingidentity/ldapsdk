@@ -1352,4 +1352,148 @@ public class ArgumentParserTestCase
     p = p.getCleanCopy();
     p.parse(new String[] { "--", "trailing" });
   }
+
+
+
+  /**
+   * Provides test coverage for the {@code handleUnicodeEscapes} method.
+   *
+   * @param  inputString           The input string to use in testing the
+   *                               method.
+   * @param  expectedOutputString  The expected output from the method.  This
+   *                               will be ignored if {@code inputIsValid} is
+   *                               {@code false}.
+   * @param  inputIsValid          Indicates whether the provided input string
+   *                               is valid.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="testHandleUnicodeEscapesData")
+  public void testHandleUnicodeEscapes(final String inputString,
+                                       final String expectedOutputString,
+                                       final boolean inputIsValid)
+         throws Exception
+  {
+    final String path = "/path/to/properties.txt";
+    final StringBuilder buffer = new StringBuilder(inputString);
+
+    if (inputIsValid)
+    {
+      final String gotOutputString =
+           ArgumentParser.handleUnicodeEscapes(path, 1, buffer);
+      assertEquals(gotOutputString, expectedOutputString);
+    }
+    else
+    {
+      try
+      {
+        ArgumentParser.handleUnicodeEscapes(path, 1, buffer);
+        fail("Expected an argument exception from an invalid input string");
+      }
+      catch (final ArgumentException e)
+      {
+        // This was expected.
+      }
+    }
+  }
+
+
+
+  /**
+   * Retrieves a set of test data that can be used to test the
+   * {@code handleUnicodeEscapes} method.
+   *
+   * @return  A set of test data that can be used to test the
+   *          {@code handleUnicodeEscapes} method.
+   */
+  @DataProvider(name="testHandleUnicodeEscapesData")
+  public Object[][] getTestHandleUnicodeEscapesData()
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        "",
+        "",
+        true
+      },
+
+      new Object[]
+      {
+        "\\u002a",
+        "*",
+        true
+      },
+
+      new Object[]
+      {
+        "\\U0000",
+        "\u0000",
+        true
+      },
+
+      new Object[]
+      {
+        "Jalape\\u00f1o",
+        "Jalape\u00f1o",
+        true
+      },
+
+      new Object[]
+      {
+        "Jalape\\u00F1o",
+        "Jalape\u00f1o",
+        true
+      },
+
+      new Object[]
+      {
+        "Latin Capital Letter OO \\uA74E",
+        "Latin Capital Letter OO \uA74E",
+        true
+      },
+
+      new Object[]
+      {
+        "Deseret Capital Letter Long I \\uD801\\uDC00",
+        "Deseret Capital Letter Long I \uD801\uDC00",
+        true
+      },
+
+      new Object[]
+      {
+        "Smiley face emoji \\uD83D\\uDE00",
+        "Smiley face emoji \uD83D\uDE00",
+        true
+      },
+
+      new Object[]
+      {
+        "United States Flag Emoji \\uD83C\\uDDFA\\uD83C\\uDDF8",
+        "United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8",
+        true
+      },
+
+      new Object[]
+      {
+        "Double \\\\ Backslash",
+        "Double \\\\ Backslash",
+        true
+      },
+
+      new Object[]
+      {
+        "Malformed \\uXXXX Escape",
+        "",
+        false
+      },
+
+      new Object[]
+      {
+        "Malformed \\UXXXX Escape",
+        "",
+        false
+      },
+    };
+  }
 }
