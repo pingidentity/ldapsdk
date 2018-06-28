@@ -720,6 +720,7 @@ public class Task
          new DisconnectClientTask(),
          new DumpDBDetailsTask(),
          new EnterLockdownModeTask(),
+         new ExecTask(),
          new ExportTask(),
          new GroovyScriptedTask(),
          new ImportTask(),
@@ -1644,6 +1645,10 @@ public class Task
                     EnterLockdownModeTask.ENTER_LOCKDOWN_MODE_TASK_CLASS))
       {
         return new EnterLockdownModeTask(entry);
+      }
+      else if (taskClass.equals(ExecTask.EXEC_TASK_CLASS))
+      {
+        return new ExecTask(entry);
       }
       else if (taskClass.equals(ExportTask.EXPORT_TASK_CLASS))
       {
