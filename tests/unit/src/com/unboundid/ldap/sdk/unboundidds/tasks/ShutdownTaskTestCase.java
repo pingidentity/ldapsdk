@@ -459,7 +459,11 @@ public class ShutdownTaskTestCase
     Map<TaskProperty,List<Object>> props = t.getTaskPropertyValues();
     for (TaskProperty p : Task.getCommonTaskProperties())
     {
-      assertNotNull(props.get(p));
+      if (props.get(p) == null)
+      {
+        continue;
+      }
+
       if (p.isRequired())
       {
         assertFalse(props.get(p).isEmpty());
@@ -520,7 +524,11 @@ public class ShutdownTaskTestCase
     Map<TaskProperty,List<Object>> props = t.getTaskPropertyValues();
     for (TaskProperty p : Task.getCommonTaskProperties())
     {
-      assertNotNull(props.get(p));
+      if (props.get(p) == null)
+      {
+        continue;
+      }
+
       if (p.isRequired())
       {
         assertFalse(props.get(p).isEmpty());

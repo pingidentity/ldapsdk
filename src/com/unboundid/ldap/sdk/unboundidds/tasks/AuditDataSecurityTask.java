@@ -333,9 +333,90 @@ public final class AuditDataSecurityTask
               final List<String> notifyOnCompletion,
               final List<String> notifyOnError)
   {
+    this(taskID, includeAuditors, excludeAuditors, backendIDs, reportFilters,
+         outputDirectory, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new audit data security task with the provided information.
+   *
+   * @param  taskID                  The task ID to use for this task.  If it is
+   *                                 {@code null} then a UUID will be generated
+   *                                 for use as the task ID.
+   * @param  includeAuditors         The names of the auditors that should be
+   *                                 used to examine the data.  It may be
+   *                                 {@code null} or empty if an exclude list
+   *                                 should be provided, or if all enabled
+   *                                 auditors should be invoked.  You must not
+   *                                 provide both include and exclude auditors.
+   * @param  excludeAuditors         The names of the auditors that should be
+   *                                 excluded when examining the data.  It may
+   *                                 be {@code null} or empty if an include list
+   *                                 should be provided, or if all enabled
+   *                                 auditors should be invoked.  You must not
+   *                                 provide both include and exclude auditors.
+   * @param  backendIDs              The backend IDs of the backends containing
+   *                                 the data to examine.  It may be
+   *                                 {@code null} or empty if all supported
+   *                                 backends should be selected.
+   * @param  reportFilters           A set of filters which identify entries
+   *                                 that should be examined.  It may be
+   *                                 {@code null} or empty if all entries should
+   *                                 be examined.
+   * @param  outputDirectory         The path to the output directory (on the
+   *                                 server filesystem) in which report data
+   *                                 files should be written.  It may be
+   *                                 {@code null} if a default output directory
+   *                                 should be used.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public AuditDataSecurityTask(final String taskID,
+              final List<String> includeAuditors,
+              final List<String> excludeAuditors, final List<String> backendIDs,
+              final List<String> reportFilters, final String outputDirectory,
+              final Date scheduledStartTime, final List<String> dependencyIDs,
+              final FailedDependencyAction failedDependencyAction,
+              final List<String> notifyOnStart,
+              final List<String> notifyOnCompletion,
+              final List<String> notifyOnSuccess,
+              final List<String> notifyOnError, final Boolean alertOnStart,
+              final Boolean alertOnSuccess, final Boolean alertOnError)
+  {
     super(taskID, AUDIT_DATA_SECURITY_TASK_CLASS, scheduledStartTime,
-         dependencyIDs, failedDependencyAction, notifyOnCompletion,
-         notifyOnError);
+         dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     this.includeAuditors = getStringList(includeAuditors);
     this.excludeAuditors = getStringList(excludeAuditors);

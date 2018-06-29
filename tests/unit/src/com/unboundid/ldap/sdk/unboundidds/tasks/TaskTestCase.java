@@ -91,11 +91,23 @@ public class TaskTestCase
     assertNotNull(t.getLogMessages());
     assertTrue(t.getLogMessages().isEmpty());
 
+    assertNotNull(t.getNotifyOnStartAddresses());
+    assertTrue(t.getNotifyOnStartAddresses().isEmpty());
+
     assertNotNull(t.getNotifyOnCompletionAddresses());
     assertTrue(t.getNotifyOnCompletionAddresses().isEmpty());
 
+    assertNotNull(t.getNotifyOnSuccessAddresses());
+    assertTrue(t.getNotifyOnSuccessAddresses().isEmpty());
+
     assertNotNull(t.getNotifyOnErrorAddresses());
     assertTrue(t.getNotifyOnErrorAddresses().isEmpty());
+
+    assertNull(t.getAlertOnStart());
+
+    assertNull(t.getAlertOnSuccess());
+
+    assertNull(t.getAlertOnError());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertTrue(t.getAdditionalObjectClasses().isEmpty());
@@ -154,11 +166,23 @@ public class TaskTestCase
     assertNotNull(t.getLogMessages());
     assertTrue(t.getLogMessages().isEmpty());
 
+    assertNotNull(t.getNotifyOnStartAddresses());
+    assertTrue(t.getNotifyOnStartAddresses().isEmpty());
+
     assertNotNull(t.getNotifyOnCompletionAddresses());
     assertTrue(t.getNotifyOnCompletionAddresses().isEmpty());
 
+    assertNotNull(t.getNotifyOnSuccessAddresses());
+    assertTrue(t.getNotifyOnSuccessAddresses().isEmpty());
+
     assertNotNull(t.getNotifyOnErrorAddresses());
     assertTrue(t.getNotifyOnErrorAddresses().isEmpty());
+
+    assertNull(t.getAlertOnStart());
+
+    assertNull(t.getAlertOnSuccess());
+
+    assertNull(t.getAlertOnError());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertTrue(t.getAdditionalObjectClasses().isEmpty());
@@ -240,11 +264,23 @@ public class TaskTestCase
     assertNotNull(t.getLogMessages());
     assertTrue(t.getLogMessages().isEmpty());
 
+    assertNotNull(t.getNotifyOnStartAddresses());
+    assertTrue(t.getNotifyOnStartAddresses().isEmpty());
+
     assertNotNull(t.getNotifyOnCompletionAddresses());
     assertTrue(t.getNotifyOnCompletionAddresses().isEmpty());
 
+    assertNotNull(t.getNotifyOnSuccessAddresses());
+    assertTrue(t.getNotifyOnSuccessAddresses().isEmpty());
+
     assertNotNull(t.getNotifyOnErrorAddresses());
     assertTrue(t.getNotifyOnErrorAddresses().isEmpty());
+
+    assertNull(t.getAlertOnStart());
+
+    assertNull(t.getAlertOnSuccess());
+
+    assertNull(t.getAlertOnError());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertTrue(t.getAdditionalObjectClasses().isEmpty());
@@ -272,21 +308,29 @@ public class TaskTestCase
 
     List<String> dependencyIDs = Arrays.asList("dependency1", "dependency2");
 
+    List<String> notifyOnStart=
+         Arrays.asList("start-address-1@example.com");
+
     List<String> notifyOnCompletion =
-         Arrays.asList("junior-admin-1@example.com",
-                       "junior-admin-2@example.com",
-                       "junior-admin-3@example.com");
+         Arrays.asList("completion-address-1@example.com",
+                       "completion-address-2@example.com");
+
+    List<String> notifyOnSuccess =
+         Arrays.asList("success-address-1@example.com",
+                       "success-address-2@example.com",
+                       "success-address-3@example.com");
 
     List<String> notifyOnError =
-         Arrays.asList("senior-admin-1@example.com",
-                       "senior-admin-2@example.com",
-                       "senior-admin-3@example.com",
-                       "senior-admin-4@example.com");
+         Arrays.asList("error-address-1@example.com",
+                       "error-address-2@example.com",
+                       "error-address-3@example.com",
+                       "error-address-4@example.com");
 
 
     Task t = new Task("test-task-id", "bogus.task.class.name", d, dependencyIDs,
-                      FailedDependencyAction.CANCEL, notifyOnCompletion,
-                      notifyOnError);
+                      FailedDependencyAction.CANCEL, notifyOnStart,
+                      notifyOnCompletion, notifyOnSuccess, notifyOnError,
+                      true, false, null);
     assertNotNull(t);
 
     assertNull(t.getTaskEntry());
@@ -325,11 +369,29 @@ public class TaskTestCase
     assertNotNull(t.getLogMessages());
     assertTrue(t.getLogMessages().isEmpty());
 
+    assertNotNull(t.getNotifyOnStartAddresses());
+    assertEquals(t.getNotifyOnStartAddresses().size(), 1);
+    assertEquals(t.getNotifyOnStartAddresses(), notifyOnStart);
+
     assertNotNull(t.getNotifyOnCompletionAddresses());
-    assertEquals(t.getNotifyOnCompletionAddresses().size(), 3);
+    assertEquals(t.getNotifyOnCompletionAddresses().size(), 2);
+    assertEquals(t.getNotifyOnCompletionAddresses(), notifyOnCompletion);
+
+    assertNotNull(t.getNotifyOnSuccessAddresses());
+    assertEquals(t.getNotifyOnSuccessAddresses().size(), 3);
+    assertEquals(t.getNotifyOnSuccessAddresses(), notifyOnSuccess);
 
     assertNotNull(t.getNotifyOnErrorAddresses());
     assertEquals(t.getNotifyOnErrorAddresses().size(), 4);
+    assertEquals(t.getNotifyOnErrorAddresses(), notifyOnError);
+
+    assertNotNull(t.getAlertOnStart());
+    assertEquals(t.getAlertOnStart(), Boolean.TRUE);
+
+    assertNotNull(t.getAlertOnSuccess());
+    assertEquals(t.getAlertOnSuccess(), Boolean.FALSE);
+
+    assertNull(t.getAlertOnError());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertTrue(t.getAdditionalObjectClasses().isEmpty());
@@ -376,9 +438,19 @@ public class TaskTestCase
 
     assertNotNull(t.getLogMessages());
 
+    assertNotNull(t.getNotifyOnStartAddresses());
+
     assertNotNull(t.getNotifyOnCompletionAddresses());
 
+    assertNotNull(t.getNotifyOnSuccessAddresses());
+
     assertNotNull(t.getNotifyOnErrorAddresses());
+
+    t.getAlertOnStart();
+
+    t.getAlertOnSuccess();
+
+    t.getAlertOnError();
 
     assertNotNull(t.getAdditionalObjectClasses());
 
@@ -431,10 +503,16 @@ public class TaskTestCase
                   "ds-task-failed-dependency-action: cancel",
                   "ds-task-log-message: [01/Jan/2008:00:00:00 +0000] starting",
                   "ds-task-log-message: [01/Jan/2008:01:01:01 +0000] done",
+                  "ds-task-notify-on-start: janine@example.com",
                   "ds-task-notify-on-completion: ray@example.com",
                   "ds-task-notify-on-completion: winston@example.com",
+                  "ds-task-notify-on-success: dana@example.com",
+                  "ds-task-notify-on-success: louis@example.com",
                   "ds-task-notify-on-error: peter@example.com",
-                  "ds-task-notify-on-error: egon@example.com")
+                  "ds-task-notify-on-error: egon@example.com",
+                  "ds-task-alert-on-start: true",
+                  "ds-task-alert-on-success: true",
+                  "ds-task-alert-on-error: true")
       }
     };
   }
@@ -580,8 +658,13 @@ public class TaskTestCase
     List<Object> scheduledStartTime = Arrays.<Object>asList(new Date());
     List<Object> depIDs = Arrays.<Object>asList("a", "b");
     List<Object> failedDepAction = Arrays.<Object>asList("disable");
-    List<Object> notifyOnCompletion = Arrays.<Object>asList("a@b.com");
-    List<Object> notifyOnError = Arrays.<Object>asList("c@d.com");
+    List<Object> notifyOnStart = Arrays.<Object>asList("a@b.com");
+    List<Object> notifyOnCompletion = Arrays.<Object>asList("c@d.com");
+    List<Object> notifyOnSuccess = Arrays.<Object>asList("e@f.com");
+    List<Object> notifyOnError = Arrays.<Object>asList("g@h.com");
+    Boolean alertOnStart = false;
+    Boolean alertOnSuccess = true;
+    Boolean alertOnError = false;
 
     HashMap<TaskProperty,List<Object>> properties =
          new HashMap<TaskProperty,List<Object>>();
@@ -596,13 +679,33 @@ public class TaskTestCase
       {
         properties.put(p, failedDepAction);
       }
+      else if (name.equals("ds-task-notify-on-start"))
+      {
+        properties.put(p, notifyOnStart);
+      }
       else if (name.equals("ds-task-notify-on-completion"))
       {
         properties.put(p, notifyOnCompletion);
       }
+      else if (name.equals("ds-task-notify-on-success"))
+      {
+        properties.put(p, notifyOnSuccess);
+      }
       else if (name.equals("ds-task-notify-on-error"))
       {
         properties.put(p, notifyOnError);
+      }
+      else if (name.equals("ds-task-alert-on-start"))
+      {
+        properties.put(p, Collections.<Object>singletonList(alertOnStart));
+      }
+      else if (name.equals("ds-task-alert-on-success"))
+      {
+        properties.put(p, Collections.<Object>singletonList(alertOnSuccess));
+      }
+      else if (name.equals("ds-task-alert-on-error"))
+      {
+        properties.put(p, Collections.<Object>singletonList(alertOnError));
       }
       else if (name.equals("ds-task-scheduled-start-time"))
       {
@@ -653,11 +756,26 @@ public class TaskTestCase
     assertNotNull(t.getLogMessages());
     assertTrue(t.getLogMessages().isEmpty());
 
+    assertNotNull(t.getNotifyOnStartAddresses());
+    assertEquals(t.getNotifyOnStartAddresses().size(), 1);
+
     assertNotNull(t.getNotifyOnCompletionAddresses());
     assertEquals(t.getNotifyOnCompletionAddresses().size(), 1);
 
+    assertNotNull(t.getNotifyOnSuccessAddresses());
+    assertEquals(t.getNotifyOnSuccessAddresses().size(), 1);
+
     assertNotNull(t.getNotifyOnErrorAddresses());
     assertEquals(t.getNotifyOnErrorAddresses().size(), 1);
+
+    assertNotNull(t.getAlertOnStart());
+    assertEquals(t.getAlertOnStart(), Boolean.FALSE);
+
+    assertNotNull(t.getAlertOnSuccess());
+    assertEquals(t.getAlertOnSuccess(), Boolean.TRUE);
+
+    assertNotNull(t.getAlertOnError());
+    assertEquals(t.getAlertOnError(), Boolean.FALSE);
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertTrue(t.getAdditionalObjectClasses().isEmpty());
@@ -722,11 +840,23 @@ public class TaskTestCase
     assertNotNull(t.getLogMessages());
     assertTrue(t.getLogMessages().isEmpty());
 
+    assertNotNull(t.getNotifyOnStartAddresses());
+    assertTrue(t.getNotifyOnStartAddresses().isEmpty());
+
     assertNotNull(t.getNotifyOnCompletionAddresses());
     assertTrue(t.getNotifyOnCompletionAddresses().isEmpty());
 
+    assertNotNull(t.getNotifyOnSuccessAddresses());
+    assertTrue(t.getNotifyOnSuccessAddresses().isEmpty());
+
     assertNotNull(t.getNotifyOnErrorAddresses());
     assertTrue(t.getNotifyOnErrorAddresses().isEmpty());
+
+    assertNull(t.getAlertOnStart());
+
+    assertNull(t.getAlertOnSuccess());
+
+    assertNull(t.getAlertOnError());
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertTrue(t.getAdditionalObjectClasses().isEmpty());

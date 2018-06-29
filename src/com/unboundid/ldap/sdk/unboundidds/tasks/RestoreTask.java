@@ -327,9 +327,83 @@ public final class RestoreTask
                      final List<String> notifyOnCompletion,
                      final List<String> notifyOnError)
   {
+    this(taskID, backupDirectory, backupID, verifyOnly,
+         encryptionPassphraseFile, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new restore task with the provided information.
+   *
+   * @param  taskID                    The task ID to use for this task.  If it
+   *                                   is {@code null} then a UUID will be
+   *                                   generated for use as the task ID.
+   * @param  backupDirectory           The path to the directory on the server
+   *                                   containing the backup to restore.  It may
+   *                                   be an absolute path or relative to the
+   *                                   server root directory.  It must not be
+   *                                   {@code null}.
+   * @param  backupID                  The backup ID of the backup to restore.
+   *                                   If this is {@code null} then the most
+   *                                   recent backup in the specified backup
+   *                                   directory will be restored.
+   * @param  verifyOnly                Indicates whether to only verify the
+   *                                   backup without restoring it.
+   * @param  encryptionPassphraseFile  The path to a file containing the
+   *                                   passphrase to use to generate the
+   *                                   encryption key.  It amy be {@code null}
+   *                                   if the backup is not to be encrypted, or
+   *                                   if the key should be obtained in some
+   *                                   other way.
+   * @param  scheduledStartTime        The time that this task should start
+   *                                   running.
+   * @param  dependencyIDs             The list of task IDs that will be
+   *                                   required to complete before this task
+   *                                   will be eligible to start.
+   * @param  failedDependencyAction    Indicates what action should be taken if
+   *                                   any of the dependencies for this task do
+   *                                   not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public RestoreTask(final String taskID, final String backupDirectory,
+                     final String backupID, final boolean verifyOnly,
+                     final String encryptionPassphraseFile,
+                     final Date scheduledStartTime,
+                     final List<String> dependencyIDs,
+                     final FailedDependencyAction failedDependencyAction,
+                     final List<String> notifyOnStart,
+                     final List<String> notifyOnCompletion,
+                     final List<String> notifyOnSuccess,
+                     final List<String> notifyOnError,
+                     final Boolean alertOnStart, final Boolean alertOnSuccess,
+                     final Boolean alertOnError)
+  {
     super(taskID, RESTORE_TASK_CLASS, scheduledStartTime,
-          dependencyIDs, failedDependencyAction, notifyOnCompletion,
-          notifyOnError);
+         dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     ensureNotNull(backupDirectory);
 

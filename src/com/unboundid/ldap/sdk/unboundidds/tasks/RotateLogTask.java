@@ -192,8 +192,8 @@ public final class RotateLogTask
                        final List<String> dependencyIDs,
                        final FailedDependencyAction failedDependencyAction,
                        final List<String> notifyOnCompletion,
-                          final List<String> notifyOnError,
-                          final String... paths)
+                       final List<String> notifyOnError,
+                       final String... paths)
   {
     this(taskID, scheduledStartTime, dependencyIDs, failedDependencyAction,
          notifyOnCompletion, notifyOnError, StaticUtils.toList(paths));
@@ -235,8 +235,69 @@ public final class RotateLogTask
                        final List<String> notifyOnError,
                        final Collection<String> paths)
   {
+    this(taskID, scheduledStartTime, dependencyIDs, failedDependencyAction,
+         null, notifyOnCompletion, null, notifyOnError, null, null, null,
+         paths);
+  }
+
+
+
+  /**
+   * Creates a new rotate log task with the provided information.
+   *
+   * @param  taskID                  The task ID to use for this task.  If it is
+   *                                 {@code null} then a UUID will be generated
+   *                                 for use as the task ID.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   * @param  paths                   The paths (on the server filesystem) of the
+   *                                 log files to rotate.  The paths may be
+   *                                 either absolute or relative to the server
+   *                                 root.  This may be {@code null} or empty if
+   *                                 the server should rotate all appropriate
+   *                                 log files.
+   */
+  public RotateLogTask(final String taskID, final Date scheduledStartTime,
+                       final List<String> dependencyIDs,
+                       final FailedDependencyAction failedDependencyAction,
+                       final List<String> notifyOnStart,
+                       final List<String> notifyOnCompletion,
+                       final List<String> notifyOnSuccess,
+                       final List<String> notifyOnError,
+                       final Boolean alertOnStart, final Boolean alertOnSuccess,
+                       final Boolean alertOnError,
+                      final Collection<String> paths)
+  {
     super(taskID, ROTATE_LOG_TASK_CLASS, scheduledStartTime, dependencyIDs,
-         failedDependencyAction, notifyOnCompletion, notifyOnError);
+         failedDependencyAction, notifyOnStart, notifyOnCompletion,
+         notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
+         alertOnError);
 
     if (paths == null)
     {

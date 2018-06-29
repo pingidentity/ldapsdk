@@ -382,8 +382,98 @@ public final class AlertTask
                    final List<String> notifyOnCompletion,
                    final List<String> notifyOnError)
   {
+    this(taskID, alertType, alertMessage, addDegradedTypes, removeDegradedTypes,
+         addUnavailableTypes, removeUnavailableTypes, scheduledStartTime,
+         dependencyIDs, failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new alert task that can be used to generate an administrative
+   * alert and/or update the set of degraded or unavailable alert types for the
+   * Directory Server.  At least one alert-related element must be provided.
+   *
+   * @param  taskID                  The task ID to use for this task.  If it is
+   *                                 {@code null} then a UUID will be generated
+   *                                 for use as the task ID.
+   * @param  alertType               The alert type to use for the generated
+   *                                 alert.  It may be {@code null} if no alert
+   *                                 should be generated, but if it is
+   *                                 non-{@code null} then the alert message
+   *                                 must also be non-{@code null}.
+   * @param  alertMessage            The message to use for the generated alert.
+   *                                 It may be {@code null} if no alert should
+   *                                 be generated, but if it is non-{@code null}
+   *                                 then the alert type must also be
+   *                                 non-{@code null}.
+   * @param  addDegradedTypes        The names of the alert types to add to the
+   *                                 Directory Server's set of degraded alert
+   *                                 types.  It may be {@code null} or empty if
+   *                                 no degraded alert types should be added.
+   * @param  removeDegradedTypes     The names of the alert types to remove from
+   *                                 the Directory Server's set of degraded
+   *                                 alert types.  It may be {@code null} or
+   *                                 empty if no degraded alert types should be
+   *                                 removed.
+   * @param  addUnavailableTypes     The names of the alert types to add to the
+   *                                 Directory Server's set of unavailable alert
+   *                                 types.  It may be {@code null} or empty if
+   *                                 no unavailable alert types should be added.
+   * @param  removeUnavailableTypes  The names of the alert types to remove from
+   *                                 the Directory Server's set of unavailable
+   *                                 alert types.  It may be {@code null} or
+   *                                 empty if no unavailable alert types should
+   *                                 be removed.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public AlertTask(final String taskID, final String alertType,
+                   final String alertMessage,
+                   final List<String> addDegradedTypes,
+                   final List<String> removeDegradedTypes,
+                   final List<String> addUnavailableTypes,
+                   final List<String> removeUnavailableTypes,
+                   final Date scheduledStartTime,
+                   final List<String> dependencyIDs,
+                   final FailedDependencyAction failedDependencyAction,
+                   final List<String> notifyOnStart,
+                   final List<String> notifyOnCompletion,
+                   final List<String> notifyOnSuccess,
+                   final List<String> notifyOnError, final Boolean alertOnStart,
+                   final Boolean alertOnSuccess, final Boolean alertOnError)
+  {
     super(taskID, ALERT_TASK_CLASS, scheduledStartTime, dependencyIDs,
-         failedDependencyAction, notifyOnCompletion, notifyOnError);
+         failedDependencyAction, notifyOnStart, notifyOnCompletion,
+         notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
+         alertOnError);
 
     this.alertType    = alertType;
     this.alertMessage = alertMessage;

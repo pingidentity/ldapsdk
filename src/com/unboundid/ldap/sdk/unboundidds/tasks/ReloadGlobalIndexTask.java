@@ -324,9 +324,89 @@ public final class ReloadGlobalIndexTask
               final List<String> notifyOnCompletion,
               final List<String> notifyOnError)
   {
+    this(taskID, baseDN, indexNames, reloadFromDS, reloadInBackground,
+         maxEntriesPerSecond, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new reload global index task with the provided information.
+   *
+   * @param  taskID                  The task ID to use for this task.  If it is
+   *                                 {@code null} then a UUID will be generated
+   *                                 for use as the task ID.
+   * @param  baseDN                  The base DN of the entry-balancing request
+   *                                 processor for which to reload index
+   *                                 information.
+   * @param  indexNames              The names of the attributes for which to
+   *                                 reload index data.  This may be
+   *                                 {@code null} or empty to indicate that all
+   *                                 indexes should be reloaded.
+   * @param  reloadFromDS            Indicates whether to load index data from
+   *                                 backend Directory Server instances rather
+   *                                 than a peer Directory Proxy Server
+   *                                 instance.  This may be {@code null} to
+   *                                 indicate that the Directory Proxy Server
+   *                                 should automatically select the appropriate
+   *                                 source for obtaining index data.
+   * @param  reloadInBackground      Indicates whether to perform the reload in
+   *                                 the background, so that the task completes
+   *                                 immediately.
+   * @param  maxEntriesPerSecond     The maximum target rate at which to reload
+   *                                 index data (in entries per second).  A
+   *                                 value of zero indicates no limit.  A value
+   *                                 of {@code null} indicates that the
+   *                                 Directory Proxy Server should attempt to
+   *                                 determine the limit based on its
+   *                                 configuration.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public ReloadGlobalIndexTask(final String taskID, final String baseDN,
+              final List<String> indexNames, final Boolean reloadFromDS,
+              final Boolean reloadInBackground, final Long maxEntriesPerSecond,
+              final Date scheduledStartTime,
+              final List<String> dependencyIDs,
+              final FailedDependencyAction failedDependencyAction,
+              final List<String> notifyOnStart,
+              final List<String> notifyOnCompletion,
+              final List<String> notifyOnSuccess,
+              final List<String> notifyOnError, final Boolean alertOnStart,
+              final Boolean alertOnSuccess, final Boolean alertOnError)
+  {
     super(taskID, RELOAD_GLOBAL_INDEX_TASK_CLASS, scheduledStartTime,
-         dependencyIDs, failedDependencyAction, notifyOnCompletion,
-         notifyOnError);
+         dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     ensureNotNull(baseDN);
 

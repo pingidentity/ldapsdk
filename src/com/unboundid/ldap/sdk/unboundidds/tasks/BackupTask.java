@@ -670,9 +670,143 @@ public final class BackupTask
                     final List<String> notifyOnCompletion,
                     final List<String> notifyOnError)
   {
+    this(taskID, backupDirectory, backendIDs, backupID, incremental,
+         incrementalBaseID, compress, encrypt, encryptionPassphraseFile,
+         encryptionSettingsDefinitionID, hash, signHash, maxMegabytesPerSecond,
+         retainPreviousFullBackupCount, retainPreviousFullBackupAge,
+         scheduledStartTime, dependencyIDs, failedDependencyAction, null,
+         notifyOnCompletion, null, notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new restore task with the provided information.
+   *
+   * @param  taskID                          The task ID to use for this task.
+   *                                         If it is {@code null} then a UUID
+   *                                         will be generated for use as the
+   *                                         task ID.
+   * @param  backupDirectory                 The path to the directory on the
+   *                                         server into which the backup should
+   *                                         be written.  If a single backend is
+   *                                         to be archived, then this should be
+   *                                         the path to the specific backup
+   *                                         directory for that backend.  If
+   *                                         multiple backends are to be
+   *                                         archived, then this should be the
+   *                                         parent of the directories for each
+   *                                         of the backends.  It must not be
+   *                                         {@code null}.
+   * @param  backendIDs                      A list of the backend IDs of the
+   *                                         backends to archive.  It may be
+   *                                         {@code null} or empty if all
+   *                                         supported backends should be
+   *                                         archived.
+   * @param  backupID                        The backup ID to use for this
+   *                                         backup.  It may be {@code null} to
+   *                                         indicate that the server should
+   *                                         generate the backup ID.
+   * @param  incremental                     Indicates whether to perform an
+   *                                         incremental backup rather than a
+   *                                         full backup.
+   * @param  incrementalBaseID               The backup ID of the existing
+   *                                         backup on which to base the
+   *                                         incremental backup.  It may be
+   *                                         {@code null} if this is not an
+   *                                         incremental backup or if it should
+   *                                         be based on the most recent backup.
+   * @param  compress                        Indicates whether the backup should
+   *                                         be compressed.
+   * @param  encrypt                         Indicates whether the backup should
+   *                                         be encrypted.
+   * @param  encryptionPassphraseFile        The path to a file containing the
+   *                                         passphrase to use to generate the
+   *                                         encryption key.  It amy be
+   *                                         {@code null} if the backup is not
+   *                                         to be encrypted, or if the key
+   *                                         should be obtained in some other
+   *                                         way.
+   * @param  encryptionSettingsDefinitionID  The ID of the encryption settings
+   *                                         definition use to generate the
+   *                                         encryption key.  It may be
+   *                                         {@code null} if the backup is not
+   *                                         to be encrypted, or if the key
+   *                                         should be obtained in some other
+   *                                         way.
+   * @param  hash                            Indicates whether to generate a
+   *                                         hash of the backup contents.
+   * @param  signHash                        Indicates whether to sign the hash
+   *                                         of the backup contents.
+   * @param  maxMegabytesPerSecond           The maximum rate in megabytes per
+   *                                         second at which the backup should
+   *                                         be written.
+   * @param  retainPreviousFullBackupCount   The minimum number of previous
+   *                                         backups to retain.
+   * @param  retainPreviousFullBackupAge     A string representation of the
+   *                                         minimum age of previous backups to
+   *                                         retain.  The age should be
+   *                                         formatted in the same way as values
+   *                                         for the {@link DurationArgument}
+   *                                         class.
+   * @param  scheduledStartTime              The time that this task should
+   *                                         start running.
+   * @param  dependencyIDs                   The list of task IDs that will be
+   *                                         required to complete before this
+   *                                         task will be eligible to start.
+   * @param  failedDependencyAction          Indicates what action should be
+   *                                         taken if any of the dependencies
+   *                                         for this task do not complete
+   *                                         successfully.
+   * @param  notifyOnStart                   The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         when this task starts running.
+   * @param  notifyOnCompletion              The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         when this task completes.
+   * @param  notifyOnSuccess                 The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         if this task completes
+   *                                         successfully.
+   * @param  notifyOnError                   The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         if this task does not complete
+   *                                         successfully.
+   * @param  alertOnStart                    Indicates whether the server should
+   *                                         send an alert notification when
+   *                                         this task starts.
+   * @param  alertOnSuccess                  Indicates whether the server should
+   *                                         send an alert notification if this
+   *                                         task completes successfully.
+   * @param  alertOnError                    Indicates whether the server should
+   *                                         send an alert notification if this
+   *                                         task fails to complete
+   *                                         successfully.
+   */
+  public BackupTask(final String taskID, final String backupDirectory,
+                    final List<String> backendIDs, final String backupID,
+                    final boolean incremental, final String incrementalBaseID,
+                    final boolean compress, final boolean encrypt,
+                    final String encryptionPassphraseFile,
+                    final String encryptionSettingsDefinitionID,
+                    final boolean hash, final boolean signHash,
+                    final Integer maxMegabytesPerSecond,
+                    final Integer retainPreviousFullBackupCount,
+                    final String retainPreviousFullBackupAge,
+                    final Date scheduledStartTime,
+                    final List<String> dependencyIDs,
+                    final FailedDependencyAction failedDependencyAction,
+                    final List<String> notifyOnStart,
+                    final List<String> notifyOnCompletion,
+                    final List<String> notifyOnSuccess,
+                    final List<String> notifyOnError,
+                    final Boolean alertOnStart, final Boolean alertOnSuccess,
+                    final Boolean alertOnError)
+  {
     super(taskID, BACKUP_TASK_CLASS, scheduledStartTime,
-          dependencyIDs, failedDependencyAction, notifyOnCompletion,
-          notifyOnError);
+         dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess,  notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     ensureNotNull(backupDirectory);
 

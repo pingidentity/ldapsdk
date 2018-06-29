@@ -364,8 +364,103 @@ public final class ExecTask
                   final List<String> notifyOnError)
          throws TaskException
   {
+    this(taskID, commandPath, commandArguments, commandOutputFile,
+         logCommandOutput, taskStateForNonZeroExitCode, scheduledStartTime,
+         dependencyIDs, failedDependencyAction, null, notifyOnCompletion,
+         null, notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new exec task with the provided information.
+   *
+   * @param  taskID
+   *              The task ID to use for this task.  If it is {@code null} then
+   *              a UUID will be generated for use as the task ID.
+   * @param  commandPath
+   *              The absolute path (on the server filesystem) to the command
+   *              that should be executed.  This must not be {@code null}.
+   * @param  commandArguments
+   *              The complete set of arguments that should be used when
+   *              running the command.  This may be {@code null} if no arguments
+   *              should be provided.
+   * @param  commandOutputFile
+   *              The path to an output file that should be used to record all
+   *              output that the command writes to standard output or standard
+   *              error.  This may be {@code null} if the command output should
+   *              not be recorded in a file.
+   * @param  logCommandOutput
+   *              Indicates whether to record the command output in the server
+   *              error log.  If this is {@code true}, then all non-blank lines
+   *              that the command writes to standard output or standard error
+   *              will be recorded in the server error log.  if this is
+   *              {@code false}, then the output will not be recorded in the
+   *              server error log.  If this is {@code null}, then the server
+   *              will determine whether to log command output.  Note that a
+   *              value of {@code true} should only be used if you are certain
+   *              that the tool will only generate text-based output, and you
+   *              should use {@code false} if you know that the command may
+   *              generate non-text output.
+   * @param  taskStateForNonZeroExitCode
+   *              The task state that should be used if the command completes
+   *              with a nonzero exit code.  This may be {@code null} to
+   *              indicate that the server should determine the appropriate task
+   *              state.  If it is non-{@code null}, then the value must be one
+   *              of {@link TaskState#STOPPED_BY_ERROR},
+   *              {@link TaskState#COMPLETED_WITH_ERRORS}, or
+   *              {@link TaskState#COMPLETED_SUCCESSFULLY}.
+   * @param  scheduledStartTime
+   *              The time that this task should start running.
+   * @param  dependencyIDs
+   *              The list of task IDs that will be required to complete before
+   *              this task will be eligible to start.
+   * @param  failedDependencyAction
+   *              Indicates what action should be taken if any of the
+   *              dependencies for this task do not complete successfully.
+   * @param  notifyOnStart
+   *              The list of e-mail addresses of individuals that should be
+   *              notified when this task starts.
+   * @param  notifyOnCompletion
+   *              The list of e-mail addresses of individuals that should be
+   *              notified when this task completes.
+   * @param  notifyOnSuccess
+   *              The list of e-mail addresses of individuals that should be
+   *              notified if this task completes successfully.
+   * @param  notifyOnError
+   *              The list of e-mail addresses of individuals that should be
+   *              notified if this task does not complete successfully.
+   * @param  alertOnStart
+   *              Indicates whether the server should send an alert notification
+   *              when this task starts.
+   * @param  alertOnSuccess
+   *              Indicates whether the server should send an alert notification
+   *              if this task completes successfully.
+   * @param  alertOnError
+   *              Indicates whether the server should send an alert notification
+   *              if this task fails to complete successfully.
+   *
+   * @throws  TaskException  If there is a problem with any of the provided
+   *                         arguments.
+   */
+  public ExecTask(final String taskID, final String commandPath,
+                  final String commandArguments, final String commandOutputFile,
+                  final Boolean logCommandOutput,
+                  final TaskState taskStateForNonZeroExitCode,
+                  final Date scheduledStartTime,
+                  final List<String> dependencyIDs,
+                  final FailedDependencyAction failedDependencyAction,
+                  final List<String> notifyOnStart,
+                  final List<String> notifyOnCompletion,
+                  final List<String> notifyOnSuccess,
+                  final List<String> notifyOnError, final Boolean alertOnStart,
+                  final Boolean alertOnSuccess, final Boolean alertOnError)
+         throws TaskException
+  {
     super(taskID, EXEC_TASK_CLASS, scheduledStartTime, dependencyIDs,
-         failedDependencyAction, notifyOnCompletion, notifyOnError);
+         failedDependencyAction, notifyOnStart, notifyOnCompletion,
+         notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
+         alertOnError);
 
     this.commandPath = commandPath;
     this.commandArguments = commandArguments;

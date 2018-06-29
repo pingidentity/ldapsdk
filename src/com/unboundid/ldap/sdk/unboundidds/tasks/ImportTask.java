@@ -944,9 +944,158 @@ public final class ImportTask
                     final List<String> notifyOnCompletion,
                     final List<String> notifyOnError)
   {
+    this(taskID, ldifFiles, backendID, append, replaceExisting, rejectFile,
+         overwriteRejects, clearBackend, includeBranches, excludeBranches,
+         includeFilters, excludeFilters, includeAttributes,
+         excludeAttributes, isCompressed, isEncrypted,
+         encryptionPassphraseFile, skipSchemaValidation, stripTrailingSpaces,
+         scheduledStartTime, dependencyIDs, failedDependencyAction, null,
+         notifyOnCompletion, null, notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new import task with the provided information.
+   *
+   * @param  taskID                    The task ID to use for this task.  If it
+   *                                   is {@code null} then a UUID will be
+   *                                   generated for use as the task ID.
+   * @param  ldifFiles                 The paths to the LDIF file containing the
+   *                                   data to be imported.  The paths may be
+   *                                   either absolute or relative to the server
+   *                                   install root.  It must not be
+   *                                   {@code null} or empty.
+   * @param  backendID                 The backend ID of the backend into which
+   *                                   the data should be imported.  It may be
+   *                                   {@code null} only if one or more include
+   *                                   branches was specified.
+   * @param  append                    Indicates whether to append to the
+   *                                   existing data rather than overwriting it.
+   * @param  replaceExisting           Indicates whether to replace existing
+   *                                   entries when appending to the database.
+   * @param  rejectFile                The path to a file into which
+   *                                   information will be written about
+   *                                   rejected entries.  It may be {@code null}
+   *                                   if no reject file is to be maintained.
+   * @param  overwriteRejects          Indicates whether to overwrite an
+   *                                   existing rejects file rather than
+   *                                   appending to it.
+   * @param  clearBackend              Indicates whether to clear data below all
+   *                                   base DNs in the backend.  It must be
+   *                                   {@code true} if the backend was specified
+   *                                   using a backend ID and no include
+   *                                   branches are specified and {@code append}
+   *                                   is {@code false}.  If include branches
+   *                                   were specified, or if data is being
+   *                                   appended to the backend, then it may be
+   *                                   either {@code true} or {@code false}.
+   * @param  includeBranches           The set of base DNs below which to import
+   *                                   the data.  It may be {@code null} or
+   *                                   empty if a backend ID was specified and
+   *                                   data should be imported below all base
+   *                                   DNs defined in the backend.  Otherwise,
+   *                                   at least one include branch must be
+   *                                   provided, and any data not under one of
+   *                                   the include branches will be excluded
+   *                                   from the import.  All include branches
+   *                                   must be within the scope of the same
+   *                                   backend.
+   * @param  excludeBranches           The set of base DNs to exclude from the
+   *                                   import.  It may be {@code null} or empty
+   *                                   if no data is to be excluded based on its
+   *                                   location.
+   * @param  includeFilters            The set of filters to use to determine
+   *                                   which entries should be included in the
+   *                                   import.  It may be {@code null} or empty
+   *                                   if no data is to be excluded based on its
+   *                                   content.
+   * @param  excludeFilters            The set of filters to use to determine
+   *                                   which entries should be excluded from the
+   *                                   import.  It may be {@code null} or empty
+   *                                   if no data is to be excluded based on its
+   *                                   content.
+   * @param  includeAttributes         The set of attributes to include in the
+   *                                   entries being imported.  It may be
+   *                                   {@code null} or empty if no attributes
+   *                                   should be excluded from the import.
+   * @param  excludeAttributes         The set of attributes to exclude from the
+   *                                   entries being imported.  It may be
+   *                                   {@code null} or empty if no attributes
+   *                                   should be excluded from the import.
+   * @param  isCompressed              Indicates whether the data in the LDIF
+   *                                   file(s) is compressed.
+   * @param  isEncrypted               Indicates whether the data in the LDIF
+   *                                   file(s) is encrypted.
+   * @param  encryptionPassphraseFile  The path to a file containing the
+   *                                   passphrase to use to generate the
+   *                                   encryption key.  It amy be {@code null}
+   *                                   if the backup is not to be encrypted, or
+   *                                   if the key should be obtained in some
+   *                                   other way.
+   * @param  skipSchemaValidation      Indicates whether to skip schema
+   *                                   validation during the import.
+   * @param  stripTrailingSpaces       Indicates whether to strip illegal
+   *                                   trailing spaces found in LDIF records
+   *                                   rather than rejecting those records.
+   * @param  scheduledStartTime        The time that this task should start
+   *                                   running.
+   * @param  dependencyIDs             The list of task IDs that will be
+   *                                   required to complete before this task
+   *                                   will be eligible to start.
+   * @param  failedDependencyAction    Indicates what action should be taken if
+   *                                   any of the dependencies for this task do
+   *                                   not complete successfully.
+   * @param  notifyOnStart             The list of e-mail addresses of
+   *                                   individuals that should be notified when
+   *                                   this task starts running.
+   * @param  notifyOnCompletion        The list of e-mail addresses of
+   *                                   individuals that should be notified when
+   *                                   this task completes.
+   * @param  notifyOnSuccess           The list of e-mail addresses of
+   *                                   individuals that should be notified if
+   *                                   this task completes successfully.
+   * @param  notifyOnError             The list of e-mail addresses of
+   *                                   individuals that should be notified if
+   *                                   this task does not complete successfully.
+   * @param  alertOnStart              Indicates whether the server should send
+   *                                   an alert notification when this task
+   *                                   starts.
+   * @param  alertOnSuccess            Indicates whether the server should send
+   *                                   an alert notification if this task
+   *                                   completes successfully.
+   * @param  alertOnError              Indicates whether the server should send
+   *                                   an alert notification if this task fails
+   *                                   to complete successfully.
+   */
+  public ImportTask(final String taskID, final List<String> ldifFiles,
+                    final String backendID, final boolean append,
+                    final boolean replaceExisting, final String rejectFile,
+                    final boolean overwriteRejects, final boolean clearBackend,
+                    final List<String> includeBranches,
+                    final List<String> excludeBranches,
+                    final List<String> includeFilters,
+                    final List<String> excludeFilters,
+                    final List<String> includeAttributes,
+                    final List<String> excludeAttributes,
+                    final boolean isCompressed, final boolean isEncrypted,
+                    final String encryptionPassphraseFile,
+                    final boolean skipSchemaValidation,
+                    final boolean stripTrailingSpaces,
+                    final Date scheduledStartTime,
+                    final List<String> dependencyIDs,
+                    final FailedDependencyAction failedDependencyAction,
+                    final List<String> notifyOnStart,
+                    final List<String> notifyOnCompletion,
+                    final List<String> notifyOnSuccess,
+                    final List<String> notifyOnError,
+                    final Boolean alertOnStart, final Boolean alertOnSuccess,
+                    final Boolean alertOnError)
+  {
     super(taskID, IMPORT_TASK_CLASS, scheduledStartTime,
-          dependencyIDs, failedDependencyAction, notifyOnCompletion,
-          notifyOnError);
+         dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     ensureNotNull(ldifFiles);
     ensureFalse(ldifFiles.isEmpty(),

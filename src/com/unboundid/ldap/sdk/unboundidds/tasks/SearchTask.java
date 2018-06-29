@@ -367,8 +367,82 @@ public final class SearchTask
                     final List<String> notifyOnCompletion,
                     final List<String> notifyOnError)
   {
+    this(taskID, baseDN, scope, filter, attributes, outputFile, authzDN,
+         scheduledStartTime, dependencyIDs, failedDependencyAction, null,
+         notifyOnCompletion, null, notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new search task with the provided information.
+   *
+   * @param  taskID                  The task ID to use for this task.  If it is
+   *                                 {@code null} then a UUID will be generated
+   *                                 for use as the task ID.
+   * @param  baseDN                  The base DN to use for the search.  It must
+   *                                 not be {@code null}.
+   * @param  scope                   The scope to use for the search.  It must
+   *                                 not be {@code null}.
+   * @param  filter                  The filter to use for the search.  It must
+   *                                 not be {@code null}.
+   * @param  attributes              The list of attributes to include in
+   *                                 matching entries.  If it is {@code null} or
+   *                                 empty, then all user attributes will be
+   *                                 selected.
+   * @param  outputFile              The path to the file (on the server
+   *                                 filesystem) to which the results should be
+   *                                 written.  It must not be {@code null}.
+   * @param  authzDN                 The DN of the user as whom the search
+   *                                 should be processed.  If this is
+   *                                 {@code null}, then it will be processed as
+   *                                 an internal root user.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public SearchTask(final String taskID, final String baseDN,
+                    final SearchScope scope, final Filter filter,
+                    final List<String> attributes, final String outputFile,
+                    final String authzDN,  final Date scheduledStartTime,
+                    final List<String> dependencyIDs,
+                    final FailedDependencyAction failedDependencyAction,
+                    final List<String> notifyOnStart,
+                    final List<String> notifyOnCompletion,
+                    final List<String> notifyOnSuccess,
+                    final List<String> notifyOnError,
+                    final Boolean alertOnStart, final Boolean alertOnSuccess,
+                    final Boolean alertOnError)
+  {
     super(taskID, SEARCH_TASK_CLASS, scheduledStartTime, dependencyIDs,
-         failedDependencyAction, notifyOnCompletion, notifyOnError);
+         failedDependencyAction, notifyOnStart, notifyOnCompletion,
+         notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
+         alertOnError);
 
     ensureNotNull(baseDN, scope, filter, outputFile);
 

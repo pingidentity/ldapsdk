@@ -735,9 +735,155 @@ public final class ExportTask
                     final List<String> notifyOnCompletion,
                     final List<String> notifyOnError)
   {
+    this(taskID, backendID, ldifFile, appendToLDIF, includeBranches,
+         excludeBranches, includeFilters, excludeFilters, includeAttributes,
+         excludeAttributes, wrapColumn, compress, encrypt,
+         encryptionPassphraseFile, encryptionSettingsDefinitionID, sign,
+         maxMegabytesPerSecond, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new export task with the provided information.
+   *
+   * @param  taskID                          The task ID to use for this task.
+   *                                         If it is {@code null} then a UUID
+   *                                         will be generated for use as the
+   *                                         task ID.
+   * @param  backendID                       The backend ID of the backend to be
+   *                                         exported.  It must not be
+   *                                         {@code null}.
+   * @param  ldifFile                        The path to the LDIF file to be
+   *                                         written.  It may be an absolute
+   *                                         path or one that is relative to the
+   *                                         server root.  It must not be
+   *                                         {@code null}.
+   * @param  appendToLDIF                    Indicates whether to an append to
+   *                                         any existing file rather than
+   *                                         overwriting it.
+   * @param  includeBranches                 The set of base DNs of entries to
+   *                                         include in the export.  It may be
+   *                                         {@code null} or empty if no entries
+   *                                         should be excluded based on their
+   *                                         location.
+   * @param  excludeBranches                 The set of base DNs of entries to
+   *                                         exclude from the export.  It may be
+   *                                         {@code null} or empty if no entries
+   *                                         should be excluded based on their
+   *                                         location.
+   * @param  includeFilters                  The set of filters to use to match
+   *                                         entries that should be included in
+   *                                         the export.  It may be {@code null}
+   *                                         or empty if no entries should be
+   *                                         excluded based on their content.
+   * @param  excludeFilters                  The set of filters to use to match
+   *                                         entries that should be excluded
+   *                                         from the export.  It may be
+   *                                         {@code null} or empty if no entries
+   *                                         should be excluded based on their
+   *                                         content.
+   * @param  includeAttributes               The set of attributes that should
+   *                                         be included in exported entries.
+   *                                         It may be {@code null} or empty if
+   *                                         all attributes should be included.
+   * @param  excludeAttributes               The set of attributes that should
+   *                                         be excluded from exported entries.
+   *                                         It may be {@code null} or empty if
+   *                                         no attributes should be excluded.
+   * @param  wrapColumn                      The column at which long lines
+   *                                         should be wrapped.  It may be less
+   *                                         than or equal to zero to indicate
+   *                                         that long lines should not be
+   *                                         wrapped.
+   * @param  compress                        Indicates whether the LDIF data
+   *                                         should be compressed as it is
+   *                                         written.
+   * @param  encrypt                         Indicates whether the LDIF data
+   *                                         should be encrypted as it is
+   *                                         written.
+   * @param  encryptionPassphraseFile        The path to a file containing the
+   *                                         passphrase to use to generate the
+   *                                         encryption key.  It amy be
+   *                                         {@code null} if the LDIF file is
+   *                                         not to be encrypted, or if the key
+   *                                         should be obtained in some other
+   *                                         way.
+   * @param  encryptionSettingsDefinitionID  The ID of the encryption settings
+   *                                         definition use to generate the
+   *                                         encryption key.  It may be
+   *                                         {@code null} if the LDIF file is
+   *                                         not to be encrypted, or if the key
+   *                                         should be obtained in some other
+   *                                         way.
+   * @param  sign                            Indicates whether to include a
+   *                                         signed hash of the content in the
+   *                                         exported data.
+   * @param  maxMegabytesPerSecond           The maximum rate in megabytes per
+   *                                         second at which the LDIF file
+   *                                         should be written.
+   * @param  scheduledStartTime              The time that this task should
+   *                                         start running.
+   * @param  dependencyIDs                   The list of task IDs that will be
+   *                                         required to complete before this
+   *                                         task will be eligible to start.
+   * @param  failedDependencyAction          Indicates what action should be
+   *                                         taken if any of the dependencies
+   *                                         for this task do not complete
+   *                                         successfully.
+   * @param  notifyOnStart                   The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         when this task starts running.
+   * @param  notifyOnCompletion              The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         when this task completes.
+   * @param  notifyOnSuccess                 The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         if this task completes
+   *                                         successfully.
+   * @param  notifyOnError                   The list of e-mail addresses of
+   *                                         individuals that should be notified
+   *                                         if this task does not complete
+   *                                         successfully.
+   * @param  alertOnStart                    Indicates whether the server should
+   *                                         send an alert notification when
+   *                                         this task starts.
+   * @param  alertOnSuccess                  Indicates whether the server should
+   *                                         send an alert notification if this
+   *                                         task completes successfully.
+   * @param  alertOnError                    Indicates whether the server should
+   *                                         send an alert notification if this
+   *                                         task fails to complete
+   *                                         successfully.
+   */
+  public ExportTask(final String taskID, final String backendID,
+                    final String ldifFile, final boolean appendToLDIF,
+                    final List<String> includeBranches,
+                    final List<String> excludeBranches,
+                    final List<String> includeFilters,
+                    final List<String> excludeFilters,
+                    final List<String> includeAttributes,
+                    final List<String> excludeAttributes, final int wrapColumn,
+                    final boolean compress, final boolean encrypt,
+                    final String encryptionPassphraseFile,
+                    final String encryptionSettingsDefinitionID,
+                    final boolean sign, final Integer maxMegabytesPerSecond,
+                    final Date scheduledStartTime,
+                    final List<String> dependencyIDs,
+                    final FailedDependencyAction failedDependencyAction,
+                    final List<String> notifyOnStart,
+                    final List<String> notifyOnCompletion,
+                    final List<String> notifyOnSuccess,
+                    final List<String> notifyOnError,
+                    final Boolean alertOnStart, final Boolean alertOnSuccess,
+                    final Boolean alertOnError)
+  {
     super(taskID, EXPORT_TASK_CLASS, scheduledStartTime,
-          dependencyIDs, failedDependencyAction, notifyOnCompletion,
-          notifyOnError);
+         dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     ensureNotNull(backendID, ldifFile);
 

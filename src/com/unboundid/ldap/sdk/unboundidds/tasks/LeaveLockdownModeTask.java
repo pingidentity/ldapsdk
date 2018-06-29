@@ -220,9 +220,63 @@ public final class LeaveLockdownModeTask
               final List<String> notifyOnCompletion,
               final List<String> notifyOnError)
   {
+    this(taskID, reason, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new leave lockdown mode task with the provided information.
+   *
+   * @param  taskID                  The task ID to use for this task.  If it is
+   *                                 {@code null} then a UUID will be generated
+   *                                 for use as the task ID.
+   * @param  reason                  The user-specified reason for leaving
+   *                                 lockdown mode. This may be {@code null}.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public LeaveLockdownModeTask(final String taskID, final String reason,
+              final Date scheduledStartTime, final List<String> dependencyIDs,
+              final FailedDependencyAction failedDependencyAction,
+              final List<String> notifyOnStart,
+              final List<String> notifyOnCompletion,
+              final List<String> notifyOnSuccess,
+              final List<String> notifyOnError, final Boolean alertOnStart,
+              final Boolean alertOnSuccess, final Boolean alertOnError)
+  {
     super(taskID, LEAVE_LOCKDOWN_MODE_TASK_CLASS, scheduledStartTime,
-          dependencyIDs, failedDependencyAction, notifyOnCompletion,
-          notifyOnError);
+         dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     this.reason = reason;
   }

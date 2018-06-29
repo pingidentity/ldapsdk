@@ -236,8 +236,76 @@ public final class RebuildTask
                      final List<String> notifyOnCompletion,
                      final List<String> notifyOnError)
   {
+    this(taskID, baseDN, indexes, maxThreads, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null, notifyOnError,
+         null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new rebuild task with the provided information.
+   *
+   * @param  taskID                  The task ID to use for this task.  If it is
+   *                                 {@code null} then a UUID will be generated
+   *                                 for use as the task ID.
+   * @param  baseDN                  The base DN for which to rebuild the index.
+   *                                 It must refer to a base DN for a Berkeley
+   *                                 DB Java Edition backend.  It must not be
+   *                                 {@code null}.
+   * @param  indexes                 A list containing the names of the indexes
+   *                                 to rebuild.  It must not be {@code null} or
+   *                                 empty.
+   * @param  maxThreads              The maximum number of concurrent threads to
+   *                                 use while performing the rebuild.  A value
+   *                                 less than or equal to zero indicates that
+   *                                 there is no limit to the number of threads
+   *                                 that may be used.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public RebuildTask(final String taskID, final String baseDN,
+                     final List<String> indexes, final int maxThreads,
+                     final Date scheduledStartTime,
+                     final List<String> dependencyIDs,
+                     final FailedDependencyAction failedDependencyAction,
+                     final List<String> notifyOnStart,
+                     final List<String> notifyOnCompletion,
+                     final List<String> notifyOnSuccess,
+                     final List<String> notifyOnError,
+                     final Boolean alertOnStart, final Boolean alertOnSuccess,
+                     final Boolean alertOnError)
+  {
     super(taskID, REBUILD_TASK_CLASS, scheduledStartTime, dependencyIDs,
-          failedDependencyAction, notifyOnCompletion, notifyOnError);
+         failedDependencyAction, notifyOnStart, notifyOnCompletion,
+         notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
+         alertOnError);
 
     ensureNotNull(baseDN, indexes);
     ensureFalse(indexes.isEmpty(),

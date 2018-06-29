@@ -131,6 +131,31 @@ public class Task
 
 
   /**
+   * The name of the attribute used to indicate whether the server should
+   * generate an administrative alert when the task fails to complete
+   * successfully.
+   */
+  static final String ATTR_ALERT_ON_ERROR = "ds-task-alert-on-error";
+
+
+
+  /**
+   * The name of the attribute used to indicate whether the server should
+   * generate an administrative alert when the task starts running.
+   */
+  static final String ATTR_ALERT_ON_START = "ds-task-alert-on-start";
+
+
+
+  /**
+   * The name of the attribute used to indicate whether the server should
+   * generate an administrative alert when the task completes successfully.
+   */
+  static final String ATTR_ALERT_ON_SUCCESS = "ds-task-alert-on-success";
+
+
+
+  /**
    * The name of the attribute used to hold the completion time for scheduled
    * tasks.
    */
@@ -178,6 +203,22 @@ public class Task
    * that should be notified if a scheduled task fails to complete successfully.
    */
   static final String ATTR_NOTIFY_ON_ERROR = "ds-task-notify-on-error";
+
+
+
+  /**
+   * The name of the attribute used to hold the e-mail addresses of the users
+   * that should be notified when a scheduled task starts running.
+   */
+  static final String ATTR_NOTIFY_ON_START = "ds-task-notify-on-start";
+
+
+
+  /**
+   * The name of the attribute used to hold the e-mail addresses of the users
+   * that should be notified when a scheduled task completes successfully.
+   */
+  static final String ATTR_NOTIFY_ON_SUCCESS = "ds-task-notify-on-success";
 
 
 
@@ -300,11 +341,77 @@ public class Task
 
 
   /**
+   * The task property that will be used for the notify on success addresses.
+   */
+  static final TaskProperty PROPERTY_NOTIFY_ON_SUCCESS =
+       new TaskProperty(ATTR_NOTIFY_ON_SUCCESS,
+                        INFO_DISPLAY_NAME_NOTIFY_ON_SUCCESS.get(),
+                        INFO_DESCRIPTION_NOTIFY_ON_SUCCESS.get(),
+                        String.class, false, true, true);
+
+
+
+  /**
+   * The task property that will be used for the notify on start addresses.
+   */
+  static final TaskProperty PROPERTY_NOTIFY_ON_START =
+       new TaskProperty(ATTR_NOTIFY_ON_START,
+                        INFO_DISPLAY_NAME_NOTIFY_ON_START.get(),
+                        INFO_DESCRIPTION_NOTIFY_ON_START.get(),
+                        String.class, false, true, true);
+
+
+
+  /**
+   * The task property that will be used for the alert on error flag.
+   */
+  static final TaskProperty PROPERTY_ALERT_ON_ERROR =
+       new TaskProperty(ATTR_ALERT_ON_ERROR,
+                        INFO_DISPLAY_NAME_ALERT_ON_ERROR.get(),
+                        INFO_DESCRIPTION_ALERT_ON_ERROR.get(),
+                        Boolean.class, false, false, true);
+
+
+
+  /**
+   * The task property that will be used for the alert on start flag.
+   */
+  static final TaskProperty PROPERTY_ALERT_ON_START =
+       new TaskProperty(ATTR_ALERT_ON_START,
+                        INFO_DISPLAY_NAME_ALERT_ON_START.get(),
+                        INFO_DESCRIPTION_ALERT_ON_START.get(),
+                        Boolean.class, false, false, true);
+
+
+
+  /**
+   * The task property that will be used for the alert on success flag.
+   */
+  static final TaskProperty PROPERTY_ALERT_ON_SUCCESS =
+       new TaskProperty(ATTR_ALERT_ON_SUCCESS,
+                        INFO_DISPLAY_NAME_ALERT_ON_SUCCESS.get(),
+                        INFO_DESCRIPTION_ALERT_ON_SUCCESS.get(),
+                        Boolean.class, false, false, true);
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -3521189553470479032L;
+  private static final long serialVersionUID = -4082350090081577623L;
 
 
+
+  // Indicates whether to generate an administrative alert when the task fails
+  // to complete successfully.
+  private final Boolean alertOnError;
+
+  // Indicates whether to generate an administrative alert when the task starts.
+  private final Boolean alertOnStart;
+
+  // Indicates whether to generate an administrative alert when the task
+  // completes successfully.
+  private final Boolean alertOnSuccess;
 
   // The time that this task actually started.
   private final Date actualStartTime;
@@ -335,6 +442,14 @@ public class Task
   // processing completes with an error.
   private final List<String> notifyOnError;
 
+  // The set of e-mail addresses of users that should be notified if task
+  // processing starts.
+  private final List<String> notifyOnStart;
+
+  // The set of e-mail addresses of users that should be notified if task
+  // processing completes successfully.
+  private final List<String> notifyOnSuccess;
+
   // The fully-qualified name of the task class.
   private final String taskClassName;
 
@@ -357,6 +472,9 @@ public class Task
    */
   protected Task()
   {
+    alertOnError           = null;
+    alertOnStart           = null;
+    alertOnSuccess         = null;
     actualStartTime        = null;
     completionTime         = null;
     scheduledStartTime     = null;
@@ -366,6 +484,8 @@ public class Task
     logMessages            = null;
     notifyOnCompletion     = null;
     notifyOnError          = null;
+    notifyOnStart          = null;
+    notifyOnSuccess        = null;
     taskClassName          = null;
     taskEntryDN            = null;
     taskID                 = null;
@@ -419,11 +539,66 @@ public class Task
               final List<String> notifyOnCompletion,
               final List<String> notifyOnError)
   {
+    this(taskID, taskClassName, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new unscheduled task with the provided information.
+   *
+   * @param  taskID                  The task ID to use for this task.
+   * @param  taskClassName           The fully-qualified name of the Java class
+   *                                 that provides the logic for the task.  It
+   *                                 must not be {@code null}.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public Task(final String taskID, final String taskClassName,
+              final Date scheduledStartTime, final List<String> dependencyIDs,
+              final FailedDependencyAction failedDependencyAction,
+              final List<String> notifyOnStart,
+              final List<String> notifyOnCompletion,
+              final List<String> notifyOnSuccess,
+              final List<String> notifyOnError, final Boolean alertOnStart,
+              final Boolean alertOnSuccess, final Boolean alertOnError)
+  {
     ensureNotNull(taskClassName);
 
     this.taskClassName          = taskClassName;
     this.scheduledStartTime     = scheduledStartTime;
     this.failedDependencyAction = failedDependencyAction;
+    this.alertOnStart            = alertOnStart;
+    this.alertOnSuccess          = alertOnSuccess;
+    this.alertOnError            = alertOnError;
 
     if (taskID == null)
     {
@@ -443,6 +618,16 @@ public class Task
       this.dependencyIDs = Collections.unmodifiableList(dependencyIDs);
     }
 
+    if (notifyOnStart == null)
+    {
+      this.notifyOnStart = Collections.emptyList();
+    }
+    else
+    {
+      this.notifyOnStart =
+           Collections.unmodifiableList(notifyOnStart);
+    }
+
     if (notifyOnCompletion == null)
     {
       this.notifyOnCompletion = Collections.emptyList();
@@ -451,6 +636,15 @@ public class Task
     {
       this.notifyOnCompletion =
            Collections.unmodifiableList(notifyOnCompletion);
+    }
+
+    if (notifyOnSuccess == null)
+    {
+      this.notifyOnSuccess = Collections.emptyList();
+    }
+    else
+    {
+      this.notifyOnSuccess = Collections.unmodifiableList(notifyOnSuccess);
     }
 
     if (notifyOnError == null)
@@ -614,12 +808,32 @@ public class Task
     logMessages = parseStringList(entry, ATTR_LOG_MESSAGE);
 
 
+    // Get the notify on start addresses for this task.  It may be absent.
+    notifyOnStart = parseStringList(entry, ATTR_NOTIFY_ON_START);
+
+
     // Get the notify on completion addresses for this task.  It may be absent.
     notifyOnCompletion = parseStringList(entry, ATTR_NOTIFY_ON_COMPLETION);
 
 
+    // Get the notify on success addresses for this task.  It may be absent.
+    notifyOnSuccess = parseStringList(entry, ATTR_NOTIFY_ON_SUCCESS);
+
+
     // Get the notify on error addresses for this task.  It may be absent.
     notifyOnError = parseStringList(entry, ATTR_NOTIFY_ON_ERROR);
+
+
+    // Get the alert on start flag for this task.  It may be absent.
+    alertOnStart = entry.getAttributeValueAsBoolean(ATTR_ALERT_ON_START);
+
+
+    // Get the alert on success flag for this task.  It may be absent.
+    alertOnSuccess = entry.getAttributeValueAsBoolean(ATTR_ALERT_ON_SUCCESS);
+
+
+    // Get the alert on error flag for this task.  It may be absent.
+    alertOnError = entry.getAttributeValueAsBoolean(ATTR_ALERT_ON_ERROR);
   }
 
 
@@ -649,8 +863,13 @@ public class Task
     Date                   sst    = null;
     String[]               depIDs = NO_STRINGS;
     FailedDependencyAction fda    = FailedDependencyAction.CANCEL;
+    String[]               nob    = NO_STRINGS;
     String[]               noc    = NO_STRINGS;
     String[]               noe    = NO_STRINGS;
+    String[]               nos    = NO_STRINGS;
+    Boolean                aob    = null;
+    Boolean                aoe    = null;
+    Boolean                aos    = null;
 
     for (final Map.Entry<TaskProperty,List<Object>> entry :
          properties.entrySet())
@@ -676,13 +895,33 @@ public class Task
         fda = FailedDependencyAction.forName(
                    parseString(p, values, fda.getName()));
       }
+      else if (attrName.equalsIgnoreCase(ATTR_NOTIFY_ON_START))
+      {
+        nob = parseStrings(p, values, nob);
+      }
       else if (attrName.equalsIgnoreCase(ATTR_NOTIFY_ON_COMPLETION))
       {
         noc = parseStrings(p, values, noc);
       }
+      else if (attrName.equalsIgnoreCase(ATTR_NOTIFY_ON_SUCCESS))
+      {
+        nos = parseStrings(p, values, nos);
+      }
       else if (attrName.equalsIgnoreCase(ATTR_NOTIFY_ON_ERROR))
       {
         noe = parseStrings(p, values, noe);
+      }
+      else if (attrName.equalsIgnoreCase(ATTR_ALERT_ON_START))
+      {
+        aob = parseBoolean(p, values, aob);
+      }
+      else if (attrName.equalsIgnoreCase(ATTR_ALERT_ON_SUCCESS))
+      {
+        aos = parseBoolean(p, values, aos);
+      }
+      else if (attrName.equalsIgnoreCase(ATTR_ALERT_ON_ERROR))
+      {
+        aoe = parseBoolean(p, values, aoe);
       }
     }
 
@@ -690,8 +929,13 @@ public class Task
     scheduledStartTime = sst;
     dependencyIDs = Collections.unmodifiableList(Arrays.asList(depIDs));
     failedDependencyAction = fda;
+    notifyOnStart = Collections.unmodifiableList(Arrays.asList(nob));
     notifyOnCompletion = Collections.unmodifiableList(Arrays.asList(noc));
+    notifyOnSuccess = Collections.unmodifiableList(Arrays.asList(nos));
     notifyOnError = Collections.unmodifiableList(Arrays.asList(noe));
+    alertOnStart = aob;
+    alertOnSuccess = aos;
+    alertOnError = aoe;
     taskEntry = null;
     taskEntryDN = ATTR_TASK_ID + '=' + taskID + ',' + SCHEDULED_TASKS_BASE_DN;
     actualStartTime = null;
@@ -958,6 +1202,21 @@ public class Task
 
   /**
    * Retrieves a list of the e-mail addresses of the individuals that should be
+   * notified whenever this task starts running.
+   *
+   * @return  A list of the e-mail addresses of the individuals that should be
+   *          notified whenever this task starts running, or an empty list if
+   *          there are none.
+   */
+  public final List<String> getNotifyOnStartAddresses()
+  {
+    return notifyOnStart;
+  }
+
+
+
+  /**
+   * Retrieves a list of the e-mail addresses of the individuals that should be
    * notified whenever this task completes processing, regardless of whether it
    * was successful.
    *
@@ -974,6 +1233,21 @@ public class Task
 
   /**
    * Retrieves a list of the e-mail addresses of the individuals that should be
+   * notified if this task completes successfully.
+   *
+   * @return  A list of the e-mail addresses of the individuals that should be
+   *          notified if this task completes successfully, or an empty list
+   *          if there are none.
+   */
+  public final List<String> getNotifyOnSuccessAddresses()
+  {
+    return notifyOnSuccess;
+  }
+
+
+
+  /**
+   * Retrieves a list of the e-mail addresses of the individuals that should be
    * notified if this task stops processing prematurely due to an error or
    * other external action (e.g., server shutdown or administrative cancel).
    *
@@ -984,6 +1258,51 @@ public class Task
   public final List<String> getNotifyOnErrorAddresses()
   {
     return notifyOnError;
+  }
+
+
+
+  /**
+   * Retrieves the flag that indicates whether the server should generate an
+   * administrative alert when this task starts running.
+   *
+   * @return  {@code true} if the server should send an alert when this task
+   *          starts running, {@code false} if the server should not send an
+   *          alert, or {@code null} if it is not available.
+   */
+  public final Boolean getAlertOnStart()
+  {
+    return alertOnStart;
+  }
+
+
+
+  /**
+   * Retrieves the flag that indicates whether the server should generate an
+   * administrative alert if this task completes successfully.
+   *
+   * @return  {@code true} if the server should send an alert if this task
+   *          completes successfully, {@code false} if the server should not
+   *          send an alert, or {@code null} if it is not available.
+   */
+  public final Boolean getAlertOnSuccess()
+  {
+    return alertOnSuccess;
+  }
+
+
+
+  /**
+   * Retrieves the flag that indicates whether the server should generate an
+   * administrative alert if this task fails to complete successfully.
+   *
+   * @return  {@code true} if the server should send an alert if this task fails
+   *          to complete successfully, {@code false} if the server should not
+   *          send an alert, or {@code null} if it is not available.
+   */
+  public final Boolean getAlertOnError()
+  {
+    return alertOnError;
   }
 
 
@@ -1026,15 +1345,44 @@ public class Task
                                    failedDependencyAction.getName()));
     }
 
+    if (! notifyOnStart.isEmpty())
+    {
+      attributes.add(new Attribute(ATTR_NOTIFY_ON_START,
+                                   notifyOnStart));
+    }
+
     if (! notifyOnCompletion.isEmpty())
     {
       attributes.add(new Attribute(ATTR_NOTIFY_ON_COMPLETION,
                                    notifyOnCompletion));
     }
 
+    if (! notifyOnSuccess.isEmpty())
+    {
+      attributes.add(new Attribute(ATTR_NOTIFY_ON_SUCCESS, notifyOnSuccess));
+    }
+
     if (! notifyOnError.isEmpty())
     {
       attributes.add(new Attribute(ATTR_NOTIFY_ON_ERROR, notifyOnError));
+    }
+
+    if (alertOnStart != null)
+    {
+      attributes.add(new Attribute(ATTR_ALERT_ON_START,
+           String.valueOf(alertOnStart)));
+    }
+
+    if (alertOnSuccess != null)
+    {
+      attributes.add(new Attribute(ATTR_ALERT_ON_SUCCESS,
+           String.valueOf(alertOnSuccess)));
+    }
+
+    if (alertOnError != null)
+    {
+      attributes.add(new Attribute(ATTR_ALERT_ON_ERROR,
+           String.valueOf(alertOnError)));
     }
 
     attributes.addAll(getAdditionalAttributes());
@@ -1736,8 +2084,16 @@ public class Task
    *   <LI>The scheduled start time</LI>
    *   <LI>The task IDs of any tasks on which this task is dependent</LI>
    *   <LI>The action to take for this task if any of its dependencies fail</LI>
+   *   <LI>The addresses of users to notify when this task starts</LI>
    *   <LI>The addresses of users to notify when this task completes</LI>
+   *   <LI>The addresses of users to notify if this task succeeds</LI>
    *   <LI>The addresses of users to notify if this task fails</LI>
+   *   <LI>A flag indicating whether to generate an alert when the task
+   *       starts</LI>
+   *   <LI>A flag indicating whether to generate an alert when the task
+   *       succeeds</LI>
+   *   <LI>A flag indicating whether to generate an alert when the task
+   *       fails</LI>
    * </UL>
    *
    * @return  A list of task properties that may be provided when scheduling any
@@ -1750,8 +2106,13 @@ public class Task
          PROPERTY_SCHEDULED_START_TIME,
          PROPERTY_DEPENDENCY_ID,
          PROPERTY_FAILED_DEPENDENCY_ACTION,
+         PROPERTY_NOTIFY_ON_START,
          PROPERTY_NOTIFY_ON_COMPLETION,
-         PROPERTY_NOTIFY_ON_ERROR);
+         PROPERTY_NOTIFY_ON_SUCCESS,
+         PROPERTY_NOTIFY_ON_ERROR,
+         PROPERTY_ALERT_ON_START,
+         PROPERTY_ALERT_ON_SUCCESS,
+         PROPERTY_ALERT_ON_ERROR);
 
     return Collections.unmodifiableList(taskList);
   }
@@ -1820,11 +2181,35 @@ public class Task
                      failedDependencyAction.getName())));
     }
 
+    props.put(PROPERTY_NOTIFY_ON_START,
+              Collections.<Object>unmodifiableList(notifyOnStart));
+
     props.put(PROPERTY_NOTIFY_ON_COMPLETION,
               Collections.<Object>unmodifiableList(notifyOnCompletion));
 
+    props.put(PROPERTY_NOTIFY_ON_SUCCESS,
+              Collections.<Object>unmodifiableList(notifyOnSuccess));
+
     props.put(PROPERTY_NOTIFY_ON_ERROR,
               Collections.<Object>unmodifiableList(notifyOnError));
+
+    if (alertOnStart != null)
+    {
+      props.put(PROPERTY_ALERT_ON_START,
+           Collections.<Object>singletonList(alertOnStart));
+    }
+
+    if (alertOnSuccess != null)
+    {
+      props.put(PROPERTY_ALERT_ON_SUCCESS,
+           Collections.<Object>singletonList(alertOnSuccess));
+    }
+
+    if (alertOnError!= null)
+    {
+      props.put(PROPERTY_ALERT_ON_ERROR,
+           Collections.<Object>singletonList(alertOnError));
+    }
 
     return Collections.unmodifiableMap(props);
   }

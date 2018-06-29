@@ -227,7 +227,7 @@ public final class ReEncodeEntriesTask
    * The task property that will be used to indicate whether to skip fully
    * uncached entries.
    */
-  static final TaskProperty PROPERTY_SKIP_FULLY_UNCACHED=
+  static final TaskProperty PROPERTY_SKIP_FULLY_UNCACHED =
      new TaskProperty(ATTR_SKIP_FULLY_UNCACHED,
           INFO_DISPLAY_NAME_REENCODE_SKIP_FULLY_UNCACHED.get(),
           INFO_DESCRIPTION_REENCODE_SKIP_FULLY_UNCACHED.get(),
@@ -239,7 +239,7 @@ public final class ReEncodeEntriesTask
    * The task property that will be used to indicate whether to skip partially
    * uncached entries.
    */
-  static final TaskProperty PROPERTY_SKIP_PARTIALLY_UNCACHED=
+  static final TaskProperty PROPERTY_SKIP_PARTIALLY_UNCACHED =
      new TaskProperty(ATTR_SKIP_PARTIALLY_UNCACHED,
           INFO_DISPLAY_NAME_REENCODE_SKIP_PARTIALLY_UNCACHED.get(),
           INFO_DESCRIPTION_REENCODE_SKIP_PARTIALLY_UNCACHED.get(),
@@ -429,9 +429,107 @@ public final class ReEncodeEntriesTask
               final List<String> notifyOnCompletion,
               final List<String> notifyOnError)
   {
+    this(taskID, backendID, includeBranches, excludeBranches, includeFilters,
+         excludeFilters, maxEntriesPerSecond, skipFullyUncachedEntries,
+         skipPartiallyUncachedEntries, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new re-encode entries task with the provided information.
+   *
+   * @param  taskID                        The task ID to use for this task.  If
+   *                                       it is {@code null} then a UUID will
+   *                                       be generated for use as the task ID.
+   * @param  backendID                     The backend ID of the backend
+   *                                       containing the entries to re-encode.
+   *                                       It must not be {@code null}.
+   * @param  includeBranches               A list containing the base DNs of
+   *                                       branches to include in re-encode
+   *                                       processing.  It may be {@code null}
+   *                                       or empty if there should not be any
+   *                                       include branches.
+   * @param  excludeBranches               A list containing the base DNs of
+   *                                       branches to exclude from re-encode
+   *                                       processing.  It may be {@code null}
+   *                                       or empty if there should not be any
+   *                                       exclude branches.
+   * @param  includeFilters                A list containing filters to use to
+   *                                       identify entries to include in
+   *                                       re-encode processing.  It may be
+   *                                       {@code null} or empty if there should
+   *                                       not be any include filters.
+   * @param  excludeFilters                A list containing filters to use to
+   *                                       identify entries to exclude from
+   *                                       re-encode processing.  It may be
+   *                                       {@code null} or empty if there should
+   *                                       not be any exclude filters.
+   * @param  maxEntriesPerSecond           The maximum number of entries to
+   *                                       re-encode per second.  It may be
+   *                                       {@code null} to indicate that no
+   *                                       limit should be imposed.
+   * @param  skipFullyUncachedEntries      Indicates whether to skip re-encode
+   *                                       processing for entries that are fully
+   *                                       uncached.
+   * @param  skipPartiallyUncachedEntries  Indicates whether to skip re-encode
+   *                                       processing for entries that contain
+   *                                       a mix of cached and uncached
+   *                                       attributes.
+   * @param  scheduledStartTime            The time that this task should start
+   *                                       running.
+   * @param  dependencyIDs                 The list of task IDs that will be
+   *                                       required to complete before this task
+   *                                       will be eligible to start.
+   * @param  failedDependencyAction        Indicates what action should be taken
+   *                                       if any of the dependencies for this
+   *                                       task do not complete successfully.
+   * @param  notifyOnStart                 The list of e-mail addresses of
+   *                                       individuals that should be notified
+   *                                       when this task starts running.
+   * @param  notifyOnCompletion            The list of e-mail addresses of
+   *                                       individuals that should be notified
+   *                                       when this task completes.
+   * @param  notifyOnSuccess               The list of e-mail addresses of
+   *                                       individuals that should be notified
+   *                                       if this task completes successfully.
+   * @param  notifyOnError                 The list of e-mail addresses of
+   *                                       individuals that should be notified
+   *                                       if this task does not complete
+   *                                       successfully.
+   * @param  alertOnStart                  Indicates whether the server should
+   *                                       send an alert notification when this
+   *                                       task starts.
+   * @param  alertOnSuccess                Indicates whether the server should
+   *                                       send an alert notification if this
+   *                                       task completes successfully.
+   * @param  alertOnError                  Indicates whether the server should
+   *                                       send an alert notification if this
+   *                                       task fails to complete successfully.
+   */
+  public ReEncodeEntriesTask(final String taskID, final String backendID,
+              final List<String> includeBranches,
+              final List<String> excludeBranches,
+              final List<String> includeFilters,
+              final List<String> excludeFilters,
+              final Long maxEntriesPerSecond,
+              final boolean skipFullyUncachedEntries,
+              final boolean skipPartiallyUncachedEntries,
+              final Date scheduledStartTime,
+              final List<String> dependencyIDs,
+              final FailedDependencyAction failedDependencyAction,
+              final List<String> notifyOnStart,
+              final List<String> notifyOnCompletion,
+              final List<String> notifyOnSuccess,
+              final List<String> notifyOnError, final Boolean alertOnStart,
+              final Boolean alertOnSuccess, final Boolean alertOnError)
+  {
     super(taskID, RE_ENCODE_ENTRIES_TASK_CLASS, scheduledStartTime,
-         dependencyIDs, failedDependencyAction, notifyOnCompletion,
-         notifyOnError);
+         dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     ensureNotNull(backendID);
 

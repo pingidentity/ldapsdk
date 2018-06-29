@@ -205,9 +205,70 @@ public final class AddSchemaFileTask
                            final List<String> notifyOnCompletion,
                            final List<String> notifyOnError)
   {
+    this(taskID, schemaFileNames, scheduledStartTime, dependencyIDs,
+         failedDependencyAction, null, notifyOnCompletion, null,
+         notifyOnError, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new add schema file task to add the specified files to the server
+   * schema.
+   *
+   * @param  taskID                  The task ID to use for this task.  If it is
+   *                                 {@code null} then a UUID will be generated
+   *                                 for use as the task ID.
+   * @param  schemaFileNames         The list of names (without path
+   *                                 information) of the files to add to the
+   *                                 server schema.  It must not be {@code null}
+   *                                 or empty.
+   * @param  scheduledStartTime      The time that this task should start
+   *                                 running.
+   * @param  dependencyIDs           The list of task IDs that will be required
+   *                                 to complete before this task will be
+   *                                 eligible to start.
+   * @param  failedDependencyAction  Indicates what action should be taken if
+   *                                 any of the dependencies for this task do
+   *                                 not complete successfully.
+   * @param  notifyOnStart           The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 starts running.
+   * @param  notifyOnCompletion      The list of e-mail addresses of individuals
+   *                                 that should be notified when this task
+   *                                 completes.
+   * @param  notifyOnSuccess         The list of e-mail addresses of individuals
+   *                                 that should be notified if this task
+   *                                 completes successfully.
+   * @param  notifyOnError           The list of e-mail addresses of individuals
+   *                                 that should be notified if this task does
+   *                                 not complete successfully.
+   * @param  alertOnStart            Indicates whether the server should send an
+   *                                 alert notification when this task starts.
+   * @param  alertOnSuccess          Indicates whether the server should send an
+   *                                 alert notification if this task completes
+   *                                 successfully.
+   * @param  alertOnError            Indicates whether the server should send an
+   *                                 alert notification if this task fails to
+   *                                 complete successfully.
+   */
+  public AddSchemaFileTask(final String taskID,
+                           final List<String> schemaFileNames,
+                           final Date scheduledStartTime,
+                           final List<String> dependencyIDs,
+                           final FailedDependencyAction failedDependencyAction,
+                           final List<String> notifyOnStart,
+                           final List<String> notifyOnCompletion,
+                           final List<String> notifyOnSuccess,
+                           final List<String> notifyOnError,
+                           final Boolean alertOnStart,
+                           final Boolean alertOnSuccess,
+                           final Boolean alertOnError)
+  {
     super(taskID, ADD_SCHEMA_FILE_TASK_CLASS, scheduledStartTime,
-          dependencyIDs, failedDependencyAction, notifyOnCompletion,
-          notifyOnError);
+          dependencyIDs, failedDependencyAction, notifyOnStart,
+         notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
+         alertOnSuccess, alertOnError);
 
     ensureNotNull(schemaFileNames);
     ensureFalse(schemaFileNames.isEmpty(),
