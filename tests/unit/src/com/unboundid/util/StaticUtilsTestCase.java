@@ -93,10 +93,62 @@ public class StaticUtilsTestCase
   @Test()
   public void testToLowerCaseIncludesNonASCII()
   {
-    String s = "JOS\u00c9 JALAPE\u00d1O";
+    String u = "JOS\u00c9 JALAPE\u00d1O";
     String l = "jos\u00e9 jalape\u00f1o";
 
-    assertEquals(StaticUtils.toLowerCase(s), l);
+    assertEquals(StaticUtils.toLowerCase(u), l);
+  }
+
+
+
+  /**
+   * Tests the {@code toUpperCase} method with a {@code null} string.
+   */
+  @Test()
+  public void testToUpperCaseNull()
+  {
+    assertNull(StaticUtils.toUpperCase(null));
+  }
+
+
+
+  /**
+   * Tests the {@code toUpperCase} method with an empty string.
+   */
+  @Test()
+  public void testToUpperCaseEmpty()
+  {
+    assertEquals(StaticUtils.toUpperCase(""), "");
+  }
+
+
+
+  /**
+   * Tests the {@code toUpperCase} method with string that already contains only
+   * ASCII characters.
+   */
+  @Test()
+  public void testToUpperCaseOnlyASCII()
+  {
+    String s = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+    String l = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    assertEquals(StaticUtils.toUpperCase(s), l);
+  }
+
+
+
+  /**
+   * Tests the {@code toUpperCase} method with string that already contains a
+   * mix of ASCII and non-ASCII characters.
+   */
+  @Test()
+  public void testToUpperCaseIncludesNonASCII()
+  {
+    String l = "jos\u00e9 jalape\u00f1o";
+    String u = "JOS\u00c9 JALAPE\u00d1O";
+
+    assertEquals(StaticUtils.toUpperCase(l), u);
   }
 
 

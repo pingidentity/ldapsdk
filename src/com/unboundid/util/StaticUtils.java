@@ -695,6 +695,118 @@ public final class StaticUtils
 
 
   /**
+   * Retrieves an all-uppercase version of the provided string.
+   *
+   * @param  s  The string for which to retrieve the uppercase version.
+   *
+   * @return  An all-uppercase version of the provided string.
+   */
+  public static String toUpperCase(final String s)
+  {
+    if (s == null)
+    {
+      return null;
+    }
+
+    final int length = s.length();
+    final char[] charArray = s.toCharArray();
+    for (int i=0; i < length; i++)
+    {
+      switch (charArray[i])
+      {
+        case 'a':
+          charArray[i] = 'A';
+          break;
+        case 'b':
+          charArray[i] = 'B';
+          break;
+        case 'c':
+          charArray[i] = 'C';
+          break;
+        case 'd':
+          charArray[i] = 'D';
+          break;
+        case 'e':
+          charArray[i] = 'E';
+          break;
+        case 'f':
+          charArray[i] = 'F';
+          break;
+        case 'g':
+          charArray[i] = 'G';
+          break;
+        case 'h':
+          charArray[i] = 'H';
+          break;
+        case 'i':
+          charArray[i] = 'I';
+          break;
+        case 'j':
+          charArray[i] = 'J';
+          break;
+        case 'k':
+          charArray[i] = 'K';
+          break;
+        case 'l':
+          charArray[i] = 'L';
+          break;
+        case 'm':
+          charArray[i] = 'M';
+          break;
+        case 'n':
+          charArray[i] = 'N';
+          break;
+        case 'o':
+          charArray[i] = 'O';
+          break;
+        case 'p':
+          charArray[i] = 'P';
+          break;
+        case 'q':
+          charArray[i] = 'Q';
+          break;
+        case 'r':
+          charArray[i] = 'R';
+          break;
+        case 's':
+          charArray[i] = 'S';
+          break;
+        case 't':
+          charArray[i] = 'T';
+          break;
+        case 'u':
+          charArray[i] = 'U';
+          break;
+        case 'v':
+          charArray[i] = 'V';
+          break;
+        case 'w':
+          charArray[i] = 'W';
+          break;
+        case 'x':
+          charArray[i] = 'X';
+          break;
+        case 'y':
+          charArray[i] = 'Y';
+          break;
+        case 'z':
+          charArray[i] = 'Z';
+          break;
+        default:
+          if (charArray[i] > 0x7F)
+          {
+            return s.toUpperCase();
+          }
+          break;
+      }
+    }
+
+    return new String(charArray);
+  }
+
+
+
+  /**
    * Indicates whether the provided character is a valid hexadecimal digit.
    *
    * @param  c  The character for which to make the determination.
