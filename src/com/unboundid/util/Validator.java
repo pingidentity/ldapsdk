@@ -22,6 +22,9 @@ package com.unboundid.util;
 
 
 
+import java.util.Collection;
+import java.util.Map;
+
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
@@ -255,6 +258,527 @@ public final class Validator
 
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_NULL_CHECK_FAILURE.get(index,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided collection is not {@code null} and contains at
+   * least one item.
+   *
+   * @param  collection  The collection to verify.
+   *
+   * @throws  LDAPSDKUsageException  If the provided collection is {@code null}
+   *                                 or empty.
+   */
+  public static void ensureNotNullOrEmpty(final Collection<?> collection)
+  {
+    if (collection == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_COLLECTION_NULL.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (collection.isEmpty())
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_COLLECTION_EMPTY.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided collection is not {@code null} and contains at
+   * least one item.
+   *
+   * @param  collection  The collection to verify.
+   * @param  message     The message to include in the exception thrown if the
+   *                     provided collection is {@code null} or empty.
+   *
+   * @throws  LDAPSDKUsageException  If the provided collection is {@code null}
+   *                                 or empty.
+   */
+  public static void ensureNotNullOrEmpty(final Collection<?> collection,
+                                          final String message)
+  {
+    if (collection == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_COLLECTION_NULL_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (collection.isEmpty())
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_COLLECTION_EMPTY_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided map is not {@code null} and contains at least one
+   * item.
+   *
+   * @param  map  The map to verify.
+   *
+   * @throws  LDAPSDKUsageException  If the provided map is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final Map<?,?> map)
+  {
+    if (map == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_MAP_NULL.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (map.isEmpty())
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_MAP_EMPTY.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided map is not {@code null} and contains at least one
+   * item.
+   *
+   * @param  map      The map to verify.
+   * @param  message  The message to include in the exception thrown if the
+   *                  provided map is {@code null} or empty.
+   *
+   * @throws  LDAPSDKUsageException  If the provided map is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final Map<?,?> map,
+                                          final String message)
+  {
+    if (map == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_MAP_NULL_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (map.isEmpty())
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_MAP_EMPTY_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array  The array to verify.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final Object[] array)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array    The array to verify.
+   * @param  message  The message to include in the exception thrown if the
+   *                  provided array is {@code null} or empty.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final Object[] array,
+                                          final String message)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array  The array to verify.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final byte[] array)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array    The array to verify.
+   * @param  message  The message to include in the exception thrown if the
+   *                  provided array is {@code null} or empty.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final byte[] array,
+                                          final String message)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array  The array to verify.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final char[] array)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array    The array to verify.
+   * @param  message  The message to include in the exception thrown if the
+   *                  provided array is {@code null} or empty.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final char[] array,
+                                          final String message)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array  The array to verify.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final int[] array)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array    The array to verify.
+   * @param  message  The message to include in the exception thrown if the
+   *                  provided array is {@code null} or empty.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final int[] array,
+                                          final String message)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array  The array to verify.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final long[] array)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided array is not {@code null} and has a length of at
+   * least one.
+   *
+   * @param  array    The array to verify.
+   * @param  message  The message to include in the exception thrown if the
+   *                  provided array is {@code null} or empty.
+   *
+   * @throws  LDAPSDKUsageException  If the provided array is {@code null} or
+   *                                 empty.
+   */
+  public static void ensureNotNullOrEmpty(final long[] array,
+                                          final String message)
+  {
+    if (array == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (array.length == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided character sequence is not {@code null} and has a
+   * length of at least one.
+   *
+   * @param  charSequence  The character sequence to verify.
+   *
+   * @throws  LDAPSDKUsageException  If the provided character sequence is
+   *                                 {@code null} or empty.
+   */
+  public static void ensureNotNullOrEmpty(final CharSequence charSequence)
+  {
+    if (charSequence == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_CHAR_SEQUENCE_NULL.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (charSequence.length() == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_CHAR_SEQUENCE_EMPTY.get(
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided character sequence is not {@code null} and has a
+   * length of at least one.
+   *
+   * @param  charSequence  The character sequence to verify.
+   * @param  message        The message to include in the exception thrown if
+   *                        the provided character sequence is {@code null} or
+   *                        empty.
+   *
+   * @throws  LDAPSDKUsageException  If the provided character sequence is
+   *                                 {@code null} or empty.
+   */
+  public static void ensureNotNullOrEmpty(final CharSequence charSequence,
+                                          final String message)
+  {
+    if (charSequence == null)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_CHAR_SEQUENCE_NULL_CUSTOM_MESSAGE.get(message,
+                getStackTrace(Thread.currentThread().getStackTrace())));
+      debugCodingError(e);
+      throw e;
+    }
+    else if (charSequence.length() == 0)
+    {
+      final LDAPSDKUsageException e =  new LDAPSDKUsageException(
+           ERR_VALIDATOR_CHAR_SEQUENCE_EMPTY_CUSTOM_MESSAGE.get(message,
                 getStackTrace(Thread.currentThread().getStackTrace())));
       debugCodingError(e);
       throw e;

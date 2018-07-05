@@ -22,6 +22,13 @@ package com.unboundid.util;
 
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -200,6 +207,325 @@ public class ValidatorTestCase
     }
 
     assertEquals(failed, shouldFail);
+  }
+
+
+
+  /**
+   * Tests the behavior of the [@code ensureNotNullOrEmpty} method for
+   * collections.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEnsureCollectionNotNullOrEmpty()
+         throws Exception
+  {
+    for (final Collection<?> c :
+         Arrays.<Collection<?>>asList(null, Collections.emptyList(),
+              Collections.emptySet(), new ArrayList<String>(0)))
+    {
+      try
+      {
+        Validator.ensureNotNullOrEmpty(c);
+        fail("Expected an exception from a null or empty collection.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        Validator.ensureNotNullOrEmpty(c, "This is a custom message.");
+        fail("Expected an exception from a null or empty collection.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+    }
+
+    for (final Collection<?> c :
+         Arrays.asList(Collections.singletonList("foo"),
+              Collections.singleton("bar"),
+              Arrays.asList("one", "two", "three")))
+    {
+      Validator.ensureNotNullOrEmpty(c);
+
+      Validator.ensureNotNullOrEmpty(c, "This is a custom message.");
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the [@code ensureNotNullOrEmpty} method for maps.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEnsureMapNotNullOrEmpty()
+         throws Exception
+  {
+    for (final Map<?,?> m :
+         Arrays.<Map<?,?>>asList(null, Collections.emptyMap(),
+              new HashMap<String,String>(0)))
+    {
+      try
+      {
+        Validator.ensureNotNullOrEmpty(m);
+        fail("Expected an exception from a null or empty map.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        Validator.ensureNotNullOrEmpty(m, "This is a custom message.");
+        fail("Expected an exception from a null or empty map.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+    }
+
+
+    final HashMap<String,String> m1 = new HashMap<>(1);
+    m1.put("a", "one");
+
+    final HashMap<String,String> m2 = new HashMap<>(2);
+    m2.put("b", "two");
+    m2.put("c", "three");
+
+    for (final Map<?,?> m :
+         Arrays.asList(Collections.singletonMap("foo", "bar"), m1, m2))
+    {
+      Validator.ensureNotNullOrEmpty(m);
+
+      Validator.ensureNotNullOrEmpty(m, "This is a custom message.");
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the [@code ensureNotNullOrEmpty} method for arrays.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEnsureArrayNotNullOrEmpty()
+         throws Exception
+  {
+    final Object[] nullObjectArray = null;
+    for (final Object[] a :
+         Arrays.asList(nullObjectArray, new Object[0], StaticUtils.NO_STRINGS,
+              StaticUtils.NO_CONTROLS, new Object[0][], new byte[0][]))
+    {
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a);
+        fail("Expected an exception from a null or empty object array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+        fail("Expected an exception from a null or empty object array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+    }
+
+    final byte[] nullByteArray = null;
+    for (final byte[] a : Arrays.asList(nullByteArray, StaticUtils.NO_BYTES))
+    {
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a);
+        fail("Expected an exception from a null or empty byte array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+        fail("Expected an exception from a null or empty byte array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+    }
+
+    final char[] nullCharArray = null;
+    for (final char[] a : Arrays.asList(nullCharArray, StaticUtils.NO_CHARS))
+    {
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a);
+        fail("Expected an exception from a null or empty char array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+        fail("Expected an exception from a null or empty char array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+    }
+
+    final int[] nullIntArray = null;
+    for (final int[] a : Arrays.asList(nullIntArray, new int[0]))
+    {
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a);
+        fail("Expected an exception from a null or empty int array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+        fail("Expected an exception from a null or empty int array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+    }
+
+    final long[] nullLongArray = null;
+    for (final long[] a : Arrays.asList(nullLongArray, new long[0]))
+    {
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a);
+        fail("Expected an exception from a null or empty long array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+        fail("Expected an exception from a null or empty long array.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+    }
+
+    for (final Object[] a :
+         Arrays.asList(new Object[] { "foo", "bar", "baz" },
+                       new String[] { "a", "b", "c" }))
+    {
+      Validator.ensureNotNullOrEmpty(a);
+
+      Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+    }
+
+    for (final byte[] a :
+         Arrays.asList(StaticUtils.byteArray(1),
+              StaticUtils.byteArray(2, 3, 4)))
+    {
+      Validator.ensureNotNullOrEmpty(a);
+
+      Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+    }
+
+    for (final char[] a : Arrays.asList("a".toCharArray(), "bcd".toCharArray()))
+    {
+      Validator.ensureNotNullOrEmpty(a);
+
+      Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+    }
+
+    for (final int[] a : Arrays.asList(new int[] { 1 }, new int[] { 2, 3, 4 }))
+    {
+      Validator.ensureNotNullOrEmpty(a);
+
+      Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+    }
+
+    for (final long[] a :
+         Arrays.asList(new long[] { 1 }, new long[] { 2, 3, 4 }))
+    {
+      Validator.ensureNotNullOrEmpty(a);
+
+      Validator.ensureNotNullOrEmpty(a, "This is a custom message.");
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the [@code ensureNotNullOrEmpty} method for
+   * character sequences.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEnsureCharSequenceNotNullOrEmpty()
+         throws Exception
+  {
+    for (final CharSequence s :
+         Arrays.<CharSequence>asList(null, "", new StringBuilder()))
+    {
+      try
+      {
+        Validator.ensureNotNullOrEmpty(s);
+        fail("Expected an exception from a null or empty collection.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        Validator.ensureNotNullOrEmpty(s, "This is a custom message.");
+        fail("Expected an exception from a null or empty collection.");
+      }
+      catch (final LDAPSDKUsageException e)
+      {
+        // This was expected.
+      }
+    }
+
+    for (final CharSequence s : Arrays.asList("foo", new StringBuilder("bar")))
+    {
+      Validator.ensureNotNullOrEmpty(s);
+
+      Validator.ensureNotNullOrEmpty(s, "This is a custom message.");
+    }
   }
 
 
