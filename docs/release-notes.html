@@ -88,6 +88,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapmodify tool to include the ignore NO-USER-MODIFICATION request
+                  control in both add and modify requests if the --ignoreNoUserModification
+                  argument was provided.  Previously, that argument only caused the control to be
+                  included in add requests.  Further, the control will now be marked non-critical
+                  instead of critical.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the task API to add support for a number of new properties, including
                   the email addresses of users to notify on task start and successful
                   completion (in addition to the existing properties specifying users to email

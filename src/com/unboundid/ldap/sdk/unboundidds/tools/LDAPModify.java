@@ -2616,7 +2616,8 @@ readChangeRecordLoop:
 
     if (ignoreNoUserModification.isPresent())
     {
-      addControls.add(new IgnoreNoUserModificationRequestControl());
+      addControls.add(new IgnoreNoUserModificationRequestControl(false));
+      modifyControls.add(new IgnoreNoUserModificationRequestControl(false));
     }
 
     if (nameWithEntryUUID.isPresent())
