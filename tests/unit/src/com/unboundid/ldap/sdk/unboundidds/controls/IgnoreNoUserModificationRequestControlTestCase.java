@@ -47,12 +47,12 @@ public class IgnoreNoUserModificationRequestControlTestCase
        extends LDAPSDKTestCase
 {
   /**
-   * Tests the first constructor.
+   * Tests the no-argument constructor.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testConstructor1()
+  public void testNoArgumentConstructor()
          throws Exception
   {
     IgnoreNoUserModificationRequestControl c =
@@ -68,12 +68,56 @@ public class IgnoreNoUserModificationRequestControlTestCase
 
 
   /**
-   * Tests the second constructor with a valid generic control.
+   * Tests the constructor that takes a criticality argument with a criticality
+   * of {@code true}.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testConstructor2Valid()
+  public void testCriticalityTrueConstructor()
+         throws Exception
+  {
+    IgnoreNoUserModificationRequestControl c =
+         new IgnoreNoUserModificationRequestControl(true);
+    c = new IgnoreNoUserModificationRequestControl(c);
+
+    assertTrue(c.isCritical());
+
+    assertNotNull(c.getControlName());
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the constructor that takes a criticality argument with a criticality
+   * of {@code false}.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCriticalityFalseConstructor()
+         throws Exception
+  {
+    IgnoreNoUserModificationRequestControl c =
+         new IgnoreNoUserModificationRequestControl(false);
+    c = new IgnoreNoUserModificationRequestControl(c);
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getControlName());
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the constructor that takes a control with a valid generic control.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testControlConstructorValid()
          throws Exception
   {
     Control genericControl = new Control(
@@ -91,12 +135,12 @@ public class IgnoreNoUserModificationRequestControlTestCase
 
 
   /**
-   * Tests the second constructor with an invalid generic control.
+   * Tests the constructor that takes a control with an invalid generic control.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test(expectedExceptions = { LDAPException.class })
-  public void testConstructor2Invalid()
+  public void testControlConstructorInvalid()
          throws Exception
   {
     Control genericControl = new Control(

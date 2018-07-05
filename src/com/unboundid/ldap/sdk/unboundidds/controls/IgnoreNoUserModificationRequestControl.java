@@ -102,7 +102,21 @@ public final class IgnoreNoUserModificationRequestControl
    */
   public IgnoreNoUserModificationRequestControl()
   {
-    super(IGNORE_NO_USER_MODIFICATION_REQUEST_OID, true, null);
+    this(true);
+  }
+
+
+
+  /**
+   * Creates a new ignore NO-USER-MODIFICATION request control with the given
+   * criticality.
+   *
+   * @param  isCritical  Indicates whether the control should be considered
+   *                     critical.
+   */
+  public IgnoreNoUserModificationRequestControl(final boolean isCritical)
+  {
+    super(IGNORE_NO_USER_MODIFICATION_REQUEST_OID, isCritical, null);
   }
 
 
