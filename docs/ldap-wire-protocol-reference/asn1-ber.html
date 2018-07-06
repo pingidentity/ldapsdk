@@ -782,7 +782,7 @@ ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
 
               <p>The string representation of set elements is virtually identical to that of sequence elements. Just replace “<tt>SEQUENCE</tt>” with “<tt>SET</tt>”, and “<tt>SEQUENCE OF</tt>” with “<tt>SET OF</tt>”. However, given that the order of elements in a set is not considered significant, you are more likely to encounter the “<tt>SET OF</tt>” variant.</p>
 
-              <a name="string-representation-cohice-values"></a>
+              <a name="string-representation-choice-values"></a>
               <h4>Specifying Choice Values</h4>
 
               <p>There may be cases in which you want to allow for one of several elements in a given slot in a sequence or set. You can accomplish that with a choice. The string representation of a choice element is very much like a sequence or a set, except that the encoded element can only contain one of the elements. For example:</p>

@@ -2072,7 +2072,7 @@ public final class ResultUtils
     final List<Attribute> otherAttrs = decoded.getOtherAttributes();
     if ((otherAttrs != null) && (! otherAttrs.isEmpty()))
     {
-      wrap(lines, INFO_RESULT_UTILS_GET_USER_RLIM_OTHER_ATTIBUTES_HEADER.get(),
+      wrap(lines, INFO_RESULT_UTILS_GET_USER_RLIM_OTHER_ATTRIBUTES_HEADER.get(),
            indentPrefix, maxWidth);
       addLDIF(lines, new Entry("", otherAttrs), false, doubleIndentPrefix,
            maxWidth);

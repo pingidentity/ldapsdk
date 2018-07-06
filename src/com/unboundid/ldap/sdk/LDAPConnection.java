@@ -935,7 +935,7 @@ public final class LDAPConnection
       {
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_CONN_INTERRUPTED_DURINGR_RECONNECT.get(), e);
+             ERR_CONN_INTERRUPTED_DURING_RECONNECT.get(), e);
       }
     }
 

@@ -1211,7 +1211,7 @@ final class CommandLineToolInteractiveModeProcessor
 
     int maxIdentifierLength = 0;
     final String trailingArgsIdentifier =
-         INFO_INTEARCTIVE_MENU_TRAILING_ARGS_IDENTIFIER.get();
+         INFO_INTERACTIVE_MENU_TRAILING_ARGS_IDENTIFIER.get();
     if (parser.allowsTrailingArguments())
     {
       maxIdentifierLength = trailingArgsIdentifier.length();

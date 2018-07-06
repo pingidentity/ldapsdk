@@ -281,7 +281,7 @@ public final class JSONNumber
 
         if (! isDigit(chars[pos+1]))
         {
-          throw new JSONException(ERR_NUMBER_DECIMAL_NOT_FOLLWED_BY_DIGIT.get(
+          throw new JSONException(ERR_NUMBER_DECIMAL_NOT_FOLLOWED_BY_DIGIT.get(
                stringRepresentation));
         }
       }

@@ -150,7 +150,7 @@ public final class StaticUtils
    * The {@code TimeZone} object that represents the UTC (universal coordinated
    * time) time zone.
    */
-  private static TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+  private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
 
 
 

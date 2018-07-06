@@ -80,8 +80,8 @@ public final class ASN1GeneralizedTime
        extends ASN1Element
 {
   /**
-   * The thread-local date formatter used to encode generalized time values that
-   * do not include milliseconds.
+   * The thread-local date formatters used to encode generalized time values
+   * that do not include milliseconds.
    */
   private static final ThreadLocal<SimpleDateFormat>
        DATE_FORMATTERS_WITHOUT_MILLIS = new ThreadLocal<>();

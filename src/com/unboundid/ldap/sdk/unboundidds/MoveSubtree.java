@@ -1187,7 +1187,7 @@ processingBlock:
                       abortResult.getDiagnosticMessage()),
                  errorMsg);
             append(
-                 ERR_MOVE_ENTRY_TARGET_ABORT_FAILURE_ADMIN_ACTTION.get(
+                 ERR_MOVE_ENTRY_TARGET_ABORT_FAILURE_ADMIN_ACTION.get(
                       entryDN),
                  adminMsg);
           }
@@ -1200,7 +1200,7 @@ processingBlock:
                     StaticUtils.getExceptionMessage(e)),
                errorMsg);
           append(
-               ERR_MOVE_ENTRY_TARGET_ABORT_FAILURE_ADMIN_ACTTION.get(
+               ERR_MOVE_ENTRY_TARGET_ABORT_FAILURE_ADMIN_ACTION.get(
                     entryDN),
                adminMsg);
         }
@@ -1241,7 +1241,7 @@ processingBlock:
                       abortResult.getDiagnosticMessage()),
                  errorMsg);
             append(
-                 ERR_MOVE_ENTRY_SOURCE_ABORT_FAILURE_ADMIN_ACTTION.get(
+                 ERR_MOVE_ENTRY_SOURCE_ABORT_FAILURE_ADMIN_ACTION.get(
                       entryDN),
                  adminMsg);
           }
@@ -1254,7 +1254,7 @@ processingBlock:
                     StaticUtils.getExceptionMessage(e)),
                errorMsg);
           append(
-               ERR_MOVE_ENTRY_SOURCE_ABORT_FAILURE_ADMIN_ACTTION.get(
+               ERR_MOVE_ENTRY_SOURCE_ABORT_FAILURE_ADMIN_ACTION.get(
                     entryDN),
                adminMsg);
         }
