@@ -84,7 +84,7 @@ public final class InMemoryDirectoryServerSnapshot
     this.firstChangeNumber = firstChangeNumber;
     this.lastChangeNumber  = lastChangeNumber;
 
-    entryMap = Collections.unmodifiableMap(new TreeMap<DN,ReadOnlyEntry>(m));
+    entryMap = Collections.unmodifiableMap(new TreeMap<>(m));
   }
 
 

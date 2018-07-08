@@ -1798,6 +1798,7 @@ public class LDIFReaderAndWriterTestCase
          numThreads,
          new LDIFReaderEntryTranslator()
          {
+           @Override()
            public Entry translate(Entry original, long lineNumber)
                 throws LDIFException
            {
@@ -2043,6 +2044,7 @@ public class LDIFReaderAndWriterTestCase
          numThreads,
          new LDIFReaderEntryTranslator()
          {
+           @Override()
            public Entry translate(Entry original, long lineNumber)
                 throws LDIFException
            {

@@ -106,13 +106,13 @@ public final class NumericGaugeMonitorEntry
     maximumValue = getDouble("value-maximum");
 
     final String observedStr = getString("observed-values");
-    if ((observedStr == null) || (observedStr.length() == 0))
+    if ((observedStr == null) || observedStr.isEmpty())
     {
       observedValues = Collections.emptyList();
     }
     else
     {
-      final ArrayList<Double> values = new ArrayList<Double>(10);
+      final ArrayList<Double> values = new ArrayList<>(10);
       try
       {
         final StringTokenizer tokenizer = new StringTokenizer(observedStr, ",");
@@ -230,7 +230,7 @@ public final class NumericGaugeMonitorEntry
          super.getMonitorAttributes();
 
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(superAttributes.size() + 5);
+         new LinkedHashMap<>(superAttributes.size() + 5);
     attrs.putAll(superAttributes);
 
     if (currentValue != null)

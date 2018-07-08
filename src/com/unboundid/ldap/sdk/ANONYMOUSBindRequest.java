@@ -187,7 +187,7 @@ public final class ANONYMOUSBindRequest
             throws LDAPException
   {
     ASN1OctetString credentials = null;
-    if ((traceString != null) && (traceString.length() > 0))
+    if ((traceString != null) && (! traceString.isEmpty()))
     {
       credentials = new ASN1OctetString(traceString);
     }
@@ -278,8 +278,7 @@ public final class ANONYMOUSBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(2);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(2);
     constructorArgs.add(ToCodeArgHelper.createString(traceString,
          "Trace String"));
 

@@ -59,11 +59,10 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -84,8 +83,7 @@ public final class LDAPDebuggerRequestHandler
    * The thread-local buffers that will be used to hold the log messages as they
    * are being generated.
    */
-  private static final ThreadLocal<StringBuilder> BUFFERS =
-       new ThreadLocal<StringBuilder>();
+  private static final ThreadLocal<StringBuilder> BUFFERS = new ThreadLocal<>();
 
 
 
@@ -180,7 +178,7 @@ public final class LDAPDebuggerRequestHandler
     b.append(':');
     b.append(s.getLocalPort());
     b.append('"');
-    b.append(EOL);
+    b.append(StaticUtils.EOL);
 
     final String header = b.toString();
 
@@ -226,9 +224,9 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Abandon Request Protocol Op:").append(EOL);
+    b.append("     Abandon Request Protocol Op:").append(StaticUtils.EOL);
     b.append("          ID to Abandon:  ").append(request.getIDToAbandon()).
-         append(EOL);
+         append(StaticUtils.EOL);
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
@@ -249,13 +247,13 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Add Request Protocol Op:").append(EOL);
+    b.append("     Add Request Protocol Op:").append(StaticUtils.EOL);
 
     final Entry e = new Entry(request.getDN(), request.getAttributes());
     final String[] ldifLines = e.toLDIF(80);
     for (final String line : ldifLines)
     {
-      b.append("          ").append(line).append(EOL);
+      b.append("          ").append(line).append(StaticUtils.EOL);
     }
 
     appendControls(b, controls);
@@ -266,7 +264,7 @@ public final class LDAPDebuggerRequestHandler
 
     b.setLength(0);
     appendHeader(b, responseMessage.getMessageID());
-    b.append("     Add Response Protocol Op:").append(EOL);
+    b.append("     Add Response Protocol Op:").append(StaticUtils.EOL);
 
     final AddResponseProtocolOp protocolOp =
          responseMessage.getAddResponseProtocolOp();
@@ -293,30 +291,31 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Bind Request Protocol Op:").append(EOL);
+    b.append("     Bind Request Protocol Op:").append(StaticUtils.EOL);
     b.append("          LDAP Version:  ").append(request.getVersion()).
-         append(EOL);
-    b.append("          Bind DN:  ").append(request.getBindDN()).append(EOL);
+         append(StaticUtils.EOL);
+    b.append("          Bind DN:  ").append(request.getBindDN()).
+         append(StaticUtils.EOL);
 
     switch (request.getCredentialsType())
     {
       case BindRequestProtocolOp.CRED_TYPE_SIMPLE:
-        b.append("          Credentials Type:  SIMPLE").append(EOL);
+        b.append("          Credentials Type:  SIMPLE").append(StaticUtils.EOL);
         b.append("               Password:  ").
-             append(request.getSimplePassword()).append(EOL);
+             append(request.getSimplePassword()).append(StaticUtils.EOL);
         break;
 
       case BindRequestProtocolOp.CRED_TYPE_SASL:
-        b.append("          Credentials Type:  SASL").append(EOL);
+        b.append("          Credentials Type:  SASL").append(StaticUtils.EOL);
         b.append("               Mechanism:  ").
-             append(request.getSASLMechanism()).append(EOL);
+             append(request.getSASLMechanism()).append(StaticUtils.EOL);
 
         final ASN1OctetString saslCredentials = request.getSASLCredentials();
         if (saslCredentials != null)
         {
           b.append("               Encoded Credentials:");
-          b.append(EOL);
-          toHexPlusASCII(saslCredentials.getValue(), 20, b);
+          b.append(StaticUtils.EOL);
+          StaticUtils.toHexPlusASCII(saslCredentials.getValue(), 20, b);
         }
         break;
     }
@@ -329,7 +328,7 @@ public final class LDAPDebuggerRequestHandler
 
     b.setLength(0);
     appendHeader(b, responseMessage.getMessageID());
-    b.append("     Bind Response Protocol Op:").append(EOL);
+    b.append("     Bind Response Protocol Op:").append(StaticUtils.EOL);
 
     final BindResponseProtocolOp protocolOp =
          responseMessage.getBindResponseProtocolOp();
@@ -342,8 +341,8 @@ public final class LDAPDebuggerRequestHandler
     if (serverSASLCredentials != null)
     {
       b.append("               Encoded Server SASL Credentials:");
-      b.append(EOL);
-      toHexPlusASCII(serverSASLCredentials.getValue(), 20, b);
+      b.append(StaticUtils.EOL);
+      StaticUtils.toHexPlusASCII(serverSASLCredentials.getValue(), 20, b);
     }
 
     appendControls(b, responseMessage.getControls());
@@ -365,12 +364,13 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Compare Request Protocol Op:").append(EOL);
-    b.append("          DN:  ").append(request.getDN()).append(EOL);
+    b.append("     Compare Request Protocol Op:").append(StaticUtils.EOL);
+    b.append("          DN:  ").append(request.getDN()).append(StaticUtils.EOL);
     b.append("          Attribute Type:  ").append(request.getAttributeName()).
-         append(EOL);
+         append(StaticUtils.EOL);
     b.append("          Assertion Value:  ").
-         append(request.getAssertionValue().stringValue()).append(EOL);
+         append(request.getAssertionValue().stringValue()).
+         append(StaticUtils.EOL);
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
@@ -380,7 +380,7 @@ public final class LDAPDebuggerRequestHandler
 
     b.setLength(0);
     appendHeader(b, responseMessage.getMessageID());
-    b.append("     Compare Response Protocol Op:").append(EOL);
+    b.append("     Compare Response Protocol Op:").append(StaticUtils.EOL);
 
     final CompareResponseProtocolOp protocolOp =
          responseMessage.getCompareResponseProtocolOp();
@@ -407,8 +407,8 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Delete Request Protocol Op:").append(EOL);
-    b.append("          DN:  ").append(request.getDN()).append(EOL);
+    b.append("     Delete Request Protocol Op:").append(StaticUtils.EOL);
+    b.append("          DN:  ").append(request.getDN()).append(StaticUtils.EOL);
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
@@ -418,7 +418,7 @@ public final class LDAPDebuggerRequestHandler
 
     b.setLength(0);
     appendHeader(b, responseMessage.getMessageID());
-    b.append("     Delete Response Protocol Op:").append(EOL);
+    b.append("     Delete Response Protocol Op:").append(StaticUtils.EOL);
 
     final DeleteResponseProtocolOp protocolOp =
          responseMessage.getDeleteResponseProtocolOp();
@@ -445,15 +445,16 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Extended Request Protocol Op:").append(EOL);
-    b.append("          Request OID:  ").append(request.getOID()).append(EOL);
+    b.append("     Extended Request Protocol Op:").append(StaticUtils.EOL);
+    b.append("          Request OID:  ").append(request.getOID()).
+         append(StaticUtils.EOL);
 
     final ASN1OctetString requestValue = request.getValue();
     if (requestValue != null)
     {
       b.append("          Encoded Request Value:");
-      b.append(EOL);
-      toHexPlusASCII(requestValue.getValue(), 15, b);
+      b.append(StaticUtils.EOL);
+      StaticUtils.toHexPlusASCII(requestValue.getValue(), 15, b);
     }
 
     appendControls(b, controls);
@@ -464,7 +465,7 @@ public final class LDAPDebuggerRequestHandler
 
     b.setLength(0);
     appendHeader(b, responseMessage.getMessageID());
-    b.append("     Extended Response Protocol Op:").append(EOL);
+    b.append("     Extended Response Protocol Op:").append(StaticUtils.EOL);
 
     final ExtendedResponseProtocolOp protocolOp =
          responseMessage.getExtendedResponseProtocolOp();
@@ -475,15 +476,16 @@ public final class LDAPDebuggerRequestHandler
     final String responseOID = protocolOp.getResponseOID();
     if (responseOID != null)
     {
-      b.append("          Response OID:  ").append(responseOID).append(EOL);
+      b.append("          Response OID:  ").append(responseOID).
+           append(StaticUtils.EOL);
     }
 
     final ASN1OctetString responseValue = protocolOp.getResponseValue();
     if (responseValue != null)
     {
       b.append("          Encoded Response Value:");
-      b.append(EOL);
-      toHexPlusASCII(responseValue.getValue(), 15, b);
+      b.append(StaticUtils.EOL);
+      StaticUtils.toHexPlusASCII(responseValue.getValue(), 15, b);
     }
 
     appendControls(b, responseMessage.getControls());
@@ -505,7 +507,7 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Modify Request Protocol Op:").append(EOL);
+    b.append("     Modify Request Protocol Op:").append(StaticUtils.EOL);
 
     final LDIFModifyChangeRecord changeRecord =
          new LDIFModifyChangeRecord(request.getDN(),
@@ -513,7 +515,7 @@ public final class LDAPDebuggerRequestHandler
     final String[] ldifLines = changeRecord.toLDIF(80);
     for (final String line : ldifLines)
     {
-      b.append("          ").append(line).append(EOL);
+      b.append("          ").append(line).append(StaticUtils.EOL);
     }
 
     appendControls(b, controls);
@@ -524,7 +526,7 @@ public final class LDAPDebuggerRequestHandler
 
     b.setLength(0);
     appendHeader(b, responseMessage.getMessageID());
-    b.append("     Modify Response Protocol Op:").append(EOL);
+    b.append("     Modify Response Protocol Op:").append(StaticUtils.EOL);
 
     final ModifyResponseProtocolOp protocolOp =
          responseMessage.getModifyResponseProtocolOp();
@@ -551,16 +553,18 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Modify DN Request Protocol Op:").append(EOL);
-    b.append("          DN:  ").append(request.getDN()).append(EOL);
-    b.append("          New RDN:  ").append(request.getNewRDN()).append(EOL);
+    b.append("     Modify DN Request Protocol Op:").append(StaticUtils.EOL);
+    b.append("          DN:  ").append(request.getDN()).append(StaticUtils.EOL);
+    b.append("          New RDN:  ").append(request.getNewRDN()).
+         append(StaticUtils.EOL);
     b.append("          Delete Old RDN:  ").append(request.deleteOldRDN()).
-         append(EOL);
+         append(StaticUtils.EOL);
 
     final String newSuperior = request.getNewSuperiorDN();
     if (newSuperior != null)
     {
-      b.append("          New Superior DN:  ").append(newSuperior).append(EOL);
+      b.append("          New Superior DN:  ").append(newSuperior).
+           append(StaticUtils.EOL);
     }
 
     appendControls(b, controls);
@@ -571,7 +575,7 @@ public final class LDAPDebuggerRequestHandler
 
     b.setLength(0);
     appendHeader(b, responseMessage.getMessageID());
-    b.append("     Modify DN Response Protocol Op:").append(EOL);
+    b.append("     Modify DN Response Protocol Op:").append(StaticUtils.EOL);
 
     final ModifyDNResponseProtocolOp protocolOp =
          responseMessage.getModifyDNResponseProtocolOp();
@@ -598,27 +602,30 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Search Request Protocol Op:").append(EOL);
-    b.append("          Base DN:  ").append(request.getBaseDN()).append(EOL);
-    b.append("          Scope:  ").append(request.getScope()).append(EOL);
+    b.append("     Search Request Protocol Op:").append(StaticUtils.EOL);
+    b.append("          Base DN:  ").append(request.getBaseDN()).
+         append(StaticUtils.EOL);
+    b.append("          Scope:  ").append(request.getScope()).
+         append(StaticUtils.EOL);
     b.append("          Dereference Policy:  ").
-         append(request.getDerefPolicy()).append(EOL);
+         append(request.getDerefPolicy()).append(StaticUtils.EOL);
     b.append("          Size Limit:  ").append(request.getSizeLimit()).
-         append(EOL);
+         append(StaticUtils.EOL);
     b.append("          Time Limit:  ").append(request.getSizeLimit()).
-         append(EOL);
-    b.append("          Types Only:  ").append(request.typesOnly()).append(EOL);
+         append(StaticUtils.EOL);
+    b.append("          Types Only:  ").append(request.typesOnly()).
+         append(StaticUtils.EOL);
     b.append("          Filter:  ");
     request.getFilter().toString(b);
-    b.append(EOL);
+    b.append(StaticUtils.EOL);
 
     final List<String> attributes = request.getAttributes();
     if (! attributes.isEmpty())
     {
-      b.append("          Requested Attributes:").append(EOL);
+      b.append("          Requested Attributes:").append(StaticUtils.EOL);
       for (final String attr : attributes)
       {
-        b.append("               ").append(attr).append(EOL);
+        b.append("               ").append(attr).append(StaticUtils.EOL);
       }
     }
 
@@ -630,7 +637,7 @@ public final class LDAPDebuggerRequestHandler
 
     b.setLength(0);
     appendHeader(b, responseMessage.getMessageID());
-    b.append("     Search Result Done Protocol Op:").append(EOL);
+    b.append("     Search Result Done Protocol Op:").append(StaticUtils.EOL);
 
     final SearchResultDoneProtocolOp protocolOp =
          responseMessage.getSearchResultDoneProtocolOp();
@@ -657,7 +664,7 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Unbind Request Protocol Op:").append(EOL);
+    b.append("     Unbind Request Protocol Op:").append(StaticUtils.EOL);
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
@@ -700,8 +707,8 @@ public final class LDAPDebuggerRequestHandler
   private void appendHeader(final StringBuilder b, final int messageID)
   {
     b.append(headerString);
-    b.append("LDAP Message:").append(EOL);
-    b.append("     Message ID:  ").append(messageID).append(EOL);
+    b.append("LDAP Message:").append(StaticUtils.EOL);
+    b.append("     Message ID:  ").append(messageID).append(StaticUtils.EOL);
   }
 
 
@@ -722,25 +729,26 @@ public final class LDAPDebuggerRequestHandler
                                      final List<String> referralURLs)
   {
     b.append("          Result Code:  ").append(ResultCode.valueOf(resultCode)).
-         append(EOL);
+         append(StaticUtils.EOL);
 
     if (diagnosticMessage != null)
     {
       b.append("          Diagnostic Message:  ").append(diagnosticMessage).
-           append(EOL);
+           append(StaticUtils.EOL);
     }
 
     if (matchedDN != null)
     {
-      b.append("          Matched DN:  ").append(matchedDN).append(EOL);
+      b.append("          Matched DN:  ").append(matchedDN).
+           append(StaticUtils.EOL);
     }
 
     if (! referralURLs.isEmpty())
     {
-      b.append("          Referral URLs:").append(EOL);
+      b.append("          Referral URLs:").append(StaticUtils.EOL);
       for (final String url : referralURLs)
       {
-        b.append("               ").append(url).append(EOL);
+        b.append("               ").append(url).append(StaticUtils.EOL);
       }
     }
   }
@@ -759,27 +767,27 @@ public final class LDAPDebuggerRequestHandler
   {
     if (! controls.isEmpty())
     {
-      b.append("     Controls:").append(EOL);
+      b.append("     Controls:").append(StaticUtils.EOL);
 
       int index = 1;
       for (final Control c : controls)
       {
         b.append("          Control ");
         b.append(index++);
-        b.append(EOL);
+        b.append(StaticUtils.EOL);
         b.append("               OID:  ");
         b.append(c.getOID());
-        b.append(EOL);
+        b.append(StaticUtils.EOL);
         b.append("               Is Critical:  ");
         b.append(c.isCritical());
-        b.append(EOL);
+        b.append(StaticUtils.EOL);
 
         final ASN1OctetString value = c.getValue();
         if ((value != null) && (value.getValueLength() > 0))
         {
           b.append("               Encoded Value:");
-          b.append(EOL);
-          toHexPlusASCII(value.getValue(), 20, b);
+          b.append(StaticUtils.EOL);
+          StaticUtils.toHexPlusASCII(value.getValue(), 20, b);
         }
 
         // If it is a subclass of Control rather than just a generic one, then
@@ -788,7 +796,7 @@ public final class LDAPDebuggerRequestHandler
         {
           b.append("               String Representation:  ");
           c.toString(b);
-          b.append(EOL);
+          b.append(StaticUtils.EOL);
         }
       }
     }
@@ -822,27 +830,26 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Intermediate Response Protocol Op:").append(EOL);
+    b.append("     Intermediate Response Protocol Op:").append(StaticUtils.EOL);
 
     final String oid = response.getOID();
     if (oid != null)
     {
-      b.append("          OID:  ").append(oid).append(EOL);
+      b.append("          OID:  ").append(oid).append(StaticUtils.EOL);
     }
 
     final ASN1OctetString value = response.getValue();
     if (value != null)
     {
       b.append("          Encoded Value:");
-      b.append(EOL);
-      toHexPlusASCII(value.getValue(), 15, b);
+      b.append(StaticUtils.EOL);
+      StaticUtils.toHexPlusASCII(value.getValue(), 15, b);
     }
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
 
-    return new ObjectPair<IntermediateResponseProtocolOp,Control[]>(response,
-         controls);
+    return new ObjectPair<>(response, controls);
   }
 
 
@@ -858,20 +865,19 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Search Result Entry Protocol Op:").append(EOL);
+    b.append("     Search Result Entry Protocol Op:").append(StaticUtils.EOL);
 
     final Entry e = new Entry(entry.getDN(), entry.getAttributes());
     final String[] ldifLines = e.toLDIF(80);
     for (final String line : ldifLines)
     {
-      b.append("          ").append(line).append(EOL);
+      b.append("          ").append(line).append(StaticUtils.EOL);
     }
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
 
-    return new ObjectPair<SearchResultEntryProtocolOp,Control[]>(entry,
-         controls);
+    return new ObjectPair<>(entry, controls);
   }
 
 
@@ -888,18 +894,18 @@ public final class LDAPDebuggerRequestHandler
     final StringBuilder b = getBuffer();
     appendHeader(b, messageID);
 
-    b.append("     Search Result Reference Protocol Op:").append(EOL);
-    b.append("          Referral URLs:").append(EOL);
+    b.append("     Search Result Reference Protocol Op:").
+         append(StaticUtils.EOL);
+    b.append("          Referral URLs:").append(StaticUtils.EOL);
 
     for (final String url : reference.getReferralURLs())
     {
-      b.append("               ").append(url).append(EOL);
+      b.append("               ").append(url).append(StaticUtils.EOL);
     }
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
 
-    return new ObjectPair<SearchResultReferenceProtocolOp,Control[]>(reference,
-         controls);
+    return new ObjectPair<>(reference, controls);
   }
 }

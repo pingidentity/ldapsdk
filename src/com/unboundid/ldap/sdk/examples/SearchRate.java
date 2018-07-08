@@ -48,6 +48,7 @@ import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.util.ColumnFormatter;
+import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
 import com.unboundid.util.HorizontalAlignment;
@@ -56,6 +57,7 @@ import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OutputFormat;
 import com.unboundid.util.RateAdjustor;
 import com.unboundid.util.ResultCodeCounter;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.WakeableSleeper;
@@ -69,9 +71,6 @@ import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -565,8 +564,7 @@ public final class SearchRate
     parser.addArgument(timeLimitSeconds);
 
 
-    final LinkedHashSet<String> derefAllowedValues =
-         new LinkedHashSet<String>(4);
+    final LinkedHashSet<String> derefAllowedValues = new LinkedHashSet<>(4);
     derefAllowedValues.add("never");
     derefAllowedValues.add("always");
     derefAllowedValues.add("search");
@@ -767,7 +765,7 @@ public final class SearchRate
                   "indicates that both the date and the time should be " +
                   "included.  A value of 'without-date' indicates that only " +
                   "the time should be included.";
-    final LinkedHashSet<String> allowedFormats = new LinkedHashSet<String>(3);
+    final LinkedHashSet<String> allowedFormats = new LinkedHashSet<>(3);
     allowedFormats.add("none");
     allowedFormats.add("with-date");
     allowedFormats.add("without-date");
@@ -899,10 +897,10 @@ public final class SearchRate
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         err("An error occurred while trying to write sample variable data " +
              "rate file '", sampleRateFile.getValue().getAbsolutePath(),
-             "':  ", getExceptionMessage(e));
+             "':  ", StaticUtils.getExceptionMessage(e));
         return ResultCode.LOCAL_ERROR;
       }
     }
@@ -928,7 +926,7 @@ public final class SearchRate
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       err("Unable to parse the base DN value pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -940,7 +938,7 @@ public final class SearchRate
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       err("Unable to parse the filter pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -954,7 +952,7 @@ public final class SearchRate
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         err("Unable to parse the proxied authorization pattern:  ",
             pe.getMessage());
         return ResultCode.PARAM_ERROR;
@@ -968,7 +966,8 @@ public final class SearchRate
 
     // Get the alias dereference policy to use.
     final DereferencePolicy derefPolicy;
-    final String derefValue = toLowerCase(dereferencePolicy.getValue());
+    final String derefValue =
+         StaticUtils.toLowerCase(dereferencePolicy.getValue());
     if (derefValue.equals("always"))
     {
       derefPolicy = DereferencePolicy.ALWAYS;
@@ -988,7 +987,7 @@ public final class SearchRate
 
 
     // Get the set of controls to include in search requests.
-    final ArrayList<Control> controlList = new ArrayList<Control>(5);
+    final ArrayList<Control> controlList = new ArrayList<>(5);
     if (assertionFilter.isPresent())
     {
       controlList.add(new AssertionRequestControl(assertionFilter.getValue()));
@@ -996,7 +995,7 @@ public final class SearchRate
 
     if (sortOrder.isPresent())
     {
-      final ArrayList<SortKey> sortKeys = new ArrayList<SortKey>(5);
+      final ArrayList<SortKey> sortKeys = new ArrayList<>(5);
       final StringTokenizer tokenizer =
            new StringTokenizer(sortOrder.getValue(), ",");
       while (tokenizer.hasMoreTokens())
@@ -1055,7 +1054,7 @@ public final class SearchRate
     }
     else
     {
-      attrs = NO_STRINGS;
+      attrs = StaticUtils.NO_STRINGS;
     }
 
 
@@ -1086,15 +1085,9 @@ public final class SearchRate
         rateAdjustor = RateAdjustor.newInstance(fixedRateBarrier,
              ratePerSecond.getValue(), variableRateData.getValue());
       }
-      catch (final IOException e)
+      catch (final IOException | IllegalArgumentException e)
       {
-        debugException(e);
-        err("Initializing the variable rates failed: " + e.getMessage());
-        return ResultCode.PARAM_ERROR;
-      }
-      catch (final IllegalArgumentException e)
-      {
-        debugException(e);
+        Debug.debugException(e);
         err("Initializing the variable rates failed: " + e.getMessage());
         return ResultCode.PARAM_ERROR;
       }
@@ -1203,9 +1196,9 @@ public final class SearchRate
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         err("Unable to connect to the directory server:  ",
-            getExceptionMessage(le));
+            StaticUtils.getExceptionMessage(le));
         return le.getResultCode();
       }
 
@@ -1244,7 +1237,7 @@ public final class SearchRate
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     long overallStartTime = System.nanoTime();
@@ -1309,7 +1302,7 @@ public final class SearchRate
       final long recentNumErrors = numErrors - lastNumErrors;
       final long recentDuration = totalDuration - lastDuration;
 
-      final double numSeconds = intervalDuration / 1000000000.0d;
+      final double numSeconds = intervalDuration / 1_000_000_000.0d;
       final double recentSearchRate = recentNumSearches / numSeconds;
       final double recentErrorRate  = recentNumErrors / numSeconds;
 
@@ -1318,7 +1311,8 @@ public final class SearchRate
       if (recentNumSearches > 0L)
       {
         recentEntriesPerSearch = 1.0d * recentNumEntries / recentNumSearches;
-        recentAvgDuration = 1.0d * recentDuration / recentNumSearches / 1000000;
+        recentAvgDuration =
+             1.0d * recentDuration / recentNumSearches / 1_000_000;
       }
       else
       {
@@ -1353,13 +1347,13 @@ public final class SearchRate
         }
 
         final double numOverallSeconds =
-             (endTime - overallStartTime) / 1000000000.0d;
+             (endTime - overallStartTime) / 1_000_000_000.0d;
         final double overallSearchRate = numSearches / numOverallSeconds;
 
         final double overallAvgDuration;
         if (numSearches > 0L)
         {
-          overallAvgDuration = 1.0d * totalDuration / numSearches / 1000000;
+          overallAvgDuration = 1.0d * totalDuration / numSearches / 1_000_000;
         }
         else
         {
@@ -1436,7 +1430,7 @@ public final class SearchRate
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
         if (e instanceof InterruptedException)
         {
@@ -1477,8 +1471,7 @@ public final class SearchRate
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
 
     String[] args =
     {

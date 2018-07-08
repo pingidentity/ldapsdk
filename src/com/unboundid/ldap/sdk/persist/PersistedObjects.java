@@ -30,12 +30,12 @@ import com.unboundid.ldap.sdk.EntrySource;
 import com.unboundid.ldap.sdk.LDAPEntrySource;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -119,7 +119,7 @@ public final class PersistedObjects<T>
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       final Throwable cause = e.getCause();
       if ((cause != null) && (cause instanceof LDAPException))
@@ -130,7 +130,8 @@ public final class PersistedObjects<T>
       {
         throw new LDAPPersistException(
              ERR_OBJECT_SEARCH_RESULTS_ENTRY_SOURCE_EXCEPTION.get(
-                  getExceptionMessage(e)), e);
+                  StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
 
@@ -154,6 +155,7 @@ public final class PersistedObjects<T>
    * more objects to retrieve.  This method MAY be called after the search has
    * completed (including being called multiple times) with no adverse effects.
    */
+  @Override()
   public void close()
   {
     entrySource.close();

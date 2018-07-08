@@ -346,7 +346,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
    *
    * @return  The encoded password, or {@code null} if no password was given.
    */
-  static ASN1OctetString encodePassword(final Object password)
+  private static ASN1OctetString encodePassword(final Object password)
   {
     if (password == null)
     {
@@ -398,7 +398,7 @@ public final class GenerateTOTPSharedSecretExtendedRequest
                 "non-null.");
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
 
     if (authenticationID != null)
     {

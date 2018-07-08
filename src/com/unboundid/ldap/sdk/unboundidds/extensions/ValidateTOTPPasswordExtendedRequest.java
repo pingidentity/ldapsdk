@@ -110,7 +110,6 @@ public final class ValidateTOTPPasswordExtendedRequest
 
 
 
-
   /**
    * Creates a new validate TOTP password extended request with the provided
    * information.

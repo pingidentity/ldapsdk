@@ -26,8 +26,7 @@ import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -91,7 +90,7 @@ public final class LogException
   {
     super(explanation, cause);
 
-    ensureNotNull(logMessage, explanation);
+    Validator.ensureNotNull(logMessage, explanation);
 
     this.logMessage = logMessage;
   }

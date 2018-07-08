@@ -300,7 +300,7 @@ public abstract class MultiServerLDAPCommandLineTool
 
       port[i] = new IntegerArgument(null, genArgName(i, "port"), true, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PORT.get(),
-           INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65535, 389);
+           INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65_535, 389);
       port[i].setArgumentGroupName(groupName);
       parser.addArgument(port[i]);
 

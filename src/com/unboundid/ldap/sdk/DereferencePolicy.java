@@ -105,7 +105,7 @@ public final class DereferencePolicy
    * The set of dereference policy objects created with undefined int values.
    */
   private static final HashMap<Integer,DereferencePolicy> UNDEFINED_POLICIES =
-       new HashMap<Integer,DereferencePolicy>();
+       new HashMap<>(10);
 
 
 

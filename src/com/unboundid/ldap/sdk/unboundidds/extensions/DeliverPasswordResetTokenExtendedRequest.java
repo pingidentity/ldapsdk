@@ -372,8 +372,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
     else
     {
       this.preferredDeliveryMechanisms = Collections.unmodifiableList(
-           new ArrayList<ObjectPair<String,String>>(
-                preferredDeliveryMechanisms));
+           new ArrayList<>(preferredDeliveryMechanisms));
     }
   }
 
@@ -412,8 +411,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
       String fullAfter = null;
       String compactBefore = null;
       String compactAfter = null;
-      final ArrayList<ObjectPair<String,String>> pdmList =
-           new ArrayList<ObjectPair<String,String>>(10);
+      final ArrayList<ObjectPair<String,String>> pdmList = new ArrayList<>(10);
       for (int i=1; i < elements.length; i++)
       {
         switch (elements[i].getType())
@@ -464,7 +462,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
                 recipientID = null;
               }
 
-              pdmList.add(new ObjectPair<String,String>(mech, recipientID));
+              pdmList.add(new ObjectPair<>(mech, recipientID));
             }
             break;
 
@@ -528,8 +526,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
     }
 
     final ArrayList<ObjectPair<String,String>> l =
-         new ArrayList<ObjectPair<String,String>>(
-              preferredDeliveryMechanisms.length);
+         new ArrayList<>(preferredDeliveryMechanisms.length);
     for (final String s : preferredDeliveryMechanisms)
     {
       l.add(new ObjectPair<String,String>(s, null));
@@ -620,7 +617,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
   {
     Validator.ensureNotNull(userDN);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(7);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(7);
     elements.add(new ASN1OctetString(userDN));
 
     if (messageSubject != null)
@@ -657,7 +654,7 @@ public final class DeliverPasswordResetTokenExtendedRequest
         (! preferredDeliveryMechanisms.isEmpty()))
     {
       final ArrayList<ASN1Element> pdmElements =
-           new ArrayList<ASN1Element>(preferredDeliveryMechanisms.size());
+           new ArrayList<>(preferredDeliveryMechanisms.size());
       for (final ObjectPair<String,String> p : preferredDeliveryMechanisms)
       {
         if (p.getSecond() == null)

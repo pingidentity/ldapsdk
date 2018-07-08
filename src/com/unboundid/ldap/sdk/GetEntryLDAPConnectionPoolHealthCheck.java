@@ -24,13 +24,13 @@ package com.unboundid.ldap.sdk;
 
 import java.io.Serializable;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -58,7 +58,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
    * The default maximum response time value in milliseconds, which is set to
    * 30,000 milliseconds or 30 seconds.
    */
-  private static final long DEFAULT_MAX_RESPONSE_TIME = 30000L;
+  private static final long DEFAULT_MAX_RESPONSE_TIME = 30_000L;
 
 
 
@@ -474,10 +474,10 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       final String msg = ERR_GET_ENTRY_HEALTH_CHECK_FAILURE.get(entryDN,
-           getExceptionMessage(e));
+           StaticUtils.getExceptionMessage(e));
 
       conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, msg, e);
       throw new LDAPException(ResultCode.SERVER_DOWN, msg, e);

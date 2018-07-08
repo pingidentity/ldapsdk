@@ -26,11 +26,10 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -123,7 +122,7 @@ public final class ReplicationSummaryReplicationServer
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         a = null;
         p = null;
       }
@@ -200,7 +199,7 @@ public final class ReplicationSummaryReplicationServer
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }
@@ -232,7 +231,7 @@ public final class ReplicationSummaryReplicationServer
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }

@@ -163,8 +163,7 @@ public final class MultiUpdateExtendedResult
       final ASN1Element[] responseSetElements =
            ASN1Sequence.decodeAsSequence(outerSequenceElements[1]).elements();
       final ArrayList<ObjectPair<OperationType,LDAPResult>> rl =
-           new ArrayList<ObjectPair<OperationType,LDAPResult>>(
-                responseSetElements.length);
+           new ArrayList<>(responseSetElements.length);
       for (final ASN1Element rse : responseSetElements)
       {
         final ASN1Element[] elements =
@@ -183,13 +182,12 @@ public final class MultiUpdateExtendedResult
         switch (elements[0].getType())
         {
           case LDAPMessage.PROTOCOL_OP_TYPE_ADD_RESPONSE:
-            rl.add(new ObjectPair<OperationType,LDAPResult>(OperationType.ADD,
+            rl.add(new ObjectPair<>(OperationType.ADD,
                  AddResponseProtocolOp.decodeProtocolOp(elements[0]).
                       toLDAPResult(controls)));
             break;
           case LDAPMessage.PROTOCOL_OP_TYPE_DELETE_RESPONSE:
-            rl.add(new ObjectPair<OperationType,LDAPResult>(
-                 OperationType.DELETE,
+            rl.add(new ObjectPair<>(OperationType.DELETE,
                  DeleteResponseProtocolOp.decodeProtocolOp(elements[0]).
                       toLDAPResult(controls)));
             break;
@@ -200,14 +198,12 @@ public final class MultiUpdateExtendedResult
                       toExtendedResult(controls)));
             break;
           case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_RESPONSE:
-            rl.add(new ObjectPair<OperationType,LDAPResult>(
-                 OperationType.MODIFY,
+            rl.add(new ObjectPair<>(OperationType.MODIFY,
                  ModifyResponseProtocolOp.decodeProtocolOp(elements[0]).
                       toLDAPResult(controls)));
             break;
           case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_RESPONSE:
-            rl.add(new ObjectPair<OperationType,LDAPResult>(
-                 OperationType.MODIFY_DN,
+            rl.add(new ObjectPair<>(OperationType.MODIFY_DN,
                  ModifyDNResponseProtocolOp.decodeProtocolOp(elements[0]).
                       toLDAPResult(controls)));
             break;
@@ -318,8 +314,7 @@ public final class MultiUpdateExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> opElements =
-         new ArrayList<ASN1Element>(results.size());
+    final ArrayList<ASN1Element> opElements = new ArrayList<>(results.size());
     for (final ObjectPair<OperationType,LDAPResult> p : results)
     {
       final OperationType t = p.getFirst();

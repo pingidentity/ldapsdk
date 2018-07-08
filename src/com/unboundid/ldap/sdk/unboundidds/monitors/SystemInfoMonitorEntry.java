@@ -363,7 +363,7 @@ public final class SystemInfoMonitorEntry
 
     final List<String> envValues = getStrings(ATTR_ENVIRONMENT_VARIABLE);
     final LinkedHashMap<String,String> envMap =
-         new LinkedHashMap<String,String>(envValues.size());
+         new LinkedHashMap<>(envValues.size());
     for (final String s : envValues)
     {
       final int eqPos = s.indexOf("='");
@@ -380,7 +380,7 @@ public final class SystemInfoMonitorEntry
 
     final List<String> propValues = getStrings(ATTR_SYSTEM_PROPERTY);
     final LinkedHashMap<String,String> propMap =
-         new LinkedHashMap<String,String>(propValues.size());
+         new LinkedHashMap<>(propValues.size());
     for (final String s : propValues)
     {
       final int eqPos = s.indexOf("='");
@@ -717,7 +717,7 @@ public final class SystemInfoMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(30);
 
     if (hostname != null)
     {
@@ -893,7 +893,7 @@ public final class SystemInfoMonitorEntry
     if (! environmentVariables.isEmpty())
     {
       final ArrayList<String> envList =
-           new ArrayList<String>(environmentVariables.size());
+           new ArrayList<>(environmentVariables.size());
       for (final Map.Entry<String,String> e : environmentVariables.entrySet())
       {
         envList.add(e.getKey() + "='" + e.getValue() + '\'');
@@ -909,7 +909,7 @@ public final class SystemInfoMonitorEntry
     if (! systemProperties.isEmpty())
     {
       final ArrayList<String> propList =
-           new ArrayList<String>(systemProperties.size());
+           new ArrayList<>(systemProperties.size());
       for (final Map.Entry<String,String> e : systemProperties.entrySet())
       {
         propList.add(e.getKey() + "='" + e.getValue() + '\'');

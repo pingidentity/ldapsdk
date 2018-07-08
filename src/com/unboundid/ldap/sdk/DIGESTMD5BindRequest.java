@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,16 +37,16 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -163,7 +162,7 @@ public final class DIGESTMD5BindRequest
     this(authenticationID, null, new ASN1OctetString(password), null,
          NO_CONTROLS);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -184,7 +183,7 @@ public final class DIGESTMD5BindRequest
     this(authenticationID, null, new ASN1OctetString(password), null,
          NO_CONTROLS);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -230,7 +229,7 @@ public final class DIGESTMD5BindRequest
     this(authenticationID, authorizationID, new ASN1OctetString(password),
          realm, controls);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -258,7 +257,7 @@ public final class DIGESTMD5BindRequest
     this(authenticationID, authorizationID, new ASN1OctetString(password),
          realm, controls);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -285,17 +284,16 @@ public final class DIGESTMD5BindRequest
   {
     super(controls);
 
-    ensureNotNull(authenticationID, password);
+    Validator.ensureNotNull(authenticationID, password);
 
     this.authenticationID = authenticationID;
     this.authorizationID  = authorizationID;
     this.password         = password;
     this.realm            = realm;
 
-    allowedQoP = Collections.unmodifiableList(
-         Arrays.asList(SASLQualityOfProtection.AUTH));
+    allowedQoP = Collections.singletonList(SASLQualityOfProtection.AUTH);
 
-    unhandledCallbackMessages = new ArrayList<String>(5);
+    unhandledCallbackMessages = new ArrayList<>(5);
   }
 
 
@@ -312,7 +310,7 @@ public final class DIGESTMD5BindRequest
   {
     super(controls);
 
-    ensureNotNull(properties);
+    Validator.ensureNotNull(properties);
 
     authenticationID = properties.getAuthenticationID();
     authorizationID  = properties.getAuthorizationID();
@@ -320,7 +318,7 @@ public final class DIGESTMD5BindRequest
     realm            = properties.getRealm();
     allowedQoP       = properties.getAllowedQoP();
 
-    unhandledCallbackMessages = new ArrayList<String>(5);
+    unhandledCallbackMessages = new ArrayList<>(5);
   }
 
 
@@ -436,24 +434,25 @@ public final class DIGESTMD5BindRequest
   {
     unhandledCallbackMessages.clear();
 
-    final String[] mechanisms = { DIGESTMD5_MECHANISM_NAME };
 
-    final HashMap<String,Object> saslProperties = new HashMap<String,Object>();
+    final HashMap<String,Object> saslProperties = new HashMap<>(20);
     saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
     saslProperties.put(Sasl.SERVER_AUTH, "false");
 
     final SaslClient saslClient;
     try
     {
+      final String[] mechanisms = { DIGESTMD5_MECHANISM_NAME };
       saslClient = Sasl.createSaslClient(mechanisms, authorizationID, "ldap",
                                          connection.getConnectedAddress(),
                                          saslProperties, this);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_DIGESTMD5_CANNOT_CREATE_SASL_CLIENT.get(getExceptionMessage(e)),
+           ERR_DIGESTMD5_CANNOT_CREATE_SASL_CLIENT.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
 
@@ -539,7 +538,8 @@ public final class DIGESTMD5BindRequest
         if (realm == null)
         {
           final String choices =
-               concatenateStrings("{", " '", ",", "'", " }", rcc.getChoices());
+               StaticUtils.concatenateStrings("{", " '", ",", "'", " }",
+                    rcc.getChoices());
           unhandledCallbackMessages.add(
                ERR_DIGESTMD5_REALM_REQUIRED_BUT_NONE_PROVIDED.get(
                     rcc.getPrompt(), choices));
@@ -560,9 +560,9 @@ public final class DIGESTMD5BindRequest
       else
       {
         // This is an unexpected callback.
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debug(Level.WARNING, DebugType.LDAP,
+          Debug.debug(Level.WARNING, DebugType.LDAP,
                "Unexpected DIGEST-MD5 SASL callback of type " +
                     callback.getClass().getName());
         }
@@ -695,7 +695,7 @@ public final class DIGESTMD5BindRequest
            ToCodeArgHelper.createString(realm, null));
     }
 
-    final ArrayList<String> qopValues = new ArrayList<String>();
+    final ArrayList<String> qopValues = new ArrayList<>(3);
     for (final SASLQualityOfProtection qop : allowedQoP)
     {
       qopValues.add("SASLQualityOfProtection." + qop.name());
@@ -706,8 +706,7 @@ public final class DIGESTMD5BindRequest
 
 
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(2);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(2);
     constructorArgs.add(
          ToCodeArgHelper.createRaw(requestID + "RequestProperties", null));
 

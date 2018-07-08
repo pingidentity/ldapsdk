@@ -217,7 +217,7 @@ public final class ContentSyncStateControl
   {
     Validator.ensureNotNull(state, entryUUID);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
     elements.add(new ASN1Enumerated(state.intValue()));
     elements.add(new ASN1OctetString(StaticUtils.encodeUUID(entryUUID)));
 

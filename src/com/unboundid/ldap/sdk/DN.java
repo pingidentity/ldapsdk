@@ -33,9 +33,9 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -155,7 +155,7 @@ public final class DN
    */
   public DN(final RDN... rdns)
   {
-    ensureNotNull(rdns);
+    Validator.ensureNotNull(rdns);
 
     this.rdns = rdns;
     if (rdns.length == 0)
@@ -196,7 +196,7 @@ public final class DN
    */
   public DN(final List<RDN> rdns)
   {
-    ensureNotNull(rdns);
+    Validator.ensureNotNull(rdns);
 
     if (rdns.isEmpty())
     {
@@ -241,7 +241,7 @@ public final class DN
    */
   public DN(final RDN rdn, final DN parentDN)
   {
-    ensureNotNull(rdn, parentDN);
+    Validator.ensureNotNull(rdn, parentDN);
 
     rdns = new RDN[parentDN.rdns.length + 1];
     rdns[0] = rdn;
@@ -301,12 +301,12 @@ public final class DN
   public DN(final String dnString, final Schema schema)
          throws LDAPException
   {
-    ensureNotNull(dnString);
+    Validator.ensureNotNull(dnString);
 
     this.dnString = dnString;
     this.schema   = schema;
 
-    final ArrayList<RDN> rdnList = new ArrayList<RDN>(5);
+    final ArrayList<RDN> rdnList = new ArrayList<>(5);
 
     final int length = dnString.length();
     if (length == 0)
@@ -362,7 +362,7 @@ rdnLoop:
       }
 
       String attrName = dnString.substring(attrStartPos, pos);
-      if (attrName.length() == 0)
+      if (attrName.isEmpty())
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
              ERR_DN_NO_ATTR_IN_RDN.get(dnString));
@@ -480,9 +480,8 @@ rdnLoop:
       // If we've gotten here, then we're dealing with a multivalued RDN.
       // Create lists to hold the names and values, and then loop until we hit
       // the end of the RDN.
-      final ArrayList<String> nameList = new ArrayList<String>(5);
-      final ArrayList<ASN1OctetString> valueList =
-           new ArrayList<ASN1OctetString>(5);
+      final ArrayList<String> nameList = new ArrayList<>(5);
+      final ArrayList<ASN1OctetString> valueList = new ArrayList<>(5);
       nameList.add(attrName);
       valueList.add(value);
 
@@ -519,7 +518,7 @@ rdnLoop:
         }
 
         attrName = dnString.substring(attrStartPos, pos);
-        if (attrName.length() == 0)
+        if (attrName.isEmpty())
         {
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
                ERR_DN_NO_ATTR_IN_RDN.get(dnString));
@@ -715,7 +714,6 @@ rdnLoop:
       return false;
     }
   }
-
 
 
 
@@ -1234,7 +1232,7 @@ rdnLoop:
   public boolean matchesBaseAndScope(final DN baseDN, final SearchScope scope)
          throws LDAPException
   {
-    ensureNotNull(baseDN, scope);
+    Validator.ensureNotNull(baseDN, scope);
 
     switch (scope.intValue())
     {
@@ -1256,7 +1254,6 @@ rdnLoop:
                   String.valueOf(scope)));
     }
   }
-
 
 
 
@@ -1546,6 +1543,7 @@ rdnLoop:
    *          the provided DN in a sorted list, or zero if the provided DN can
    *          be considered equal to this DN.
    */
+  @Override()
   public int compareTo(final DN dn)
   {
     return compare(this, dn);
@@ -1565,9 +1563,10 @@ rdnLoop:
    *          come after the second DN in a sorted list, or zero if the two DN
    *          values can be considered equal.
    */
+  @Override()
   public int compare(final DN dn1, final DN dn2)
   {
-    ensureNotNull(dn1, dn2);
+    Validator.ensureNotNull(dn1, dn2);
 
     // We want the comparison to be in reverse order, so that DNs will be sorted
     // hierarchically.

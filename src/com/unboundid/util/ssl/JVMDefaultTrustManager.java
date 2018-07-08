@@ -316,7 +316,6 @@ public final class JVMDefaultTrustManager
 
 
 
-
   /**
    * Checks to determine whether the provided client certificate chain should be
    * trusted.
@@ -585,7 +584,7 @@ filesInDirectoryLoop:
         continue;
       }
 
-      try (FileInputStream inputStream = new FileInputStream(f))
+      try (final FileInputStream inputStream = new FileInputStream(f))
       {
         keyStore.load(inputStream, null);
       }

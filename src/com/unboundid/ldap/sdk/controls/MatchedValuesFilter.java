@@ -32,14 +32,14 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -47,10 +47,9 @@ import static com.unboundid.util.Validator.*;
  * This class provides an implementation of the simple filter item for use with
  * the {@link MatchedValuesRequestControl} as defined in
  * <A HREF="http://www.ietf.org/rfc/rfc3876.txt">RFC 3876</A>.  It is similar to
- * a search filter (see the {@link com.unboundid.ldap.sdk.Filter} class), but
- * may only contain a single element (i.e., no AND, OR, or NOT components are
- * allowed), and extensible matching does not allow the use of the dnAttributes
- * field.
+ * a search filter (see the {@link Filter} class), but may only contain a single
+ * element (i.e., no AND, OR, or NOT components are allowed), and extensible
+ * matching does not allow the use of the dnAttributes field.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -158,7 +157,7 @@ public final class MatchedValuesFilter
   /**
    * An empty array that will be used if there are no subAny elements.
    */
-  private static final String[] NO_SUB_ANY_STRINGS = NO_STRINGS;
+  private static final String[] NO_SUB_ANY_STRINGS = StaticUtils.NO_STRINGS;
 
 
 
@@ -252,11 +251,10 @@ public final class MatchedValuesFilter
                                          final String attributeType,
                                          final String assertionValue)
   {
-    ensureNotNull(attributeType, assertionValue);
+    Validator.ensureNotNull(attributeType, assertionValue);
 
     return new MatchedValuesFilter(MATCH_TYPE_EQUALITY, attributeType,
-                                   new ASN1OctetString(assertionValue), null,
-                                   NO_SUB_ANY, null, null);
+         new ASN1OctetString(assertionValue), null, NO_SUB_ANY, null, null);
   }
 
 
@@ -276,11 +274,10 @@ public final class MatchedValuesFilter
                                          final String attributeType,
                                          final byte[] assertionValue)
   {
-    ensureNotNull(attributeType, assertionValue);
+    Validator.ensureNotNull(attributeType, assertionValue);
 
     return new MatchedValuesFilter(MATCH_TYPE_EQUALITY, attributeType,
-                                   new ASN1OctetString(assertionValue), null,
-                                   NO_SUB_ANY, null, null);
+         new ASN1OctetString(assertionValue), null, NO_SUB_ANY, null, null);
   }
 
 
@@ -307,10 +304,10 @@ public final class MatchedValuesFilter
                                          final String[] subAnyValues,
                                          final String subFinalValue)
   {
-    ensureNotNull(attributeType);
-    ensureTrue((subInitialValue != null) ||
-               ((subAnyValues != null) && (subAnyValues.length > 0)) ||
-               (subFinalValue != null));
+    Validator.ensureNotNull(attributeType);
+    Validator.ensureTrue((subInitialValue != null) ||
+         ((subAnyValues != null) && (subAnyValues.length > 0)) ||
+         (subFinalValue != null));
 
     final ASN1OctetString subInitialOS;
     if (subInitialValue == null)
@@ -376,10 +373,10 @@ public final class MatchedValuesFilter
                                          final byte[][] subAnyValues,
                                          final byte[] subFinalValue)
   {
-    ensureNotNull(attributeType);
-    ensureTrue((subInitialValue != null) ||
-               ((subAnyValues != null) && (subAnyValues.length > 0)) ||
-               (subFinalValue != null));
+    Validator.ensureNotNull(attributeType);
+    Validator.ensureTrue((subInitialValue != null) ||
+         ((subAnyValues != null) && (subAnyValues.length > 0)) ||
+         (subFinalValue != null));
 
     final ASN1OctetString subInitialOS;
     if (subInitialValue == null)
@@ -438,7 +435,7 @@ public final class MatchedValuesFilter
                                          final String attributeType,
                                          final String assertionValue)
   {
-    ensureNotNull(attributeType, assertionValue);
+    Validator.ensureNotNull(attributeType, assertionValue);
 
     return new MatchedValuesFilter(MATCH_TYPE_GREATER_OR_EQUAL, attributeType,
                                    new ASN1OctetString(assertionValue), null,
@@ -462,7 +459,7 @@ public final class MatchedValuesFilter
                                          final String attributeType,
                                          final byte[] assertionValue)
   {
-    ensureNotNull(attributeType, assertionValue);
+    Validator.ensureNotNull(attributeType, assertionValue);
 
     return new MatchedValuesFilter(MATCH_TYPE_GREATER_OR_EQUAL, attributeType,
                                    new ASN1OctetString(assertionValue), null,
@@ -486,7 +483,7 @@ public final class MatchedValuesFilter
                                          final String attributeType,
                                          final String assertionValue)
   {
-    ensureNotNull(attributeType, assertionValue);
+    Validator.ensureNotNull(attributeType, assertionValue);
 
     return new MatchedValuesFilter(MATCH_TYPE_LESS_OR_EQUAL, attributeType,
                                    new ASN1OctetString(assertionValue), null,
@@ -510,7 +507,7 @@ public final class MatchedValuesFilter
                                          final String attributeType,
                                          final byte[] assertionValue)
   {
-    ensureNotNull(attributeType, assertionValue);
+    Validator.ensureNotNull(attributeType, assertionValue);
 
     return new MatchedValuesFilter(MATCH_TYPE_LESS_OR_EQUAL, attributeType,
                                    new ASN1OctetString(assertionValue), null,
@@ -531,7 +528,7 @@ public final class MatchedValuesFilter
   public static MatchedValuesFilter createPresentFilter(
                                          final String attributeType)
   {
-    ensureNotNull(attributeType);
+    Validator.ensureNotNull(attributeType);
 
     return new MatchedValuesFilter(MATCH_TYPE_PRESENT, attributeType, null,
                                    null, NO_SUB_ANY, null, null);
@@ -554,7 +551,7 @@ public final class MatchedValuesFilter
                                          final String attributeType,
                                          final String assertionValue)
   {
-    ensureNotNull(attributeType, assertionValue);
+    Validator.ensureNotNull(attributeType, assertionValue);
 
     return new MatchedValuesFilter(MATCH_TYPE_APPROXIMATE, attributeType,
                                    new ASN1OctetString(assertionValue), null,
@@ -578,7 +575,7 @@ public final class MatchedValuesFilter
                                          final String attributeType,
                                          final byte[] assertionValue)
   {
-    ensureNotNull(attributeType, assertionValue);
+    Validator.ensureNotNull(attributeType, assertionValue);
 
     return new MatchedValuesFilter(MATCH_TYPE_APPROXIMATE, attributeType,
                                    new ASN1OctetString(assertionValue), null,
@@ -606,8 +603,8 @@ public final class MatchedValuesFilter
                                          final String matchingRuleID,
                                          final String assertionValue)
   {
-    ensureNotNull(assertionValue);
-    ensureTrue((attributeType != null) || (matchingRuleID != null));
+    Validator.ensureNotNull(assertionValue);
+    Validator.ensureTrue((attributeType != null) || (matchingRuleID != null));
 
     final ASN1OctetString matchValue =
          new ASN1OctetString(EXTENSIBLE_TYPE_MATCH_VALUE, assertionValue);
@@ -638,8 +635,8 @@ public final class MatchedValuesFilter
                                          final String matchingRuleID,
                                          final byte[] assertionValue)
   {
-    ensureNotNull(assertionValue);
-    ensureTrue((attributeType != null) || (matchingRuleID != null));
+    Validator.ensureNotNull(assertionValue);
+    Validator.ensureTrue((attributeType != null) || (matchingRuleID != null));
 
     final ASN1OctetString matchValue =
          new ASN1OctetString(EXTENSIBLE_TYPE_MATCH_VALUE, assertionValue);
@@ -719,7 +716,7 @@ public final class MatchedValuesFilter
         // This should never happen.
         throw new LDAPException(ResultCode.DECODING_ERROR,
              ERR_MV_FILTER_INVALID_FILTER_TYPE.get(
-                  toHex(filter.getFilterType())));
+                  StaticUtils.toHex(filter.getFilterType())));
     }
   }
 
@@ -1022,8 +1019,7 @@ public final class MatchedValuesFilter
         return new ASN1Sequence(matchType, elements);
 
       case MATCH_TYPE_SUBSTRINGS:
-        final ArrayList<ASN1Element> subElements =
-             new ArrayList<ASN1Element>(3);
+        final ArrayList<ASN1Element> subElements = new ArrayList<>(3);
         if (subInitialValue != null)
         {
           subElements.add(subInitialValue);
@@ -1050,8 +1046,7 @@ public final class MatchedValuesFilter
         return new ASN1OctetString(matchType, attributeType);
 
       case MATCH_TYPE_EXTENSIBLE:
-        final ArrayList<ASN1Element> extElements =
-             new ArrayList<ASN1Element>(3);
+        final ArrayList<ASN1Element> extElements = new ArrayList<>(3);
         if (attributeType != null)
         {
           extElements.add(new ASN1OctetString(EXTENSIBLE_TYPE_ATTRIBUTE_NAME,
@@ -1113,7 +1108,7 @@ public final class MatchedValuesFilter
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPException(ResultCode.DECODING_ERROR,
                                   ERR_MV_FILTER_NOT_AVA.get(e), e);
         }
@@ -1149,8 +1144,7 @@ public final class MatchedValuesFilter
               case SUBSTRING_TYPE_SUBANY:
                 if (subAnyList == null)
                 {
-                  subAnyList =
-                       new ArrayList<ASN1OctetString>(subElements.length);
+                  subAnyList = new ArrayList<>(subElements.length);
                 }
                 subAnyList.add(ASN1OctetString.decodeAsOctetString(e));
                 break;
@@ -1163,14 +1157,14 @@ public final class MatchedValuesFilter
                 else
                 {
                   throw new LDAPException(ResultCode.DECODING_ERROR,
-                                 ERR_MV_FILTER_MULTIPLE_SUBFINAL.get());
+                       ERR_MV_FILTER_MULTIPLE_SUBFINAL.get());
                 }
                 break;
 
               default:
                 throw new LDAPException(ResultCode.DECODING_ERROR,
-                                        ERR_MV_FILTER_INVALID_SUB_TYPE.get(
-                                             toHex(e.getType())));
+                     ERR_MV_FILTER_INVALID_SUB_TYPE.get(
+                          StaticUtils.toHex(e.getType())));
             }
           }
 
@@ -1182,15 +1176,14 @@ public final class MatchedValuesFilter
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
           throw le;
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_MV_FILTER_CANNOT_DECODE_SUBSTRING.get(e),
-                                  e);
+               ERR_MV_FILTER_CANNOT_DECODE_SUBSTRING.get(e), e);
         }
 
         if ((subInitialValue == null) && (subAnyValues.length == 0) &&
@@ -1256,40 +1249,40 @@ public final class MatchedValuesFilter
 
               default:
                 throw new LDAPException(ResultCode.DECODING_ERROR,
-                                        ERR_MV_FILTER_EXT_INVALID_TYPE.get(
-                                             toHex(e.getType())));
+                     ERR_MV_FILTER_EXT_INVALID_TYPE.get(
+                          StaticUtils.toHex(e.getType())));
             }
           }
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
           throw le;
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_MV_FILTER_EXT_NOT_SEQUENCE.get(e), e);
+               ERR_MV_FILTER_EXT_NOT_SEQUENCE.get(e), e);
         }
 
         if ((attributeType == null) && (matchingRuleID == null))
         {
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_MV_FILTER_NO_ATTR_OR_MRID.get());
+               ERR_MV_FILTER_NO_ATTR_OR_MRID.get());
         }
 
         if (assertionValue == null)
         {
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_MV_FILTER_EXT_NO_VALUE.get());
+               ERR_MV_FILTER_EXT_NO_VALUE.get());
         }
         break;
 
       default:
         throw new LDAPException(ResultCode.DECODING_ERROR,
-                                ERR_MV_FILTER_INVALID_TYPE.get(
-                                     toHex(matchType)));
+             ERR_MV_FILTER_INVALID_TYPE.get(
+                  StaticUtils.toHex(matchType)));
     }
 
     return new MatchedValuesFilter(matchType, attributeType,  assertionValue,

@@ -46,14 +46,14 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -137,7 +137,7 @@ public final class Schema
    * The default standard schema available for use in the LDAP SDK.
    */
   private static final AtomicReference<Schema> DEFAULT_STANDARD_SCHEMA =
-       new AtomicReference<Schema>();
+       new AtomicReference<>();
 
 
 
@@ -290,9 +290,9 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,AttributeSyntaxDefinition> m =
-           new LinkedHashMap<String,AttributeSyntaxDefinition>(defs.length);
+           new LinkedHashMap<>(defs.length);
       final LinkedHashSet<AttributeSyntaxDefinition> s =
-           new LinkedHashSet<AttributeSyntaxDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
 
       for (final String def : defs)
       {
@@ -301,11 +301,11 @@ public final class Schema
           final AttributeSyntaxDefinition as =
                new AttributeSyntaxDefinition(def);
           s.add(as);
-          m.put(toLowerCase(as.getOID()), as);
+          m.put(StaticUtils.toLowerCase(as.getOID()), as);
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
 
@@ -326,13 +326,13 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,AttributeTypeDefinition> m =
-           new LinkedHashMap<String,AttributeTypeDefinition>(2*defs.length);
+           new LinkedHashMap<>(2*defs.length);
       final LinkedHashSet<AttributeTypeDefinition> s =
-           new LinkedHashSet<AttributeTypeDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
       final LinkedHashSet<AttributeTypeDefinition> sUser =
-           new LinkedHashSet<AttributeTypeDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
       final LinkedHashSet<AttributeTypeDefinition> sOperational =
-           new LinkedHashSet<AttributeTypeDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
 
       for (final String def : defs)
       {
@@ -340,10 +340,10 @@ public final class Schema
         {
           final AttributeTypeDefinition at = new AttributeTypeDefinition(def);
           s.add(at);
-          m.put(toLowerCase(at.getOID()), at);
+          m.put(StaticUtils.toLowerCase(at.getOID()), at);
           for (final String name : at.getNames())
           {
-            m.put(toLowerCase(name), at);
+            m.put(StaticUtils.toLowerCase(name), at);
           }
 
           if (at.isOperational())
@@ -357,7 +357,7 @@ public final class Schema
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
 
@@ -378,9 +378,9 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,DITContentRuleDefinition> m =
-           new LinkedHashMap<String,DITContentRuleDefinition>(2*defs.length);
+           new LinkedHashMap<>(2*defs.length);
       final LinkedHashSet<DITContentRuleDefinition> s =
-           new LinkedHashSet<DITContentRuleDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
 
       for (final String def : defs)
       {
@@ -389,15 +389,15 @@ public final class Schema
           final DITContentRuleDefinition dcr =
                new DITContentRuleDefinition(def);
           s.add(dcr);
-          m.put(toLowerCase(dcr.getOID()), dcr);
+          m.put(StaticUtils.toLowerCase(dcr.getOID()), dcr);
           for (final String name : dcr.getNames())
           {
-            m.put(toLowerCase(name), dcr);
+            m.put(StaticUtils.toLowerCase(name), dcr);
           }
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
 
@@ -418,13 +418,13 @@ public final class Schema
     else
     {
       final LinkedHashMap<Integer,DITStructureRuleDefinition> mID =
-           new LinkedHashMap<Integer,DITStructureRuleDefinition>(defs.length);
+           new LinkedHashMap<>(defs.length);
       final LinkedHashMap<String,DITStructureRuleDefinition> mN =
-           new LinkedHashMap<String,DITStructureRuleDefinition>(defs.length);
+           new LinkedHashMap<>(defs.length);
       final LinkedHashMap<String,DITStructureRuleDefinition> mNF =
-           new LinkedHashMap<String,DITStructureRuleDefinition>(defs.length);
+           new LinkedHashMap<>(defs.length);
       final LinkedHashSet<DITStructureRuleDefinition> s =
-           new LinkedHashSet<DITStructureRuleDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
 
       for (final String def : defs)
       {
@@ -434,15 +434,15 @@ public final class Schema
                new DITStructureRuleDefinition(def);
           s.add(dsr);
           mID.put(dsr.getRuleID(), dsr);
-          mNF.put(toLowerCase(dsr.getNameFormID()), dsr);
+          mNF.put(StaticUtils.toLowerCase(dsr.getNameFormID()), dsr);
           for (final String name : dsr.getNames())
           {
-            mN.put(toLowerCase(name), dsr);
+            mN.put(StaticUtils.toLowerCase(name), dsr);
           }
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
 
@@ -463,9 +463,9 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,MatchingRuleDefinition> m =
-           new LinkedHashMap<String,MatchingRuleDefinition>(2*defs.length);
+           new LinkedHashMap<>(2*defs.length);
       final LinkedHashSet<MatchingRuleDefinition> s =
-           new LinkedHashSet<MatchingRuleDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
 
       for (final String def : defs)
       {
@@ -473,15 +473,15 @@ public final class Schema
         {
           final MatchingRuleDefinition mr = new MatchingRuleDefinition(def);
           s.add(mr);
-          m.put(toLowerCase(mr.getOID()), mr);
+          m.put(StaticUtils.toLowerCase(mr.getOID()), mr);
           for (final String name : mr.getNames())
           {
-            m.put(toLowerCase(name), mr);
+            m.put(StaticUtils.toLowerCase(name), mr);
           }
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
 
@@ -500,9 +500,9 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,MatchingRuleUseDefinition> m =
-           new LinkedHashMap<String,MatchingRuleUseDefinition>(2*defs.length);
+           new LinkedHashMap<>(2*defs.length);
       final LinkedHashSet<MatchingRuleUseDefinition> s =
-           new LinkedHashSet<MatchingRuleUseDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
 
       for (final String def : defs)
       {
@@ -511,15 +511,15 @@ public final class Schema
           final MatchingRuleUseDefinition mru =
                new MatchingRuleUseDefinition(def);
           s.add(mru);
-          m.put(toLowerCase(mru.getOID()), mru);
+          m.put(StaticUtils.toLowerCase(mru.getOID()), mru);
           for (final String name : mru.getNames())
           {
-            m.put(toLowerCase(name), mru);
+            m.put(StaticUtils.toLowerCase(name), mru);
           }
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
 
@@ -539,11 +539,11 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,NameFormDefinition> mN =
-           new LinkedHashMap<String,NameFormDefinition>(2*defs.length);
+           new LinkedHashMap<>(2*defs.length);
       final LinkedHashMap<String,NameFormDefinition> mOC =
-           new LinkedHashMap<String,NameFormDefinition>(defs.length);
+           new LinkedHashMap<>(defs.length);
       final LinkedHashSet<NameFormDefinition> s =
-           new LinkedHashSet<NameFormDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
 
       for (final String def : defs)
       {
@@ -551,16 +551,16 @@ public final class Schema
         {
           final NameFormDefinition nf = new NameFormDefinition(def);
           s.add(nf);
-          mOC.put(toLowerCase(nf.getStructuralClass()), nf);
-          mN.put(toLowerCase(nf.getOID()), nf);
+          mOC.put(StaticUtils.toLowerCase(nf.getStructuralClass()), nf);
+          mN.put(StaticUtils.toLowerCase(nf.getOID()), nf);
           for (final String name : nf.getNames())
           {
-            mN.put(toLowerCase(name), nf);
+            mN.put(StaticUtils.toLowerCase(name), nf);
           }
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
 
@@ -583,15 +583,15 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,ObjectClassDefinition> m =
-           new LinkedHashMap<String,ObjectClassDefinition>(2*defs.length);
+           new LinkedHashMap<>(2*defs.length);
       final LinkedHashSet<ObjectClassDefinition> s =
-           new LinkedHashSet<ObjectClassDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
       final LinkedHashSet<ObjectClassDefinition> sAbstract =
-           new LinkedHashSet<ObjectClassDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
       final LinkedHashSet<ObjectClassDefinition> sAuxiliary =
-           new LinkedHashSet<ObjectClassDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
       final LinkedHashSet<ObjectClassDefinition> sStructural =
-           new LinkedHashSet<ObjectClassDefinition>(defs.length);
+           new LinkedHashSet<>(defs.length);
 
       for (final String def : defs)
       {
@@ -599,10 +599,10 @@ public final class Schema
         {
           final ObjectClassDefinition oc = new ObjectClassDefinition(def);
           s.add(oc);
-          m.put(toLowerCase(oc.getOID()), oc);
+          m.put(StaticUtils.toLowerCase(oc.getOID()), oc);
           for (final String name : oc.getNames())
           {
-            m.put(toLowerCase(name), oc);
+            m.put(StaticUtils.toLowerCase(name), oc);
           }
 
           switch (oc.getObjectClassType(null))
@@ -620,7 +620,7 @@ public final class Schema
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
 
@@ -634,8 +634,7 @@ public final class Schema
 
     // Populate the map of subordinate attribute types.
     final LinkedHashMap<AttributeTypeDefinition,List<AttributeTypeDefinition>>
-         subAttrTypes = new LinkedHashMap<AttributeTypeDefinition,
-              List<AttributeTypeDefinition>>(atSet.size());
+         subAttrTypes = new LinkedHashMap<>(atSet.size());
     for (final AttributeTypeDefinition d : atSet)
     {
       AttributeTypeDefinition sup = d.getSuperiorType(this);
@@ -644,7 +643,7 @@ public final class Schema
         List<AttributeTypeDefinition> l = subAttrTypes.get(sup);
         if (l == null)
         {
-          l = new ArrayList<AttributeTypeDefinition>(1);
+          l = new ArrayList<>(1);
           subAttrTypes.put(sup, l);
         }
         l.add(d);
@@ -708,7 +707,7 @@ public final class Schema
                                  final String entryDN)
          throws LDAPException
   {
-    ensureNotNull(connection);
+    Validator.ensureNotNull(connection);
 
     final String subschemaSubentryDN;
     if (entryDN == null)
@@ -763,10 +762,10 @@ public final class Schema
   public static Schema getSchema(final String... schemaFiles)
          throws IOException, LDIFException
   {
-    ensureNotNull(schemaFiles);
-    ensureFalse(schemaFiles.length == 0);
+    Validator.ensureNotNull(schemaFiles);
+    Validator.ensureFalse(schemaFiles.length == 0);
 
-    final ArrayList<File> files = new ArrayList<File>(schemaFiles.length);
+    final ArrayList<File> files = new ArrayList<>(schemaFiles.length);
     for (final String s : schemaFiles)
     {
       files.add(new File(s));
@@ -801,8 +800,8 @@ public final class Schema
   public static Schema getSchema(final File... schemaFiles)
          throws IOException, LDIFException
   {
-    ensureNotNull(schemaFiles);
-    ensureFalse(schemaFiles.length == 0);
+    Validator.ensureNotNull(schemaFiles);
+    Validator.ensureFalse(schemaFiles.length == 0);
 
     return getSchema(Arrays.asList(schemaFiles));
   }
@@ -833,8 +832,8 @@ public final class Schema
   public static Schema getSchema(final List<File> schemaFiles)
          throws IOException, LDIFException
   {
-    ensureNotNull(schemaFiles);
-    ensureFalse(schemaFiles.isEmpty());
+    Validator.ensureNotNull(schemaFiles);
+    Validator.ensureFalse(schemaFiles.isEmpty());
 
     Entry schemaEntry = null;
     for (final File f : schemaFiles)
@@ -901,7 +900,7 @@ public final class Schema
   public static Schema getSchema(final InputStream inputStream)
          throws IOException, LDIFException
   {
-    ensureNotNull(inputStream);
+    Validator.ensureNotNull(inputStream);
 
     final LDIFReader ldifReader = new LDIFReader(inputStream);
 
@@ -963,10 +962,10 @@ public final class Schema
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_SCHEMA_CANNOT_LOAD_DEFAULT_DEFINITIONS.get(
-                  getExceptionMessage(e)),
+                  StaticUtils.getExceptionMessage(e)),
              e);
       }
     }
@@ -994,38 +993,30 @@ public final class Schema
       return schemas[0];
     }
 
-    final LinkedHashMap<String,String> asMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> atMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> dcrMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<Integer,String> dsrMap =
-         new LinkedHashMap<Integer,String>();
-    final LinkedHashMap<String,String> mrMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> mruMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> nfMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> ocMap =
-         new LinkedHashMap<String,String>();
+    final LinkedHashMap<String,String> asMap = new LinkedHashMap<>(100);
+    final LinkedHashMap<String,String> atMap = new LinkedHashMap<>(100);
+    final LinkedHashMap<String,String> dcrMap = new LinkedHashMap<>(10);
+    final LinkedHashMap<Integer,String> dsrMap = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,String> mrMap = new LinkedHashMap<>(100);
+    final LinkedHashMap<String,String> mruMap = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,String> nfMap = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,String> ocMap = new LinkedHashMap<>(100);
 
     for (final Schema s : schemas)
     {
       for (final AttributeSyntaxDefinition as : s.asSet)
       {
-        asMap.put(toLowerCase(as.getOID()), as.toString());
+        asMap.put(StaticUtils.toLowerCase(as.getOID()), as.toString());
       }
 
       for (final AttributeTypeDefinition at : s.atSet)
       {
-        atMap.put(toLowerCase(at.getOID()), at.toString());
+        atMap.put(StaticUtils.toLowerCase(at.getOID()), at.toString());
       }
 
       for (final DITContentRuleDefinition dcr : s.dcrSet)
       {
-        dcrMap.put(toLowerCase(dcr.getOID()), dcr.toString());
+        dcrMap.put(StaticUtils.toLowerCase(dcr.getOID()), dcr.toString());
       }
 
       for (final DITStructureRuleDefinition dsr : s.dsrSet)
@@ -1035,22 +1026,22 @@ public final class Schema
 
       for (final MatchingRuleDefinition mr : s.mrSet)
       {
-        mrMap.put(toLowerCase(mr.getOID()), mr.toString());
+        mrMap.put(StaticUtils.toLowerCase(mr.getOID()), mr.toString());
       }
 
       for (final MatchingRuleUseDefinition mru : s.mruSet)
       {
-        mruMap.put(toLowerCase(mru.getOID()), mru.toString());
+        mruMap.put(StaticUtils.toLowerCase(mru.getOID()), mru.toString());
       }
 
       for (final NameFormDefinition nf : s.nfSet)
       {
-        nfMap.put(toLowerCase(nf.getOID()), nf.toString());
+        nfMap.put(StaticUtils.toLowerCase(nf.getOID()), nf.toString());
       }
 
       for (final ObjectClassDefinition oc : s.ocSet)
       {
-        ocMap.put(toLowerCase(oc.getOID()), oc.toString());
+        ocMap.put(StaticUtils.toLowerCase(oc.getOID()), oc.toString());
       }
     }
 
@@ -1155,7 +1146,7 @@ public final class Schema
                                               final String entryDN)
          throws LDAPException
   {
-    ensureNotNull(connection);
+    Validator.ensureNotNull(connection);
 
     final Entry e;
     if (entryDN == null)
@@ -1206,9 +1197,9 @@ public final class Schema
    */
   public AttributeSyntaxDefinition getAttributeSyntax(final String oid)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
-    final String lowerOID = toLowerCase(oid);
+    final String lowerOID = StaticUtils.toLowerCase(oid);
     final int    curlyPos = lowerOID.indexOf('{');
 
     if (curlyPos > 0)
@@ -1279,9 +1270,9 @@ public final class Schema
    */
   public AttributeTypeDefinition getAttributeType(final String name)
   {
-    ensureNotNull(name);
+    Validator.ensureNotNull(name);
 
-    return atMap.get(toLowerCase(name));
+    return atMap.get(StaticUtils.toLowerCase(name));
   }
 
 
@@ -1301,7 +1292,7 @@ public final class Schema
   public List<AttributeTypeDefinition> getSubordinateAttributeTypes(
                                             final AttributeTypeDefinition d)
   {
-    ensureNotNull(d);
+    Validator.ensureNotNull(d);
 
     final List<AttributeTypeDefinition> l = subordinateAttributeTypes.get(d);
     if (l == null)
@@ -1342,9 +1333,9 @@ public final class Schema
    */
   public DITContentRuleDefinition getDITContentRule(final String name)
   {
-    ensureNotNull(name);
+    Validator.ensureNotNull(name);
 
-    return dcrMap.get(toLowerCase(name));
+    return dcrMap.get(StaticUtils.toLowerCase(name));
   }
 
 
@@ -1392,9 +1383,9 @@ public final class Schema
   public DITStructureRuleDefinition getDITStructureRuleByName(
                                          final String ruleName)
   {
-    ensureNotNull(ruleName);
+    Validator.ensureNotNull(ruleName);
 
-    return dsrMapByName.get(toLowerCase(ruleName));
+    return dsrMapByName.get(StaticUtils.toLowerCase(ruleName));
   }
 
 
@@ -1412,9 +1403,9 @@ public final class Schema
   public DITStructureRuleDefinition getDITStructureRuleByNameForm(
                                          final String nameForm)
   {
-    ensureNotNull(nameForm);
+    Validator.ensureNotNull(nameForm);
 
-    return dsrMapByNameForm.get(toLowerCase(nameForm));
+    return dsrMapByNameForm.get(StaticUtils.toLowerCase(nameForm));
   }
 
 
@@ -1445,9 +1436,9 @@ public final class Schema
    */
   public MatchingRuleDefinition getMatchingRule(final String name)
   {
-    ensureNotNull(name);
+    Validator.ensureNotNull(name);
 
-    return mrMap.get(toLowerCase(name));
+    return mrMap.get(StaticUtils.toLowerCase(name));
   }
 
 
@@ -1478,9 +1469,9 @@ public final class Schema
    */
   public MatchingRuleUseDefinition getMatchingRuleUse(final String name)
   {
-    ensureNotNull(name);
+    Validator.ensureNotNull(name);
 
-    return mruMap.get(toLowerCase(name));
+    return mruMap.get(StaticUtils.toLowerCase(name));
   }
 
 
@@ -1509,9 +1500,9 @@ public final class Schema
    */
   public NameFormDefinition getNameFormByName(final String name)
   {
-    ensureNotNull(name);
+    Validator.ensureNotNull(name);
 
-    return nfMapByName.get(toLowerCase(name));
+    return nfMapByName.get(StaticUtils.toLowerCase(name));
   }
 
 
@@ -1529,9 +1520,9 @@ public final class Schema
    */
   public NameFormDefinition getNameFormByObjectClass(final String objectClass)
   {
-    ensureNotNull(objectClass);
+    Validator.ensureNotNull(objectClass);
 
-    return nfMapByOC.get(toLowerCase(objectClass));
+    return nfMapByOC.get(StaticUtils.toLowerCase(objectClass));
   }
 
 
@@ -1604,9 +1595,9 @@ public final class Schema
    */
   public ObjectClassDefinition getObjectClass(final String name)
   {
-    ensureNotNull(name);
+    Validator.ensureNotNull(name);
 
-    return ocMap.get(toLowerCase(name));
+    return ocMap.get(StaticUtils.toLowerCase(name));
   }
 
 
@@ -1626,8 +1617,8 @@ public final class Schema
     }
     catch (final Exception e)
     {
-      debugException(e);
-      hc = toLowerCase(schemaEntry.getDN()).hashCode();
+      Debug.debugException(e);
+      hc = StaticUtils.toLowerCase(schemaEntry.getDN()).hashCode();
     }
 
     Attribute a = schemaEntry.getAttribute(ATTR_ATTRIBUTE_SYNTAX);
@@ -1720,7 +1711,7 @@ public final class Schema
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       if (! schemaEntry.getDN().equalsIgnoreCase(s.schemaEntry.getDN()))
       {
         return false;

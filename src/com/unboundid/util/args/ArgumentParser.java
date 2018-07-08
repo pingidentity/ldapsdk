@@ -47,11 +47,11 @@ import java.util.Set;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 import static com.unboundid.util.args.ArgsMessages.*;
 
 
@@ -430,7 +430,7 @@ public final class ArgumentParser
 
       for (final String s : a.getLongIdentifiers(true))
       {
-        namedArgsByLongID.put(toLowerCase(s), a);
+        namedArgsByLongID.put(StaticUtils.toLowerCase(s), a);
       }
     }
 
@@ -454,7 +454,7 @@ public final class ArgumentParser
     }
 
     exclusiveArgumentSets =
-         new ArrayList<Set<Argument>>(source.exclusiveArgumentSets.size());
+         new ArrayList<>(source.exclusiveArgumentSets.size());
     for (final Set<Argument> sourceSet : source.exclusiveArgumentSets)
     {
       final LinkedHashSet<Argument> newSet =
@@ -489,7 +489,7 @@ public final class ArgumentParser
       subCommands.add(sc.getCleanCopy());
       for (final String name : sc.getNames(true))
       {
-        subCommandsByName.put(toLowerCase(name), sc);
+        subCommandsByName.put(StaticUtils.toLowerCase(name), sc);
       }
     }
   }
@@ -712,7 +712,7 @@ public final class ArgumentParser
    */
   public Argument getNamedArgument(final Character shortIdentifier)
   {
-    ensureNotNull(shortIdentifier);
+    Validator.ensureNotNull(shortIdentifier);
     return namedArgsByShortID.get(shortIdentifier);
   }
 
@@ -732,11 +732,12 @@ public final class ArgumentParser
    */
   public Argument getNamedArgument(final String identifier)
   {
-    ensureNotNull(identifier);
+    Validator.ensureNotNull(identifier);
 
     if (identifier.startsWith("--") && (identifier.length() > 2))
     {
-      return namedArgsByLongID.get(toLowerCase(identifier.substring(2)));
+      return namedArgsByLongID.get(
+           StaticUtils.toLowerCase(identifier.substring(2)));
     }
     else if (identifier.startsWith("-") && (identifier.length() == 2))
     {
@@ -744,7 +745,7 @@ public final class ArgumentParser
     }
     else
     {
-      return namedArgsByLongID.get(toLowerCase(identifier));
+      return namedArgsByLongID.get(StaticUtils.toLowerCase(identifier));
     }
   }
 
@@ -1117,14 +1118,14 @@ public final class ArgumentParser
 
     for (final String s : argument.getLongIdentifiers(true))
     {
-      if (namedArgsByLongID.containsKey(toLowerCase(s)))
+      if (namedArgsByLongID.containsKey(StaticUtils.toLowerCase(s)))
       {
         throw new ArgumentException(ERR_PARSER_LONG_ID_CONFLICT.get(s));
       }
 
       if ((parentSubCommand != null) &&
           (parentSubCommand.getArgumentParser().namedArgsByLongID.containsKey(
-                toLowerCase(s))))
+                StaticUtils.toLowerCase(s))))
       {
         throw new ArgumentException(ERR_PARSER_LONG_ID_CONFLICT.get(s));
       }
@@ -1145,7 +1146,7 @@ public final class ArgumentParser
 
       for (final String s : argument.getLongIdentifiers(true))
       {
-        if (parser.namedArgsByLongID.containsKey(toLowerCase(s)))
+        if (parser.namedArgsByLongID.containsKey(StaticUtils.toLowerCase(s)))
         {
           throw new ArgumentException(
                ERR_PARSER_LONG_ID_CONFLICT_WITH_SUBCOMMAND.get(s,
@@ -1161,7 +1162,7 @@ public final class ArgumentParser
 
     for (final String s : argument.getLongIdentifiers(true))
     {
-      namedArgsByLongID.put(toLowerCase(s), argument);
+      namedArgsByLongID.put(StaticUtils.toLowerCase(s), argument);
     }
 
     namedArgs.add(argument);
@@ -1203,13 +1204,13 @@ public final class ArgumentParser
   public void addDependentArgumentSet(final Argument targetArgument,
                    final Collection<Argument> dependentArguments)
   {
-    ensureNotNull(targetArgument, dependentArguments);
+    Validator.ensureNotNull(targetArgument, dependentArguments);
 
-    ensureFalse(dependentArguments.isEmpty(),
+    Validator.ensureFalse(dependentArguments.isEmpty(),
          "The ArgumentParser.addDependentArgumentSet method must not be " +
               "called with an empty collection of dependentArguments");
 
-    ensureTrue(namedArgs.contains(targetArgument),
+    Validator.ensureTrue(namedArgs.contains(targetArgument),
          "The ArgumentParser.addDependentArgumentSet method may only be used " +
               "if all of the provided arguments have already been registered " +
               "with the argument parser via the ArgumentParser.addArgument " +
@@ -1217,7 +1218,7 @@ public final class ArgumentParser
               " argument has not been registered with the argument parser.");
     for (final Argument a : dependentArguments)
     {
-      ensureTrue(namedArgs.contains(a),
+      Validator.ensureTrue(namedArgs.contains(a),
            "The ArgumentParser.addDependentArgumentSet method may only be " +
                 "used if all of the provided arguments have already been " +
                 "registered with the argument parser via the " +
@@ -1261,15 +1262,15 @@ public final class ArgumentParser
                                       final Argument dependentArg1,
                                       final Argument... remaining)
   {
-    ensureNotNull(targetArgument, dependentArg1);
+    Validator.ensureNotNull(targetArgument, dependentArg1);
 
-    ensureTrue(namedArgs.contains(targetArgument),
+    Validator.ensureTrue(namedArgs.contains(targetArgument),
          "The ArgumentParser.addDependentArgumentSet method may only be used " +
               "if all of the provided arguments have already been registered " +
               "with the argument parser via the ArgumentParser.addArgument " +
               "method.  The " + targetArgument.getIdentifierString() +
               " argument has not been registered with the argument parser.");
-    ensureTrue(namedArgs.contains(dependentArg1),
+    Validator.ensureTrue(namedArgs.contains(dependentArg1),
          "The ArgumentParser.addDependentArgumentSet method may only be used " +
               "if all of the provided arguments have already been registered " +
               "with the argument parser via the ArgumentParser.addArgument " +
@@ -1279,7 +1280,7 @@ public final class ArgumentParser
     {
       for (final Argument a : remaining)
       {
-        ensureTrue(namedArgs.contains(a),
+        Validator.ensureTrue(namedArgs.contains(a),
              "The ArgumentParser.addDependentArgumentSet method may only be " +
                   "used if all of the provided arguments have already been " +
                   "registered with the argument parser via the " +
@@ -1333,11 +1334,11 @@ public final class ArgumentParser
   public void addExclusiveArgumentSet(
                    final Collection<Argument> exclusiveArguments)
   {
-    ensureNotNull(exclusiveArguments);
+    Validator.ensureNotNull(exclusiveArguments);
 
     for (final Argument a : exclusiveArguments)
     {
-      ensureTrue(namedArgs.contains(a),
+      Validator.ensureTrue(namedArgs.contains(a),
            "The ArgumentParser.addExclusiveArgumentSet method may only be " +
                 "used if all of the provided arguments have already been " +
                 "registered with the argument parser via the " +
@@ -1374,16 +1375,16 @@ public final class ArgumentParser
   public void addExclusiveArgumentSet(final Argument arg1, final Argument arg2,
                                       final Argument... remaining)
   {
-    ensureNotNull(arg1, arg2);
+    Validator.ensureNotNull(arg1, arg2);
 
-    ensureTrue(namedArgs.contains(arg1),
+    Validator.ensureTrue(namedArgs.contains(arg1),
          "The ArgumentParser.addExclusiveArgumentSet method may only be " +
               "used if all of the provided arguments have already been " +
               "registered with the argument parser via the " +
               "ArgumentParser.addArgument method.  The " +
               arg1.getIdentifierString() + " argument has not been " +
               "registered with the argument parser.");
-    ensureTrue(namedArgs.contains(arg2),
+    Validator.ensureTrue(namedArgs.contains(arg2),
          "The ArgumentParser.addExclusiveArgumentSet method may only be " +
               "used if all of the provided arguments have already been " +
               "registered with the argument parser via the " +
@@ -1395,7 +1396,7 @@ public final class ArgumentParser
     {
       for (final Argument a : remaining)
       {
-        ensureTrue(namedArgs.contains(a),
+        Validator.ensureTrue(namedArgs.contains(a),
              "The ArgumentParser.addExclusiveArgumentSet method may only be " +
                   "used if all of the provided arguments have already been " +
                   "registered with the argument parser via the " +
@@ -1449,11 +1450,11 @@ public final class ArgumentParser
   public void addRequiredArgumentSet(
                    final Collection<Argument> requiredArguments)
   {
-    ensureNotNull(requiredArguments);
+    Validator.ensureNotNull(requiredArguments);
 
     for (final Argument a : requiredArguments)
     {
-      ensureTrue(namedArgs.contains(a),
+      Validator.ensureTrue(namedArgs.contains(a),
            "The ArgumentParser.addRequiredArgumentSet method may only be " +
                 "used if all of the provided arguments have already been " +
                 "registered with the argument parser via the " +
@@ -1490,16 +1491,16 @@ public final class ArgumentParser
   public void addRequiredArgumentSet(final Argument arg1, final Argument arg2,
                                      final Argument... remaining)
   {
-    ensureNotNull(arg1, arg2);
+    Validator.ensureNotNull(arg1, arg2);
 
-    ensureTrue(namedArgs.contains(arg1),
+    Validator.ensureTrue(namedArgs.contains(arg1),
          "The ArgumentParser.addRequiredArgumentSet method may only be " +
               "used if all of the provided arguments have already been " +
               "registered with the argument parser via the " +
               "ArgumentParser.addArgument method.  The " +
               arg1.getIdentifierString() + " argument has not been " +
               "registered with the argument parser.");
-    ensureTrue(namedArgs.contains(arg2),
+    Validator.ensureTrue(namedArgs.contains(arg2),
          "The ArgumentParser.addRequiredArgumentSet method may only be " +
               "used if all of the provided arguments have already been " +
               "registered with the argument parser via the " +
@@ -1511,7 +1512,7 @@ public final class ArgumentParser
     {
       for (final Argument a : remaining)
       {
-        ensureTrue(namedArgs.contains(a),
+        Validator.ensureTrue(namedArgs.contains(a),
              "The ArgumentParser.addRequiredArgumentSet method may only be " +
                   "used if all of the provided arguments have already been " +
                   "registered with the argument parser via the " +
@@ -1610,7 +1611,7 @@ public final class ArgumentParser
       return null;
     }
 
-    return subCommandsByName.get(toLowerCase(name));
+    return subCommandsByName.get(StaticUtils.toLowerCase(name));
   }
 
 
@@ -1658,7 +1659,7 @@ public final class ArgumentParser
     // existing subcommand.
     for (final String name : subCommand.getNames(true))
     {
-      if (subCommandsByName.containsKey(toLowerCase(name)))
+      if (subCommandsByName.containsKey(StaticUtils.toLowerCase(name)))
       {
         throw new ArgumentException(
              ERR_SUBCOMMAND_NAME_ALREADY_IN_USE.get(name));
@@ -1668,7 +1669,7 @@ public final class ArgumentParser
     // Register the subcommand.
     for (final String name : subCommand.getNames(true))
     {
-      subCommandsByName.put(toLowerCase(name), subCommand);
+      subCommandsByName.put(StaticUtils.toLowerCase(name), subCommand);
     }
     subCommands.add(subCommand);
     subCommand.setGlobalArgumentParser(this);
@@ -1689,7 +1690,7 @@ public final class ArgumentParser
   void addSubCommand(final String name, final SubCommand subCommand)
        throws ArgumentException
   {
-    final String lowerName = toLowerCase(name);
+    final String lowerName = StaticUtils.toLowerCase(name);
     if (subCommandsByName.containsKey(lowerName))
     {
       throw new ArgumentException(
@@ -1868,7 +1869,7 @@ public final class ArgumentParser
           argName = s.substring(2);
         }
 
-        final String lowerName = toLowerCase(argName);
+        final String lowerName = StaticUtils.toLowerCase(argName);
         Argument a = namedArgsByLongID.get(lowerName);
         if ((a == null) && (subCommandParser != null))
         {
@@ -2029,7 +2030,8 @@ public final class ArgumentParser
         if (selectedSubCommand == null)
         {
           subCommandName = s;
-          selectedSubCommand = subCommandsByName.get(toLowerCase(s));
+          selectedSubCommand =
+               subCommandsByName.get(StaticUtils.toLowerCase(s));
           if (selectedSubCommand == null)
           {
             throw new ArgumentException(ERR_PARSER_NO_SUCH_SUBCOMMAND.get(s,
@@ -2414,7 +2416,7 @@ public final class ArgumentParser
       Debug.debugException(e);
       throw new ArgumentException(
            ERR_PARSER_GEN_PROPS_CANNOT_OPEN_FILE.get(path,
-                getExceptionMessage(e)),
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
 
@@ -2481,7 +2483,7 @@ public final class ArgumentParser
     w.println('#');
 
     final String constraints = a.getValueConstraints();
-    if ((constraints != null) && (constraints.length() > 0) &&
+    if ((constraints != null) && (! constraints.isEmpty()) &&
         (! (a instanceof BooleanArgument)))
     {
       wrapComment(w, constraints);
@@ -2542,7 +2544,7 @@ public final class ArgumentParser
    */
   private static void wrapComment(final PrintWriter w, final String s)
   {
-    for (final String line : wrapLine(s, 77))
+    for (final String line : StaticUtils.wrapLine(s, 77))
     {
       w.println("# " + line);
     }
@@ -2584,7 +2586,7 @@ public final class ArgumentParser
       Debug.debugException(e);
       throw new ArgumentException(
            ERR_PARSER_CANNOT_OPEN_PROP_FILE.get(propertiesFilePath,
-                getExceptionMessage(e)),
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
 
@@ -2609,7 +2611,7 @@ public final class ArgumentParser
           Debug.debugException(e);
           throw new ArgumentException(
                ERR_PARSER_ERROR_READING_PROP_FILE.get(propertiesFilePath,
-                    getExceptionMessage(e)),
+                    StaticUtils.getExceptionMessage(e)),
                e);
         }
 
@@ -2632,7 +2634,7 @@ public final class ArgumentParser
         // off.  If there is leading whitespace, then make sure that we expect
         // the previous line to be continued.
         final int initialLength = line.length();
-        line = trimLeading(line);
+        line = StaticUtils.trimLeading(line);
         final boolean hasLeadingWhitespace = (line.length() < initialLength);
         if (hasLeadingWhitespace && (! lineIsContinued))
         {
@@ -2644,7 +2646,7 @@ public final class ArgumentParser
 
         // If the line is empty or starts with "#", then skip it.  But make sure
         // we didn't expect the previous line to be continued.
-        if ((line.length() == 0) || line.startsWith("#"))
+        if ((line.isEmpty()) || line.startsWith("#"))
         {
           if (lineIsContinued)
           {
@@ -2704,7 +2706,7 @@ public final class ArgumentParser
 
         final String propertyName = line.substring(0, equalPos).trim();
         final String propertyValue = line.substring(equalPos+1).trim();
-        if (propertyValue.length() == 0)
+        if (propertyValue.isEmpty())
         {
           // The property doesn't have a value, so we can ignore it.
           continue;
@@ -2863,7 +2865,7 @@ public final class ArgumentParser
             try
             {
               final String hexDigits = buffer.substring(pos+2, pos+6);
-              final byte[] bytes = fromHex(hexDigits);
+              final byte[] bytes = StaticUtils.fromHex(hexDigits);
               final int i = ((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF);
               buffer.setCharAt(pos, (char) i);
               for (int j=0; j < 5; j++)
@@ -3043,7 +3045,7 @@ exclusiveArgumentLoop:
 
     // First is a description of the command.
     final ArrayList<String> lines = new ArrayList<>(100);
-    lines.addAll(wrapLine(commandDescription, maxWidth));
+    lines.addAll(StaticUtils.wrapLine(commandDescription, maxWidth));
     lines.add("");
 
 
@@ -3071,7 +3073,7 @@ exclusiveArgumentLoop:
         lines.add(nameBuffer.toString());
 
         for (final String descriptionLine :
-             wrapLine(sc.getDescription(), (maxWidth - 4)))
+             StaticUtils.wrapLine(sc.getDescription(), (maxWidth - 4)))
         {
           lines.add("    " + descriptionLine);
         }
@@ -3084,35 +3086,33 @@ exclusiveArgumentLoop:
     // set of options and trailing arguments.
     if (! subCommands.isEmpty())
     {
-      lines.addAll(wrapLine(INFO_USAGE_SUBCOMMAND_USAGE.get(commandName),
-                            maxWidth));
+      lines.addAll(StaticUtils.wrapLine(
+           INFO_USAGE_SUBCOMMAND_USAGE.get(commandName), maxWidth));
     }
     else if (namedArgs.isEmpty())
     {
       if (maxTrailingArgs == 0)
       {
-        lines.addAll(wrapLine(INFO_USAGE_NOOPTIONS_NOTRAILING.get(commandName),
-                              maxWidth));
+        lines.addAll(StaticUtils.wrapLine(
+             INFO_USAGE_NOOPTIONS_NOTRAILING.get(commandName), maxWidth));
       }
       else
       {
-        lines.addAll(wrapLine(INFO_USAGE_NOOPTIONS_TRAILING.get(
-                                   commandName, trailingArgsPlaceholder),
-                              maxWidth));
+        lines.addAll(StaticUtils.wrapLine(INFO_USAGE_NOOPTIONS_TRAILING.get(
+             commandName, trailingArgsPlaceholder), maxWidth));
       }
     }
     else
     {
       if (maxTrailingArgs == 0)
       {
-        lines.addAll(wrapLine(INFO_USAGE_OPTIONS_NOTRAILING.get(commandName),
-             maxWidth));
+        lines.addAll(StaticUtils.wrapLine(
+             INFO_USAGE_OPTIONS_NOTRAILING.get(commandName), maxWidth));
       }
       else
       {
-        lines.addAll(wrapLine(INFO_USAGE_OPTIONS_TRAILING.get(
-             commandName, trailingArgsPlaceholder),
-             maxWidth));
+        lines.addAll(StaticUtils.wrapLine(INFO_USAGE_OPTIONS_TRAILING.get(
+             commandName, trailingArgsPlaceholder), maxWidth));
       }
     }
 
@@ -3260,14 +3260,13 @@ exclusiveArgumentLoop:
   {
     // First is a description of the subcommand.
     final ArrayList<String> lines = new ArrayList<>(100);
-    lines.addAll(wrapLine(selectedSubCommand.getDescription(), maxWidth));
+    lines.addAll(
+         StaticUtils.wrapLine(selectedSubCommand.getDescription(), maxWidth));
     lines.add("");
 
     // Next comes the usage.
-    lines.addAll(wrapLine(
-         INFO_SUBCOMMAND_USAGE_OPTIONS.get(commandName,
-              selectedSubCommand.getPrimaryName()),
-         maxWidth));
+    lines.addAll(StaticUtils.wrapLine(INFO_SUBCOMMAND_USAGE_OPTIONS.get(
+         commandName, selectedSubCommand.getPrimaryName()), maxWidth));
 
 
     final ArgumentParser parser = selectedSubCommand.getArgumentParser();
@@ -3472,7 +3471,8 @@ exclusiveArgumentLoop:
       subsequentLineWidth = maxWidth;
     }
     final List<String> identifierLines =
-         wrapLine(argLine.toString(), maxWidth, subsequentLineWidth);
+         StaticUtils.wrapLine(argLine.toString(), maxWidth,
+              subsequentLineWidth);
     for (int i=0; i < identifierLines.size(); i++)
     {
       if (i == 0)
@@ -3502,7 +3502,7 @@ exclusiveArgumentLoop:
         indentString = "    ";
       }
 
-      final List<String> descLines = wrapLine(description,
+      final List<String> descLines = StaticUtils.wrapLine(description,
            (maxWidth-indentString.length()));
       for (final String s : descLines)
       {
@@ -3511,7 +3511,7 @@ exclusiveArgumentLoop:
     }
     else
     {
-      lines.addAll(wrapLine(description, maxWidth));
+      lines.addAll(StaticUtils.wrapLine(description, maxWidth));
     }
   }
 
@@ -3536,8 +3536,8 @@ exclusiveArgumentLoop:
     final List<String> usageLines = getUsage(maxWidth);
     for (final String s : usageLines)
     {
-      outputStream.write(getBytes(s));
-      outputStream.write(EOL_BYTES);
+      outputStream.write(StaticUtils.getBytes(s));
+      outputStream.write(StaticUtils.EOL_BYTES);
     }
   }
 
@@ -3575,7 +3575,7 @@ exclusiveArgumentLoop:
     for (final String line : getUsage(maxWidth))
     {
       buffer.append(line);
-      buffer.append(EOL);
+      buffer.append(StaticUtils.EOL);
     }
   }
 

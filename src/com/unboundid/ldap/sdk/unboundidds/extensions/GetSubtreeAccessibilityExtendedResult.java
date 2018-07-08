@@ -37,13 +37,13 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -165,8 +165,7 @@ public final class GetSubtreeAccessibilityExtendedResult
       final ASN1Element[] restrictionElements =
            ASN1Sequence.decodeAsSequence(value.getValue()).elements();
       final ArrayList<SubtreeAccessibilityRestriction> restrictionList =
-           new ArrayList<SubtreeAccessibilityRestriction>(
-                restrictionElements.length);
+           new ArrayList<>(restrictionElements.length);
 
       for (final ASN1Element e : restrictionElements)
       {
@@ -232,12 +231,12 @@ public final class GetSubtreeAccessibilityExtendedResult
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_GET_SUBTREE_ACCESSIBILITY_RESULT_DECODE_ERROR.get(
                 StaticUtils.getExceptionMessage(e)),
@@ -284,7 +283,7 @@ public final class GetSubtreeAccessibilityExtendedResult
     else
     {
       accessibilityRestrictions = Collections.unmodifiableList(
-           new ArrayList<SubtreeAccessibilityRestriction>(restrictions));
+           new ArrayList<>(restrictions));
     }
   }
 
@@ -311,11 +310,10 @@ public final class GetSubtreeAccessibilityExtendedResult
     }
 
     final ArrayList<ASN1Element> elements =
-         new ArrayList<ASN1Element>(restrictions.size());
+         new ArrayList<>(restrictions.size());
     for (final SubtreeAccessibilityRestriction r : restrictions)
     {
-      final ArrayList<ASN1Element> restrictionElements =
-           new ArrayList<ASN1Element>(4);
+      final ArrayList<ASN1Element> restrictionElements = new ArrayList<>(4);
       restrictionElements.add(new ASN1OctetString(TYPE_BASE_DN,
            r.getSubtreeBaseDN()));
       restrictionElements.add(new ASN1Enumerated(TYPE_STATE,

@@ -82,7 +82,7 @@ public final class RequireDNInSubtreeArgumentValueValidator
     Validator.ensureNotNull(baseDNs);
     Validator.ensureFalse(baseDNs.isEmpty());
 
-    this.baseDNs = Collections.unmodifiableList(new ArrayList<DN>(baseDNs));
+    this.baseDNs = Collections.unmodifiableList(new ArrayList<>(baseDNs));
   }
 
 

@@ -154,7 +154,7 @@ public final class ReplaceAttributeTransformation
 
     // Identify all of the names that may be used to reference the attributes
     // to replace.
-    final HashMap<String,Attribute> attrMap = new HashMap<String,Attribute>(10);
+    final HashMap<String,Attribute> attrMap = new HashMap<>(10);
     for (final Attribute a : attributes)
     {
       final String baseName = StaticUtils.toLowerCase(a.getBaseName());
@@ -217,7 +217,7 @@ public final class ReplaceAttributeTransformation
     // Create a copy of the entry with all appropriate attributes replaced with
     // the appropriate default versions.
     final ArrayList<Attribute> newAttributes =
-         new ArrayList<Attribute>(originalAttributes.size());
+         new ArrayList<>(originalAttributes.size());
     for (final Attribute a : originalAttributes)
     {
       final Attribute replacement =

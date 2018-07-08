@@ -24,15 +24,14 @@ package com.unboundid.asn1;
 
 import com.unboundid.util.ByteString;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -102,9 +101,9 @@ public final class ASN1OctetString
    */
   public ASN1OctetString()
   {
-    super(UNIVERSAL_OCTET_STRING_TYPE);
+    super(ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE);
 
-    valueBytes  = NO_BYTES;
+    valueBytes  = StaticUtils.NO_BYTES;
     stringValue = "";
     offset      = 0;
     length      = 0;
@@ -122,7 +121,7 @@ public final class ASN1OctetString
   {
     super(type);
 
-    valueBytes  = NO_BYTES;
+    valueBytes  = StaticUtils.NO_BYTES;
     stringValue = "";
     offset      = 0;
     length      = 0;
@@ -138,11 +137,11 @@ public final class ASN1OctetString
    */
   public ASN1OctetString(final byte[] value)
   {
-    super(UNIVERSAL_OCTET_STRING_TYPE);
+    super(ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE);
 
     if (value == null)
     {
-      valueBytes  = NO_BYTES;
+      valueBytes  = StaticUtils.NO_BYTES;
       stringValue = "";
       offset      = 0;
       length      = 0;
@@ -173,11 +172,11 @@ public final class ASN1OctetString
    */
   public ASN1OctetString(final byte[] value, final int offset, final int length)
   {
-    super(UNIVERSAL_OCTET_STRING_TYPE);
+    super(ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE);
 
-    ensureNotNull(value);
-    ensureTrue((offset >= 0) && (length >= 0) &&
-               (offset+length <= value.length));
+    Validator.ensureNotNull(value);
+    Validator.ensureTrue((offset >= 0) && (length >= 0) &&
+         (offset+length <= value.length));
 
     valueBytes  = value;
     stringValue = null;
@@ -200,7 +199,7 @@ public final class ASN1OctetString
 
     if (value == null)
     {
-      valueBytes  = NO_BYTES;
+      valueBytes  = StaticUtils.NO_BYTES;
       stringValue = "";
       offset      = 0;
       length      = 0;
@@ -235,8 +234,8 @@ public final class ASN1OctetString
   {
     super(type);
 
-    ensureTrue((offset >= 0) && (length >= 0) &&
-               (offset+length <= value.length));
+    Validator.ensureTrue((offset >= 0) && (length >= 0) &&
+         (offset+length <= value.length));
 
     valueBytes  = value;
     stringValue = null;
@@ -254,11 +253,11 @@ public final class ASN1OctetString
    */
   public ASN1OctetString(final String value)
   {
-    super(UNIVERSAL_OCTET_STRING_TYPE);
+    super(ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE);
 
     if (value == null)
     {
-      valueBytes  = NO_BYTES;
+      valueBytes  = StaticUtils.NO_BYTES;
       stringValue = "";
       offset      = 0;
       length      = 0;
@@ -287,7 +286,7 @@ public final class ASN1OctetString
 
     if (value == null)
     {
-      valueBytes  = NO_BYTES;
+      valueBytes  = StaticUtils.NO_BYTES;
       stringValue = "";
       offset      = 0;
       length      = 0;
@@ -344,7 +343,7 @@ public final class ASN1OctetString
   {
     if (valueBytes == null)
     {
-      valueBytesGuard = getBytes(stringValue);
+      valueBytesGuard = StaticUtils.getBytes(stringValue);
       offset          = 0;
       length          = valueBytesGuard.length;
       valueBytes      = valueBytesGuard;
@@ -417,6 +416,7 @@ public final class ASN1OctetString
    *
    * @return  The String value for this element.
    */
+  @Override()
   public String stringValue()
   {
     if (stringValue == null)
@@ -427,7 +427,7 @@ public final class ASN1OctetString
       }
       else
       {
-        stringValue = toUTF8String(valueBytes, offset, length);
+        stringValue = StaticUtils.toUTF8String(valueBytes, offset, length);
       }
     }
 
@@ -477,12 +477,12 @@ public final class ASN1OctetString
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }
@@ -508,6 +508,7 @@ public final class ASN1OctetString
    *
    * @param  buffer  The buffer to which the value is to be appended.
    */
+  @Override()
   public void appendValueTo(final ByteStringBuffer buffer)
   {
     if (valueBytes == null)
@@ -527,6 +528,7 @@ public final class ASN1OctetString
    *
    * @return  An ASN.1 octet string with the value of this byte string.
    */
+  @Override()
   public ASN1OctetString toASN1OctetString()
   {
     return this;

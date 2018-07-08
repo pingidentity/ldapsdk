@@ -123,7 +123,7 @@ public final class SearchResultDoneProtocolOp
   @Override()
   public ASN1Element encodeProtocolOp()
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1Enumerated(getResultCode()));
 
     final String matchedDN = getMatchedDN();
@@ -150,7 +150,7 @@ public final class SearchResultDoneProtocolOp
     if (! referralURLs.isEmpty())
     {
       final ArrayList<ASN1Element> refElements =
-           new ArrayList<ASN1Element>(referralURLs.size());
+           new ArrayList<>(referralURLs.size());
       for (final String r : referralURLs)
       {
         refElements.add(new ASN1OctetString(r));
@@ -188,7 +188,7 @@ public final class SearchResultDoneProtocolOp
       final String matchedDN;
       final String md =
            ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
-      if (md.length() > 0)
+      if (! md.isEmpty())
       {
         matchedDN = md;
       }
@@ -200,7 +200,7 @@ public final class SearchResultDoneProtocolOp
       final String diagnosticMessage;
       final String dm =
            ASN1OctetString.decodeAsOctetString(elements[2]).stringValue();
-      if (dm.length() > 0)
+      if (! dm.isEmpty())
       {
         diagnosticMessage = dm;
       }
@@ -214,7 +214,7 @@ public final class SearchResultDoneProtocolOp
       {
         final ASN1Element[] refElements =
              ASN1Sequence.decodeAsSequence(elements[3]).elements();
-        referralURLs = new ArrayList<String>(refElements.length);
+        referralURLs = new ArrayList<>(refElements.length);
         for (final ASN1Element e : refElements)
         {
           referralURLs.add(

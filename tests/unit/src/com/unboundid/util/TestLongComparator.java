@@ -58,6 +58,7 @@ public final class TestLongComparator
    *
    * @return  The result of the comparison
    */
+  @Override()
   public int compare(final Long l1, final Long l2)
   {
     return l1.compareTo(l2);

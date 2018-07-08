@@ -30,10 +30,9 @@ import java.util.Set;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -227,7 +226,7 @@ public class LDAPAttribute
   {
     for (final String s : attribute.getOptions())
     {
-      final String lowerName = toLowerCase(s);
+      final String lowerName = StaticUtils.toLowerCase(s);
       if (lowerName.startsWith("lang-"))
       {
         return s;
@@ -284,8 +283,7 @@ public class LDAPAttribute
    */
   public Enumeration<String> getStringValues()
   {
-    return new IterableEnumeration<String>(
-         Arrays.asList(attribute.getValues()));
+    return new IterableEnumeration<>(Arrays.asList(attribute.getValues()));
   }
 
 
@@ -309,7 +307,7 @@ public class LDAPAttribute
    */
   public Enumeration<byte[]> getByteValues()
   {
-    return new IterableEnumeration<byte[]>(
+    return new IterableEnumeration<>(
          Arrays.asList(attribute.getValueByteArrays()));
   }
 
@@ -324,7 +322,6 @@ public class LDAPAttribute
   {
     return attribute.getValueByteArrays();
   }
-
 
 
 

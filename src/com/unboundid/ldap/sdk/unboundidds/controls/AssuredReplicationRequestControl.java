@@ -522,7 +522,7 @@ public final class AssuredReplicationRequestControl
                       final boolean sendResponseImmediately,
                       final Long timeoutMillis)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(6);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(6);
 
     if (minimumLocalLevel != null)
     {

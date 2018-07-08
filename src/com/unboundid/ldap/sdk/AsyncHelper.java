@@ -26,12 +26,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import com.unboundid.ldap.protocol.LDAPResponse;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -228,7 +228,7 @@ final class AsyncHelper
   {
     if (intermediateResponseListener == null)
     {
-      debug(Level.WARNING, DebugType.LDAP,
+      Debug.debug(Level.WARNING, DebugType.LDAP,
             WARN_INTERMEDIATE_RESPONSE_WITH_NO_LISTENER.get(
                  String.valueOf(intermediateResponse)));
     }

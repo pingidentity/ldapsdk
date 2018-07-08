@@ -154,7 +154,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
             final ASN1Element[] errorElements =
                  ASN1Sequence.decodeAsSequence(e).elements();
             final ArrayList<String> errorStrings =
-                 new ArrayList<String>(errorElements.length);
+                 new ArrayList<>(errorElements.length);
             for (final ASN1Element errorElement : errorElements)
             {
               errorStrings.add(ASN1OctetString.decodeAsOctetString(
@@ -167,7 +167,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
             final ASN1Element[] warningElements =
                  ASN1Sequence.decodeAsSequence(e).elements();
             final ArrayList<String> warningStrings =
-                 new ArrayList<String>(warningElements.length);
+                 new ArrayList<>(warningElements.length);
             for (final ASN1Element warningElement : warningElements)
             {
               warningStrings.add(ASN1OctetString.decodeAsOctetString(
@@ -245,7 +245,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
     else
     {
       this.errorMessages =
-           Collections.unmodifiableList(new ArrayList<String>(errorMessages));
+           Collections.unmodifiableList(new ArrayList<>(errorMessages));
     }
 
     if (warningMessages == null)
@@ -255,7 +255,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
     else
     {
       this.warningMessages =
-           Collections.unmodifiableList(new ArrayList<String>(warningMessages));
+           Collections.unmodifiableList(new ArrayList<>(warningMessages));
     }
   }
 
@@ -293,12 +293,12 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
 
     if ((errorMessages != null) && (! errorMessages.isEmpty()))
     {
       final ArrayList<ASN1Element> msgElements =
-           new ArrayList<ASN1Element>(errorMessages.size());
+           new ArrayList<>(errorMessages.size());
       for (final String s : errorMessages)
       {
         msgElements.add(new ASN1OctetString(s));
@@ -309,7 +309,7 @@ public final class IdentifyBackupCompatibilityProblemsExtendedResult
     if ((warningMessages != null) && (! warningMessages.isEmpty()))
     {
       final ArrayList<ASN1Element> msgElements =
-           new ArrayList<ASN1Element>(warningMessages.size());
+           new ArrayList<>(warningMessages.size());
       for (final String s : warningMessages)
       {
         msgElements.add(new ASN1OctetString(s));

@@ -33,13 +33,13 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             InteractiveTransactionSpecificationRequestControl;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -204,18 +204,6 @@ public final class StartInteractiveTransactionExtendedRequest
 
 
 
-  // This is an ugly hack to prevent checkstyle from complaining about imports
-  // for classes that are needed by javadoc @link elements but aren't otherwise
-  // used in the class.  It appears that checkstyle does not recognize the use
-  // of these classes in javadoc @link elements so we must ensure that they are
-  // referenced elsewhere in the class to prevent checkstyle from complaining.
-  static
-  {
-    final InteractiveTransactionSpecificationRequestControl c = null;
-  }
-
-
-
   /**
    * Creates a new start interactive transaction extended request with no base
    * DN.
@@ -300,18 +288,18 @@ public final class StartInteractiveTransactionExtendedRequest
         {
           throw new LDAPException(ResultCode.DECODING_ERROR,
                ERR_START_INT_TXN_REQUEST_INVALID_ELEMENT.get(
-                    toHex(e.getType())));
+                    StaticUtils.toHex(e.getType())));
         }
       }
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_START_INT_TXN_REQUEST_VALUE_NOT_SEQUENCE.get(e.getMessage()), e);
     }

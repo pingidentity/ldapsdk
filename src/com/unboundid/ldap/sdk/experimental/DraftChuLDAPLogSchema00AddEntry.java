@@ -97,7 +97,7 @@ public final class DraftChuLDAPLogSchema00AddEntry
     }
 
     final LinkedHashMap<String,List<Attribute>> attrMap =
-         new LinkedHashMap<String,List<Attribute>>(changes.length);
+         new LinkedHashMap<>(changes.length);
     for (final byte[] changeBytes : changes)
     {
       int colonPos = -1;
@@ -151,7 +151,7 @@ public final class DraftChuLDAPLogSchema00AddEntry
       List<Attribute> attrList = attrMap.get(lowerName);
       if (attrList == null)
       {
-        attrList = new ArrayList<Attribute>(10);
+        attrList = new ArrayList<>(10);
         attrMap.put(lowerName, attrList);
       }
 
@@ -165,8 +165,7 @@ public final class DraftChuLDAPLogSchema00AddEntry
       attrList.add(new Attribute(attrName, attrValue));
     }
 
-    final ArrayList<Attribute> addAttributes =
-         new ArrayList<Attribute>(attrMap.size());
+    final ArrayList<Attribute> addAttributes = new ArrayList<>(attrMap.size());
     for (final List<Attribute> attrList : attrMap.values())
     {
       if (attrList.size() == 1)

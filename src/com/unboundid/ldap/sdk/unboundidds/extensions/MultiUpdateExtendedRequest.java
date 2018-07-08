@@ -270,8 +270,7 @@ public final class MultiUpdateExtendedRequest
 
     this.errorBehavior = errorBehavior;
 
-    final ArrayList<LDAPRequest> requestList =
-         new ArrayList<LDAPRequest>(requests.size());
+    final ArrayList<LDAPRequest> requestList = new ArrayList<>(requests.size());
     for (final LDAPRequest r : requests)
     {
       switch (r.getOperationType())
@@ -364,7 +363,7 @@ public final class MultiUpdateExtendedRequest
       final ASN1Element[] requestSequenceElements =
            ASN1Sequence.decodeAsSequence(ve[1]).elements();
       final ArrayList<LDAPRequest> rl =
-           new ArrayList<LDAPRequest>(requestSequenceElements.length);
+           new ArrayList<>(requestSequenceElements.length);
       for (final ASN1Element rse : requestSequenceElements)
       {
         final Control[] controls;
@@ -453,11 +452,11 @@ public final class MultiUpdateExtendedRequest
                       final MultiUpdateErrorBehavior errorBehavior,
                       final List<LDAPRequest> requests)
   {
-    final ArrayList<ASN1Element> requestElements = new
-         ArrayList<ASN1Element>(requests.size());
+    final ArrayList<ASN1Element> requestElements =
+         new ArrayList<>(requests.size());
     for (final LDAPRequest r : requests)
     {
-      final ArrayList<ASN1Element> rsElements = new ArrayList<ASN1Element>(2);
+      final ArrayList<ASN1Element> rsElements = new ArrayList<>(2);
       switch (r.getOperationType())
       {
         case ADD:

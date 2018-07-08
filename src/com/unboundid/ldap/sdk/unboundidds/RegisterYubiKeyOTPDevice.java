@@ -552,8 +552,7 @@ public final class RegisterYubiKeyOTPDevice
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(2);
 
     String[] args =
     {

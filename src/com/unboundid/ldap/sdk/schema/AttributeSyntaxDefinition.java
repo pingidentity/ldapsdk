@@ -30,12 +30,12 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -82,7 +82,7 @@ public final class AttributeSyntaxDefinition
   public AttributeSyntaxDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     attributeSyntaxString = s.trim();
 
@@ -114,7 +114,7 @@ public final class AttributeSyntaxDefinition
     // specific order, but we'll be lenient and allow remaining elements to come
     // in any order.
     String               descr = null;
-    final Map<String,String[]> exts  = new LinkedHashMap<String,String[]>();
+    final Map<String,String[]> exts  = new LinkedHashMap<>(5);
 
     while (true)
     {
@@ -130,7 +130,7 @@ public final class AttributeSyntaxDefinition
       }
 
       final String token = attributeSyntaxString.substring(tokenStartPos, pos);
-      final String lowerToken = toLowerCase(token);
+      final String lowerToken = StaticUtils.toLowerCase(token);
       if (lowerToken.equals(")"))
       {
         // This indicates that we're at the end of the value.  There should not
@@ -164,7 +164,7 @@ public final class AttributeSyntaxDefinition
       {
         pos = skipSpaces(attributeSyntaxString, pos, length);
 
-        final ArrayList<String> valueList = new ArrayList<String>();
+        final ArrayList<String> valueList = new ArrayList<>(5);
         pos = readQDStrings(attributeSyntaxString, pos, length, valueList);
 
         final String[] values = new String[valueList.size()];
@@ -207,7 +207,7 @@ public final class AttributeSyntaxDefinition
   public AttributeSyntaxDefinition(final String oid, final String description,
                                    final Map<String,String[]> extensions)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid         = oid;
     this.description = description;
@@ -352,7 +352,7 @@ public final class AttributeSyntaxDefinition
 
     final AttributeSyntaxDefinition d = (AttributeSyntaxDefinition) o;
     return (oid.equals(d.oid) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(description, d.description) &&
          extensionsEqual(extensions, d.extensions));
   }
 

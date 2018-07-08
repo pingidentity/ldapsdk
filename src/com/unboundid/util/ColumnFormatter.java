@@ -155,8 +155,8 @@ public final class ColumnFormatter
     this.includeTimestamp = includeTimestamp;
     this.columns          = columns;
 
-    decimalFormatter   = new ThreadLocal<DecimalFormat>();
-    timestampFormatter = new ThreadLocal<SimpleDateFormat>();
+    decimalFormatter   = new ThreadLocal<>();
+    timestampFormatter = new ThreadLocal<>();
 
     if (timestampFormat == null)
     {

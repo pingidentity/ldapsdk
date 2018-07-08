@@ -30,10 +30,9 @@ import java.util.Iterator;
 
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -70,7 +69,7 @@ public class LDAPAttributeSet
    */
   public LDAPAttributeSet()
   {
-    attributes = new ArrayList<LDAPAttribute>();
+    attributes = new ArrayList<>(20);
   }
 
 
@@ -82,7 +81,7 @@ public class LDAPAttributeSet
    */
   public LDAPAttributeSet(final LDAPAttribute[] attrs)
   {
-    attributes = new ArrayList<LDAPAttribute>(Arrays.asList(attrs));
+    attributes = new ArrayList<>(Arrays.asList(attrs));
   }
 
 
@@ -94,7 +93,7 @@ public class LDAPAttributeSet
    */
   private LDAPAttributeSet(final ArrayList<LDAPAttribute> attrs)
   {
-    attributes = new ArrayList<LDAPAttribute>(attrs);
+    attributes = new ArrayList<>(attrs);
   }
 
 
@@ -106,7 +105,7 @@ public class LDAPAttributeSet
    */
   public Enumeration<LDAPAttribute> getAttributes()
   {
-    return new IterableEnumeration<LDAPAttribute>(attributes);
+    return new IterableEnumeration<>(attributes);
   }
 
 
@@ -122,8 +121,7 @@ public class LDAPAttributeSet
    */
   public LDAPAttributeSet getSubset(final String subtype)
   {
-    final ArrayList<LDAPAttribute> subset =
-         new ArrayList<LDAPAttribute>(attributes.size());
+    final ArrayList<LDAPAttribute> subset = new ArrayList<>(attributes.size());
 
     for (final LDAPAttribute a : attributes)
     {
@@ -180,7 +178,7 @@ public class LDAPAttributeSet
       return getAttribute(attrName);
     }
 
-    final String lowerLang = toLowerCase(lang);
+    final String lowerLang = StaticUtils.toLowerCase(lang);
 
     for (final LDAPAttribute a : attributes)
     {
@@ -191,7 +189,7 @@ public class LDAPAttributeSet
         {
           for (final String s : subtypes)
           {
-            final String lowerOption = toLowerCase(s);
+            final String lowerOption = StaticUtils.toLowerCase(s);
             if (lowerOption.equals(lowerLang) ||
                 lowerOption.startsWith(lang + '-'))
             {

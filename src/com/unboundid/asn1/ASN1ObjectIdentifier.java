@@ -27,14 +27,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.OID;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -80,7 +79,7 @@ public final class ASN1ObjectIdentifier
   public ASN1ObjectIdentifier(final OID oid)
          throws ASN1Exception
   {
-    this(UNIVERSAL_OBJECT_IDENTIFIER_TYPE, oid);
+    this(ASN1Constants.UNIVERSAL_OBJECT_IDENTIFIER_TYPE, oid);
   }
 
 
@@ -118,7 +117,7 @@ public final class ASN1ObjectIdentifier
   public ASN1ObjectIdentifier(final String oidString)
          throws ASN1Exception
   {
-    this(UNIVERSAL_OBJECT_IDENTIFIER_TYPE, oidString);
+    this(ASN1Constants.UNIVERSAL_OBJECT_IDENTIFIER_TYPE, oidString);
   }
 
 
@@ -336,12 +335,12 @@ public final class ASN1ObjectIdentifier
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }

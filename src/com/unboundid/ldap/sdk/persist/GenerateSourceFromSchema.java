@@ -48,8 +48,10 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassType;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
@@ -60,8 +62,6 @@ import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.StringArgument;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -86,7 +86,7 @@ public final class GenerateSourceFromSchema
   /**
    * A pre-allocated empty tree set.
    */
-  private static final TreeSet<String> EMPTY_TREE_SET = new TreeSet<String>();
+  private static final TreeSet<String> EMPTY_TREE_SET = new TreeSet<>();
 
 
 
@@ -414,8 +414,9 @@ public final class GenerateSourceFromSchema
     }
     catch (final LDAPException le)
     {
-      debugException(le);
-      err(ERR_GEN_SOURCE_CANNOT_CONNECT.get(getExceptionMessage(le)));
+      Debug.debugException(le);
+      err(ERR_GEN_SOURCE_CANNOT_CONNECT.get(
+           StaticUtils.getExceptionMessage(le)));
       return le.getResultCode();
     }
 
@@ -432,8 +433,9 @@ public final class GenerateSourceFromSchema
     }
     catch (final LDAPException le)
     {
-      debugException(le);
-      err(ERR_GEN_SOURCE_CANNOT_READ_SCHEMA.get(getExceptionMessage(le)));
+      Debug.debugException(le);
+      err(ERR_GEN_SOURCE_CANNOT_READ_SCHEMA.get(
+           StaticUtils.getExceptionMessage(le)));
       return le.getResultCode();
     }
     finally
@@ -461,14 +463,12 @@ public final class GenerateSourceFromSchema
   {
     // Retrieve and process the structural object class.
     final TreeMap<String,AttributeTypeDefinition> requiredAttrs =
-         new TreeMap<String,AttributeTypeDefinition>();
+         new TreeMap<>();
     final TreeMap<String,AttributeTypeDefinition> optionalAttrs =
-         new TreeMap<String,AttributeTypeDefinition>();
-    final TreeMap<String,TreeSet<String>> requiredAttrOCs =
-         new TreeMap<String,TreeSet<String>>();
-    final TreeMap<String,TreeSet<String>> optionalAttrOCs =
-         new TreeMap<String,TreeSet<String>>();
-    final TreeMap<String,String> types = new TreeMap<String,String>();
+         new TreeMap<>();
+    final TreeMap<String,TreeSet<String>> requiredAttrOCs = new TreeMap<>();
+    final TreeMap<String,TreeSet<String>> optionalAttrOCs = new TreeMap<>();
+    final TreeMap<String,String> types = new TreeMap<>();
 
     final String structuralClassName = structuralClassArg.getValue();
     final ObjectClassDefinition structuralOC =
@@ -491,8 +491,7 @@ public final class GenerateSourceFromSchema
 
 
     // Retrieve and process the auxiliary object classes.
-    final TreeMap<String,ObjectClassDefinition> auxiliaryOCs =
-         new TreeMap<String,ObjectClassDefinition>();
+    final TreeMap<String,ObjectClassDefinition> auxiliaryOCs = new TreeMap<>();
     if (auxiliaryClassArg.isPresent())
     {
       for (final String s : auxiliaryClassArg.getValues())
@@ -510,7 +509,7 @@ public final class GenerateSourceFromSchema
           return ResultCode.PARAM_ERROR;
         }
 
-        auxiliaryOCs.put(toLowerCase(s), oc);
+        auxiliaryOCs.put(StaticUtils.toLowerCase(s), oc);
 
         processObjectClass(oc, schema, requiredAttrs, requiredAttrOCs,
              optionalAttrs, optionalAttrOCs, types);
@@ -519,23 +518,22 @@ public final class GenerateSourceFromSchema
 
 
     // Determine the appropriate set of superior object classes.
-    final TreeMap<String,ObjectClassDefinition> superiorOCs =
-         new TreeMap<String,ObjectClassDefinition>();
+    final TreeMap<String,ObjectClassDefinition> superiorOCs = new TreeMap<>();
     for (final ObjectClassDefinition s :
          structuralOC.getSuperiorClasses(schema, true))
     {
-      superiorOCs.put(toLowerCase(s.getNameOrOID()), s);
+      superiorOCs.put(StaticUtils.toLowerCase(s.getNameOrOID()), s);
     }
 
     for (final ObjectClassDefinition d : auxiliaryOCs.values())
     {
       for (final ObjectClassDefinition s : d.getSuperiorClasses(schema, true))
       {
-        superiorOCs.put(toLowerCase(s.getNameOrOID()), s);
+        superiorOCs.put(StaticUtils.toLowerCase(s.getNameOrOID()), s);
       }
     }
 
-    superiorOCs.remove(toLowerCase(structuralClassName));
+    superiorOCs.remove(StaticUtils.toLowerCase(structuralClassName));
     for (final String s : auxiliaryOCs.keySet())
     {
       superiorOCs.remove(s);
@@ -544,7 +542,7 @@ public final class GenerateSourceFromSchema
 
     // Retrieve and process the operational attributes.
     final TreeMap<String,AttributeTypeDefinition> operationalAttrs =
-         new TreeMap<String,AttributeTypeDefinition>();
+         new TreeMap<>();
     if (operationalAttributeArg.isPresent())
     {
       for (final String s : operationalAttributeArg.getValues())
@@ -562,7 +560,7 @@ public final class GenerateSourceFromSchema
         }
         else
         {
-          final String lowerName = toLowerCase(s);
+          final String lowerName = StaticUtils.toLowerCase(s);
           operationalAttrs.put(lowerName, d);
           types.put(lowerName, getJavaType(schema, d));
         }
@@ -572,7 +570,7 @@ public final class GenerateSourceFromSchema
 
     // Make sure all of the configured RDN attributes are allowed by at least
     // one of the associated object classes.
-    final TreeSet<String> rdnAttrs = new TreeSet<String>();
+    final TreeSet<String> rdnAttrs = new TreeSet<>();
     for (final String s : rdnAttributeArg.getValues())
     {
       final AttributeTypeDefinition d = schema.getAttributeType(s);
@@ -582,7 +580,7 @@ public final class GenerateSourceFromSchema
         return ResultCode.PARAM_ERROR;
       }
 
-      final String lowerName = toLowerCase(d.getNameOrOID());
+      final String lowerName = StaticUtils.toLowerCase(d.getNameOrOID());
       rdnAttrs.add(lowerName);
       if (requiredAttrs.containsKey(lowerName))
       {
@@ -605,7 +603,7 @@ public final class GenerateSourceFromSchema
     // Make sure all of the configured lazily-loaded attributes are allowed by
     // at least one of the associated object classes or matches a configured
     // operational attribute.
-    final TreeSet<String> lazyAttrs = new TreeSet<String>();
+    final TreeSet<String> lazyAttrs = new TreeSet<>();
     for (final String s : lazyAttributeArg.getValues())
     {
       final AttributeTypeDefinition d = schema.getAttributeType(s);
@@ -615,7 +613,7 @@ public final class GenerateSourceFromSchema
         return ResultCode.PARAM_ERROR;
       }
 
-      final String lowerName = toLowerCase(d.getNameOrOID());
+      final String lowerName = StaticUtils.toLowerCase(d.getNameOrOID());
       lazyAttrs.add(lowerName);
       if (requiredAttrs.containsKey(lowerName) ||
           optionalAttrs.containsKey(lowerName) ||
@@ -645,8 +643,8 @@ public final class GenerateSourceFromSchema
     }
     else
     {
-      className =
-           capitalize(PersistUtils.toJavaIdentifier(structuralClassName));
+      className = StaticUtils.capitalize(
+           PersistUtils.toJavaIdentifier(structuralClassName));
     }
 
 
@@ -659,9 +657,9 @@ public final class GenerateSourceFromSchema
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       err(ERR_GEN_SOURCE_CANNOT_CREATE_WRITER.get(sourceFile.getAbsolutePath(),
-           getExceptionMessage(e)));
+           StaticUtils.getExceptionMessage(e)));
       return ResultCode.LOCAL_ERROR;
     }
 
@@ -669,7 +667,7 @@ public final class GenerateSourceFromSchema
     if (packageNameArg.isPresent())
     {
       final String packageName = packageNameArg.getValue();
-      if (packageName.length() > 0)
+      if (! packageName.isEmpty())
       {
         writer.println("package " + packageName + ';');
         writer.println();
@@ -1108,8 +1106,6 @@ public final class GenerateSourceFromSchema
 
 
 
-
-
   /**
    * Performs an appropriate set of processing for the provided object class to
    * ensure that all of the required and optional attributes are classified
@@ -1123,12 +1119,13 @@ public final class GenerateSourceFromSchema
    * @param  oac  The object classes referenced by the optional attributes.
    * @param  t    A map of attribute type names to Java types.
    */
-  void processObjectClass(final ObjectClassDefinition oc, final Schema s,
-            final TreeMap<String,AttributeTypeDefinition> ra,
-            final TreeMap<String,TreeSet<String>> rac,
-            final TreeMap<String,AttributeTypeDefinition> oa,
-            final TreeMap<String,TreeSet<String>> oac,
-            final TreeMap<String,String> t)
+  private void processObjectClass(final ObjectClassDefinition oc,
+                   final Schema s,
+                   final TreeMap<String,AttributeTypeDefinition> ra,
+                   final TreeMap<String,TreeSet<String>> rac,
+                   final TreeMap<String,AttributeTypeDefinition> oa,
+                   final TreeMap<String,TreeSet<String>> oac,
+                   final TreeMap<String,String> t)
   {
     for (final AttributeTypeDefinition d : oc.getRequiredAttributes(s, true))
     {
@@ -1137,7 +1134,7 @@ public final class GenerateSourceFromSchema
         continue;
       }
 
-      final String lowerName = toLowerCase(d.getNameOrOID());
+      final String lowerName = StaticUtils.toLowerCase(d.getNameOrOID());
       if (ra.containsKey(lowerName))
       {
         rac.get(lowerName).add(oc.getNameOrOID());
@@ -1153,7 +1150,7 @@ public final class GenerateSourceFromSchema
       }
       else
       {
-        final TreeSet<String> ocSet = new TreeSet<String>();
+        final TreeSet<String> ocSet = new TreeSet<>();
         ocSet.add(oc.getNameOrOID());
         ra.put(lowerName, d);
         rac.put(lowerName, ocSet);
@@ -1168,7 +1165,7 @@ public final class GenerateSourceFromSchema
         continue;
       }
 
-      final String lowerName = toLowerCase(d.getNameOrOID());
+      final String lowerName = StaticUtils.toLowerCase(d.getNameOrOID());
       if (ra.containsKey(lowerName))
       {
         rac.get(lowerName).add(oc.getNameOrOID());
@@ -1179,7 +1176,7 @@ public final class GenerateSourceFromSchema
       }
       else
       {
-        final TreeSet<String> ocSet = new TreeSet<String>();
+        final TreeSet<String> ocSet = new TreeSet<>();
         ocSet.add(oc.getNameOrOID());
         oa.put(lowerName, d);
         oac.put(lowerName, ocSet);
@@ -1207,12 +1204,12 @@ public final class GenerateSourceFromSchema
    *                   loading.
    * @param  terse     Indicates whether to use terse mode.
    */
-  static void writeField(final PrintWriter writer,
-                         final AttributeTypeDefinition d, final String type,
-                         final TreeSet<String> ocNames,
-                         final boolean inRDN, final boolean required,
-                         final String sc, final boolean lazy,
-                         final boolean terse)
+  private static void writeField(final PrintWriter writer,
+                           final AttributeTypeDefinition d, final String type,
+                           final TreeSet<String> ocNames,
+                           final boolean inRDN, final boolean required,
+                           final String sc, final boolean lazy,
+                           final boolean terse)
   {
     final String attrName  = d.getNameOrOID();
     final String fieldName = PersistUtils.toJavaIdentifier(attrName);
@@ -1401,9 +1398,10 @@ public final class GenerateSourceFromSchema
    * @param  type       The name of the Java type to use for the attribute.
    * @param  addSetter  Indicates whether to write a setter method.
    */
-  static void writeFieldMethods(final PrintWriter writer,
-                                final AttributeTypeDefinition d,
-                                final String type, final boolean addSetter)
+  private static void writeFieldMethods(final PrintWriter writer,
+                                        final AttributeTypeDefinition d,
+                                        final String type,
+                                        final boolean addSetter)
   {
     writer.println();
     writer.println();
@@ -1411,7 +1409,7 @@ public final class GenerateSourceFromSchema
 
     final String attrName  = d.getNameOrOID();
     final String fieldName = PersistUtils.toJavaIdentifier(attrName);
-    final String capFieldName = capitalize(fieldName);
+    final String capFieldName = StaticUtils.capitalize(fieldName);
 
     if (d.isSingleValued())
     {
@@ -1847,7 +1845,8 @@ public final class GenerateSourceFromSchema
     writer.println("           getPersister().getObjectHandler();");
     writer.println("      final FieldInfo fieldInfo = " +
          "objectHandler.getFields().get(");
-    writer.println("           \"" + toLowerCase(attrName) + "\");");
+    writer.println("           \"" + StaticUtils.toLowerCase(attrName) +
+         "\");");
     writer.println();
     writer.println("      final DefaultObjectEncoder objectEncoder = new " +
          "DefaultObjectEncoder();");
@@ -1923,10 +1922,11 @@ public final class GenerateSourceFromSchema
    * @param  operationalAttrs  The set of operational attributes for the
    *                           generated class.
    */
-  static void writeToString(final PrintWriter writer, final String className,
-                   final Collection<AttributeTypeDefinition> requiredAttrs,
-                   final Collection<AttributeTypeDefinition> optionalAttrs,
-                   final Collection<AttributeTypeDefinition> operationalAttrs)
+  private static void writeToString(final PrintWriter writer,
+               final String className,
+               final Collection<AttributeTypeDefinition> requiredAttrs,
+               final Collection<AttributeTypeDefinition> optionalAttrs,
+               final Collection<AttributeTypeDefinition> operationalAttrs)
   {
     writer.println();
     writer.println();
@@ -2038,7 +2038,8 @@ public final class GenerateSourceFromSchema
    *
    * @return  The Java type to use for the provided attribute type definition.
    */
-  String getJavaType(final Schema schema, final AttributeTypeDefinition d)
+  private String getJavaType(final Schema schema,
+                             final AttributeTypeDefinition d)
   {
     if (! d.isSingleValued())
     {
@@ -2121,8 +2122,7 @@ public final class GenerateSourceFromSchema
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(1);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(1);
 
     final String[] args =
     {

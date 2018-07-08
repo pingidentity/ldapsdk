@@ -35,15 +35,15 @@ import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -97,7 +97,7 @@ public final class DeleteRequest
 
   // The queue that will be used to receive response messages from the server.
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
-       new LinkedBlockingQueue<LDAPResponse>();
+       new LinkedBlockingQueue<>();
 
   // The DN of the entry to delete.
   private String dn;
@@ -113,7 +113,7 @@ public final class DeleteRequest
   {
     super(null);
 
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
   }
@@ -131,7 +131,7 @@ public final class DeleteRequest
   {
     super(controls);
 
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
   }
@@ -147,7 +147,7 @@ public final class DeleteRequest
   {
     super(null);
 
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn.toString();
   }
@@ -165,7 +165,7 @@ public final class DeleteRequest
   {
     super(controls);
 
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn.toString();
   }
@@ -190,7 +190,7 @@ public final class DeleteRequest
    */
   public void setDN(final String dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
   }
@@ -204,7 +204,7 @@ public final class DeleteRequest
    */
   public void setDN(final DN dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn.toString();
   }
@@ -295,7 +295,7 @@ public final class DeleteRequest
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_DELETE_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -369,14 +369,14 @@ public final class DeleteRequest
     // Send the request to the server.
     try
     {
-      debugLDAPRequest(Level.INFO, this, messageID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumDeleteRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       connection.deregisterResponseAcceptor(messageID);
       throw le;
@@ -417,7 +417,7 @@ public final class DeleteRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(Level.INFO, this, messageID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumDeleteRequests();
     try
     {
@@ -425,7 +425,7 @@ public final class DeleteRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (allowRetry)
       {
@@ -449,7 +449,7 @@ public final class DeleteRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if ((le.getResultCode() == ResultCode.TIMEOUT) &&
             connection.getConnectionOptions().abandonOnTimeout())
@@ -516,7 +516,8 @@ public final class DeleteRequest
   {
     if (response == null)
     {
-      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      final long waitTime =
+           StaticUtils.nanosToMillis(System.nanoTime() - requestTime);
       if (connection.getConnectionOptions().abandonOnTimeout())
       {
         connection.abandon(messageID);
@@ -622,7 +623,7 @@ public final class DeleteRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     return null;
@@ -690,7 +691,7 @@ public final class DeleteRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
       }
     }
 
@@ -715,7 +716,7 @@ public final class DeleteRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -723,7 +724,9 @@ public final class DeleteRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

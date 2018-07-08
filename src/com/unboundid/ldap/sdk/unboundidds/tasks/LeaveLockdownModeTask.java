@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -380,7 +379,7 @@ public final class LeaveLockdownModeTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_LEAVE_LOCKDOWN_MODE_TASK);
+    return Collections.singletonList(OC_LEAVE_LOCKDOWN_MODE_TASK);
   }
 
 
@@ -391,8 +390,8 @@ public final class LeaveLockdownModeTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(1);
-    if(reason != null)
+    final ArrayList<Attribute> attrs = new ArrayList<>(1);
+    if (reason != null)
     {
       attrs.add(new Attribute(ATTR_LEAVE_LOCKDOWN_REASON, reason));
     }
@@ -408,7 +407,7 @@ public final class LeaveLockdownModeTask
   public List<TaskProperty> getTaskSpecificProperties()
   {
     final List<TaskProperty> propList =
-              Arrays.asList(PROPERTY_LEAVE_LOCKDOWN_REASON);
+              Collections.singletonList(PROPERTY_LEAVE_LOCKDOWN_REASON);
 
     return Collections.unmodifiableList(propList);
   }
@@ -422,12 +421,12 @@ public final class LeaveLockdownModeTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(10);
 
-    if(reason != null)
+    if (reason != null)
     {
       props.put(PROPERTY_LEAVE_LOCKDOWN_REASON,
-              Collections.<Object>unmodifiableList(Arrays.asList(reason)));
+              Collections.<Object>singletonList(reason));
     }
 
     props.putAll(super.getTaskPropertyValues());

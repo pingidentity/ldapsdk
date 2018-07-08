@@ -38,12 +38,12 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -123,7 +123,7 @@ public final class PasswordPolicyStateExtendedResult
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_PWP_STATE_RESPONSE_VALUE_NOT_SEQUENCE.get(e),
                               e);
@@ -139,7 +139,7 @@ public final class PasswordPolicyStateExtendedResult
     userDN = ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
 
     final LinkedHashMap<Integer,PasswordPolicyStateOperation> ops =
-         new LinkedHashMap<Integer,PasswordPolicyStateOperation>();
+         new LinkedHashMap<>(20);
     if (elements.length == 2)
     {
       try
@@ -155,7 +155,7 @@ public final class PasswordPolicyStateExtendedResult
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,
                                 ERR_PWP_STATE_RESPONSE_CANNOT_DECODE_OPS.get(e),
                                 e);
@@ -204,8 +204,7 @@ public final class PasswordPolicyStateExtendedResult
     else
     {
       final LinkedHashMap<Integer,PasswordPolicyStateOperation> ops =
-           new LinkedHashMap<Integer,PasswordPolicyStateOperation>(
-                    operations.length);
+           new LinkedHashMap<>(operations.length);
       for (final PasswordPolicyStateOperation o : operations)
       {
         ops.put(o.getOperationType(), o);
@@ -235,7 +234,7 @@ public final class PasswordPolicyStateExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
     elements.add(new ASN1OctetString(userDN));
 
     if ((operations != null) && (operations.length > 0))
@@ -251,7 +250,6 @@ public final class PasswordPolicyStateExtendedResult
 
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
   }
-
 
 
 

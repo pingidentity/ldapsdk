@@ -22,14 +22,13 @@ package com.unboundid.asn1;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -62,7 +61,7 @@ public final class ASN1Null
    */
   public ASN1Null()
   {
-    super(UNIVERSAL_NULL_TYPE);
+    super(ASN1Constants.UNIVERSAL_NULL_TYPE);
   }
 
 
@@ -123,12 +122,12 @@ public final class ASN1Null
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }
@@ -165,7 +164,7 @@ public final class ASN1Null
   public void toString(final StringBuilder buffer)
   {
     buffer.append("ASN1Null(type=");
-    toHex(getType(), buffer);
+    StaticUtils.toHex(getType(), buffer);
     buffer.append(')');
   }
 }

@@ -53,13 +53,13 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassType;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -210,9 +210,9 @@ public final class LDAPObjectHandler<T>
       }
     }
 
-    final TreeMap<String,FieldInfo>  fields  = new TreeMap<String,FieldInfo>();
-    final TreeMap<String,GetterInfo> getters = new TreeMap<String,GetterInfo>();
-    final TreeMap<String,SetterInfo> setters = new TreeMap<String,SetterInfo>();
+    final TreeMap<String,FieldInfo>  fields  = new TreeMap<>();
+    final TreeMap<String,GetterInfo> getters = new TreeMap<>();
+    final TreeMap<String,SetterInfo> setters = new TreeMap<>();
 
     ldapObject = type.getAnnotation(LDAPObject.class);
     if (ldapObject == null)
@@ -221,13 +221,12 @@ public final class LDAPObjectHandler<T>
            ERR_OBJECT_HANDLER_OBJECT_NOT_ANNOTATED.get(type.getName()));
     }
 
-    final LinkedHashMap<String,String> objectClasses =
-         new LinkedHashMap<String,String>(10);
+    final LinkedHashMap<String,String> objectClasses = new LinkedHashMap<>(10);
 
     final String oc = ldapObject.structuralClass();
-    if (oc.length() == 0)
+    if (oc.isEmpty())
     {
-      structuralClass = getUnqualifiedClassName(type);
+      structuralClass = StaticUtils.getUnqualifiedClassName(type);
     }
     else
     {
@@ -237,7 +236,8 @@ public final class LDAPObjectHandler<T>
     final StringBuilder invalidReason = new StringBuilder();
     if (PersistUtils.isValidLDAPName(structuralClass, invalidReason))
     {
-      objectClasses.put(toLowerCase(structuralClass), structuralClass);
+      objectClasses.put(StaticUtils.toLowerCase(structuralClass),
+           structuralClass);
     }
     else
     {
@@ -251,7 +251,8 @@ public final class LDAPObjectHandler<T>
     {
       if (PersistUtils.isValidLDAPName(auxiliaryClass, invalidReason))
       {
-        objectClasses.put(toLowerCase(auxiliaryClass), auxiliaryClass);
+        objectClasses.put(StaticUtils.toLowerCase(auxiliaryClass),
+             auxiliaryClass);
       }
       else
       {
@@ -266,7 +267,8 @@ public final class LDAPObjectHandler<T>
     {
       if (PersistUtils.isValidLDAPName(superiorClass, invalidReason))
       {
-        objectClasses.put(toLowerCase(superiorClass), superiorClass);
+        objectClasses.put(StaticUtils.toLowerCase(superiorClass),
+             superiorClass);
       }
       else
       {
@@ -280,7 +282,7 @@ public final class LDAPObjectHandler<T>
     {
       for (final String s : superclassHandler.objectClassAttribute.getValues())
       {
-        objectClasses.put(toLowerCase(s), s);
+        objectClasses.put(StaticUtils.toLowerCase(s), s);
       }
     }
 
@@ -290,7 +292,7 @@ public final class LDAPObjectHandler<T>
     final String parentDNStr = ldapObject.defaultParentDN();
     try
     {
-      if ((parentDNStr.length() == 0) && (superclassHandler != null))
+      if ((parentDNStr.isEmpty()) && (superclassHandler != null))
       {
         defaultParentDN = superclassHandler.getDefaultParentDN();
       }
@@ -308,7 +310,7 @@ public final class LDAPObjectHandler<T>
 
 
     final String postDecodeMethodName = ldapObject.postDecodeMethod();
-    if (postDecodeMethodName.length() > 0)
+    if (! postDecodeMethodName.isEmpty())
     {
       try
       {
@@ -317,10 +319,11 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_INVALID_POST_DECODE_METHOD.get(type.getName(),
-                  postDecodeMethodName, getExceptionMessage(e)), e);
+                  postDecodeMethodName, StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
     else
@@ -330,7 +333,7 @@ public final class LDAPObjectHandler<T>
 
 
     final String postEncodeMethodName = ldapObject.postEncodeMethod();
-    if (postEncodeMethodName.length() > 0)
+    if (! postEncodeMethodName.isEmpty())
     {
       try
       {
@@ -340,10 +343,11 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_INVALID_POST_ENCODE_METHOD.get(type.getName(),
-                  postEncodeMethodName, getExceptionMessage(e)), e);
+                  postEncodeMethodName, StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
     else
@@ -359,17 +363,17 @@ public final class LDAPObjectHandler<T>
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPPersistException(
            ERR_OBJECT_HANDLER_NO_DEFAULT_CONSTRUCTOR.get(type.getName()), e);
     }
 
     Field tmpDNField = null;
     Field tmpEntryField = null;
-    final LinkedList<FieldInfo> tmpRFilterFields = new LinkedList<FieldInfo>();
-    final LinkedList<FieldInfo> tmpAAFilterFields = new LinkedList<FieldInfo>();
-    final LinkedList<FieldInfo> tmpCAFilterFields = new LinkedList<FieldInfo>();
-    final LinkedList<FieldInfo> tmpRDNFields = new LinkedList<FieldInfo>();
+    final LinkedList<FieldInfo> tmpRFilterFields = new LinkedList<>();
+    final LinkedList<FieldInfo> tmpAAFilterFields = new LinkedList<>();
+    final LinkedList<FieldInfo> tmpCAFilterFields = new LinkedList<>();
+    final LinkedList<FieldInfo> tmpRDNFields = new LinkedList<>();
     for (final Field f : type.getDeclaredFields())
     {
       final LDAPField fieldAnnotation = f.getAnnotation(LDAPField.class);
@@ -382,7 +386,8 @@ public final class LDAPObjectHandler<T>
         f.setAccessible(true);
 
         final FieldInfo fieldInfo = new FieldInfo(f, type);
-        final String attrName = toLowerCase(fieldInfo.getAttributeName());
+        final String attrName =
+             StaticUtils.toLowerCase(fieldInfo.getAttributeName());
         if (fields.containsKey(attrName))
         {
           throw new LDAPPersistException(ERR_OBJECT_HANDLER_ATTR_CONFLICT.get(
@@ -512,13 +517,10 @@ public final class LDAPObjectHandler<T>
          Collections.unmodifiableList(tmpCAFilterFields);
     rdnFields    = Collections.unmodifiableList(tmpRDNFields);
 
-    final LinkedList<GetterInfo> tmpRFilterGetters =
-         new LinkedList<GetterInfo>();
-    final LinkedList<GetterInfo> tmpAAFilterGetters =
-         new LinkedList<GetterInfo>();
-    final LinkedList<GetterInfo> tmpCAFilterGetters =
-         new LinkedList<GetterInfo>();
-    final LinkedList<GetterInfo> tmpRDNGetters = new LinkedList<GetterInfo>();
+    final LinkedList<GetterInfo> tmpRFilterGetters = new LinkedList<>();
+    final LinkedList<GetterInfo> tmpAAFilterGetters = new LinkedList<>();
+    final LinkedList<GetterInfo> tmpCAFilterGetters = new LinkedList<>();
+    final LinkedList<GetterInfo> tmpRDNGetters = new LinkedList<>();
     for (final Method m : type.getDeclaredMethods())
     {
       final LDAPGetter getter = m.getAnnotation(LDAPGetter.class);
@@ -537,7 +539,8 @@ public final class LDAPObjectHandler<T>
         }
 
         final GetterInfo methodInfo = new GetterInfo(m, type);
-        final String attrName = toLowerCase(methodInfo.getAttributeName());
+        final String attrName =
+             StaticUtils.toLowerCase(methodInfo.getAttributeName());
         if (fields.containsKey(attrName) || getters.containsKey(attrName))
         {
           throw new LDAPPersistException(ERR_OBJECT_HANDLER_ATTR_CONFLICT.get(
@@ -576,7 +579,8 @@ public final class LDAPObjectHandler<T>
         m.setAccessible(true);
 
         final SetterInfo methodInfo = new SetterInfo(m, type);
-        final String attrName = toLowerCase(methodInfo.getAttributeName());
+        final String attrName =
+             StaticUtils.toLowerCase(methodInfo.getAttributeName());
         if (fields.containsKey(attrName) || setters.containsKey(attrName))
         {
           throw new LDAPPersistException(ERR_OBJECT_HANDLER_ATTR_CONFLICT.get(
@@ -608,8 +612,8 @@ public final class LDAPObjectHandler<T>
     setterMap = Collections.unmodifiableMap(setters);
 
 
-    final TreeSet<String> attrSet = new TreeSet<String>();
-    final TreeSet<String> lazySet = new TreeSet<String>();
+    final TreeSet<String> attrSet = new TreeSet<>();
+    final TreeSet<String> lazySet = new TreeSet<>();
     for (final FieldInfo i : fields.values())
     {
       if (i.lazilyLoad())
@@ -904,10 +908,11 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_ERROR_ACCESSING_DN_FIELD.get(dnField.getName(),
-                  type.getName(), getExceptionMessage(e)), e);
+                  type.getName(), StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
 
@@ -955,10 +960,11 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_ERROR_ACCESSING_ENTRY_FIELD.get(
-                  entryField.getName(), type.getName(), getExceptionMessage(e)),
+                  entryField.getName(), type.getName(),
+                  StaticUtils.getExceptionMessage(e)),
              e);
       }
     }
@@ -1043,19 +1049,19 @@ public final class LDAPObjectHandler<T>
          throws LDAPPersistException
   {
     final LinkedHashMap<String,ObjectClassDefinition> ocMap =
-         new LinkedHashMap<String,ObjectClassDefinition>(
-              1 + auxiliaryClasses.length);
+         new LinkedHashMap<>(1 + auxiliaryClasses.length);
 
     if (superclassHandler != null)
     {
       for (final ObjectClassDefinition d :
            superclassHandler.constructObjectClasses(a))
       {
-        ocMap.put(toLowerCase(d.getNameOrOID()), d);
+        ocMap.put(StaticUtils.toLowerCase(d.getNameOrOID()), d);
       }
     }
 
-    final String lowerStructuralClass = toLowerCase(structuralClass);
+    final String lowerStructuralClass =
+         StaticUtils.toLowerCase(structuralClass);
     if (! ocMap.containsKey(lowerStructuralClass))
     {
       if (superclassHandler == null)
@@ -1073,7 +1079,7 @@ public final class LDAPObjectHandler<T>
 
     for (final String s : auxiliaryClasses)
     {
-      final String lowerName = toLowerCase(s);
+      final String lowerName = StaticUtils.toLowerCase(s);
       if (! ocMap.containsKey(lowerName))
       {
         ocMap.put(lowerName,
@@ -1081,8 +1087,7 @@ public final class LDAPObjectHandler<T>
       }
     }
 
-    return Collections.unmodifiableList(new ArrayList<ObjectClassDefinition>(
-         ocMap.values()));
+    return Collections.unmodifiableList(new ArrayList<>(ocMap.values()));
   }
 
 
@@ -1103,13 +1108,13 @@ public final class LDAPObjectHandler<T>
    *
    * @return  The constructed object class definition.
    */
-  ObjectClassDefinition constructObjectClass(final String name,
-                                             final String sup,
-                                             final ObjectClassType type,
-                                             final OIDAllocator a)
+  private ObjectClassDefinition constructObjectClass(final String name,
+                                                     final String sup,
+                                                     final ObjectClassType type,
+                                                     final OIDAllocator a)
   {
-    final TreeMap<String,String> requiredAttrs = new TreeMap<String,String>();
-    final TreeMap<String,String> optionalAttrs = new TreeMap<String,String>();
+    final TreeMap<String,String> requiredAttrs = new TreeMap<>();
+    final TreeMap<String,String> optionalAttrs = new TreeMap<>();
 
 
     // Extract the attributes for all of the fields.
@@ -1131,7 +1136,7 @@ public final class LDAPObjectHandler<T>
       }
 
       final String attrName  = i.getAttributeName();
-      final String lowerName = toLowerCase(attrName);
+      final String lowerName = StaticUtils.toLowerCase(attrName);
       if (i.includeInRDN() ||
           (i.isRequiredForDecode() && i.isRequiredForEncode()))
       {
@@ -1163,7 +1168,7 @@ public final class LDAPObjectHandler<T>
       }
 
       final String attrName  = i.getAttributeName();
-      final String lowerName = toLowerCase(attrName);
+      final String lowerName = StaticUtils.toLowerCase(attrName);
       if (i.includeInRDN())
       {
         requiredAttrs.put(lowerName, attrName);
@@ -1182,7 +1187,7 @@ public final class LDAPObjectHandler<T>
       for (final SetterInfo i : setterMap.values())
       {
         final String attrName  = i.getAttributeName();
-        final String lowerName = toLowerCase(attrName);
+        final String lowerName = StaticUtils.toLowerCase(attrName);
         if (requiredAttrs.containsKey(lowerName) ||
              optionalAttrs.containsKey(lowerName))
         {
@@ -1227,7 +1232,7 @@ public final class LDAPObjectHandler<T>
     }
     catch (final Throwable t)
     {
-      debugException(t);
+      Debug.debugException(t);
 
       if (t instanceof InvocationTargetException)
       {
@@ -1235,13 +1240,15 @@ public final class LDAPObjectHandler<T>
              ((InvocationTargetException) t).getTargetException();
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_ERROR_INVOKING_CONSTRUCTOR.get(type.getName(),
-                  getExceptionMessage(targetException)), targetException);
+                  StaticUtils.getExceptionMessage(targetException)),
+             targetException);
       }
       else
       {
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_ERROR_INVOKING_CONSTRUCTOR.get(type.getName(),
-                  getExceptionMessage(t)), t);
+                  StaticUtils.getExceptionMessage(t)),
+             t);
       }
     }
 
@@ -1272,7 +1279,7 @@ public final class LDAPObjectHandler<T>
 
     setDNAndEntryFields(o, e);
 
-    final ArrayList<String> failureReasons = new ArrayList<String>(5);
+    final ArrayList<String> failureReasons = new ArrayList<>(5);
     boolean successful = true;
 
     for (final FieldInfo i : fieldMap.values())
@@ -1294,7 +1301,7 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Throwable t)
       {
-        debugException(t);
+        Debug.debugException(t);
 
         if (t instanceof InvocationTargetException)
         {
@@ -1309,14 +1316,14 @@ public final class LDAPObjectHandler<T>
         failureReasons.add(
              ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_DECODE_METHOD.get(
                   postDecodeMethod.getName(), type.getName(),
-                  getExceptionMessage(t)));
+                  StaticUtils.getExceptionMessage(t)));
       }
     }
 
     if (! successful)
     {
-      throw new LDAPPersistException(concatenateStrings(failureReasons), o,
-           cause);
+      throw new LDAPPersistException(
+           StaticUtils.concatenateStrings(failureReasons), o, cause);
     }
   }
 
@@ -1347,8 +1354,7 @@ public final class LDAPObjectHandler<T>
         throws LDAPPersistException
   {
     // Get the attributes that should be included in the entry.
-    final LinkedHashMap<String,Attribute> attrMap =
-         new LinkedHashMap<String,Attribute>();
+    final LinkedHashMap<String,Attribute> attrMap = new LinkedHashMap<>(20);
     attrMap.put("objectClass", objectClassAttribute);
 
     for (final Map.Entry<String,FieldInfo> e : fieldMap.entrySet())
@@ -1394,7 +1400,7 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Throwable t)
       {
-        debugException(t);
+        Debug.debugException(t);
 
         if (t instanceof InvocationTargetException)
         {
@@ -1403,14 +1409,15 @@ public final class LDAPObjectHandler<T>
           throw new LDAPPersistException(
                ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_ENCODE_METHOD.get(
                     postEncodeMethod.getName(), type.getName(),
-                    getExceptionMessage(targetException)), targetException);
+                    StaticUtils.getExceptionMessage(targetException)),
+               targetException);
         }
         else
         {
           throw new LDAPPersistException(
                ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_ENCODE_METHOD.get(
                     postEncodeMethod.getName(), type.getName(),
-                    getExceptionMessage(t)), t);
+                    StaticUtils.getExceptionMessage(t)), t);
         }
       }
     }
@@ -1454,10 +1461,11 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Exception ex)
       {
-        debugException(ex);
-        throw new LDAPPersistException(ERR_OBJECT_HANDLER_ERROR_SETTING_DN.get(
-             type.getName(), e.getDN(), dnField.getName(),
-             getExceptionMessage(ex)), ex);
+        Debug.debugException(ex);
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_ERROR_SETTING_DN.get(type.getName(), e.getDN(),
+                  dnField.getName(), StaticUtils.getExceptionMessage(ex)),
+             ex);
       }
     }
 
@@ -1472,10 +1480,11 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Exception ex)
       {
-        debugException(ex);
+        Debug.debugException(ex);
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_ERROR_SETTING_ENTRY.get(type.getName(),
-                  entryField.getName(), getExceptionMessage(ex)), ex);
+                  entryField.getName(), StaticUtils.getExceptionMessage(ex)),
+             ex);
       }
     }
 
@@ -1529,7 +1538,7 @@ public final class LDAPObjectHandler<T>
     }
 
     final LinkedHashMap<String,Attribute> attrMap =
-         new LinkedHashMap<String,Attribute>(numRDNs);
+         new LinkedHashMap<>(numRDNs);
 
     for (final FieldInfo i : rdnFields)
     {
@@ -1541,7 +1550,7 @@ public final class LDAPObjectHandler<T>
                   i.getField().getName()));
       }
 
-      attrMap.put(toLowerCase(i.getAttributeName()), a);
+      attrMap.put(StaticUtils.toLowerCase(i.getAttributeName()), a);
     }
 
     for (final GetterInfo i : rdnGetters)
@@ -1554,7 +1563,7 @@ public final class LDAPObjectHandler<T>
                   i.getMethod().getName()));
       }
 
-      attrMap.put(toLowerCase(i.getAttributeName()), a);
+      attrMap.put(StaticUtils.toLowerCase(i.getAttributeName()), a);
     }
 
     return constructDN(o, parentDN, attrMap);
@@ -1606,11 +1615,12 @@ public final class LDAPObjectHandler<T>
       return superclassHandler.constructDN(o, parentDN);
     }
 
-    final ArrayList<String> rdnNameList  = new ArrayList<String>(numRDNs);
-    final ArrayList<byte[]> rdnValueList = new ArrayList<byte[]>(numRDNs);
+    final ArrayList<String> rdnNameList  = new ArrayList<>(numRDNs);
+    final ArrayList<byte[]> rdnValueList = new ArrayList<>(numRDNs);
     for (final FieldInfo i : rdnFields)
     {
-      final Attribute a = attrMap.get(toLowerCase(i.getAttributeName()));
+      final Attribute a =
+           attrMap.get(StaticUtils.toLowerCase(i.getAttributeName()));
       if (a == null)
       {
         throw new LDAPPersistException(
@@ -1624,7 +1634,8 @@ public final class LDAPObjectHandler<T>
 
     for (final GetterInfo i : rdnGetters)
     {
-      final Attribute a = attrMap.get(toLowerCase(i.getAttributeName()));
+      final Attribute a =
+           attrMap.get(StaticUtils.toLowerCase(i.getAttributeName()));
       if (a == null)
       {
         throw new LDAPPersistException(
@@ -1657,7 +1668,7 @@ public final class LDAPObjectHandler<T>
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         throw new LDAPPersistException(ERR_OBJECT_HANDLER_INVALID_PARENT_DN.get(
              type.getName(), parentDN, le.getMessage()), le);
       }
@@ -1753,9 +1764,9 @@ public final class LDAPObjectHandler<T>
           {
             if (stripAttrs == null)
             {
-              stripAttrs = new HashSet<String>(10);
+              stripAttrs = new HashSet<>(10);
             }
-            stripAttrs.add(toLowerCase(i.getAttributeName()));
+            stripAttrs.add(StaticUtils.toLowerCase(i.getAttributeName()));
           }
         }
 
@@ -1765,9 +1776,9 @@ public final class LDAPObjectHandler<T>
           {
             if (stripAttrs == null)
             {
-              stripAttrs = new HashSet<String>(10);
+              stripAttrs = new HashSet<>(10);
             }
-            stripAttrs.add(toLowerCase(i.getAttributeName()));
+            stripAttrs.add(StaticUtils.toLowerCase(i.getAttributeName()));
           }
         }
 
@@ -1777,7 +1788,8 @@ public final class LDAPObjectHandler<T>
           while (iterator.hasNext())
           {
             final Modification m = iterator.next();
-            if (stripAttrs.contains(toLowerCase(m.getAttributeName())))
+            if (stripAttrs.contains(
+                 StaticUtils.toLowerCase(m.getAttributeName())))
             {
               iterator.remove();
             }
@@ -1788,7 +1800,7 @@ public final class LDAPObjectHandler<T>
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
       finally
       {
@@ -1803,18 +1815,18 @@ public final class LDAPObjectHandler<T>
     }
     else
     {
-      attrSet = new HashSet<String>(attributes.length);
+      attrSet = new HashSet<>(attributes.length);
       for (final String s : attributes)
       {
-        attrSet.add(toLowerCase(s));
+        attrSet.add(StaticUtils.toLowerCase(s));
       }
     }
 
-    final ArrayList<Modification> mods = new ArrayList<Modification>(5);
+    final ArrayList<Modification> mods = new ArrayList<>(5);
 
     for (final Map.Entry<String,FieldInfo> e : fieldMap.entrySet())
     {
-      final String attrName = toLowerCase(e.getKey());
+      final String attrName = StaticUtils.toLowerCase(e.getKey());
       if ((attrSet != null) && (! attrSet.contains(attrName)))
       {
         continue;
@@ -1859,7 +1871,7 @@ public final class LDAPObjectHandler<T>
 
     for (final Map.Entry<String,GetterInfo> e : getterMap.entrySet())
     {
-      final String attrName = toLowerCase(e.getKey());
+      final String attrName = StaticUtils.toLowerCase(e.getKey());
       if ((attrSet != null) && (! attrSet.contains(attrName)))
       {
         continue;
@@ -1908,7 +1920,7 @@ public final class LDAPObjectHandler<T>
            superclassHandler.getModifications(o, deleteNullValues, byteForByte,
                 attributes);
       final ArrayList<Modification> modsToAdd =
-           new ArrayList<Modification>(superMods.size());
+           new ArrayList<>(superMods.size());
       for (final Modification sm : superMods)
       {
         boolean add = true;
@@ -1949,7 +1961,7 @@ public final class LDAPObjectHandler<T>
     else
     {
       final ArrayList<Filter> comps =
-           new ArrayList<Filter>(1+auxiliaryClasses.length);
+           new ArrayList<>(1+auxiliaryClasses.length);
       comps.add(Filter.createEqualityFilter("objectClass", structuralClass));
       for (final String s : auxiliaryClasses)
       {
@@ -2026,7 +2038,7 @@ public final class LDAPObjectHandler<T>
                               final AtomicBoolean addedRequiredOrAllowed)
           throws LDAPPersistException
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(5);
+    final ArrayList<Attribute> attrs = new ArrayList<>(5);
     attrs.add(objectClassAttribute);
 
     for (final FieldInfo i : requiredFilterFields)
@@ -2099,7 +2111,7 @@ public final class LDAPObjectHandler<T>
       }
     }
 
-    final ArrayList<Filter> comps = new ArrayList<Filter>(attrs.size());
+    final ArrayList<Filter> comps = new ArrayList<>(attrs.size());
     for (final Attribute a : attrs)
     {
       for (final ASN1OctetString v : a.getRawValues())

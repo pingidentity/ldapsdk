@@ -273,7 +273,7 @@ final class ServerDetails
       }
 
       final ArrayList<ServerSet> failoverSets =
-           new ArrayList<ServerSet>(orderArrayValues.size());
+           new ArrayList<>(orderArrayValues.size());
       for (final JSONValue v : orderArrayValues)
       {
         if (! (v instanceof JSONObject))
@@ -404,7 +404,7 @@ final class ServerDetails
       i++;
     }
 
-    return new ObjectPair<String[],int[]>(addresses, ports);
+    return new ObjectPair<>(addresses, ports);
   }
 
 
@@ -438,14 +438,14 @@ final class ServerDetails
     }
 
     final Integer port = LDAPConnectionDetailsJSONSpecification.getInt(o,
-         FIELD_PORT, null, 1, 65535);
+         FIELD_PORT, null, 1, 65_535);
     if (port == null)
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
            ERR_SERVER_DETAILS_MISSING_FIELD.get(f, FIELD_PORT));
     }
 
-    return new ObjectPair<String,Integer>(address, port);
+    return new ObjectPair<>(address, port);
   }
 
 

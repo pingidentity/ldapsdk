@@ -41,7 +41,9 @@ import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFRecord;
 import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
@@ -51,8 +53,6 @@ import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.StringArgument;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -276,7 +276,7 @@ public final class GenerateSchemaFromSource
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       err(ERR_GEN_SCHEMA_CANNOT_LOAD_CLASS.get(className));
       return ResultCode.PARAM_ERROR;
     }
@@ -291,8 +291,9 @@ public final class GenerateSchemaFromSource
     }
     catch (final Exception e)
     {
-      debugException(e);
-      err(ERR_GEN_SCHEMA_INVALID_CLASS.get(className, getExceptionMessage(e)));
+      Debug.debugException(e);
+      err(ERR_GEN_SCHEMA_INVALID_CLASS.get(className,
+           StaticUtils.getExceptionMessage(e)));
       return ResultCode.LOCAL_ERROR;
     }
 
@@ -306,9 +307,9 @@ public final class GenerateSchemaFromSource
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       err(ERR_GEN_SCHEMA_ERROR_CONSTRUCTING_ATTRS.get(className,
-           getExceptionMessage(e)));
+           StaticUtils.getExceptionMessage(e)));
       return ResultCode.LOCAL_ERROR;
     }
 
@@ -319,9 +320,9 @@ public final class GenerateSchemaFromSource
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       err(ERR_GEN_SCHEMA_ERROR_CONSTRUCTING_OCS.get(className,
-           getExceptionMessage(e)));
+           StaticUtils.getExceptionMessage(e)));
       return ResultCode.LOCAL_ERROR;
     }
 
@@ -374,9 +375,9 @@ public final class GenerateSchemaFromSource
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       err(ERR_GEN_SCHEMA_CANNOT_WRITE_SCHEMA.get(outputFile.getAbsolutePath(),
-           getExceptionMessage(e)));
+           StaticUtils.getExceptionMessage(e)));
       return ResultCode.LOCAL_ERROR;
     }
 
@@ -392,8 +393,7 @@ public final class GenerateSchemaFromSource
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(1);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(1);
 
     final String[] args =
     {

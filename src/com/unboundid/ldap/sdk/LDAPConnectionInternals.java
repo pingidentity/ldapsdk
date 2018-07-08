@@ -38,12 +38,12 @@ import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.ldap.protocol.LDAPMessage;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -65,8 +65,7 @@ final class LDAPConnectionInternals
    * A set of thread-local ASN.1 buffers used to prepare messages to be written.
    */
   private static final AtomicReference<ThreadLocal<ASN1Buffer>> ASN1_BUFFERS =
-       new AtomicReference<ThreadLocal<ASN1Buffer>>(
-            new ThreadLocal<ASN1Buffer>());
+       new AtomicReference<>(new ThreadLocal<ASN1Buffer>());
 
 
 
@@ -169,7 +168,7 @@ final class LDAPConnectionInternals
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (socket != null)
       {
@@ -180,7 +179,7 @@ final class LDAPConnectionInternals
     }
     try
     {
-      debugConnect(host, port, connection);
+      Debug.debugConnect(host, port, connection);
 
       if (options.getReceiveBufferSize() > 0)
       {
@@ -200,7 +199,7 @@ final class LDAPConnectionInternals
 
       final int soTimeout =
            Math.max(0, (int) options.getResponseTimeoutMillis());
-      debug(Level.INFO, DebugType.CONNECT,
+      Debug.debug(Level.INFO, DebugType.CONNECT,
            "Setting the SO_TIMEOUT value for connection " + connection +
                 " to " + soTimeout + "ms.");
       socket.setSoTimeout(soTimeout);
@@ -210,14 +209,14 @@ final class LDAPConnectionInternals
     }
     catch (final IOException ioe)
     {
-      debugException(ioe);
+      Debug.debugException(ioe);
       try
       {
         socket.close();
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
 
       throw ioe;
@@ -532,7 +531,7 @@ final class LDAPConnectionInternals
     }
     catch (final LDAPRuntimeException lre)
     {
-      debugException(lre);
+      Debug.debugException(lre);
       lre.throwLDAPException();
     }
 
@@ -540,9 +539,9 @@ final class LDAPConnectionInternals
     try
     {
       final int soTimeout = Math.max(0, (int) sendTimeoutMillis);
-      if (debugEnabled())
+      if (Debug.debugEnabled())
       {
-        debug(Level.INFO, DebugType.CONNECT,
+        Debug.debug(Level.INFO, DebugType.CONNECT,
              "Setting the SO_TIMEOUT value for connection " + connection +
                   " to " + soTimeout + "ms.");
       }
@@ -550,7 +549,7 @@ final class LDAPConnectionInternals
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
 
@@ -581,7 +580,7 @@ final class LDAPConnectionInternals
     }
     catch (final IOException ioe)
     {
-      debugException(ioe);
+      Debug.debugException(ioe);
 
       // If the message was an unbind request, then we don't care that it
       // didn't get sent.  Otherwise, fail the send attempt but try to reconnect
@@ -604,19 +603,21 @@ final class LDAPConnectionInternals
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
       }
 
       throw new LDAPException(ResultCode.SERVER_DOWN,
-           ERR_CONN_SEND_ERROR.get(host + ':' + port, getExceptionMessage(ioe)),
+           ERR_CONN_SEND_ERROR.get(host + ':' + port,
+                StaticUtils.getExceptionMessage(ioe)),
            ioe);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_CONN_ENCODE_ERROR.get(host + ':' + port, getExceptionMessage(e)),
+           ERR_CONN_ENCODE_ERROR.get(host + ':' + port,
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
     finally
@@ -655,7 +656,7 @@ final class LDAPConnectionInternals
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     try
@@ -664,7 +665,7 @@ final class LDAPConnectionInternals
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     try
@@ -673,7 +674,7 @@ final class LDAPConnectionInternals
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     if (saslClient != null)
@@ -684,7 +685,7 @@ final class LDAPConnectionInternals
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
       finally
       {
@@ -692,12 +693,12 @@ final class LDAPConnectionInternals
       }
     }
 
-    debugDisconnect(host, port, connection, disconnectInfo.getType(),
+    Debug.debugDisconnect(host, port, connection, disconnectInfo.getType(),
          disconnectInfo.getMessage(), disconnectInfo.getCause());
-    if (closedByFinalizer && debugEnabled(DebugType.LDAP))
+    if (closedByFinalizer && Debug.debugEnabled(DebugType.LDAP))
     {
-      debug(Level.WARNING, DebugType.LDAP,
-            "Connection closed by LDAP SDK finalizer:  " + toString());
+      Debug.debug(Level.WARNING, DebugType.LDAP,
+           "Connection closed by LDAP SDK finalizer:  " + toString());
     }
     disconnectInfo.notifyDisconnectHandler();
 

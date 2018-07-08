@@ -75,10 +75,10 @@ final class HTTPValuePatternComponent
   {
     // Create the random number generators that will be used.
     seedRandom = new Random(seed);
-    random     = new ThreadLocal<Random>();
+    random     = new ThreadLocal<>();
 
 
-    final ArrayList<String> lineList = new ArrayList<String>(100);
+    final ArrayList<String> lineList = new ArrayList<>(100);
     final URL parsedURL = new URL(url);
     final HttpURLConnection urlConnection =
          (HttpURLConnection) parsedURL.openConnection();

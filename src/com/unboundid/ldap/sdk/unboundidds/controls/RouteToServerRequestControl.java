@@ -355,7 +355,7 @@ public final class RouteToServerRequestControl
   {
     Validator.ensureNotNull(serverID);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1OctetString(TYPE_SERVER_ID, serverID));
     elements.add(
          new ASN1Boolean(TYPE_ALLOW_ALTERNATE_SERVER, allowAlternateServer));

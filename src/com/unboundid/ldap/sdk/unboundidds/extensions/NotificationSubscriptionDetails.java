@@ -89,7 +89,7 @@ public final class NotificationSubscriptionDetails
 
     this.id = id;
     this.details =
-         Collections.unmodifiableList(new ArrayList<ASN1OctetString>(details));
+         Collections.unmodifiableList(new ArrayList<>(details));
   }
 
 

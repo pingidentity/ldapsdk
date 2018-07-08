@@ -179,7 +179,7 @@ public final class TransformLDIF
   // A set of thread-local byte stream buffers that will be used to construct
   // the LDIF representations of records.
   private final ThreadLocal<ByteStringBuffer> byteStringBuffers =
-       new ThreadLocal<ByteStringBuffer>();
+       new ThreadLocal<>();
 
 
 
@@ -878,9 +878,9 @@ public final class TransformLDIF
 
     // Create the translators to use to apply the transformations.
     final ArrayList<LDIFReaderEntryTranslator> entryTranslators =
-         new ArrayList<LDIFReaderEntryTranslator>(10);
+         new ArrayList<>(10);
     final ArrayList<LDIFReaderChangeRecordTranslator> changeRecordTranslators =
-         new ArrayList<LDIFReaderChangeRecordTranslator>(10);
+         new ArrayList<>(10);
 
     final AtomicLong excludedEntryCount = new AtomicLong(0L);
     createTranslators(entryTranslators, changeRecordTranslators,
@@ -1178,7 +1178,7 @@ processingBlock:
     // paths.
     if (schemaPath.isPresent())
     {
-      final ArrayList<File> schemaFiles = new ArrayList<File>(10);
+      final ArrayList<File> schemaFiles = new ArrayList<>(10);
       for (final File path : schemaPath.getValues())
       {
         if (path.isFile())
@@ -1187,7 +1187,7 @@ processingBlock:
         }
         else
         {
-          final TreeMap<String,File> fileMap = new TreeMap<String,File>();
+          final TreeMap<String,File> fileMap = new TreeMap<>();
           for (final File schemaDirFile : path.listFiles())
           {
             final String name = schemaDirFile.getName();
@@ -1236,7 +1236,7 @@ processingBlock:
           final File schemaDir = new File(configDir, "schema");
           if (schemaDir.exists())
           {
-            final TreeMap<String,File> fileMap = new TreeMap<String,File>();
+            final TreeMap<String,File> fileMap = new TreeMap<>();
             for (final File schemaDirFile : schemaDir.listFiles())
             {
               final String name = schemaDirFile.getName();
@@ -1249,7 +1249,7 @@ processingBlock:
 
             if (! fileMap.isEmpty())
             {
-              return Schema.getSchema(new ArrayList<File>(fileMap.values()));
+              return Schema.getSchema(new ArrayList<>(fileMap.values()));
             }
           }
         }
@@ -1442,8 +1442,7 @@ processingBlock:
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(4);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(4);
 
     examples.put(
          new String[]

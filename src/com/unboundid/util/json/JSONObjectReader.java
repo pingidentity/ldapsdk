@@ -109,8 +109,7 @@ public final class JSONObjectReader
            String.valueOf(firstToken)));
     }
 
-    final LinkedHashMap<String,JSONValue> m =
-         new LinkedHashMap<String,JSONValue>(10);
+    final LinkedHashMap<String,JSONValue> m = new LinkedHashMap<>(10);
     readObject(m);
 
     return new JSONObject(m, currentObjectBytes.toString());
@@ -124,6 +123,7 @@ public final class JSONObjectReader
    * @throws  IOException  If a problem is encountered while closing the
    *                       underlying input stream.
    */
+  @Override()
   public void close()
          throws IOException
   {
@@ -700,7 +700,7 @@ public final class JSONObjectReader
   {
     // The opening square bracket will have already been consumed, so read
     // JSON values until we hit a closing square bracket.
-    final ArrayList<JSONValue> values = new ArrayList<JSONValue>(10);
+    final ArrayList<JSONValue> values = new ArrayList<>(10);
     boolean firstToken = true;
     while (true)
     {
@@ -720,7 +720,7 @@ public final class JSONObjectReader
       else if (token.equals('{'))
       {
         final LinkedHashMap<String,JSONValue> fieldMap =
-             new LinkedHashMap<String,JSONValue>(10);
+             new LinkedHashMap<>(10);
         values.add(readObject(fieldMap));
       }
       else if (token.equals(']') && firstToken)
@@ -828,8 +828,7 @@ public final class JSONObjectReader
       }
       else if (valueToken.equals('{'))
       {
-        final LinkedHashMap<String,JSONValue> m =
-             new LinkedHashMap<String,JSONValue>(10);
+        final LinkedHashMap<String,JSONValue> m = new LinkedHashMap<>(10);
         final JSONObject o = readObject(m);
         fields.put(fieldName, o);
       }

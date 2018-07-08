@@ -36,14 +36,14 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -101,7 +101,7 @@ public final class JoinRequestValue
    * The set of attributes that will be used if all user attributes should be
    * requested.
    */
-  private static final String[] NO_ATTRIBUTES = NO_STRINGS;
+  private static final String[] NO_ATTRIBUTES = StaticUtils.NO_STRINGS;
 
 
 
@@ -241,7 +241,7 @@ public final class JoinRequestValue
               final String[] attributes, final boolean requireMatch,
               final JoinRequestValue nestedJoin)
   {
-    ensureNotNull(joinRule, baseDN);
+    Validator.ensureNotNull(joinRule, baseDN);
 
     this.joinRule     = joinRule;
     this.baseDN       = baseDN;
@@ -398,7 +398,7 @@ public final class JoinRequestValue
    */
   ASN1Element encode()
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(9);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(9);
 
     elements.add(joinRule.encode());
     elements.add(baseDN.encode());
@@ -501,9 +501,11 @@ public final class JoinRequestValue
             break;
 
           case TYPE_ATTRIBUTES:
-            final ArrayList<String> attrList = new ArrayList<String>();
-            for (final ASN1Element e :
-                 ASN1Sequence.decodeAsSequence(elements[i]).elements())
+            final ASN1Element[] attrElements =
+                 ASN1Sequence.decodeAsSequence(elements[i]).elements();
+            final ArrayList<String> attrList =
+                 new ArrayList<>(attrElements.length);
+            for (final ASN1Element e : attrElements)
             {
               attrList.add(
                    ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -534,10 +536,12 @@ public final class JoinRequestValue
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_JOIN_REQUEST_VALUE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_JOIN_REQUEST_VALUE_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

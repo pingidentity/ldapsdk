@@ -160,7 +160,7 @@ public final class ResultUtils
                                           final boolean comment,
                                           final int indent, final int maxWidth)
   {
-    final ArrayList<String> lines = new ArrayList<String>(10);
+    final ArrayList<String> lines = new ArrayList<>(10);
     formatResult(lines, result, comment, false, indent, maxWidth);
     return lines;
   }

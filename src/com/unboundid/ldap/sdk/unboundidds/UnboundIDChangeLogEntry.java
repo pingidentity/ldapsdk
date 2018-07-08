@@ -460,8 +460,7 @@ public final class UnboundIDChangeLogEntry
     {
       final String[] values = exceededMaxValues.getValues();
       final ArrayList<ChangeLogEntryAttributeExceededMaxValuesCount> l =
-           new ArrayList<ChangeLogEntryAttributeExceededMaxValuesCount>(
-                values.length);
+           new ArrayList<>(values.length);
       for (final String value : values)
       {
         l.add(new ChangeLogEntryAttributeExceededMaxValuesCount(value));
@@ -479,8 +478,7 @@ public final class UnboundIDChangeLogEntry
     {
       final String[] values = virtualExceededMaxValues.getValues();
       final ArrayList<ChangeLogEntryAttributeExceededMaxValuesCount> l =
-           new ArrayList<ChangeLogEntryAttributeExceededMaxValuesCount>(
-                values.length);
+           new ArrayList<>(values.length);
       for (final String value : values)
       {
         l.add(new ChangeLogEntryAttributeExceededMaxValuesCount(value));
@@ -503,7 +501,7 @@ public final class UnboundIDChangeLogEntry
     else
     {
       excludedUserAttributeNames = Collections.unmodifiableList(
-           new ArrayList<String>(Arrays.asList(excludedUserAttrNames)));
+           new ArrayList<>(Arrays.asList(excludedUserAttrNames)));
     }
 
     final String[] excludedOpAttrNames =
@@ -515,7 +513,7 @@ public final class UnboundIDChangeLogEntry
     else
     {
       excludedOperationalAttributeNames = Collections.unmodifiableList(
-           new ArrayList<String>(Arrays.asList(excludedOpAttrNames)));
+           new ArrayList<>(Arrays.asList(excludedOpAttrNames)));
     }
 
     final String[] targetAttrNames =
@@ -527,7 +525,7 @@ public final class UnboundIDChangeLogEntry
     else
     {
       targetAttributeNames = Collections.unmodifiableList(
-           new ArrayList<String>(Arrays.asList(targetAttrNames)));
+           new ArrayList<>(Arrays.asList(targetAttrNames)));
     }
 
     final String[] notificationUUIDValues =
@@ -539,7 +537,7 @@ public final class UnboundIDChangeLogEntry
     else
     {
       notificationDestinationEntryUUIDs = Collections.unmodifiableList(
-           new ArrayList<String>(Arrays.asList(notificationUUIDValues)));
+           new ArrayList<>(Arrays.asList(notificationUUIDValues)));
     }
 
     final String[] notificationPropertyValues =
@@ -551,7 +549,7 @@ public final class UnboundIDChangeLogEntry
     else
     {
       notificationProperties = Collections.unmodifiableList(
-           new ArrayList<String>(Arrays.asList(notificationPropertyValues)));
+           new ArrayList<>(Arrays.asList(notificationPropertyValues)));
     }
   }
 
@@ -621,8 +619,7 @@ public final class UnboundIDChangeLogEntry
         e.addAttribute(a);
       }
 
-      return Collections.unmodifiableList(
-           new ArrayList<Attribute>(e.getAttributes()));
+      return Collections.unmodifiableList(new ArrayList<>(e.getAttributes()));
     }
     else
     {
@@ -691,8 +688,7 @@ public final class UnboundIDChangeLogEntry
         e = new Entry(getTargetDN(), entryVirtualAttributes);
       }
 
-      return Collections.unmodifiableList(
-           new ArrayList<Attribute>(e.getAttributes()));
+      return Collections.unmodifiableList(new ArrayList<>(e.getAttributes()));
     }
     else
     {
@@ -776,8 +772,7 @@ public final class UnboundIDChangeLogEntry
         e.addAttribute(a);
       }
 
-      return Collections.unmodifiableList(
-           new ArrayList<Attribute>(e.getAttributes()));
+      return Collections.unmodifiableList(new ArrayList<>(e.getAttributes()));
     }
     else
     {
@@ -857,8 +852,7 @@ public final class UnboundIDChangeLogEntry
         e.addAttribute(a);
       }
 
-      return Collections.unmodifiableList(
-           new ArrayList<Attribute>(e.getAttributes()));
+      return Collections.unmodifiableList(new ArrayList<>(e.getAttributes()));
     }
     else
     {
@@ -979,8 +973,7 @@ public final class UnboundIDChangeLogEntry
         e.addAttribute(a);
       }
 
-      return Collections.unmodifiableList(
-           new ArrayList<Attribute>(e.getAttributes()));
+      return Collections.unmodifiableList(new ArrayList<>(e.getAttributes()));
     }
     else
     {

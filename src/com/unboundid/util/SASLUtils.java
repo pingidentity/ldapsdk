@@ -47,7 +47,6 @@ import com.unboundid.ldap.sdk.unboundidds.UnboundIDDeliveredOTPBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.UnboundIDTOTPBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.UnboundIDYubiKeyOTPBindRequest;
 
-import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
 
 
@@ -97,7 +96,6 @@ public final class SASLUtils
    * in conjunction with the GSSAPI mechanism.
    */
   public static final String SASL_OPTION_KDC_ADDRESS = "kdcAddress";
-
 
 
 
@@ -214,22 +212,23 @@ public final class SASLUtils
 
   static
   {
-    final TreeMap<String,SASLMechanismInfo> m =
-         new TreeMap<String,SASLMechanismInfo>();
+    final TreeMap<String,SASLMechanismInfo> m = new TreeMap<>();
 
-    m.put(toLowerCase(ANONYMOUSBindRequest.ANONYMOUS_MECHANISM_NAME),
+    m.put(
+         StaticUtils.toLowerCase(ANONYMOUSBindRequest.ANONYMOUS_MECHANISM_NAME),
          new SASLMechanismInfo(ANONYMOUSBindRequest.ANONYMOUS_MECHANISM_NAME,
               INFO_SASL_ANONYMOUS_DESCRIPTION.get(), false, false,
               new SASLOption(SASL_OPTION_TRACE,
                    INFO_SASL_ANONYMOUS_OPTION_TRACE.get(), false, false)));
 
-    m.put(toLowerCase(CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME),
+    m.put(StaticUtils.toLowerCase(CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME),
          new SASLMechanismInfo(CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME,
               INFO_SASL_CRAM_MD5_DESCRIPTION.get(), true, true,
               new SASLOption(SASL_OPTION_AUTH_ID,
                    INFO_SASL_CRAM_MD5_OPTION_AUTH_ID.get(), true, false)));
 
-    m.put(toLowerCase(DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME),
+    m.put(
+         StaticUtils.toLowerCase(DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME),
          new SASLMechanismInfo(DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME,
               INFO_SASL_DIGEST_MD5_DESCRIPTION.get(), true, true,
               new SASLOption(SASL_OPTION_AUTH_ID,
@@ -241,11 +240,11 @@ public final class SASLUtils
               new SASLOption(SASL_OPTION_QOP,
                    INFO_SASL_DIGEST_MD5_OPTION_QOP.get(), false, false)));
 
-    m.put(toLowerCase(EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME),
+    m.put(StaticUtils.toLowerCase(EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME),
          new SASLMechanismInfo(EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME,
               INFO_SASL_EXTERNAL_DESCRIPTION.get(), false, false));
 
-    m.put(toLowerCase(GSSAPIBindRequest.GSSAPI_MECHANISM_NAME),
+    m.put(StaticUtils.toLowerCase(GSSAPIBindRequest.GSSAPI_MECHANISM_NAME),
          new SASLMechanismInfo(GSSAPIBindRequest.GSSAPI_MECHANISM_NAME,
               INFO_SASL_GSSAPI_DESCRIPTION.get(), true, false,
               new SASLOption(SASL_OPTION_AUTH_ID,
@@ -275,7 +274,7 @@ public final class SASLUtils
                    INFO_SASL_GSSAPI_OPTION_USE_TICKET_CACHE.get(), false,
                    false)));
 
-    m.put(toLowerCase(PLAINBindRequest.PLAIN_MECHANISM_NAME),
+    m.put(StaticUtils.toLowerCase(PLAINBindRequest.PLAIN_MECHANISM_NAME),
          new SASLMechanismInfo(PLAINBindRequest.PLAIN_MECHANISM_NAME,
               INFO_SASL_PLAIN_DESCRIPTION.get(), true, true,
               new SASLOption(SASL_OPTION_AUTH_ID,
@@ -363,8 +362,8 @@ public final class SASLUtils
    */
   public static List<SASLMechanismInfo> getSupportedSASLMechanisms()
   {
-    return Collections.unmodifiableList(new ArrayList<SASLMechanismInfo>(
-         SASL_MECHANISMS.values()));
+    return Collections.unmodifiableList(
+         new ArrayList<>(SASL_MECHANISMS.values()));
   }
 
 
@@ -381,7 +380,7 @@ public final class SASLUtils
    */
   public static SASLMechanismInfo getSASLMechanismInfo(final String mechanism)
   {
-    return SASL_MECHANISMS.get(toLowerCase(mechanism));
+    return SASL_MECHANISMS.get(StaticUtils.toLowerCase(mechanism));
   }
 
 
@@ -420,7 +419,7 @@ public final class SASLUtils
          throws LDAPException
   {
     return createBindRequest(bindDN,
-         (password == null ? null : getBytes(password)), mechanism,
+         (password == null ? null : StaticUtils.getBytes(password)), mechanism,
          StaticUtils.toList(options));
   }
 
@@ -462,7 +461,9 @@ public final class SASLUtils
          throws LDAPException
   {
     return createBindRequest(bindDN,
-         (password == null ? null : getBytes(password)), mechanism, options,
+         (password == null
+              ? null
+              : StaticUtils.getBytes(password)), mechanism, options,
          controls);
   }
 
@@ -605,7 +606,7 @@ public final class SASLUtils
     final String mech;
     final Map<String,String> optionsMap = parseOptions(options);
     final String mechOption =
-         optionsMap.remove(toLowerCase(SASL_OPTION_MECHANISM));
+         optionsMap.remove(StaticUtils.toLowerCase(SASL_OPTION_MECHANISM));
     if (mechOption != null)
     {
       mech = mechOption;
@@ -709,7 +710,8 @@ public final class SASLUtils
 
 
     // The trace option is optional.
-    final String trace = options.remove(toLowerCase(SASL_OPTION_TRACE));
+    final String trace =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_TRACE));
 
     // Ensure no unsupported options were provided.
     ensureNoUnsupportedOptions(options,
@@ -771,7 +773,8 @@ public final class SASLUtils
 
 
     // The authID option is required.
-    final String authID = options.remove(toLowerCase(SASL_OPTION_AUTH_ID));
+    final String authID =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTH_ID));
     if (authID == null)
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -839,7 +842,8 @@ public final class SASLUtils
     }
 
     // The authID option is required.
-    final String authID = options.remove(toLowerCase(SASL_OPTION_AUTH_ID));
+    final String authID =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTH_ID));
     if (authID == null)
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -852,14 +856,16 @@ public final class SASLUtils
 
     // The authzID option is optional.
     properties.setAuthorizationID(
-         options.remove(toLowerCase(SASL_OPTION_AUTHZ_ID)));
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTHZ_ID)));
 
     // The realm option is optional.
-    properties.setRealm(options.remove(toLowerCase(SASL_OPTION_REALM)));
+    properties.setRealm(options.remove(
+         StaticUtils.toLowerCase(SASL_OPTION_REALM)));
 
     // The QoP option is optional, and may contain multiple values that need to
     // be parsed.
-    final String qopString = options.remove(toLowerCase(SASL_OPTION_QOP));
+    final String qopString =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_QOP));
     if (qopString != null)
     {
       properties.setAllowedQoP(
@@ -938,7 +944,8 @@ public final class SASLUtils
           throws LDAPException
   {
     // The authID option is required.
-    final String authID = options.remove(toLowerCase(SASL_OPTION_AUTH_ID));
+    final String authID =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTH_ID));
     if (authID == null)
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -950,11 +957,11 @@ public final class SASLUtils
 
     // The authzID option is optional.
     gssapiProperties.setAuthorizationID(
-         options.remove(toLowerCase(SASL_OPTION_AUTHZ_ID)));
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTHZ_ID)));
 
     // The configFile option is optional.
-    gssapiProperties.setConfigFilePath(options.remove(toLowerCase(
-         SASL_OPTION_CONFIG_FILE)));
+    gssapiProperties.setConfigFilePath(options.remove(
+         StaticUtils.toLowerCase(SASL_OPTION_CONFIG_FILE)));
 
     // The debug option is optional.
     gssapiProperties.setEnableGSSAPIDebugging(getBooleanValue(options,
@@ -962,21 +969,24 @@ public final class SASLUtils
 
     // The kdcAddress option is optional.
     gssapiProperties.setKDCAddress(options.remove(
-         toLowerCase(SASL_OPTION_KDC_ADDRESS)));
+         StaticUtils.toLowerCase(SASL_OPTION_KDC_ADDRESS)));
 
     // The protocol option is optional.
-    final String protocol = options.remove(toLowerCase(SASL_OPTION_PROTOCOL));
+    final String protocol =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_PROTOCOL));
     if (protocol != null)
     {
       gssapiProperties.setServicePrincipalProtocol(protocol);
     }
 
     // The realm option is optional.
-    gssapiProperties.setRealm(options.remove(toLowerCase(SASL_OPTION_REALM)));
+    gssapiProperties.setRealm(options.remove(
+         StaticUtils.toLowerCase(SASL_OPTION_REALM)));
 
     // The QoP option is optional, and may contain multiple values that need to
     // be parsed.
-    final String qopString = options.remove(toLowerCase(SASL_OPTION_QOP));
+    final String qopString =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_QOP));
     if (qopString != null)
     {
       gssapiProperties.setAllowedQoP(
@@ -992,8 +1002,8 @@ public final class SASLUtils
          SASL_OPTION_REQUIRE_CACHE, false));
 
     // The ticketCache option is optional.
-    gssapiProperties.setTicketCachePath(options.remove(toLowerCase(
-         SASL_OPTION_TICKET_CACHE_PATH)));
+    gssapiProperties.setTicketCachePath(options.remove(
+         StaticUtils.toLowerCase(SASL_OPTION_TICKET_CACHE_PATH)));
 
     // The useTicketCache option is optional.
     gssapiProperties.setUseTicketCache(getBooleanValue(options,
@@ -1079,7 +1089,8 @@ public final class SASLUtils
     }
 
     // The authID option is required.
-    final String authID = options.remove(toLowerCase(SASL_OPTION_AUTH_ID));
+    final String authID =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTH_ID));
     if (authID == null)
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -1088,7 +1099,8 @@ public final class SASLUtils
     }
 
     // The authzID option is optional.
-    final String authzID = options.remove(toLowerCase(SASL_OPTION_AUTHZ_ID));
+    final String authzID =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTHZ_ID));
 
     // Ensure no unsupported options were provided.
     ensureNoUnsupportedOptions(options,
@@ -1129,11 +1141,11 @@ public final class SASLUtils
 
     // The authID option is required.
     final String authID =
-         options.remove(StaticUtils.toLowerCase(SASLUtils.SASL_OPTION_AUTH_ID));
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTH_ID));
     if (authID == null)
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASLUtils.SASL_OPTION_AUTH_ID,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_AUTH_ID,
                 UnboundIDDeliveredOTPBindRequest.
                      UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME));
     }
@@ -1149,11 +1161,11 @@ public final class SASLUtils
     }
 
     // The authzID option is optional.
-    final String authzID = options.remove(StaticUtils.toLowerCase(
-         SASLUtils.SASL_OPTION_AUTHZ_ID));
+    final String authzID =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTHZ_ID));
 
     // Ensure no unsupported options were provided.
-    SASLUtils.ensureNoUnsupportedOptions(options,
+    ensureNoUnsupportedOptions(options,
          UnboundIDDeliveredOTPBindRequest.
               UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME);
 
@@ -1188,11 +1200,11 @@ public final class SASLUtils
   {
     // The authID option is required.
     final String authID =
-         options.remove(StaticUtils.toLowerCase(SASLUtils.SASL_OPTION_AUTH_ID));
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTH_ID));
     if (authID == null)
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASLUtils.SASL_OPTION_AUTH_ID,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_AUTH_ID,
                 UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME));
     }
 
@@ -1208,8 +1220,8 @@ public final class SASLUtils
 
     // The authzID option is optional.
     byte[] pwBytes = password;
-    final String authzID = options.remove(StaticUtils.toLowerCase(
-         SASLUtils.SASL_OPTION_AUTHZ_ID));
+    final String authzID =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTHZ_ID));
 
     // The promptForStaticPassword option is optional.
     final String promptStr = options.remove(StaticUtils.toLowerCase(
@@ -1240,7 +1252,7 @@ public final class SASLUtils
     }
 
     // Ensure no unsupported options were provided.
-    SASLUtils.ensureNoUnsupportedOptions(options,
+    ensureNoUnsupportedOptions(options,
          UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME);
 
     return new SingleUseTOTPBindRequest(authID, authzID, totpPassword, pwBytes,
@@ -1275,11 +1287,11 @@ public final class SASLUtils
   {
     // The authID option is required.
     final String authID =
-         options.remove(StaticUtils.toLowerCase(SASLUtils.SASL_OPTION_AUTH_ID));
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTH_ID));
     if (authID == null)
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASLUtils.SASL_OPTION_AUTH_ID,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_AUTH_ID,
                 UnboundIDYubiKeyOTPBindRequest.
                      UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME));
     }
@@ -1295,8 +1307,8 @@ public final class SASLUtils
     }
 
     // The authzID option is optional.
-    final String authzID = options.remove(StaticUtils.toLowerCase(
-         SASLUtils.SASL_OPTION_AUTHZ_ID));
+    final String authzID =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_AUTHZ_ID));
 
     // The promptForStaticPassword option is optional.
     byte[] pwBytes = password;
@@ -1328,7 +1340,7 @@ public final class SASLUtils
     }
 
     // Ensure no unsupported options were provided.
-    SASLUtils.ensureNoUnsupportedOptions(options,
+    ensureNoUnsupportedOptions(options,
          UnboundIDYubiKeyOTPBindRequest.UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME);
 
     return new UnboundIDYubiKeyOTPBindRequest(authID, authzID, pwBytes, otp,
@@ -1352,10 +1364,10 @@ public final class SASLUtils
   {
     if (options == null)
     {
-      return new HashMap<String,String>(0);
+      return new HashMap<>(0);
     }
 
-    final HashMap<String,String> m = new HashMap<String,String>(options.size());
+    final HashMap<String,String> m = new HashMap<>(options.size());
     for (final String s : options)
     {
       final int equalPos = s.indexOf('=');
@@ -1372,7 +1384,7 @@ public final class SASLUtils
 
       final String name = s.substring(0, equalPos);
       final String value = s.substring(equalPos + 1);
-      if (m.put(toLowerCase(name), value) != null)
+      if (m.put(StaticUtils.toLowerCase(name), value) != null)
       {
         throw new LDAPException(ResultCode.PARAM_ERROR,
              ERR_SASL_OPTION_NOT_MULTI_VALUED.get(name));
@@ -1430,7 +1442,8 @@ public final class SASLUtils
                                  final boolean d)
          throws LDAPException
   {
-    final String s = toLowerCase(m.remove(toLowerCase(o)));
+    final String s =
+         StaticUtils.toLowerCase(m.remove(StaticUtils.toLowerCase(o)));
     if (s == null)
     {
       return d;
@@ -1480,7 +1493,7 @@ public final class SASLUtils
     for (final String line : getUsage(maxWidth))
     {
       buffer.append(line);
-      buffer.append(EOL);
+      buffer.append(StaticUtils.EOL);
     }
 
     return buffer.toString();
@@ -1500,7 +1513,7 @@ public final class SASLUtils
    */
   public static List<String> getUsage(final int maxWidth)
   {
-    final ArrayList<String> lines = new ArrayList<String>(100);
+    final ArrayList<String> lines = new ArrayList<>(100);
 
     boolean first = true;
     for (final SASLMechanismInfo i : getSupportedSASLMechanisms())
@@ -1516,18 +1529,20 @@ public final class SASLUtils
       }
 
       lines.addAll(
-           wrapLine(INFO_SASL_HELP_MECHANISM.get(i.getName()), maxWidth));
+           StaticUtils.wrapLine(INFO_SASL_HELP_MECHANISM.get(i.getName()),
+                maxWidth));
       lines.add("");
 
-      for (final String line : wrapLine(i.getDescription(), maxWidth - 4))
+      for (final String line :
+           StaticUtils.wrapLine(i.getDescription(), maxWidth - 4))
       {
         lines.add("  " + line);
       }
       lines.add("");
 
       for (final String line :
-           wrapLine(INFO_SASL_HELP_MECHANISM_OPTIONS.get(i.getName()),
-                maxWidth - 4))
+           StaticUtils.wrapLine(INFO_SASL_HELP_MECHANISM_OPTIONS.get(
+                i.getName()), maxWidth - 4))
       {
         lines.add("  " + line);
       }
@@ -1538,8 +1553,8 @@ public final class SASLUtils
         if (i.requiresPassword())
         {
           for (final String line :
-               wrapLine(INFO_SASL_HELP_PASSWORD_REQUIRED.get(i.getName()),
-                    maxWidth - 4))
+               StaticUtils.wrapLine(INFO_SASL_HELP_PASSWORD_REQUIRED.get(
+                    i.getName()), maxWidth - 4))
           {
             lines.add("  " + line);
           }
@@ -1547,8 +1562,8 @@ public final class SASLUtils
         else
         {
           for (final String line :
-               wrapLine(INFO_SASL_HELP_PASSWORD_OPTIONAL.get(i.getName()),
-                    maxWidth - 4))
+               StaticUtils.wrapLine(INFO_SASL_HELP_PASSWORD_OPTIONAL.get(
+                    i.getName()), maxWidth - 4))
           {
             lines.add("  " + line);
           }
@@ -1559,7 +1574,8 @@ public final class SASLUtils
       {
         lines.add("");
         lines.add("  * " + o.getName());
-        for (final String line : wrapLine(o.getDescription(), maxWidth - 14))
+        for (final String line :
+             StaticUtils.wrapLine(o.getDescription(), maxWidth - 14))
         {
           lines.add("       " + line);
         }

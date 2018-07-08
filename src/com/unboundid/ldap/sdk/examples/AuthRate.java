@@ -45,6 +45,7 @@ import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
 import com.unboundid.ldap.sdk.experimental.
             DraftBeheraLDAPPasswordPolicy10RequestControl;
 import com.unboundid.util.ColumnFormatter;
+import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
 import com.unboundid.util.HorizontalAlignment;
@@ -53,6 +54,7 @@ import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OutputFormat;
 import com.unboundid.util.RateAdjustor;
 import com.unboundid.util.ResultCodeCounter;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ValuePattern;
@@ -65,9 +67,6 @@ import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -543,7 +542,7 @@ public final class AuthRate
                   "are:  SIMPLE, CRAM-MD5, DIGEST-MD5, and PLAIN.  If no "+
                   "value is provided, then SIMPLE authentication will be " +
                   "performed.";
-    final LinkedHashSet<String> allowedAuthTypes = new LinkedHashSet<String>(4);
+    final LinkedHashSet<String> allowedAuthTypes = new LinkedHashSet<>(4);
     allowedAuthTypes.add("simple");
     allowedAuthTypes.add("cram-md5");
     allowedAuthTypes.add("digest-md5");
@@ -681,7 +680,7 @@ public final class AuthRate
                   "indicates that both the date and the time should be " +
                   "included.  A value of 'without-date' indicates that only " +
                   "the time should be included.";
-    final LinkedHashSet<String> allowedFormats = new LinkedHashSet<String>(3);
+    final LinkedHashSet<String> allowedFormats = new LinkedHashSet<>(3);
     allowedFormats.add("none");
     allowedFormats.add("with-date");
     allowedFormats.add("without-date");
@@ -791,10 +790,10 @@ public final class AuthRate
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         err("An error occurred while trying to write sample variable data " +
              "rate file '", sampleRateFile.getValue().getAbsolutePath(),
-             "':  ", getExceptionMessage(e));
+             "':  ", StaticUtils.getExceptionMessage(e));
         return ResultCode.LOCAL_ERROR;
       }
     }
@@ -819,7 +818,7 @@ public final class AuthRate
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       err("Unable to parse the base DN value pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -831,7 +830,7 @@ public final class AuthRate
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       err("Unable to parse the filter pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -847,7 +846,7 @@ public final class AuthRate
     }
     else
     {
-      attrs = NO_STRINGS;
+      attrs = StaticUtils.NO_STRINGS;
     }
 
 
@@ -878,15 +877,9 @@ public final class AuthRate
         rateAdjustor = RateAdjustor.newInstance(fixedRateBarrier,
              ratePerSecond.getValue(), variableRateData.getValue());
       }
-      catch (final IOException e)
+      catch (final IOException | IllegalArgumentException e)
       {
-        debugException(e);
-        err("Initializing the variable rates failed: " + e.getMessage());
-        return ResultCode.PARAM_ERROR;
-      }
-      catch (final IllegalArgumentException e)
-      {
-        debugException(e);
+        Debug.debugException(e);
         err("Initializing the variable rates failed: " + e.getMessage());
         return ResultCode.PARAM_ERROR;
       }
@@ -915,7 +908,7 @@ public final class AuthRate
 
 
     // Get the controls to include in bind requests.
-    final ArrayList<Control> bindControls = new ArrayList<Control>(5);
+    final ArrayList<Control> bindControls = new ArrayList<>(5);
     if (authorizationIdentityRequestControl.isPresent())
     {
       bindControls.add(new AuthorizationIdentityRequestControl());
@@ -995,9 +988,9 @@ public final class AuthRate
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         err("Unable to connect to the directory server:  ",
-            getExceptionMessage(le));
+            StaticUtils.getExceptionMessage(le));
         return le.getResultCode();
       }
 
@@ -1033,7 +1026,7 @@ public final class AuthRate
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     long overallStartTime = System.nanoTime();
@@ -1093,14 +1086,14 @@ public final class AuthRate
       final long recentNumErrors = numErrors - lastNumErrors;
       final long recentDuration = totalDuration - lastDuration;
 
-      final double numSeconds = intervalDuration / 1000000000.0d;
+      final double numSeconds = intervalDuration / 1_000_000_000.0d;
       final double recentAuthRate = recentNumAuths / numSeconds;
       final double recentErrorRate  = recentNumErrors / numSeconds;
 
       final double recentAvgDuration;
       if (recentNumAuths > 0L)
       {
-        recentAvgDuration = 1.0d * recentDuration / recentNumAuths / 1000000;
+        recentAvgDuration = 1.0d * recentDuration / recentNumAuths / 1_000_000;
       }
       else
       {
@@ -1132,13 +1125,13 @@ public final class AuthRate
         }
 
         final double numOverallSeconds =
-             (endTime - overallStartTime) / 1000000000.0d;
+             (endTime - overallStartTime) / 1_000_000_000.0d;
         final double overallAuthRate = numAuths / numOverallSeconds;
 
         final double overallAvgDuration;
         if (numAuths > 0L)
         {
-          overallAvgDuration = 1.0d * totalDuration / numAuths / 1000000;
+          overallAvgDuration = 1.0d * totalDuration / numAuths / 1_000_000;
         }
         else
         {
@@ -1209,7 +1202,7 @@ public final class AuthRate
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
         if (e instanceof InterruptedException)
         {
@@ -1227,8 +1220,7 @@ public final class AuthRate
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
 
     String[] args =
     {

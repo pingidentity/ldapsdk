@@ -36,9 +36,9 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -251,7 +251,6 @@ public final class AlertTask
     removeDegradedTypes    = null;
     removeUnavailableTypes = null;
   }
-
 
 
 
@@ -478,7 +477,7 @@ public final class AlertTask
     this.alertType    = alertType;
     this.alertMessage = alertMessage;
 
-    ensureTrue((alertType == null) == (alertMessage == null));
+    Validator.ensureTrue((alertType == null) == (alertMessage == null));
 
 
     this.addDegradedTypes       = getStringList(addDegradedTypes);
@@ -488,7 +487,7 @@ public final class AlertTask
 
     if (alertType == null)
     {
-      ensureFalse(this.addDegradedTypes.isEmpty() &&
+      Validator.ensureFalse(this.addDegradedTypes.isEmpty() &&
            this.removeDegradedTypes.isEmpty() &&
            this.addUnavailableTypes.isEmpty() &&
            this.removeUnavailableTypes.isEmpty());
@@ -555,10 +554,10 @@ public final class AlertTask
 
     String type = null;
     String message = null;
-    final LinkedList<String> addDegraded = new LinkedList<String>();
-    final LinkedList<String> removeDegraded = new LinkedList<String>();
-    final LinkedList<String> addUnavailable = new LinkedList<String>();
-    final LinkedList<String> removeUnavailable = new LinkedList<String>();
+    final LinkedList<String> addDegraded = new LinkedList<>();
+    final LinkedList<String> removeDegraded = new LinkedList<>();
+    final LinkedList<String> addUnavailable = new LinkedList<>();
+    final LinkedList<String> removeUnavailable = new LinkedList<>();
     for (final Map.Entry<TaskProperty,List<Object>> entry :
          properties.entrySet())
     {
@@ -746,7 +745,7 @@ public final class AlertTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_ALERT_TASK);
+    return Collections.singletonList(OC_ALERT_TASK);
   }
 
 
@@ -757,7 +756,7 @@ public final class AlertTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final LinkedList<Attribute> attrList = new LinkedList<Attribute>();
+    final LinkedList<Attribute> attrList = new LinkedList<>();
 
     if (alertType != null)
     {
@@ -814,14 +813,14 @@ public final class AlertTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>(6);
+         new LinkedHashMap<>(6);
 
     if (alertType != null)
     {
       props.put(PROPERTY_ALERT_TYPE,
-           Collections.<Object>unmodifiableList(Arrays.asList(alertType)));
+           Collections.<Object>singletonList(alertType));
       props.put(PROPERTY_ALERT_MESSAGE,
-           Collections.<Object>unmodifiableList(Arrays.asList(alertMessage)));
+           Collections.<Object>singletonList(alertMessage));
     }
 
     if (! addDegradedTypes.isEmpty())

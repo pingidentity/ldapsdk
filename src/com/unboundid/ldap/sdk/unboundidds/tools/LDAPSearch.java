@@ -3111,7 +3111,7 @@ public final class LDAPSearch
    *
    * @param  result  The result to examine.
    */
-  void displayResult(final LDAPResult result)
+  private void displayResult(final LDAPResult result)
   {
     outputHandler.formatResult(result);
   }
@@ -3142,7 +3142,7 @@ public final class LDAPSearch
    *
    * @param  message  The message to be written.
    */
-  void writeErr(final String message)
+  private void writeErr(final String message)
   {
     if (errStream == null)
     {

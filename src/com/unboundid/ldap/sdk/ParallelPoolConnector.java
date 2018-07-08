@@ -107,15 +107,14 @@ final class ParallelPoolConnector
        throws LDAPException
   {
     final ArrayBlockingQueue<Runnable> queue =
-         new ArrayBlockingQueue<Runnable>(numConnections);
+         new ArrayBlockingQueue<>(numConnections);
     final ThreadPoolExecutor executor = new ThreadPoolExecutor(numThreads,
          numThreads, 0L, TimeUnit.MILLISECONDS, queue);
 
     final AtomicReference<LDAPException> firstException =
-         new AtomicReference<LDAPException>();
+         new AtomicReference<>();
 
-    final ArrayList<Future<?>> results =
-         new ArrayList<Future<?>>(numConnections);
+    final ArrayList<Future<?>> results = new ArrayList<>(numConnections);
     for (int i=0; i < numConnections; i++)
     {
       results.add(executor.submit(new ParallelPoolConnectorTask(pool, connList,

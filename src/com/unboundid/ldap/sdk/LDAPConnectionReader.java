@@ -44,13 +44,13 @@ import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             InteractiveTransactionAbortedExtendedResult;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.WakeableSleeper;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -137,7 +137,7 @@ final class LDAPConnectionReader
     asn1StreamReader = new ASN1StreamReader(inputStream,
          connection.getConnectionOptions().getMaxMessageSize());
 
-    acceptorMap          = new ConcurrentHashMap<Integer,ResponseAcceptor>();
+    acceptorMap          = new ConcurrentHashMap<>(10);
     closeRequested       = false;
     sslSocketFactory     = null;
     startTLSException    = null;
@@ -233,7 +233,7 @@ final class LDAPConnectionReader
             // This is rarely a problem, so we can make the debug message for
             // this exception only visible at a verbose log level.
             final SocketTimeoutException ste = (SocketTimeoutException) t;
-            debugException(Level.FINEST,  ste);
+            Debug.debugException(Level.FINEST,  ste);
             if (sslSocketFactory != null)
             {
               final LDAPConnectionOptions connectionOptions =
@@ -275,9 +275,9 @@ final class LDAPConnectionReader
               }
               catch (final Exception e)
               {
-                debugException(e);
+                Debug.debugException(e);
                 connection.setDisconnectInfo(DisconnectType.SECURITY_PROBLEM,
-                     getExceptionMessage(e), e);
+                     StaticUtils.getExceptionMessage(e), e);
                 startTLSException = e;
                 closeRequested = true;
                 if (thread != null)
@@ -285,7 +285,7 @@ final class LDAPConnectionReader
                   thread.setName(thread.getName() + " (closed)");
                   thread = null;
                 }
-                closeInternal(true, getExceptionMessage(e));
+                closeInternal(true, StaticUtils.getExceptionMessage(e));
                 startTLSSleeper.wakeup();
                 return;
               }
@@ -303,11 +303,11 @@ final class LDAPConnectionReader
             // that we already knew about.  We don't want to debug it at the
             // same level as a newly-detected invalidity.
             closeRequested = true;
-            debugException(Level.FINEST, le);
+            Debug.debugException(Level.FINEST, le);
           }
           else
           {
-            debugException(le);
+            Debug.debugException(le);
           }
 
           // We should terminate the connection regardless of the type of
@@ -336,7 +336,7 @@ final class LDAPConnectionReader
             connection.setDisconnectInfo(DisconnectType.IO_ERROR,
                  le.getMessage(), t);
             message = ERR_READER_CLOSING_DUE_TO_IO_EXCEPTION.get(
-                 connection.getHostPort(), getExceptionMessage(t));
+                 connection.getHostPort(), StaticUtils.getExceptionMessage(t));
             debugLevel = Level.WARNING;
           }
           else if (t instanceof ASN1Exception)
@@ -344,17 +344,17 @@ final class LDAPConnectionReader
             connection.setDisconnectInfo(DisconnectType.DECODE_ERROR,
                  le.getMessage(), t);
             message = ERR_READER_CLOSING_DUE_TO_ASN1_EXCEPTION.get(
-                 connection.getHostPort(), getExceptionMessage(t));
+                 connection.getHostPort(), StaticUtils.getExceptionMessage(t));
           }
           else
           {
             connection.setDisconnectInfo(DisconnectType.LOCAL_ERROR,
                  le.getMessage(), t);
             message = ERR_READER_CLOSING_DUE_TO_EXCEPTION.get(
-                 connection.getHostPort(), getExceptionMessage(t));
+                 connection.getHostPort(), StaticUtils.getExceptionMessage(t));
           }
 
-          debug(debugLevel, DebugType.LDAP, message, t);
+          Debug.debug(debugLevel, DebugType.LDAP, message, t);
 
           // If the connection is configured to try to auto-reconnect, then set
           // things up to do that.  Otherwise, terminate the connection.
@@ -406,7 +406,7 @@ final class LDAPConnectionReader
           }
         }
 
-        debugLDAPResult(response, connection);
+        Debug.debugLDAPResult(response, connection);
         connection.setLastCommunicationTime();
 
         final ResponseAcceptor responseAcceptor;
@@ -433,9 +433,9 @@ final class LDAPConnectionReader
 
           if (l == null)
           {
-            debug(Level.WARNING, DebugType.LDAP,
-                  WARN_INTERMEDIATE_RESPONSE_WITH_NO_LISTENER.get(
-                       String.valueOf(ir)));
+            Debug.debug(Level.WARNING, DebugType.LDAP,
+                 WARN_INTERMEDIATE_RESPONSE_WITH_NO_LISTENER.get(
+                      String.valueOf(ir)));
           }
           else
           {
@@ -445,7 +445,7 @@ final class LDAPConnectionReader
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
             }
           }
           continue;
@@ -488,9 +488,9 @@ final class LDAPConnectionReader
                       getUnsolicitedNotificationHandler();
             if (handler == null)
             {
-              if (debugEnabled(DebugType.LDAP))
+              if (Debug.debugEnabled(DebugType.LDAP))
               {
-                debug(Level.WARNING, DebugType.LDAP,
+                Debug.debug(Level.WARNING, DebugType.LDAP,
                      WARN_READER_UNHANDLED_UNSOLICITED_NOTIFICATION.get(
                           response));
               }
@@ -503,9 +503,9 @@ final class LDAPConnectionReader
             continue;
           }
 
-          if (debugEnabled(DebugType.LDAP))
+          if (Debug.debugEnabled(DebugType.LDAP))
           {
-            debug(Level.WARNING, DebugType.LDAP,
+            Debug.debug(Level.WARNING, DebugType.LDAP,
                   WARN_READER_NO_ACCEPTOR.get(response));
           }
           continue;
@@ -517,15 +517,17 @@ final class LDAPConnectionReader
         }
         catch (final LDAPException le)
         {
-          debugException(le);
-          debug(Level.WARNING, DebugType.LDAP,
+          Debug.debugException(le);
+          Debug.debug(Level.WARNING, DebugType.LDAP,
                 ERR_READER_ACCEPTOR_ERROR.get(String.valueOf(response),
-                     connection.getHostPort(), getExceptionMessage(le)), le);
+                     connection.getHostPort(),
+                     StaticUtils.getExceptionMessage(le)),
+               le);
         }
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
         // We should terminate the connection regardless of the type of
         // exception, but might want to customize the debug message.
@@ -535,23 +537,23 @@ final class LDAPConnectionReader
         {
           connection.setDisconnectInfo(DisconnectType.IO_ERROR, null, e);
           message = ERR_READER_CLOSING_DUE_TO_IO_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(e));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(e));
           debugLevel = Level.WARNING;
         }
         else if (e instanceof ASN1Exception)
         {
           connection.setDisconnectInfo(DisconnectType.DECODE_ERROR, null, e);
           message = ERR_READER_CLOSING_DUE_TO_ASN1_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(e));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(e));
         }
         else
         {
           connection.setDisconnectInfo(DisconnectType.LOCAL_ERROR, null, e);
           message = ERR_READER_CLOSING_DUE_TO_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(e));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(e));
         }
 
-        debug(debugLevel, DebugType.LDAP, message, e);
+        Debug.debug(debugLevel, DebugType.LDAP, message, e);
 
         // If the connection is configured to try to auto-reconnect, then set
         // things up to do that.  Otherwise, terminate the connection.
@@ -591,7 +593,7 @@ final class LDAPConnectionReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
     else
@@ -667,9 +669,9 @@ final class LDAPConnectionReader
                     getUnsolicitedNotificationHandler();
           if (handler == null)
           {
-            if (debugEnabled(DebugType.LDAP))
+            if (Debug.debugEnabled(DebugType.LDAP))
             {
-              debug(Level.WARNING, DebugType.LDAP,
+              Debug.debug(Level.WARNING, DebugType.LDAP,
                    WARN_READER_UNHANDLED_UNSOLICITED_NOTIFICATION.get(
                         response));
             }
@@ -682,16 +684,16 @@ final class LDAPConnectionReader
           continue;
         }
 
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debug(Level.WARNING, DebugType.LDAP,
-                WARN_READER_DISCARDING_UNEXPECTED_RESPONSE.get(response,
-                     messageID));
+          Debug.debug(Level.WARNING, DebugType.LDAP,
+               WARN_READER_DISCARDING_UNEXPECTED_RESPONSE.get(response,
+                    messageID));
         }
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         final Throwable t = le.getCause();
 
 
@@ -721,7 +723,7 @@ final class LDAPConnectionReader
           connection.setDisconnectInfo(DisconnectType.IO_ERROR,
                le.getMessage(), t);
           message = ERR_READER_CLOSING_DUE_TO_IO_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(t));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(t));
           debugLevel = Level.WARNING;
         }
         else if (t instanceof ASN1Exception)
@@ -729,17 +731,17 @@ final class LDAPConnectionReader
           connection.setDisconnectInfo(DisconnectType.DECODE_ERROR,
                le.getMessage(), t);
           message = ERR_READER_CLOSING_DUE_TO_ASN1_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(t));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(t));
         }
         else
         {
           connection.setDisconnectInfo(DisconnectType.LOCAL_ERROR,
                le.getMessage(), t);
           message = ERR_READER_CLOSING_DUE_TO_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(t));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(t));
         }
 
-        debug(debugLevel, DebugType.LDAP, message, t);
+        Debug.debug(debugLevel, DebugType.LDAP, message, t);
         @SuppressWarnings("deprecation")
         final boolean autoReconnect =
              connection.getConnectionOptions().autoReconnect();
@@ -752,7 +754,7 @@ final class LDAPConnectionReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
         // We should terminate the connection regardless of the type of
         // exception, but might want to customize the debug message.
@@ -762,23 +764,23 @@ final class LDAPConnectionReader
         {
           connection.setDisconnectInfo(DisconnectType.IO_ERROR, null, e);
           message = ERR_READER_CLOSING_DUE_TO_IO_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(e));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(e));
           debugLevel = Level.WARNING;
         }
         else if (e instanceof ASN1Exception)
         {
           connection.setDisconnectInfo(DisconnectType.DECODE_ERROR, null, e);
           message = ERR_READER_CLOSING_DUE_TO_ASN1_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(e));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(e));
         }
         else
         {
           connection.setDisconnectInfo(DisconnectType.LOCAL_ERROR, null, e);
           message = ERR_READER_CLOSING_DUE_TO_EXCEPTION.get(
-               connection.getHostPort(), getExceptionMessage(e));
+               connection.getHostPort(), StaticUtils.getExceptionMessage(e));
         }
 
-        debug(debugLevel, DebugType.LDAP, message, e);
+        Debug.debug(debugLevel, DebugType.LDAP, message, e);
         @SuppressWarnings("deprecation")
         final boolean autoReconnect =
              connection.getConnectionOptions().autoReconnect();
@@ -849,14 +851,16 @@ final class LDAPConnectionReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         connection.setDisconnectInfo(DisconnectType.SECURITY_PROBLEM,
-             getExceptionMessage(e), e);
+             StaticUtils.getExceptionMessage(e), e);
         startTLSException = e;
         closeRequested = true;
-        closeInternal(true, getExceptionMessage(e));
+        closeInternal(true, StaticUtils.getExceptionMessage(e));
         throw new LDAPException(ResultCode.SERVER_DOWN,
-             ERR_CONNREADER_STARTTLS_FAILED.get(getExceptionMessage(e)), e);
+             ERR_CONNREADER_STARTTLS_FAILED.get(
+                  StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
     else
@@ -893,7 +897,8 @@ final class LDAPConnectionReader
               startTLSException = null;
 
               throw new LDAPException(ResultCode.LOCAL_ERROR,
-                   ERR_CONNREADER_STARTTLS_FAILED.get(getExceptionMessage(e)),
+                   ERR_CONNREADER_STARTTLS_FAILED.get(
+                        StaticUtils.getExceptionMessage(e)),
                    e);
             }
           }
@@ -951,7 +956,7 @@ final class LDAPConnectionReader
        }
        catch (final Exception e)
        {
-         debugException(e);
+         Debug.debugException(e);
 
          if (e instanceof InterruptedException)
          {
@@ -989,7 +994,7 @@ final class LDAPConnectionReader
      }
      catch (final Exception e)
      {
-       debugException(e);
+       Debug.debugException(e);
      }
 
      if (notifyConnection)
@@ -1028,7 +1033,7 @@ final class LDAPConnectionReader
        }
        catch (final Exception e)
        {
-         debugException(e);
+         Debug.debugException(e);
        }
 
        iterator.remove();
@@ -1066,7 +1071,7 @@ final class LDAPConnectionReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
   }

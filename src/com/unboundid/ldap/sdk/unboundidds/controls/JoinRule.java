@@ -32,14 +32,14 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1Set;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -194,8 +194,8 @@ public final class JoinRule
    */
   public static JoinRule createANDRule(final JoinRule... components)
   {
-    ensureNotNull(components);
-    ensureFalse(components.length == 0);
+    Validator.ensureNotNull(components);
+    Validator.ensureFalse(components.length == 0);
 
     return new JoinRule(JOIN_TYPE_AND, components, null, null, false);
   }
@@ -213,8 +213,8 @@ public final class JoinRule
    */
   public static JoinRule createANDRule(final List<JoinRule> components)
   {
-    ensureNotNull(components);
-    ensureFalse(components.isEmpty());
+    Validator.ensureNotNull(components);
+    Validator.ensureFalse(components.isEmpty());
 
     final JoinRule[] compArray = new JoinRule[components.size()];
     return new JoinRule(JOIN_TYPE_AND, components.toArray(compArray), null,
@@ -234,8 +234,8 @@ public final class JoinRule
    */
   public static JoinRule createORRule(final JoinRule... components)
   {
-    ensureNotNull(components);
-    ensureFalse(components.length == 0);
+    Validator.ensureNotNull(components);
+    Validator.ensureFalse(components.length == 0);
 
     return new JoinRule(JOIN_TYPE_OR, components, null, null, false);
   }
@@ -253,8 +253,8 @@ public final class JoinRule
    */
   public static JoinRule createORRule(final List<JoinRule> components)
   {
-    ensureNotNull(components);
-    ensureFalse(components.isEmpty());
+    Validator.ensureNotNull(components);
+    Validator.ensureFalse(components.isEmpty());
 
     final JoinRule[] compArray = new JoinRule[components.size()];
     return new JoinRule(JOIN_TYPE_OR, components.toArray(compArray), null,
@@ -278,7 +278,7 @@ public final class JoinRule
    */
   public static JoinRule createDNJoin(final String sourceAttribute)
   {
-    ensureNotNull(sourceAttribute);
+    Validator.ensureNotNull(sourceAttribute);
 
     return new JoinRule(JOIN_TYPE_DN, NO_RULES, sourceAttribute, null, false);
   }
@@ -307,7 +307,7 @@ public final class JoinRule
                                             final String targetAttribute,
                                             final boolean matchAll)
   {
-    ensureNotNull(sourceAttribute, targetAttribute);
+    Validator.ensureNotNull(sourceAttribute, targetAttribute);
 
     return new JoinRule(JOIN_TYPE_EQUALITY, NO_RULES, sourceAttribute,
                         targetAttribute, matchAll);
@@ -338,7 +338,7 @@ public final class JoinRule
                                             final String targetAttribute,
                                             final boolean matchAll)
   {
-    ensureNotNull(sourceAttribute, targetAttribute);
+    Validator.ensureNotNull(sourceAttribute, targetAttribute);
 
     return new JoinRule(JOIN_TYPE_CONTAINS, NO_RULES, sourceAttribute,
                         targetAttribute, matchAll);
@@ -361,7 +361,7 @@ public final class JoinRule
    */
   public static JoinRule createReverseDNJoin(final String targetAttribute)
   {
-    ensureNotNull(targetAttribute);
+    Validator.ensureNotNull(targetAttribute);
 
     return new JoinRule(JOIN_TYPE_REVERSE_DN, NO_RULES, null, targetAttribute,
          false);
@@ -522,10 +522,12 @@ public final class JoinRule
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
 
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_JOIN_RULE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+               ERR_JOIN_RULE_CANNOT_DECODE.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
         }
 
 
@@ -558,10 +560,12 @@ public final class JoinRule
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
 
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_JOIN_RULE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+               ERR_JOIN_RULE_CANNOT_DECODE.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
         }
 
 
@@ -572,7 +576,8 @@ public final class JoinRule
 
       default:
         throw new LDAPException(ResultCode.DECODING_ERROR,
-             ERR_JOIN_RULE_DECODE_INVALID_TYPE.get(toHex(elementType)));
+             ERR_JOIN_RULE_DECODE_INVALID_TYPE.get(
+                  StaticUtils.toHex(elementType)));
     }
   }
 

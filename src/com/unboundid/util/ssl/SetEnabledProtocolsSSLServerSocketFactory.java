@@ -76,16 +76,16 @@ final class SetEnabledProtocolsSSLServerSocketFactory
 
     if (defaultProtocol.equalsIgnoreCase("TLSv1.2"))
     {
-      protocols = new HashSet<String>(
+      protocols = new HashSet<>(
            Arrays.asList("TLSv1.2", "TLSv1.1", "TLSv1"));
     }
     else if (defaultProtocol.equalsIgnoreCase("TLSv1.1"))
     {
-      protocols = new HashSet<String>(Arrays.asList("TLSv1.1", "TLSv1"));
+      protocols = new HashSet<>(Arrays.asList("TLSv1.1", "TLSv1"));
     }
     else if (defaultProtocol.equalsIgnoreCase("TLSv1"))
     {
-      protocols = new HashSet<String>(Collections.singletonList("TLSv1"));
+      protocols = new HashSet<>(Collections.singletonList("TLSv1"));
     }
     else
     {

@@ -27,12 +27,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -337,7 +337,7 @@ public final class ReplicaMonitorEntry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         addr = null;
         port = null;
       }
@@ -423,7 +423,7 @@ public final class ReplicaMonitorEntry
    * replication server.
    *
    * @return  {@code Boolean.TRUE} if this replica uses SSL when communicating
-   *          with the replication server, {@code Booelan.FALSE} if it does not
+   *          with the replication server, {@code Boolean.FALSE} if it does not
    *          use SSL, or {@code null} if it was not included in the monitor
    *          entry.
    */
@@ -651,7 +651,7 @@ public final class ReplicaMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(30);
 
     if (baseDN != null)
     {

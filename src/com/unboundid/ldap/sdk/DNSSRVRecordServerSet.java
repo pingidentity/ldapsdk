@@ -335,7 +335,7 @@ public final class DNSSRVRecordServerSet
       this.providerURL = providerURL;
     }
 
-    this.jndiProperties = new Hashtable<String,String>(10);
+    this.jndiProperties = new Hashtable<>(10);
     if (jndiProperties != null)
     {
       for (final Map.Entry<Object,Object> e : jndiProperties.entrySet())

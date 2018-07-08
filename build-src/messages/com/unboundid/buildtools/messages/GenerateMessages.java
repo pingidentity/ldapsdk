@@ -244,7 +244,7 @@ public class GenerateMessages
 
 
         // Iterate through the properties and add them to the source file.
-        final TreeSet<Object> nameSet = new TreeSet<Object>();
+        final TreeSet<Object> nameSet = new TreeSet<>();
         nameSet.addAll(p.keySet());
         nameSet.remove(CLASS_NAME_PROPERTY);
 
@@ -351,15 +351,6 @@ public class GenerateMessages
 
         // Add a set of constants to the source file.
         w("  /**");
-        w("   * The name of the properties file containing the default");
-        w("   * message strings.");
-        w("   */");
-        w("  static final String PROPERTIES_FILE_NAME =");
-        w("       \"" + propertiesFileName + "\";");
-        w();
-        w();
-        w();
-        w("  /**");
         w("   * Indicates whether the unit tests are currently running.");
         w("   */");
         w("  private static final boolean IS_WITHIN_UNIT_TESTS =");
@@ -392,8 +383,7 @@ public class GenerateMessages
           "strings, indexed by property name.");
         w("   */");
         w("  private static final ConcurrentHashMap<", baseName,
-          ",String> MESSAGE_STRINGS = new ConcurrentHashMap<", baseName,
-          ",String>();");
+          ",String> MESSAGE_STRINGS = new ConcurrentHashMap<>(100);");
         w();
         w();
         w();
@@ -402,8 +392,7 @@ public class GenerateMessages
           "indexed by property name.");
         w("   */");
         w("  private static final ConcurrentHashMap<", baseName,
-          ",MessageFormat> MESSAGES = new ConcurrentHashMap<", baseName,
-          ",MessageFormat>();");
+          ",MessageFormat> MESSAGES = new ConcurrentHashMap<>(100);");
 
 
         // Add a variable to hold the default text.

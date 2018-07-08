@@ -81,12 +81,11 @@ final class ParallelPoolCloser
     final int numConnections = connections.size();
 
     final ArrayBlockingQueue<Runnable> queue =
-         new ArrayBlockingQueue<Runnable>(numConnections);
+         new ArrayBlockingQueue<>(numConnections);
     final ThreadPoolExecutor executor = new ThreadPoolExecutor(numThreads,
          numThreads, 0L, TimeUnit.MILLISECONDS, queue);
 
-    final ArrayList<Future<?>> results =
-         new ArrayList<Future<?>>(numConnections);
+    final ArrayList<Future<?>> results = new ArrayList<>(numConnections);
     for (final LDAPConnection conn : connections)
     {
       results.add(executor.submit(new ParallelPoolCloserTask(conn, unbind)));

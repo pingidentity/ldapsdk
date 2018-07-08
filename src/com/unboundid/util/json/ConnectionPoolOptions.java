@@ -300,8 +300,8 @@ final class ConnectionPoolOptions
     boolean invokeException          = true;
     boolean invokeRelease            = false;
     int     initialThreads           = 1;
-    long    getEntryTimeout          = 10000L;
-    long    healthCheckInterval      = 60000L;
+    long    getEntryTimeout          = 10_000L;
+    long    healthCheckInterval      = 60_000L;
     long    maxConnectionAge         = 0L;
     long    maxWaitTime              = 0L;
     Long    maxDefunctReplacementAge = null;

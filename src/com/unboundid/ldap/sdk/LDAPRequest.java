@@ -30,8 +30,7 @@ import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -158,7 +157,7 @@ public abstract class LDAPRequest
   @Override()
   public final boolean hasControl(final String oid)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     for (final Control c : controls)
     {
@@ -179,7 +178,7 @@ public abstract class LDAPRequest
   @Override()
   public final Control getControl(final String oid)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     for (final Control c : controls)
     {

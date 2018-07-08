@@ -254,8 +254,8 @@ final class SearchAndModRateThread
     connection.setConnectionName("search-and-mod-" + threadNumber);
 
     random             = new Random(randomSeed);
-    resultCode         = new AtomicReference<ResultCode>(null);
-    searchAndModThread = new AtomicReference<Thread>(null);
+    resultCode         = new AtomicReference<>(null);
+    searchAndModThread = new AtomicReference<>(null);
     stopRequested      = new AtomicBoolean(false);
     searchRequest      = new SearchRequest("", scope,
          Filter.createPresenceFilter("objectClass"), returnAttributes);

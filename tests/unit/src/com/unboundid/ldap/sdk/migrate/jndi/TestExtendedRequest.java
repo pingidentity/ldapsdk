@@ -68,6 +68,7 @@ public class TestExtendedRequest
    *
    * @return  The OID for this extended request.
    */
+  @Override()
   public String getID()
   {
     return oid;
@@ -80,6 +81,7 @@ public class TestExtendedRequest
    *
    * @return  The encoded value for this extended request.
    */
+  @Override()
   public byte[] getEncodedValue()
   {
     return value;
@@ -97,6 +99,7 @@ public class TestExtendedRequest
    *
    * @return  The extended response.
    */
+  @Override()
   public ExtendedResponse createExtendedResponse(final String oid,
                                final byte[] value, final int offset,
                                final int length)

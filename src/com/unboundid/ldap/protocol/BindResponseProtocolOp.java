@@ -40,15 +40,15 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.NotMutable;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -148,7 +148,7 @@ public final class BindResponseProtocolOp
     resultCode            = result.getResultCode().intValue();
     matchedDN             = result.getMatchedDN();
     diagnosticMessage     = result.getDiagnosticMessage();
-    referralURLs          = toList(result.getReferralURLs());
+    referralURLs          = StaticUtils.toList(result.getReferralURLs());
 
     if (result instanceof BindResult)
     {
@@ -182,8 +182,8 @@ public final class BindResponseProtocolOp
       resultCode = reader.readEnumerated();
 
       String s = reader.readString();
-      ensureNotNull(s);
-      if (s.length() == 0)
+      Validator.ensureNotNull(s);
+      if (s.isEmpty())
       {
         matchedDN = null;
       }
@@ -193,8 +193,8 @@ public final class BindResponseProtocolOp
       }
 
       s = reader.readString();
-      ensureNotNull(s);
-      if (s.length() == 0)
+      Validator.ensureNotNull(s);
+      if (s.isEmpty())
       {
         diagnosticMessage = null;
       }
@@ -204,7 +204,7 @@ public final class BindResponseProtocolOp
       }
 
       ASN1OctetString creds = null;
-      final ArrayList<String> refs = new ArrayList<String>(1);
+      final ArrayList<String> refs = new ArrayList<>(1);
       while (opSequence.hasMoreElements())
       {
         final byte type = (byte) reader.peek();
@@ -223,7 +223,7 @@ public final class BindResponseProtocolOp
         else
         {
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_BIND_RESPONSE_INVALID_ELEMENT.get(toHex(type)));
+               ERR_BIND_RESPONSE_INVALID_ELEMENT.get(StaticUtils.toHex(type)));
         }
       }
 
@@ -232,14 +232,16 @@ public final class BindResponseProtocolOp
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_BIND_RESPONSE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_BIND_RESPONSE_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -326,7 +328,7 @@ public final class BindResponseProtocolOp
   @Override()
   public ASN1Element encodeProtocolOp()
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(5);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(5);
     elements.add(new ASN1Enumerated(getResultCode()));
 
     final String mDN = getMatchedDN();
@@ -352,8 +354,7 @@ public final class BindResponseProtocolOp
     final List<String> refs = getReferralURLs();
     if (! refs.isEmpty())
     {
-      final ArrayList<ASN1Element> refElements =
-           new ArrayList<ASN1Element>(refs.size());
+      final ArrayList<ASN1Element> refElements = new ArrayList<>(refs.size());
       for (final String r : refs)
       {
         refElements.add(new ASN1OctetString(r));
@@ -397,7 +398,7 @@ public final class BindResponseProtocolOp
       final String matchedDN;
       final String md =
            ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
-      if (md.length() > 0)
+      if (! md.isEmpty())
       {
         matchedDN = md;
       }
@@ -409,7 +410,7 @@ public final class BindResponseProtocolOp
       final String diagnosticMessage;
       final String dm =
            ASN1OctetString.decodeAsOctetString(elements[2]).stringValue();
-      if (dm.length() > 0)
+      if (! dm.isEmpty())
       {
         diagnosticMessage = dm;
       }
@@ -429,7 +430,7 @@ public final class BindResponseProtocolOp
             case GenericResponseProtocolOp.TYPE_REFERRALS:
               final ASN1Element[] refElements =
                    ASN1Sequence.decodeAsSequence(elements[3]).elements();
-              referralURLs = new ArrayList<String>(refElements.length);
+              referralURLs = new ArrayList<>(refElements.length);
               for (final ASN1Element e : refElements)
               {
                 referralURLs.add(
@@ -445,7 +446,7 @@ public final class BindResponseProtocolOp
             default:
               throw new LDAPException(ResultCode.DECODING_ERROR,
                    ERR_BIND_RESPONSE_INVALID_ELEMENT.get(
-                        toHex(elements[i].getType())));
+                        StaticUtils.toHex(elements[i].getType())));
           }
         }
       }
@@ -455,14 +456,15 @@ public final class BindResponseProtocolOp
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_BIND_RESPONSE_CANNOT_DECODE.get(getExceptionMessage(e)),
+           ERR_BIND_RESPONSE_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }
@@ -516,7 +518,7 @@ public final class BindResponseProtocolOp
     final String[] refs;
     if (referralURLs.isEmpty())
     {
-      refs = NO_STRINGS;
+      refs = StaticUtils.NO_STRINGS;
     }
     else
     {

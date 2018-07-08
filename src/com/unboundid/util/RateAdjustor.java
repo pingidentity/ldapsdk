@@ -45,7 +45,6 @@ import java.util.regex.Pattern;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.DurationArgument;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.UtilityMessages.*;
 
 
@@ -140,7 +139,7 @@ public final class RateAdjustor extends Thread
    * A list of all formats that we support.
    */
   public static final List<String> FORMATS =
-       Arrays.asList(FORMAT_VALUE_RATE_DURATION);
+       Collections.singletonList(FORMAT_VALUE_RATE_DURATION);
 
 
 
@@ -1176,7 +1175,7 @@ public final class RateAdjustor extends Thread
 
     final Map<String,String> header = consumeHeader(lines);
 
-    final Set<String> invalidKeys = new LinkedHashSet<String>(header.keySet());
+    final Set<String> invalidKeys = new LinkedHashSet<>(header.keySet());
     invalidKeys.removeAll(KEYS);
     if (! invalidKeys.isEmpty())
     {
@@ -1212,7 +1211,7 @@ public final class RateAdjustor extends Thread
       }
       catch (final ArgumentException e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new IllegalArgumentException(
              ERR_RATE_ADJUSTOR_INVALID_DEFAULT_DURATION.get(
                         defaultDurationStr, e.getExceptionMessage()),
@@ -1227,7 +1226,7 @@ public final class RateAdjustor extends Thread
     //  # Duration can be omitted if default-duration header was included.
     //  1000
     final List<ObjectPair<Double,Long>> ratesAndDurationList =
-            new ArrayList<ObjectPair<Double,Long>>(10);
+         new ArrayList<>(10);
     final Pattern splitPattern = Pattern.compile("\\s*,\\s*");
     for (final String fullLine: lines)
     {
@@ -1240,7 +1239,7 @@ public final class RateAdjustor extends Thread
       }
       line = line.trim();
 
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         continue;
       }
@@ -1269,7 +1268,7 @@ public final class RateAdjustor extends Thread
       }
       catch (final NumberFormatException e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new IllegalArgumentException(
              ERR_RATE_ADJUSTOR_INVALID_RATE.get(rateStr, fullLine), e);
       }
@@ -1302,7 +1301,7 @@ public final class RateAdjustor extends Thread
         }
         catch (final ArgumentException e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new IllegalArgumentException(
                ERR_RATE_ADJUSTOR_INVALID_DURATION.get(duration, fullLine,
                     e.getExceptionMessage()),
@@ -1310,8 +1309,7 @@ public final class RateAdjustor extends Thread
         }
       }
 
-      ratesAndDurationList.add(
-           new ObjectPair<Double,Long>(rate, durationMillis));
+      ratesAndDurationList.add(new ObjectPair<>(rate, durationMillis));
     }
     ratesAndDurations = Collections.unmodifiableList(ratesAndDurationList);
   }
@@ -1336,7 +1334,7 @@ public final class RateAdjustor extends Thread
     }
     catch (final InterruptedException e)
     {
-      debugException(e);
+      Debug.debugException(e);
       Thread.currentThread().interrupt();
     }
   }
@@ -1359,13 +1357,13 @@ public final class RateAdjustor extends Thread
       do
       {
         final List<ObjectPair<Double,Long>> ratesAndEndTimes =
-             new ArrayList<ObjectPair<Double,Long>>(ratesAndDurations.size());
+             new ArrayList<>(ratesAndDurations.size());
         long endTime = System.currentTimeMillis();
         for (final ObjectPair<Double,Long> rateAndDuration : ratesAndDurations)
         {
           endTime += rateAndDuration.getSecond();
-          ratesAndEndTimes.add(new ObjectPair<Double,Long>(
-               rateAndDuration.getFirst(), endTime));
+          ratesAndEndTimes.add(new ObjectPair<>(rateAndDuration.getFirst(),
+               endTime));
         }
 
         for (final ObjectPair<Double,Long> rateAndEndTime: ratesAndEndTimes)
@@ -1484,15 +1482,14 @@ public final class RateAdjustor extends Thread
     // key2 = value2
     // END HEADER
     boolean endHeaderFound = false;
-    final Map<String,String> headerMap = new LinkedHashMap<String,String>(3);
+    final Map<String,String> headerMap = new LinkedHashMap<>(3);
     final Iterator<String> lineIter = lines.iterator();
     while (lineIter.hasNext())
     {
       final String line = lineIter.next().trim();
       lineIter.remove();
 
-      if ((line.length() == 0) ||
-           line.startsWith(String.valueOf(COMMENT_START)))
+      if (line.isEmpty() || line.startsWith(String.valueOf(COMMENT_START)))
       {
         continue;
       }
@@ -1511,7 +1508,7 @@ public final class RateAdjustor extends Thread
       }
 
       final String key = line.substring(0, equalPos).trim();
-      if (key.length() == 0)
+      if (key.isEmpty())
       {
         throw new IllegalArgumentException(
              ERR_RATE_ADJUSTOR_HEADER_EMPTY_KEY.get(line));
@@ -1556,7 +1553,7 @@ public final class RateAdjustor extends Thread
     final BufferedReader bufferedReader = new BufferedReader(reader);
 
     // We remove items from the front of the list, so a linked list works best.
-    final List<String> lines = new LinkedList<String>();
+    final List<String> lines = new LinkedList<>();
 
     String line;
     while ((line = bufferedReader.readLine()) != null)

@@ -33,13 +33,13 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -429,8 +429,8 @@ public final class PasswordModifyExtendedRequest
 
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                                    ERR_PW_MODIFY_REQUEST_INVALID_TYPE.get(
-                                         toHex(e.getType())));
+                 ERR_PW_MODIFY_REQUEST_INVALID_TYPE.get(
+                      StaticUtils.toHex(e.getType())));
         }
       }
 
@@ -440,12 +440,12 @@ public final class PasswordModifyExtendedRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_PW_MODIFY_REQUEST_CANNOT_DECODE.get(e), e);
     }
@@ -477,7 +477,7 @@ public final class PasswordModifyExtendedRequest
                                              final String oldPassword,
                                              final String newPassword)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     if (userIdentity != null)
     {
@@ -523,7 +523,7 @@ public final class PasswordModifyExtendedRequest
                                              final byte[] oldPassword,
                                              final byte[] newPassword)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     if (userIdentity != null)
     {

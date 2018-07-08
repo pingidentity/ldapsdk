@@ -37,13 +37,12 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -127,7 +126,7 @@ public final class LDIFModifyDNChangeRecord
   {
     super(dn, controls);
 
-    ensureNotNull(newRDN);
+    Validator.ensureNotNull(newRDN);
 
     this.newRDN        = newRDN;
     this.deleteOldRDN  = deleteOldRDN;
@@ -343,7 +342,7 @@ public final class LDIFModifyDNChangeRecord
   @Override()
   public String[] toLDIF(final int wrapColumn)
   {
-    List<String> ldifLines = new ArrayList<String>(10);
+    List<String> ldifLines = new ArrayList<>(10);
     encodeNameAndValue("dn", new ASN1OctetString(getDN()), ldifLines);
 
     for (final Control c : getControls())
@@ -381,22 +380,22 @@ public final class LDIFModifyDNChangeRecord
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     for (final Control c : getControls())
     {
       LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
            wrapColumn);
-      buffer.append(EOL_BYTES);
+      buffer.append(StaticUtils.EOL_BYTES);
     }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("moddn"),
                                   buffer, wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     LDIFWriter.encodeNameAndValue("newrdn", new ASN1OctetString(newRDN), buffer,
                                   wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     if (deleteOldRDN)
     {
@@ -408,14 +407,14 @@ public final class LDIFModifyDNChangeRecord
       LDIFWriter.encodeNameAndValue("deleteoldrdn", new ASN1OctetString("0"),
                                     buffer, wrapColumn);
     }
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     if (newSuperiorDN != null)
     {
       LDIFWriter.encodeNameAndValue("newsuperior",
                                     new ASN1OctetString(newSuperiorDN), buffer,
                                     wrapColumn);
-      buffer.append(EOL_BYTES);
+      buffer.append(StaticUtils.EOL_BYTES);
     }
   }
 
@@ -429,22 +428,22 @@ public final class LDIFModifyDNChangeRecord
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
                                   wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     for (final Control c : getControls())
     {
       LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
            wrapColumn);
-      buffer.append(EOL);
+      buffer.append(StaticUtils.EOL);
     }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("moddn"),
                                   buffer, wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     LDIFWriter.encodeNameAndValue("newrdn", new ASN1OctetString(newRDN), buffer,
                                   wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     if (deleteOldRDN)
     {
@@ -456,14 +455,14 @@ public final class LDIFModifyDNChangeRecord
       LDIFWriter.encodeNameAndValue("deleteoldrdn", new ASN1OctetString("0"),
                                     buffer, wrapColumn);
     }
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     if (newSuperiorDN != null)
     {
       LDIFWriter.encodeNameAndValue("newsuperior",
                                     new ASN1OctetString(newSuperiorDN), buffer,
                                     wrapColumn);
-      buffer.append(EOL);
+      buffer.append(StaticUtils.EOL);
     }
   }
 
@@ -486,12 +485,12 @@ public final class LDIFModifyDNChangeRecord
     }
     catch (final Exception e)
     {
-      debugException(e);
-      hashCode = toLowerCase(getDN()).hashCode() +
-                 toLowerCase(newRDN).hashCode();
+      Debug.debugException(e);
+      hashCode = StaticUtils.toLowerCase(getDN()).hashCode() +
+                 StaticUtils.toLowerCase(newRDN).hashCode();
       if (newSuperiorDN != null)
       {
-        hashCode += toLowerCase(newSuperiorDN).hashCode();
+        hashCode += StaticUtils.toLowerCase(newSuperiorDN).hashCode();
       }
     }
 
@@ -528,8 +527,8 @@ public final class LDIFModifyDNChangeRecord
 
     final LDIFModifyDNChangeRecord r = (LDIFModifyDNChangeRecord) o;
 
-    final HashSet<Control> c1 = new HashSet<Control>(getControls());
-    final HashSet<Control> c2 = new HashSet<Control>(r.getControls());
+    final HashSet<Control> c1 = new HashSet<>(getControls());
+    final HashSet<Control> c2 = new HashSet<>(r.getControls());
     if (! c1.equals(c2))
     {
       return false;
@@ -544,8 +543,9 @@ public final class LDIFModifyDNChangeRecord
     }
     catch (final Exception e)
     {
-      debugException(e);
-      if (! toLowerCase(getDN()).equals(toLowerCase(r.getDN())))
+      Debug.debugException(e);
+      if (! StaticUtils.toLowerCase(getDN()).equals(
+           StaticUtils.toLowerCase(r.getDN())))
       {
         return false;
       }
@@ -560,8 +560,9 @@ public final class LDIFModifyDNChangeRecord
     }
     catch (final Exception e)
     {
-      debugException(e);
-      if (! toLowerCase(newRDN).equals(toLowerCase(r.newRDN)))
+      Debug.debugException(e);
+      if (! StaticUtils.toLowerCase(newRDN).equals(
+           StaticUtils.toLowerCase(r.newRDN)))
       {
         return false;
       }
@@ -590,8 +591,9 @@ public final class LDIFModifyDNChangeRecord
       }
       catch (final Exception e)
       {
-        debugException(e);
-        if (! toLowerCase(newSuperiorDN).equals(toLowerCase(r.newSuperiorDN)))
+        Debug.debugException(e);
+        if (! StaticUtils.toLowerCase(newSuperiorDN).equals(
+             StaticUtils.toLowerCase(r.newSuperiorDN)))
         {
           return false;
         }

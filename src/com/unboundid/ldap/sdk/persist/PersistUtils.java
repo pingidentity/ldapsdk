@@ -29,12 +29,12 @@ import com.unboundid.ldap.sdk.DNEntrySource;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -122,7 +122,7 @@ public final class PersistUtils
       baseName = s;
     }
 
-    if (isNumericOID(baseName))
+    if (StaticUtils.isNumericOID(baseName))
     {
       return true;
     }
@@ -369,7 +369,7 @@ public final class PersistUtils
                                        final LDAPInterface conn)
          throws LDAPException
   {
-    ensureNotNull(dn, type, conn);
+    Validator.ensureNotNull(dn, type, conn);
 
     final LDAPPersister<T> p = LDAPPersister.getInstance(type);
 
@@ -410,12 +410,12 @@ public final class PersistUtils
                                              final LDAPInterface conn)
          throws LDAPPersistException
   {
-    ensureNotNull(dns, type, conn);
+    Validator.ensureNotNull(dns, type, conn);
 
     final LDAPPersister<T> p = LDAPPersister.getInstance(type);
 
     final DNEntrySource entrySource = new DNEntrySource(conn, dns,
          p.getObjectHandler().getAttributesToRequest());
-    return new PersistedObjects<T>(p, entrySource);
+    return new PersistedObjects<>(p, entrySource);
   }
 }

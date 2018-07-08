@@ -36,14 +36,14 @@ import java.util.UUID;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -126,7 +126,8 @@ public class Task
    * The name of the attribute used to hold the actual start time for scheduled
    * tasks.
    */
-  static final String ATTR_ACTUAL_START_TIME = "ds-task-actual-start-time";
+  private static final String ATTR_ACTUAL_START_TIME =
+       "ds-task-actual-start-time";
 
 
 
@@ -135,7 +136,8 @@ public class Task
    * generate an administrative alert when the task fails to complete
    * successfully.
    */
-  static final String ATTR_ALERT_ON_ERROR = "ds-task-alert-on-error";
+  private static final String ATTR_ALERT_ON_ERROR =
+       "ds-task-alert-on-error";
 
 
 
@@ -143,7 +145,7 @@ public class Task
    * The name of the attribute used to indicate whether the server should
    * generate an administrative alert when the task starts running.
    */
-  static final String ATTR_ALERT_ON_START = "ds-task-alert-on-start";
+  private static final String ATTR_ALERT_ON_START = "ds-task-alert-on-start";
 
 
 
@@ -151,7 +153,8 @@ public class Task
    * The name of the attribute used to indicate whether the server should
    * generate an administrative alert when the task completes successfully.
    */
-  static final String ATTR_ALERT_ON_SUCCESS = "ds-task-alert-on-success";
+  private static final String ATTR_ALERT_ON_SUCCESS =
+       "ds-task-alert-on-success";
 
 
 
@@ -159,7 +162,7 @@ public class Task
    * The name of the attribute used to hold the completion time for scheduled
    * tasks.
    */
-  static final String ATTR_COMPLETION_TIME = "ds-task-completion-time";
+  private static final String ATTR_COMPLETION_TIME = "ds-task-completion-time";
 
 
 
@@ -167,7 +170,7 @@ public class Task
    * The name of the attribute used to hold the task IDs for tasks on which a
    * scheduled task is dependent.
    */
-  static final String ATTR_DEPENDENCY_ID = "ds-task-dependency-id";
+  private static final String ATTR_DEPENDENCY_ID = "ds-task-dependency-id";
 
 
 
@@ -175,7 +178,7 @@ public class Task
    * The name of the attribute used to indicate what action to take if one of
    * the dependencies for a task failed to complete successfully.
    */
-  static final String ATTR_FAILED_DEPENDENCY_ACTION =
+  private static final String ATTR_FAILED_DEPENDENCY_ACTION =
        "ds-task-failed-dependency-action";
 
 
@@ -184,7 +187,7 @@ public class Task
    * The name of the attribute used to hold the log messages for scheduled
    * tasks.
    */
-  static final String ATTR_LOG_MESSAGE = "ds-task-log-message";
+  private static final String ATTR_LOG_MESSAGE = "ds-task-log-message";
 
 
 
@@ -193,7 +196,7 @@ public class Task
    * that should be notified whenever a scheduled task completes, regardless of
    * success or failure.
    */
-  static final String ATTR_NOTIFY_ON_COMPLETION =
+  private static final String ATTR_NOTIFY_ON_COMPLETION =
        "ds-task-notify-on-completion";
 
 
@@ -202,7 +205,7 @@ public class Task
    * The name of the attribute used to hold the e-mail addresses of the users
    * that should be notified if a scheduled task fails to complete successfully.
    */
-  static final String ATTR_NOTIFY_ON_ERROR = "ds-task-notify-on-error";
+  private static final String ATTR_NOTIFY_ON_ERROR = "ds-task-notify-on-error";
 
 
 
@@ -210,7 +213,7 @@ public class Task
    * The name of the attribute used to hold the e-mail addresses of the users
    * that should be notified when a scheduled task starts running.
    */
-  static final String ATTR_NOTIFY_ON_START = "ds-task-notify-on-start";
+  private static final String ATTR_NOTIFY_ON_START = "ds-task-notify-on-start";
 
 
 
@@ -218,7 +221,8 @@ public class Task
    * The name of the attribute used to hold the e-mail addresses of the users
    * that should be notified when a scheduled task completes successfully.
    */
-  static final String ATTR_NOTIFY_ON_SUCCESS = "ds-task-notify-on-success";
+  private static final String ATTR_NOTIFY_ON_SUCCESS =
+       "ds-task-notify-on-success";
 
 
 
@@ -226,7 +230,7 @@ public class Task
    * The name of the attribute used to hold the scheduled start time for
    * scheduled tasks.
    */
-  static final String ATTR_SCHEDULED_START_TIME =
+  private static final String ATTR_SCHEDULED_START_TIME =
        "ds-task-scheduled-start-time";
 
 
@@ -235,7 +239,7 @@ public class Task
    * The name of the attribute used to hold the name of the class that provides
    * the logic for scheduled tasks.
    */
-  static final String ATTR_TASK_CLASS = "ds-task-class-name";
+  private static final String ATTR_TASK_CLASS = "ds-task-class-name";
 
 
 
@@ -272,7 +276,7 @@ public class Task
   /**
    * The task property that will be used for the task ID.
    */
-  static final TaskProperty PROPERTY_TASK_ID =
+  private static final TaskProperty PROPERTY_TASK_ID =
        new TaskProperty(ATTR_TASK_ID, INFO_DISPLAY_NAME_TASK_ID.get(),
                         INFO_DESCRIPTION_TASK_ID.get(), String.class, false,
                         false, true);
@@ -282,7 +286,7 @@ public class Task
   /**
    * The task property that will be used for the scheduled start time.
    */
-  static final TaskProperty PROPERTY_SCHEDULED_START_TIME =
+  private static final TaskProperty PROPERTY_SCHEDULED_START_TIME =
        new TaskProperty(ATTR_SCHEDULED_START_TIME,
                         INFO_DISPLAY_NAME_SCHEDULED_START_TIME.get(),
                         INFO_DESCRIPTION_SCHEDULED_START_TIME.get(), Date.class,
@@ -293,7 +297,7 @@ public class Task
   /**
    * The task property that will be used for the set of dependency IDs.
    */
-  static final TaskProperty PROPERTY_DEPENDENCY_ID =
+  private static final TaskProperty PROPERTY_DEPENDENCY_ID =
        new TaskProperty(ATTR_DEPENDENCY_ID,
                         INFO_DISPLAY_NAME_DEPENDENCY_ID.get(),
                         INFO_DESCRIPTION_DEPENDENCY_ID.get(), String.class,
@@ -304,7 +308,7 @@ public class Task
   /**
    * The task property that will be used for the failed dependency action.
    */
-  static final TaskProperty PROPERTY_FAILED_DEPENDENCY_ACTION =
+  private static final TaskProperty PROPERTY_FAILED_DEPENDENCY_ACTION =
        new TaskProperty(ATTR_FAILED_DEPENDENCY_ACTION,
                         INFO_DISPLAY_NAME_FAILED_DEPENDENCY_ACTION.get(),
                         INFO_DESCRIPTION_FAILED_DEPENDENCY_ACTION.get(),
@@ -321,7 +325,7 @@ public class Task
   /**
    * The task property that will be used for the notify on completion addresses.
    */
-  static final TaskProperty PROPERTY_NOTIFY_ON_COMPLETION =
+  private static final TaskProperty PROPERTY_NOTIFY_ON_COMPLETION =
        new TaskProperty(ATTR_NOTIFY_ON_COMPLETION,
                         INFO_DISPLAY_NAME_NOTIFY_ON_COMPLETION.get(),
                         INFO_DESCRIPTION_NOTIFY_ON_COMPLETION.get(),
@@ -332,7 +336,7 @@ public class Task
   /**
    * The task property that will be used for the notify on error addresses.
    */
-  static final TaskProperty PROPERTY_NOTIFY_ON_ERROR =
+  private static final TaskProperty PROPERTY_NOTIFY_ON_ERROR =
        new TaskProperty(ATTR_NOTIFY_ON_ERROR,
                         INFO_DISPLAY_NAME_NOTIFY_ON_ERROR.get(),
                         INFO_DESCRIPTION_NOTIFY_ON_ERROR.get(),
@@ -343,7 +347,7 @@ public class Task
   /**
    * The task property that will be used for the notify on success addresses.
    */
-  static final TaskProperty PROPERTY_NOTIFY_ON_SUCCESS =
+  private static final TaskProperty PROPERTY_NOTIFY_ON_SUCCESS =
        new TaskProperty(ATTR_NOTIFY_ON_SUCCESS,
                         INFO_DISPLAY_NAME_NOTIFY_ON_SUCCESS.get(),
                         INFO_DESCRIPTION_NOTIFY_ON_SUCCESS.get(),
@@ -354,7 +358,7 @@ public class Task
   /**
    * The task property that will be used for the notify on start addresses.
    */
-  static final TaskProperty PROPERTY_NOTIFY_ON_START =
+  private static final TaskProperty PROPERTY_NOTIFY_ON_START =
        new TaskProperty(ATTR_NOTIFY_ON_START,
                         INFO_DISPLAY_NAME_NOTIFY_ON_START.get(),
                         INFO_DESCRIPTION_NOTIFY_ON_START.get(),
@@ -365,7 +369,7 @@ public class Task
   /**
    * The task property that will be used for the alert on error flag.
    */
-  static final TaskProperty PROPERTY_ALERT_ON_ERROR =
+  private static final TaskProperty PROPERTY_ALERT_ON_ERROR =
        new TaskProperty(ATTR_ALERT_ON_ERROR,
                         INFO_DISPLAY_NAME_ALERT_ON_ERROR.get(),
                         INFO_DESCRIPTION_ALERT_ON_ERROR.get(),
@@ -376,7 +380,7 @@ public class Task
   /**
    * The task property that will be used for the alert on start flag.
    */
-  static final TaskProperty PROPERTY_ALERT_ON_START =
+  private static final TaskProperty PROPERTY_ALERT_ON_START =
        new TaskProperty(ATTR_ALERT_ON_START,
                         INFO_DISPLAY_NAME_ALERT_ON_START.get(),
                         INFO_DESCRIPTION_ALERT_ON_START.get(),
@@ -387,7 +391,7 @@ public class Task
   /**
    * The task property that will be used for the alert on success flag.
    */
-  static final TaskProperty PROPERTY_ALERT_ON_SUCCESS =
+  private static final TaskProperty PROPERTY_ALERT_ON_SUCCESS =
        new TaskProperty(ATTR_ALERT_ON_SUCCESS,
                         INFO_DISPLAY_NAME_ALERT_ON_SUCCESS.get(),
                         INFO_DESCRIPTION_ALERT_ON_SUCCESS.get(),
@@ -591,7 +595,7 @@ public class Task
               final List<String> notifyOnError, final Boolean alertOnStart,
               final Boolean alertOnSuccess, final Boolean alertOnError)
   {
-    ensureNotNull(taskClassName);
+    Validator.ensureNotNull(taskClassName);
 
     this.taskClassName          = taskClassName;
     this.scheduledStartTime     = scheduledStartTime;
@@ -732,11 +736,11 @@ public class Task
     {
       try
       {
-        scheduledStartTime = decodeGeneralizedTime(timestamp);
+        scheduledStartTime = StaticUtils.decodeGeneralizedTime(timestamp);
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new TaskException(ERR_TASK_CANNOT_PARSE_SCHEDULED_START_TIME.get(
                                      taskEntryDN, timestamp, pe.getMessage()),
                                 pe);
@@ -754,11 +758,11 @@ public class Task
     {
       try
       {
-        actualStartTime = decodeGeneralizedTime(timestamp);
+        actualStartTime = StaticUtils.decodeGeneralizedTime(timestamp);
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new TaskException(ERR_TASK_CANNOT_PARSE_ACTUAL_START_TIME.get(
                                      taskEntryDN, timestamp, pe.getMessage()),
                                 pe);
@@ -776,11 +780,11 @@ public class Task
     {
       try
       {
-        completionTime = decodeGeneralizedTime(timestamp);
+        completionTime = StaticUtils.decodeGeneralizedTime(timestamp);
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new TaskException(ERR_TASK_CANNOT_PARSE_COMPLETION_TIME.get(
                                      taskEntryDN, timestamp, pe.getMessage()),
                                 pe);
@@ -855,18 +859,18 @@ public class Task
               final Map<TaskProperty,List<Object>> properties)
          throws TaskException
   {
-    ensureNotNull(taskClassName, properties);
+    Validator.ensureNotNull(taskClassName, properties);
 
     this.taskClassName = taskClassName;
 
     String                 idStr  = UUID.randomUUID().toString();
     Date                   sst    = null;
-    String[]               depIDs = NO_STRINGS;
+    String[]               depIDs = StaticUtils.NO_STRINGS;
     FailedDependencyAction fda    = FailedDependencyAction.CANCEL;
-    String[]               nob    = NO_STRINGS;
-    String[]               noc    = NO_STRINGS;
-    String[]               noe    = NO_STRINGS;
-    String[]               nos    = NO_STRINGS;
+    String[]               nob    = StaticUtils.NO_STRINGS;
+    String[]               noc    = StaticUtils.NO_STRINGS;
+    String[]               noe    = StaticUtils.NO_STRINGS;
+    String[]               nos    = StaticUtils.NO_STRINGS;
     Boolean                aob    = null;
     Boolean                aoe    = null;
     Boolean                aos    = null;
@@ -1316,9 +1320,9 @@ public class Task
    */
   public final Entry createTaskEntry()
   {
-    final ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+    final ArrayList<Attribute> attributes = new ArrayList<>(20);
 
-    final ArrayList<String> ocValues = new ArrayList<String>(5);
+    final ArrayList<String> ocValues = new ArrayList<>(5);
     ocValues.add("top");
     ocValues.add(OC_TASK);
     ocValues.addAll(getAdditionalObjectClasses());
@@ -1331,7 +1335,7 @@ public class Task
     if (scheduledStartTime != null)
     {
       attributes.add(new Attribute(ATTR_SCHEDULED_START_TIME,
-                                   encodeGeneralizedTime(scheduledStartTime)));
+           StaticUtils.encodeGeneralizedTime(scheduledStartTime)));
     }
 
     if (! dependencyIDs.isEmpty())
@@ -1594,7 +1598,7 @@ public class Task
     {
       try
       {
-        dateValue = decodeGeneralizedTime((String) o);
+        dateValue = StaticUtils.decodeGeneralizedTime((String) o);
       }
       catch (final ParseException pe)
       {
@@ -2068,7 +2072,7 @@ public class Task
     }
     catch (final TaskException te)
     {
-      debugException(te);
+      Debug.debugException(te);
     }
 
     return new Task(entry);
@@ -2151,10 +2155,10 @@ public class Task
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(20);
 
     props.put(PROPERTY_TASK_ID,
-              Collections.<Object>unmodifiableList(Arrays.asList(taskID)));
+              Collections.<Object>singletonList(taskID));
 
     if (scheduledStartTime == null)
     {
@@ -2163,8 +2167,7 @@ public class Task
     else
     {
       props.put(PROPERTY_SCHEDULED_START_TIME,
-                Collections.<Object>unmodifiableList(Arrays.asList(
-                     scheduledStartTime)));
+                Collections.<Object>singletonList(scheduledStartTime));
     }
 
     props.put(PROPERTY_DEPENDENCY_ID,
@@ -2177,8 +2180,7 @@ public class Task
     else
     {
       props.put(PROPERTY_FAILED_DEPENDENCY_ACTION,
-                Collections.<Object>unmodifiableList(Arrays.asList(
-                     failedDependencyAction.getName())));
+           Collections.<Object>singletonList(failedDependencyAction.getName()));
     }
 
     props.put(PROPERTY_NOTIFY_ON_START,

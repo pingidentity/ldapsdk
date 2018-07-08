@@ -127,5 +127,6 @@ public abstract class EntrySource
    * not necessary as the entry source will have already been closed after all
    * entries have been read.
    */
+  @Override()
   public abstract void close();
 }

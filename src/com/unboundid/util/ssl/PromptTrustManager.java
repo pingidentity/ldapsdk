@@ -44,12 +44,11 @@ import javax.net.ssl.X509TrustManager;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ssl.cert.CertException;
 
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.ssl.SSLMessages.*;
 
 
@@ -267,7 +266,7 @@ public final class PromptTrustManager
       this.out = out;
     }
 
-    acceptedCerts = new ConcurrentHashMap<String,Boolean>();
+    acceptedCerts = new ConcurrentHashMap<>(20);
 
     if (acceptedCertsFile != null)
     {
@@ -291,7 +290,7 @@ public final class PromptTrustManager
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
       finally
       {
@@ -303,7 +302,7 @@ public final class PromptTrustManager
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
           }
         }
       }
@@ -440,7 +439,7 @@ public final class PromptTrustManager
     {
       final byte[] sha1Fingerprint = convertedChain[0].getSHA1Fingerprint();
       final StringBuilder buffer = new StringBuilder();
-      toHex(sha1Fingerprint, ":", buffer);
+      StaticUtils.toHex(sha1Fingerprint, ":", buffer);
       out.println("     " + INFO_PROMPT_SHA1_FINGERPRINT.get(buffer));
     }
     catch (final Exception e)
@@ -451,7 +450,7 @@ public final class PromptTrustManager
     {
       final byte[] sha256Fingerprint = convertedChain[0].getSHA256Fingerprint();
       final StringBuilder buffer = new StringBuilder();
-      toHex(sha256Fingerprint, ":", buffer);
+      StaticUtils.toHex(sha256Fingerprint, ":", buffer);
       out.println("     " + INFO_PROMPT_SHA256_FINGERPRINT.get(buffer));
     }
     catch (final Exception e)
@@ -476,7 +475,7 @@ public final class PromptTrustManager
       {
         final byte[] sha1Fingerprint = convertedChain[i].getSHA1Fingerprint();
         final StringBuilder buffer = new StringBuilder();
-        toHex(sha1Fingerprint, ":", buffer);
+        StaticUtils.toHex(sha1Fingerprint, ":", buffer);
         out.println("     " + INFO_PROMPT_SHA1_FINGERPRINT.get(buffer));
       }
       catch (final Exception e)
@@ -488,7 +487,7 @@ public final class PromptTrustManager
         final byte[] sha256Fingerprint =
              convertedChain[i].getSHA256Fingerprint();
         final StringBuilder buffer = new StringBuilder();
-        toHex(sha256Fingerprint, ":", buffer);
+        StaticUtils.toHex(sha256Fingerprint, ":", buffer);
         out.println("     " + INFO_PROMPT_SHA256_FINGERPRINT.get(buffer));
       }
       catch (final Exception e)
@@ -501,7 +500,8 @@ public final class PromptTrustManager
     {
       out.println();
       for (final String line :
-           wrapLine(warningMessage, (TERMINAL_WIDTH_COLUMNS - 1)))
+           StaticUtils.wrapLine(warningMessage,
+                (StaticUtils.TERMINAL_WIDTH_COLUMNS - 1)))
       {
         out.println(line);
       }
@@ -543,7 +543,7 @@ public final class PromptTrustManager
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
 
@@ -567,7 +567,7 @@ public final class PromptTrustManager
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
   }
@@ -673,7 +673,8 @@ public final class PromptTrustManager
   static String getCacheKey(final Certificate certificate)
   {
     final X509Certificate x509Certificate = (X509Certificate) certificate;
-    return toLowerCase(toHex(x509Certificate.getSignature()));
+    return StaticUtils.toLowerCase(
+         StaticUtils.toHex(x509Certificate.getSignature()));
   }
 
 

@@ -23,18 +23,17 @@ package com.unboundid.util.args;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.args.ArgsMessages.*;
 
 
@@ -166,7 +165,9 @@ public final class DNArgument
   {
     this(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
          valuePlaceholder, description,
-         ((defaultValue == null) ? null : Arrays.asList(defaultValue)));
+         ((defaultValue == null)
+              ? null :
+              Collections.singletonList(defaultValue)));
   }
 
 
@@ -219,8 +220,8 @@ public final class DNArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<DN>(5);
-    validators = new ArrayList<ArgumentValueValidator>(5);
+    values = new ArrayList<>(5);
+    validators = new ArrayList<>(5);
   }
 
 
@@ -236,8 +237,8 @@ public final class DNArgument
     super(source);
 
     defaultValues = source.defaultValues;
-    values        = new ArrayList<DN>(5);
-    validators    = new ArrayList<ArgumentValueValidator>(source.validators);
+    values        = new ArrayList<>(5);
+    validators    = new ArrayList<>(source.validators);
   }
 
 
@@ -285,7 +286,7 @@ public final class DNArgument
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new ArgumentException(ERR_DN_VALUE_NOT_DN.get(valueString,
                                        getIdentifierString(), le.getMessage()),
                                   le);
@@ -386,7 +387,7 @@ public final class DNArgument
       if (useDefault && (defaultValues != null))
       {
         final ArrayList<String> valueStrings =
-             new ArrayList<String>(defaultValues.size());
+             new ArrayList<>(defaultValues.size());
         for (final DN dn : defaultValues)
         {
           valueStrings.add(dn.toString());
@@ -400,8 +401,7 @@ public final class DNArgument
     }
     else
     {
-      final ArrayList<String> valueStrings =
-           new ArrayList<String>(values.size());
+      final ArrayList<String> valueStrings = new ArrayList<>(values.size());
       for (final DN dn : values)
       {
         valueStrings.add(dn.toString());

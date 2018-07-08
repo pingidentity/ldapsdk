@@ -404,7 +404,7 @@ public final class RevokeTOTPSharedSecretExtendedRequest
    *
    * @return  The encoded password, or {@code null} if no password was given.
    */
-  static ASN1OctetString encodePassword(final Object password)
+  private static ASN1OctetString encodePassword(final Object password)
   {
     if (password == null)
     {
@@ -468,7 +468,7 @@ public final class RevokeTOTPSharedSecretExtendedRequest
                 "authentication ID and static password must be non-null.");
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     if (authenticationID != null)
     {

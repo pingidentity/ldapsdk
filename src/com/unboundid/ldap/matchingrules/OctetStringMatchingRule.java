@@ -23,10 +23,9 @@ package com.unboundid.ldap.matchingrules;
 
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -59,7 +58,7 @@ public final class OctetStringMatchingRule
    * lowercase characters.
    */
   static final String LOWER_EQUALITY_RULE_NAME =
-       toLowerCase(EQUALITY_RULE_NAME);
+       StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
 
@@ -82,7 +81,7 @@ public final class OctetStringMatchingRule
    * in all lowercase characters.
    */
   static final String LOWER_ORDERING_RULE_NAME =
-       toLowerCase(ORDERING_RULE_NAME);
+       StaticUtils.toLowerCase(ORDERING_RULE_NAME);
 
 
 
@@ -105,7 +104,7 @@ public final class OctetStringMatchingRule
    * formatted in all lowercase characters.
    */
   static final String LOWER_SUBSTRING_RULE_NAME =
-       toLowerCase(SUBSTRING_RULE_NAME);
+       StaticUtils.toLowerCase(SUBSTRING_RULE_NAME);
 
 
 

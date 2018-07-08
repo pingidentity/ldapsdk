@@ -44,8 +44,7 @@ public final class ThreadLocalRandom
   /**
    * The thread-local instances that have been created.
    */
-  private static final ThreadLocal<Random> INSTANCES =
-       new ThreadLocal<Random>();
+  private static final ThreadLocal<Random> INSTANCES = new ThreadLocal<>();
 
 
 

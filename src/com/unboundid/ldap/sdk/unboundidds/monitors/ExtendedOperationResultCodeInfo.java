@@ -105,12 +105,11 @@ public final class ExtendedOperationResultCodeInfo
     failedCount = entry.getLong("extended-op-failed-count");
     failedPercent = entry.getDouble("extended-op-failed-percent");
 
-    final TreeMap<String,String> names = new TreeMap<String,String>();
-    final TreeMap<String,Long> totalCounts = new TreeMap<String,Long>();
-    final TreeMap<String,Long> failedCounts = new TreeMap<String,Long>();
-    final TreeMap<String,Double> failedPercents = new TreeMap<String,Double>();
-    final TreeMap<String,Map<Integer,ResultCodeInfo>> rcMaps =
-         new TreeMap<String,Map<Integer,ResultCodeInfo>>();
+    final TreeMap<String,String> names = new TreeMap<>();
+    final TreeMap<String,Long> totalCounts = new TreeMap<>();
+    final TreeMap<String,Long> failedCounts = new TreeMap<>();
+    final TreeMap<String,Double> failedPercents = new TreeMap<>();
+    final TreeMap<String,Map<Integer,ResultCodeInfo>> rcMaps = new TreeMap<>();
     final Entry e = entry.getEntry();
     for (final Attribute a : e.getAttributes())
     {
@@ -169,8 +168,7 @@ public final class ExtendedOperationResultCodeInfo
   private static Map<Integer,ResultCodeInfo> getRCMap(final Entry entry,
                                                       final String prefix)
   {
-    final TreeMap<Integer,ResultCodeInfo> m =
-         new TreeMap<Integer,ResultCodeInfo>();
+    final TreeMap<Integer,ResultCodeInfo> m = new TreeMap<>();
 
     for (final Attribute a : entry.getAttributes())
     {

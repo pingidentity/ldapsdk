@@ -41,7 +41,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 @InternalUseOnly()
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
-public interface Result<I, O>
+public interface Result<I,O>
 {
   /**
    * Return the input item that was passed into {@code Processor#process()}.

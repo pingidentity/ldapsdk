@@ -30,9 +30,9 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -98,7 +98,7 @@ public final class AbortedTransactionExtendedResult
     super(0, resultCode, diagnosticMessage, matchedDN, referralURLs,
          ABORTED_TRANSACTION_RESULT_OID, transactionID, controls);
 
-    ensureNotNull(transactionID, resultCode);
+    Validator.ensureNotNull(transactionID, resultCode);
 
     this.transactionID = transactionID;
   }

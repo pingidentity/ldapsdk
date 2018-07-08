@@ -27,11 +27,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.EntrySource;
 import com.unboundid.ldap.sdk.EntrySourceException;
+import com.unboundid.util.Debug;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -106,7 +105,7 @@ public final class LDIFEntrySource
    */
   public LDIFEntrySource(final LDIFReader ldifReader)
   {
-    ensureNotNull(ldifReader);
+    Validator.ensureNotNull(ldifReader);
 
     this.ldifReader = ldifReader;
 
@@ -139,7 +138,7 @@ public final class LDIFEntrySource
     }
     catch (final LDIFException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       if (le.mayContinueReading())
       {
         throw new EntrySourceException(true, le);
@@ -152,7 +151,7 @@ public final class LDIFEntrySource
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       close();
       throw new EntrySourceException(false, e);
     }
@@ -174,7 +173,7 @@ public final class LDIFEntrySource
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
   }

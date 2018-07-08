@@ -35,13 +35,13 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -256,7 +256,7 @@ public final class GetAuthorizationEntryRequestControl
     else
     {
       this.attributes =
-           Collections.unmodifiableList(new ArrayList<String>(attributes));
+           Collections.unmodifiableList(new ArrayList<>(attributes));
     }
   }
 
@@ -288,7 +288,7 @@ public final class GetAuthorizationEntryRequestControl
 
     try
     {
-      final ArrayList<String> attrs = new ArrayList<String>();
+      final ArrayList<String> attrs = new ArrayList<>(20);
       boolean includeAuthN = true;
       boolean includeAuthZ = true;
 
@@ -314,7 +314,7 @@ public final class GetAuthorizationEntryRequestControl
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_GET_AUTHORIZATION_ENTRY_REQUEST_INVALID_SEQUENCE_ELEMENT.
-                      get(toHex(e.getType())));
+                      get(StaticUtils.toHex(e.getType())));
         }
       }
 
@@ -328,10 +328,11 @@ public final class GetAuthorizationEntryRequestControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_GET_AUTHORIZATION_ENTRY_REQUEST_CANNOT_DECODE_VALUE.get(
-                getExceptionMessage(e)), e);
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -362,7 +363,7 @@ public final class GetAuthorizationEntryRequestControl
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     if (! includeAuthNEntry)
     {
@@ -377,7 +378,7 @@ public final class GetAuthorizationEntryRequestControl
     if ((attributes != null) && (! attributes.isEmpty()))
     {
       final ArrayList<ASN1Element> attrElements =
-           new ArrayList<ASN1Element>(attributes.size());
+           new ArrayList<>(attributes.size());
       for (final String s : attributes)
       {
         attrElements.add(new ASN1OctetString(s));

@@ -80,7 +80,7 @@ final class LDIFLDAPSearchOutputHandler
     this.ldapSearch = ldapSearch;
     this.maxWidth   = maxWidth;
 
-    formattedLines = new ArrayList<String>(20);
+    formattedLines = new ArrayList<>(20);
     formattedLineBuffer = new StringBuilder(100);
   }
 

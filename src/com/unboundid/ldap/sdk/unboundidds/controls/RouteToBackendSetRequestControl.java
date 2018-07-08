@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -395,7 +394,7 @@ public final class RouteToBackendSetRequestControl
     else
     {
       this.absoluteBackendSetIDs = Collections.unmodifiableSet(
-           new LinkedHashSet<String>(absoluteBackendSetIDs));
+           new LinkedHashSet<>(absoluteBackendSetIDs));
     }
 
     if (routingHintFirstGuessSetIDs == null)
@@ -405,7 +404,7 @@ public final class RouteToBackendSetRequestControl
     else
     {
       this.routingHintFirstGuessSetIDs = Collections.unmodifiableSet(
-           new LinkedHashSet<String>(routingHintFirstGuessSetIDs));
+           new LinkedHashSet<>(routingHintFirstGuessSetIDs));
     }
 
     if (routingHintFallbackSetIDs == null)
@@ -415,7 +414,7 @@ public final class RouteToBackendSetRequestControl
     else
     {
       this.routingHintFallbackSetIDs = Collections.unmodifiableSet(
-           new LinkedHashSet<String>(routingHintFallbackSetIDs));
+           new LinkedHashSet<>(routingHintFallbackSetIDs));
     }
   }
 
@@ -463,7 +462,7 @@ public final class RouteToBackendSetRequestControl
         final ASN1Element[] arElements =
              ASN1Set.decodeAsSet(elements[1]).elements();
         final LinkedHashSet<String> arSet =
-             new LinkedHashSet<String>(arElements.length);
+             new LinkedHashSet<>(arElements.length);
         for (final ASN1Element e : arElements)
         {
           arSet.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -486,7 +485,7 @@ public final class RouteToBackendSetRequestControl
         final ASN1Element[] firstGuessElements =
              ASN1Set.decodeAsSet(hintElements[0]).elements();
         final LinkedHashSet<String> firstGuessSet =
-             new LinkedHashSet<String>(firstGuessElements.length);
+             new LinkedHashSet<>(firstGuessElements.length);
         for (final ASN1Element e : firstGuessElements)
         {
           firstGuessSet.add(
@@ -509,7 +508,7 @@ public final class RouteToBackendSetRequestControl
           final ASN1Element[] fallbackElements =
                ASN1Set.decodeAsSet(hintElements[1]).elements();
           final LinkedHashSet<String> fallbackSet =
-               new LinkedHashSet<String>(fallbackElements.length);
+               new LinkedHashSet<>(fallbackElements.length);
           for (final ASN1Element e : fallbackElements)
           {
             fallbackSet.add(
@@ -569,7 +568,8 @@ public final class RouteToBackendSetRequestControl
                      final String backendSetID)
   {
     return createAbsoluteRoutingRequest(isCritical,
-         entryBalancingRequestProcessorID, Arrays.asList(backendSetID));
+         entryBalancingRequestProcessorID,
+         Collections.singletonList(backendSetID));
   }
 
 
@@ -602,7 +602,7 @@ public final class RouteToBackendSetRequestControl
     Validator.ensureFalse(backendSetIDs.isEmpty());
 
     final ArrayList<ASN1Element> backendSetIDElements =
-         new ArrayList<ASN1Element>(backendSetIDs.size());
+         new ArrayList<>(backendSetIDs.size());
     for (final String s : backendSetIDs)
     {
       backendSetIDElements.add(new ASN1OctetString(s));
@@ -658,7 +658,8 @@ public final class RouteToBackendSetRequestControl
                      final Collection<String> fallbackSetIDs)
   {
     return createRoutingHintRequest(isCritical,
-         entryBalancingRequestProcessorID, Arrays.asList(firstGuessSetID),
+         entryBalancingRequestProcessorID,
+         Collections.singletonList(firstGuessSetID),
          fallbackSetIDs);
   }
 
@@ -708,10 +709,9 @@ public final class RouteToBackendSetRequestControl
       Validator.ensureFalse(fallbackSetIDs.isEmpty());
     }
 
-    final ArrayList<ASN1Element> backendSetsElements =
-         new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> backendSetsElements = new ArrayList<>(2);
     final ArrayList<ASN1Element> firstGuessElements =
-         new ArrayList<ASN1Element>(firstGuessSetIDs.size());
+         new ArrayList<>(firstGuessSetIDs.size());
     for (final String s : firstGuessSetIDs)
     {
       firstGuessElements.add(new ASN1OctetString(s));
@@ -721,7 +721,7 @@ public final class RouteToBackendSetRequestControl
     if (fallbackSetIDs != null)
     {
       final ArrayList<ASN1Element> fallbackElements =
-           new ArrayList<ASN1Element>(fallbackSetIDs.size());
+           new ArrayList<>(fallbackSetIDs.size());
       for (final String s : fallbackSetIDs)
       {
         fallbackElements.add(new ASN1OctetString(s));

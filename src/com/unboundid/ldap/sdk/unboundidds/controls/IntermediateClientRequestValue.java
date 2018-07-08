@@ -32,13 +32,13 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -322,7 +322,7 @@ public final class IntermediateClientRequestValue
    */
   private ASN1Sequence encode(final byte type)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(7);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(7);
 
     if (downstreamRequest != null)
     {
@@ -404,17 +404,17 @@ public final class IntermediateClientRequestValue
           }
           catch (final LDAPException le)
           {
-            debugException(le);
+            Debug.debugException(le);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ICREQ_CANNOT_DECODE_DOWNSTREAM_REQUEST.get(
                       le.getMessage()), le);
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ICREQ_CANNOT_DECODE_DOWNSTREAM_REQUEST.get(
-                      getExceptionMessage(e)),
+                      StaticUtils.getExceptionMessage(e)),
                  e);
           }
           break;
@@ -432,10 +432,10 @@ public final class IntermediateClientRequestValue
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ICREQ_CANNOT_DECODE_DOWNSTREAM_SECURE.get(
-                      getExceptionMessage(e)),
+                      StaticUtils.getExceptionMessage(e)),
                  e);
           }
           break;
@@ -462,7 +462,8 @@ public final class IntermediateClientRequestValue
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_ICREQ_INVALID_ELEMENT_TYPE.get(toHex(element.getType())));
+               ERR_ICREQ_INVALID_ELEMENT_TYPE.get(
+                    StaticUtils.toHex(element.getType())));
       }
     }
 

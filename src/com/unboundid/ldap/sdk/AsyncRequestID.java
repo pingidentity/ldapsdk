@@ -109,9 +109,9 @@ public final class AsyncRequestID
     this.messageID  = messageID;
     this.connection = connection;
 
-    resultQueue     = new ArrayBlockingQueue<LDAPResult>(1);
+    resultQueue     = new ArrayBlockingQueue<>(1);
     cancelRequested = new AtomicBoolean(false);
-    result          = new AtomicReference<LDAPResult>();
+    result          = new AtomicReference<>();
     timerTask       = null;
   }
 
@@ -146,6 +146,7 @@ public final class AsyncRequestID
    *          completed, because an abandon request has already been sent, or
    *          because an error occurred while trying to send the cancel request.
    */
+  @Override()
   public boolean cancel(final boolean mayInterruptIfRunning)
   {
     // If the operation has already completed, then we can't cancel it.
@@ -183,6 +184,7 @@ public final class AsyncRequestID
    *          {@code false} if no cancel attempt was made, or if the operation
    *          completed before it could be canceled.
    */
+  @Override()
   public boolean isCancelled()
   {
     return cancelRequested.get();
@@ -200,6 +202,7 @@ public final class AsyncRequestID
    *          operation has not yet completed and no cancel attempt has been
    *          made.
    */
+  @Override()
   public boolean isDone()
   {
     if (cancelRequested.get())
@@ -243,6 +246,7 @@ public final class AsyncRequestID
    * @throws  InterruptedException  If the thread calling this method was
    *                                interrupted before a result was received.
    */
+  @Override()
   public LDAPResult get()
          throws InterruptedException
   {
@@ -280,6 +284,7 @@ public final class AsyncRequestID
    * @throws  TimeoutException  If a timeout was encountered before the result
    *                            could be obtained.
    */
+  @Override()
   public LDAPResult get(final long timeout, final TimeUnit timeUnit)
          throws InterruptedException, TimeoutException
   {

@@ -68,8 +68,6 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
 
-import static com.unboundid.ldap.listener.ListenerMessages.*;
-
 
 
 /**

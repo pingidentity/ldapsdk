@@ -42,15 +42,15 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -226,7 +226,7 @@ public final class SearchRequest
    * The default set of requested attributes that will be used, which will
    * return all user attributes but no operational attributes.
    */
-  public static final String[] REQUEST_ATTRS_DEFAULT = NO_STRINGS;
+  public static final String[] REQUEST_ATTRS_DEFAULT = StaticUtils.NO_STRINGS;
 
 
 
@@ -261,7 +261,7 @@ public final class SearchRequest
 
   // The queue that will be used to receive response messages from the server.
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
-       new LinkedBlockingQueue<LDAPResponse>(50);
+       new LinkedBlockingQueue<>(50);
 
   // The search result listener that should be used to return results
   // interactively to the requester.
@@ -663,7 +663,7 @@ public final class SearchRequest
   {
     super(controls);
 
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     this.baseDN               = baseDN;
     this.scope                = scope;
@@ -721,7 +721,7 @@ public final class SearchRequest
    */
   public void setBaseDN(final String baseDN)
   {
-    ensureNotNull(baseDN);
+    Validator.ensureNotNull(baseDN);
 
     this.baseDN = baseDN;
   }
@@ -736,7 +736,7 @@ public final class SearchRequest
    */
   public void setBaseDN(final DN baseDN)
   {
-    ensureNotNull(baseDN);
+    Validator.ensureNotNull(baseDN);
 
     this.baseDN = baseDN.toString();
   }
@@ -930,7 +930,7 @@ public final class SearchRequest
   public void setFilter(final String filter)
          throws LDAPException
   {
-    ensureNotNull(filter);
+    Validator.ensureNotNull(filter);
 
     this.filter = Filter.create(filter);
   }
@@ -945,7 +945,7 @@ public final class SearchRequest
    */
   public void setFilter(final Filter filter)
   {
-    ensureNotNull(filter);
+    Validator.ensureNotNull(filter);
 
     this.filter = filter;
   }
@@ -1153,8 +1153,8 @@ public final class SearchRequest
       final ArrayList<SearchResultReference> referenceList;
       if (searchResultListener == null)
       {
-        entryList     = new ArrayList<SearchResultEntry>(5);
-        referenceList = new ArrayList<SearchResultReference>(5);
+        entryList     = new ArrayList<>(5);
+        referenceList = new ArrayList<>(5);
       }
       else
       {
@@ -1183,7 +1183,7 @@ public final class SearchRequest
         }
         catch (final InterruptedException ie)
         {
-          debugException(ie);
+          Debug.debugException(ie);
           Thread.currentThread().interrupt();
           throw new LDAPException(ResultCode.LOCAL_ERROR,
                ERR_SEARCH_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -1407,14 +1407,14 @@ public final class SearchRequest
     // Send the request to the server.
     try
     {
-      debugLDAPRequest(Level.INFO, this, messageID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumSearchRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       connection.deregisterResponseAcceptor(messageID);
       throw le;
@@ -1456,7 +1456,7 @@ public final class SearchRequest
     // Send the request to the server.
     final long responseTimeout = getResponseTimeoutMillis(connection);
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(Level.INFO, this, messageID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumSearchRequests();
     try
     {
@@ -1464,7 +1464,7 @@ public final class SearchRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (allowRetry)
       {
@@ -1483,8 +1483,8 @@ public final class SearchRequest
     final ArrayList<SearchResultReference> referenceList;
     if (searchResultListener == null)
     {
-      entryList     = new ArrayList<SearchResultEntry>(5);
-      referenceList = new ArrayList<SearchResultReference>(5);
+      entryList     = new ArrayList<>(5);
+      referenceList = new ArrayList<>(5);
     }
     else
     {
@@ -1504,7 +1504,7 @@ public final class SearchRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if ((le.getResultCode() == ResultCode.TIMEOUT) &&
             connection.getConnectionOptions().abandonOnTimeout())
@@ -1718,7 +1718,7 @@ public final class SearchRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     return null;
@@ -1890,7 +1890,7 @@ public final class SearchRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if (le.getResultCode().equals(ResultCode.REFERRAL_LIMIT_EXCEEDED))
         {
@@ -1993,7 +1993,7 @@ public final class SearchRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if (le.getResultCode().equals(ResultCode.REFERRAL_LIMIT_EXCEEDED))
         {
@@ -2023,7 +2023,7 @@ public final class SearchRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -2031,7 +2031,9 @@ public final class SearchRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -2156,8 +2158,7 @@ public final class SearchRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(10);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(10);
     constructorArgs.add(ToCodeArgHelper.createString(baseDN, "Base DN"));
     constructorArgs.add(ToCodeArgHelper.createScope(scope, "Scope"));
     constructorArgs.add(ToCodeArgHelper.createDerefPolicy(derefPolicy,

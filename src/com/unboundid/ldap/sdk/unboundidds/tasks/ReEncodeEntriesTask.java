@@ -35,9 +35,9 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -171,7 +171,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the include branch(es).
    */
-  static final TaskProperty PROPERTY_INCLUDE_BRANCH =
+  private static final TaskProperty PROPERTY_INCLUDE_BRANCH =
      new TaskProperty(ATTR_INCLUDE_BRANCH,
           INFO_DISPLAY_NAME_REENCODE_INCLUDE_BRANCH.get(),
           INFO_DESCRIPTION_REENCODE_INCLUDE_BRANCH.get(),
@@ -182,7 +182,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the exclude branch(es).
    */
-  static final TaskProperty PROPERTY_EXCLUDE_BRANCH =
+  private static final TaskProperty PROPERTY_EXCLUDE_BRANCH =
      new TaskProperty(ATTR_EXCLUDE_BRANCH,
           INFO_DISPLAY_NAME_REENCODE_EXCLUDE_BRANCH.get(),
           INFO_DESCRIPTION_REENCODE_EXCLUDE_BRANCH.get(),
@@ -193,7 +193,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the include filter(s).
    */
-  static final TaskProperty PROPERTY_INCLUDE_FILTER =
+  private static final TaskProperty PROPERTY_INCLUDE_FILTER =
      new TaskProperty(ATTR_INCLUDE_FILTER,
           INFO_DISPLAY_NAME_REENCODE_INCLUDE_FILTER.get(),
           INFO_DESCRIPTION_REENCODE_INCLUDE_FILTER.get(),
@@ -204,7 +204,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the exclude filter(s).
    */
-  static final TaskProperty PROPERTY_EXCLUDE_FILTER =
+  private static final TaskProperty PROPERTY_EXCLUDE_FILTER =
      new TaskProperty(ATTR_EXCLUDE_FILTER,
           INFO_DISPLAY_NAME_REENCODE_EXCLUDE_FILTER.get(),
           INFO_DESCRIPTION_REENCODE_EXCLUDE_FILTER.get(),
@@ -215,7 +215,7 @@ public final class ReEncodeEntriesTask
   /**
    * The task property that will be used for the maximum reencode rate.
    */
-  static final TaskProperty PROPERTY_MAX_ENTRIES_PER_SECOND =
+  private static final TaskProperty PROPERTY_MAX_ENTRIES_PER_SECOND =
      new TaskProperty(ATTR_MAX_ENTRIES_PER_SECOND,
           INFO_DISPLAY_NAME_REENCODE_MAX_ENTRIES_PER_SECOND.get(),
           INFO_DESCRIPTION_REENCODE_MAX_ENTRIES_PER_SECOND.get(),
@@ -227,7 +227,7 @@ public final class ReEncodeEntriesTask
    * The task property that will be used to indicate whether to skip fully
    * uncached entries.
    */
-  static final TaskProperty PROPERTY_SKIP_FULLY_UNCACHED =
+  private static final TaskProperty PROPERTY_SKIP_FULLY_UNCACHED =
      new TaskProperty(ATTR_SKIP_FULLY_UNCACHED,
           INFO_DISPLAY_NAME_REENCODE_SKIP_FULLY_UNCACHED.get(),
           INFO_DESCRIPTION_REENCODE_SKIP_FULLY_UNCACHED.get(),
@@ -239,7 +239,7 @@ public final class ReEncodeEntriesTask
    * The task property that will be used to indicate whether to skip partially
    * uncached entries.
    */
-  static final TaskProperty PROPERTY_SKIP_PARTIALLY_UNCACHED =
+  private static final TaskProperty PROPERTY_SKIP_PARTIALLY_UNCACHED =
      new TaskProperty(ATTR_SKIP_PARTIALLY_UNCACHED,
           INFO_DISPLAY_NAME_REENCODE_SKIP_PARTIALLY_UNCACHED.get(),
           INFO_DESCRIPTION_REENCODE_SKIP_PARTIALLY_UNCACHED.get(),
@@ -297,7 +297,6 @@ public final class ReEncodeEntriesTask
     includeFilters               = null;
     backendID                    = null;
   }
-
 
 
 
@@ -531,7 +530,7 @@ public final class ReEncodeEntriesTask
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
          alertOnSuccess, alertOnError);
 
-    ensureNotNull(backendID);
+    Validator.ensureNotNull(backendID);
 
     this.backendID                    = backendID;
     this.maxEntriesPerSecond          = maxEntriesPerSecond;
@@ -915,7 +914,7 @@ public final class ReEncodeEntriesTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_REENCODE_ENTRIES_TASK);
+    return Collections.singletonList(OC_REENCODE_ENTRIES_TASK);
   }
 
 
@@ -926,7 +925,7 @@ public final class ReEncodeEntriesTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(7);
+    final ArrayList<Attribute> attrList = new ArrayList<>(7);
     attrList.add(new Attribute(ATTR_BACKEND_ID, backendID));
     attrList.add(new Attribute(ATTR_SKIP_FULLY_UNCACHED,
          String.valueOf(skipFullyUncachedEntries)));
@@ -990,10 +989,10 @@ public final class ReEncodeEntriesTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>(15);
+         new LinkedHashMap<>(15);
 
     props.put(PROPERTY_BACKEND_ID,
-         Collections.<Object>unmodifiableList(Arrays.asList(backendID)));
+         Collections.<Object>singletonList(backendID));
     props.put(PROPERTY_INCLUDE_BRANCH,
          Collections.<Object>unmodifiableList(includeBranches));
     props.put(PROPERTY_EXCLUDE_BRANCH,
@@ -1006,21 +1005,18 @@ public final class ReEncodeEntriesTask
     if (maxEntriesPerSecond == null)
     {
       props.put(PROPERTY_MAX_ENTRIES_PER_SECOND,
-           Collections.<Object>emptyList());
+           Collections.emptyList());
     }
     else
     {
       props.put(PROPERTY_MAX_ENTRIES_PER_SECOND,
-           Collections.<Object>unmodifiableList(
-                Arrays.asList(maxEntriesPerSecond)));
+           Collections.<Object>singletonList(maxEntriesPerSecond));
     }
 
     props.put(PROPERTY_SKIP_FULLY_UNCACHED,
-         Collections.<Object>unmodifiableList(
-              Arrays.asList(skipFullyUncachedEntries)));
+         Collections.<Object>singletonList(skipFullyUncachedEntries));
     props.put(PROPERTY_SKIP_PARTIALLY_UNCACHED,
-         Collections.<Object>unmodifiableList(
-              Arrays.asList(skipPartiallyUncachedEntries)));
+         Collections.<Object>singletonList(skipPartiallyUncachedEntries));
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

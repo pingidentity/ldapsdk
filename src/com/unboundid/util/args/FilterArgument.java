@@ -23,18 +23,17 @@ package com.unboundid.util.args;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.args.ArgsMessages.*;
 
 
@@ -168,7 +167,9 @@ public final class FilterArgument
   {
     this(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
          valuePlaceholder, description,
-         ((defaultValue == null) ? null : Arrays.asList(defaultValue)));
+         ((defaultValue == null)
+              ? null
+              : Collections.singletonList(defaultValue)));
   }
 
 
@@ -222,8 +223,8 @@ public final class FilterArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<Filter>(5);
-    validators = new ArrayList<ArgumentValueValidator>(5);
+    values = new ArrayList<>(5);
+    validators = new ArrayList<>(5);
   }
 
 
@@ -239,8 +240,8 @@ public final class FilterArgument
     super(source);
 
     defaultValues = source.defaultValues;
-    validators    = new ArrayList<ArgumentValueValidator>(source.validators);
-    values        = new ArrayList<Filter>(5);
+    validators    = new ArrayList<>(source.validators);
+    values        = new ArrayList<>(5);
   }
 
 
@@ -288,7 +289,7 @@ public final class FilterArgument
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new ArgumentException(ERR_FILTER_VALUE_NOT_FILTER.get(valueString,
                                        getIdentifierString(), le.getMessage()),
                                   le);
@@ -386,8 +387,7 @@ public final class FilterArgument
       return Collections.emptyList();
     }
 
-    final ArrayList<String> valueStrings =
-         new ArrayList<String>(filters.size());
+    final ArrayList<String> valueStrings = new ArrayList<>(filters.size());
     for (final Filter f : filters)
     {
       valueStrings.add(f.toString());

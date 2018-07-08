@@ -32,9 +32,9 @@ import com.unboundid.ldap.sdk.extensions.StartTransactionExtendedRequest;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -96,17 +96,6 @@ public final class TransactionSpecificationRequestControl
   private final ASN1OctetString transactionID;
 
 
-  // This is an ugly hack to prevent checkstyle from complaining about the
-  // imports for classes only referenced in the javadoc.  Checkstyle apparently
-  // doesn't recognize that so we just need to use it in some way in this class
-  // to placate checkstyle.
-  static
-  {
-    final DraftBeheraLDAPPasswordPolicy10RequestControl pwPolicyControl = null;
-    final StartTransactionExtendedRequest r = null;
-  }
-
-
 
   /**
    * Creates a new transaction specification request control with the provided
@@ -122,7 +111,7 @@ public final class TransactionSpecificationRequestControl
     super(TRANSACTION_SPECIFICATION_REQUEST_OID, true,
          new ASN1OctetString(transactionID.getValue()));
 
-    ensureNotNull(transactionID);
+    Validator.ensureNotNull(transactionID);
     this.transactionID = transactionID;
   }
 

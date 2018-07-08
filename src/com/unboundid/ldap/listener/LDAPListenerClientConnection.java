@@ -47,7 +47,6 @@ import com.unboundid.ldap.protocol.ModifyDNResponseProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultDoneProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultEntryProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultReferenceProtocolOp;
-import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -174,12 +173,9 @@ public final class LDAPListenerClientConnection
     asn1Buffer           = new ASN1Buffer();
     suppressNextResponse = new AtomicBoolean(false);
 
-    intermediateResponseTransformers =
-         new CopyOnWriteArrayList<IntermediateResponseTransformer>();
-    searchEntryTransformers =
-         new CopyOnWriteArrayList<SearchEntryTransformer>();
-    searchReferenceTransformers =
-         new CopyOnWriteArrayList<SearchReferenceTransformer>();
+    intermediateResponseTransformers = new CopyOnWriteArrayList<>();
+    searchEntryTransformers = new CopyOnWriteArrayList<>();
+    searchReferenceTransformers = new CopyOnWriteArrayList<>();
 
     if (listener == null)
     {
@@ -798,7 +794,7 @@ public final class LDAPListenerClientConnection
   {
     sendSearchResultEntry(messageID,
          new SearchResultEntryProtocolOp(entry.getDN(),
-              new ArrayList<Attribute>(entry.getAttributes())),
+              new ArrayList<>(entry.getAttributes())),
          controls);
   }
 

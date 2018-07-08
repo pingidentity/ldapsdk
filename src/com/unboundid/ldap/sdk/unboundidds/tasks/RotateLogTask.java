@@ -305,7 +305,7 @@ public final class RotateLogTask
     }
     else
     {
-      this.paths = Collections.unmodifiableList(new ArrayList<String>(paths));
+      this.paths = Collections.unmodifiableList(new ArrayList<>(paths));
     }
   }
 
@@ -332,7 +332,7 @@ public final class RotateLogTask
     }
     else
     {
-      paths = Collections.unmodifiableList(new ArrayList<String>(
+      paths = Collections.unmodifiableList(new ArrayList<>(
            Arrays.asList(pathValues)));
     }
   }
@@ -416,7 +416,7 @@ public final class RotateLogTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_ROTATE_LOG_TASK);
+    return Collections.singletonList(OC_ROTATE_LOG_TASK);
   }
 
 
@@ -457,7 +457,7 @@ public final class RotateLogTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>(10);
+         new LinkedHashMap<>(10);
 
 
     if (! paths.isEmpty())

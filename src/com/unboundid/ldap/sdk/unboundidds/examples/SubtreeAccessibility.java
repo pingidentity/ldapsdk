@@ -89,7 +89,7 @@ public final class SubtreeAccessibility
   private static final Set<String> ALLOWED_ACCESSIBILITY_STATES;
   static
   {
-    final LinkedHashSet<String> stateValues = new LinkedHashSet<String>(4);
+    final LinkedHashSet<String> stateValues = new LinkedHashSet<>(4);
 
     stateValues.add(SubtreeAccessibilityState.ACCESSIBLE.getStateName());
     stateValues.add(
@@ -189,7 +189,6 @@ public final class SubtreeAccessibility
     bypassUserDN       = null;
     accessibilityState = null;
   }
-
 
 
 
@@ -620,8 +619,7 @@ public final class SubtreeAccessibility
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(2);
 
     final String[] getArgs =
     {

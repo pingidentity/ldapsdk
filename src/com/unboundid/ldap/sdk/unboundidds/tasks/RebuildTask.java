@@ -32,13 +32,13 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -307,9 +307,9 @@ public final class RebuildTask
          notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
          alertOnError);
 
-    ensureNotNull(baseDN, indexes);
-    ensureFalse(indexes.isEmpty(),
-                "RebuildTask.indexes must not be empty.");
+    Validator.ensureNotNull(baseDN, indexes);
+    Validator.ensureFalse(indexes.isEmpty(),
+         "RebuildTask.indexes must not be empty.");
 
     this.baseDN     = baseDN;
     this.indexes    = Collections.unmodifiableList(indexes);
@@ -368,7 +368,7 @@ public final class RebuildTask
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new TaskException(ERR_REBUILD_TASK_INVALID_MAX_THREADS.get(
                                      getTaskEntryDN(), threadsStr), e);
       }
@@ -503,7 +503,7 @@ public final class RebuildTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_REBUILD_TASK);
+    return Collections.singletonList(OC_REBUILD_TASK);
   }
 
 
@@ -514,7 +514,7 @@ public final class RebuildTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(3);
+    final ArrayList<Attribute> attrs = new ArrayList<>(3);
 
     attrs.add(new Attribute(ATTR_BASE_DN, baseDN));
     attrs.add(new Attribute(ATTR_INDEX, indexes));
@@ -552,17 +552,16 @@ public final class RebuildTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(10);
 
     props.put(PROPERTY_BASE_DN,
-              Collections.<Object>unmodifiableList(Arrays.asList(baseDN)));
+              Collections.<Object>singletonList(baseDN));
 
     props.put(PROPERTY_INDEX,
               Collections.<Object>unmodifiableList(indexes));
 
     props.put(PROPERTY_MAX_THREADS,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   Long.valueOf(maxThreads))));
+              Collections.<Object>singletonList((long) maxThreads));
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

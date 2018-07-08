@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import static com.unboundid.util.UtilityMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -115,7 +114,7 @@ public final class Base64
    */
   public static String encode(final String data)
   {
-    ensureNotNull(data);
+    Validator.ensureNotNull(data);
 
     return encode(StaticUtils.getBytes(data));
   }
@@ -131,7 +130,7 @@ public final class Base64
    */
   public static String encode(final byte[] data)
   {
-    ensureNotNull(data);
+    Validator.ensureNotNull(data);
 
     final StringBuilder buffer = new StringBuilder(4*data.length/3+1);
     encode(BASE64_ALPHABET, data, 0, data.length, buffer, "=");
@@ -150,7 +149,7 @@ public final class Base64
    */
   public static void encode(final String data, final StringBuilder buffer)
   {
-    ensureNotNull(data);
+    Validator.ensureNotNull(data);
 
     encode(StaticUtils.getBytes(data), buffer);
   }
@@ -167,7 +166,7 @@ public final class Base64
    */
   public static void encode(final String data, final ByteStringBuffer buffer)
   {
-    ensureNotNull(data);
+    Validator.ensureNotNull(data);
 
     encode(StaticUtils.getBytes(data), buffer);
   }
@@ -387,9 +386,9 @@ public final class Base64
                              final int off, final int length,
                              final Appendable buffer, final String padStr)
   {
-    ensureNotNull(data);
-    ensureTrue(data.length >= off);
-    ensureTrue(data.length >= (off+length));
+    Validator.ensureNotNull(data);
+    Validator.ensureTrue(data.length >= off);
+    Validator.ensureTrue(data.length >= (off+length));
 
     if (length == 0)
     {
@@ -461,12 +460,12 @@ public final class Base64
   public static byte[] decode(final String data)
          throws ParseException
   {
-    ensureNotNull(data);
+    Validator.ensureNotNull(data);
 
     final int length = data.length();
     if (length == 0)
     {
-      return new byte[0];
+      return StaticUtils.NO_BYTES;
     }
 
     if ((length % 4) != 0)
@@ -748,7 +747,7 @@ public final class Base64
   public static String decodeToString(final String data)
          throws ParseException
   {
-    ensureNotNull(data);
+    Validator.ensureNotNull(data);
 
     final byte[] decodedBytes = decode(data);
     return StaticUtils.toUTF8String(decodedBytes);
@@ -770,12 +769,12 @@ public final class Base64
   public static byte[] urlDecode(final String data)
          throws ParseException
   {
-    ensureNotNull(data);
+    Validator.ensureNotNull(data);
 
     final int length = data.length();
     if (length == 0)
     {
-      return new byte[0];
+      return StaticUtils.NO_BYTES;
     }
 
     int stringPos = 0;
@@ -1055,7 +1054,7 @@ decodeLoop:
   public static String urlDecodeToString(final String data)
          throws ParseException
   {
-    ensureNotNull(data);
+    Validator.ensureNotNull(data);
 
     final byte[] decodedBytes = urlDecode(data);
     return StaticUtils.toUTF8String(decodedBytes);

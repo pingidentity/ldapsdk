@@ -24,7 +24,7 @@ package com.unboundid.ldap.listener;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -88,7 +88,7 @@ public final class PasswordModifyExtendedOperationHandler
   @Override()
   public List<String> getSupportedExtendedRequestOIDs()
   {
-    return Arrays.asList(
+    return Collections.singletonList(
          PasswordModifyExtendedRequest.PASSWORD_MODIFY_REQUEST_OID);
   }
 

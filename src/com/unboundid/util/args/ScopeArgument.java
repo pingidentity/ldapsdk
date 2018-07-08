@@ -22,7 +22,6 @@ package com.unboundid.util.args;
 
 
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,8 +63,7 @@ public final class ScopeArgument
 
   static
   {
-    final HashMap<String,SearchScope> scopeMap =
-         new HashMap<String,SearchScope>(21);
+    final HashMap<String,SearchScope> scopeMap = new HashMap<>(21);
 
     scopeMap.put("base", SearchScope.BASE);
     scopeMap.put("baseobject", SearchScope.BASE);
@@ -171,9 +169,6 @@ public final class ScopeArgument
 
 
 
-
-
-
   /**
    * Creates a new search scope argument with the provided information.
    *
@@ -212,7 +207,7 @@ public final class ScopeArgument
 
     this.defaultValue = defaultValue;
 
-    value = new AtomicReference<SearchScope>();
+    value = new AtomicReference<>();
   }
 
 
@@ -228,7 +223,7 @@ public final class ScopeArgument
     super(source);
 
     defaultValue = source.defaultValue;
-    value        = new AtomicReference<SearchScope>();
+    value        = new AtomicReference<>();
   }
 
 
@@ -331,7 +326,7 @@ public final class ScopeArgument
         break;
     }
 
-    return Collections.unmodifiableList(Arrays.asList(scopeStr));
+    return Collections.singletonList(scopeStr);
   }
 
 

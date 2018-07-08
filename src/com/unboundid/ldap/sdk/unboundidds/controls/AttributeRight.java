@@ -22,10 +22,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -144,7 +143,7 @@ public enum AttributeRight
    */
   public static AttributeRight forName(final String name)
   {
-    switch (toLowerCase(name))
+    switch (StaticUtils.toLowerCase(name))
     {
       case "search":
         return SEARCH;

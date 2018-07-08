@@ -154,8 +154,7 @@ public final class ClientConnectionMonitorEntry
   @Override()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
-    final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(1);
 
     if (! connections.isEmpty())
     {

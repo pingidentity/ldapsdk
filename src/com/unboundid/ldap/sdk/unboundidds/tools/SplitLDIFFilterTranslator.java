@@ -127,20 +127,20 @@ final class SplitLDIFFilterTranslator
     }
     else
     {
-      rdnCache = new ConcurrentHashMap<String,Set<String>>(100);
+      rdnCache = new ConcurrentHashMap<>(100);
     }
 
     final int numSets = filters.size();
-    outsideSplitBaseSetNames = new LinkedHashSet<String>(numSets+1);
-    splitBaseEntrySetNames = new LinkedHashSet<String>(numSets);
+    outsideSplitBaseSetNames = new LinkedHashSet<>(numSets+1);
+    splitBaseEntrySetNames = new LinkedHashSet<>(numSets);
 
     if (addEntriesOutsideSplitToDedicatedSet)
     {
       outsideSplitBaseSetNames.add(SplitLDIFEntry.SET_NAME_OUTSIDE_SPLIT);
     }
 
-    setFilters = new LinkedHashMap<Filter,Set<String>>(numSets);
-    setNames = new LinkedHashMap<Integer,Set<String>>(numSets);
+    setFilters = new LinkedHashMap<>(numSets);
+    setNames = new LinkedHashMap<>(numSets);
 
     int i=0;
     for (final Filter f : filters)

@@ -220,8 +220,7 @@ public final class PasswordValidationDetailsResponseControl
     else
     {
       this.validationResults = Collections.unmodifiableList(
-           new ArrayList<PasswordQualityRequirementValidationResult>(
-                validationResults));
+           new ArrayList<>(validationResults));
     }
   }
 
@@ -274,8 +273,7 @@ public final class PasswordValidationDetailsResponseControl
              ASN1Sequence.decodeAsSequence(elements[0]).elements();
 
         final ArrayList<PasswordQualityRequirementValidationResult> resultList =
-             new ArrayList<PasswordQualityRequirementValidationResult>(
-                  resultElements.length);
+             new ArrayList<>(resultElements.length);
         for (final ASN1Element e : resultElements)
         {
           resultList.add(PasswordQualityRequirementValidationResult.decode(e));
@@ -379,7 +377,7 @@ public final class PasswordValidationDetailsResponseControl
                final boolean mustChangePassword,
                final Integer secondsUntilExpiration)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
 
     switch (responseType)
     {
@@ -391,7 +389,7 @@ public final class PasswordValidationDetailsResponseControl
         else
         {
           final ArrayList<ASN1Element> resultElements =
-               new ArrayList<ASN1Element>(validationResults.size());
+               new ArrayList<>(validationResults.size());
           for (final PasswordQualityRequirementValidationResult r :
                validationResults)
           {

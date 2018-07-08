@@ -38,14 +38,14 @@ import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -276,12 +276,12 @@ public final class StreamProxyValuesExtendedRequest
 
     boolean                 tmpRelative  = true;
     int                     tmpNumValues = 0;
-    final ArrayList<String> tmpAttrs     = new ArrayList<String>();
+    final ArrayList<String> tmpAttrs     = new ArrayList<>(10);
     SearchScope             tmpScope     = null;
     String                  tmpBaseDN    = null;
 
     final ArrayList<StreamProxyValuesBackendSet> tmpBackendSets =
-         new ArrayList<StreamProxyValuesBackendSet>();
+         new ArrayList<>(10);
 
     try
     {
@@ -320,7 +320,7 @@ public final class StreamProxyValuesExtendedRequest
                 default:
                   throw new LDAPException(ResultCode.DECODING_ERROR,
                   ERR_STREAM_PROXY_VALUES_REQUEST_INVALID_INCLUDE_DNS_TYPE.
-                       get(toHex(idElement.getType())));
+                       get(StaticUtils.toHex(idElement.getType())));
               }
             }
             break;
@@ -355,7 +355,7 @@ public final class StreamProxyValuesExtendedRequest
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_STREAM_PROXY_VALUES_REQUEST_INVALID_SEQUENCE_TYPE.get(
-                      toHex(svElement.getType())));
+                      StaticUtils.toHex(svElement.getType())));
         }
       }
     }
@@ -365,10 +365,10 @@ public final class StreamProxyValuesExtendedRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_STREAM_PROXY_VALUES_REQUEST_CANNOT_DECODE.get(
-                getExceptionMessage(e)), e);
+                StaticUtils.getExceptionMessage(e)), e);
     }
 
     if (tmpBaseDN == null)
@@ -417,15 +417,15 @@ public final class StreamProxyValuesExtendedRequest
        final List<String> attributes, final int valuesPerResponse,
        final List<StreamProxyValuesBackendSet> backendSets)
   {
-    ensureNotNull(baseDN, backendSets);
-    ensureFalse(backendSets.isEmpty());
+    Validator.ensureNotNull(baseDN, backendSets);
+    Validator.ensureFalse(backendSets.isEmpty());
 
-    final ArrayList<ASN1Element> svElements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> svElements = new ArrayList<>(4);
     svElements.add(new ASN1OctetString(TYPE_BASE_DN, baseDN));
 
     if (scope != null)
     {
-      final ArrayList<ASN1Element> idElements = new ArrayList<ASN1Element>(2);
+      final ArrayList<ASN1Element> idElements = new ArrayList<>(2);
       idElements.add(new ASN1Enumerated(TYPE_SCOPE, scope.intValue()));
 
       if (! relativeDNs)
@@ -439,7 +439,7 @@ public final class StreamProxyValuesExtendedRequest
     if ((attributes != null) && (! attributes.isEmpty()))
     {
       final ArrayList<ASN1Element> attrElements =
-           new ArrayList<ASN1Element>(attributes.size());
+           new ArrayList<>(attributes.size());
       for (final String s : attributes)
       {
         attrElements.add(new ASN1OctetString(s));

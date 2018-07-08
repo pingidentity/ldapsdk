@@ -80,7 +80,7 @@ class LDIFAttribute
     this.name         = name;
     this.matchingRule = matchingRule;
 
-    values = new ArrayList<ASN1OctetString>(5);
+    values = new ArrayList<>(5);
     values.add(value);
 
     normalizedValues = null;
@@ -108,7 +108,7 @@ class LDIFAttribute
   {
     if (normalizedValues == null)
     {
-      normalizedValues = new LinkedHashSet<ASN1OctetString>();
+      normalizedValues = new LinkedHashSet<>(values.size() + 1);
       for (final ASN1OctetString s : values)
       {
         normalizedValues.add(matchingRule.normalize(s));

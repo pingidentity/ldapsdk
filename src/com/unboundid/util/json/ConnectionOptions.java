@@ -143,8 +143,8 @@ final class ConnectionOptions
     boolean referrals = false;
     boolean schema = false;
     boolean synchronous = false;
-    int connect = 60000;
-    long response = 300000L;
+    int connect = 60_000;
+    long response = 300_000L;
 
     final JSONObject o = LDAPConnectionDetailsJSONSpecification.getObject(
          connectionDetailsObject,

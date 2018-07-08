@@ -35,17 +35,16 @@ import java.util.Arrays;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Base64;
+import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKThreadFactory;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Validator;
 import com.unboundid.util.parallel.ParallelProcessor;
 import com.unboundid.util.parallel.Result;
 import com.unboundid.util.parallel.Processor;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -102,7 +101,7 @@ public final class LDIFWriter
    * The bytes that comprise the LDIF version header.
    */
   private static final byte[] VERSION_1_HEADER_BYTES =
-       getBytes("version: 1" + EOL);
+       StaticUtils.getBytes("version: 1" + StaticUtils.EOL);
 
 
 
@@ -291,8 +290,8 @@ public final class LDIFWriter
               final LDIFWriterEntryTranslator entryTranslator,
               final LDIFWriterChangeRecordTranslator changeRecordTranslator)
   {
-    ensureNotNull(outputStream);
-    ensureTrue(parallelThreads >= 0,
+    Validator.ensureNotNull(outputStream);
+    Validator.ensureTrue(parallelThreads >= 0,
          "LDIFWriter.parallelThreads must not be negative.");
 
     this.entryTranslator = entryTranslator;
@@ -316,8 +315,9 @@ public final class LDIFWriter
     {
       final LDAPSDKThreadFactory threadFactory =
            new LDAPSDKThreadFactory("LDIFWriter Worker", true, null);
-      toLdifBytesInvoker = new ParallelProcessor<LDIFRecord,ByteStringBuffer>(
+      toLdifBytesInvoker = new ParallelProcessor<>(
            new Processor<LDIFRecord,ByteStringBuffer>() {
+             @Override()
              public ByteStringBuffer process(final LDIFRecord input)
                     throws IOException
              {
@@ -376,6 +376,7 @@ public final class LDIFWriter
    * @throws  IOException  If a problem occurs while closing the underlying LDIF
    *                       target.
    */
+  @Override()
   public void close()
          throws IOException
   {
@@ -389,7 +390,7 @@ public final class LDIFWriter
         }
         catch (final InterruptedException e)
         {
-          debugException(e);
+          Debug.debugException(e);
           Thread.currentThread().interrupt();
         }
       }
@@ -514,7 +515,7 @@ public final class LDIFWriter
   public void writeEntry(final Entry entry, final String comment)
          throws IOException
   {
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     final Entry e;
     if (entryTranslator == null)
@@ -535,7 +536,7 @@ public final class LDIFWriter
       writeComment(comment, false, false);
     }
 
-    debugLDIFWrite(e);
+    Debug.debugLDIFWrite(e);
     writeLDIF(e);
   }
 
@@ -572,7 +573,7 @@ public final class LDIFWriter
                                 final String comment)
          throws IOException
   {
-    ensureNotNull(changeRecord);
+    Validator.ensureNotNull(changeRecord);
 
     final LDIFChangeRecord r;
     if (changeRecordTranslator == null)
@@ -593,7 +594,7 @@ public final class LDIFWriter
       writeComment(comment, false, false);
     }
 
-    debugLDIFWrite(r);
+    Debug.debugLDIFWrite(r);
     writeLDIF(r);
   }
 
@@ -628,8 +629,8 @@ public final class LDIFWriter
   public void writeLDIFRecord(final LDIFRecord record, final String comment)
          throws IOException
   {
-    ensureNotNull(record);
 
+    Validator.ensureNotNull(record);
     final LDIFRecord r;
     if ((entryTranslator != null) && (record instanceof Entry))
     {
@@ -654,7 +655,7 @@ public final class LDIFWriter
       r = record;
     }
 
-    debugLDIFWrite(r);
+    Debug.debugLDIFWrite(r);
     if (comment != null)
     {
       writeComment(comment, false, false);
@@ -706,12 +707,11 @@ public final class LDIFWriter
         if (encodedBytes != null)
         {
           encodedBytes.write(writer);
-          writer.write(EOL_BYTES);
+          writer.write(StaticUtils.EOL_BYTES);
         }
       }
     }
   }
-
 
 
 
@@ -732,10 +732,10 @@ public final class LDIFWriter
                            final boolean spaceAfter)
          throws IOException
   {
-    ensureNotNull(comment);
+    Validator.ensureNotNull(comment);
     if (spaceBefore)
     {
-      writer.write(EOL_BYTES);
+      writer.write(StaticUtils.EOL_BYTES);
     }
 
     //
@@ -762,7 +762,7 @@ public final class LDIFWriter
 
     if (spaceAfter)
     {
-      writer.write(EOL_BYTES);
+      writer.write(StaticUtils.EOL_BYTES);
     }
   }
 
@@ -787,7 +787,7 @@ public final class LDIFWriter
     final int commentWrapMinusTwo;
     if (wrapColumn <= 0)
     {
-      commentWrapMinusTwo = TERMINAL_WIDTH_COLUMNS - 3;
+      commentWrapMinusTwo = StaticUtils.TERMINAL_WIDTH_COLUMNS - 3;
     }
     else
     {
@@ -800,7 +800,7 @@ public final class LDIFWriter
     {
       buffer.append("# ");
       buffer.append(comment);
-      buffer.append(EOL_BYTES);
+      buffer.append(StaticUtils.EOL_BYTES);
     }
     else
     {
@@ -811,7 +811,7 @@ public final class LDIFWriter
         {
           buffer.append("# ");
           buffer.append(comment.substring(minPos));
-          buffer.append(EOL_BYTES);
+          buffer.append(StaticUtils.EOL_BYTES);
           break;
         }
 
@@ -851,7 +851,7 @@ public final class LDIFWriter
             // we'll just write the remainder of it all at once.
             buffer.append("# ");
             buffer.append(comment.substring(minPos));
-            buffer.append(EOL_BYTES);
+            buffer.append(StaticUtils.EOL_BYTES);
             break;
           }
         }
@@ -860,7 +860,7 @@ public final class LDIFWriter
         // start up after the next space.
         buffer.append("# ");
         buffer.append(comment.substring(minPos, spacePos));
-        buffer.append(EOL_BYTES);
+        buffer.append(StaticUtils.EOL_BYTES);
 
         minPos = spacePos + 1;
         while ((minPos < length) && (comment.charAt(minPos) == ' '))
@@ -888,7 +888,7 @@ public final class LDIFWriter
   {
     buffer.clear();
     record.toLDIF(buffer, wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
     buffer.write(writer);
   }
 
@@ -929,10 +929,10 @@ public final class LDIFWriter
   {
     if (wrapColumn <= 2)
     {
-      return new ArrayList<String>(ldifLines);
+      return new ArrayList<>(ldifLines);
     }
 
-    final ArrayList<String> newLines = new ArrayList<String>(ldifLines.size());
+    final ArrayList<String> newLines = new ArrayList<>(ldifLines.size());
     for (final String s : ldifLines)
     {
       final int length = s.length();
@@ -1099,7 +1099,7 @@ public final class LDIFWriter
         final int length = buffer.length() - bufferStartPos;
         if (length > wrapColumn)
         {
-          final String EOL_PLUS_SPACE = EOL + ' ';
+          final String EOL_PLUS_SPACE = StaticUtils.EOL + ' ';
           buffer.insert((bufferStartPos+wrapColumn), EOL_PLUS_SPACE);
 
           int pos = bufferStartPos + (2*wrapColumn) +
@@ -1139,7 +1139,7 @@ public final class LDIFWriter
       final int wrapColumnMinusTwo;
       if (wrapColumn <= 5)
       {
-        wrapColumnMinusTwo = TERMINAL_WIDTH_COLUMNS - 3;
+        wrapColumnMinusTwo = StaticUtils.TERMINAL_WIDTH_COLUMNS - 3;
       }
       else
       {
@@ -1153,9 +1153,10 @@ public final class LDIFWriter
            "Non-base64-encoded representation of the above value: " +
                 getEscapedValue(valueBytes);
       for (final String s :
-           wrapLine(comment, wrapColumnMinusTwo, wrapColumnMinusThree))
+           StaticUtils.wrapLine(comment, wrapColumnMinusTwo,
+                wrapColumnMinusThree))
       {
-        buffer.append(EOL);
+        buffer.append(StaticUtils.EOL);
         buffer.append("# ");
         if (first)
         {
@@ -1207,10 +1208,11 @@ public final class LDIFWriter
         final int length = buffer.length() - bufferStartPos;
         if (length > wrapColumn)
         {
-          final byte[] EOL_BYTES_PLUS_SPACE = new byte[EOL_BYTES.length + 1];
-          System.arraycopy(EOL_BYTES, 0, EOL_BYTES_PLUS_SPACE, 0,
-                           EOL_BYTES.length);
-          EOL_BYTES_PLUS_SPACE[EOL_BYTES.length] = ' ';
+          final byte[] EOL_BYTES_PLUS_SPACE =
+               new byte[StaticUtils.EOL_BYTES.length + 1];
+          System.arraycopy(StaticUtils.EOL_BYTES, 0, EOL_BYTES_PLUS_SPACE, 0,
+                           StaticUtils.EOL_BYTES.length);
+          EOL_BYTES_PLUS_SPACE[StaticUtils.EOL_BYTES.length] = ' ';
 
           buffer.insert((bufferStartPos+wrapColumn), EOL_BYTES_PLUS_SPACE);
 
@@ -1331,7 +1333,7 @@ public final class LDIFWriter
       final int wrapColumnMinusTwo;
       if (wrapColumn <= 5)
       {
-        wrapColumnMinusTwo = TERMINAL_WIDTH_COLUMNS - 3;
+        wrapColumnMinusTwo = StaticUtils.TERMINAL_WIDTH_COLUMNS - 3;
       }
       else
       {
@@ -1345,9 +1347,10 @@ public final class LDIFWriter
            "Non-base64-encoded representation of the above value: " +
                 getEscapedValue(valueBytes);
       for (final String s :
-           wrapLine(comment, wrapColumnMinusTwo, wrapColumnMinusThree))
+           StaticUtils.wrapLine(comment, wrapColumnMinusTwo,
+                wrapColumnMinusThree))
       {
-        buffer.append(EOL);
+        buffer.append(StaticUtils.EOL);
         buffer.append("# ");
         if (first)
         {
@@ -1426,7 +1429,7 @@ public final class LDIFWriter
           else
           {
             buffer.append("\\");
-            toHex(b, buffer);
+            StaticUtils.toHex(b, buffer);
           }
           break;
       }

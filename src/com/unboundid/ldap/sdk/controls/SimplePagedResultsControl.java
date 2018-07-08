@@ -32,12 +32,12 @@ import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -315,7 +315,7 @@ public final class SimplePagedResultsControl
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_PAGED_RESULTS_VALUE_NOT_SEQUENCE.get(ae), ae);
     }
@@ -334,7 +334,7 @@ public final class SimplePagedResultsControl
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_PAGED_RESULTS_FIRST_NOT_INTEGER.get(ae), ae);
     }

@@ -31,7 +31,6 @@ import java.util.Arrays;
 
 import com.unboundid.asn1.ASN1OctetString;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.UtilityMessages.*;
 
 
@@ -71,7 +70,7 @@ public final class ByteStringBuffer
    * to append to the buffer.
    */
   private static final ThreadLocal<byte[]> TEMP_NUMBER_BUFFER =
-       new ThreadLocal<byte[]>();
+       new ThreadLocal<>();
 
 
 
@@ -172,7 +171,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -203,7 +202,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -226,7 +225,7 @@ public final class ByteStringBuffer
 
       final IndexOutOfBoundsException e =
            new IndexOutOfBoundsException(message);
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -258,7 +257,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_BYTE_STRING_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -285,7 +284,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_BUFFER_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -336,7 +335,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -368,7 +367,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -391,7 +390,7 @@ public final class ByteStringBuffer
 
       final IndexOutOfBoundsException e =
            new IndexOutOfBoundsException(message);
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -468,7 +467,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_CHAR_SEQUENCE_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -571,7 +570,7 @@ public final class ByteStringBuffer
 
       final IndexOutOfBoundsException e =
            new IndexOutOfBoundsException(message);
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (pos == endPos)
@@ -609,7 +608,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -647,7 +646,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -679,7 +678,7 @@ public final class ByteStringBuffer
 
       final IndexOutOfBoundsException e =
            new IndexOutOfBoundsException(message);
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (len == 0)
@@ -721,7 +720,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_BYTE_STRING_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -752,7 +751,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_BUFFER_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -789,7 +788,7 @@ public final class ByteStringBuffer
 
       final IndexOutOfBoundsException e =
            new IndexOutOfBoundsException(message);
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (pos == endPos)
@@ -836,7 +835,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -872,7 +871,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -903,7 +902,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_CHAR_SEQUENCE_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -921,7 +920,7 @@ public final class ByteStringBuffer
 
       final IndexOutOfBoundsException e =
            new IndexOutOfBoundsException(message);
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (pos == endPos)
@@ -1121,7 +1120,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1154,7 +1153,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1177,7 +1176,7 @@ public final class ByteStringBuffer
 
       final IndexOutOfBoundsException e =
            new IndexOutOfBoundsException(message);
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1205,7 +1204,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_BYTE_STRING_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1234,7 +1233,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_BUFFER_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1277,7 +1276,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1311,7 +1310,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_ARRAY_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1334,7 +1333,7 @@ public final class ByteStringBuffer
 
       final IndexOutOfBoundsException e =
            new IndexOutOfBoundsException(message);
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1362,7 +1361,7 @@ public final class ByteStringBuffer
     {
       final NullPointerException e =
            new NullPointerException(ERR_BS_BUFFER_CHAR_SEQUENCE_NULL.get());
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1493,7 +1492,7 @@ public final class ByteStringBuffer
     {
       final IndexOutOfBoundsException e = new IndexOutOfBoundsException(
            ERR_BS_BUFFER_LENGTH_NEGATIVE.get(length));
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1560,7 +1559,7 @@ public final class ByteStringBuffer
     {
       final IndexOutOfBoundsException e = new IndexOutOfBoundsException(
            ERR_BS_BUFFER_CAPACITY_NEGATIVE.get(capacity));
-      debugCodingError(e);
+      Debug.debugCodingError(e);
       throw e;
     }
 
@@ -1739,65 +1738,65 @@ public final class ByteStringBuffer
     {
       divisor = 1000L;
     }
-    else if (v <= 99999L)
+    else if (v <= 99_999L)
     {
-      divisor = 10000L;
+      divisor = 10_000L;
     }
-    else if (v <= 999999L)
+    else if (v <= 999_999L)
     {
-      divisor = 100000L;
+      divisor = 100_000L;
     }
-    else if (v <= 9999999L)
+    else if (v <= 9_999_999L)
     {
-      divisor = 1000000L;
+      divisor = 1_000_000L;
     }
-    else if (v <= 99999999L)
+    else if (v <= 99_999_999L)
     {
-      divisor = 10000000L;
+      divisor = 10_000_000L;
     }
-    else if (v <= 999999999L)
+    else if (v <= 999_999_999L)
     {
-      divisor = 100000000L;
+      divisor = 100_000_000L;
     }
-    else if (v <= 9999999999L)
+    else if (v <= 9_999_999_999L)
     {
-      divisor = 1000000000L;
+      divisor = 1_000_000_000L;
     }
-    else if (v <= 99999999999L)
+    else if (v <= 99_999_999_999L)
     {
-      divisor = 10000000000L;
+      divisor = 10_000_000_000L;
     }
-    else if (v <= 999999999999L)
+    else if (v <= 999_999_999_999L)
     {
-      divisor = 100000000000L;
+      divisor = 100_000_000_000L;
     }
-    else if (v <= 9999999999999L)
+    else if (v <= 9_999_999_999_999L)
     {
-      divisor = 1000000000000L;
+      divisor = 1_000_000_000_000L;
     }
-    else if (v <= 99999999999999L)
+    else if (v <= 99_999_999_999_999L)
     {
-      divisor = 10000000000000L;
+      divisor = 10_000_000_000_000L;
     }
-    else if (v <= 999999999999999L)
+    else if (v <= 999_999_999_999_999L)
     {
-      divisor = 100000000000000L;
+      divisor = 100_000_000_000_000L;
     }
-    else if (v <= 9999999999999999L)
+    else if (v <= 9_999_999_999_999_999L)
     {
-      divisor = 1000000000000000L;
+      divisor = 1_000_000_000_000_000L;
     }
-    else if (v <= 99999999999999999L)
+    else if (v <= 99_999_999_999_999_999L)
     {
-      divisor = 10000000000000000L;
+      divisor = 10_000_000_000_000_000L;
     }
-    else if (v <= 999999999999999999L)
+    else if (v <= 999_999_999_999_999_999L)
     {
-      divisor = 100000000000000000L;
+      divisor = 100_000_000_000_000_000L;
     }
     else
     {
-      divisor = 1000000000000000000L;
+      divisor = 1_000_000_000_000_000_000L;
     }
 
     while (true)

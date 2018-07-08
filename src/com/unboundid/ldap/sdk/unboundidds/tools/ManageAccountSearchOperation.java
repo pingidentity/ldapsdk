@@ -130,9 +130,9 @@ final class ManageAccountSearchOperation
 
     searchRequest = new SearchRequest(this, baseDN, SearchScope.SUB, filter,
          SearchRequest.NO_ATTRIBUTES);
-    searchRequest.setResponseTimeoutMillis(3600000L);
+    searchRequest.setResponseTimeoutMillis(3_600_000L);
 
-    dnsProcessed = new ConcurrentHashMap<DN,DN>(10);
+    dnsProcessed = new ConcurrentHashMap<>(10);
     entryCounter = new AtomicInteger(0);
     referenceCounter = new AtomicInteger(0);
   }

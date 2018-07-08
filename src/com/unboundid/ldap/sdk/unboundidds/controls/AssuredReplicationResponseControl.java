@@ -276,7 +276,7 @@ public final class AssuredReplicationResponseControl
     else
     {
       this.serverResults = Collections.unmodifiableList(
-           new ArrayList<AssuredReplicationServerResult>(serverResults));
+           new ArrayList<>(serverResults));
     }
   }
 
@@ -370,8 +370,7 @@ public final class AssuredReplicationResponseControl
             final ASN1Element[] srElements =
                  ASN1Sequence.decodeAsSequence(e).elements();
             final ArrayList<AssuredReplicationServerResult> srList =
-                 new ArrayList<AssuredReplicationServerResult>(
-                      srElements.length);
+                 new ArrayList<>(srElements.length);
             for (final ASN1Element srElement : srElements)
             {
               try
@@ -483,7 +482,7 @@ public final class AssuredReplicationResponseControl
                final String remoteAssuranceMessage, final String csn,
                final Collection<AssuredReplicationServerResult> serverResults)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(8);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(8);
 
     if (localLevel != null)
     {
@@ -522,7 +521,7 @@ public final class AssuredReplicationResponseControl
     if ((serverResults !=  null) && (! serverResults.isEmpty()))
     {
       final ArrayList<ASN1Element> srElements =
-           new ArrayList<ASN1Element>(serverResults.size());
+           new ArrayList<>(serverResults.size());
       for (final AssuredReplicationServerResult r : serverResults)
       {
         srElements.add(r.encode());
@@ -609,7 +608,7 @@ public final class AssuredReplicationResponseControl
   {
     final Control[] controls = result.getResponseControls();
     final ArrayList<AssuredReplicationResponseControl> decodedControls =
-         new ArrayList<AssuredReplicationResponseControl>(controls.length);
+         new ArrayList<>(controls.length);
     for (final Control c : controls)
     {
       if (c.getOID().equals(ASSURED_REPLICATION_RESPONSE_OID))

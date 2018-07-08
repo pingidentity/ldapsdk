@@ -27,10 +27,10 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -127,19 +127,19 @@ final class SASLHelper
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         if (unhandledCallbackMessages.isEmpty())
         {
           throw new LDAPException(ResultCode.LOCAL_ERROR,
                ERR_SASL_CANNOT_CREATE_INITIAL_REQUEST.get(mechanism,
-                    getExceptionMessage(e)), e);
+                    StaticUtils.getExceptionMessage(e)), e);
         }
         else
         {
           throw new LDAPException(ResultCode.LOCAL_ERROR,
                ERR_SASL_CANNOT_CREATE_INITIAL_REQUEST_UNHANDLED_CALLBACKS.get(
-                    mechanism, getExceptionMessage(e),
-                    concatenateStrings(unhandledCallbackMessages)),
+                    mechanism, StaticUtils.getExceptionMessage(e),
+                    StaticUtils.concatenateStrings(unhandledCallbackMessages)),
                e);
         }
       }
@@ -182,19 +182,20 @@ final class SASLHelper
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           if (unhandledCallbackMessages.isEmpty())
           {
             throw new LDAPException(ResultCode.LOCAL_ERROR,
                  ERR_SASL_CANNOT_CREATE_SUBSEQUENT_REQUEST.get(mechanism,
-                      getExceptionMessage(e)), e);
+                      StaticUtils.getExceptionMessage(e)), e);
           }
           else
           {
             throw new LDAPException(ResultCode.LOCAL_ERROR,
                  ERR_SASL_CANNOT_CREATE_SUBSEQUENT_REQUEST_UNHANDLED_CALLBACKS.
-                      get(mechanism, getExceptionMessage(e),
-                           concatenateStrings(unhandledCallbackMessages)),
+                      get(mechanism, StaticUtils.getExceptionMessage(e),
+                           StaticUtils.concatenateStrings(
+                                unhandledCallbackMessages)),
                  e);
           }
         }
@@ -229,7 +230,7 @@ final class SASLHelper
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
             }
           }
 
@@ -255,7 +256,8 @@ final class SASLHelper
         final Object qopObject = saslClient.getNegotiatedProperty(Sasl.QOP);
         if (qopObject != null)
         {
-          final String qopString = toLowerCase(String.valueOf(qopObject));
+          final String qopString =
+               StaticUtils.toLowerCase(String.valueOf(qopObject));
           if (qopString.contains(SASLQualityOfProtection.AUTH_INT.toString()) ||
                qopString.contains(SASLQualityOfProtection.AUTH_CONF.toString()))
           {
@@ -276,7 +278,7 @@ final class SASLHelper
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
       }
     }

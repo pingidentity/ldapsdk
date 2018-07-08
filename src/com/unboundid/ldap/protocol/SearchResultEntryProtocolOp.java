@@ -40,15 +40,15 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
-import com.unboundid.util.NotMutable;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -102,7 +102,7 @@ public final class SearchResultEntryProtocolOp
   public SearchResultEntryProtocolOp(final Entry entry)
   {
     dn = entry.getDN();
-    attributes = Collections.unmodifiableList(new ArrayList<Attribute>(
+    attributes = Collections.unmodifiableList(new ArrayList<>(
          entry.getAttributes()));
   }
 
@@ -125,9 +125,9 @@ public final class SearchResultEntryProtocolOp
     {
       reader.beginSequence();
       dn = reader.readString();
-      ensureNotNull(dn);
+      Validator.ensureNotNull(dn);
 
-      final ArrayList<Attribute> attrs = new ArrayList<Attribute>(10);
+      final ArrayList<Attribute> attrs = new ArrayList<>(10);
       final ASN1StreamReaderSequence attrSequence = reader.beginSequence();
       while (attrSequence.hasMoreElements())
       {
@@ -138,15 +138,17 @@ public final class SearchResultEntryProtocolOp
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_ENTRY_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_SEARCH_ENTRY_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -194,7 +196,7 @@ public final class SearchResultEntryProtocolOp
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> attrElements =
-         new ArrayList<ASN1Element>(attributes.size());
+         new ArrayList<>(attributes.size());
     for (final Attribute a : attributes)
     {
       attrElements.add(a.encode());
@@ -231,7 +233,7 @@ public final class SearchResultEntryProtocolOp
       final ASN1Element[] attrElements =
            ASN1Sequence.decodeAsSequence(elements[1]).elements();
       final ArrayList<Attribute> attributes =
-           new ArrayList<Attribute>(attrElements.length);
+           new ArrayList<>(attrElements.length);
       for (final ASN1Element e : attrElements)
       {
         attributes.add(Attribute.decode(ASN1Sequence.decodeAsSequence(e)));
@@ -241,9 +243,10 @@ public final class SearchResultEntryProtocolOp
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_ENTRY_CANNOT_DECODE.get(getExceptionMessage(e)),
+           ERR_SEARCH_ENTRY_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

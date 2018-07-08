@@ -29,14 +29,14 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -576,8 +576,8 @@ public final class VirtualListViewRequestControl
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_VLV_REQUEST_INVALID_ELEMENT_TYPE.get(
-                                       toHex(elements[2].getType())));
+               ERR_VLV_REQUEST_INVALID_ELEMENT_TYPE.get(
+                    StaticUtils.toHex(elements[2].getType())));
       }
 
       if (elements.length == 4)
@@ -591,14 +591,14 @@ public final class VirtualListViewRequestControl
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_VLV_REQUEST_CANNOT_DECODE.get(e), e);
+           ERR_VLV_REQUEST_CANNOT_DECODE.get(e), e);
     }
   }
 
@@ -705,7 +705,7 @@ public final class VirtualListViewRequestControl
                                       final int afterCount,
                                       final ASN1OctetString contextID)
   {
-    ensureNotNull(assertionValue);
+    Validator.ensureNotNull(assertionValue);
 
     final ASN1Element[] vlvElements;
     if (contextID == null)

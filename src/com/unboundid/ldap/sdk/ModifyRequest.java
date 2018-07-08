@@ -43,15 +43,15 @@ import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFReader;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -97,7 +97,7 @@ public final class ModifyRequest
 
   // The queue that will be used to receive response messages from the server.
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
-       new LinkedBlockingQueue<LDAPResponse>();
+       new LinkedBlockingQueue<>();
 
   // The set of modifications to perform.
   private final ArrayList<Modification> modifications;
@@ -121,11 +121,11 @@ public final class ModifyRequest
   {
     super(null);
 
-    ensureNotNull(dn, mod);
+    Validator.ensureNotNull(dn, mod);
 
     this.dn = dn;
 
-    modifications = new ArrayList<Modification>(1);
+    modifications = new ArrayList<>(1);
     modifications.add(mod);
   }
 
@@ -142,13 +142,13 @@ public final class ModifyRequest
   {
     super(null);
 
-    ensureNotNull(dn, mods);
-    ensureFalse(mods.length == 0,
+    Validator.ensureNotNull(dn, mods);
+    Validator.ensureFalse(mods.length == 0,
          "ModifyRequest.mods must not be empty.");
 
     this.dn = dn;
 
-    modifications = new ArrayList<Modification>(mods.length);
+    modifications = new ArrayList<>(mods.length);
     modifications.addAll(Arrays.asList(mods));
   }
 
@@ -165,13 +165,13 @@ public final class ModifyRequest
   {
     super(null);
 
-    ensureNotNull(dn, mods);
-    ensureFalse(mods.isEmpty(),
-                "ModifyRequest.mods must not be empty.");
+    Validator.ensureNotNull(dn, mods);
+    Validator.ensureFalse(mods.isEmpty(),
+         "ModifyRequest.mods must not be empty.");
 
     this.dn = dn;
 
-    modifications = new ArrayList<Modification>(mods);
+    modifications = new ArrayList<>(mods);
   }
 
 
@@ -187,11 +187,11 @@ public final class ModifyRequest
   {
     super(null);
 
-    ensureNotNull(dn, mod);
+    Validator.ensureNotNull(dn, mod);
 
     this.dn = dn.toString();
 
-    modifications = new ArrayList<Modification>(1);
+    modifications = new ArrayList<>(1);
     modifications.add(mod);
   }
 
@@ -208,13 +208,13 @@ public final class ModifyRequest
   {
     super(null);
 
-    ensureNotNull(dn, mods);
-    ensureFalse(mods.length == 0,
+    Validator.ensureNotNull(dn, mods);
+    Validator.ensureFalse(mods.length == 0,
          "ModifyRequest.mods must not be empty.");
 
     this.dn = dn.toString();
 
-    modifications = new ArrayList<Modification>(mods.length);
+    modifications = new ArrayList<>(mods.length);
     modifications.addAll(Arrays.asList(mods));
   }
 
@@ -231,13 +231,13 @@ public final class ModifyRequest
   {
     super(null);
 
-    ensureNotNull(dn, mods);
-    ensureFalse(mods.isEmpty(),
-                "ModifyRequest.mods must not be empty.");
+    Validator.ensureNotNull(dn, mods);
+    Validator.ensureFalse(mods.isEmpty(),
+         "ModifyRequest.mods must not be empty.");
 
     this.dn = dn.toString();
 
-    modifications = new ArrayList<Modification>(mods);
+    modifications = new ArrayList<>(mods);
   }
 
 
@@ -256,11 +256,11 @@ public final class ModifyRequest
   {
     super(controls);
 
-    ensureNotNull(dn, mod);
+    Validator.ensureNotNull(dn, mod);
 
     this.dn = dn;
 
-    modifications = new ArrayList<Modification>(1);
+    modifications = new ArrayList<>(1);
     modifications.add(mod);
   }
 
@@ -280,13 +280,13 @@ public final class ModifyRequest
   {
     super(controls);
 
-    ensureNotNull(dn, mods);
-    ensureFalse(mods.length == 0,
+    Validator.ensureNotNull(dn, mods);
+    Validator.ensureFalse(mods.length == 0,
          "ModifyRequest.mods must not be empty.");
 
     this.dn = dn;
 
-    modifications = new ArrayList<Modification>(mods.length);
+    modifications = new ArrayList<>(mods.length);
     modifications.addAll(Arrays.asList(mods));
   }
 
@@ -306,13 +306,13 @@ public final class ModifyRequest
   {
     super(controls);
 
-    ensureNotNull(dn, mods);
-    ensureFalse(mods.isEmpty(),
-                "ModifyRequest.mods must not be empty.");
+    Validator.ensureNotNull(dn, mods);
+    Validator.ensureFalse(mods.isEmpty(),
+         "ModifyRequest.mods must not be empty.");
 
     this.dn = dn;
 
-    modifications = new ArrayList<Modification>(mods);
+    modifications = new ArrayList<>(mods);
   }
 
 
@@ -331,11 +331,11 @@ public final class ModifyRequest
   {
     super(controls);
 
-    ensureNotNull(dn, mod);
+    Validator.ensureNotNull(dn, mod);
 
     this.dn = dn.toString();
 
-    modifications = new ArrayList<Modification>(1);
+    modifications = new ArrayList<>(1);
     modifications.add(mod);
   }
 
@@ -355,13 +355,13 @@ public final class ModifyRequest
   {
     super(controls);
 
-    ensureNotNull(dn, mods);
-    ensureFalse(mods.length == 0,
+    Validator.ensureNotNull(dn, mods);
+    Validator.ensureFalse(mods.length == 0,
          "ModifyRequest.mods must not be empty.");
 
     this.dn = dn.toString();
 
-    modifications = new ArrayList<Modification>(mods.length);
+    modifications = new ArrayList<>(mods.length);
     modifications.addAll(Arrays.asList(mods));
   }
 
@@ -381,13 +381,13 @@ public final class ModifyRequest
   {
     super(controls);
 
-    ensureNotNull(dn, mods);
-    ensureFalse(mods.isEmpty(),
-                "ModifyRequest.mods must not be empty.");
+    Validator.ensureNotNull(dn, mods);
+    Validator.ensureFalse(mods.isEmpty(),
+         "ModifyRequest.mods must not be empty.");
 
     this.dn = dn.toString();
 
-    modifications = new ArrayList<Modification>(mods);
+    modifications = new ArrayList<>(mods);
   }
 
 
@@ -444,7 +444,7 @@ public final class ModifyRequest
    */
   public void setDN(final String dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
   }
@@ -458,7 +458,7 @@ public final class ModifyRequest
    */
   public void setDN(final DN dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn.toString();
   }
@@ -484,7 +484,7 @@ public final class ModifyRequest
    */
   public void addModification(final Modification mod)
   {
-    ensureNotNull(mod);
+    Validator.ensureNotNull(mod);
 
     modifications.add(mod);
   }
@@ -502,7 +502,7 @@ public final class ModifyRequest
    */
   public boolean removeModification(final Modification mod)
   {
-    ensureNotNull(mod);
+    Validator.ensureNotNull(mod);
 
     return modifications.remove(mod);
   }
@@ -518,7 +518,7 @@ public final class ModifyRequest
    */
   public void setModifications(final Modification mod)
   {
-    ensureNotNull(mod);
+    Validator.ensureNotNull(mod);
 
     modifications.clear();
     modifications.add(mod);
@@ -535,8 +535,8 @@ public final class ModifyRequest
    */
   public void setModifications(final Modification[] mods)
   {
-    ensureNotNull(mods);
-    ensureFalse(mods.length == 0,
+    Validator.ensureNotNull(mods);
+    Validator.ensureFalse(mods.length == 0,
          "ModifyRequest.setModifications.mods must not be empty.");
 
     modifications.clear();
@@ -554,9 +554,9 @@ public final class ModifyRequest
    */
   public void setModifications(final List<Modification> mods)
   {
-    ensureNotNull(mods);
-    ensureFalse(mods.isEmpty(),
-                "ModifyRequest.setModifications.mods must not be empty.");
+    Validator.ensureNotNull(mods);
+    Validator.ensureFalse(mods.isEmpty(),
+         "ModifyRequest.setModifications.mods must not be empty.");
 
     modifications.clear();
     modifications.addAll(mods);
@@ -673,7 +673,7 @@ public final class ModifyRequest
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_MODIFY_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -747,14 +747,14 @@ public final class ModifyRequest
     // Send the request to the server.
     try
     {
-      debugLDAPRequest(Level.INFO, this, messageID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumModifyRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       connection.deregisterResponseAcceptor(messageID);
       throw le;
@@ -795,7 +795,7 @@ public final class ModifyRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(Level.INFO, this, messageID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumModifyRequests();
     try
     {
@@ -803,7 +803,7 @@ public final class ModifyRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (allowRetry)
       {
@@ -827,7 +827,7 @@ public final class ModifyRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if ((le.getResultCode() == ResultCode.TIMEOUT) &&
             connection.getConnectionOptions().abandonOnTimeout())
@@ -894,7 +894,8 @@ public final class ModifyRequest
   {
     if (response == null)
     {
-      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      final long waitTime =
+           StaticUtils.nanosToMillis(System.nanoTime() - requestTime);
       if (connection.getConnectionOptions().abandonOnTimeout())
       {
         connection.abandon(messageID);
@@ -1000,7 +1001,7 @@ public final class ModifyRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     return null;
@@ -1068,7 +1069,7 @@ public final class ModifyRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
       }
     }
 
@@ -1093,7 +1094,7 @@ public final class ModifyRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -1101,7 +1102,9 @@ public final class ModifyRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -1147,7 +1150,7 @@ public final class ModifyRequest
   public ModifyRequest duplicate(final Control[] controls)
   {
     final ModifyRequest r = new ModifyRequest(dn,
-         new ArrayList<Modification>(modifications), controls);
+         new ArrayList<>(modifications), controls);
 
     if (followReferralsInternal() != null)
     {
@@ -1270,7 +1273,7 @@ public final class ModifyRequest
   {
     // Create the request variable.
     final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(modifications.size() + 1);
+         new ArrayList<>(modifications.size() + 1);
     constructorArgs.add(ToCodeArgHelper.createString(dn, "Entry DN"));
 
     boolean firstMod = true;

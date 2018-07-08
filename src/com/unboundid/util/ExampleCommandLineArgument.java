@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.Serializable;
 
-import static com.unboundid.util.Validator.*;
-
 
 
 /**
@@ -199,7 +197,7 @@ public final class ExampleCommandLineArgument implements Serializable
    */
   public static String getUnixForm(final String argument)
   {
-    ensureNotNull(argument);
+    Validator.ensureNotNull(argument);
 
     final QuotingRequirements requirements = getRequiredUnixQuoting(argument);
 
@@ -213,11 +211,11 @@ public final class ExampleCommandLineArgument implements Serializable
         // outside of the quoted part, and has to be included in "" itself.
         quotedArgument = quotedArgument.replace("'", "'\"'\"'");
       }
-      quotedArgument = "'" + quotedArgument + "'";
+      quotedArgument = '\'' + quotedArgument + '\'';
     }
     else if (requirements.requiresDoubleQuotesOnUnix())
     {
-      quotedArgument = "\"" + quotedArgument + "\"";
+      quotedArgument = '"' + quotedArgument + '"';
     }
 
     return quotedArgument;
@@ -237,7 +235,7 @@ public final class ExampleCommandLineArgument implements Serializable
    */
   public static String getWindowsForm(final String argument)
   {
-    ensureNotNull(argument);
+    Validator.ensureNotNull(argument);
 
     final QuotingRequirements requirements = getRequiredUnixQuoting(argument);
 
@@ -253,12 +251,11 @@ public final class ExampleCommandLineArgument implements Serializable
       {
         quotedArgument = quotedArgument.replace("\"", "\"\"");
       }
-      quotedArgument = "\"" + quotedArgument + "\"";
+      quotedArgument = '"' + quotedArgument + '"';
     }
 
     return quotedArgument;
   }
-
 
 
 
@@ -278,12 +275,12 @@ public final class ExampleCommandLineArgument implements Serializable
   public static List<String> parseExampleCommandLine(
                                  final String exampleCommandLine)
   {
-    ensureNotNull(exampleCommandLine);
+    Validator.ensureNotNull(exampleCommandLine);
 
     boolean inDoubleQuote = false;
     boolean inSingleQuote = false;
 
-    final List<String> args = new ArrayList<String>();
+    final List<String> args = new ArrayList<>(20);
 
     StringBuilder currentArg = new StringBuilder();
     boolean inArg = false;
@@ -381,7 +378,7 @@ public final class ExampleCommandLineArgument implements Serializable
     boolean includesDoubleQuote = false;
     boolean includesSingleQuote = false;
 
-    if (argument.length() == 0)
+    if (argument.isEmpty())
     {
       requiresDoubleQuotes = true;
     }

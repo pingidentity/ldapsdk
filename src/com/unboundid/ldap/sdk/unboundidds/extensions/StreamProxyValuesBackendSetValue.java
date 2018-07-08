@@ -29,14 +29,14 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -87,7 +87,7 @@ public final class StreamProxyValuesBackendSetValue
   public StreamProxyValuesBackendSetValue(final ASN1OctetString backendSetID,
                                           final ASN1OctetString value)
   {
-    ensureNotNull(backendSetID, value);
+    Validator.ensureNotNull(backendSetID, value);
 
     this.backendSetID = backendSetID;
     this.value        = value;
@@ -160,10 +160,10 @@ public final class StreamProxyValuesBackendSetValue
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_STREAM_PROXY_VALUES_BACKEND_SET_VALUE_CANNOT_DECODE.get(
-                getExceptionMessage(e)), e);
+                StaticUtils.getExceptionMessage(e)), e);
     }
   }
 

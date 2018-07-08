@@ -29,14 +29,14 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPResponse;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -250,14 +250,15 @@ public class IntermediateResponse
             break;
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                 ERR_INTERMEDIATE_RESPONSE_INVALID_ELEMENT.get(toHex(type)));
+                 ERR_INTERMEDIATE_RESPONSE_INVALID_ELEMENT.get(
+                      StaticUtils.toHex(type)));
         }
       }
 
       final Control[] controls;
       if (messageSequence.hasMoreElements())
       {
-        final ArrayList<Control> controlList = new ArrayList<Control>(1);
+        final ArrayList<Control> controlList = new ArrayList<>(1);
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();
         while (controlSequence.hasMoreElements())
         {
@@ -276,14 +277,15 @@ public class IntermediateResponse
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_INTERMEDIATE_RESPONSE_CANNOT_DECODE.get(getExceptionMessage(e)),
+           ERR_INTERMEDIATE_RESPONSE_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

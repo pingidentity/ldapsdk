@@ -35,14 +35,14 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -444,7 +444,7 @@ public final class SearchTask
          notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
          alertOnError);
 
-    ensureNotNull(baseDN, scope, filter, outputFile);
+    Validator.ensureNotNull(baseDN, scope, filter, outputFile);
 
     this.baseDN     = baseDN;
     this.scope      = scope;
@@ -488,7 +488,8 @@ public final class SearchTask
 
 
     // Get the scope.  It must be present.
-    final String scopeStr = toLowerCase(entry.getAttributeValue(ATTR_SCOPE));
+    final String scopeStr =
+         StaticUtils.toLowerCase(entry.getAttributeValue(ATTR_SCOPE));
     if (scopeStr == null)
     {
       throw new TaskException(ERR_SEARCH_TASK_ENTRY_NO_SCOPE.get(
@@ -535,7 +536,7 @@ public final class SearchTask
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new TaskException(ERR_SEARCH_TASK_ENTRY_INVALID_FILTER.get(
            entry.getDN(), filterStr), le);
     }
@@ -594,7 +595,7 @@ public final class SearchTask
          properties.entrySet())
     {
       final TaskProperty p = entry.getKey();
-      final String attrName = toLowerCase(p.getAttributeName());
+      final String attrName = StaticUtils.toLowerCase(p.getAttributeName());
       final List<Object> values = entry.getValue();
 
       if (attrName.equals(ATTR_BASE_DN))
@@ -603,7 +604,8 @@ public final class SearchTask
       }
       else if (attrName.equals(ATTR_SCOPE))
       {
-        final String scopeStr = toLowerCase(parseString(p, values, null));
+        final String scopeStr =
+             StaticUtils.toLowerCase(parseString(p, values, null));
         if (scopeStr != null)
         {
           if (scopeStr.equals("base") || scopeStr.equals("baseobject") ||
@@ -646,7 +648,7 @@ public final class SearchTask
           }
           catch (final LDAPException le)
           {
-            debugException(le);
+            Debug.debugException(le);
             throw new TaskException(ERR_SEARCH_TASK_INVALID_FILTER_PROPERTY.get(
                  filterStr), le);
           }
@@ -809,7 +811,7 @@ public final class SearchTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_SEARCH_TASK);
+    return Collections.singletonList(OC_SEARCH_TASK);
   }
 
 
@@ -820,7 +822,7 @@ public final class SearchTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final LinkedList<Attribute> attrs = new LinkedList<Attribute>();
+    final LinkedList<Attribute> attrs = new LinkedList<>();
 
     attrs.add(new Attribute(ATTR_BASE_DN, baseDN));
     attrs.add(new Attribute(ATTR_SCOPE, String.valueOf(scope.intValue())));
@@ -848,7 +850,7 @@ public final class SearchTask
   @Override()
   public List<TaskProperty> getTaskSpecificProperties()
   {
-    final LinkedList<TaskProperty> props = new LinkedList<TaskProperty>();
+    final LinkedList<TaskProperty> props = new LinkedList<>();
 
     props.add(PROPERTY_BASE_DN);
     props.add(PROPERTY_SCOPE);
@@ -869,20 +871,20 @@ public final class SearchTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>(6);
+         new LinkedHashMap<>(6);
 
     props.put(PROPERTY_BASE_DN,
-         Collections.<Object>unmodifiableList(Arrays.asList(baseDN)));
+         Collections.<Object>singletonList(baseDN));
 
-    props.put(PROPERTY_SCOPE, Collections.<Object>unmodifiableList(
-         Arrays.asList(String.valueOf(scope.intValue()))));
+    props.put(PROPERTY_SCOPE,
+         Collections.<Object>singletonList(String.valueOf(scope.intValue())));
 
-    props.put(PROPERTY_FILTER, Collections.<Object>unmodifiableList(
-         Arrays.asList(filter.toString())));
+    props.put(PROPERTY_FILTER,
+         Collections.<Object>singletonList(filter.toString()));
 
     if ((attributes != null) && (! attributes.isEmpty()))
     {
-      final LinkedList<Object> attrObjects = new LinkedList<Object>();
+      final LinkedList<Object> attrObjects = new LinkedList<>();
       attrObjects.addAll(attributes);
 
       props.put(PROPERTY_REQUESTED_ATTR,
@@ -892,11 +894,11 @@ public final class SearchTask
     if (authzDN != null)
     {
       props.put(PROPERTY_AUTHZ_DN,
-           Collections.<Object>unmodifiableList(Arrays.asList(authzDN)));
+           Collections.<Object>singletonList(authzDN));
     }
 
     props.put(PROPERTY_OUTPUT_FILE,
-         Collections.<Object>unmodifiableList(Arrays.asList(outputFile)));
+         Collections.<Object>singletonList(outputFile));
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

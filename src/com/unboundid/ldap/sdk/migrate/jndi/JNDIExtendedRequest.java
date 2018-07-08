@@ -93,6 +93,7 @@ public final class JNDIExtendedRequest
    *
    * @return  The object identifier for this extended request.
    */
+  @Override()
   public String getID()
   {
     return r.getOID();
@@ -107,6 +108,7 @@ public final class JNDIExtendedRequest
    * @return  The encoded value for this extended request, or {@code null} if
    *          there is no value.
    */
+  @Override()
   public byte[] getEncodedValue()
   {
     final ASN1OctetString value = r.getValue();
@@ -138,6 +140,7 @@ public final class JNDIExtendedRequest
    *
    * @throws  NamingException  If a problem occurs while creating the response.
    */
+  @Override()
   public JNDIExtendedResponse createExtendedResponse(final String id,
                                    final byte[] berValue, final int offset,
                                    final int length)

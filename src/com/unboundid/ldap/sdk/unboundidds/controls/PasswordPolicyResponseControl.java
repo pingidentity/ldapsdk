@@ -35,13 +35,13 @@ import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -254,7 +254,7 @@ public final class PasswordPolicyResponseControl
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_PWP_RESPONSE_VALUE_NOT_SEQUENCE.get(ae), ae);
     }
@@ -294,16 +294,15 @@ public final class PasswordPolicyResponseControl
 
                 default:
                   throw new LDAPException(ResultCode.DECODING_ERROR,
-                                 ERR_PWP_RESPONSE_INVALID_WARNING_TYPE.get(
-                                      toHex(warningElement.getType())));
+                       ERR_PWP_RESPONSE_INVALID_WARNING_TYPE.get(
+                            StaticUtils.toHex(warningElement.getType())));
               }
             }
             catch (final ASN1Exception ae)
             {
-              debugException(ae);
+              Debug.debugException(ae);
               throw new LDAPException(ResultCode.DECODING_ERROR,
-                             ERR_PWP_RESPONSE_CANNOT_DECODE_WARNING.get(ae),
-                             ae);
+                   ERR_PWP_RESPONSE_CANNOT_DECODE_WARNING.get(ae), ae);
             }
           }
           else
@@ -324,28 +323,28 @@ public final class PasswordPolicyResponseControl
               if (et == null)
               {
                   throw new LDAPException(ResultCode.DECODING_ERROR,
-                                 ERR_PWP_RESPONSE_INVALID_ERROR_TYPE.get(
-                                      errorElement.intValue()));
+                       ERR_PWP_RESPONSE_INVALID_ERROR_TYPE.get(
+                            errorElement.intValue()));
               }
             }
             catch (final ASN1Exception ae)
             {
-              debugException(ae);
+              Debug.debugException(ae);
               throw new LDAPException(ResultCode.DECODING_ERROR,
-                             ERR_PWP_RESPONSE_CANNOT_DECODE_ERROR.get(ae), ae);
+                   ERR_PWP_RESPONSE_CANNOT_DECODE_ERROR.get(ae), ae);
             }
           }
           else
           {
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                                    ERR_PWP_RESPONSE_MULTIPLE_ERROR.get());
+                 ERR_PWP_RESPONSE_MULTIPLE_ERROR.get());
           }
           break;
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_PWP_RESPONSE_INVALID_TYPE.get(
-                                       toHex(e.getType())));
+               ERR_PWP_RESPONSE_INVALID_TYPE.get(
+                    StaticUtils.toHex(e.getType())));
       }
     }
 
@@ -423,7 +422,7 @@ public final class PasswordPolicyResponseControl
                       final int warningValue,
                       final PasswordPolicyErrorType errorType)
   {
-    final ArrayList<ASN1Element> valueElements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> valueElements = new ArrayList<>(2);
 
     if (warningType != null)
     {
@@ -512,10 +511,10 @@ public final class PasswordPolicyResponseControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    boolean elementAdded = false;
 
     buffer.append("PasswordPolicyResponseControl(");
 
+    boolean elementAdded = false;
     if (warningType != null)
     {
       buffer.append("warningType='");

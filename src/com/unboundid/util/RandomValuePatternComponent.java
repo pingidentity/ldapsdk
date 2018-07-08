@@ -97,10 +97,10 @@ final class RandomValuePatternComponent
     }
 
     seedRandom = new Random(seed);
-    random     = new ThreadLocal<Random>();
+    random     = new ThreadLocal<>();
 
     this.formatString = formatString;
-    decimalFormat     = new ThreadLocal<DecimalFormat>();
+    decimalFormat     = new ThreadLocal<>();
   }
 
 

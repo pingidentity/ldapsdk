@@ -155,7 +155,7 @@ public final class ModificationType
    * values.
    */
   private static final HashMap<Integer,ModificationType> UNDEFINED_MOD_TYPES =
-       new HashMap<Integer,ModificationType>();
+       new HashMap<>(10);
 
 
 

@@ -30,12 +30,12 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -98,7 +98,7 @@ public final class NameFormDefinition
   public NameFormDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     nameFormString = s.trim();
 
@@ -129,10 +129,10 @@ public final class NameFormDefinition
     // Technically, name form elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<String>    nameList = new ArrayList<String>(1);
-    final ArrayList<String>    reqAttrs = new ArrayList<String>();
-    final ArrayList<String>    optAttrs = new ArrayList<String>();
-    final Map<String,String[]> exts     = new LinkedHashMap<String,String[]>();
+    final ArrayList<String>    nameList = new ArrayList<>(1);
+    final ArrayList<String>    reqAttrs = new ArrayList<>(10);
+    final ArrayList<String>    optAttrs = new ArrayList<>(10);
+    final Map<String,String[]> exts     = new LinkedHashMap<>(5);
     Boolean                    obsolete = null;
     String                     descr    = null;
     String                     oc       = null;
@@ -160,7 +160,7 @@ public final class NameFormDefinition
         pos--;
       }
 
-      final String lowerToken = toLowerCase(token);
+      final String lowerToken = StaticUtils.toLowerCase(token);
       if (lowerToken.equals(")"))
       {
         // This indicates that we're at the end of the value.  There should not
@@ -266,7 +266,7 @@ public final class NameFormDefinition
       {
         pos = skipSpaces(nameFormString, pos, length);
 
-        final ArrayList<String> valueList = new ArrayList<String>();
+        final ArrayList<String> valueList = new ArrayList<>(5);
         pos = readQDStrings(nameFormString, pos, length, valueList);
 
         final String[] values = new String[valueList.size()];
@@ -388,8 +388,8 @@ public final class NameFormDefinition
                                final String[] optionalAttributes,
                                final Map<String,String[]> extensions)
   {
-    ensureNotNull(oid, structuralClass, requiredAttributes);
-    ensureFalse(requiredAttributes.length == 0);
+    Validator.ensureNotNull(oid, structuralClass, requiredAttributes);
+    Validator.ensureFalse(requiredAttributes.length == 0);
 
     this.oid                = oid;
     this.isObsolete         = isObsolete;
@@ -399,7 +399,7 @@ public final class NameFormDefinition
 
     if (names == null)
     {
-      this.names = NO_STRINGS;
+      this.names = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -408,7 +408,7 @@ public final class NameFormDefinition
 
     if (optionalAttributes == null)
     {
-      this.optionalAttributes = NO_STRINGS;
+      this.optionalAttributes = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -745,12 +745,12 @@ public final class NameFormDefinition
     final NameFormDefinition d = (NameFormDefinition) o;
     return (oid.equals(d.oid) &&
          structuralClass.equalsIgnoreCase(d.structuralClass) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
               d.requiredAttributes) &&
-         stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
                    d.optionalAttributes) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(description, d.description) &&
          (isObsolete == d.isObsolete) &&
          extensionsEqual(extensions, d.extensions));
   }

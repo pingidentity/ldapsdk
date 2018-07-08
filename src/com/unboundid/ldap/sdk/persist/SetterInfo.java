@@ -29,14 +29,14 @@ import java.util.List;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -96,7 +96,7 @@ public final class SetterInfo
   SetterInfo(final Method m, final Class<?> c)
        throws LDAPPersistException
   {
-    ensureNotNull(m, c);
+    Validator.ensureNotNull(m, c);
 
     method = m;
     m.setAccessible(true);
@@ -132,10 +132,11 @@ public final class SetterInfo
     }
     catch (final Exception e)
     {
-      debugException(e);
-      throw new LDAPPersistException(ERR_SETTER_INFO_CANNOT_GET_ENCODER.get(
-           a.encoderClass().getName(), m.getName(), c.getName(),
-           getExceptionMessage(e)), e);
+      Debug.debugException(e);
+      throw new LDAPPersistException(
+           ERR_SETTER_INFO_CANNOT_GET_ENCODER.get(a.encoderClass().getName(),
+                m.getName(), c.getName(), StaticUtils.getExceptionMessage(e)),
+           e);
     }
 
     if (! encoder.supportsType(params[0]))
@@ -157,12 +158,12 @@ public final class SetterInfo
     }
 
     final String attrName = a.attribute();
-    if ((attrName == null) || (attrName.length() == 0))
+    if ((attrName == null) || attrName.isEmpty())
     {
       final String methodName = m.getName();
       if (methodName.startsWith("set") && (methodName.length() >= 4))
       {
-        attributeName = toInitialLowerCase(methodName.substring(3));
+        attributeName = StaticUtils.toInitialLowerCase(methodName.substring(3));
       }
       else
       {
@@ -305,7 +306,7 @@ public final class SetterInfo
       }
       catch (final LDAPPersistException lpe)
       {
-        debugException(lpe);
+        Debug.debugException(lpe);
         successful = false;
         failureReasons.add(lpe.getMessage());
       }
@@ -326,7 +327,7 @@ public final class SetterInfo
     }
     catch (final LDAPPersistException lpe)
     {
-      debugException(lpe);
+      Debug.debugException(lpe);
       if (failOnInvalidValue)
       {
         successful = false;

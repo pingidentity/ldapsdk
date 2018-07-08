@@ -181,7 +181,7 @@ public final class IdentifyReferencesToMissingEntries
     getReferencedEntriesPool = null;
 
     entriesExamined = new AtomicLong(0L);
-    missingReferenceCounts = new TreeMap<String, AtomicLong>();
+    missingReferenceCounts = new TreeMap<>();
   }
 
 
@@ -613,8 +613,7 @@ public final class IdentifyReferencesToMissingEntries
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<String[],String>(1);
+    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(1);
 
     final String[] args =
     {
@@ -644,6 +643,7 @@ public final class IdentifyReferencesToMissingEntries
    * @param  searchEntry  The search result entry that has been returned by the
    *                      server.
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     try
@@ -701,6 +701,7 @@ public final class IdentifyReferencesToMissingEntries
    * @param  searchReference  The search result reference that has been returned
    *                          by the server.
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

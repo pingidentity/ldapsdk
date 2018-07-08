@@ -305,7 +305,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
     else
     {
       this.additionalAccessLogProperties = Collections.unmodifiableMap(
-           new LinkedHashMap<String,String>(additionalAccessLogProperties));
+           new LinkedHashMap<>(additionalAccessLogProperties));
     }
 
     messageID = -1;
@@ -346,8 +346,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
     String mechanism = null;
     String authID = null;
 
-    final LinkedHashMap<String,String> logProperties =
-         new LinkedHashMap<String,String>(10);
+    final LinkedHashMap<String,String> logProperties = new LinkedHashMap<>(10);
 
     try
     {
@@ -550,7 +549,6 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
 
 
 
-
   /**
    * {@inheritDoc}
    */
@@ -573,7 +571,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
   {
     if (encodedCredentials == null)
     {
-      final ArrayList<ASN1Element> credElements = new ArrayList<ASN1Element>(8);
+      final ArrayList<ASN1Element> credElements = new ArrayList<>(8);
 
       credElements.add(new ASN1OctetString(TYPE_AUTHENTICATION_ID,
            authenticationID));
@@ -608,7 +606,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
       if (! additionalAccessLogProperties.isEmpty())
       {
         final ArrayList<ASN1Element> logElements =
-             new ArrayList<ASN1Element>(additionalAccessLogProperties.size());
+             new ArrayList<>(additionalAccessLogProperties.size());
         for (final Map.Entry<String,String> e :
              additionalAccessLogProperties.entrySet())
         {
@@ -788,8 +786,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the map of additional log properties.
-    final ArrayList<ToCodeArgHelper> mapConstructorArgs =
-         new ArrayList<ToCodeArgHelper>(1);
+    final ArrayList<ToCodeArgHelper> mapConstructorArgs = new ArrayList<>(1);
     mapConstructorArgs.add(ToCodeArgHelper.createInteger(
          additionalAccessLogProperties.size(), "Initial Capacity"));
 
@@ -804,8 +801,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
     for (final Map.Entry<String,String> e :
          additionalAccessLogProperties.entrySet())
     {
-      final ArrayList<ToCodeArgHelper> putArgs =
-           new ArrayList<ToCodeArgHelper>(2);
+      final ArrayList<ToCodeArgHelper> putArgs = new ArrayList<>(2);
       putArgs.add(ToCodeArgHelper.createString(e.getKey(),
            "Log Property Key"));
       putArgs.add(ToCodeArgHelper.createString(e.getValue(),
@@ -818,7 +814,7 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
 
     // Create the request variable.
     final ArrayList<ToCodeArgHelper> requestConstructorArgs =
-         new ArrayList<ToCodeArgHelper>(8);
+         new ArrayList<>(8);
     requestConstructorArgs.add(ToCodeArgHelper.createString(authenticationID,
          "Authentication ID"));
     requestConstructorArgs.add(ToCodeArgHelper.createString(

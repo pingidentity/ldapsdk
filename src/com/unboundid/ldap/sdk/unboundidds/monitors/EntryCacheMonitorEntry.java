@@ -346,7 +346,7 @@ public final class EntryCacheMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(20);
 
     if (cacheTries != null)
     {

@@ -30,12 +30,12 @@ import java.util.List;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.matchingrules.MatchingRuleMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -70,7 +70,7 @@ public final class CaseIgnoreListMatchingRule
    * all lowercase characters.
    */
   static final String LOWER_EQUALITY_RULE_NAME =
-       toLowerCase(EQUALITY_RULE_NAME);
+       StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
 
@@ -94,7 +94,7 @@ public final class CaseIgnoreListMatchingRule
    * formatted in all lowercase characters.
    */
   static final String LOWER_SUBSTRING_RULE_NAME =
-       toLowerCase(SUBSTRING_RULE_NAME);
+       StaticUtils.toLowerCase(SUBSTRING_RULE_NAME);
 
 
 
@@ -380,7 +380,7 @@ public final class CaseIgnoreListMatchingRule
   public static List<String> getItems(final String value)
          throws LDAPException
   {
-    final ArrayList<String> items = new ArrayList<String>(10);
+    final ArrayList<String> items = new ArrayList<>(10);
 
     final int length = value.length();
     final StringBuilder buffer = new StringBuilder();
@@ -396,7 +396,7 @@ public final class CaseIgnoreListMatchingRule
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
                ERR_CASE_IGNORE_LIST_MALFORMED_HEX_CHAR.get(value), e);
         }
@@ -475,7 +475,7 @@ public final class CaseIgnoreListMatchingRule
   public static List<String> getLowercaseItems(final String value)
          throws LDAPException
   {
-    return getItems(toLowerCase(value));
+    return getItems(StaticUtils.toLowerCase(value));
   }
 
 

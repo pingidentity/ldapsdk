@@ -915,7 +915,7 @@ public class GaugeMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(43);
+         new LinkedHashMap<>(43);
 
     if (gaugeName != null)
     {

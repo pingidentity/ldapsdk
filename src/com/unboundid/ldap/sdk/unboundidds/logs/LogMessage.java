@@ -32,14 +32,14 @@ import java.util.Set;
 import java.util.Map;
 
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.logs.LogMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -85,7 +85,7 @@ public class LogMessage
    * The thread-local date formatter.
    */
   private static final ThreadLocal<SimpleDateFormat> dateSecFormat =
-       new ThreadLocal<SimpleDateFormat>();
+       new ThreadLocal<>();
 
 
 
@@ -93,7 +93,7 @@ public class LogMessage
    * The thread-local date formatter.
    */
   private static final ThreadLocal<SimpleDateFormat> dateMsFormat =
-       new ThreadLocal<SimpleDateFormat>();
+       new ThreadLocal<>();
 
 
 
@@ -185,16 +185,17 @@ public class LogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LogException(s,
-           ERR_LOG_MESSAGE_INVALID_TIMESTAMP.get(getExceptionMessage(e)), e);
+           ERR_LOG_MESSAGE_INVALID_TIMESTAMP.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
 
 
     // The remainder of the message should consist of named and unnamed values.
-    final LinkedHashMap<String,String> named =
-         new LinkedHashMap<String,String>();
-    final LinkedHashSet<String> unnamed = new LinkedHashSet<String>();
+    final LinkedHashMap<String,String> named = new LinkedHashMap<>(10);
+    final LinkedHashSet<String> unnamed = new LinkedHashSet<>(10);
     parseTokens(s, bracketPos+1, named, unnamed);
 
     namedValues   = Collections.unmodifiableMap(named);
@@ -473,7 +474,7 @@ public class LogMessage
       return null;
     }
 
-    final String lowerValue = toLowerCase(s);
+    final String lowerValue = StaticUtils.toLowerCase(s);
     if (lowerValue.equals("true") || lowerValue.equals("t") ||
         lowerValue.equals("yes") || lowerValue.equals("y") ||
         lowerValue.equals("on") || lowerValue.equals("1"))
@@ -518,7 +519,7 @@ public class LogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }
@@ -550,7 +551,7 @@ public class LogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }
@@ -580,7 +581,7 @@ public class LogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }

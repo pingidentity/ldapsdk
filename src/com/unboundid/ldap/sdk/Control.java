@@ -29,22 +29,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Constants;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -98,7 +98,7 @@ public class Control
   // class implementing the DecodeableControl interface that should be used to
   // decode controls with that OID.
   private static final ConcurrentHashMap<String,DecodeableControl>
-       decodeableControlMap = new ConcurrentHashMap<String,DecodeableControl>();
+       decodeableControlMap = new ConcurrentHashMap<>(50);
 
 
 
@@ -172,7 +172,7 @@ public class Control
    */
   public Control(final String oid)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid   = oid;
     isCritical = false;
@@ -191,7 +191,7 @@ public class Control
    */
   public Control(final String oid, final boolean isCritical)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid        = oid;
     this.isCritical = isCritical;
@@ -212,7 +212,7 @@ public class Control
   public Control(final String oid, final boolean isCritical,
                  final ASN1OctetString value)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid        = oid;
     this.isCritical = isCritical;
@@ -306,7 +306,7 @@ public class Control
    */
   public final ASN1Sequence encode()
   {
-    final ArrayList<ASN1Element> elementList = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elementList = new ArrayList<>(3);
     elementList.add(new ASN1OctetString(oid));
 
     if (isCritical)
@@ -349,15 +349,15 @@ public class Control
         final byte type = (byte) reader.peek();
         switch (type)
         {
-          case UNIVERSAL_BOOLEAN_TYPE:
+          case ASN1Constants.UNIVERSAL_BOOLEAN_TYPE:
             isCritical = reader.readBoolean();
             break;
-          case UNIVERSAL_OCTET_STRING_TYPE:
+          case ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE:
             value = new ASN1OctetString(reader.readBytes());
             break;
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                                    ERR_CONTROL_INVALID_TYPE.get(toHex(type)));
+                 ERR_CONTROL_INVALID_TYPE.get(StaticUtils.toHex(type)));
         }
       }
 
@@ -365,14 +365,15 @@ public class Control
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_CONTROL_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_CONTROL_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -409,7 +410,7 @@ public class Control
     {
       switch (elements[1].getType())
       {
-        case UNIVERSAL_BOOLEAN_TYPE:
+        case ASN1Constants.UNIVERSAL_BOOLEAN_TYPE:
           try
           {
             isCritical =
@@ -417,21 +418,22 @@ public class Control
           }
           catch (final ASN1Exception ae)
           {
-            debugException(ae);
+            Debug.debugException(ae);
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                 ERR_CONTROL_DECODE_CRITICALITY.get(getExceptionMessage(ae)),
+                 ERR_CONTROL_DECODE_CRITICALITY.get(
+                      StaticUtils.getExceptionMessage(ae)),
                  ae);
           }
           break;
 
-        case UNIVERSAL_OCTET_STRING_TYPE:
+        case ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE:
           value = ASN1OctetString.decodeAsOctetString(elements[1]);
           break;
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_CONTROL_INVALID_TYPE.get(
-                                       toHex(elements[1].getType())));
+               ERR_CONTROL_INVALID_TYPE.get(
+                    StaticUtils.toHex(elements[1].getType())));
       }
     }
     else if (elements.length == 3)
@@ -442,9 +444,11 @@ public class Control
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
-             ERR_CONTROL_DECODE_CRITICALITY.get(getExceptionMessage(ae)), ae);
+             ERR_CONTROL_DECODE_CRITICALITY.get(
+                  StaticUtils.getExceptionMessage(ae)),
+             ae);
       }
 
       value = ASN1OctetString.decodeAsOctetString(elements[2]);
@@ -491,7 +495,7 @@ public class Control
        }
        catch (final Exception e)
        {
-         debugException(e);
+         Debug.debugException(e);
          return new Control(oid, isCritical, value);
        }
      }
@@ -545,11 +549,11 @@ public class Control
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
-                                ERR_CONTROLS_DECODE_ELEMENT_NOT_SEQUENCE.get(
-                                     getExceptionMessage(ae)),
-                                ae);
+             ERR_CONTROLS_DECODE_ELEMENT_NOT_SEQUENCE.get(
+                  StaticUtils.getExceptionMessage(ae)),
+             ae);
       }
     }
 

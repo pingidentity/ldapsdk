@@ -47,14 +47,14 @@ import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Base64;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -146,7 +146,7 @@ public final class Attribute
    */
   public Attribute(final String name)
   {
-    ensureNotNull(name);
+    Validator.ensureNotNull(name);
 
     this.name = name;
 
@@ -164,7 +164,7 @@ public final class Attribute
    */
   public Attribute(final String name, final String value)
   {
-    ensureNotNull(name, value);
+    Validator.ensureNotNull(name, value);
 
     this.name = name;
 
@@ -182,7 +182,7 @@ public final class Attribute
    */
   public Attribute(final String name, final byte[] value)
   {
-    ensureNotNull(name, value);
+    Validator.ensureNotNull(name, value);
 
     this.name = name;
     values = new ASN1OctetString[] { new ASN1OctetString(value) };
@@ -200,7 +200,7 @@ public final class Attribute
    */
   public Attribute(final String name, final String... values)
   {
-    ensureNotNull(name, values);
+    Validator.ensureNotNull(name, values);
 
     this.name = name;
 
@@ -223,7 +223,7 @@ public final class Attribute
    */
   public Attribute(final String name, final byte[]... values)
   {
-    ensureNotNull(name, values);
+    Validator.ensureNotNull(name, values);
 
     this.name = name;
 
@@ -246,7 +246,7 @@ public final class Attribute
    */
   public Attribute(final String name, final ASN1OctetString... values)
   {
-    ensureNotNull(name, values);
+    Validator.ensureNotNull(name, values);
 
     this.name   = name;
     this.values = values;
@@ -265,7 +265,7 @@ public final class Attribute
    */
   public Attribute(final String name, final Collection<String> values)
   {
-    ensureNotNull(name, values);
+    Validator.ensureNotNull(name, values);
 
     this.name = name;
 
@@ -291,7 +291,7 @@ public final class Attribute
    */
   public Attribute(final String name, final MatchingRule matchingRule)
   {
-    ensureNotNull(name, matchingRule);
+    Validator.ensureNotNull(name, matchingRule);
 
     this.name         = name;
     this.matchingRule = matchingRule;
@@ -314,7 +314,7 @@ public final class Attribute
   public Attribute(final String name, final MatchingRule matchingRule,
                    final String value)
   {
-    ensureNotNull(name, matchingRule, value);
+    Validator.ensureNotNull(name, matchingRule, value);
 
     this.name         = name;
     this.matchingRule = matchingRule;
@@ -337,7 +337,7 @@ public final class Attribute
   public Attribute(final String name, final MatchingRule matchingRule,
                    final byte[] value)
   {
-    ensureNotNull(name, matchingRule, value);
+    Validator.ensureNotNull(name, matchingRule, value);
 
     this.name         = name;
     this.matchingRule = matchingRule;
@@ -360,7 +360,7 @@ public final class Attribute
   public Attribute(final String name, final MatchingRule matchingRule,
                    final String... values)
   {
-    ensureNotNull(name, matchingRule, values);
+    Validator.ensureNotNull(name, matchingRule, values);
 
     this.name         = name;
     this.matchingRule = matchingRule;
@@ -387,7 +387,7 @@ public final class Attribute
   public Attribute(final String name, final MatchingRule matchingRule,
                    final byte[]... values)
   {
-    ensureNotNull(name, matchingRule, values);
+    Validator.ensureNotNull(name, matchingRule, values);
 
     this.name         = name;
     this.matchingRule = matchingRule;
@@ -414,7 +414,7 @@ public final class Attribute
   public Attribute(final String name, final MatchingRule matchingRule,
                    final Collection<String> values)
   {
-    ensureNotNull(name, matchingRule, values);
+    Validator.ensureNotNull(name, matchingRule, values);
 
     this.name         = name;
     this.matchingRule = matchingRule;
@@ -562,10 +562,10 @@ public final class Attribute
                                           final Attribute attr2,
                                           final MatchingRule matchingRule)
   {
-    ensureNotNull(attr1, attr2);
+    Validator.ensureNotNull(attr1, attr2);
 
     final String name = attr1.name;
-    ensureTrue(name.equalsIgnoreCase(attr2.name));
+    Validator.ensureTrue(name.equalsIgnoreCase(attr2.name));
 
     final MatchingRule mr;
     if (matchingRule == null)
@@ -650,10 +650,10 @@ public final class Attribute
                                        final Attribute attr2,
                                        final MatchingRule matchingRule)
   {
-    ensureNotNull(attr1, attr2);
+    Validator.ensureNotNull(attr1, attr2);
 
     final String name = attr1.name;
-    ensureTrue(name.equalsIgnoreCase(attr2.name));
+    Validator.ensureTrue(name.equalsIgnoreCase(attr2.name));
 
     final MatchingRule mr;
     if (matchingRule == null)
@@ -666,7 +666,7 @@ public final class Attribute
     }
 
     final ArrayList<ASN1OctetString> newValues =
-         new ArrayList<ASN1OctetString>(Arrays.asList(attr1.values));
+         new ArrayList<>(Arrays.asList(attr1.values));
 
     final Iterator<ASN1OctetString> iterator = newValues.iterator();
     while (iterator.hasNext())
@@ -952,7 +952,7 @@ public final class Attribute
     int semicolonPos = name.indexOf(';');
     if (semicolonPos > 0)
     {
-      final LinkedHashSet<String> options = new LinkedHashSet<String>();
+      final LinkedHashSet<String> options = new LinkedHashSet<>(5);
       while (true)
       {
         final int nextSemicolonPos = name.indexOf(';', semicolonPos+1);
@@ -1047,7 +1047,7 @@ public final class Attribute
       return null;
     }
 
-    final String lowerValue = toLowerCase(values[0].stringValue());
+    final String lowerValue = StaticUtils.toLowerCase(values[0].stringValue());
     if (lowerValue.equals("true") || lowerValue.equals("t") ||
         lowerValue.equals("yes") || lowerValue.equals("y") ||
         lowerValue.equals("on") || lowerValue.equals("1"))
@@ -1086,11 +1086,11 @@ public final class Attribute
 
     try
     {
-      return decodeGeneralizedTime(values[0].stringValue());
+      return StaticUtils.decodeGeneralizedTime(values[0].stringValue());
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }
@@ -1117,7 +1117,7 @@ public final class Attribute
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }
@@ -1145,7 +1145,7 @@ public final class Attribute
     }
     catch (final NumberFormatException nfe)
     {
-      debugException(nfe);
+      Debug.debugException(nfe);
       return null;
     }
   }
@@ -1173,7 +1173,7 @@ public final class Attribute
     }
     catch (final NumberFormatException nfe)
     {
-      debugException(nfe);
+      Debug.debugException(nfe);
       return null;
     }
   }
@@ -1191,7 +1191,7 @@ public final class Attribute
   {
     if (values.length == 0)
     {
-      return NO_STRINGS;
+      return StaticUtils.NO_STRINGS;
     }
 
     final String[] stringValues = new String[values.length];
@@ -1268,7 +1268,7 @@ public final class Attribute
    */
   public boolean hasValue(final String value)
   {
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
 
     return hasValue(new ASN1OctetString(value), matchingRule);
   }
@@ -1288,7 +1288,7 @@ public final class Attribute
    */
   public boolean hasValue(final String value, final MatchingRule matchingRule)
   {
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
 
     return hasValue(new ASN1OctetString(value), matchingRule);
   }
@@ -1306,7 +1306,7 @@ public final class Attribute
    */
   public boolean hasValue(final byte[] value)
   {
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
 
     return hasValue(new ASN1OctetString(value), matchingRule);
   }
@@ -1326,7 +1326,7 @@ public final class Attribute
    */
   public boolean hasValue(final byte[] value, final MatchingRule matchingRule)
   {
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
 
     return hasValue(new ASN1OctetString(value), matchingRule);
   }
@@ -1367,7 +1367,7 @@ public final class Attribute
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       // This probably means that the provided value cannot be normalized.  In
       // that case, we'll fall back to a byte-for-byte comparison of the values.
@@ -1477,15 +1477,14 @@ public final class Attribute
   {
     try
     {
-      ensureNotNull(reader.beginSequence());
+      Validator.ensureNotNull(reader.beginSequence());
       final String attrName = reader.readString();
-      ensureNotNull(attrName);
+      Validator.ensureNotNull(attrName);
 
       final MatchingRule matchingRule =
            MatchingRule.selectEqualityMatchingRule(attrName, schema);
 
-      final ArrayList<ASN1OctetString> valueList =
-           new ArrayList<ASN1OctetString>();
+      final ArrayList<ASN1OctetString> valueList = new ArrayList<>(10);
       final ASN1StreamReaderSet valueSet = reader.beginSet();
       while (valueSet.hasMoreElements())
       {
@@ -1499,9 +1498,9 @@ public final class Attribute
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_ATTR_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_ATTR_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)), e);
     }
   }
 
@@ -1521,7 +1520,7 @@ public final class Attribute
   public static Attribute decode(final ASN1Sequence encodedAttribute)
          throws LDAPException
   {
-    ensureNotNull(encodedAttribute);
+    Validator.ensureNotNull(encodedAttribute);
 
     final ASN1Element[] elements = encodedAttribute.elements();
     if (elements.length != 2)
@@ -1540,9 +1539,10 @@ public final class Attribute
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_ATTR_DECODE_VALUE_SET.get(getExceptionMessage(ae)), ae);
+           ERR_ATTR_DECODE_VALUE_SET.get(StaticUtils.getExceptionMessage(ae)),
+           ae);
     }
 
     final ASN1OctetString[] values =
@@ -1592,7 +1592,7 @@ public final class Attribute
    */
   public static boolean needsBase64Encoding(final String v)
   {
-    return needsBase64Encoding(getBytes(v));
+    return needsBase64Encoding(StaticUtils.getBytes(v));
   }
 
 
@@ -1661,7 +1661,7 @@ public final class Attribute
   {
     if (hashCode == -1)
     {
-      int c = toLowerCase(name).hashCode();
+      int c = StaticUtils.toLowerCase(name).hashCode();
 
       for (final ASN1OctetString value : values)
       {
@@ -1671,7 +1671,7 @@ public final class Attribute
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
           c += value.hashCode();
         }
       }
@@ -1732,7 +1732,7 @@ public final class Attribute
       // First, create a hash set containing the un-normalized values of the
       // first attribute.
       final HashSet<ASN1OctetString> unNormalizedValues =
-           new HashSet<ASN1OctetString>(values.length);
+           new HashSet<>(values.length);
       Collections.addAll(unNormalizedValues, values);
 
       // Next, iterate through the values of the second attribute.  For any
@@ -1746,8 +1746,7 @@ public final class Attribute
         {
           if (normalizedMissingValues == null)
           {
-            normalizedMissingValues =
-                 new HashSet<ASN1OctetString>(values.length);
+            normalizedMissingValues = new HashSet<>(values.length);
           }
 
           try
@@ -1756,7 +1755,7 @@ public final class Attribute
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             return false;
           }
         }
@@ -1780,7 +1779,7 @@ public final class Attribute
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             return false;
           }
         }

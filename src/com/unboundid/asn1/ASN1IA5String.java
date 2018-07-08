@@ -22,14 +22,13 @@ package com.unboundid.asn1;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -70,7 +69,7 @@ public final class ASN1IA5String
   public ASN1IA5String(final String stringValue)
          throws ASN1Exception
   {
-    this(UNIVERSAL_IA5_STRING_TYPE, stringValue);
+    this(ASN1Constants.UNIVERSAL_IA5_STRING_TYPE, stringValue);
   }
 
 
@@ -192,12 +191,12 @@ public final class ASN1IA5String
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }

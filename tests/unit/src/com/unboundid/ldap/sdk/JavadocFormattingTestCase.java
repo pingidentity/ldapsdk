@@ -179,7 +179,7 @@ public final class JavadocFormattingTestCase
               // fail.
               final String filename = sourceFile.getName();
               if (filename.equals("LDAPConnection.java") &&
-                   (lineNumber == 116))
+                   (lineNumber == 117))
               {
                 // This is a known exception.
               }

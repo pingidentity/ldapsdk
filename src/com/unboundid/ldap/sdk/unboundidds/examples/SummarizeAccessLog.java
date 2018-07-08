@@ -71,14 +71,13 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ReverseComparator;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -325,30 +324,30 @@ public final class SummarizeAccessLog
     numUncachedModifyDNs = 0L;
     numUncachedSearches  = 0L;
 
-    searchEntryCounts        = new HashMap<Long,AtomicLong>(10);
-    addResultCodes           = new HashMap<ResultCode,AtomicLong>(10);
-    bindResultCodes          = new HashMap<ResultCode,AtomicLong>(10);
-    compareResultCodes       = new HashMap<ResultCode,AtomicLong>(10);
-    deleteResultCodes        = new HashMap<ResultCode,AtomicLong>(10);
-    extendedResultCodes      = new HashMap<ResultCode,AtomicLong>(10);
-    modifyResultCodes        = new HashMap<ResultCode,AtomicLong>(10);
-    modifyDNResultCodes      = new HashMap<ResultCode,AtomicLong>(10);
-    searchResultCodes        = new HashMap<ResultCode,AtomicLong>(10);
-    searchScopes             = new HashMap<SearchScope,AtomicLong>(4);
-    clientAddresses          = new HashMap<String,AtomicLong>(100);
-    clientConnectionPolicies = new HashMap<String,AtomicLong>(100);
-    disconnectReasons        = new HashMap<String,AtomicLong>(100);
-    extendedOperations       = new HashMap<String,AtomicLong>(10);
-    filterTypes              = new HashMap<String,AtomicLong>(100);
-    processedRequests        = new HashSet<String>(100);
-    addProcessingTimes       = new LinkedHashMap<Long,AtomicLong>(11);
-    bindProcessingTimes      = new LinkedHashMap<Long,AtomicLong>(11);
-    compareProcessingTimes   = new LinkedHashMap<Long,AtomicLong>(11);
-    deleteProcessingTimes    = new LinkedHashMap<Long,AtomicLong>(11);
-    extendedProcessingTimes  = new LinkedHashMap<Long,AtomicLong>(11);
-    modifyProcessingTimes    = new LinkedHashMap<Long,AtomicLong>(11);
-    modifyDNProcessingTimes  = new LinkedHashMap<Long,AtomicLong>(11);
-    searchProcessingTimes    = new LinkedHashMap<Long,AtomicLong>(11);
+    searchEntryCounts        = new HashMap<>(10);
+    addResultCodes           = new HashMap<>(10);
+    bindResultCodes          = new HashMap<>(10);
+    compareResultCodes       = new HashMap<>(10);
+    deleteResultCodes        = new HashMap<>(10);
+    extendedResultCodes      = new HashMap<>(10);
+    modifyResultCodes        = new HashMap<>(10);
+    modifyDNResultCodes      = new HashMap<>(10);
+    searchResultCodes        = new HashMap<>(10);
+    searchScopes             = new HashMap<>(4);
+    clientAddresses          = new HashMap<>(100);
+    clientConnectionPolicies = new HashMap<>(100);
+    disconnectReasons        = new HashMap<>(100);
+    extendedOperations       = new HashMap<>(10);
+    filterTypes              = new HashMap<>(100);
+    processedRequests        = new HashSet<>(100);
+    addProcessingTimes       = new LinkedHashMap<>(11);
+    bindProcessingTimes      = new LinkedHashMap<>(11);
+    compareProcessingTimes   = new LinkedHashMap<>(11);
+    deleteProcessingTimes    = new LinkedHashMap<>(11);
+    extendedProcessingTimes  = new LinkedHashMap<>(11);
+    modifyProcessingTimes    = new LinkedHashMap<>(11);
+    modifyDNProcessingTimes  = new LinkedHashMap<>(11);
+    searchProcessingTimes    = new LinkedHashMap<>(11);
 
     populateProcessingTimeMap(addProcessingTimes);
     populateProcessingTimeMap(bindProcessingTimes);
@@ -666,7 +665,7 @@ public final class SummarizeAccessLog
       {
         Debug.debugException(e);
         err("Unable to open access log file ", f.getAbsolutePath(), ":  ",
-            getExceptionMessage(e));
+            StaticUtils.getExceptionMessage(e));
         return ResultCode.LOCAL_ERROR;
       }
       finally
@@ -698,7 +697,7 @@ public final class SummarizeAccessLog
         {
           Debug.debugException(ioe);
           err("Error reading from access log file ", f.getAbsolutePath(),
-              ":  ", getExceptionMessage(ioe));
+              ":  ", StaticUtils.getExceptionMessage(ioe));
 
           if ((ioe.getCause() != null) &&
                (ioe.getCause() instanceof BadPaddingException))
@@ -721,7 +720,7 @@ public final class SummarizeAccessLog
           Debug.debugException(le);
           err("Encountered an error while attempting to parse a line in" +
               "access log file ", f.getAbsolutePath(), ":  ",
-              getExceptionMessage(le));
+              StaticUtils.getExceptionMessage(le));
           continue;
         }
 
@@ -822,7 +821,7 @@ public final class SummarizeAccessLog
     out("Examined ", logLines, " lines in ", numFiles,
         ((numFiles == 1) ? " file" : " files"),
         " covering a total duration of ",
-        millisToHumanReadableDuration(logDurationMillis));
+        StaticUtils.millisToHumanReadableDuration(logDurationMillis));
     if (logLines == 0)
     {
       return ResultCode.SUCCESS;
@@ -1263,8 +1262,7 @@ public final class SummarizeAccessLog
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(1);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(1);
 
     final String[] args =
     {
@@ -1793,27 +1791,26 @@ public final class SummarizeAccessLog
                                                    final int n)
   {
     final TreeMap<Long,List<K>> reverseMap =
-         new TreeMap<Long,List<K>>(new ReverseComparator<Long>());
+         new TreeMap<>(new ReverseComparator<Long>());
     for (final Map.Entry<K,AtomicLong> e : m.entrySet())
     {
       final Long count = e.getValue().get();
       List<K> list = reverseMap.get(count);
       if (list == null)
       {
-        list = new ArrayList<K>(n);
+        list = new ArrayList<>(n);
         reverseMap.put(count, list);
       }
       list.add(e.getKey());
     }
 
-    final ArrayList<ObjectPair<K,Long>> returnList =
-         new ArrayList<ObjectPair<K,Long>>(n);
+    final ArrayList<ObjectPair<K,Long>> returnList = new ArrayList<>(n);
     for (final Map.Entry<Long,List<K>> e : reverseMap.entrySet())
     {
       final Long l = e.getKey();
       for (final K k : e.getValue())
       {
-        returnList.add(new ObjectPair<K,Long>(k, l));
+        returnList.add(new ObjectPair<>(k, l));
       }
 
       if (returnList.size() >= n)

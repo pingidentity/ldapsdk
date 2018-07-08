@@ -35,11 +35,10 @@ import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -131,7 +130,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<MonitorEntry> monitorEntries =
-         new ArrayList<MonitorEntry>(searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(MonitorEntry.decode(e));
@@ -188,8 +187,8 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getGeneralMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getGeneralMonitorEntry");
 
       return null;
     }
@@ -248,15 +247,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getActiveOperationsMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getActiveOperationsMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getActiveOperationsMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getActiveOperationsMonitorEntry");
     }
 
     return new ActiveOperationsMonitorEntry(
@@ -312,7 +311,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<BackendMonitorEntry> monitorEntries =
-         new ArrayList<BackendMonitorEntry>(searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new BackendMonitorEntry(e));
@@ -372,15 +371,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getClientConnectionMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getClientConnectionMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getClientConnectionMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getClientConnectionMonitorEntry");
     }
 
     return new ClientConnectionMonitorEntry(
@@ -438,8 +437,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<ConnectionHandlerMonitorEntry> monitorEntries =
-         new ArrayList<ConnectionHandlerMonitorEntry>(
-                  searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new ConnectionHandlerMonitorEntry(e));
@@ -497,15 +495,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getDiskSpaceUsageMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getDiskSpaceUsageMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getDiskSpaceUsageMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getDiskSpaceUsageMonitorEntry");
     }
 
     return new DiskSpaceUsageMonitorEntry(
@@ -561,15 +559,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getEntryCacheMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getEntryCacheMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getEntryCacheMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getEntryCacheMonitorEntry");
     }
 
     return new EntryCacheMonitorEntry(searchResult.getSearchEntries().get(0));
@@ -622,8 +620,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<FIFOEntryCacheMonitorEntry> monitorEntries =
-         new ArrayList<FIFOEntryCacheMonitorEntry>(
-              searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new FIFOEntryCacheMonitorEntry(e));
@@ -660,7 +657,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<GaugeMonitorEntry> monitorEntries =
-         new ArrayList<GaugeMonitorEntry>(searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       try
@@ -669,7 +666,7 @@ public final class MonitorManager
       }
       catch (final Exception ex)
       {
-        debugException(ex);
+        Debug.debugException(ex);
       }
     }
 
@@ -704,15 +701,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getGroupCacheMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getGroupCacheMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getGroupCacheMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getGroupCacheMonitorEntry");
     }
 
     return new GroupCacheMonitorEntry(searchResult.getSearchEntries().get(0));
@@ -749,17 +746,17 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in " +
-                 "getHostSystemRecentCPUAndMemoryMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in " +
+                "getHostSystemRecentCPUAndMemoryMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in " +
-                 "getHostSystemRecentCPUAndMemoryMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in " +
+                "getHostSystemRecentCPUAndMemoryMonitorEntry");
     }
 
     return new HostSystemRecentCPUAndMemoryMonitorEntry(
@@ -815,7 +812,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<IndexMonitorEntry> monitorEntries =
-         new ArrayList<IndexMonitorEntry>(searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new IndexMonitorEntry(e));
@@ -851,8 +848,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<IndicatorGaugeMonitorEntry> monitorEntries =
-         new ArrayList<IndicatorGaugeMonitorEntry>(
-              searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new IndicatorGaugeMonitorEntry(e));
@@ -912,7 +908,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<JEEnvironmentMonitorEntry> monitorEntries =
-         new ArrayList<JEEnvironmentMonitorEntry>(searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new JEEnvironmentMonitorEntry(e));
@@ -972,8 +968,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<LDAPExternalServerMonitorEntry> monitorEntries =
-         new ArrayList<LDAPExternalServerMonitorEntry>(
-                  searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new LDAPExternalServerMonitorEntry(e));
@@ -1033,8 +1028,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<LDAPStatisticsMonitorEntry> monitorEntries =
-         new ArrayList<LDAPStatisticsMonitorEntry>(
-                  searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new LDAPStatisticsMonitorEntry(e));
@@ -1095,8 +1089,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<LoadBalancingAlgorithmMonitorEntry> monitorEntries =
-         new ArrayList<LoadBalancingAlgorithmMonitorEntry>(
-                  searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new LoadBalancingAlgorithmMonitorEntry(e));
@@ -1154,15 +1147,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getMemoryUsageMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getMemoryUsageMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getMemoryUsageMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getMemoryUsageMonitorEntry");
     }
 
     return new MemoryUsageMonitorEntry(searchResult.getSearchEntries().get(0));
@@ -1195,8 +1188,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<NumericGaugeMonitorEntry> monitorEntries =
-         new ArrayList<NumericGaugeMonitorEntry>(
-              searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new NumericGaugeMonitorEntry(e));
@@ -1262,15 +1254,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in " +
-                 "getPerApplicationProcessingTimeHistogramMonitorEntries");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in " +
+                "getPerApplicationProcessingTimeHistogramMonitorEntries");
 
       return Collections.emptyList();
     }
 
     final List<PerApplicationProcessingTimeHistogramMonitorEntry> entries =
-         new ArrayList<PerApplicationProcessingTimeHistogramMonitorEntry>();
+         new ArrayList<>(searchResult.getEntryCount());
 
     for (final Entry entry: searchResult.getSearchEntries())
     {
@@ -1334,16 +1326,16 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getProcessingTimeHistogramMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getProcessingTimeHistogramMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in " +
-            "getProcessingTimeHistogramMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in " +
+                "getProcessingTimeHistogramMonitorEntry");
     }
 
     return new ProcessingTimeHistogramMonitorEntry(
@@ -1399,8 +1391,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<ReplicaMonitorEntry> monitorEntries =
-         new ArrayList<ReplicaMonitorEntry>(
-                  searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new ReplicaMonitorEntry(e));
@@ -1458,16 +1449,16 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getReplicationServerMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getReplicationServerMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in " +
-            "getReplicationServerMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in " +
+                "getReplicationServerMonitorEntry");
     }
 
     return new ReplicationServerMonitorEntry(
@@ -1525,8 +1516,7 @@ public final class MonitorManager
                            filter);
 
     final ArrayList<ReplicationSummaryMonitorEntry> monitorEntries =
-         new ArrayList<ReplicationSummaryMonitorEntry>(
-                  searchResult.getEntryCount());
+         new ArrayList<>(searchResult.getEntryCount());
     for (final SearchResultEntry e : searchResult.getSearchEntries())
     {
       monitorEntries.add(new ReplicationSummaryMonitorEntry(e));
@@ -1562,15 +1552,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getResultCodeMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getResultCodeMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getResultCodeMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getResultCodeMonitorEntry");
     }
 
     return new ResultCodeMonitorEntry(searchResult.getSearchEntries().get(0));
@@ -1625,15 +1615,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getSystemInfoMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getSystemInfoMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getSystemInfoMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getSystemInfoMonitorEntry");
     }
 
     return new SystemInfoMonitorEntry(searchResult.getSearchEntries().get(0));
@@ -1688,15 +1678,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getStackTraceMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getStackTraceMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getStackTraceMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getStackTraceMonitorEntry");
     }
 
     return new StackTraceMonitorEntry(searchResult.getSearchEntries().get(0));
@@ -1753,15 +1743,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getTraditionalWorkQueueMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getTraditionalWorkQueueMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getTraditionalWorkQueueMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getTraditionalWorkQueueMonitorEntry");
     }
 
     return new TraditionalWorkQueueMonitorEntry(
@@ -1817,15 +1807,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getUnboundIDWorkQueueMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getUnboundIDWorkQueueMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getUnboundIDWorkQueueMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getUnboundIDWorkQueueMonitorEntry");
     }
 
     return new UnboundIDWorkQueueMonitorEntry(
@@ -1881,15 +1871,15 @@ public final class MonitorManager
     final int numEntries = searchResult.getEntryCount();
     if (numEntries == 0)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "No entries returned in getVersionMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "No entries returned in getVersionMonitorEntry");
 
       return null;
     }
     else if (numEntries != 1)
     {
-      debug(Level.FINE, DebugType.MONITOR,
-            "Multiple entries returned in getVersionMonitorEntry");
+      Debug.debug(Level.FINE, DebugType.MONITOR,
+           "Multiple entries returned in getVersionMonitorEntry");
     }
 
     return new VersionMonitorEntry(searchResult.getSearchEntries().get(0));

@@ -723,7 +723,7 @@ public final class FIFOEntryCacheMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(30);
+         new LinkedHashMap<>(30);
 
     if (cacheName != null)
     {

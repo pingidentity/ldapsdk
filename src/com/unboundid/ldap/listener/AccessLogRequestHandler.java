@@ -81,7 +81,7 @@ public final class AccessLogRequestHandler
    * values.
    */
   private static final ThreadLocal<DecimalFormat> DECIMAL_FORMATTERS =
-       new ThreadLocal<DecimalFormat>();
+       new ThreadLocal<>();
 
 
 
@@ -89,7 +89,7 @@ public final class AccessLogRequestHandler
    * The thread-local date formatters that will be used to format timestamps.
    */
   private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
-       new ThreadLocal<SimpleDateFormat>();
+       new ThreadLocal<>();
 
 
 
@@ -97,8 +97,7 @@ public final class AccessLogRequestHandler
    * The thread-local buffers that will be used to hold the log messages as they
    * are being generated.
    */
-  private static final ThreadLocal<StringBuilder> BUFFERS =
-       new ThreadLocal<StringBuilder>();
+  private static final ThreadLocal<StringBuilder> BUFFERS = new ThreadLocal<>();
 
 
 
@@ -109,7 +108,7 @@ public final class AccessLogRequestHandler
   // A map used to correlate the number of search result entries returned for a
   // particular message ID.
   private final ConcurrentHashMap<Integer,AtomicLong> entryCounts =
-       new ConcurrentHashMap<Integer,AtomicLong>();
+       new ConcurrentHashMap<>(50);
 
   // The log handler that will be used to log the messages.
   private final Handler logHandler;
@@ -819,7 +818,7 @@ public final class AccessLogRequestHandler
     }
 
     b.append(" etime=");
-    b.append(f.format(eTimeNanos / 1000000.0d));
+    b.append(f.format(eTimeNanos / 1_000_000.0d));
   }
 
 
@@ -838,7 +837,6 @@ public final class AccessLogRequestHandler
       l.incrementAndGet();
     }
 
-    return new ObjectPair<SearchResultEntryProtocolOp,Control[]>(entry,
-         controls);
+    return new ObjectPair<>(entry, controls);
   }
 }

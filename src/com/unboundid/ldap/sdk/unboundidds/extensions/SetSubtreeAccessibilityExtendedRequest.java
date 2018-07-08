@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk.unboundidds.extensions;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -158,10 +157,10 @@ public final class SetSubtreeAccessibilityExtendedRequest
          encodeValue(subtreeBaseDNs, accessibilityState, bypassUserDN),
          controls);
 
-    this.subtreeBaseDNs     = Collections.unmodifiableList(
-         new ArrayList<String>(subtreeBaseDNs));
+    this.subtreeBaseDNs = Collections.unmodifiableList(
+         new ArrayList<>(subtreeBaseDNs));
     this.accessibilityState = accessibilityState;
-    this.bypassUserDN       = bypassUserDN;
+    this.bypassUserDN = bypassUserDN;
   }
 
 
@@ -187,7 +186,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
     final String subtreeBaseDN = dnIterator.next();
     Validator.ensureNotNull(subtreeBaseDN);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1OctetString(subtreeBaseDN));
     elements.add(new ASN1Enumerated(accessibilityState.intValue()));
 
@@ -199,7 +198,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
     if (dnIterator.hasNext())
     {
       final ArrayList<ASN1Element> additionalDNElements =
-           new ArrayList<ASN1Element>(subtreeBaseDNs.size()-1);
+           new ArrayList<>(subtreeBaseDNs.size()-1);
       while (dnIterator.hasNext())
       {
         final String additionalDN = dnIterator.next();
@@ -242,7 +241,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
       final ASN1Element[] elements =
            ASN1Sequence.decodeAsSequence(value.getValue()).elements();
 
-      final List<String> baseDNs = new ArrayList<String>(10);
+      final List<String> baseDNs = new ArrayList<>(10);
       baseDNs.add(ASN1OctetString.decodeAsOctetString(
            elements[0]).stringValue());
 
@@ -329,8 +328,8 @@ public final class SetSubtreeAccessibilityExtendedRequest
     Validator.ensureNotNull(subtreeBaseDN);
 
     return new SetSubtreeAccessibilityExtendedRequest(
-         Arrays.asList(subtreeBaseDN), SubtreeAccessibilityState.ACCESSIBLE,
-         null, controls);
+         Collections.singletonList(subtreeBaseDN),
+         SubtreeAccessibilityState.ACCESSIBLE, null, controls);
   }
 
 
@@ -392,14 +391,14 @@ public final class SetSubtreeAccessibilityExtendedRequest
     if (allowBind)
     {
       return new SetSubtreeAccessibilityExtendedRequest(
-           Arrays.asList(subtreeBaseDN),
+           Collections.singletonList(subtreeBaseDN),
            SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED, bypassUserDN,
            controls);
     }
     else
     {
       return new SetSubtreeAccessibilityExtendedRequest(
-           Arrays.asList(subtreeBaseDN),
+           Collections.singletonList(subtreeBaseDN),
            SubtreeAccessibilityState.READ_ONLY_BIND_DENIED, bypassUserDN,
            controls);
     }
@@ -476,8 +475,8 @@ public final class SetSubtreeAccessibilityExtendedRequest
     Validator.ensureNotNull(subtreeBaseDN);
 
     return new SetSubtreeAccessibilityExtendedRequest(
-         Arrays.asList(subtreeBaseDN), SubtreeAccessibilityState.HIDDEN,
-         bypassUserDN, controls);
+         Collections.singletonList(subtreeBaseDN),
+         SubtreeAccessibilityState.HIDDEN, bypassUserDN, controls);
   }
 
 

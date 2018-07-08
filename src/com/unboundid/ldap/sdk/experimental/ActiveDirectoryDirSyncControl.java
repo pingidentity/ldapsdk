@@ -114,7 +114,7 @@ public final class ActiveDirectoryDirSyncControl
    * The value of the flag that indicates that the client should only be allowed
    * to view objects and attributes that are otherwise accessible to the client.
    */
-  public static final int FLAG_OBJECT_SECURITY = 0x00000001;
+  public static final int FLAG_OBJECT_SECURITY = 0x0000_0001;
 
 
 
@@ -122,7 +122,7 @@ public final class ActiveDirectoryDirSyncControl
    * The value of the flag that indicates the server should return parent
    * objects before child objects.
    */
-  public static final int FLAG_ANCESTORS_FIRST_ORDER = 0x00000800;
+  public static final int FLAG_ANCESTORS_FIRST_ORDER = 0x0000_0800;
 
 
 
@@ -130,7 +130,7 @@ public final class ActiveDirectoryDirSyncControl
    * The value of the flag that indicates that the server should not return
    * private data in search results.
    */
-  public static final int FLAG_PUBLIC_DATA_ONLY = 0x00002000;
+  public static final int FLAG_PUBLIC_DATA_ONLY = 0x0000_2000;
 
 
 
@@ -138,7 +138,7 @@ public final class ActiveDirectoryDirSyncControl
    * The value of the flag that indicates that only changed values of attributes
    * should be included in search results.
    */
-  public static final int FLAG_INCREMENTAL_VALUES = 0x80000000;
+  public static final int FLAG_INCREMENTAL_VALUES = 0x8000_0000;
 
 
 
@@ -302,7 +302,6 @@ public final class ActiveDirectoryDirSyncControl
   {
     return new ActiveDirectoryDirSyncControl(oid, isCritical, value);
   }
-
 
 
 

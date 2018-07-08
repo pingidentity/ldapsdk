@@ -37,13 +37,12 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -123,10 +122,10 @@ public class LDAPSearchResults
     searchAbandoned = new AtomicBoolean(false);
     searchDone      = new AtomicBoolean(false);
     count           = new AtomicInteger(0);
-    lastControls    = new AtomicReference<Control[]>();
-    nextResult      = new AtomicReference<Object>();
-    searchResult    = new AtomicReference<SearchResult>();
-    resultQueue     = new LinkedBlockingQueue<Object>(50);
+    lastControls    = new AtomicReference<>();
+    nextResult      = new AtomicReference<>();
+    searchResult    = new AtomicReference<>();
+    resultQueue     = new LinkedBlockingQueue<>(50);
   }
 
 
@@ -234,7 +233,7 @@ public class LDAPSearchResults
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -258,6 +257,7 @@ public class LDAPSearchResults
    * @return  {@code true} if there are more search results to return, or
    *          {@code false} if not.
    */
+  @Override()
   public boolean hasMoreElements()
   {
     final Object o = nextObject();
@@ -290,6 +290,7 @@ public class LDAPSearchResults
    *
    * @throws  NoSuchElementException  If there are no more results.
    */
+  @Override()
   public Object nextElement()
          throws NoSuchElementException
   {
@@ -410,7 +411,7 @@ public class LDAPSearchResults
     catch (final Exception e)
     {
       // This should never happen.
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -444,7 +445,7 @@ public class LDAPSearchResults
     catch (final Exception e)
     {
       // This should never happen.
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -488,7 +489,7 @@ public class LDAPSearchResults
     catch (final Exception e)
     {
       // This should never happen.
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {

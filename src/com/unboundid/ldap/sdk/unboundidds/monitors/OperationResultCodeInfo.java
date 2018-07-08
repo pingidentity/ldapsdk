@@ -107,8 +107,7 @@ public final class OperationResultCodeInfo
     failedPercent = entry.getDouble(opTypeAttrPrefix + "failed-percent");
 
     final String rcPrefix = opTypeAttrPrefix + "result-";
-    final TreeMap<Integer,ResultCodeInfo> rcMap =
-         new TreeMap<Integer,ResultCodeInfo>();
+    final TreeMap<Integer,ResultCodeInfo> rcMap = new TreeMap<>();
     final Entry e = entry.getEntry();
     for (final Attribute a : e.getAttributes())
     {

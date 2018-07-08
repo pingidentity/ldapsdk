@@ -33,13 +33,13 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -149,7 +149,7 @@ public final class StartInteractiveTransactionExtendedResult
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_START_INT_TXN_RESULT_VALUE_NOT_SEQUENCE.get(e.getMessage()), e);
     }
@@ -169,7 +169,7 @@ public final class StartInteractiveTransactionExtendedResult
             final ASN1Sequence baseDNsSequence =
                  ASN1Sequence.decodeAsSequence(element);
             final ArrayList<String> dnList =
-                 new ArrayList<String>(baseDNsSequence.elements().length);
+                 new ArrayList<>(baseDNsSequence.elements().length);
             for (final ASN1Element e : baseDNsSequence.elements())
             {
               dnList.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -178,7 +178,7 @@ public final class StartInteractiveTransactionExtendedResult
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_START_INT_TXN_RESULT_BASE_DNS_NOT_SEQUENCE.get(
                       e.getMessage()), e);
@@ -187,7 +187,7 @@ public final class StartInteractiveTransactionExtendedResult
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
                ERR_START_INT_TXN_RESULT_INVALID_ELEMENT.get(
-                    toHex(element.getType())));
+                    StaticUtils.toHex(element.getType())));
       }
     }
 
@@ -240,7 +240,7 @@ public final class StartInteractiveTransactionExtendedResult
     else
     {
       this.baseDNs =
-           Collections.unmodifiableList(new ArrayList<String>(baseDNs));
+           Collections.unmodifiableList(new ArrayList<>(baseDNs));
     }
   }
 
@@ -266,7 +266,7 @@ public final class StartInteractiveTransactionExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
     if (transactionID != null)
     {
       elements.add(new ASN1OctetString(TYPE_TXN_ID, transactionID.getValue()));
@@ -275,7 +275,7 @@ public final class StartInteractiveTransactionExtendedResult
     if ((baseDNs != null) && (! baseDNs.isEmpty()))
     {
       final ArrayList<ASN1Element> baseDNElements =
-           new ArrayList<ASN1Element>(baseDNs.size());
+           new ArrayList<>(baseDNs.size());
       for (final String s : baseDNs)
       {
         baseDNElements.add(new ASN1OctetString(s));

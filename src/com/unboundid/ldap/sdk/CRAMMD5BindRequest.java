@@ -33,16 +33,16 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -138,7 +138,7 @@ public final class CRAMMD5BindRequest
   {
     this(authenticationID, new ASN1OctetString(password), NO_CONTROLS);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -157,7 +157,7 @@ public final class CRAMMD5BindRequest
   {
     this(authenticationID, new ASN1OctetString(password), NO_CONTROLS);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -194,7 +194,7 @@ public final class CRAMMD5BindRequest
   {
     this(authenticationID, new ASN1OctetString(password), controls);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -214,7 +214,7 @@ public final class CRAMMD5BindRequest
   {
     this(authenticationID, new ASN1OctetString(password), controls);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -235,12 +235,12 @@ public final class CRAMMD5BindRequest
   {
     super(controls);
 
-    ensureNotNull(authenticationID, password);
+    Validator.ensureNotNull(authenticationID, password);
 
     this.authenticationID = authenticationID;
     this.password         = password;
 
-    unhandledCallbackMessages = new ArrayList<String>(5);
+    unhandledCallbackMessages = new ArrayList<>(5);
   }
 
 
@@ -314,19 +314,20 @@ public final class CRAMMD5BindRequest
     unhandledCallbackMessages.clear();
 
     final SaslClient saslClient;
-    final String[] mechanisms = { CRAMMD5_MECHANISM_NAME };
 
     try
     {
+      final String[] mechanisms = { CRAMMD5_MECHANISM_NAME };
       saslClient = Sasl.createSaslClient(mechanisms, null, "ldap",
                                          connection.getConnectedAddress(), null,
                                          this);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_CRAMMD5_CANNOT_CREATE_SASL_CLIENT.get(getExceptionMessage(e)),
+           ERR_CRAMMD5_CANNOT_CREATE_SASL_CLIENT.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
 
@@ -363,6 +364,7 @@ public final class CRAMMD5BindRequest
    * @param  callbacks  The set of callbacks to be handled.
    */
   @InternalUseOnly()
+  @Override()
   public void handle(final Callback[] callbacks)
   {
     for (final Callback callback : callbacks)
@@ -379,11 +381,11 @@ public final class CRAMMD5BindRequest
       else
       {
         // This is an unexpected callback.
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debug(Level.WARNING, DebugType.LDAP,
-                "Unexpected CRAM-MD5 SASL callback of type " +
-                callback.getClass().getName());
+          Debug.debug(Level.WARNING, DebugType.LDAP,
+               "Unexpected CRAM-MD5 SASL callback of type " +
+                    callback.getClass().getName());
         }
 
         unhandledCallbackMessages.add(ERR_CRAMMD5_UNEXPECTED_CALLBACK.get(
@@ -469,8 +471,7 @@ public final class CRAMMD5BindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(3);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(3);
     constructorArgs.add(ToCodeArgHelper.createString(authenticationID,
          "Authentication ID"));
     constructorArgs.add(ToCodeArgHelper.createString("---redacted-password---",

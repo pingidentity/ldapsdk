@@ -37,16 +37,16 @@ import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -95,7 +95,7 @@ public class ExtendedRequest
 
   // The queue that will be used to receive response messages from the server.
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
-       new LinkedBlockingQueue<LDAPResponse>();
+       new LinkedBlockingQueue<>();
 
   // The OID for this extended request.
   private final String oid;
@@ -112,7 +112,7 @@ public class ExtendedRequest
   {
     super(null);
 
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid = oid;
 
@@ -132,7 +132,7 @@ public class ExtendedRequest
   {
     super(controls);
 
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid = oid;
 
@@ -153,7 +153,7 @@ public class ExtendedRequest
   {
     super(null);
 
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid   = oid;
     this.value = value;
@@ -175,7 +175,7 @@ public class ExtendedRequest
   {
     super(controls);
 
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid   = oid;
     this.value = value;
@@ -194,7 +194,8 @@ public class ExtendedRequest
   {
     super(extendedRequest.getControls());
 
-    oid   = extendedRequest.oid;
+    messageID = extendedRequest.messageID;
+    oid = extendedRequest.oid;
     value = extendedRequest.value;
   }
 
@@ -340,7 +341,7 @@ public class ExtendedRequest
     {
       // Send the request to the server.
       final long responseTimeout = getResponseTimeoutMillis(connection);
-      debugLDAPRequest(Level.INFO, this, messageID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumExtendedRequests();
       if (this instanceof StartTLSExtendedRequest)
@@ -367,7 +368,7 @@ public class ExtendedRequest
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_EXTOP_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -407,7 +408,7 @@ public class ExtendedRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(Level.INFO, this, messageID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumExtendedRequests();
     connection.sendMessage(message, getResponseTimeoutMillis(connection));
 
@@ -420,7 +421,7 @@ public class ExtendedRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if ((le.getResultCode() == ResultCode.TIMEOUT) &&
             connection.getConnectionOptions().abandonOnTimeout())
@@ -468,7 +469,8 @@ public class ExtendedRequest
   {
     if (response == null)
     {
-      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      final long waitTime =
+           StaticUtils.nanosToMillis(System.nanoTime() - requestTime);
       if (connection.getConnectionOptions().abandonOnTimeout())
       {
         connection.abandon(messageID);
@@ -520,7 +522,7 @@ public class ExtendedRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -528,7 +530,9 @@ public class ExtendedRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -637,8 +641,7 @@ public class ExtendedRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(3);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(3);
     constructorArgs.add(ToCodeArgHelper.createString(oid, "Request OID"));
     constructorArgs.add(ToCodeArgHelper.createASN1OctetString(value,
          "Request Value"));

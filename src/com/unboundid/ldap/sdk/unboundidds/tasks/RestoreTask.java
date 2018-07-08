@@ -35,9 +35,9 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -204,7 +204,6 @@ public final class RestoreTask
     backupID = null;
     encryptionPassphraseFile = null;
   }
-
 
 
 
@@ -405,7 +404,7 @@ public final class RestoreTask
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
          alertOnSuccess, alertOnError);
 
-    ensureNotNull(backupDirectory);
+    Validator.ensureNotNull(backupDirectory);
 
     this.backupDirectory = backupDirectory;
     this.backupID = backupID;
@@ -598,7 +597,7 @@ public final class RestoreTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_RESTORE_TASK);
+    return Collections.singletonList(OC_RESTORE_TASK);
   }
 
 
@@ -609,7 +608,7 @@ public final class RestoreTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(10);
+    final ArrayList<Attribute> attrs = new ArrayList<>(10);
 
     attrs.add(new Attribute(ATTR_BACKUP_DIRECTORY, backupDirectory));
     attrs.add(new Attribute(ATTR_VERIFY_ONLY, String.valueOf(verifyOnly)));
@@ -654,10 +653,10 @@ public final class RestoreTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(10);
 
     props.put(PROPERTY_BACKUP_DIRECTORY,
-         Collections.<Object>unmodifiableList(Arrays.asList(backupDirectory)));
+         Collections.<Object>singletonList(backupDirectory));
 
     if (backupID == null)
     {
@@ -666,11 +665,11 @@ public final class RestoreTask
     else
     {
       props.put(PROPERTY_BACKUP_ID,
-                Collections.<Object>unmodifiableList(Arrays.asList(backupID)));
+                Collections.<Object>singletonList(backupID));
     }
 
     props.put(PROPERTY_VERIFY_ONLY,
-              Collections.<Object>unmodifiableList(Arrays.asList(verifyOnly)));
+              Collections.<Object>singletonList(verifyOnly));
 
     if (encryptionPassphraseFile == null)
     {
@@ -679,8 +678,7 @@ public final class RestoreTask
     else
     {
       props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
-         Collections.<Object>unmodifiableList(Arrays.asList(
-              encryptionPassphraseFile)));
+         Collections.<Object>singletonList(encryptionPassphraseFile));
     }
 
     props.putAll(super.getTaskPropertyValues());

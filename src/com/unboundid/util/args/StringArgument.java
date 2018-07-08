@@ -23,7 +23,6 @@ package com.unboundid.util.args;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,10 +32,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.args.ArgsMessages.*;
 
 
@@ -226,7 +225,9 @@ public final class StringArgument
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
          valuePlaceholder, description, null,
-         ((defaultValue == null) ? null : Arrays.asList(defaultValue)));
+         ((defaultValue == null)
+              ? null
+              : Collections.singletonList(defaultValue)));
   }
 
 
@@ -313,7 +314,9 @@ public final class StringArgument
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
          valuePlaceholder, description, allowedValues,
-         ((defaultValue == null) ? null : Arrays.asList(defaultValue)));
+         ((defaultValue == null)
+              ? null
+              : Collections.singletonList(defaultValue)));
   }
 
 
@@ -367,11 +370,10 @@ public final class StringArgument
     }
     else
     {
-      final HashSet<String> lowerValues =
-           new HashSet<String>(allowedValues.size());
+      final HashSet<String> lowerValues = new HashSet<>(allowedValues.size());
       for (final String s : allowedValues)
       {
-        lowerValues.add(toLowerCase(s));
+        lowerValues.add(StaticUtils.toLowerCase(s));
       }
       this.allowedValues = Collections.unmodifiableSet(lowerValues);
     }
@@ -389,7 +391,7 @@ public final class StringArgument
     {
       for (final String s : this.defaultValues)
       {
-        final String lowerDefault = toLowerCase(s);
+        final String lowerDefault = StaticUtils.toLowerCase(s);
         if (! this.allowedValues.contains(lowerDefault))
         {
           throw new ArgumentException(
@@ -398,8 +400,8 @@ public final class StringArgument
       }
     }
 
-    values                = new ArrayList<String>(5);
-    validators            = new ArrayList<ArgumentValueValidator>(5);
+    values                = new ArrayList<>(5);
+    validators            = new ArrayList<>(5);
     valueRegex            = null;
     valueRegexExplanation = null;
   }
@@ -420,9 +422,8 @@ public final class StringArgument
     defaultValues         = source.defaultValues;
     valueRegex            = source.valueRegex;
     valueRegexExplanation = source.valueRegexExplanation;
-    values                = new ArrayList<String>(5);
-    validators            =
-         new ArrayList<ArgumentValueValidator>(source.validators);
+    values                = new ArrayList<>(5);
+    validators            = new ArrayList<>(source.validators);
   }
 
 
@@ -527,7 +528,7 @@ public final class StringArgument
   protected void addValue(final String valueString)
             throws ArgumentException
   {
-    final String lowerValue = toLowerCase(valueString);
+    final String lowerValue = StaticUtils.toLowerCase(valueString);
     if (allowedValues != null)
     {
       if (! allowedValues.contains(lowerValue))

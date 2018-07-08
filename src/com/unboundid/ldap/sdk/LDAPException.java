@@ -544,14 +544,14 @@ public class LDAPException
     buffer.append(resultCode);
     buffer.append('\'');
 
-    if ((diagnosticMessage != null) && (diagnosticMessage.length() > 0))
+    if ((diagnosticMessage != null) && (! diagnosticMessage.isEmpty()))
     {
       buffer.append(" diagnostic message='");
       buffer.append(diagnosticMessage);
       buffer.append('\'');
     }
 
-    if ((matchedDN != null) && (matchedDN.length() > 0))
+    if ((matchedDN != null) && (! matchedDN.isEmpty()))
     {
       buffer.append("  matched DN='");
       buffer.append(matchedDN);

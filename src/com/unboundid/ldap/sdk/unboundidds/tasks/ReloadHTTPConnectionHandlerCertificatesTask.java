@@ -71,7 +71,6 @@ public final class ReloadHTTPConnectionHandlerCertificatesTask
 
 
 
-
   /**
    * The name of the object class used in reload HTTP connection handler
    * certificates task entries.

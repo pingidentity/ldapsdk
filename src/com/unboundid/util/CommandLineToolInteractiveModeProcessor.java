@@ -144,7 +144,7 @@ final class CommandLineToolInteractiveModeProcessor
     tool.wrapStandardOut(0, 0, wrapColumn, true,
          INFO_INTERACTIVE_LAUNCHING.get(tool.getToolName()));
 
-    final List<String> allArgs = new ArrayList<String>(10);
+    final List<String> allArgs = new ArrayList<>(10);
 
     final List<SubCommand> subCommands = parser.getSubCommands();
     if (! subCommands.isEmpty())
@@ -154,7 +154,7 @@ final class CommandLineToolInteractiveModeProcessor
       allArgs.add(subcommand.getPrimaryName());
     }
 
-    final List<String> ldapArgs = new ArrayList<String>(10);
+    final List<String> ldapArgs = new ArrayList<>(10);
     if (tool instanceof LDAPCommandLineTool)
     {
       promptForLDAPArguments(ldapArgs, true);
@@ -234,8 +234,7 @@ final class CommandLineToolInteractiveModeProcessor
   {
     // Get all of the subcommands sorted by name.
     final List<SubCommand> subCommands = parser.getSubCommands();
-    final TreeMap<String,SubCommand> subCommandsByName =
-         new TreeMap<String,SubCommand>();
+    final TreeMap<String,SubCommand> subCommandsByName = new TreeMap<>();
     for (final SubCommand sc : subCommands)
     {
       subCommandsByName.put(sc.getPrimaryName(), sc);
@@ -649,7 +648,7 @@ final class CommandLineToolInteractiveModeProcessor
     ArgumentHelper.addValueSuppressException(hostnameArgument, hostname);
 
     final int port = promptForInteger(INFO_INTERACTIVE_LDAP_PROMPT_PORT.get(),
-         defaultPort, 1, 65535, true);
+         defaultPort, 1, 65_535, true);
     argList.add("--hostname");
     argList.add(hostname);
     argList.add("--port");
@@ -1187,7 +1186,7 @@ final class CommandLineToolInteractiveModeProcessor
           throws LDAPException
   {
     final ArrayList<Argument> args =
-         new ArrayList<Argument>(parser.getNamedArguments());
+         new ArrayList<>(parser.getNamedArguments());
 
     if (parser.getSelectedSubCommand() != null)
     {
@@ -1292,7 +1291,7 @@ argsLoop:
                 valueStrings = Collections.singletonList("***REDACTED***");
                 break;
               default:
-                valueStrings = new ArrayList<String>(size);
+                valueStrings = new ArrayList<>(size);
                 for (int i=0; i <= size; i++)
                 {
                   valueStrings.add("***REDACTED" + i + "***");
@@ -1449,7 +1448,7 @@ argsLoop:
                 tool.doExtendedArgumentValidation();
 
                 final ArrayList<String> argStrings =
-                     new ArrayList<String>(2*args.size());
+                     new ArrayList<>(2*args.size());
 
                 final SubCommand subcommand = parser.getSelectedSubCommand();
                 if (subcommand != null)
@@ -1571,7 +1570,7 @@ argsLoop:
         promptForArgument(selectedArg);
       }
 
-      final ArrayList<String> argStrings = new ArrayList<String>(2*args.size());
+      final ArrayList<String> argStrings = new ArrayList<>(2*args.size());
       for (final Argument a : args)
       {
         ArgumentHelper.addToCommandLine(a, argStrings);
@@ -1714,7 +1713,7 @@ argsLoop:
     }
 
     final String description = a.getDescription();
-    if ((description != null) && (description.length() > 0))
+    if ((description != null) && (! description.isEmpty()))
     {
       tool.out();
 
@@ -1724,7 +1723,7 @@ argsLoop:
     }
 
     final String constraints = a.getValueConstraints();
-    if ((constraints != null) && (constraints.length() > 0))
+    if ((constraints != null) && (! constraints.isEmpty()))
     {
       tool.out();
 
@@ -2842,7 +2841,7 @@ argsLoop:
           return -1;
         }
 
-        if ((line.length() == 0) && (defaultOptionString != null))
+        if (line.isEmpty() && (defaultOptionString != null))
         {
           line = defaultOptionString;
         }
@@ -2921,12 +2920,12 @@ argsLoop:
     try
     {
       String line = systemInReader.readLine().trim();
-      if ((line.length() == 0) && (defaultValue != null))
+      if (line.isEmpty() && (defaultValue != null))
       {
         line = defaultValue;
       }
 
-      if (line.length() > 0)
+      if (! line.isEmpty())
       {
         return line;
       }
@@ -3042,14 +3041,14 @@ argsLoop:
     try
     {
       String line = systemInReader.readLine().trim();
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         if (defaultValue != null)
         {
           line = defaultValue;
         }
 
-        if (line.length() == 0)
+        if (line.isEmpty())
         {
           if (nullDNAllowed)
           {
@@ -3123,12 +3122,12 @@ argsLoop:
     try
     {
       String line = systemInReader.readLine().trim();
-      if ((line.length() == 0) && (defaultValue != null))
+      if (line.isEmpty() && (defaultValue != null))
       {
         line = String.valueOf(defaultValue);
       }
 
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         if (requireValue)
         {
@@ -3227,12 +3226,12 @@ argsLoop:
     try
     {
       String line = systemInReader.readLine().trim();
-      if ((line.length() == 0) && (defaultValue != null))
+      if (line.isEmpty() && (defaultValue != null))
       {
         line = String.valueOf(defaultValue);
       }
 
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         if (requireValue)
         {
@@ -3330,12 +3329,12 @@ argsLoop:
     try
     {
       String line = systemInReader.readLine().trim();
-      if ((line.length() == 0) && (defaultValue != null))
+      if (line.isEmpty() && (defaultValue != null))
       {
         line = String.valueOf(defaultValue);
       }
 
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         if (requireValue)
         {
@@ -3527,12 +3526,12 @@ argsLoop:
     try
     {
       String line = systemInReader.readLine().trim();
-      if ((line.length() == 0) && (defaultValue != null))
+      if (line.isEmpty() && (defaultValue != null))
       {
         line = String.valueOf(defaultValue);
       }
 
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         if (requireValue)
         {
@@ -3548,8 +3547,7 @@ argsLoop:
 
       try
       {
-        return new ObjectPair<Date,String>(
-             TimestampArgument.parseTimestamp(line), line);
+        return new ObjectPair<>(TimestampArgument.parseTimestamp(line), line);
       }
       catch (final Exception e)
       {

@@ -35,14 +35,13 @@ import java.util.logging.Level;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -105,18 +104,18 @@ public final class EffectiveRightsEntry
   {
     super(entry);
 
-    final HashSet<String> options = new HashSet<String>(1);
+    final HashSet<String> options = new HashSet<>(1);
     options.add("entryLevel");
 
     List<Attribute> attrList =
          getAttributesWithOptions(ATTR_ACL_RIGHTS, options);
     if ((attrList == null) || attrList.isEmpty())
     {
-      if (debugEnabled(DebugType.LDAP))
+      if (Debug.debugEnabled(DebugType.LDAP))
       {
-        debug(Level.WARNING, DebugType.LDAP,
-              "No entry-level aclRights information contained in entry " +
-              entry.getDN());
+        Debug.debug(Level.WARNING, DebugType.LDAP,
+             "No entry-level aclRights information contained in entry " +
+                  entry.getDN());
       }
 
       entryRights = null;
@@ -131,11 +130,11 @@ public final class EffectiveRightsEntry
     attrList = getAttributesWithOptions(ATTR_ACL_RIGHTS, options);
     if ((attrList == null) || attrList.isEmpty())
     {
-      if (debugEnabled(DebugType.LDAP))
+      if (Debug.debugEnabled(DebugType.LDAP))
       {
-        debug(Level.WARNING, DebugType.LDAP,
-              "No attribute-level aclRights information contained in entry " +
-              entry.getDN());
+        Debug.debug(Level.WARNING, DebugType.LDAP,
+             "No attribute-level aclRights information contained in entry " +
+                  entry.getDN());
       }
 
       attributeRights = null;
@@ -143,7 +142,7 @@ public final class EffectiveRightsEntry
     else
     {
       final HashMap<String,Set<AttributeRight>> attrRightsMap =
-           new HashMap<String,Set<AttributeRight>>(attrList.size());
+           new HashMap<>(attrList.size());
       for (final Attribute a : attrList)
       {
         final Set<String> attrOptions = a.getOptions();
@@ -158,16 +157,16 @@ public final class EffectiveRightsEntry
 
         if (attrName == null)
         {
-          if (debugEnabled(DebugType.LDAP))
+          if (Debug.debugEnabled(DebugType.LDAP))
           {
-            debug(Level.WARNING, DebugType.LDAP,
-                  "Unable to determine the target attribute name from " +
-                  a.getName());
+            Debug.debug(Level.WARNING, DebugType.LDAP,
+                 "Unable to determine the target attribute name from " +
+                      a.getName());
           }
         }
         else
         {
-          final String lowerName = toLowerCase(attrName);
+          final String lowerName = StaticUtils.toLowerCase(attrName);
           final Set<AttributeRight> rights = parseAttributeRights(a);
           attrRightsMap.put(lowerName, rights);
         }
@@ -204,10 +203,10 @@ public final class EffectiveRightsEntry
             final EntryRight r = EntryRight.forName(rightName);
             if (r == null)
             {
-              if (debugEnabled(DebugType.LDAP))
+              if (Debug.debugEnabled(DebugType.LDAP))
               {
-                debug(Level.WARNING, DebugType.LDAP,
-                      "Unrecognized entry right " + rightName);
+                Debug.debug(Level.WARNING, DebugType.LDAP,
+                     "Unrecognized entry right " + rightName);
               }
             }
             else
@@ -248,10 +247,10 @@ public final class EffectiveRightsEntry
           final AttributeRight r = AttributeRight.forName(rightName);
           if (r == null)
           {
-            if (debugEnabled(DebugType.LDAP))
+            if (Debug.debugEnabled(DebugType.LDAP))
             {
-              debug(Level.WARNING, DebugType.LDAP,
-                    "Unrecognized attribute right " + rightName);
+              Debug.debug(Level.WARNING, DebugType.LDAP,
+                   "Unrecognized attribute right " + rightName);
             }
           }
           else
@@ -306,7 +305,7 @@ public final class EffectiveRightsEntry
    */
   public boolean hasEntryRight(final EntryRight entryRight)
   {
-    ensureNotNull(entryRight);
+    Validator.ensureNotNull(entryRight);
 
     return ((entryRights != null) && entryRights.contains(entryRight));
   }
@@ -343,14 +342,14 @@ public final class EffectiveRightsEntry
    */
   public Set<AttributeRight> getAttributeRights(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     if (attributeRights == null)
     {
       return null;
     }
 
-    return attributeRights.get(toLowerCase(attributeName));
+    return attributeRights.get(StaticUtils.toLowerCase(attributeName));
   }
 
 
@@ -371,7 +370,7 @@ public final class EffectiveRightsEntry
   public boolean hasAttributeRight(final AttributeRight attributeRight,
                                    final String attributeName)
   {
-    ensureNotNull(attributeName, attributeRight);
+    Validator.ensureNotNull(attributeName, attributeRight);
 
     final Set<AttributeRight> attrRights = getAttributeRights(attributeName);
     return ((attrRights != null) && attrRights.contains(attributeRight));

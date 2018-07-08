@@ -24,11 +24,10 @@ package com.unboundid.ldap.matchingrules;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -105,7 +104,7 @@ public abstract class AcceptAllSimpleMatchingRule
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       // This should never happen, as the only reason the superclass version of
       // this method will throw an exception is if an exception is thrown by
@@ -129,7 +128,7 @@ public abstract class AcceptAllSimpleMatchingRule
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       // This should never happen, as the only reason the superclass version of
       // this method will throw an exception is if an exception is thrown by

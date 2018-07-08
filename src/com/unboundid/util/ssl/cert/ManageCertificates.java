@@ -3366,7 +3366,7 @@ public final class ManageCertificates
 
     final IntegerArgument trustServerPort = new IntegerArgument('p',
          "port", true, 1, INFO_MANAGE_CERTS_PLACEHOLDER_PORT.get(),
-         INFO_MANAGE_CERTS_SC_TRUST_SERVER_ARG_PORT_DESC.get(), 1, 65535);
+         INFO_MANAGE_CERTS_SC_TRUST_SERVER_ARG_PORT_DESC.get(), 1, 65_535);
     trustServerPort.addLongIdentifier("server-port", true);
     trustServerPort.addLongIdentifier("serverPort", true);
     trustServerParser.addArgument(trustServerPort);
@@ -9199,9 +9199,9 @@ public final class ManageCertificates
    * @return  A short summary of the provided public key, or {@code null} if
    *          no summary is available.
    */
-  static String getPublicKeySummary(final OID publicKeyAlgorithmOID,
-                                    final DecodedPublicKey publicKey,
-                                    final ASN1Element parameters)
+  private static String getPublicKeySummary(final OID publicKeyAlgorithmOID,
+                                            final DecodedPublicKey publicKey,
+                                            final ASN1Element parameters)
   {
     if (publicKey instanceof RSAPublicKey)
     {
@@ -9823,7 +9823,7 @@ public final class ManageCertificates
         keystorePasswordFileArgument.isPresent())
     {
       final File f = keystorePasswordFileArgument.getValue();
-      try (BufferedReader r = new BufferedReader(new FileReader(f)))
+      try (final BufferedReader r = new BufferedReader(new FileReader(f)))
       {
         final String line = r.readLine();
         if (line == null)
@@ -10189,7 +10189,7 @@ public final class ManageCertificates
         privateKeyPasswordFileArgument.isPresent())
     {
       final File f = privateKeyPasswordFileArgument.getValue();
-      try (BufferedReader r = new BufferedReader(new FileReader(f)))
+      try (final BufferedReader r = new BufferedReader(new FileReader(f)))
       {
         final String line = r.readLine();
         if (line == null)
@@ -10367,7 +10367,7 @@ public final class ManageCertificates
     }
 
 
-    try (FileInputStream inputStream = new FileInputStream(keystorePath))
+    try (final FileInputStream inputStream = new FileInputStream(keystorePath))
     {
       final int firstByte = inputStream.read();
       if (firstByte < 0)
@@ -10567,7 +10567,7 @@ public final class ManageCertificates
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
     // which we can determine by seeing if the first byte is 0x30.
-    try (BufferedInputStream inputStream =
+    try (final BufferedInputStream inputStream =
               new BufferedInputStream(new FileInputStream(f)))
     {
       inputStream.mark(1);
@@ -10626,7 +10626,7 @@ public final class ManageCertificates
       }
       else
       {
-        try (BufferedReader reader =
+        try (final BufferedReader reader =
                   new BufferedReader(new InputStreamReader(inputStream)))
         {
           boolean inCert = false;
@@ -10753,7 +10753,7 @@ public final class ManageCertificates
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
     // which we can determine by seeing if the first byte is 0x30.
-    try (BufferedInputStream inputStream =
+    try (final BufferedInputStream inputStream =
               new BufferedInputStream(new FileInputStream(f)))
     {
       inputStream.mark(1);
@@ -10831,7 +10831,7 @@ public final class ManageCertificates
       }
       else
       {
-        try (BufferedReader reader =
+        try (final BufferedReader reader =
                   new BufferedReader(new InputStreamReader(inputStream)))
         {
           boolean inKey = false;
@@ -10987,7 +10987,7 @@ public final class ManageCertificates
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
     // which we can determine by seeing if the first byte is 0x30.
-    try (BufferedInputStream inputStream =
+    try (final BufferedInputStream inputStream =
               new BufferedInputStream(new FileInputStream(f)))
     {
       inputStream.mark(1);
@@ -11065,7 +11065,7 @@ public final class ManageCertificates
       }
       else
       {
-        try (BufferedReader reader =
+        try (final BufferedReader reader =
                   new BufferedReader(new InputStreamReader(inputStream)))
         {
           boolean inCSR = false;
@@ -11421,7 +11421,7 @@ public final class ManageCertificates
       for (final String keystoreType : new String[] { "JKS", "PKCS12" })
       {
         final KeyStore ks = KeyStore.getInstance(keystoreType);
-        try (FileInputStream inputStream =
+        try (final FileInputStream inputStream =
                   new FileInputStream(JVM_DEFAULT_CACERTS_FILE))
         {
           ks.load(inputStream, null);

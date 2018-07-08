@@ -392,7 +392,7 @@ public final class ShutdownTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_SHUTDOWN_TASK);
+    return Collections.singletonList(OC_SHUTDOWN_TASK);
   }
 
 
@@ -403,7 +403,7 @@ public final class ShutdownTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(2);
+    final ArrayList<Attribute> attrs = new ArrayList<>(2);
 
     if (shutdownMessage != null)
     {
@@ -440,7 +440,7 @@ public final class ShutdownTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(10);
 
     if (shutdownMessage == null)
     {
@@ -449,13 +449,11 @@ public final class ShutdownTask
     else
     {
       props.put(PROPERTY_SHUTDOWN_MESSAGE,
-                Collections.<Object>unmodifiableList(Arrays.asList(
-                     shutdownMessage)));
+                Collections.<Object>singletonList(shutdownMessage));
     }
 
     props.put(PROPERTY_RESTART_SERVER,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   restartServer)));
+              Collections.<Object>singletonList(restartServer));
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

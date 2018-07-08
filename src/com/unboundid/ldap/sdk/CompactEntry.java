@@ -35,8 +35,7 @@ import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -82,7 +81,7 @@ public final class CompactEntry
    */
   public CompactEntry(final Entry entry)
   {
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     dn = entry.getDN();
     hashCode = -1;
@@ -183,7 +182,7 @@ public final class CompactEntry
    */
   public boolean hasAttribute(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     for (final CompactAttribute a : attributes)
     {
@@ -211,7 +210,7 @@ public final class CompactEntry
    */
   public boolean hasAttribute(final Attribute attribute)
   {
-    ensureNotNull(attribute);
+    Validator.ensureNotNull(attribute);
 
     for (final CompactAttribute a : attributes)
     {
@@ -241,7 +240,7 @@ public final class CompactEntry
   public boolean hasAttributeValue(final String attributeName,
                                    final String attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     for (final CompactAttribute a : attributes)
     {
@@ -272,7 +271,7 @@ public final class CompactEntry
   public boolean hasAttributeValue(final String attributeName,
                                    final byte[] attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     for (final CompactAttribute a : attributes)
     {
@@ -312,7 +311,7 @@ public final class CompactEntry
   public Collection<Attribute> getAttributes()
   {
     final ArrayList<Attribute> attrList =
-         new ArrayList<Attribute>(attributes.length);
+         new ArrayList<>(attributes.length);
     for (final CompactAttribute a : attributes)
     {
       attrList.add(a.toAttribute());
@@ -334,7 +333,7 @@ public final class CompactEntry
    */
   public Attribute getAttribute(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     for (final CompactAttribute a : attributes)
     {
@@ -385,7 +384,7 @@ public final class CompactEntry
    */
   public String getAttributeValue(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     for (final CompactAttribute a : attributes)
     {
@@ -421,7 +420,7 @@ public final class CompactEntry
    */
   public byte[] getAttributeValueBytes(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     for (final CompactAttribute a : attributes)
     {
@@ -460,7 +459,7 @@ public final class CompactEntry
    */
   public Boolean getAttributeValueAsBoolean(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     final Attribute a = getAttribute(attributeName);
     if (a == null)
@@ -489,7 +488,7 @@ public final class CompactEntry
    */
   public Date getAttributeValueAsDate(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     final Attribute a = getAttribute(attributeName);
     if (a == null)
@@ -518,7 +517,7 @@ public final class CompactEntry
    */
   public DN getAttributeValueAsDN(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     final Attribute a = getAttribute(attributeName);
     if (a == null)
@@ -547,7 +546,7 @@ public final class CompactEntry
    */
   public Integer getAttributeValueAsInteger(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     final Attribute a = getAttribute(attributeName);
     if (a == null)
@@ -576,7 +575,7 @@ public final class CompactEntry
    */
   public Long getAttributeValueAsLong(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     final Attribute a = getAttribute(attributeName);
     if (a == null)
@@ -602,7 +601,7 @@ public final class CompactEntry
    */
   public String[] getAttributeValues(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     for (final CompactAttribute a : attributes)
     {
@@ -629,7 +628,7 @@ public final class CompactEntry
    */
   public byte[][] getAttributeValueByteArrays(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     for (final CompactAttribute a : attributes)
     {

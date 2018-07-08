@@ -528,8 +528,7 @@ public final class LDAPModify
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>();
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
 
     String[] args =
     {

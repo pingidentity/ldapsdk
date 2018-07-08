@@ -35,9 +35,9 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -136,18 +136,18 @@ public final class ReloadGlobalIndexTask
   /**
    * The task property that will be used for the request processor base DN.
    */
-  static final TaskProperty PROPERTY_BACKGROUND_RELOAD = new TaskProperty(
-       ATTR_BACKGROUND_RELOAD,
-       INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_BACKGROUND.get(),
-       INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_BACKGROUND.get(), Boolean.class,
-       false, false, false);
+  private static final TaskProperty PROPERTY_BACKGROUND_RELOAD =
+       new TaskProperty(ATTR_BACKGROUND_RELOAD,
+            INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_BACKGROUND.get(),
+            INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_BACKGROUND.get(),
+            Boolean.class, false, false, false);
 
 
 
   /**
    * The task property that will be used for the request processor base DN.
    */
-  static final TaskProperty PROPERTY_BASE_DN = new TaskProperty(
+  private static final TaskProperty PROPERTY_BASE_DN = new TaskProperty(
        ATTR_BASE_DN, INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_BASE_DN.get(),
        INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_BASE_DN.get(), String.class, true,
        false, false);
@@ -157,7 +157,7 @@ public final class ReloadGlobalIndexTask
   /**
    * The task property that will be used for the request processor base DN.
    */
-  static final TaskProperty PROPERTY_INDEX_NAME = new TaskProperty(
+  private static final TaskProperty PROPERTY_INDEX_NAME = new TaskProperty(
        ATTR_INDEX_NAME, INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_ATTR_NAME.get(),
        INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_ATTR_NAME.get(), String.class,
        false, true, false);
@@ -167,11 +167,11 @@ public final class ReloadGlobalIndexTask
   /**
    * The task property that will be used for the request processor base DN.
    */
-  static final TaskProperty PROPERTY_MAX_ENTRIES_PER_SECOND = new TaskProperty(
-       ATTR_MAX_ENTRIES_PER_SECOND,
-       INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_MAX_ENTRIES_PER_SECOND.get(),
-       INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_MAX_ENTRIES_PER_SECOND.get(),
-       Long.class, false, false, false);
+  private static final TaskProperty PROPERTY_MAX_ENTRIES_PER_SECOND =
+       new TaskProperty(ATTR_MAX_ENTRIES_PER_SECOND,
+            INFO_DISPLAY_NAME_RELOAD_GLOBAL_INDEX_MAX_ENTRIES_PER_SECOND.get(),
+            INFO_DESCRIPTION_RELOAD_GLOBAL_INDEX_MAX_ENTRIES_PER_SECOND.get(),
+            Long.class, false, false, false);
 
 
 
@@ -224,7 +224,6 @@ public final class ReloadGlobalIndexTask
     maxEntriesPerSecond = null;
     baseDN              = null;
   }
-
 
 
 
@@ -408,7 +407,7 @@ public final class ReloadGlobalIndexTask
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
          alertOnSuccess, alertOnError);
 
-    ensureNotNull(baseDN);
+    Validator.ensureNotNull(baseDN);
 
     this.baseDN              = baseDN;
     this.reloadFromDS        = reloadFromDS;
@@ -421,8 +420,8 @@ public final class ReloadGlobalIndexTask
     }
     else
     {
-      this.indexNames = Collections.unmodifiableList(
-           new ArrayList<String>(indexNames));
+      this.indexNames =
+           Collections.unmodifiableList(new ArrayList<>(indexNames));
     }
   }
 
@@ -491,7 +490,7 @@ public final class ReloadGlobalIndexTask
   {
     super(RELOAD_GLOBAL_INDEX_TASK_CLASS, properties);
 
-    final List<String> attrs = new ArrayList<String>(10);
+    final List<String> attrs = new ArrayList<>(10);
     Boolean background   = null;
     Boolean fromDS       = null;
     Long    maxPerSecond = null;
@@ -646,7 +645,7 @@ public final class ReloadGlobalIndexTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_RELOAD_GLOBAL_INDEX_TASK);
+    return Collections.singletonList(OC_RELOAD_GLOBAL_INDEX_TASK);
   }
 
 
@@ -657,7 +656,7 @@ public final class ReloadGlobalIndexTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(5);
+    final ArrayList<Attribute> attrList = new ArrayList<>(5);
 
     attrList.add(new Attribute(ATTR_BASE_DN, baseDN));
 
@@ -712,10 +711,10 @@ public final class ReloadGlobalIndexTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>(15);
+         new LinkedHashMap<>(15);
 
     props.put(PROPERTY_BASE_DN,
-         Collections.<Object>unmodifiableList(Arrays.asList(baseDN)));
+         Collections.<Object>singletonList(baseDN));
     props.put(PROPERTY_INDEX_NAME,
          Collections.<Object>unmodifiableList(indexNames));
 
@@ -727,7 +726,7 @@ public final class ReloadGlobalIndexTask
     else
     {
       props.put(PROPERTY_RELOAD_FROM_DS,
-           Collections.<Object>unmodifiableList(Arrays.asList(reloadFromDS)));
+           Collections.<Object>singletonList(reloadFromDS));
     }
 
     if (reloadInBackground == null)
@@ -738,8 +737,7 @@ public final class ReloadGlobalIndexTask
     else
     {
       props.put(PROPERTY_BACKGROUND_RELOAD,
-           Collections.<Object>unmodifiableList(Arrays.asList(
-                reloadInBackground)));
+           Collections.<Object>singletonList(reloadInBackground));
     }
 
     if (maxEntriesPerSecond == null)
@@ -750,8 +748,7 @@ public final class ReloadGlobalIndexTask
     else
     {
       props.put(PROPERTY_MAX_ENTRIES_PER_SECOND,
-           Collections.<Object>unmodifiableList(
-                Arrays.asList(maxEntriesPerSecond)));
+           Collections.<Object>singletonList(maxEntriesPerSecond));
     }
 
     props.putAll(super.getTaskPropertyValues());

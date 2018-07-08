@@ -26,12 +26,12 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.matchingrules.MatchingRuleMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -65,7 +65,7 @@ public final class DistinguishedNameMatchingRule
    * in all lowercase characters.
    */
   static final String LOWER_EQUALITY_RULE_NAME =
-       toLowerCase(EQUALITY_RULE_NAME);
+       StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
 
@@ -186,7 +186,7 @@ public final class DistinguishedNameMatchingRule
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
                               le.getMessage(), le);
     }
@@ -198,7 +198,7 @@ public final class DistinguishedNameMatchingRule
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
                               le.getMessage(), le);
     }
@@ -229,7 +229,7 @@ public final class DistinguishedNameMatchingRule
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
            le.getMessage(), le);
     }
@@ -245,7 +245,7 @@ public final class DistinguishedNameMatchingRule
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
 
@@ -298,7 +298,7 @@ public final class DistinguishedNameMatchingRule
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
                               le.getMessage(), le);
     }

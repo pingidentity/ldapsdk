@@ -86,8 +86,8 @@ public final class URLArgumentValueValidator
     }
     else
     {
-      this.allowedSchemes = Collections.unmodifiableSet(
-           new LinkedHashSet<String>(allowedSchemes));
+      this.allowedSchemes =
+           Collections.unmodifiableSet(new LinkedHashSet<>(allowedSchemes));
     }
   }
 

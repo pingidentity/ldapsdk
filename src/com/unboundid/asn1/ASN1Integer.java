@@ -22,13 +22,12 @@ package com.unboundid.asn1;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -65,7 +64,7 @@ public final class ASN1Integer
    */
   public ASN1Integer(final int intValue)
   {
-    super(UNIVERSAL_INTEGER_TYPE, encodeIntValue(intValue));
+    super(ASN1Constants.UNIVERSAL_INTEGER_TYPE, encodeIntValue(intValue));
 
     this.intValue = intValue;
   }
@@ -117,14 +116,14 @@ public final class ASN1Integer
   {
     if (intValue < 0)
     {
-      if ((intValue & 0xFFFFFF80) == 0xFFFFFF80)
+      if ((intValue & 0xFFFF_FF80) == 0xFFFF_FF80)
       {
         return new byte[]
         {
           (byte) (intValue & 0xFF)
         };
       }
-      else if ((intValue & 0xFFFF8000) == 0xFFFF8000)
+      else if ((intValue & 0xFFFF_8000) == 0xFFFF_8000)
       {
         return new byte[]
         {
@@ -132,7 +131,7 @@ public final class ASN1Integer
           (byte) (intValue & 0xFF)
         };
       }
-      else if ((intValue & 0xFF800000) == 0xFF800000)
+      else if ((intValue & 0xFF80_0000) == 0xFF80_0000)
       {
         return new byte[]
         {
@@ -154,14 +153,14 @@ public final class ASN1Integer
     }
     else
     {
-      if ((intValue & 0x0000007F) == intValue)
+      if ((intValue & 0x0000_007F) == intValue)
       {
         return new byte[]
         {
           (byte) (intValue & 0x7F)
         };
       }
-      else if ((intValue & 0x00007FFF) == intValue)
+      else if ((intValue & 0x0000_7FFF) == intValue)
       {
         return new byte[]
         {
@@ -169,7 +168,7 @@ public final class ASN1Integer
           (byte) (intValue & 0xFF)
         };
       }
-      else if ((intValue & 0x007FFFFF) == intValue)
+      else if ((intValue & 0x007F_FFFF) == intValue)
       {
         return new byte[]
         {
@@ -250,7 +249,7 @@ public final class ASN1Integer
           intValue = (value[0] & 0xFF);
           if ((value[0] & 0x80) != 0x00)
           {
-            intValue |= 0xFFFFFF00;
+            intValue |= 0xFFFF_FF00;
           }
           break;
 
@@ -258,7 +257,7 @@ public final class ASN1Integer
           intValue = ((value[0] & 0xFF) << 8) | (value[1] & 0xFF);
           if ((value[0] & 0x80) != 0x00)
           {
-            intValue |= 0xFFFF0000;
+            intValue |= 0xFFFF_0000;
           }
           break;
 
@@ -267,7 +266,7 @@ public final class ASN1Integer
                      (value[2] & 0xFF);
           if ((value[0] & 0x80) != 0x00)
           {
-            intValue |= 0xFF000000;
+            intValue |= 0xFF00_0000;
           }
           break;
 
@@ -285,12 +284,12 @@ public final class ASN1Integer
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }
@@ -318,7 +317,7 @@ public final class ASN1Integer
         intValue = (value[0] & 0xFF);
         if ((value[0] & 0x80) != 0x00)
         {
-          intValue |= 0xFFFFFF00;
+          intValue |= 0xFFFF_FF00;
         }
         break;
 
@@ -326,7 +325,7 @@ public final class ASN1Integer
         intValue = ((value[0] & 0xFF) << 8) | (value[1] & 0xFF);
         if ((value[0] & 0x80) != 0x00)
         {
-          intValue |= 0xFFFF0000;
+          intValue |= 0xFFFF_0000;
         }
         break;
 
@@ -335,7 +334,7 @@ public final class ASN1Integer
                    (value[2] & 0xFF);
         if ((value[0] & 0x80) != 0x00)
         {
-          intValue |= 0xFF000000;
+          intValue |= 0xFF00_0000;
         }
         break;
 

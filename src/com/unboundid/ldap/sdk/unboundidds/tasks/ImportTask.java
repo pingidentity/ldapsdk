@@ -36,9 +36,9 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -583,11 +583,11 @@ public final class ImportTask
   public ImportTask(final String taskID, final String backendID,
                     final String ldifFile)
   {
-    this(taskID, Arrays.asList(ldifFile), backendID, false, false, null, false,
-         true, null, null, null, null, null, null, false, false, false, null,
-         null, null, null, null);
+    this(taskID, Collections.singletonList(ldifFile), backendID, false, false,
+         null, false, true, null, null, null, null, null, null, false, false,
+         false, null, null, null, null, null);
 
-    ensureNotNull(ldifFile);
+    Validator.ensureNotNull(ldifFile);
   }
 
 
@@ -1097,13 +1097,13 @@ public final class ImportTask
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
          alertOnSuccess, alertOnError);
 
-    ensureNotNull(ldifFiles);
-    ensureFalse(ldifFiles.isEmpty(),
-                "ImportTask.ldifFiles must not be empty.");
-    ensureFalse((backendID == null) &&
-                ((includeBranches == null) || includeBranches.isEmpty()));
-    ensureTrue(clearBackend || append ||
-                ((includeBranches != null) && (! includeBranches.isEmpty())));
+    Validator.ensureNotNull(ldifFiles);
+    Validator.ensureFalse(ldifFiles.isEmpty(),
+         "ImportTask.ldifFiles must not be empty.");
+    Validator.ensureFalse((backendID == null) &&
+         ((includeBranches == null) || includeBranches.isEmpty()));
+    Validator.ensureTrue(clearBackend || append ||
+         ((includeBranches != null) && (! includeBranches.isEmpty())));
 
     this.ldifFiles = Collections.unmodifiableList(ldifFiles);
     this.backendID = backendID;
@@ -1714,7 +1714,7 @@ public final class ImportTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_IMPORT_TASK);
+    return Collections.singletonList(OC_IMPORT_TASK);
   }
 
 
@@ -1725,7 +1725,7 @@ public final class ImportTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(20);
+    final ArrayList<Attribute> attrs = new ArrayList<>(20);
 
     attrs.add(new Attribute(ATTR_LDIF_FILE, ldifFiles));
     attrs.add(new Attribute(ATTR_APPEND, String.valueOf(append)));
@@ -1834,7 +1834,7 @@ public final class ImportTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(20);
 
     if (backendID == null)
     {
@@ -1843,18 +1843,17 @@ public final class ImportTask
     else
     {
       props.put(PROPERTY_BACKEND_ID,
-                Collections.<Object>unmodifiableList(Arrays.asList(backendID)));
+                Collections.<Object>singletonList(backendID));
     }
 
     props.put(PROPERTY_LDIF_FILE,
               Collections.<Object>unmodifiableList(ldifFiles));
 
     props.put(PROPERTY_APPEND,
-              Collections.<Object>unmodifiableList(Arrays.asList(append)));
+              Collections.<Object>singletonList(append));
 
     props.put(PROPERTY_REPLACE_EXISTING,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   replaceExisting)));
+              Collections.<Object>singletonList(replaceExisting));
 
     if (rejectFile == null)
     {
@@ -1863,17 +1862,14 @@ public final class ImportTask
     else
     {
       props.put(PROPERTY_REJECT_FILE,
-                Collections.<Object>unmodifiableList(Arrays.asList(
-                     rejectFile)));
+                Collections.<Object>singletonList(rejectFile));
     }
 
     props.put(PROPERTY_OVERWRITE_REJECTS,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   overwriteRejects)));
+              Collections.<Object>singletonList(overwriteRejects));
 
     props.put(PROPERTY_CLEAR_BACKEND,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   clearBackend)));
+              Collections.<Object>singletonList(clearBackend));
 
     props.put(PROPERTY_INCLUDE_BRANCH,
               Collections.<Object>unmodifiableList(includeBranches));
@@ -1894,12 +1890,10 @@ public final class ImportTask
               Collections.<Object>unmodifiableList(excludeAttributes));
 
     props.put(PROPERTY_IS_COMPRESSED,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   isCompressed)));
+              Collections.<Object>singletonList(isCompressed));
 
     props.put(PROPERTY_IS_ENCRYPTED,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   isEncrypted)));
+              Collections.<Object>singletonList(isEncrypted));
 
     if (encryptionPassphraseFile == null)
     {
@@ -1908,17 +1902,14 @@ public final class ImportTask
     else
     {
       props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
-         Collections.<Object>unmodifiableList(Arrays.asList(
-              encryptionPassphraseFile)));
+         Collections.<Object>singletonList(encryptionPassphraseFile));
     }
 
     props.put(PROPERTY_SKIP_SCHEMA_VALIDATION,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   skipSchemaValidation)));
+              Collections.<Object>singletonList(skipSchemaValidation));
 
     props.put(PROPERTY_STRIP_TRAILING_SPACES,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   stripTrailingSpaces)));
+              Collections.<Object>singletonList(stripTrailingSpaces));
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

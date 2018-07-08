@@ -95,7 +95,7 @@ public final class ArgumentHelper
   /**
    * Sets the selected subcommand for the argument parser.
    *
-   * @param  parser      The argument parser for whic hto set the selected
+   * @param  parser      The argument parser for which to set the selected
    *                     subcommand.
    * @param  subcommand  The subcommand that has been selected.
    */

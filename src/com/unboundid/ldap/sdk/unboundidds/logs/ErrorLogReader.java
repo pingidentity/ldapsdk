@@ -136,7 +136,7 @@ public final class ErrorLogReader
         return null;
       }
 
-      if ((line.length() == 0) || (line.charAt(0) == '#'))
+      if (line.isEmpty() || (line.charAt(0) == '#'))
       {
         continue;
       }
@@ -152,6 +152,7 @@ public final class ErrorLogReader
    *
    * @throws  IOException  If a problem occurs while closing the reader.
    */
+  @Override()
   public void close()
          throws IOException
   {

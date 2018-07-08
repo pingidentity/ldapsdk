@@ -74,8 +74,8 @@ public final class AggregatePostConnectProcessor
     }
     else
     {
-      this.processors = Collections.unmodifiableList(
-           new ArrayList<PostConnectProcessor>(processors));
+      this.processors =
+           Collections.unmodifiableList(new ArrayList<>(processors));
     }
   }
 

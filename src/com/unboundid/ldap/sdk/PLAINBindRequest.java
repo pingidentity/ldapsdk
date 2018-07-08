@@ -27,11 +27,10 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -123,7 +122,7 @@ public final class PLAINBindRequest
   {
     this(authenticationID, null, new ASN1OctetString(password), NO_CONTROLS);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -141,7 +140,7 @@ public final class PLAINBindRequest
   {
     this(authenticationID, null, new ASN1OctetString(password), NO_CONTROLS);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -181,7 +180,7 @@ public final class PLAINBindRequest
     this(authenticationID, authorizationID, new ASN1OctetString(password),
          NO_CONTROLS);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -204,7 +203,7 @@ public final class PLAINBindRequest
     this(authenticationID, authorizationID, new ASN1OctetString(password),
          NO_CONTROLS);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -245,7 +244,7 @@ public final class PLAINBindRequest
   {
     this(authenticationID, null, new ASN1OctetString(password), controls);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -265,7 +264,7 @@ public final class PLAINBindRequest
   {
     this(authenticationID, null, new ASN1OctetString(password), controls);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -308,7 +307,7 @@ public final class PLAINBindRequest
     this(authenticationID, authorizationID, new ASN1OctetString(password),
          controls);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -332,7 +331,7 @@ public final class PLAINBindRequest
     this(authenticationID, authorizationID, new ASN1OctetString(password),
          controls);
 
-    ensureNotNull(password);
+    Validator.ensureNotNull(password);
   }
 
 
@@ -356,7 +355,7 @@ public final class PLAINBindRequest
   {
     super(controls);
 
-    ensureNotNull(authenticationID, password);
+    Validator.ensureNotNull(authenticationID, password);
 
     this.authenticationID = authenticationID;
     this.authorizationID  = authorizationID;
@@ -445,8 +444,8 @@ public final class PLAINBindRequest
             throws LDAPException
   {
     // Create the byte array that should comprise the credentials.
-    final byte[] authZIDBytes  = getBytes(authorizationID);
-    final byte[] authNIDBytes  = getBytes(authenticationID);
+    final byte[] authZIDBytes  = StaticUtils.getBytes(authorizationID);
+    final byte[] authNIDBytes  = StaticUtils.getBytes(authenticationID);
     final byte[] passwordBytes = password.getValue();
     final byte[] credBytes     = new byte[2 + authZIDBytes.length +
                                     authNIDBytes.length + passwordBytes.length];
@@ -548,8 +547,7 @@ public final class PLAINBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(4);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(4);
     constructorArgs.add(ToCodeArgHelper.createString(authenticationID,
          "Authentication ID"));
     constructorArgs.add(ToCodeArgHelper.createString(authorizationID,

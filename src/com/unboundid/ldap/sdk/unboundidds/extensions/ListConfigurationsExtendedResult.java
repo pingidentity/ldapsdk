@@ -170,7 +170,7 @@ public final class ListConfigurationsExtendedResult
           case TYPE_BASELINE_CONFIG_FILE_NAMES:
             final ASN1Element[] baselineNameElements =
                  ASN1Sequence.decodeAsSequence(e).elements();
-            baselineNames = new ArrayList<String>(baselineNameElements.length);
+            baselineNames = new ArrayList<>(baselineNameElements.length);
             for (final ASN1Element el : baselineNameElements)
             {
               baselineNames.add(
@@ -181,7 +181,7 @@ public final class ListConfigurationsExtendedResult
           case TYPE_ARCHIVED_CONFIG_FILE_NAMES:
             final ASN1Element[] archivedNameElements =
                  ASN1Sequence.decodeAsSequence(e).elements();
-            archivedNames = new ArrayList<String>(archivedNameElements.length);
+            archivedNames = new ArrayList<>(archivedNameElements.length);
             for (final ASN1Element el : archivedNameElements)
             {
               archivedNames.add(
@@ -268,8 +268,8 @@ public final class ListConfigurationsExtendedResult
     }
     else
     {
-      this.baselineFileNames = Collections.unmodifiableList(
-           new ArrayList<String>(baselineFileNames));
+      this.baselineFileNames =
+           Collections.unmodifiableList(new ArrayList<>(baselineFileNames));
     }
 
     if (archivedFileNames == null)
@@ -278,8 +278,8 @@ public final class ListConfigurationsExtendedResult
     }
     else
     {
-      this.archivedFileNames = Collections.unmodifiableList(
-           new ArrayList<String>(archivedFileNames));
+      this.archivedFileNames =
+           Collections.unmodifiableList(new ArrayList<>(archivedFileNames));
     }
   }
 
@@ -320,16 +320,16 @@ public final class ListConfigurationsExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
     elements.add(
          new ASN1OctetString(TYPE_ACTIVE_CONFIG_FILE_NAME, activeFileName));
 
     if ((baselineFileNames != null) && (! baselineFileNames.isEmpty()))
     {
       final TreeSet<String> sortedBaselineNames =
-           new TreeSet<String>(baselineFileNames);
+           new TreeSet<>(baselineFileNames);
       final ArrayList<ASN1Element> baselineNameElements =
-           new ArrayList<ASN1Element>(sortedBaselineNames.size());
+           new ArrayList<>(sortedBaselineNames.size());
       for (final String s : sortedBaselineNames)
       {
         baselineNameElements.add(new ASN1OctetString(s));
@@ -341,9 +341,9 @@ public final class ListConfigurationsExtendedResult
     if ((archivedFileNames != null) && (! archivedFileNames.isEmpty()))
     {
       final TreeSet<String> sortedArchivedNames =
-           new TreeSet<String>(archivedFileNames);
+           new TreeSet<>(archivedFileNames);
       final ArrayList<ASN1Element> archivedNameElements =
-           new ArrayList<ASN1Element>(sortedArchivedNames.size());
+           new ArrayList<>(sortedArchivedNames.size());
       for (final String s : sortedArchivedNames)
       {
         archivedNameElements.add(new ASN1OctetString(s));

@@ -228,8 +228,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
     }
     else
     {
-      this.notices = Collections.unmodifiableList(
-           new ArrayList<PasswordPolicyStateAccountUsabilityNotice>(notices));
+      this.notices = Collections.unmodifiableList(new ArrayList<>(notices));
     }
 
     if (warnings == null)
@@ -238,8 +237,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
     }
     else
     {
-      this.warnings = Collections.unmodifiableList(
-           new ArrayList<PasswordPolicyStateAccountUsabilityWarning>(warnings));
+      this.warnings = Collections.unmodifiableList(new ArrayList<>(warnings));
     }
 
     if (errors == null)
@@ -248,8 +246,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
     }
     else
     {
-      this.errors = Collections.unmodifiableList(
-           new ArrayList<PasswordPolicyStateAccountUsabilityError>(errors));
+      this.errors = Collections.unmodifiableList(new ArrayList<>(errors));
     }
   }
 
@@ -296,8 +293,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
         switch (e.getType())
         {
           case TYPE_NOTICES:
-            nList =
-                 new ArrayList<PasswordPolicyStateAccountUsabilityNotice>(10);
+            nList = new ArrayList<>(10);
             for (final ASN1Element ne :
                  ASN1Sequence.decodeAsSequence(e).elements())
             {
@@ -327,7 +323,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
 
           case TYPE_WARNINGS:
             wList =
-                 new ArrayList<PasswordPolicyStateAccountUsabilityWarning>(10);
+                 new ArrayList<>(10);
             for (final ASN1Element we :
                  ASN1Sequence.decodeAsSequence(e).elements())
             {
@@ -356,8 +352,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
             break;
 
           case TYPE_ERRORS:
-            eList =
-                 new ArrayList<PasswordPolicyStateAccountUsabilityError>(10);
+            eList = new ArrayList<>(10);
             for (final ASN1Element ee :
                  ASN1Sequence.decodeAsSequence(e).elements())
             {
@@ -462,11 +457,11 @@ public final class GetPasswordPolicyStateIssuesResponseControl
               final List<PasswordPolicyStateAccountUsabilityError> errors,
               final AuthenticationFailureReason authFailureReason)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     if ((notices != null) && (! notices.isEmpty()))
     {
       final ArrayList<ASN1Element> noticeElements =
-           new ArrayList<ASN1Element>(notices.size());
+           new ArrayList<>(notices.size());
       for (final PasswordPolicyStateAccountUsabilityNotice n : notices)
       {
         if (n.getMessage() == null)
@@ -490,7 +485,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
     if ((warnings != null) && (! warnings.isEmpty()))
     {
       final ArrayList<ASN1Element> warningElements =
-           new ArrayList<ASN1Element>(warnings.size());
+           new ArrayList<>(warnings.size());
       for (final PasswordPolicyStateAccountUsabilityWarning w : warnings)
       {
         if (w.getMessage() == null)
@@ -514,7 +509,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
     if ((errors != null) && (! errors.isEmpty()))
     {
       final ArrayList<ASN1Element> errorElements =
-           new ArrayList<ASN1Element>(errors.size());
+           new ArrayList<>(errors.size());
       for (final PasswordPolicyStateAccountUsabilityError e : errors)
       {
         if (e.getMessage() == null)

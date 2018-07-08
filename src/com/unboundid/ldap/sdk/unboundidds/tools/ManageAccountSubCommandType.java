@@ -923,7 +923,7 @@ public enum ManageAccountSubCommandType
          Collections.unmodifiableList(Arrays.asList(alternateNames));
 
     final ArrayList<String> allNamesList =
-         new ArrayList<String>(alternateNames.length + 1);
+         new ArrayList<>(alternateNames.length + 1);
     allNamesList.add(primaryName);
     allNamesList.addAll(this.alternateNames);
 
@@ -1046,10 +1046,8 @@ public enum ManageAccountSubCommandType
     {
       final ManageAccountSubCommandType[] values =
            ManageAccountSubCommandType.values();
-      typesByName =
-           new HashMap<String,ManageAccountSubCommandType>(2*values.length);
-      typesByOpType =
-           new HashMap<Integer,ManageAccountSubCommandType>(values.length);
+      typesByName = new HashMap<>(2*values.length);
+      typesByOpType = new HashMap<>(values.length);
 
       for (final ManageAccountSubCommandType t :  values)
       {

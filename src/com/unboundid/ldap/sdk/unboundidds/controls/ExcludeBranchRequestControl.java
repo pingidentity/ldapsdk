@@ -162,7 +162,7 @@ public final class ExcludeBranchRequestControl
   {
     super(EXCLUDE_BRANCH_REQUEST_OID, isCritical, encodeValue(baseDNs));
 
-    this.baseDNs = Collections.unmodifiableList(new ArrayList<String>(baseDNs));
+    this.baseDNs = Collections.unmodifiableList(new ArrayList<>(baseDNs));
   }
 
 
@@ -208,7 +208,7 @@ public final class ExcludeBranchRequestControl
 
       final ASN1Element[] dnElements =
            ASN1Sequence.decodeAsSequence(elements[0]).elements();
-      final ArrayList<String> dnList = new ArrayList<String>(dnElements.length);
+      final ArrayList<String> dnList = new ArrayList<>(dnElements.length);
       for (final ASN1Element e : dnElements)
       {
         dnList.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -268,8 +268,7 @@ public final class ExcludeBranchRequestControl
     Validator.ensureNotNull(baseDNs);
     Validator.ensureFalse(baseDNs.isEmpty());
 
-    final ArrayList<ASN1Element> dnElements =
-         new ArrayList<ASN1Element>(baseDNs.size());
+    final ArrayList<ASN1Element> dnElements = new ArrayList<>(baseDNs.size());
     for (final String s : baseDNs)
     {
       dnElements.add(new ASN1OctetString(s));

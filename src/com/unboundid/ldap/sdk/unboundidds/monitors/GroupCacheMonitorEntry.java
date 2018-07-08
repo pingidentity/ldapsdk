@@ -335,8 +335,7 @@ public final class GroupCacheMonitorEntry
   @Override()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
-    final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(8);
+    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(8);
 
     if (staticGroupEntries != null)
     {

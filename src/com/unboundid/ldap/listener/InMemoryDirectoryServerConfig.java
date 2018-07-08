@@ -244,10 +244,10 @@ public class InMemoryDirectoryServerConfig
 
     this.baseDNs = baseDNs;
 
-    listenerConfigs = new ArrayList<InMemoryListenerConfig>(1);
+    listenerConfigs = new ArrayList<>(1);
     listenerConfigs.add(InMemoryListenerConfig.createLDAPConfig("default"));
 
-    additionalBindCredentials            = new LinkedHashMap<DN,byte[]>(1);
+    additionalBindCredentials            = new LinkedHashMap<>(1);
     accessLogHandler                     = null;
     ldapDebugLogHandler                  = null;
     enforceAttributeSyntaxCompliance     = true;
@@ -257,26 +257,25 @@ public class InMemoryDirectoryServerConfig
     maxConnections                       = 0;
     maxSizeLimit                         = 0;
     exceptionHandler                     = null;
-    equalityIndexAttributes              = new ArrayList<String>(10);
+    equalityIndexAttributes              = new ArrayList<>(10);
     rootDSEEntry                         = null;
     schema                               = Schema.getDefaultStandardSchema();
     allowedOperationTypes                = EnumSet.allOf(OperationType.class);
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
-    referentialIntegrityAttributes       = new HashSet<String>(0);
+    referentialIntegrityAttributes       = new HashSet<>(0);
     vendorName                           = "Ping Identity Corporation";
     vendorVersion                        = Version.FULL_VERSION_STRING;
     codeLogPath                          = null;
     includeRequestProcessingInCodeLog    = false;
 
-    operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(5);
+    operationInterceptors = new ArrayList<>(5);
 
-    extendedOperationHandlers =
-         new ArrayList<InMemoryExtendedOperationHandler>(3);
+    extendedOperationHandlers = new ArrayList<>(3);
     extendedOperationHandlers.add(new PasswordModifyExtendedOperationHandler());
     extendedOperationHandlers.add(new TransactionExtendedOperationHandler());
     extendedOperationHandlers.add(new WhoAmIExtendedOperationHandler());
 
-    saslBindHandlers = new ArrayList<InMemorySASLBindHandler>(1);
+    saslBindHandlers = new ArrayList<>(1);
     saslBindHandlers.add(new PLAINBindHandler());
 
     passwordAttributes = new LinkedHashSet<>(5);
@@ -302,23 +301,19 @@ public class InMemoryDirectoryServerConfig
     baseDNs = new DN[cfg.baseDNs.length];
     System.arraycopy(cfg.baseDNs, 0, baseDNs, 0, baseDNs.length);
 
-    listenerConfigs = new ArrayList<InMemoryListenerConfig>(
-         cfg.listenerConfigs);
+    listenerConfigs = new ArrayList<>(cfg.listenerConfigs);
 
-    operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(
-         cfg.operationInterceptors);
+    operationInterceptors = new ArrayList<>(cfg.operationInterceptors);
 
-    extendedOperationHandlers = new ArrayList<InMemoryExtendedOperationHandler>(
-         cfg.extendedOperationHandlers);
+    extendedOperationHandlers = new ArrayList<>(cfg.extendedOperationHandlers);
 
-    saslBindHandlers =
-         new ArrayList<InMemorySASLBindHandler>(cfg.saslBindHandlers);
+    saslBindHandlers = new ArrayList<>(cfg.saslBindHandlers);
 
     additionalBindCredentials =
-         new LinkedHashMap<DN,byte[]>(cfg.additionalBindCredentials);
+         new LinkedHashMap<>(cfg.additionalBindCredentials);
 
     referentialIntegrityAttributes =
-         new HashSet<String>(cfg.referentialIntegrityAttributes);
+         new HashSet<>(cfg.referentialIntegrityAttributes);
 
     allowedOperationTypes = EnumSet.noneOf(OperationType.class);
     allowedOperationTypes.addAll(cfg.allowedOperationTypes);
@@ -327,8 +322,7 @@ public class InMemoryDirectoryServerConfig
     authenticationRequiredOperationTypes.addAll(
          cfg.authenticationRequiredOperationTypes);
 
-    equalityIndexAttributes =
-         new ArrayList<String>(cfg.equalityIndexAttributes);
+    equalityIndexAttributes = new ArrayList<>(cfg.equalityIndexAttributes);
 
     enforceAttributeSyntaxCompliance   = cfg.enforceAttributeSyntaxCompliance;
     enforceSingleStructuralObjectClass = cfg.enforceSingleStructuralObjectClass;
@@ -463,8 +457,7 @@ public class InMemoryDirectoryServerConfig
            ERR_MEM_DS_CFG_NO_LISTENERS.get());
     }
 
-    final HashSet<String> listenerNames =
-         new HashSet<String>(listenerConfigs.size());
+    final HashSet<String> listenerNames = new HashSet<>(listenerConfigs.size());
     for (final InMemoryListenerConfig c : listenerConfigs)
     {
       final String name = StaticUtils.toLowerCase(c.getListenerName());
@@ -1707,7 +1700,7 @@ public class InMemoryDirectoryServerConfig
 
     final Iterator<InMemoryListenerConfig> listenerCfgIterator =
          listenerConfigs.iterator();
-    while(listenerCfgIterator.hasNext())
+    while (listenerCfgIterator.hasNext())
     {
       listenerCfgIterator.next().toString(buffer);
       if (listenerCfgIterator.hasNext())

@@ -49,6 +49,7 @@ public final class TestHandshakeCompletedListener
    *
    * @param  e  The handshake completed event.
    */
+  @Override()
   public void handshakeCompleted(final HandshakeCompletedEvent e)
   {
     // No implementation is required.

@@ -31,9 +31,9 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -109,7 +109,7 @@ public final class AuthorizationIdentityResponseControl
     super(AUTHORIZATION_IDENTITY_RESPONSE_OID, false,
           new ASN1OctetString(authorizationID));
 
-    ensureNotNull(authorizationID);
+    Validator.ensureNotNull(authorizationID);
 
     this.authorizationID = authorizationID;
   }

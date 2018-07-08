@@ -22,7 +22,6 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -34,9 +33,9 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -128,7 +127,6 @@ public final class DumpDBDetailsTask
   {
     backendID = null;
   }
-
 
 
 
@@ -238,7 +236,7 @@ public final class DumpDBDetailsTask
          notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
          alertOnError);
 
-    ensureNotNull(backendID);
+    Validator.ensureNotNull(backendID);
 
     this.backendID = backendID;
   }
@@ -350,7 +348,7 @@ public final class DumpDBDetailsTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_DUMP_DB_DETAILS_TASK);
+    return Collections.singletonList(OC_DUMP_DB_DETAILS_TASK);
   }
 
 
@@ -361,7 +359,7 @@ public final class DumpDBDetailsTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    return Arrays.asList(new Attribute(ATTR_BACKEND_ID, backendID));
+    return Collections.singletonList(new Attribute(ATTR_BACKEND_ID, backendID));
   }
 
 
@@ -372,7 +370,7 @@ public final class DumpDBDetailsTask
   @Override()
   public List<TaskProperty> getTaskSpecificProperties()
   {
-    return Collections.unmodifiableList(Arrays.asList(PROPERTY_BACKEND_ID));
+    return Collections.singletonList(PROPERTY_BACKEND_ID);
   }
 
 
@@ -384,10 +382,10 @@ public final class DumpDBDetailsTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>(1);
+         new LinkedHashMap<>(1);
 
-    props.put(PROPERTY_BACKEND_ID, Collections.<Object>unmodifiableList(
-         Arrays.asList(backendID)));
+    props.put(PROPERTY_BACKEND_ID,
+         Collections.<Object>singletonList(backendID));
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

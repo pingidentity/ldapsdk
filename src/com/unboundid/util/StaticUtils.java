@@ -48,9 +48,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Version;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.UtilityMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -142,7 +140,7 @@ public final class StaticUtils
    * The thread-local date formatter used to encode generalized time values.
    */
   private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
-       new ThreadLocal<SimpleDateFormat>();
+       new ThreadLocal<>();
 
 
 
@@ -161,7 +159,7 @@ public final class StaticUtils
   private static volatile Set<String> TO_CODE_SENSITIVE_ATTRIBUTE_NAMES;
   static
   {
-    final LinkedHashSet<String> nameSet = new LinkedHashSet<String>(4);
+    final LinkedHashSet<String> nameSet = new LinkedHashSet<>(4);
 
     // Add userPassword by name and OID.
     nameSet.add("userpassword");
@@ -508,7 +506,7 @@ public final class StaticUtils
     catch (final Exception e)
     {
       // This should never happen.
-      debugException(e);
+      Debug.debugException(e);
       return new String(b);
     }
   }
@@ -536,7 +534,7 @@ public final class StaticUtils
     catch (final Exception e)
     {
       // This should never happen.
-      debugException(e);
+      Debug.debugException(e);
       return new String(b, offset, length);
     }
   }
@@ -556,7 +554,7 @@ public final class StaticUtils
    */
   public static String toInitialLowerCase(final String s)
   {
-    if ((s == null) || (s.length() == 0))
+    if ((s == null) || s.isEmpty())
     {
       return s;
     }
@@ -996,7 +994,7 @@ public final class StaticUtils
    */
   public static String toHex(final byte[] b)
   {
-    ensureNotNull(b);
+    Validator.ensureNotNull(b);
 
     final StringBuilder buffer = new StringBuilder(2 * b.length);
     toHex(b, buffer);
@@ -1776,7 +1774,7 @@ public final class StaticUtils
   public static Date decodeGeneralizedTime(final String t)
          throws ParseException
   {
-    ensureNotNull(t);
+    Validator.ensureNotNull(t);
 
     // Extract the time zone information from the end of the value.
     int tzPos;
@@ -1896,7 +1894,7 @@ public final class StaticUtils
    */
   public static String trimLeading(final String s)
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     int nonSpacePos = 0;
     final int length = s.length();
@@ -1937,7 +1935,7 @@ public final class StaticUtils
    */
   public static String trimTrailing(final String s)
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     final int lastPos = s.length() - 1;
     int nonSpacePos = lastPos;
@@ -2020,7 +2018,7 @@ public final class StaticUtils
     final int breakPos = line.indexOf('\n');
     if (breakPos >= 0)
     {
-      final ArrayList<String> lineList = new ArrayList<String>(10);
+      final ArrayList<String> lineList = new ArrayList<>(10);
       final StringTokenizer tokenizer = new StringTokenizer(line, "\r\n");
       while (tokenizer.hasMoreTokens())
       {
@@ -2034,13 +2032,13 @@ public final class StaticUtils
     final int length = line.length();
     if ((maxFirstLineWidth <= 0) || (length < maxFirstLineWidth))
     {
-      return Arrays.asList(line);
+      return Collections.singletonList(line);
     }
 
 
     int wrapPos = maxFirstLineWidth;
     int lastWrapPos = 0;
-    final ArrayList<String> lineList = new ArrayList<String>(5);
+    final ArrayList<String> lineList = new ArrayList<>(5);
     while (true)
     {
       final int spacePos = line.lastIndexOf(' ', wrapPos);
@@ -2051,7 +2049,7 @@ public final class StaticUtils
         final String s = trimTrailing(line.substring(lastWrapPos, spacePos));
 
         // Don't bother adding the line if it contained only spaces.
-        if (s.length() > 0)
+        if (! s.isEmpty())
         {
           lineList.add(s);
         }
@@ -2084,7 +2082,7 @@ public final class StaticUtils
         else
         {
           final String s = line.substring(lastWrapPos);
-          if (s.length() > 0)
+          if (! s.isEmpty())
           {
             lineList.add(s);
           }
@@ -2232,7 +2230,7 @@ public final class StaticUtils
                                           final String afterList,
                                           final List<String> l)
   {
-    ensureNotNull(l);
+    Validator.ensureNotNull(l);
 
     final StringBuilder buffer = new StringBuilder();
 
@@ -2304,10 +2302,10 @@ public final class StaticUtils
     final StringBuilder buffer = new StringBuilder();
     long numMillis = m;
 
-    final long numDays = numMillis / 86400000L;
+    final long numDays = numMillis / 86_400_000L;
     if (numDays > 0)
     {
-      numMillis -= (numDays * 86400000L);
+      numMillis -= (numDays * 86_400_000L);
       if (numDays == 1)
       {
         buffer.append(INFO_NUM_DAYS_SINGULAR.get(numDays));
@@ -2318,10 +2316,10 @@ public final class StaticUtils
       }
     }
 
-    final long numHours = numMillis / 3600000L;
+    final long numHours = numMillis / 3_600_000L;
     if (numHours > 0)
     {
-      numMillis -= (numHours * 3600000L);
+      numMillis -= (numHours * 3_600_000L);
       if (buffer.length() > 0)
       {
         buffer.append(", ");
@@ -2337,10 +2335,10 @@ public final class StaticUtils
       }
     }
 
-    final long numMinutes = numMillis / 60000L;
+    final long numMinutes = numMillis / 60_000L;
     if (numMinutes > 0)
     {
-      numMillis -= (numMinutes * 60000L);
+      numMillis -= (numMinutes * 60_000L);
       if (buffer.length() > 0)
       {
         buffer.append(", ");
@@ -2402,7 +2400,7 @@ public final class StaticUtils
    */
   public static long nanosToMillis(final long nanos)
   {
-    return Math.max(0L, Math.round(nanos / 1000000.0d));
+    return Math.max(0L, Math.round(nanos / 1_000_000.0d));
   }
 
 
@@ -2417,7 +2415,7 @@ public final class StaticUtils
    */
   public static long millisToNanos(final long millis)
   {
-    return Math.max(0L, (millis * 1000000L));
+    return Math.max(0L, (millis * 1_000_000L));
   }
 
 
@@ -2651,14 +2649,14 @@ public final class StaticUtils
   public static List<String> toArgumentList(final String s)
          throws ParseException
   {
-    if ((s == null) || (s.length() == 0))
+    if ((s == null) || s.isEmpty())
     {
       return Collections.emptyList();
     }
 
     int quoteStartPos = -1;
     boolean inEscape = false;
-    final ArrayList<String> argList = new ArrayList<String>();
+    final ArrayList<String> argList = new ArrayList<>(20);
     final StringBuilder currentArg = new StringBuilder();
     for (int i=0; i < s.length(); i++)
     {
@@ -2745,7 +2743,7 @@ public final class StaticUtils
       return null;
     }
 
-    final ArrayList<T> l = new ArrayList<T>(array.length);
+    final ArrayList<T> l = new ArrayList<>(array.length);
     l.addAll(Arrays.asList(array));
     return l;
   }
@@ -2769,10 +2767,10 @@ public final class StaticUtils
   {
     if (array == null)
     {
-      return new ArrayList<T>(0);
+      return new ArrayList<>(0);
     }
 
-    final ArrayList<T> l = new ArrayList<T>(array.length);
+    final ArrayList<T> l = new ArrayList<>(array.length);
     l.addAll(Arrays.asList(array));
     return l;
   }
@@ -2870,13 +2868,13 @@ public final class StaticUtils
       return (a1[0].equalsIgnoreCase(a2[0]));
     }
 
-    final HashSet<String> s1 = new HashSet<String>(a1.length);
+    final HashSet<String> s1 = new HashSet<>(a1.length);
     for (final String s : a1)
     {
       s1.add(toLowerCase(s));
     }
 
-    final HashSet<String> s2 = new HashSet<String>(a2.length);
+    final HashSet<String> s2 = new HashSet<>(a2.length);
     for (final String s : a2)
     {
       s2.add(toLowerCase(s));
@@ -2923,8 +2921,8 @@ public final class StaticUtils
       return (a1[0].equals(a2[0]));
     }
 
-    final HashSet<T> s1 = new HashSet<T>(Arrays.asList(a1));
-    final HashSet<T> s2 = new HashSet<T>(Arrays.asList(a2));
+    final HashSet<T> s1 = new HashSet<>(Arrays.asList(a1));
+    final HashSet<T> s2 = new HashSet<>(Arrays.asList(a2));
     return s1.equals(s2);
   }
 
@@ -3037,8 +3035,7 @@ public final class StaticUtils
     }
     else
     {
-      final LinkedHashSet<String> nameSet =
-           new LinkedHashSet<String>(names.size());
+      final LinkedHashSet<String> nameSet = new LinkedHashSet<>(names.size());
       for (final String s : names)
       {
         nameSet.add(Attribute.getBaseName(s).toLowerCase());
@@ -3093,7 +3090,7 @@ public final class StaticUtils
    */
   public static List<String> stringToLines(final String s)
   {
-    final ArrayList<String> l = new ArrayList<String>(10);
+    final ArrayList<String> l = new ArrayList<>(10);
 
     if (s == null)
     {
@@ -3120,7 +3117,7 @@ public final class StaticUtils
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
 
           // This should never happen.  If it does, just return a list
           // containing a single item that is the original string.
@@ -3139,7 +3136,7 @@ public final class StaticUtils
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         // This should never happen, and there's nothing we need to do even if
         // it does.
       }
@@ -3208,7 +3205,6 @@ public final class StaticUtils
 
     return byteArray;
   }
-
 
 
 

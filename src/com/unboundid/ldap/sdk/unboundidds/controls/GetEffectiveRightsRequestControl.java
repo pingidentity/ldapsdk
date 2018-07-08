@@ -28,14 +28,14 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -225,7 +225,7 @@ public final class GetEffectiveRightsRequestControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_GER_REQUEST_VALUE_NOT_SEQUENCE.get(e), e);
     }
@@ -254,7 +254,7 @@ public final class GetEffectiveRightsRequestControl
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,
                                 ERR_GER_REQUEST_CANNOT_DECODE.get(e), e);
       }
@@ -282,7 +282,7 @@ public final class GetEffectiveRightsRequestControl
   private static ASN1OctetString encodeValue(final String authzID,
                                              final String[] attributes)
   {
-    ensureNotNull(authzID);
+    Validator.ensureNotNull(authzID);
 
     final ASN1Element[] elements;
     if ((attributes == null) || (attributes.length == 0))

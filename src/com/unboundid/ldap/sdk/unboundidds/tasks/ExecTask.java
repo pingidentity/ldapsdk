@@ -704,7 +704,7 @@ public final class ExecTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final LinkedList<Attribute> attrList = new LinkedList<Attribute>();
+    final LinkedList<Attribute> attrList = new LinkedList<>();
     attrList.add(new Attribute(ATTR_COMMAND_PATH, commandPath));
 
     if (commandArguments != null)
@@ -755,7 +755,7 @@ public final class ExecTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty, List<Object>> props =
-         new LinkedHashMap<TaskProperty, List<Object>>(5);
+         new LinkedHashMap<>(5);
 
     props.put(PROPERTY_COMMAND_PATH,
          Collections.<Object>singletonList(commandPath));

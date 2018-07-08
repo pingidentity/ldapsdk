@@ -278,9 +278,9 @@ public final class InMemoryRequestHandler
   {
     this.config = config;
 
-    schemaRef            = new AtomicReference<Schema>();
-    entryValidatorRef    = new AtomicReference<EntryValidator>();
-    subschemaSubentryRef = new AtomicReference<ReadOnlyEntry>();
+    schemaRef            = new AtomicReference<>();
+    entryValidatorRef    = new AtomicReference<>();
+    subschemaSubentryRef = new AtomicReference<>();
 
     final Schema schema = config.getSchema();
     schemaRef.set(schema);
@@ -301,10 +301,10 @@ public final class InMemoryRequestHandler
            ERR_MEM_HANDLER_NO_BASE_DNS.get());
     }
 
-    entryMap = new TreeMap<DN,ReadOnlyEntry>();
+    entryMap = new TreeMap<>();
 
     final LinkedHashSet<DN> baseDNSet =
-         new LinkedHashSet<DN>(Arrays.asList(baseDNArray));
+         new LinkedHashSet<>(Arrays.asList(baseDNArray));
     if (baseDNSet.contains(DN.NULL_DN))
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -330,7 +330,7 @@ public final class InMemoryRequestHandler
     }
 
     final TreeMap<String,InMemoryExtendedOperationHandler> extOpHandlers =
-         new TreeMap<String,InMemoryExtendedOperationHandler>();
+         new TreeMap<>();
     for (final InMemoryExtendedOperationHandler h :
          config.getExtendedOperationHandlers())
     {
@@ -350,7 +350,7 @@ public final class InMemoryRequestHandler
     extendedRequestHandlers = Collections.unmodifiableMap(extOpHandlers);
 
     final TreeMap<String,InMemorySASLBindHandler> saslHandlers =
-         new TreeMap<String,InMemorySASLBindHandler>();
+         new TreeMap<>();
     for (final InMemorySASLBindHandler h : config.getSASLBindHandlers())
     {
       final String mech = h.getSASLMechanismName();
@@ -370,8 +370,7 @@ public final class InMemoryRequestHandler
          config.getAdditionalBindCredentials());
 
     final List<String> eqIndexAttrs = config.getEqualityIndexAttributes();
-    equalityIndexes = new HashMap<AttributeTypeDefinition,
-         InMemoryDirectoryServerEqualityAttributeIndex>(eqIndexAttrs.size());
+    equalityIndexes = new HashMap<>(eqIndexAttrs.size());
     for (final String s : eqIndexAttrs)
     {
       final InMemoryDirectoryServerEqualityAttributeIndex i =
@@ -619,7 +618,7 @@ public final class InMemoryRequestHandler
    */
   public List<DN> getBaseDNs()
   {
-    return Collections.unmodifiableList(new ArrayList<DN>(baseDNs));
+    return Collections.unmodifiableList(new ArrayList<>(baseDNs));
   }
 
 
@@ -822,7 +821,7 @@ public final class InMemoryRequestHandler
         return new LDAPMessage(messageID, new AddResponseProtocolOp(
              le.getResultCode().intValue(), null, le.getMessage(), null));
       }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+      final ArrayList<Control> responseControls = new ArrayList<>(1);
 
 
       // If this operation type is not allowed, then reject it.
@@ -885,8 +884,7 @@ public final class InMemoryRequestHandler
       else
       {
         final List<Attribute> providedAttrs = request.getAttributes();
-        final List<Attribute> newAttrs =
-             new ArrayList<Attribute>(providedAttrs.size());
+        final List<Attribute> newAttrs = new ArrayList<>(providedAttrs.size());
         for (final Attribute a : providedAttrs)
         {
           final String baseName = a.getBaseName();
@@ -979,7 +977,7 @@ public final class InMemoryRequestHandler
         if (objectClasses != null)
         {
           final LinkedHashMap<String,String> ocMap =
-               new LinkedHashMap<String,String>(objectClasses.length);
+               new LinkedHashMap<>(objectClasses.length);
           for (final String ocName : objectClasses)
           {
             final ObjectClassDefinition oc = schema.getObjectClass(ocName);
@@ -1011,8 +1009,7 @@ public final class InMemoryRequestHandler
       final EntryValidator entryValidator = entryValidatorRef.get();
       if (entryValidator != null)
       {
-        final ArrayList<String> invalidReasons =
-             new ArrayList<String>(1);
+        final ArrayList<String> invalidReasons = new ArrayList<>(1);
         if (! entryValidator.entryIsValid(entry, invalidReasons))
         {
           return new LDAPMessage(messageID, new AddResponseProtocolOp(
@@ -1381,7 +1378,7 @@ public final class InMemoryRequestHandler
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
              le.getResultCode().intValue(), null, le.getMessage(), null, null));
       }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+      final ArrayList<Control> responseControls = new ArrayList<>(1);
 
       // If the bind DN is the null DN, then the bind will be considered
       // successful as long as the password is also empty.
@@ -1537,7 +1534,7 @@ public final class InMemoryRequestHandler
         return new LDAPMessage(messageID, new CompareResponseProtocolOp(
              le.getResultCode().intValue(), null, le.getMessage(), null));
       }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+      final ArrayList<Control> responseControls = new ArrayList<>(1);
 
 
       // If this operation type is not allowed, then reject it.
@@ -1698,7 +1695,7 @@ public final class InMemoryRequestHandler
         return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
              le.getResultCode().intValue(), null, le.getMessage(), null));
       }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+      final ArrayList<Control> responseControls = new ArrayList<>(1);
 
 
       // If this operation type is not allowed, then reject it.
@@ -1814,7 +1811,7 @@ public final class InMemoryRequestHandler
       // Create a list with the DN of the target entry, and all the DNs of its
       // subordinates.  If the entry has subordinates and the subtree delete
       // control was not provided, then fail.
-      final ArrayList<DN> subordinateDNs = new ArrayList<DN>(entryMap.size());
+      final ArrayList<DN> subordinateDNs = new ArrayList<>(entryMap.size());
       for (final DN mapEntryDN : entryMap.keySet())
       {
         if (mapEntryDN.isDescendantOf(dn, false))
@@ -1896,7 +1893,7 @@ public final class InMemoryRequestHandler
       return;
     }
 
-    final ArrayList<DN> entryDNs = new ArrayList<DN>(entryMap.keySet());
+    final ArrayList<DN> entryDNs = new ArrayList<>(entryMap.keySet());
     for (final DN mapDN : entryDNs)
     {
       final ReadOnlyEntry e = entryMap.get(mapDN);
@@ -2087,7 +2084,7 @@ public final class InMemoryRequestHandler
         return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
              le.getResultCode().intValue(), null, le.getMessage(), null));
       }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+      final ArrayList<Control> responseControls = new ArrayList<>(1);
 
 
       // If this operation type is not allowed, then reject it.
@@ -2271,7 +2268,7 @@ public final class InMemoryRequestHandler
       final EntryValidator entryValidator = entryValidatorRef.get();
       if (entryValidator != null)
       {
-        final ArrayList<String> invalidReasons = new ArrayList<String>(1);
+        final ArrayList<String> invalidReasons = new ArrayList<>(1);
         if (! entryValidator.entryIsValid(modifiedEntry, invalidReasons))
         {
           return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
@@ -2716,7 +2713,7 @@ public final class InMemoryRequestHandler
         return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
              le.getResultCode().intValue(), null, le.getMessage(), null));
       }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+      final ArrayList<Control> responseControls = new ArrayList<>(1);
 
 
       // If this operation type is not allowed, then reject it.
@@ -2996,7 +2993,7 @@ public final class InMemoryRequestHandler
       final EntryValidator entryValidator = entryValidatorRef.get();
       if (entryValidator != null)
       {
-        final ArrayList<String> invalidReasons = new ArrayList<String>(1);
+        final ArrayList<String> invalidReasons = new ArrayList<>(1);
         if (! entryValidator.entryIsValid(updatedEntry, invalidReasons))
         {
           return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
@@ -3098,7 +3095,7 @@ public final class InMemoryRequestHandler
       // If the target entry had any subordinates, then rename them as well.
       final RDN[] oldDNComps = dn.getRDNs();
       final RDN[] newDNComps = newDN.getRDNs();
-      final Set<DN> dnSet = new LinkedHashSet<DN>(entryMap.keySet());
+      final Set<DN> dnSet = new LinkedHashSet<>(entryMap.keySet());
       for (final DN mapEntryDN : dnSet)
       {
         if (mapEntryDN.isDescendantOf(dn, false))
@@ -3157,7 +3154,7 @@ public final class InMemoryRequestHandler
       return;
     }
 
-    final ArrayList<DN> entryDNs = new ArrayList<DN>(entryMap.keySet());
+    final ArrayList<DN> entryDNs = new ArrayList<>(entryMap.keySet());
     for (final DN mapDN : entryDNs)
     {
       final ReadOnlyEntry e = entryMap.get(mapDN);
@@ -3231,9 +3228,9 @@ public final class InMemoryRequestHandler
     synchronized (entryMap)
     {
       final List<SearchResultEntry> entryList =
-           new ArrayList<SearchResultEntry>(entryMap.size());
+           new ArrayList<>(entryMap.size());
       final List<SearchResultReference> referenceList =
-           new ArrayList<SearchResultReference>(entryMap.size());
+           new ArrayList<>(entryMap.size());
 
       final LDAPMessage returnMessage = processSearchRequest(messageID, request,
            controls, entryList, referenceList);
@@ -3360,7 +3357,7 @@ public final class InMemoryRequestHandler
         return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
              le.getResultCode().intValue(), null, le.getMessage(), null));
       }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+      final ArrayList<Control> responseControls = new ArrayList<>(1);
 
 
       // If this operation type is not allowed, then reject it.
@@ -3490,7 +3487,7 @@ public final class InMemoryRequestHandler
       // Create a temporary list to hold all of the entries to be returned.
       // These entries will not have been pared down based on the requested
       // attributes.
-      final List<Entry> fullEntryList = new ArrayList<Entry>(entryMap.size());
+      final List<Entry> fullEntryList = new ArrayList<>(entryMap.size());
 
 findEntriesAndRefs:
       {
@@ -3909,7 +3906,7 @@ findEntriesAndRefs:
             {
               if (candidateSet == null)
               {
-                candidateSet = new TreeSet<DN>(dnSet);
+                candidateSet = new TreeSet<>(dnSet);
               }
               else
               {
@@ -3943,7 +3940,7 @@ findEntriesAndRefs:
 
             if (candidateSet == null)
             {
-              candidateSet = new TreeSet<DN>(dnSet);
+              candidateSet = new TreeSet<>(dnSet);
             }
             else
             {
@@ -4058,7 +4055,7 @@ findEntriesAndRefs:
     // Stash the request in the transaction state information so that it will
     // be processed when the transaction is committed.
     txnInfo.getSecond().add(new LDAPMessage(messageID, request,
-         new ArrayList<Control>(controls.values())));
+         new ArrayList<>(controls.values())));
 
     return txnID;
   }
@@ -4501,7 +4498,7 @@ findEntriesAndRefs:
     final List<Control> controls;
     if (ignoreNoUserModification)
     {
-      controls = new ArrayList<Control>(1);
+      controls = new ArrayList<>(1);
       controls.add(new Control(OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
     }
     else
@@ -4510,7 +4507,7 @@ findEntriesAndRefs:
     }
 
     final AddRequestProtocolOp addRequest = new AddRequestProtocolOp(
-         entry.getDN(), new ArrayList<Attribute>(entry.getAttributes()));
+         entry.getDN(), new ArrayList<>(entry.getAttributes()));
 
     final LDAPMessage resultMessage =
          processAddRequest(-1, addRequest, controls);
@@ -4770,7 +4767,7 @@ findEntriesAndRefs:
 
       if (scope == SearchScope.BASE)
       {
-        final List<ReadOnlyEntry> entryList = new ArrayList<ReadOnlyEntry>(1);
+        final List<ReadOnlyEntry> entryList = new ArrayList<>(1);
 
         try
         {
@@ -4790,7 +4787,7 @@ findEntriesAndRefs:
       if ((scope == SearchScope.ONE) && parsedDN.isNullDN())
       {
         final List<ReadOnlyEntry> entryList =
-             new ArrayList<ReadOnlyEntry>(baseDNs.size());
+             new ArrayList<>(baseDNs.size());
 
         try
         {
@@ -4811,7 +4808,7 @@ findEntriesAndRefs:
         return Collections.unmodifiableList(entryList);
       }
 
-      final List<ReadOnlyEntry> entryList = new ArrayList<ReadOnlyEntry>(10);
+      final List<ReadOnlyEntry> entryList = new ArrayList<>(10);
       for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
       {
         final DN dn = me.getKey();
@@ -4888,7 +4885,7 @@ findEntriesAndRefs:
          "1.3.6.1.4.1.4203.1.5.3",  // LDAP absolute true and false filters
          "1.3.6.1.1.14");           // Increment modification type
 
-    final TreeSet<String> ctlSet = new TreeSet<String>();
+    final TreeSet<String> ctlSet = new TreeSet<>();
 
     ctlSet.add(AssertionRequestControl.ASSERTION_REQUEST_OID);
     ctlSet.add(AuthorizationIdentityRequestControl.
@@ -5037,7 +5034,7 @@ findEntriesAndRefs:
 
     final Schema schema = schemaRef.get();
     final HashMap<String,List<List<String>>> m =
-         new HashMap<String,List<List<String>>>(attrList.size() * 2);
+         new HashMap<>(attrList.size() * 2);
     for (final String s : attrList)
     {
       if (s.equals("*"))
@@ -5091,7 +5088,7 @@ findEntriesAndRefs:
           List<List<String>> optionLists = m.get(name);
           if (optionLists == null)
           {
-            optionLists = new ArrayList<List<String>>(1);
+            optionLists = new ArrayList<>(1);
             m.put(name, optionLists);
           }
           optionLists.add(options);
@@ -5106,7 +5103,7 @@ findEntriesAndRefs:
             List<List<String>> optionLists = m.get(name);
             if (optionLists == null)
             {
-              optionLists = new ArrayList<List<String>>(1);
+              optionLists = new ArrayList<>(1);
               m.put(name, optionLists);
             }
             optionLists.add(options);
@@ -5148,12 +5145,11 @@ findEntriesAndRefs:
     int semicolonPos = l.indexOf(';');
     if (semicolonPos < 0)
     {
-      return new ObjectPair<String,List<String>>(l,
-           Collections.<String>emptyList());
+      return new ObjectPair<>(l, Collections.<String>emptyList());
     }
 
     final String name = l.substring(0, semicolonPos);
-    final ArrayList<String> optionList = new ArrayList<String>(1);
+    final ArrayList<String> optionList = new ArrayList<>(1);
     while (true)
     {
       final int nextSemicolonPos = l.indexOf(';', semicolonPos+1);
@@ -5198,7 +5194,7 @@ findEntriesAndRefs:
       List<List<String>> l = m.get(lowerOID);
       if (l == null)
       {
-        l = new ArrayList<List<String>>(1);
+        l = new ArrayList<>(1);
         m.put(lowerOID, l);
       }
 
@@ -5211,7 +5207,7 @@ findEntriesAndRefs:
       List<List<String>> l = m.get(lowerName);
       if (l == null)
       {
-        l = new ArrayList<List<String>>(1);
+        l = new ArrayList<>(1);
         m.put(lowerName, l);
       }
 
@@ -6018,7 +6014,7 @@ findEntriesAndRefs:
       return Arrays.asList(refs);
     }
 
-    final List<String> refList = new ArrayList<String>(refs.length);
+    final List<String> refList = new ArrayList<>(refs.length);
     for (final String ref : refs)
     {
       try
@@ -6240,7 +6236,7 @@ findEntriesAndRefs:
 
 
       final Collection<Attribute> attrs = entry.getAttributes();
-      final List<String> messages = new ArrayList<String>(attrs.size());
+      final List<String> messages = new ArrayList<>(attrs.size());
 
       final Schema schema = schemaRef.get();
       for (final Attribute a : entry.getAttributes())
@@ -6291,7 +6287,7 @@ findEntriesAndRefs:
   {
     synchronized (entryMap)
     {
-      final List<String> missingDNs = new ArrayList<String>(dns.size());
+      final List<String> missingDNs = new ArrayList<>(dns.size());
       for (final String dn : dns)
       {
         final Entry e = getEntry(dn);
@@ -6329,7 +6325,7 @@ findEntriesAndRefs:
         return;
       }
 
-      final List<String> messages = new ArrayList<String>(missingDNs.size());
+      final List<String> messages = new ArrayList<>(missingDNs.size());
       for (final String dn : missingDNs)
       {
         messages.add(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
@@ -6371,7 +6367,7 @@ findEntriesAndRefs:
 
       final Schema schema = schemaRef.get();
       final List<String> missingAttrs =
-           new ArrayList<String>(attributeNames.size());
+           new ArrayList<>(attributeNames.size());
       for (final String attr : attributeNames)
       {
         final Filter f = Filter.createPresenceFilter(attr);
@@ -6418,7 +6414,7 @@ findEntriesAndRefs:
         return;
       }
 
-      final List<String> messages = new ArrayList<String>(missingAttrs.size());
+      final List<String> messages = new ArrayList<>(missingAttrs.size());
       for (final String attr : missingAttrs)
       {
         messages.add(ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(dn, attr));
@@ -6463,7 +6459,7 @@ findEntriesAndRefs:
 
       final Schema schema = schemaRef.get();
       final List<String> missingValues =
-           new ArrayList<String>(attributeValues.size());
+           new ArrayList<>(attributeValues.size());
       for (final String value : attributeValues)
       {
         final Filter f = Filter.createEqualityFilter(attributeName, value);
@@ -6523,7 +6519,7 @@ findEntriesAndRefs:
              ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(dn, attributeName));
       }
 
-      final List<String> messages = new ArrayList<String>(missingValues.size());
+      final List<String> messages = new ArrayList<>(missingValues.size());
       for (final String value : missingValues)
       {
         messages.add(ERR_MEM_HANDLER_TEST_VALUE_MISSING.get(dn, attributeName,
@@ -6585,8 +6581,7 @@ findEntriesAndRefs:
       }
 
       final Schema schema = schemaRef.get();
-      final List<String> messages =
-           new ArrayList<String>(attributeNames.size());
+      final List<String> messages = new ArrayList<>(attributeNames.size());
       for (final String name : attributeNames)
       {
         final Filter f = Filter.createPresenceFilter(name);
@@ -6634,8 +6629,7 @@ findEntriesAndRefs:
       }
 
       final Schema schema = schemaRef.get();
-      final List<String> messages =
-           new ArrayList<String>(attributeValues.size());
+      final List<String> messages = new ArrayList<>(attributeValues.size());
       for (final String value : attributeValues)
       {
         final Filter f = Filter.createEqualityFilter(attributeName, value);

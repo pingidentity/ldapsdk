@@ -354,7 +354,7 @@ public final class MoveSubtree
     if (baseDN.isPresent())
     {
       final List<DN> dnList = baseDN.getValues();
-      baseDNs = new ArrayList<String>(dnList.size());
+      baseDNs = new ArrayList<>(dnList.size());
       for (final DN dn : dnList)
       {
         baseDNs.add(dn.toString());
@@ -704,15 +704,13 @@ public final class MoveSubtree
     final StringBuilder errorMsg = new StringBuilder();
     final StringBuilder adminMsg = new StringBuilder();
 
-    final ReverseComparator<DN> reverseComparator =
-         new ReverseComparator<DN>();
-    final TreeSet<DN> sourceEntryDNs = new TreeSet<DN>(reverseComparator);
+    final ReverseComparator<DN> reverseComparator = new ReverseComparator<>();
+    final TreeSet<DN> sourceEntryDNs = new TreeSet<>(reverseComparator);
 
     final AtomicInteger entriesReadFromSource    = new AtomicInteger(0);
     final AtomicInteger entriesAddedToTarget     = new AtomicInteger(0);
     final AtomicInteger entriesDeletedFromSource = new AtomicInteger(0);
-    final AtomicReference<ResultCode> resultCode =
-         new AtomicReference<ResultCode>();
+    final AtomicReference<ResultCode> resultCode = new AtomicReference<>();
 
     ASN1OctetString sourceTxnID = null;
     ASN1OctetString targetTxnID = null;
@@ -940,7 +938,7 @@ processingBlock:
       // already be sorted in reverse order (as a result of the comparator used
       // when creating it), so it will guarantee children are deleted before
       // their parents.
-      final ArrayList<Control> deleteControlList = new ArrayList<Control>(4);
+      final ArrayList<Control> deleteControlList = new ArrayList<>(4);
       deleteControlList.add(sourceTxnControl);
       deleteControlList.add(new ManageDsaITRequestControl(true));
       if (opPurposeControl != null)
@@ -1521,15 +1519,13 @@ processingBlock:
     final StringBuilder errorMsg = new StringBuilder();
     final StringBuilder adminMsg = new StringBuilder();
 
-    final ReverseComparator<DN> reverseComparator =
-         new ReverseComparator<DN>();
-    final TreeSet<DN> sourceEntryDNs = new TreeSet<DN>(reverseComparator);
+    final ReverseComparator<DN> reverseComparator = new ReverseComparator<>();
+    final TreeSet<DN> sourceEntryDNs = new TreeSet<>(reverseComparator);
 
     final AtomicInteger entriesReadFromSource    = new AtomicInteger(0);
     final AtomicInteger entriesAddedToTarget     = new AtomicInteger(0);
     final AtomicInteger entriesDeletedFromSource = new AtomicInteger(0);
-    final AtomicReference<ResultCode> resultCode =
-         new AtomicReference<ResultCode>();
+    final AtomicReference<ResultCode> resultCode = new AtomicReference<>();
 
     boolean sourceServerAltered = false;
     boolean targetServerAltered = false;
@@ -2424,7 +2420,7 @@ processingBlock:
                final AtomicReference<ResultCode> resultCode,
                final StringBuilder errorMsg)
   {
-    final ArrayList<Control> deleteControlList = new ArrayList<Control>(3);
+    final ArrayList<Control> deleteControlList = new ArrayList<>(3);
     deleteControlList.add(new ManageDsaITRequestControl(true));
     if (opPurposeControl != null)
     {
@@ -2629,8 +2625,7 @@ processingBlock:
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<String[],String>(1);
+    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(1);
 
     final String[] args =
     {

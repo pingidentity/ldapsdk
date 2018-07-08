@@ -37,13 +37,13 @@ import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -294,7 +294,7 @@ public final class GetAuthorizationEntryResponseControl
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_INVALID_VALUE_TYPE.get(
-                      toHex(e.getType())));
+                      StaticUtils.toHex(e.getType())));
         }
       }
 
@@ -307,10 +307,11 @@ public final class GetAuthorizationEntryResponseControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_CANNOT_DECODE_VALUE.get(
-                getExceptionMessage(e)), e);
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -405,7 +406,7 @@ public final class GetAuthorizationEntryResponseControl
                                              final String authZID,
                                              final ReadOnlyEntry authZEntry)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1Boolean(TYPE_IS_AUTHENTICATED, isAuthenticated));
     elements.add(new ASN1Boolean(TYPE_IDENTITIES_MATCH, identitiesMatch));
 
@@ -437,7 +438,7 @@ public final class GetAuthorizationEntryResponseControl
                                               final String authID,
                                               final ReadOnlyEntry authEntry)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     if (authID != null)
     {
@@ -448,7 +449,7 @@ public final class GetAuthorizationEntryResponseControl
 
     final Collection<Attribute> attributes = authEntry.getAttributes();
     final ArrayList<ASN1Element> attrElements =
-         new ArrayList<ASN1Element>(attributes.size());
+         new ArrayList<>(attributes.size());
     for (final Attribute a : attributes)
     {
       attrElements.add(a.encode());
@@ -478,7 +479,7 @@ public final class GetAuthorizationEntryResponseControl
   {
     String authID = null;
     String authDN = null;
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>();
+    final ArrayList<Attribute> attrs = new ArrayList<>(20);
 
     for (final ASN1Element e :
          ASN1Sequence.decodeAsSequence(element).elements())
@@ -501,7 +502,7 @@ public final class GetAuthorizationEntryResponseControl
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
                ERR_GET_AUTHORIZATION_ENTRY_RESPONSE_INVALID_ENTRY_TYPE.get(
-                    toHex(e.getType())));
+                    StaticUtils.toHex(e.getType())));
       }
     }
 

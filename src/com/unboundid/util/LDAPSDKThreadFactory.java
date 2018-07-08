@@ -99,10 +99,11 @@ public final class LDAPSDKThreadFactory
    *
    * @return  The newly-created (but not yet started) thread.
    */
+  @Override()
   public Thread newThread(final Runnable r)
   {
     final String name = baseName + ' ' + threadCounter.getAndIncrement();
-    final Thread t = new Thread(threadGroup, r, baseName);
+    final Thread t = new Thread(threadGroup, r, name);
     t.setDaemon(daemon);
     return t;
   }

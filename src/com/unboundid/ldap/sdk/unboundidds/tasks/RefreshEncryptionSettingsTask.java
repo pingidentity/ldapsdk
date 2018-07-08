@@ -22,7 +22,7 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +89,6 @@ public final class RefreshEncryptionSettingsTask
   {
     this(null, null, null, null, null, null);
   }
-
 
 
 
@@ -260,6 +259,6 @@ public final class RefreshEncryptionSettingsTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_REFRESH_ENCRYPTION_SETTINGS_TASK);
+    return Collections.singletonList(OC_REFRESH_ENCRYPTION_SETTINGS_TASK);
   }
 }

@@ -44,14 +44,14 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.util.NotMutable;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -208,7 +208,7 @@ public final class SearchRequestProtocolOp
       typesOnly   = reader.readBoolean();
       filter      = Filter.readFrom(reader);
 
-      final ArrayList<String> attrs = new ArrayList<String>(5);
+      final ArrayList<String> attrs = new ArrayList<>(5);
       final ASN1StreamReaderSequence attrSequence = reader.beginSequence();
       while (attrSequence.hasMoreElements())
       {
@@ -219,15 +219,17 @@ public final class SearchRequestProtocolOp
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_SEARCH_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -353,7 +355,7 @@ public final class SearchRequestProtocolOp
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> attrElements =
-         new ArrayList<ASN1Element>(attributes.size());
+         new ArrayList<>(attributes.size());
     for (final String attribute : attributes)
     {
       attrElements.add(new ASN1OctetString(attribute));
@@ -404,8 +406,7 @@ public final class SearchRequestProtocolOp
 
       final ASN1Element[] attrElements =
            ASN1Sequence.decodeAsSequence(elements[7]).elements();
-      final ArrayList<String> attributes =
-           new ArrayList<String>(attrElements.length);
+      final ArrayList<String> attributes = new ArrayList<>(attrElements.length);
       for (final ASN1Element e : attrElements)
       {
         attributes.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -416,9 +417,10 @@ public final class SearchRequestProtocolOp
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           ERR_SEARCH_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

@@ -87,10 +87,10 @@ final class FileValuePatternComponent
     this.sequential   = sequential;
     sequentialCounter = new AtomicLong(0L);
     seedRandom        = new Random(seed);
-    random            = new ThreadLocal<Random>();
+    random            = new ThreadLocal<>();
 
 
-    final ArrayList<String> lineList = new ArrayList<String>(100);
+    final ArrayList<String> lineList = new ArrayList<>(100);
     final BufferedReader reader = new BufferedReader(new FileReader(path));
 
     try

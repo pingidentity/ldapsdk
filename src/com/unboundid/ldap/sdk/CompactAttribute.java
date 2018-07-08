@@ -26,10 +26,9 @@ import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -53,7 +52,7 @@ final class CompactAttribute
    * A set of cached attribute names to conserve space.
    */
   private static final ConcurrentHashMap<String,String> cachedNames =
-       new ConcurrentHashMap<String,String>(MAX_CACHED_NAMES);
+       new ConcurrentHashMap<>(MAX_CACHED_NAMES);
 
 
 
@@ -147,7 +146,7 @@ final class CompactAttribute
     final String[] stringValues = new String[values.length];
     for (int i=0; i < values.length; i++)
     {
-      stringValues[i] = toUTF8String(values[i]);
+      stringValues[i] = StaticUtils.toUTF8String(values[i]);
     }
 
     return stringValues;

@@ -77,7 +77,7 @@ final class JSONLDAPSearchOutputHandler
   {
     this.ldapSearch = ldapSearch;
 
-    formattedLines = new ArrayList<String>(10);
+    formattedLines = new ArrayList<>(10);
     jsonBuffer = new JSONBuffer(null, 0, true);
   }
 

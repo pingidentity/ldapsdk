@@ -33,13 +33,13 @@ import java.util.Date;
 import java.util.logging.Level;
 import javax.security.sasl.SaslClient;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -152,6 +152,7 @@ public final class ASN1StreamReader
    * @throws  IOException  If a problem occurs while closing the underlying
    *                       input stream.
    */
+  @Override()
   public void close()
          throws IOException
   {
@@ -509,7 +510,7 @@ public final class ASN1StreamReader
 
     totalBytesRead += length;
     final ASN1Element e = new ASN1Element((byte) type, value);
-    debugASN1Read(e);
+    Debug.debugASN1Read(e);
     return e;
   }
 
@@ -555,7 +556,7 @@ public final class ASN1StreamReader
       totalBytesRead++;
 
       final Boolean booleanValue = (value != 0x00);
-      debugASN1Read(Level.INFO, "Boolean", type, 1, booleanValue);
+      Debug.debugASN1Read(Level.INFO, "Boolean", type, 1, booleanValue);
       return booleanValue;
     }
     else
@@ -639,10 +640,10 @@ public final class ASN1StreamReader
 
     totalBytesRead += length;
 
-    final String timestamp = toUTF8String(value);
+    final String timestamp = StaticUtils.toUTF8String(value);
     final Date date =
          new Date(ASN1GeneralizedTime.decodeTimestamp(timestamp));
-    debugASN1Read(Level.INFO, "GeneralizedTime", type, length, timestamp);
+    Debug.debugASN1Read(Level.INFO, "GeneralizedTime", type, length, timestamp);
     return date;
   }
 
@@ -706,19 +707,19 @@ public final class ASN1StreamReader
       switch (length)
       {
         case 1:
-          intValue |= 0xFFFFFF00;
+          intValue |= 0xFFFF_FF00;
           break;
         case 2:
-          intValue |= 0xFFFF0000;
+          intValue |= 0xFFFF_0000;
           break;
         case 3:
-          intValue |= 0xFF000000;
+          intValue |= 0xFF00_0000;
           break;
       }
     }
 
     totalBytesRead += length;
-    debugASN1Read(Level.INFO, "Integer", type, length, intValue);
+    Debug.debugASN1Read(Level.INFO, "Integer", type, length, intValue);
     return intValue;
   }
 
@@ -782,31 +783,31 @@ public final class ASN1StreamReader
       switch (length)
       {
         case 1:
-          longValue |= 0xFFFFFFFFFFFFFF00L;
+          longValue |= 0xFFFF_FFFF_FFFF_FF00L;
           break;
         case 2:
-          longValue |= 0xFFFFFFFFFFFF0000L;
+          longValue |= 0xFFFF_FFFF_FFFF_0000L;
           break;
         case 3:
-          longValue |= 0xFFFFFFFFFF000000L;
+          longValue |= 0xFFFF_FFFF_FF00_0000L;
           break;
         case 4:
-          longValue |= 0xFFFFFFFF00000000L;
+          longValue |= 0xFFFF_FFFF_0000_0000L;
           break;
         case 5:
-          longValue |= 0xFFFFFF0000000000L;
+          longValue |= 0xFFFF_FF00_0000_0000L;
           break;
         case 6:
-          longValue |= 0xFFFF000000000000L;
+          longValue |= 0xFFFF_0000_0000_0000L;
           break;
         case 7:
-          longValue |= 0xFF00000000000000L;
+          longValue |= 0xFF00_0000_0000_0000L;
           break;
       }
     }
 
     totalBytesRead += length;
-    debugASN1Read(Level.INFO, "Long", type, length, longValue);
+    Debug.debugASN1Read(Level.INFO, "Long", type, length, longValue);
     return longValue;
   }
 
@@ -860,7 +861,8 @@ public final class ASN1StreamReader
     final BigInteger bigIntegerValue = new BigInteger(valueBytes);
 
     totalBytesRead += length;
-    debugASN1Read(Level.INFO, "BigInteger", type, length, bigIntegerValue);
+    Debug.debugASN1Read(Level.INFO, "BigInteger", type, length,
+         bigIntegerValue);
     return bigIntegerValue;
   }
 
@@ -895,7 +897,7 @@ public final class ASN1StreamReader
       skip(length);
       throw new ASN1Exception(ERR_NULL_HAS_VALUE.get());
     }
-    debugASN1Read(Level.INFO, "Null", type, 0, null);
+    Debug.debugASN1Read(Level.INFO, "Null", type, 0, null);
   }
 
 
@@ -942,7 +944,7 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
-    debugASN1Read(Level.INFO, "byte[]", type, length, value);
+    Debug.debugASN1Read(Level.INFO, "byte[]", type, length, value);
     return value;
   }
 
@@ -991,8 +993,8 @@ public final class ASN1StreamReader
 
     totalBytesRead += length;
 
-    final String s = toUTF8String(value);
-    debugASN1Read(Level.INFO, "String", type, length, s);
+    final String s = StaticUtils.toUTF8String(value);
+    Debug.debugASN1Read(Level.INFO, "String", type, length, s);
     return s;
   }
 
@@ -1044,9 +1046,9 @@ public final class ASN1StreamReader
 
     totalBytesRead += length;
 
-    final String timestamp = toUTF8String(value);
+    final String timestamp = StaticUtils.toUTF8String(value);
     final Date date = new Date(ASN1UTCTime.decodeTimestamp(timestamp));
-    debugASN1Read(Level.INFO, "UTCTime", type, length, timestamp);
+    Debug.debugASN1Read(Level.INFO, "UTCTime", type, length, timestamp);
     return date;
   }
 
@@ -1082,7 +1084,7 @@ public final class ASN1StreamReader
 
     final int length = readLength();
 
-    debugASN1Read(Level.INFO, "Sequence Header", type, length, null);
+    Debug.debugASN1Read(Level.INFO, "Sequence Header", type, length, null);
     return new ASN1StreamReaderSequence(this, (byte) type, length);
   }
 
@@ -1117,7 +1119,7 @@ public final class ASN1StreamReader
 
     final int length = readLength();
 
-    debugASN1Read(Level.INFO, "Set Header", type, length, null);
+    Debug.debugASN1Read(Level.INFO, "Set Header", type, length, null);
     return new ASN1StreamReaderSet(this, (byte) type, length);
   }
 
@@ -1169,7 +1171,7 @@ public final class ASN1StreamReader
     }
     catch (final SocketTimeoutException ste)
     {
-      debugException(Level.FINEST, ste);
+      Debug.debugException(Level.FINEST, ste);
 
       if ((initial && ignoreInitialSocketTimeout) ||
           ((! initial) && ignoreSubsequentSocketTimeout))
@@ -1182,7 +1184,7 @@ public final class ASN1StreamReader
           }
           catch (final SocketTimeoutException ste2)
           {
-            debugException(Level.FINEST, ste2);
+            Debug.debugException(Level.FINEST, ste2);
           }
         }
       }
@@ -1233,7 +1235,7 @@ public final class ASN1StreamReader
     }
     catch (final SocketTimeoutException ste)
     {
-      debugException(Level.FINEST, ste);
+      Debug.debugException(Level.FINEST, ste);
       if (ignoreSubsequentSocketTimeout)
       {
         while (true)
@@ -1244,7 +1246,7 @@ public final class ASN1StreamReader
           }
           catch (final SocketTimeoutException ste2)
           {
-            debugException(Level.FINEST, ste2);
+            Debug.debugException(Level.FINEST, ste2);
           }
         }
       }
@@ -1306,7 +1308,7 @@ public final class ASN1StreamReader
           // This means that we hit the end of the input stream without
           // reading any data.  This is fine and just means that the end of
           // the input stream has been reached.
-          saslInputStream = new ByteArrayInputStream(NO_BYTES);
+          saslInputStream = new ByteArrayInputStream(StaticUtils.NO_BYTES);
         }
         else
         {

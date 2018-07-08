@@ -128,7 +128,7 @@ public final class HostNameTrustManager
     this.allowWildcards = allowWildcards;
 
     final LinkedHashSet<String> nameSet =
-         new LinkedHashSet<String>(acceptableHostNames.size());
+         new LinkedHashSet<>(acceptableHostNames.size());
     for (final String s : acceptableHostNames)
     {
       nameSet.add(StaticUtils.toLowerCase(s));

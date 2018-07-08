@@ -22,12 +22,11 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -532,7 +531,7 @@ public class RootDSE
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         // We couldn't parse the value as an integer.
         return null;
       }

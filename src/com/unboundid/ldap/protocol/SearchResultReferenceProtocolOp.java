@@ -38,14 +38,14 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultReference;
-import com.unboundid.util.NotMutable;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -94,7 +94,7 @@ public final class SearchResultReferenceProtocolOp
    */
   public SearchResultReferenceProtocolOp(final SearchResultReference reference)
   {
-    referralURLs = toList(reference.getReferralURLs());
+    referralURLs = StaticUtils.toList(reference.getReferralURLs());
   }
 
 
@@ -114,7 +114,7 @@ public final class SearchResultReferenceProtocolOp
   {
     try
     {
-      final ArrayList<String> refs = new ArrayList<String>(5);
+      final ArrayList<String> refs = new ArrayList<>(5);
       final ASN1StreamReaderSequence refSequence = reader.beginSequence();
       while (refSequence.hasMoreElements())
       {
@@ -125,10 +125,12 @@ public final class SearchResultReferenceProtocolOp
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_REFERENCE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_SEARCH_REFERENCE_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -164,7 +166,7 @@ public final class SearchResultReferenceProtocolOp
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> urlElements =
-         new ArrayList<ASN1Element>(referralURLs.size());
+         new ArrayList<>(referralURLs.size());
     for (final String url : referralURLs)
     {
       urlElements.add(new ASN1OctetString(url));
@@ -197,7 +199,7 @@ public final class SearchResultReferenceProtocolOp
       final ASN1Element[] urlElements =
            ASN1Sequence.decodeAsSequence(element).elements();
       final ArrayList<String> referralURLs =
-           new ArrayList<String>(urlElements.length);
+           new ArrayList<>(urlElements.length);
       for (final ASN1Element e : urlElements)
       {
         referralURLs.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -207,9 +209,10 @@ public final class SearchResultReferenceProtocolOp
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_REFERENCE_CANNOT_DECODE.get(getExceptionMessage(e)),
+           ERR_SEARCH_REFERENCE_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

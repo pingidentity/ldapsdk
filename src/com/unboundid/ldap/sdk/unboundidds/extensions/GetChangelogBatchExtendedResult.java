@@ -506,7 +506,7 @@ public final class GetChangelogBatchExtendedResult
                                       final boolean changesAlreadyPurged,
                                       final String additionalInfo)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(5);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(5);
 
     if (resumeToken != null)
     {

@@ -45,7 +45,7 @@ public final class MemoryBasedLogHandler
    */
   public MemoryBasedLogHandler()
   {
-    messageList = new ArrayList<String>(100);
+    messageList = new ArrayList<>(100);
   }
 
 

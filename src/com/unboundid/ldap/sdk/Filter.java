@@ -47,14 +47,14 @@ import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -425,7 +425,7 @@ public final class Filter
    */
   public static Filter createANDFilter(final Filter... andComponents)
   {
-    ensureNotNull(andComponents);
+    Validator.ensureNotNull(andComponents);
 
     return new Filter(null, FILTER_TYPE_AND, andComponents, null, null, null,
                       null, NO_SUB_ANY, null, null, false);
@@ -443,7 +443,7 @@ public final class Filter
    */
   public static Filter createANDFilter(final List<Filter> andComponents)
   {
-    ensureNotNull(andComponents);
+    Validator.ensureNotNull(andComponents);
 
     return new Filter(null, FILTER_TYPE_AND,
                       andComponents.toArray(new Filter[andComponents.size()]),
@@ -462,7 +462,7 @@ public final class Filter
    */
   public static Filter createANDFilter(final Collection<Filter> andComponents)
   {
-    ensureNotNull(andComponents);
+    Validator.ensureNotNull(andComponents);
 
     return new Filter(null, FILTER_TYPE_AND,
                       andComponents.toArray(new Filter[andComponents.size()]),
@@ -481,7 +481,7 @@ public final class Filter
    */
   public static Filter createORFilter(final Filter... orComponents)
   {
-    ensureNotNull(orComponents);
+    Validator.ensureNotNull(orComponents);
 
     return new Filter(null, FILTER_TYPE_OR, orComponents, null, null, null,
                       null, NO_SUB_ANY, null, null, false);
@@ -499,7 +499,7 @@ public final class Filter
    */
   public static Filter createORFilter(final List<Filter> orComponents)
   {
-    ensureNotNull(orComponents);
+    Validator.ensureNotNull(orComponents);
 
     return new Filter(null, FILTER_TYPE_OR,
                       orComponents.toArray(new Filter[orComponents.size()]),
@@ -518,7 +518,7 @@ public final class Filter
    */
   public static Filter createORFilter(final Collection<Filter> orComponents)
   {
-    ensureNotNull(orComponents);
+    Validator.ensureNotNull(orComponents);
 
     return new Filter(null, FILTER_TYPE_OR,
                       orComponents.toArray(new Filter[orComponents.size()]),
@@ -537,7 +537,7 @@ public final class Filter
    */
   public static Filter createNOTFilter(final Filter notComponent)
   {
-    ensureNotNull(notComponent);
+    Validator.ensureNotNull(notComponent);
 
     return new Filter(null, FILTER_TYPE_NOT, NO_FILTERS, notComponent, null,
                       null, null, NO_SUB_ANY, null, null, false);
@@ -558,7 +558,7 @@ public final class Filter
   public static Filter createEqualityFilter(final String attributeName,
                                             final String assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_EQUALITY, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -580,7 +580,7 @@ public final class Filter
   public static Filter createEqualityFilter(final String attributeName,
                                             final byte[] assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_EQUALITY, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -602,7 +602,7 @@ public final class Filter
   static Filter createEqualityFilter(final String attributeName,
                                      final ASN1OctetString assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_EQUALITY, NO_FILTERS, null,
                       attributeName, assertionValue, null, NO_SUB_ANY, null,
@@ -630,10 +630,10 @@ public final class Filter
                                              final String[] subAny,
                                              final String subFinal)
   {
-    ensureNotNull(attributeName);
-    ensureTrue((subInitial != null) ||
-               ((subAny != null) && (subAny.length > 0)) ||
-               (subFinal != null));
+    Validator.ensureNotNull(attributeName);
+    Validator.ensureTrue((subInitial != null) ||
+         ((subAny != null) && (subAny.length > 0)) ||
+         (subFinal != null));
 
     final ASN1OctetString subInitialOS;
     if (subInitial == null)
@@ -695,10 +695,10 @@ public final class Filter
                                              final byte[][] subAny,
                                              final byte[] subFinal)
   {
-    ensureNotNull(attributeName);
-    ensureTrue((subInitial != null) ||
-               ((subAny != null) && (subAny.length > 0)) ||
-               (subFinal != null));
+    Validator.ensureNotNull(attributeName);
+    Validator.ensureTrue((subInitial != null) ||
+         ((subAny != null) && (subAny.length > 0)) ||
+         (subFinal != null));
 
     final ASN1OctetString subInitialOS;
     if (subInitial == null)
@@ -760,10 +760,10 @@ public final class Filter
                                       final ASN1OctetString[] subAny,
                                       final ASN1OctetString subFinal)
   {
-    ensureNotNull(attributeName);
-    ensureTrue((subInitial != null) ||
-               ((subAny != null) && (subAny.length > 0)) ||
-               (subFinal != null));
+    Validator.ensureNotNull(attributeName);
+    Validator.ensureTrue((subInitial != null) ||
+         ((subAny != null) && (subAny.length > 0)) ||
+         (subFinal != null));
 
     if (subAny == null)
     {
@@ -794,7 +794,7 @@ public final class Filter
   public static Filter createGreaterOrEqualFilter(final String attributeName,
                                                   final String assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_GREATER_OR_EQUAL, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -816,7 +816,7 @@ public final class Filter
   public static Filter createGreaterOrEqualFilter(final String attributeName,
                                                   final byte[] assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_GREATER_OR_EQUAL, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -838,7 +838,7 @@ public final class Filter
   static Filter createGreaterOrEqualFilter(final String attributeName,
                                            final ASN1OctetString assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_GREATER_OR_EQUAL, NO_FILTERS, null,
                       attributeName, assertionValue, null, NO_SUB_ANY, null,
@@ -860,7 +860,7 @@ public final class Filter
   public static Filter createLessOrEqualFilter(final String attributeName,
                                                final String assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_LESS_OR_EQUAL, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -882,7 +882,7 @@ public final class Filter
   public static Filter createLessOrEqualFilter(final String attributeName,
                                                final byte[] assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_LESS_OR_EQUAL, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -904,7 +904,7 @@ public final class Filter
   static Filter createLessOrEqualFilter(final String attributeName,
                                         final ASN1OctetString assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_LESS_OR_EQUAL, NO_FILTERS, null,
                       attributeName, assertionValue, null, NO_SUB_ANY, null,
@@ -923,7 +923,7 @@ public final class Filter
    */
   public static Filter createPresenceFilter(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     return new Filter(null, FILTER_TYPE_PRESENCE, NO_FILTERS, null,
                       attributeName, null, null, NO_SUB_ANY, null, null, false);
@@ -945,7 +945,7 @@ public final class Filter
   public static Filter createApproximateMatchFilter(final String attributeName,
                                                     final String assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_APPROXIMATE_MATCH, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -968,7 +968,7 @@ public final class Filter
   public static Filter createApproximateMatchFilter(final String attributeName,
                                                     final byte[] assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_APPROXIMATE_MATCH, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -991,7 +991,7 @@ public final class Filter
   static Filter createApproximateMatchFilter(final String attributeName,
                      final ASN1OctetString assertionValue)
   {
-    ensureNotNull(attributeName, assertionValue);
+    Validator.ensureNotNull(attributeName, assertionValue);
 
     return new Filter(null, FILTER_TYPE_APPROXIMATE_MATCH, NO_FILTERS, null,
                       attributeName, assertionValue, null, NO_SUB_ANY, null,
@@ -1021,8 +1021,8 @@ public final class Filter
                                                    final boolean dnAttributes,
                                                    final String assertionValue)
   {
-    ensureNotNull(assertionValue);
-    ensureFalse((attributeName == null) && (matchingRuleID == null));
+    Validator.ensureNotNull(assertionValue);
+    Validator.ensureFalse((attributeName == null) && (matchingRuleID == null));
 
     return new Filter(null, FILTER_TYPE_EXTENSIBLE_MATCH, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -1052,8 +1052,8 @@ public final class Filter
                                                    final boolean dnAttributes,
                                                    final byte[] assertionValue)
   {
-    ensureNotNull(assertionValue);
-    ensureFalse((attributeName == null) && (matchingRuleID == null));
+    Validator.ensureNotNull(assertionValue);
+    Validator.ensureFalse((attributeName == null) && (matchingRuleID == null));
 
     return new Filter(null, FILTER_TYPE_EXTENSIBLE_MATCH, NO_FILTERS, null,
                       attributeName, new ASN1OctetString(assertionValue), null,
@@ -1082,8 +1082,8 @@ public final class Filter
                      final String matchingRuleID, final boolean dnAttributes,
                      final ASN1OctetString assertionValue)
   {
-    ensureNotNull(assertionValue);
-    ensureFalse((attributeName == null) && (matchingRuleID == null));
+    Validator.ensureNotNull(assertionValue);
+    Validator.ensureFalse((attributeName == null) && (matchingRuleID == null));
 
     return new Filter(null, FILTER_TYPE_EXTENSIBLE_MATCH, NO_FILTERS, null,
                       attributeName, assertionValue, null, NO_SUB_ANY, null,
@@ -1106,7 +1106,7 @@ public final class Filter
   public static Filter create(final String filterString)
          throws LDAPException
   {
-    ensureNotNull(filterString);
+    Validator.ensureNotNull(filterString);
 
     return create(filterString, 0, (filterString.length() - 1), 0);
   }
@@ -1288,7 +1288,7 @@ public final class Filter
           }
 
           matchingRuleID = filterString.substring(mrIDStart, l);
-          if (matchingRuleID.length() == 0)
+          if (matchingRuleID.isEmpty())
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
                  ERR_FILTER_EMPTY_MRID.get(filterString, startPos));
@@ -1499,7 +1499,7 @@ attrNameLoop:
             }
 
             final String substr = filterString.substring(substrStartPos, l-1);
-            final String lowerSubstr = toLowerCase(substr);
+            final String lowerSubstr = StaticUtils.toLowerCase(substr);
             if (! substr.endsWith(":"))
             {
               throw new LDAPException(ResultCode.FILTER_ERROR,
@@ -1514,7 +1514,7 @@ attrNameLoop:
             else if (lowerSubstr.startsWith("dn:"))
             {
               matchingRuleID = substr.substring(3, substr.length() - 1);
-              if (matchingRuleID.length() == 0)
+              if (matchingRuleID.isEmpty())
               {
                 throw new LDAPException(ResultCode.FILTER_ERROR,
                      ERR_FILTER_EMPTY_MRID.get(filterString, startPos));
@@ -1527,7 +1527,7 @@ attrNameLoop:
               matchingRuleID = substr.substring(0, substr.length() - 1);
               dnAttributes   = false;
 
-              if (matchingRuleID.length() == 0)
+              if (matchingRuleID.isEmpty())
               {
                 throw new LDAPException(ResultCode.FILTER_ERROR,
                      ERR_FILTER_EMPTY_MRID.get(filterString, startPos));
@@ -1614,8 +1614,7 @@ attrNameLoop:
           final int valueStartPos = l;
           ASN1OctetString tempSubInitial = null;
           ASN1OctetString tempSubFinal   = null;
-          final ArrayList<ASN1OctetString> subAnyList =
-               new ArrayList<ASN1OctetString>(1);
+          final ArrayList<ASN1OctetString> subAnyList = new ArrayList<>(1);
           ByteStringBuffer buffer = new ByteStringBuffer(r - l + 1);
           while (l <= r)
           {
@@ -1706,7 +1705,7 @@ attrNameLoop:
           }
 
           if ((tempFilterType == FILTER_TYPE_SUBSTRING) &&
-              (buffer.length() > 0))
+               (! buffer.isEmpty()))
           {
             // The buffer must contain the subFinal portion.
             tempSubFinal = new ASN1OctetString(buffer.toByteArray());
@@ -1797,7 +1796,7 @@ attrNameLoop:
     // Iterate through the specified portion of the filter string and count
     // opening and closing parentheses to figure out where one filter ends and
     // another begins.
-    final ArrayList<Filter> filterList = new ArrayList<Filter>(5);
+    final ArrayList<Filter> filterList = new ArrayList<>(5);
     int filterStartPos = startPos;
     int pos = startPos;
     int numOpen = 0;
@@ -2112,7 +2111,7 @@ attrNameLoop:
 
       case FILTER_TYPE_SUBSTRING:
         final ArrayList<ASN1OctetString> subList =
-             new ArrayList<ASN1OctetString>(2 + subAny.length);
+             new ArrayList<>(2 + subAny.length);
         if (subInitial != null)
         {
           subList.add(new ASN1OctetString(SUBSTRING_TYPE_SUBINITIAL,
@@ -2145,8 +2144,7 @@ attrNameLoop:
 
 
       case FILTER_TYPE_EXTENSIBLE_MATCH:
-        final ArrayList<ASN1Element> emElementList =
-             new ArrayList<ASN1Element>(4);
+        final ArrayList<ASN1Element> emElementList = new ArrayList<>(4);
         if (matchingRuleID != null)
         {
           emElementList.add(new ASN1OctetString(
@@ -2173,7 +2171,7 @@ attrNameLoop:
 
       default:
         throw new AssertionError(ERR_FILTER_INVALID_TYPE.get(
-                                      toHex(filterType)));
+             StaticUtils.toHex(filterType)));
     }
   }
 
@@ -2210,7 +2208,7 @@ attrNameLoop:
       {
         case FILTER_TYPE_AND:
         case FILTER_TYPE_OR:
-          final ArrayList<Filter> comps = new ArrayList<Filter>(5);
+          final ArrayList<Filter> comps = new ArrayList<>(5);
           final ASN1StreamReaderSet elementSet = reader.beginSet();
           while (elementSet.hasMoreElements())
           {
@@ -2240,9 +2238,10 @@ attrNameLoop:
           }
           catch (final ASN1Exception ae)
           {
-            debugException(ae);
+            Debug.debugException(ae);
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                 ERR_FILTER_CANNOT_DECODE_NOT_COMP.get(getExceptionMessage(ae)),
+                 ERR_FILTER_CANNOT_DECODE_NOT_COMP.get(
+                      StaticUtils.getExceptionMessage(ae)),
                  ae);
           }
           notComp = decode(notFilterElement);
@@ -2282,8 +2281,7 @@ attrNameLoop:
 
           ASN1OctetString tempSubInitial = null;
           ASN1OctetString tempSubFinal   = null;
-          final ArrayList<ASN1OctetString> subAnyList =
-               new ArrayList<ASN1OctetString>(1);
+          final ArrayList<ASN1OctetString> subAnyList = new ArrayList<>(1);
           final ASN1StreamReaderSequence subSequence = reader.beginSequence();
           while (subSequence.hasMoreElements())
           {
@@ -2303,7 +2301,8 @@ attrNameLoop:
                 break;
               default:
                 throw new LDAPException(ResultCode.DECODING_ERROR,
-                     ERR_FILTER_INVALID_SUBSTR_TYPE.get(toHex(type)));
+                     ERR_FILTER_INVALID_SUBSTR_TYPE.get(
+                          StaticUtils.toHex(type)));
             }
           }
 
@@ -2362,7 +2361,8 @@ attrNameLoop:
                 break;
               default:
                 throw new LDAPException(ResultCode.DECODING_ERROR,
-                     ERR_FILTER_EXTMATCH_INVALID_TYPE.get(toHex(type)));
+                     ERR_FILTER_EXTMATCH_INVALID_TYPE.get(
+                          StaticUtils.toHex(type)));
             }
           }
 
@@ -2393,7 +2393,8 @@ attrNameLoop:
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_FILTER_ELEMENT_INVALID_TYPE.get(toHex(filterType)));
+               ERR_FILTER_ELEMENT_INVALID_TYPE.get(
+                    StaticUtils.toHex(filterType)));
       }
 
       return new Filter(null, filterType, filterComps, notComp, attrName,
@@ -2402,14 +2403,14 @@ attrNameLoop:
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_FILTER_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_FILTER_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)), e);
     }
   }
 
@@ -2460,9 +2461,11 @@ attrNameLoop:
         }
         catch (final ASN1Exception ae)
         {
-          debugException(ae);
+          Debug.debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_FILTER_CANNOT_DECODE_COMPS.get(getExceptionMessage(ae)), ae);
+               ERR_FILTER_CANNOT_DECODE_COMPS.get(
+                    StaticUtils.getExceptionMessage(ae)),
+               ae);
         }
 
         final ASN1Element[] compElements = compSet.elements();
@@ -2491,9 +2494,10 @@ attrNameLoop:
         }
         catch (final ASN1Exception ae)
         {
-          debugException(ae);
+          Debug.debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_FILTER_CANNOT_DECODE_NOT_COMP.get(getExceptionMessage(ae)),
+               ERR_FILTER_CANNOT_DECODE_NOT_COMP.get(
+                    StaticUtils.getExceptionMessage(ae)),
                ae);
         }
         notComp = decode(notFilterElement);
@@ -2520,9 +2524,11 @@ attrNameLoop:
         }
         catch (final ASN1Exception ae)
         {
-          debugException(ae);
+          Debug.debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_FILTER_CANNOT_DECODE_AVA.get(getExceptionMessage(ae)), ae);
+               ERR_FILTER_CANNOT_DECODE_AVA.get(
+                    StaticUtils.getExceptionMessage(ae)),
+               ae);
         }
 
         final ASN1Element[] avaElements = avaSequence.elements();
@@ -2553,9 +2559,10 @@ attrNameLoop:
         }
         catch (final ASN1Exception ae)
         {
-          debugException(ae);
+          Debug.debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_FILTER_CANNOT_DECODE_SUBSTRING.get(getExceptionMessage(ae)),
+               ERR_FILTER_CANNOT_DECODE_SUBSTRING.get(
+                    StaticUtils.getExceptionMessage(ae)),
                ae);
         }
 
@@ -2577,16 +2584,16 @@ attrNameLoop:
         }
         catch (final ASN1Exception ae)
         {
-          debugException(ae);
+          Debug.debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_FILTER_CANNOT_DECODE_SUBSTRING.get(getExceptionMessage(ae)),
+               ERR_FILTER_CANNOT_DECODE_SUBSTRING.get(
+                    StaticUtils.getExceptionMessage(ae)),
                ae);
         }
 
         ASN1OctetString tempSubInitial = null;
         ASN1OctetString tempSubFinal   = null;
-        final ArrayList<ASN1OctetString> subAnyList =
-             new ArrayList<ASN1OctetString>(1);
+        final ArrayList<ASN1OctetString> subAnyList = new ArrayList<>(1);
 
         final ASN1Element[] subElements = subSequence.elements();
         for (final ASN1Element subElement : subElements)
@@ -2624,8 +2631,8 @@ attrNameLoop:
 
             default:
               throw new LDAPException(ResultCode.DECODING_ERROR,
-                                      ERR_FILTER_INVALID_SUBSTR_TYPE.get(
-                                           toHex(subElement.getType())));
+                   ERR_FILTER_INVALID_SUBSTR_TYPE.get(
+                        StaticUtils.toHex(subElement.getType())));
           }
         }
 
@@ -2663,9 +2670,10 @@ attrNameLoop:
         }
         catch (final ASN1Exception ae)
         {
-          debugException(ae);
+          Debug.debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_FILTER_CANNOT_DECODE_EXTMATCH.get(getExceptionMessage(ae)),
+               ERR_FILTER_CANNOT_DECODE_EXTMATCH.get(
+                    StaticUtils.getExceptionMessage(ae)),
                ae);
         }
 
@@ -2731,18 +2739,18 @@ attrNameLoop:
               }
               catch (final ASN1Exception ae)
               {
-                debugException(ae);
+                Debug.debugException(ae);
                 throw new LDAPException(ResultCode.DECODING_ERROR,
-                               ERR_FILTER_EXTMATCH_DNATTRS_NOT_BOOLEAN.get(
-                                    getExceptionMessage(ae)),
-                               ae);
+                     ERR_FILTER_EXTMATCH_DNATTRS_NOT_BOOLEAN.get(
+                          StaticUtils.getExceptionMessage(ae)),
+                     ae);
               }
               break;
 
             default:
               throw new LDAPException(ResultCode.DECODING_ERROR,
-                                      ERR_FILTER_EXTMATCH_INVALID_TYPE.get(
-                                           toHex(e.getType())));
+                   ERR_FILTER_EXTMATCH_INVALID_TYPE.get(
+                        StaticUtils.toHex(e.getType())));
           }
         }
 
@@ -2767,8 +2775,8 @@ attrNameLoop:
 
       default:
         throw new LDAPException(ResultCode.DECODING_ERROR,
-                                ERR_FILTER_ELEMENT_INVALID_TYPE.get(
-                                     toHex(filterElement.getType())));
+             ERR_FILTER_ELEMENT_INVALID_TYPE.get(
+                  StaticUtils.toHex(filterElement.getType())));
     }
 
 
@@ -3183,7 +3191,7 @@ attrNameLoop:
   public boolean matchesEntry(final Entry entry, final Schema schema)
          throws LDAPException
   {
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     switch (filterType)
     {
@@ -3377,7 +3385,7 @@ attrNameLoop:
     // Simplify each of them to the extent possible, un-embed any ANDs
     // contained inside an AND or ORs contained inside an OR, and eliminate any
     // duplicate components in the resulting top-level filter.
-    final LinkedHashSet<Filter> componentSet = new LinkedHashSet<Filter>(10);
+    final LinkedHashSet<Filter> componentSet = new LinkedHashSet<>(10);
     for (final Filter f : components)
     {
       final Filter simplifiedFilter = simplifyFilter(f, reOrderElements);
@@ -3466,8 +3474,7 @@ attrNameLoop:
     // efficient to process.
     if (reOrderElements)
     {
-      final TreeMap<Integer,LinkedHashSet<Filter>> m =
-           new TreeMap<Integer,LinkedHashSet<Filter>>();
+      final TreeMap<Integer,LinkedHashSet<Filter>> m = new TreeMap<>();
       for (final Filter f : componentSet)
       {
         final Filter prioritizeComp;
@@ -3546,7 +3553,7 @@ attrNameLoop:
         LinkedHashSet<Filter> filterSet = m.get(slot-1);
         if (filterSet == null)
         {
-          filterSet = new LinkedHashSet<Filter>(10);
+          filterSet = new LinkedHashSet<>(10);
           m.put(slot-1, filterSet);
         }
         filterSet.add(f);
@@ -3603,12 +3610,12 @@ attrNameLoop:
       case FILTER_TYPE_GREATER_OR_EQUAL:
       case FILTER_TYPE_LESS_OR_EQUAL:
       case FILTER_TYPE_APPROXIMATE_MATCH:
-        hashCode += toLowerCase(attrName).hashCode();
+        hashCode += StaticUtils.toLowerCase(attrName).hashCode();
         hashCode += matchingRule.normalize(assertionValue).hashCode();
         break;
 
       case FILTER_TYPE_SUBSTRING:
-        hashCode += toLowerCase(attrName).hashCode();
+        hashCode += StaticUtils.toLowerCase(attrName).hashCode();
         if (subInitial != null)
         {
           hashCode += matchingRule.normalizeSubstring(subInitial,
@@ -3627,18 +3634,18 @@ attrNameLoop:
         break;
 
       case FILTER_TYPE_PRESENCE:
-        hashCode += toLowerCase(attrName).hashCode();
+        hashCode += StaticUtils.toLowerCase(attrName).hashCode();
         break;
 
       case FILTER_TYPE_EXTENSIBLE_MATCH:
         if (attrName != null)
         {
-          hashCode += toLowerCase(attrName).hashCode();
+          hashCode += StaticUtils.toLowerCase(attrName).hashCode();
         }
 
         if (matchingRuleID != null)
         {
-          hashCode += toLowerCase(matchingRuleID).hashCode();
+          hashCode += StaticUtils.toLowerCase(matchingRuleID).hashCode();
         }
 
         if (dnAttributes)
@@ -3699,7 +3706,7 @@ attrNameLoop:
           return false;
         }
 
-        final HashSet<Filter> compSet = new HashSet<Filter>();
+        final HashSet<Filter> compSet = new HashSet<>(10);
         compSet.addAll(Arrays.asList(filterComps));
 
         for (final Filter filterComp : f.filterComps)
@@ -4063,7 +4070,7 @@ attrNameLoop:
 
       case FILTER_TYPE_EQUALITY:
         buffer.append('(');
-        buffer.append(toLowerCase(attrName));
+        buffer.append(StaticUtils.toLowerCase(attrName));
         buffer.append('=');
         encodeValue(mr.normalize(assertionValue), buffer);
         buffer.append(')');
@@ -4071,7 +4078,7 @@ attrNameLoop:
 
       case FILTER_TYPE_SUBSTRING:
         buffer.append('(');
-        buffer.append(toLowerCase(attrName));
+        buffer.append(StaticUtils.toLowerCase(attrName));
         buffer.append('=');
         if (subInitial != null)
         {
@@ -4095,7 +4102,7 @@ attrNameLoop:
 
       case FILTER_TYPE_GREATER_OR_EQUAL:
         buffer.append('(');
-        buffer.append(toLowerCase(attrName));
+        buffer.append(StaticUtils.toLowerCase(attrName));
         buffer.append(">=");
         encodeValue(mr.normalize(assertionValue), buffer);
         buffer.append(')');
@@ -4103,7 +4110,7 @@ attrNameLoop:
 
       case FILTER_TYPE_LESS_OR_EQUAL:
         buffer.append('(');
-        buffer.append(toLowerCase(attrName));
+        buffer.append(StaticUtils.toLowerCase(attrName));
         buffer.append("<=");
         encodeValue(mr.normalize(assertionValue), buffer);
         buffer.append(')');
@@ -4111,13 +4118,13 @@ attrNameLoop:
 
       case FILTER_TYPE_PRESENCE:
         buffer.append('(');
-        buffer.append(toLowerCase(attrName));
+        buffer.append(StaticUtils.toLowerCase(attrName));
         buffer.append("=*)");
         break;
 
       case FILTER_TYPE_APPROXIMATE_MATCH:
         buffer.append('(');
-        buffer.append(toLowerCase(attrName));
+        buffer.append(StaticUtils.toLowerCase(attrName));
         buffer.append("~=");
         encodeValue(mr.normalize(assertionValue), buffer);
         buffer.append(')');
@@ -4127,7 +4134,7 @@ attrNameLoop:
         buffer.append('(');
         if (attrName != null)
         {
-          buffer.append(toLowerCase(attrName));
+          buffer.append(StaticUtils.toLowerCase(attrName));
         }
 
         if (dnAttributes)
@@ -4138,7 +4145,7 @@ attrNameLoop:
         if (matchingRuleID != null)
         {
           buffer.append(':');
-          buffer.append(toLowerCase(matchingRuleID));
+          buffer.append(StaticUtils.toLowerCase(matchingRuleID));
         }
 
         buffer.append(":=");
@@ -4163,7 +4170,7 @@ attrNameLoop:
    */
   public static String encodeValue(final String value)
   {
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
 
     final StringBuilder buffer = new StringBuilder();
     encodeValue(new ASN1OctetString(value), buffer);
@@ -4185,7 +4192,7 @@ attrNameLoop:
    */
   public static String encodeValue(final byte[]value)
   {
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
 
     final StringBuilder buffer = new StringBuilder();
     encodeValue(new ASN1OctetString(value), buffer);
@@ -4207,7 +4214,7 @@ attrNameLoop:
     final byte[] valueBytes = value.getValue();
     for (int i=0; i < valueBytes.length; i++)
     {
-      switch (numBytesInUTF8CharacterWithFirstByte(valueBytes[i]))
+      switch (StaticUtils.numBytesInUTF8CharacterWithFirstByte(valueBytes[i]))
       {
         case 1:
           // This character is ASCII, but might still need to be escaped.
@@ -4219,7 +4226,7 @@ attrNameLoop:
               (valueBytes[i] == 0x7F))   // DEL
           {
             buffer.append('\\');
-            toHex(valueBytes[i], buffer);
+            StaticUtils.toHex(valueBytes[i], buffer);
           }
           else
           {
@@ -4231,11 +4238,11 @@ attrNameLoop:
           // If there are at least two bytes left, then we'll hex-encode the
           // next two bytes.  Otherwise we'll hex-encode whatever is left.
           buffer.append('\\');
-          toHex(valueBytes[i++], buffer);
+          StaticUtils.toHex(valueBytes[i++], buffer);
           if (i < valueBytes.length)
           {
             buffer.append('\\');
-            toHex(valueBytes[i], buffer);
+            StaticUtils.toHex(valueBytes[i], buffer);
           }
           break;
 
@@ -4243,16 +4250,16 @@ attrNameLoop:
           // If there are at least three bytes left, then we'll hex-encode the
           // next three bytes.  Otherwise we'll hex-encode whatever is left.
           buffer.append('\\');
-          toHex(valueBytes[i++], buffer);
+          StaticUtils.toHex(valueBytes[i++], buffer);
           if (i < valueBytes.length)
           {
             buffer.append('\\');
-            toHex(valueBytes[i++], buffer);
+            StaticUtils.toHex(valueBytes[i++], buffer);
           }
           if (i < valueBytes.length)
           {
             buffer.append('\\');
-            toHex(valueBytes[i], buffer);
+            StaticUtils.toHex(valueBytes[i], buffer);
           }
           break;
 
@@ -4260,21 +4267,21 @@ attrNameLoop:
           // If there are at least four bytes left, then we'll hex-encode the
           // next four bytes.  Otherwise we'll hex-encode whatever is left.
           buffer.append('\\');
-          toHex(valueBytes[i++], buffer);
+          StaticUtils.toHex(valueBytes[i++], buffer);
           if (i < valueBytes.length)
           {
             buffer.append('\\');
-            toHex(valueBytes[i++], buffer);
+            StaticUtils.toHex(valueBytes[i++], buffer);
           }
           if (i < valueBytes.length)
           {
             buffer.append('\\');
-            toHex(valueBytes[i++], buffer);
+            StaticUtils.toHex(valueBytes[i++], buffer);
           }
           if (i < valueBytes.length)
           {
             buffer.append('\\');
-            toHex(valueBytes[i], buffer);
+            StaticUtils.toHex(valueBytes[i], buffer);
           }
           break;
 
@@ -4283,7 +4290,7 @@ attrNameLoop:
           while (i < valueBytes.length)
           {
             buffer.append('\\');
-            toHex(valueBytes[i++], buffer);
+            StaticUtils.toHex(valueBytes[i++], buffer);
           }
           break;
       }
@@ -4449,11 +4456,11 @@ attrNameLoop:
         buffer.setLength(0);
         buffer.append(indent);
         buffer.append("     ");
-        if (isSensitiveToCodeAttribute(attrName))
+        if (StaticUtils.isSensitiveToCodeAttribute(attrName))
         {
           buffer.append("\"---redacted-value---\"");
         }
-        else if (isPrintableString(assertionValue.getValue()))
+        else if (StaticUtils.isPrintableString(assertionValue.getValue()))
         {
           buffer.append('"');
           buffer.append(assertionValue.stringValue());
@@ -4461,7 +4468,7 @@ attrNameLoop:
         }
         else
         {
-          byteArrayToCode(assertionValue.getValue(), buffer);
+          StaticUtils.byteArrayToCode(assertionValue.getValue(), buffer);
         }
 
         buffer.append(')');
@@ -4486,18 +4493,19 @@ attrNameLoop:
         buffer.append("\",");
         lineList.add(buffer.toString());
 
-        final boolean isRedacted = isSensitiveToCodeAttribute(attrName);
+        final boolean isRedacted =
+             StaticUtils.isSensitiveToCodeAttribute(attrName);
         boolean isPrintable = true;
         if (subInitial != null)
         {
-          isPrintable = isPrintableString(subInitial.getValue());
+          isPrintable = StaticUtils.isPrintableString(subInitial.getValue());
         }
 
         if (isPrintable && (subAny != null))
         {
           for (final ASN1OctetString s : subAny)
           {
-            if (! isPrintableString(s.getValue()))
+            if (! StaticUtils.isPrintableString(s.getValue()))
             {
               isPrintable = false;
               break;
@@ -4507,7 +4515,7 @@ attrNameLoop:
 
         if (isPrintable && (subFinal != null))
         {
-          isPrintable = isPrintableString(subFinal.getValue());
+          isPrintable = StaticUtils.isPrintableString(subFinal.getValue());
         }
 
         buffer.setLength(0);
@@ -4529,7 +4537,7 @@ attrNameLoop:
         }
         else
         {
-          byteArrayToCode(subInitial.getValue(), buffer);
+          StaticUtils.byteArrayToCode(subInitial.getValue(), buffer);
         }
         buffer.append(',');
         lineList.add(buffer.toString());
@@ -4600,7 +4608,7 @@ attrNameLoop:
             buffer.setLength(0);
             buffer.append(indent);
             buffer.append("       ");
-            byteArrayToCode(subAny[i].getValue(), buffer);
+            StaticUtils.byteArrayToCode(subAny[i].getValue(), buffer);
             if (i < (subAny.length-1))
             {
               buffer.append(',');
@@ -4630,7 +4638,7 @@ attrNameLoop:
         }
         else
         {
-          byteArrayToCode(subFinal.getValue(), buffer);
+          StaticUtils.byteArrayToCode(subFinal.getValue(), buffer);
           buffer.append(')');
         }
         if (lastLineSuffix != null)
@@ -4685,13 +4693,14 @@ attrNameLoop:
         buffer.setLength(0);
         buffer.append(indent);
         buffer.append("     ");
-        if ((attrName != null) && isSensitiveToCodeAttribute(attrName))
+        if ((attrName != null) &&
+             StaticUtils.isSensitiveToCodeAttribute(attrName))
         {
           buffer.append("\"---redacted-value---\")");
         }
         else
         {
-          if (isPrintableString(assertionValue.getValue()))
+          if (StaticUtils.isPrintableString(assertionValue.getValue()))
           {
             buffer.append('"');
             buffer.append(assertionValue.stringValue());
@@ -4699,7 +4708,7 @@ attrNameLoop:
           }
           else
           {
-            byteArrayToCode(assertionValue.getValue(), buffer);
+            StaticUtils.byteArrayToCode(assertionValue.getValue(), buffer);
             buffer.append(')');
           }
         }

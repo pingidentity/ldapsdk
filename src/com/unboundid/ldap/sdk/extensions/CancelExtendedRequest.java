@@ -33,12 +33,12 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -221,7 +221,7 @@ public final class CancelExtendedRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_CANCEL_REQUEST_CANNOT_DECODE.get(e), e);
     }

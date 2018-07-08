@@ -36,14 +36,14 @@ import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -241,7 +241,7 @@ public final class JoinResultControl
 
       final String matchedDNStr =
            ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
-      if (matchedDNStr.length() == 0)
+      if (matchedDNStr.isEmpty())
       {
         matchedDN = null;
       }
@@ -252,7 +252,7 @@ public final class JoinResultControl
 
       final String diagnosticMessageStr =
            ASN1OctetString.decodeAsOctetString(elements[2]).stringValue();
-      if (diagnosticMessageStr.length() == 0)
+      if (diagnosticMessageStr.isEmpty())
       {
         diagnosticMessage = null;
       }
@@ -261,8 +261,8 @@ public final class JoinResultControl
         diagnosticMessage = diagnosticMessageStr;
       }
 
-      final ArrayList<String>      refs    = new ArrayList<String>();
-      final ArrayList<JoinedEntry> entries = new ArrayList<JoinedEntry>();
+      final ArrayList<String>      refs    = new ArrayList<>(5);
+      final ArrayList<JoinedEntry> entries = new ArrayList<>(20);
       for (int i=3; i < elements.length; i++)
       {
         switch (elements[i].getType())
@@ -288,7 +288,7 @@ public final class JoinResultControl
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_JOIN_RESULT_INVALID_ELEMENT_TYPE.get(
-                      toHex(elements[i].getType())));
+                      StaticUtils.toHex(elements[i].getType())));
         }
       }
 
@@ -297,10 +297,12 @@ public final class JoinResultControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_JOIN_RESULT_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_JOIN_RESULT_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -334,9 +336,9 @@ public final class JoinResultControl
                       final List<String> referralURLs,
                       final List<JoinedEntry> joinResults)
   {
-    ensureNotNull(resultCode);
+    Validator.ensureNotNull(resultCode);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(5);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(5);
     elements.add(new ASN1Enumerated(resultCode.intValue()));
 
     if (matchedDN == null)
@@ -360,7 +362,7 @@ public final class JoinResultControl
     if ((referralURLs != null) && (! referralURLs.isEmpty()))
     {
       final ArrayList<ASN1Element> refElements =
-           new ArrayList<ASN1Element>(referralURLs.size());
+           new ArrayList<>(referralURLs.size());
       for (final String s : referralURLs)
       {
         refElements.add(new ASN1OctetString(s));
@@ -375,7 +377,7 @@ public final class JoinResultControl
     else
     {
       final ArrayList<ASN1Element> entryElements =
-           new ArrayList<ASN1Element>(joinResults.size());
+           new ArrayList<>(joinResults.size());
       for (final JoinedEntry e : joinResults)
       {
         entryElements.add(e.encode());

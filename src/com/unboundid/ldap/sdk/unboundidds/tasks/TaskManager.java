@@ -35,11 +35,11 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Debug;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -150,7 +150,7 @@ public final class TaskManager
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       if (le.getResultCode() == ResultCode.NO_SUCH_OBJECT)
       {
         return null;
@@ -183,7 +183,7 @@ public final class TaskManager
     final SearchResult result = connection.search(Task.SCHEDULED_TASKS_BASE_DN,
          SearchScope.SUB, filter);
 
-    final LinkedList<Task> tasks = new LinkedList<Task>();
+    final LinkedList<Task> tasks = new LinkedList<>();
     for (final SearchResultEntry e : result.getSearchEntries())
     {
       try
@@ -192,7 +192,7 @@ public final class TaskManager
       }
       catch (final TaskException te)
       {
-        debugException(te);
+        Debug.debugException(te);
 
         // We got an entry that couldn't be parsed as a task.  This is an error,
         // but we don't want to spoil the ability to retrieve other tasks that
@@ -354,7 +354,7 @@ public final class TaskManager
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new TaskException(ERR_TASK_MANAGER_WAIT_INTERRUPTED.get(taskID),
                                 ie);

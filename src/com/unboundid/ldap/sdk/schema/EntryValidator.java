@@ -43,13 +43,13 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -262,13 +262,13 @@ public final class EntryValidator
     noObjectClasses           = new AtomicLong(0L);
     noStructuralClass         = new AtomicLong(0L);
 
-    attributesViolatingSyntax = new ConcurrentHashMap<String,AtomicLong>();
-    missingAttributes         = new ConcurrentHashMap<String,AtomicLong>();
-    prohibitedAttributes      = new ConcurrentHashMap<String,AtomicLong>();
-    prohibitedObjectClasses   = new ConcurrentHashMap<String,AtomicLong>();
-    singleValueViolations     = new ConcurrentHashMap<String,AtomicLong>();
-    undefinedAttributes       = new ConcurrentHashMap<String,AtomicLong>();
-    undefinedObjectClasses    = new ConcurrentHashMap<String,AtomicLong>();
+    attributesViolatingSyntax = new ConcurrentHashMap<>(20);
+    missingAttributes         = new ConcurrentHashMap<>(20);
+    prohibitedAttributes      = new ConcurrentHashMap<>(20);
+    prohibitedObjectClasses   = new ConcurrentHashMap<>(20);
+    singleValueViolations     = new ConcurrentHashMap<>(20);
+    undefinedAttributes       = new ConcurrentHashMap<>(20);
+    undefinedObjectClasses    = new ConcurrentHashMap<>(20);
   }
 
 
@@ -638,7 +638,7 @@ public final class EntryValidator
     else
     {
       ignoreSyntaxViolationTypes = Collections.unmodifiableSet(
-           new HashSet<AttributeTypeDefinition>(toList(attributeTypes)));
+           new HashSet<>(StaticUtils.toList(attributeTypes)));
     }
   }
 
@@ -657,7 +657,7 @@ public final class EntryValidator
   public void setIgnoreSyntaxViolationAttributeTypes(
                    final String... attributeTypes)
   {
-    setIgnoreSyntaxViolationAttributeTypes(toList(attributeTypes));
+    setIgnoreSyntaxViolationAttributeTypes(StaticUtils.toList(attributeTypes));
   }
 
 
@@ -683,7 +683,7 @@ public final class EntryValidator
     }
 
     final HashSet<AttributeTypeDefinition> atSet =
-         new HashSet<AttributeTypeDefinition>(attributeTypes.size());
+         new HashSet<>(attributeTypes.size());
     for (final String s : attributeTypes)
     {
       final AttributeTypeDefinition d = schema.getAttributeType(s);
@@ -779,7 +779,7 @@ public final class EntryValidator
   public boolean entryIsValid(final Entry entry,
                               final List<String> invalidReasons)
   {
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     boolean entryValid = true;
     entriesExamined.incrementAndGet();
@@ -792,7 +792,7 @@ public final class EntryValidator
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       if (checkMalformedDNs)
       {
         entryValid = false;
@@ -800,14 +800,13 @@ public final class EntryValidator
         if (invalidReasons != null)
         {
           invalidReasons.add(ERR_ENTRY_MALFORMED_DN.get(
-               getExceptionMessage(le)));
+               StaticUtils.getExceptionMessage(le)));
         }
       }
     }
 
     // Get the object class descriptions for the object classes in the entry.
-    final HashSet<ObjectClassDefinition> ocSet =
-         new HashSet<ObjectClassDefinition>();
+    final HashSet<ObjectClassDefinition> ocSet = new HashSet<>(10);
     final boolean missingOC =
          (! getObjectClasses(entry, ocSet, invalidReasons));
     if (missingOC)
@@ -823,7 +822,7 @@ public final class EntryValidator
     if (! missingOC)
     {
       final AtomicReference<ObjectClassDefinition> ref =
-           new AtomicReference<ObjectClassDefinition>(null);
+           new AtomicReference<>(null);
       entryValid &= getStructuralClass(ocSet, ref, invalidReasons);
       final ObjectClassDefinition structuralClass = ref.get();
       if (structuralClass != null)
@@ -920,7 +919,7 @@ public final class EntryValidator
     }
 
     boolean entryValid = true;
-    final HashSet<String> missingOCs = new HashSet<String>(ocValues.length);
+    final HashSet<String> missingOCs = new HashSet<>(ocValues.length);
     for (final String ocName : entry.getObjectClassValues())
     {
       final ObjectClassDefinition d = schema.getObjectClass(ocName);
@@ -929,7 +928,7 @@ public final class EntryValidator
         if (checkUndefinedObjectClasses)
         {
           entryValid = false;
-          missingOCs.add(toLowerCase(ocName));
+          missingOCs.add(StaticUtils.toLowerCase(ocName));
           updateCount(ocName, undefinedObjectClasses);
           if (invalidReasons != null)
           {
@@ -943,8 +942,7 @@ public final class EntryValidator
       }
     }
 
-    for (final ObjectClassDefinition d :
-         new HashSet<ObjectClassDefinition>(ocSet))
+    for (final ObjectClassDefinition d : new HashSet<>(ocSet))
     {
       entryValid &= addSuperiorClasses(d, ocSet, missingOCs, invalidReasons);
     }
@@ -986,7 +984,7 @@ public final class EntryValidator
         if (checkUndefinedObjectClasses)
         {
           entryValid = false;
-          final String lowerName = toLowerCase(ocName);
+          final String lowerName = StaticUtils.toLowerCase(ocName);
           if (! missingOCNames.contains(lowerName))
           {
             missingOCNames.add(lowerName);
@@ -1045,8 +1043,7 @@ public final class EntryValidator
                final AtomicReference<ObjectClassDefinition> structuralClass,
                final List<String> invalidReasons)
   {
-    final HashSet<ObjectClassDefinition> ocCopy =
-         new HashSet<ObjectClassDefinition>(ocSet);
+    final HashSet<ObjectClassDefinition> ocCopy = new HashSet<>(ocSet);
     for (final ObjectClassDefinition d : ocSet)
     {
       final ObjectClassType t = d.getObjectClassType(schema);
@@ -1145,8 +1142,7 @@ public final class EntryValidator
                final HashSet<ObjectClassDefinition> ocSet,
                final DITContentRuleDefinition ditContentRule)
   {
-    final HashSet<AttributeTypeDefinition> attrSet =
-         new HashSet<AttributeTypeDefinition>();
+    final HashSet<AttributeTypeDefinition> attrSet = new HashSet<>(20);
     for (final ObjectClassDefinition oc : ocSet)
     {
       attrSet.addAll(oc.getRequiredAttributes(schema, false));
@@ -1185,8 +1181,7 @@ public final class EntryValidator
                final DITContentRuleDefinition ditContentRule,
                final HashSet<AttributeTypeDefinition> requiredAttrSet)
   {
-    final HashSet<AttributeTypeDefinition> attrSet =
-         new HashSet<AttributeTypeDefinition>();
+    final HashSet<AttributeTypeDefinition> attrSet = new HashSet<>(20);
     for (final ObjectClassDefinition oc : ocSet)
     {
       if (oc.hasNameOrOID("extensibleObject") ||
@@ -1366,13 +1361,14 @@ public final class EntryValidator
           }
           catch (final LDAPException le)
           {
-            debugException(le);
+            Debug.debugException(le);
             entryValid = false;
             updateCount(d.getNameOrOID(), attributesViolatingSyntax);
             if (invalidReasons != null)
             {
               invalidReasons.add(ERR_ENTRY_ATTR_INVALID_SYNTAX.get(
-                   v.stringValue(), d.getNameOrOID(), getExceptionMessage(le)));
+                   v.stringValue(), d.getNameOrOID(),
+                   StaticUtils.getExceptionMessage(le)));
             }
           }
 
@@ -1395,7 +1391,7 @@ public final class EntryValidator
               }
               catch (final Exception e)
               {
-                debugException(e);
+                Debug.debugException(e);
               }
             }
 
@@ -1431,7 +1427,7 @@ public final class EntryValidator
               }
               catch (final Exception e)
               {
-                debugException(e);
+                Debug.debugException(e);
               }
             }
 
@@ -1463,7 +1459,7 @@ public final class EntryValidator
               }
               catch (final Exception e)
               {
-                debugException(e);
+                Debug.debugException(e);
               }
             }
 
@@ -1495,7 +1491,7 @@ public final class EntryValidator
               }
               catch (final Exception e)
               {
-                debugException(e);
+                Debug.debugException(e);
               }
             }
 
@@ -1532,7 +1528,7 @@ public final class EntryValidator
                 }
                 catch (final Exception e)
                 {
-                  debugException(e);
+                  Debug.debugException(e);
                 }
               }
 
@@ -1549,7 +1545,7 @@ public final class EntryValidator
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
               entryValid = false;
               updateCount(d.getNameOrOID(), attributesViolatingSyntax);
               if (invalidReasons != null)
@@ -1580,7 +1576,7 @@ public final class EntryValidator
                 }
                 catch (final Exception e)
                 {
-                  debugException(e);
+                  Debug.debugException(e);
                 }
               }
 
@@ -1597,7 +1593,7 @@ public final class EntryValidator
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
               entryValid = false;
               updateCount(d.getNameOrOID(), attributesViolatingSyntax);
               if (invalidReasons != null)
@@ -1624,7 +1620,7 @@ public final class EntryValidator
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
             }
           }
 
@@ -1655,7 +1651,7 @@ public final class EntryValidator
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
             }
           }
 
@@ -1697,8 +1693,7 @@ public final class EntryValidator
                        final DITContentRuleDefinition ditContentRule,
                        final List<String> invalidReasons)
   {
-    final HashSet<ObjectClassDefinition> auxSet =
-         new HashSet<ObjectClassDefinition>();
+    final HashSet<ObjectClassDefinition> auxSet = new HashSet<>(20);
     for (final String s : ditContentRule.getAuxiliaryClasses())
     {
       final ObjectClassDefinition d = schema.getObjectClass(s);
@@ -1755,10 +1750,8 @@ public final class EntryValidator
                            final NameFormDefinition nameForm,
                            final List<String> invalidReasons)
   {
-    final HashSet<AttributeTypeDefinition> nfReqAttrs =
-         new HashSet<AttributeTypeDefinition>();
-    final HashSet<AttributeTypeDefinition> nfAllowedAttrs =
-         new HashSet<AttributeTypeDefinition>();
+    final HashSet<AttributeTypeDefinition> nfReqAttrs = new HashSet<>(5);
+    final HashSet<AttributeTypeDefinition> nfAllowedAttrs = new HashSet<>(5);
     if (nameForm != null)
     {
       for (final String s : nameForm.getRequiredAttributes())
@@ -1886,7 +1879,7 @@ public final class EntryValidator
   private static void updateCount(final String key,
                            final ConcurrentHashMap<String,AtomicLong> map)
   {
-    final String lowerKey = toLowerCase(key);
+    final String lowerKey = StaticUtils.toLowerCase(key);
     AtomicLong l = map.get(lowerKey);
     if (l == null)
     {
@@ -2297,7 +2290,7 @@ public final class EntryValidator
    */
   private static Map<String,Long> convertMap(final Map<String,AtomicLong> map)
   {
-    final TreeMap<String,Long> m = new TreeMap<String,Long>();
+    final TreeMap<String,Long> m = new TreeMap<>();
     for (final Map.Entry<String,AtomicLong> e : map.entrySet())
     {
       m.put(e.getKey(), e.getValue().longValue());
@@ -2328,7 +2321,7 @@ public final class EntryValidator
       return Collections.emptyList();
     }
 
-    final ArrayList<String> messages = new ArrayList<String>(5);
+    final ArrayList<String> messages = new ArrayList<>(5);
     final long numEntries = entriesExamined.get();
     long pct = 100 * numInvalid / numEntries;
     messages.add(INFO_ENTRY_INVALID_ENTRY_COUNT.get(

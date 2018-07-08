@@ -204,8 +204,7 @@ public class LDAPEntry
    */
   public final Entry toEntry()
   {
-    final ArrayList<Attribute> attrs =
-         new ArrayList<Attribute>(attributeSet.size());
+    final ArrayList<Attribute> attrs = new ArrayList<>(attributeSet.size());
     final Enumeration<LDAPAttribute> attrEnum = attributeSet.getAttributes();
     while (attrEnum.hasMoreElements())
     {
@@ -214,7 +213,6 @@ public class LDAPEntry
 
     return new Entry(dn, attrs);
   }
-
 
 
 

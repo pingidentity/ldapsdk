@@ -37,15 +37,15 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -113,7 +113,7 @@ public final class CompareRequest
 
   // The queue that will be used to receive response messages from the server.
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
-       new LinkedBlockingQueue<LDAPResponse>();
+       new LinkedBlockingQueue<>();
 
   // The assertion value for this compare request.
   private ASN1OctetString assertionValue;
@@ -145,7 +145,7 @@ public final class CompareRequest
   {
     super(null);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn;
     this.attributeName  = attributeName;
@@ -170,7 +170,7 @@ public final class CompareRequest
   {
     super(null);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn;
     this.attributeName  = attributeName;
@@ -195,7 +195,7 @@ public final class CompareRequest
   {
     super(null);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn.toString();
     this.attributeName  = attributeName;
@@ -220,7 +220,7 @@ public final class CompareRequest
   {
     super(null);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn.toString();
     this.attributeName  = attributeName;
@@ -246,7 +246,7 @@ public final class CompareRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn;
     this.attributeName  = attributeName;
@@ -272,7 +272,7 @@ public final class CompareRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn;
     this.attributeName  = attributeName;
@@ -298,7 +298,7 @@ public final class CompareRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn.toString();
     this.attributeName  = attributeName;
@@ -325,7 +325,7 @@ public final class CompareRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn.toString();
     this.attributeName  = attributeName;
@@ -351,7 +351,7 @@ public final class CompareRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     this.dn             = dn.toString();
     this.attributeName  = attributeName;
@@ -379,7 +379,7 @@ public final class CompareRequest
    */
   public void setDN(final String dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
   }
@@ -394,7 +394,7 @@ public final class CompareRequest
    */
   public void setDN(final DN dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn.toString();
   }
@@ -421,7 +421,7 @@ public final class CompareRequest
    */
   public void setAttributeName(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     this.attributeName = attributeName;
   }
@@ -469,7 +469,7 @@ public final class CompareRequest
    */
   public void setAssertionValue(final String assertionValue)
   {
-    ensureNotNull(assertionValue);
+    Validator.ensureNotNull(assertionValue);
 
     this.assertionValue = new ASN1OctetString(assertionValue);
   }
@@ -484,7 +484,7 @@ public final class CompareRequest
    */
   public void setAssertionValue(final byte[] assertionValue)
   {
-    ensureNotNull(assertionValue);
+    Validator.ensureNotNull(assertionValue);
 
     this.assertionValue = new ASN1OctetString(assertionValue);
   }
@@ -611,7 +611,7 @@ public final class CompareRequest
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_COMPARE_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -685,14 +685,14 @@ public final class CompareRequest
     // Send the request to the server.
     try
     {
-      debugLDAPRequest(Level.INFO, this, messageID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumCompareRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       connection.deregisterResponseAcceptor(messageID);
       throw le;
@@ -733,7 +733,7 @@ public final class CompareRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(Level.INFO, this, messageID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumCompareRequests();
     try
     {
@@ -741,7 +741,7 @@ public final class CompareRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (allowRetry)
       {
@@ -765,7 +765,7 @@ public final class CompareRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if ((le.getResultCode() == ResultCode.TIMEOUT) &&
             connection.getConnectionOptions().abandonOnTimeout())
@@ -832,7 +832,8 @@ public final class CompareRequest
   {
     if (response == null)
     {
-      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      final long waitTime =
+           StaticUtils.nanosToMillis(System.nanoTime() - requestTime);
       if (connection.getConnectionOptions().abandonOnTimeout())
       {
         connection.abandon(messageID);
@@ -949,7 +950,7 @@ public final class CompareRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     return null;
@@ -1018,7 +1019,7 @@ public final class CompareRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
       }
     }
 
@@ -1043,7 +1044,7 @@ public final class CompareRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -1051,7 +1052,9 @@ public final class CompareRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -1159,8 +1162,7 @@ public final class CompareRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the arguments for the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(3);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(3);
     constructorArgs.add(ToCodeArgHelper.createString(dn, "Entry DN"));
     constructorArgs.add(ToCodeArgHelper.createString(attributeName,
          "Attribute Name"));
@@ -1168,13 +1170,13 @@ public final class CompareRequest
     // If the attribute is one that we consider sensitive, then we'll use a
     // redacted value.  Otherwise, try to use the string value if it's
     // printable, or a byte array value if it's not.
-    if (isSensitiveToCodeAttribute(attributeName))
+    if (StaticUtils.isSensitiveToCodeAttribute(attributeName))
     {
       constructorArgs.add(ToCodeArgHelper.createString("---redacted-value",
            "Assertion Value (Redacted because " + attributeName + " is " +
                 "configured as a sensitive attribute)"));
     }
-    else if (isPrintableString(assertionValue.getValue()))
+    else if (StaticUtils.isPrintableString(assertionValue.getValue()))
     {
       constructorArgs.add(ToCodeArgHelper.createString(
            assertionValue.stringValue(),

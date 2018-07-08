@@ -68,6 +68,7 @@ final class IterableEnumeration<T>
    * @return  {@code true} if this enumeration has at least one more element, or
    *          {@code false} if not.
    */
+  @Override()
   public boolean hasMoreElements()
   {
     return iterator.hasNext();
@@ -82,6 +83,7 @@ final class IterableEnumeration<T>
    *
    * @throws  NoSuchElementException  If there are no more elements to retrieve.
    */
+  @Override()
   public T nextElement()
          throws NoSuchElementException
   {

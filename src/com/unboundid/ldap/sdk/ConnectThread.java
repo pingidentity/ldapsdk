@@ -30,9 +30,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
+
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -107,9 +108,9 @@ final class ConnectThread
     this.connectTimeoutMillis = connectTimeoutMillis;
 
     connected  = new AtomicBoolean(false);
-    socket     = new AtomicReference<Socket>();
-    thread     = new AtomicReference<Thread>();
-    exception  = new AtomicReference<Throwable>();
+    socket     = new AtomicReference<>();
+    thread     = new AtomicReference<>();
+    exception  = new AtomicReference<>();
     startLatch = new CountDownLatch(1);
   }
 
@@ -135,7 +136,7 @@ final class ConnectThread
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         s = socketFactory.createSocket(address, port);
         connectNeeded = false;
       }
@@ -149,7 +150,7 @@ final class ConnectThread
     }
     catch (final Throwable t)
     {
-      debugException(t);
+      Debug.debugException(t);
       exception.set(t);
     }
     finally
@@ -182,11 +183,11 @@ final class ConnectThread
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_CONNECT_THREAD_INTERRUPTED.get(address.getHostAddress(), port,
-                  getExceptionMessage(ie)),
+                  StaticUtils.getExceptionMessage(ie)),
              ie);
       }
     }
@@ -200,11 +201,11 @@ final class ConnectThread
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_CONNECT_THREAD_INTERRUPTED.get(address.getHostAddress(), port,
-                  getExceptionMessage(ie)),
+                  StaticUtils.getExceptionMessage(ie)),
              ie);
       }
     }
@@ -223,7 +224,7 @@ final class ConnectThread
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     try
@@ -236,7 +237,7 @@ final class ConnectThread
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     final Throwable cause = exception.get();
@@ -249,7 +250,7 @@ final class ConnectThread
     {
       throw new LDAPException(ResultCode.CONNECT_ERROR,
            ERR_CONNECT_THREAD_EXCEPTION.get(address, port,
-                getExceptionMessage(cause)), cause);
+                StaticUtils.getExceptionMessage(cause)), cause);
     }
   }
 }

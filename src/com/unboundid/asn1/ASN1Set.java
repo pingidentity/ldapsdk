@@ -26,13 +26,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -93,10 +92,10 @@ public final class ASN1Set
    */
   public ASN1Set()
   {
-    super(UNIVERSAL_SET_TYPE);
+    super(ASN1Constants.UNIVERSAL_SET_TYPE);
 
-    elements     = NO_ELEMENTS;
-    encodedValue = NO_VALUE;
+    elements     = ASN1Constants.NO_ELEMENTS;
+    encodedValue = ASN1Constants.NO_VALUE;
   }
 
 
@@ -111,8 +110,8 @@ public final class ASN1Set
   {
     super(type);
 
-    elements     = NO_ELEMENTS;
-    encodedValue = NO_VALUE;
+    elements     = ASN1Constants.NO_ELEMENTS;
+    encodedValue = ASN1Constants.NO_VALUE;
   }
 
 
@@ -125,11 +124,11 @@ public final class ASN1Set
    */
   public ASN1Set(final ASN1Element... elements)
   {
-    super(UNIVERSAL_SET_TYPE);
+    super(ASN1Constants.UNIVERSAL_SET_TYPE);
 
     if (elements == null)
     {
-      this.elements = NO_ELEMENTS;
+      this.elements = ASN1Constants.NO_ELEMENTS;
     }
     else
     {
@@ -149,11 +148,11 @@ public final class ASN1Set
    */
   public ASN1Set(final Collection<? extends ASN1Element> elements)
   {
-    super(UNIVERSAL_SET_TYPE);
+    super(ASN1Constants.UNIVERSAL_SET_TYPE);
 
     if ((elements == null) || elements.isEmpty())
     {
-      this.elements = NO_ELEMENTS;
+      this.elements = ASN1Constants.NO_ELEMENTS;
     }
     else
     {
@@ -179,7 +178,7 @@ public final class ASN1Set
 
     if (elements == null)
     {
-      this.elements = NO_ELEMENTS;
+      this.elements = ASN1Constants.NO_ELEMENTS;
     }
     else
     {
@@ -205,7 +204,7 @@ public final class ASN1Set
 
     if ((elements == null) || elements.isEmpty())
     {
-      this.elements = NO_ELEMENTS;
+      this.elements = ASN1Constants.NO_ELEMENTS;
     }
     else
     {
@@ -367,7 +366,7 @@ public final class ASN1Set
       System.arraycopy(elementBytes, valueStartPos, value, 0, length);
 
       int numElements = 0;
-      final ArrayList<ASN1Element> elementList = new ArrayList<ASN1Element>(5);
+      final ArrayList<ASN1Element> elementList = new ArrayList<>(5);
       try
       {
         int pos = 0;
@@ -406,7 +405,7 @@ public final class ASN1Set
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new ASN1Exception(ERR_SET_BYTES_DECODE_EXCEPTION.get(e), e);
       }
 
@@ -421,12 +420,12 @@ public final class ASN1Set
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }
@@ -447,7 +446,7 @@ public final class ASN1Set
          throws ASN1Exception
   {
     int numElements = 0;
-    final ArrayList<ASN1Element> elementList = new ArrayList<ASN1Element>(5);
+    final ArrayList<ASN1Element> elementList = new ArrayList<>(5);
     final byte[] value = element.getValue();
 
     try
@@ -490,7 +489,7 @@ public final class ASN1Set
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(
            ERR_SET_DECODE_EXCEPTION.get(String.valueOf(element), e), e);
     }

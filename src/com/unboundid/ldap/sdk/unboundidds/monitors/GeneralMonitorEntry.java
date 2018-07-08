@@ -553,7 +553,7 @@ public final class GeneralMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(30);
 
     if (productName != null)
     {

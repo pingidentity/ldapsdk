@@ -80,8 +80,8 @@ public final class BasicAsyncSearchResultListener
   public BasicAsyncSearchResultListener()
   {
     searchResult  = null;
-    entryList     = new ArrayList<SearchResultEntry>(5);
-    referenceList = new ArrayList<SearchResultReference>(5);
+    entryList     = new ArrayList<>(5);
+    referenceList = new ArrayList<>(5);
   }
 
 
@@ -108,7 +108,6 @@ public final class BasicAsyncSearchResultListener
   {
     referenceList.add(searchReference);
   }
-
 
 
 

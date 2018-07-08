@@ -90,15 +90,15 @@ final class SplitLDIFRDNHashTranslator
   {
     super(splitBaseDN);
 
-    outsideSplitBaseSetNames = new LinkedHashSet<String>(numSets+1);
-    splitBaseEntrySetNames = new LinkedHashSet<String>(numSets);
+    outsideSplitBaseSetNames = new LinkedHashSet<>(numSets+1);
+    splitBaseEntrySetNames = new LinkedHashSet<>(numSets);
 
     if (addEntriesOutsideSplitToDedicatedSet)
     {
       outsideSplitBaseSetNames.add(SplitLDIFEntry.SET_NAME_OUTSIDE_SPLIT);
     }
 
-    setNames = new LinkedHashMap<Integer,Set<String>>(numSets);
+    setNames = new LinkedHashMap<>(numSets);
     for (int i=0; i < numSets; i++)
     {
       final String setName = ".set" + (i+1);

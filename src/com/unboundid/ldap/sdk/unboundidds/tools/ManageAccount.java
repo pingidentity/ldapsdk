@@ -65,8 +65,6 @@ import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.args.TimestampArgument;
 import com.unboundid.util.args.SubCommand;
 
-import static com.unboundid.ldap.sdk.unboundidds.tools.
-                   ManageAccountSubCommandType.*;
 import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
 
 
@@ -95,7 +93,7 @@ public final class ManageAccount
   /**
    * The column at which to wrap long lines.
    */
-  static final int WRAP_COLUMN = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
+  private static final int WRAP_COLUMN = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
 
 
 
@@ -103,7 +101,7 @@ public final class ManageAccount
    * The primary name of the argument used to indicate that the tool should
    * append to the reject file rather than overwrite it.
    */
-  static final String ARG_APPEND_TO_REJECT_FILE = "appendToRejectFile";
+  private static final String ARG_APPEND_TO_REJECT_FILE = "appendToRejectFile";
 
 
 
@@ -119,7 +117,8 @@ public final class ManageAccount
    * The primary name of the argument used to specify the path to a file to a
    * sample variable rate data file to create.
    */
-  static final String ARG_GENERATE_SAMPLE_RATE_FILE = "generateSampleRateFile";
+  private static final String ARG_GENERATE_SAMPLE_RATE_FILE =
+       "generateSampleRateFile";
 
 
 
@@ -127,7 +126,7 @@ public final class ManageAccount
    * The primary name of the argument used to specify the path to a file
    * containing the DNs of the users on which to operate.
    */
-  static final String ARG_DN_INPUT_FILE = "dnInputFile";
+  private static final String ARG_DN_INPUT_FILE = "dnInputFile";
 
 
 
@@ -135,7 +134,7 @@ public final class ManageAccount
    * The primary name of the argument used to specify the path to a file
    * containing search filters to use to identify users.
    */
-  static final String ARG_FILTER_INPUT_FILE = "filterInputFile";
+  private static final String ARG_FILTER_INPUT_FILE = "filterInputFile";
 
 
 
@@ -159,7 +158,7 @@ public final class ManageAccount
    * The primary name of the argument used to specify the target rate of
    * operations per second.
    */
-  static final String ARG_RATE_PER_SECOND = "ratePerSecond";
+  private static final String ARG_RATE_PER_SECOND = "ratePerSecond";
 
 
 
@@ -167,7 +166,7 @@ public final class ManageAccount
    * The primary name of the argument used to specify the path to a reject file
    * to create.
    */
-  static final String ARG_REJECT_FILE = "rejectFile";
+  private static final String ARG_REJECT_FILE = "rejectFile";
 
 
 
@@ -192,7 +191,7 @@ public final class ManageAccount
    * The primary name of the argument used to specify the DN of the user on
    * which to operate.
    */
-  static final String ARG_TARGET_DN = "targetDN";
+  private static final String ARG_TARGET_DN = "targetDN";
 
 
 
@@ -200,7 +199,7 @@ public final class ManageAccount
    * The primary name of the argument used to specify a search filter to use to
    * identify users.
    */
-  static final String ARG_TARGET_FILTER = "targetFilter";
+  private static final String ARG_TARGET_FILTER = "targetFilter";
 
 
 
@@ -208,7 +207,7 @@ public final class ManageAccount
    * The primary name of the argument used to specify the user IDs of target
    * users.
    */
-  static final String ARG_TARGET_USER_ID = "targetUserID";
+  private static final String ARG_TARGET_USER_ID = "targetUserID";
 
 
 
@@ -224,7 +223,7 @@ public final class ManageAccount
    * The primary name of the argument used to specify the path to a file
    * containing the user IDs of the target users.
    */
-  static final String ARG_USER_ID_INPUT_FILE = "userIDInputFile";
+  private static final String ARG_USER_ID_INPUT_FILE = "userIDInputFile";
 
 
 
@@ -232,28 +231,28 @@ public final class ManageAccount
    * The primary name of the argument used to specify the path to a variable
    * rate data file.
    */
-  static final String ARG_VARIABLE_RATE_DATA = "variableRateData";
+  private static final String ARG_VARIABLE_RATE_DATA = "variableRateData";
 
 
 
   /**
    * The default search base DN.
    */
-  static final DN DEFAULT_BASE_DN = DN.NULL_DN;
+  private static final DN DEFAULT_BASE_DN = DN.NULL_DN;
 
 
 
   /**
    * The default user ID attribute.
    */
-  static final String DEFAULT_USER_ID_ATTRIBUTE = "uid";
+  private static final String DEFAULT_USER_ID_ATTRIBUTE = "uid";
 
 
 
   /**
    * A target user DN to use in examples.
    */
-  static final String EXAMPLE_TARGET_USER_DN =
+  private static final String EXAMPLE_TARGET_USER_DN =
        "uid=jdoe,ou=People,dc=example,dc=com";
 
 
@@ -530,7 +529,8 @@ public final class ManageAccount
     final String currentGeneralizedTime =
          StaticUtils.encodeGeneralizedTime(System.currentTimeMillis());
     final String olderGeneralizedTime =
-         StaticUtils.encodeGeneralizedTime(System.currentTimeMillis() - 12345L);
+         StaticUtils.encodeGeneralizedTime(
+              System.currentTimeMillis() - 12_345L);
 
 
     // Define the global arguments used to indicate which users to target.
@@ -713,50 +713,51 @@ public final class ManageAccount
 
 
     // Define the subcommand used to retrieve all state information for a user.
-    createSubCommand(GET_ALL,
+    createSubCommand(ManageAccountSubCommandType.GET_ALL,
          INFO_MANAGE_ACCT_SC_GET_ALL_EXAMPLE.get(EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand used to retrieve the password policy DN for a user.
-    createSubCommand(GET_PASSWORD_POLICY_DN,
+    createSubCommand(ManageAccountSubCommandType.GET_PASSWORD_POLICY_DN,
          INFO_MANAGE_ACCT_SC_GET_POLICY_DN_EXAMPLE.get(EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether the account is usable.
-    createSubCommand(GET_ACCOUNT_IS_USABLE,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_IS_USABLE,
          INFO_MANAGE_ACCT_SC_GET_IS_USABLE_EXAMPLE.get(EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the set of password policy state
     // account usability notice messages.
-    createSubCommand(GET_ACCOUNT_USABILITY_NOTICES,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_USABILITY_NOTICES,
          INFO_MANAGE_ACCT_SC_GET_USABILITY_NOTICES_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the set of password policy state
     // account usability warning messages.
-    createSubCommand(GET_ACCOUNT_USABILITY_WARNINGS,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_USABILITY_WARNINGS,
          INFO_MANAGE_ACCT_SC_GET_USABILITY_WARNINGS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the set of password policy state
     // account usability error messages.
-    createSubCommand(GET_ACCOUNT_USABILITY_ERRORS,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_USABILITY_ERRORS,
          INFO_MANAGE_ACCT_SC_GET_USABILITY_ERRORS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the password changed time for a user.
-    createSubCommand(GET_PASSWORD_CHANGED_TIME,
+    createSubCommand(ManageAccountSubCommandType.GET_PASSWORD_CHANGED_TIME,
          INFO_MANAGE_ACCT_SC_GET_PW_CHANGED_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to set the password changed time for a user.
     final ArgumentParser setPWChangedTimeParser =
-         createSubCommandParser(SET_PASSWORD_CHANGED_TIME);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_PASSWORD_CHANGED_TIME);
 
     final TimestampArgument setPWChangedTimeValueArg = new TimestampArgument(
          'O', "passwordChangedTime", false, 1, null,
@@ -766,28 +767,31 @@ public final class ManageAccount
     setPWChangedTimeValueArg.addLongIdentifier("operation-value", true);
     setPWChangedTimeParser.addArgument(setPWChangedTimeValueArg);
 
-    createSubCommand(SET_PASSWORD_CHANGED_TIME, setPWChangedTimeParser,
-         createSubCommandExample(SET_PASSWORD_CHANGED_TIME,
+    createSubCommand(ManageAccountSubCommandType.SET_PASSWORD_CHANGED_TIME,
+         setPWChangedTimeParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_PASSWORD_CHANGED_TIME,
               INFO_MANAGE_ACCT_SC_SET_PW_CHANGED_TIME_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, currentGeneralizedTime),
               "--passwordChangedTime", currentGeneralizedTime));
 
 
     // Define the subcommand to clear the password changed time for a user.
-    createSubCommand(CLEAR_PASSWORD_CHANGED_TIME,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_PASSWORD_CHANGED_TIME,
          INFO_MANAGE_ACCT_SC_CLEAR_PW_CHANGED_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user account is disabled.
-    createSubCommand(GET_ACCOUNT_IS_DISABLED,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_IS_DISABLED,
          INFO_MANAGE_ACCT_SC_GET_IS_DISABLED_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to specify whether a user's account is disabled.
     final ArgumentParser setAcctDisabledParser =
-         createSubCommandParser(SET_ACCOUNT_IS_DISABLED);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_ACCOUNT_IS_DISABLED);
 
     final BooleanValueArgument setAcctDisabledValueArg =
          new BooleanValueArgument('O', "accountIsDisabled", true, null,
@@ -797,28 +801,31 @@ public final class ManageAccount
     setAcctDisabledValueArg.addLongIdentifier("operation-value", true);
     setAcctDisabledParser.addArgument(setAcctDisabledValueArg);
 
-    createSubCommand(SET_ACCOUNT_IS_DISABLED, setAcctDisabledParser,
-         createSubCommandExample(SET_ACCOUNT_IS_DISABLED,
+    createSubCommand(ManageAccountSubCommandType.SET_ACCOUNT_IS_DISABLED,
+         setAcctDisabledParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_ACCOUNT_IS_DISABLED,
               INFO_MANAGE_ACCT_SC_SET_IS_DISABLED_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN),
               "--accountIsDisabled", "true"));
 
 
     // Define the subcommand to clear the account disabled state.
-    createSubCommand(CLEAR_ACCOUNT_IS_DISABLED,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_ACCOUNT_IS_DISABLED,
          INFO_MANAGE_ACCT_SC_CLEAR_IS_DISABLED_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the account activation time for a user.
-    createSubCommand(GET_ACCOUNT_ACTIVATION_TIME,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_ACTIVATION_TIME,
          INFO_MANAGE_ACCT_SC_GET_ACCT_ACT_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to set the account activation time for a user.
     final ArgumentParser setAcctActivationTimeParser =
-         createSubCommandParser(SET_ACCOUNT_ACTIVATION_TIME);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_ACCOUNT_ACTIVATION_TIME);
 
     final TimestampArgument setAcctActivationTimeValueArg =
          new TimestampArgument('O', "accountActivationTime", false, 1, null,
@@ -829,42 +836,46 @@ public final class ManageAccount
     setAcctActivationTimeValueArg.addLongIdentifier("operation-value", true);
     setAcctActivationTimeParser.addArgument(setAcctActivationTimeValueArg);
 
-    createSubCommand(SET_ACCOUNT_ACTIVATION_TIME, setAcctActivationTimeParser,
-         createSubCommandExample(SET_ACCOUNT_ACTIVATION_TIME,
+    createSubCommand(ManageAccountSubCommandType.SET_ACCOUNT_ACTIVATION_TIME,
+         setAcctActivationTimeParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_ACCOUNT_ACTIVATION_TIME,
               INFO_MANAGE_ACCT_SC_SET_ACCT_ACT_TIME_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, currentGeneralizedTime),
               "--accountActivationTime", currentGeneralizedTime));
 
 
     // Define the subcommand to clear the account activation time for a user.
-    createSubCommand(CLEAR_ACCOUNT_ACTIVATION_TIME,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_ACCOUNT_ACTIVATION_TIME,
          INFO_MANAGE_ACCT_SC_CLEAR_ACCT_ACT_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the length of time until a user's
     // account is activated.
-    createSubCommand(GET_SECONDS_UNTIL_ACCOUNT_ACTIVATION,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_SECONDS_UNTIL_ACCOUNT_ACTIVATION,
          INFO_MANAGE_ACCT_SC_GET_SECONDS_UNTIL_ACCT_ACT_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user's account is not yet
     // active.
-    createSubCommand(GET_ACCOUNT_IS_NOT_YET_ACTIVE,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_IS_NOT_YET_ACTIVE,
          INFO_MANAGE_ACCT_SC_GET_ACCT_NOT_YET_ACTIVE_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the account expiration time for a user.
-    createSubCommand(GET_ACCOUNT_EXPIRATION_TIME,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_EXPIRATION_TIME,
          INFO_MANAGE_ACCT_SC_GET_ACCT_EXP_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to set the account expiration time for a user.
     final ArgumentParser setAcctExpirationTimeParser =
-         createSubCommandParser(SET_ACCOUNT_EXPIRATION_TIME);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_ACCOUNT_EXPIRATION_TIME);
 
     final TimestampArgument setAcctExpirationTimeValueArg =
          new TimestampArgument('O', "accountExpirationTime", false, 1, null,
@@ -875,42 +886,47 @@ public final class ManageAccount
     setAcctExpirationTimeValueArg.addLongIdentifier("operation-value", true);
     setAcctExpirationTimeParser.addArgument(setAcctExpirationTimeValueArg);
 
-    createSubCommand(SET_ACCOUNT_EXPIRATION_TIME, setAcctExpirationTimeParser,
-         createSubCommandExample(SET_ACCOUNT_EXPIRATION_TIME,
+    createSubCommand(ManageAccountSubCommandType.SET_ACCOUNT_EXPIRATION_TIME,
+         setAcctExpirationTimeParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_ACCOUNT_EXPIRATION_TIME,
               INFO_MANAGE_ACCT_SC_SET_ACCT_EXP_TIME_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, currentGeneralizedTime),
               "--accountExpirationTime", currentGeneralizedTime));
 
 
     // Define the subcommand to clear the account expiration time for a user.
-    createSubCommand(CLEAR_ACCOUNT_EXPIRATION_TIME,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_ACCOUNT_EXPIRATION_TIME,
          INFO_MANAGE_ACCT_SC_CLEAR_ACCT_EXP_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the length of time until a user's
     // account is expired.
-    createSubCommand(GET_SECONDS_UNTIL_ACCOUNT_EXPIRATION,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_SECONDS_UNTIL_ACCOUNT_EXPIRATION,
          INFO_MANAGE_ACCT_SC_GET_SECONDS_UNTIL_ACCT_EXP_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user's account is expired.
-    createSubCommand(GET_ACCOUNT_IS_EXPIRED,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_IS_EXPIRED,
          INFO_MANAGE_ACCT_SC_GET_ACCT_IS_EXPIRED_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve a user's password expiration warned
     // time.
-    createSubCommand(GET_PASSWORD_EXPIRATION_WARNED_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_PASSWORD_EXPIRATION_WARNED_TIME,
          INFO_MANAGE_ACCT_SC_GET_PW_EXP_WARNED_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to set a user's password expiration warned time.
     final ArgumentParser setPWExpWarnedTimeParser =
-         createSubCommandParser(SET_PASSWORD_EXPIRATION_WARNED_TIME);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_PASSWORD_EXPIRATION_WARNED_TIME);
 
     final TimestampArgument setPWExpWarnedTimeValueArg =
          new TimestampArgument('O', "passwordExpirationWarnedTime", false, 1,
@@ -921,55 +937,62 @@ public final class ManageAccount
     setPWExpWarnedTimeValueArg.addLongIdentifier("operation-value", true);
     setPWExpWarnedTimeParser.addArgument(setPWExpWarnedTimeValueArg);
 
-    createSubCommand(SET_PASSWORD_EXPIRATION_WARNED_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.SET_PASSWORD_EXPIRATION_WARNED_TIME,
          setPWExpWarnedTimeParser,
-         createSubCommandExample(SET_PASSWORD_EXPIRATION_WARNED_TIME,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_PASSWORD_EXPIRATION_WARNED_TIME,
               INFO_MANAGE_ACCT_SC_SET_PW_EXP_WARNED_TIME_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, currentGeneralizedTime),
               "--passwordExpirationWarnedTime", currentGeneralizedTime));
 
 
     // Define the subcommand to clear a user's password expiration warned time.
-    createSubCommand(CLEAR_PASSWORD_EXPIRATION_WARNED_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.CLEAR_PASSWORD_EXPIRATION_WARNED_TIME,
          INFO_MANAGE_ACCT_SC_CLEAR_PW_EXP_WARNED_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the number of seconds until a user is
     // eligible to receive a password expiration warning.
-    createSubCommand(GET_SECONDS_UNTIL_PASSWORD_EXPIRATION_WARNING,
+    createSubCommand(
+         ManageAccountSubCommandType.
+              GET_SECONDS_UNTIL_PASSWORD_EXPIRATION_WARNING,
          INFO_MANAGE_ACCT_SC_GET_SECONDS_UNTIL_PW_EXP_WARNING_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve a user's password expiration time.
-    createSubCommand(GET_PASSWORD_EXPIRATION_TIME,
+    createSubCommand(ManageAccountSubCommandType.GET_PASSWORD_EXPIRATION_TIME,
          INFO_MANAGE_ACCT_SC_GET_PW_EXP_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the number of seconds until a user's
     // password expires.
-    createSubCommand(GET_SECONDS_UNTIL_PASSWORD_EXPIRATION,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_SECONDS_UNTIL_PASSWORD_EXPIRATION,
          INFO_MANAGE_ACCT_SC_GET_SECONDS_UNTIL_PW_EXP_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user's password is expired.
-    createSubCommand(GET_PASSWORD_IS_EXPIRED,
+    createSubCommand(ManageAccountSubCommandType.GET_PASSWORD_IS_EXPIRED,
          INFO_MANAGE_ACCT_SC_GET_PW_IS_EXPIRED_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether an account is failure locked.
-    createSubCommand(GET_ACCOUNT_IS_FAILURE_LOCKED,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_IS_FAILURE_LOCKED,
          INFO_MANAGE_ACCT_SC_GET_ACCT_FAILURE_LOCKED_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to specify whether an account is failure locked.
     final ArgumentParser setIsFailureLockedParser =
-         createSubCommandParser(SET_ACCOUNT_IS_FAILURE_LOCKED);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_ACCOUNT_IS_FAILURE_LOCKED);
 
     final BooleanValueArgument setIsFailureLockedValueArg =
          new BooleanValueArgument('O', "accountIsFailureLocked", true, null,
@@ -980,28 +1003,33 @@ public final class ManageAccount
     setIsFailureLockedValueArg.addLongIdentifier("operation-value", true);
     setIsFailureLockedParser.addArgument(setIsFailureLockedValueArg);
 
-    createSubCommand(SET_ACCOUNT_IS_FAILURE_LOCKED, setIsFailureLockedParser,
-         createSubCommandExample(SET_ACCOUNT_IS_FAILURE_LOCKED,
+    createSubCommand(ManageAccountSubCommandType.SET_ACCOUNT_IS_FAILURE_LOCKED,
+         setIsFailureLockedParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_ACCOUNT_IS_FAILURE_LOCKED,
               INFO_MANAGE_ACCT_SC_SET_ACCT_FAILURE_LOCKED_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN),
               "--accountIsFailureLocked", "true"));
 
 
     // Define the subcommand to get the time an account was failure locked.
-    createSubCommand(GET_FAILURE_LOCKOUT_TIME,
+    createSubCommand(ManageAccountSubCommandType.GET_FAILURE_LOCKOUT_TIME,
          INFO_MANAGE_ACCT_SC_GET_FAILURE_LOCKED_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the length of time until a failure-locked
     // account will be automatically unlocked.
-    createSubCommand(GET_SECONDS_UNTIL_AUTHENTICATION_FAILURE_UNLOCK,
+    createSubCommand(
+         ManageAccountSubCommandType.
+              GET_SECONDS_UNTIL_AUTHENTICATION_FAILURE_UNLOCK,
          INFO_MANAGE_ACCT_SC_GET_SECONDS_UNTIL_FAILURE_UNLOCK_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine the authentication failure times.
-    createSubCommand(GET_AUTHENTICATION_FAILURE_TIMES,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_AUTHENTICATION_FAILURE_TIMES,
          INFO_MANAGE_ACCT_SC_GET_AUTH_FAILURE_TIMES_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
@@ -1009,7 +1037,8 @@ public final class ManageAccount
     // Define the subcommand to add values to the set of authentication failure
     // times.
     final ArgumentParser addAuthFailureTimeParser =
-         createSubCommandParser(ADD_AUTHENTICATION_FAILURE_TIME);
+         createSubCommandParser(
+              ManageAccountSubCommandType.ADD_AUTHENTICATION_FAILURE_TIME);
 
     final TimestampArgument addAuthFailureTimeValueArg =
          new TimestampArgument('O', "authenticationFailureTime", false, 0, null,
@@ -1020,15 +1049,19 @@ public final class ManageAccount
     addAuthFailureTimeValueArg.addLongIdentifier("operation-value", true);
     addAuthFailureTimeParser.addArgument(addAuthFailureTimeValueArg);
 
-    createSubCommand(ADD_AUTHENTICATION_FAILURE_TIME, addAuthFailureTimeParser,
-         createSubCommandExample(ADD_AUTHENTICATION_FAILURE_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.ADD_AUTHENTICATION_FAILURE_TIME,
+         addAuthFailureTimeParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.ADD_AUTHENTICATION_FAILURE_TIME,
               INFO_MANAGE_ACCT_SC_ADD_AUTH_FAILURE_TIME_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN)));
 
 
     // Define the subcommand to replace the authentication failure times.
     final ArgumentParser setAuthFailureTimesParser =
-         createSubCommandParser(SET_AUTHENTICATION_FAILURE_TIMES);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_AUTHENTICATION_FAILURE_TIMES);
 
     final TimestampArgument setAuthFailureTimesValueArg =
          new TimestampArgument('O', "authenticationFailureTime", false, 0, null,
@@ -1039,9 +1072,11 @@ public final class ManageAccount
     setAuthFailureTimesValueArg.addLongIdentifier("operation-value", true);
     setAuthFailureTimesParser.addArgument(setAuthFailureTimesValueArg);
 
-    createSubCommand(SET_AUTHENTICATION_FAILURE_TIMES,
+    createSubCommand(
+         ManageAccountSubCommandType.SET_AUTHENTICATION_FAILURE_TIMES,
          setAuthFailureTimesParser,
-         createSubCommandExample(SET_AUTHENTICATION_FAILURE_TIMES,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_AUTHENTICATION_FAILURE_TIMES,
               INFO_MANAGE_ACCT_SC_SET_AUTH_FAILURE_TIMES_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, olderGeneralizedTime,
                    currentGeneralizedTime),
@@ -1050,39 +1085,41 @@ public final class ManageAccount
 
 
     // Define the subcommand to clear the authentication failure times.
-    createSubCommand(CLEAR_AUTHENTICATION_FAILURE_TIMES,
+    createSubCommand(
+         ManageAccountSubCommandType.CLEAR_AUTHENTICATION_FAILURE_TIMES,
          INFO_MANAGE_ACCT_SC_CLEAR_AUTH_FAILURE_TIMES_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the remaining authentication failure count.
-    createSubCommand(GET_REMAINING_AUTHENTICATION_FAILURE_COUNT,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_REMAINING_AUTHENTICATION_FAILURE_COUNT,
          INFO_MANAGE_ACCT_SC_GET_REMAINING_FAILURE_COUNT_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether the account is idle locked.
-    createSubCommand(GET_ACCOUNT_IS_IDLE_LOCKED,
+    createSubCommand(ManageAccountSubCommandType.GET_ACCOUNT_IS_IDLE_LOCKED,
          INFO_MANAGE_ACCT_SC_GET_ACCT_IDLE_LOCKED_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the length of time until the account is
     // idle locked.
-    createSubCommand(GET_SECONDS_UNTIL_IDLE_LOCKOUT,
+    createSubCommand(ManageAccountSubCommandType.GET_SECONDS_UNTIL_IDLE_LOCKOUT,
          INFO_MANAGE_ACCT_SC_GET_SECONDS_UNTIL_IDLE_LOCKOUT_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the idle lockout time for an account.
-    createSubCommand(GET_IDLE_LOCKOUT_TIME,
+    createSubCommand(ManageAccountSubCommandType.GET_IDLE_LOCKOUT_TIME,
          INFO_MANAGE_ACCT_SC_GET_IDLE_LOCKOUT_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user's password has been
     // reset.
-    createSubCommand(GET_MUST_CHANGE_PASSWORD,
+    createSubCommand(ManageAccountSubCommandType.GET_MUST_CHANGE_PASSWORD,
          INFO_MANAGE_ACCT_SC_GET_MUST_CHANGE_PW_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
@@ -1090,7 +1127,8 @@ public final class ManageAccount
     // Define the subcommand to specify whether a user's password has been
     // reset.
     final ArgumentParser setPWIsResetParser =
-         createSubCommandParser(SET_MUST_CHANGE_PASSWORD);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_MUST_CHANGE_PASSWORD);
 
     final BooleanValueArgument setPWIsResetValueArg =
          new BooleanValueArgument('O', "mustChangePassword", true, null,
@@ -1102,47 +1140,53 @@ public final class ManageAccount
     setPWIsResetValueArg.addLongIdentifier("operation-value", true);
     setPWIsResetParser.addArgument(setPWIsResetValueArg);
 
-    createSubCommand(SET_MUST_CHANGE_PASSWORD, setPWIsResetParser,
-         createSubCommandExample(SET_MUST_CHANGE_PASSWORD,
+    createSubCommand(ManageAccountSubCommandType.SET_MUST_CHANGE_PASSWORD,
+         setPWIsResetParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_MUST_CHANGE_PASSWORD,
               INFO_MANAGE_ACCT_SC_SET_MUST_CHANGE_PW_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN),
               "--mustChangePassword", "true"));
 
 
     // Define the subcommand to clear the password reset state information.
-    createSubCommand(CLEAR_MUST_CHANGE_PASSWORD,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_MUST_CHANGE_PASSWORD,
          INFO_MANAGE_ACCT_SC_CLEAR_MUST_CHANGE_PW_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether the account is reset locked.
-    createSubCommand(GET_ACCOUNT_IS_PASSWORD_RESET_LOCKED,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_ACCOUNT_IS_PASSWORD_RESET_LOCKED,
          INFO_MANAGE_ACCT_SC_GET_ACCT_IS_RESET_LOCKED_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the length of time until the password is
     // reset locked.
-    createSubCommand(GET_SECONDS_UNTIL_PASSWORD_RESET_LOCKOUT,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_SECONDS_UNTIL_PASSWORD_RESET_LOCKOUT,
          INFO_MANAGE_ACCT_SC_GET_SECONDS_UNTIL_RESET_LOCKOUT_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the password reset lockout time.
-    createSubCommand(GET_PASSWORD_RESET_LOCKOUT_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_PASSWORD_RESET_LOCKOUT_TIME,
          INFO_MANAGE_ACCT_SC_GET_RESET_LOCKOUT_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the last login time.
-    createSubCommand(GET_LAST_LOGIN_TIME,
+    createSubCommand(ManageAccountSubCommandType.GET_LAST_LOGIN_TIME,
          INFO_MANAGE_ACCT_SC_GET_LAST_LOGIN_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to set the last login time.
     final ArgumentParser setLastLoginTimeParser =
-         createSubCommandParser(SET_LAST_LOGIN_TIME);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_LAST_LOGIN_TIME);
 
     final TimestampArgument setLastLoginTimeValueArg = new TimestampArgument(
          'O', "lastLoginTime", false, 1, null,
@@ -1152,28 +1196,31 @@ public final class ManageAccount
     setLastLoginTimeValueArg.addLongIdentifier("operation-value", true);
     setLastLoginTimeParser.addArgument(setLastLoginTimeValueArg);
 
-    createSubCommand(SET_LAST_LOGIN_TIME, setLastLoginTimeParser,
-         createSubCommandExample(SET_LAST_LOGIN_TIME,
+    createSubCommand(ManageAccountSubCommandType.SET_LAST_LOGIN_TIME,
+         setLastLoginTimeParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_LAST_LOGIN_TIME,
               INFO_MANAGE_ACCT_SC_SET_LAST_LOGIN_TIME_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, currentGeneralizedTime),
               "--lastLoginTime", currentGeneralizedTime));
 
 
     // Define the subcommand to clear the last login time.
-    createSubCommand(CLEAR_LAST_LOGIN_TIME,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_LAST_LOGIN_TIME,
          INFO_MANAGE_ACCT_SC_CLEAR_LAST_LOGIN_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the last login IP address.
-    createSubCommand(GET_LAST_LOGIN_IP_ADDRESS,
+    createSubCommand(ManageAccountSubCommandType.GET_LAST_LOGIN_IP_ADDRESS,
          INFO_MANAGE_ACCT_SC_GET_LAST_LOGIN_IP_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to set the last login IP address.
     final ArgumentParser setLastLoginIPParser =
-         createSubCommandParser(SET_LAST_LOGIN_IP_ADDRESS);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_LAST_LOGIN_IP_ADDRESS);
 
     final StringArgument setLastLoginIPValueArg = new StringArgument('O',
          "lastLoginIPAddress", true, 1, null,
@@ -1186,28 +1233,31 @@ public final class ManageAccount
     setLastLoginIPParser.addArgument(setLastLoginIPValueArg);
 
 
-    createSubCommand(SET_LAST_LOGIN_IP_ADDRESS, setLastLoginIPParser,
-         createSubCommandExample(SET_LAST_LOGIN_IP_ADDRESS,
+    createSubCommand(ManageAccountSubCommandType.SET_LAST_LOGIN_IP_ADDRESS,
+         setLastLoginIPParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_LAST_LOGIN_IP_ADDRESS,
               INFO_MANAGE_ACCT_SC_SET_LAST_LOGIN_IP_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, "1.2.3.4"),
               "--lastLoginIPAddress", "1.2.3.4"));
 
 
     // Define the subcommand to clear the last login IP address.
-    createSubCommand(CLEAR_LAST_LOGIN_IP_ADDRESS,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_LAST_LOGIN_IP_ADDRESS,
          INFO_MANAGE_ACCT_SC_CLEAR_LAST_LOGIN_IP_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the grace login use times.
-    createSubCommand(GET_GRACE_LOGIN_USE_TIMES,
+    createSubCommand(ManageAccountSubCommandType.GET_GRACE_LOGIN_USE_TIMES,
          INFO_MANAGE_ACCT_SC_GET_GRACE_LOGIN_TIMES_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to add values to the set of grace login use times.
     final ArgumentParser addGraceLoginTimeParser =
-         createSubCommandParser(ADD_GRACE_LOGIN_USE_TIME);
+         createSubCommandParser(
+              ManageAccountSubCommandType.ADD_GRACE_LOGIN_USE_TIME);
 
     final TimestampArgument addGraceLoginTimeValueArg =
          new TimestampArgument('O', "graceLoginUseTime", false, 0, null,
@@ -1217,15 +1267,18 @@ public final class ManageAccount
     addGraceLoginTimeValueArg.addLongIdentifier("operation-value", true);
     addGraceLoginTimeParser.addArgument(addGraceLoginTimeValueArg);
 
-    createSubCommand(ADD_GRACE_LOGIN_USE_TIME, addGraceLoginTimeParser,
-         createSubCommandExample(ADD_GRACE_LOGIN_USE_TIME,
+    createSubCommand(ManageAccountSubCommandType.ADD_GRACE_LOGIN_USE_TIME,
+         addGraceLoginTimeParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.ADD_GRACE_LOGIN_USE_TIME,
               INFO_MANAGE_ACCT_SC_ADD_GRACE_LOGIN_TIME_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN)));
 
 
     // Define the subcommand to replace the set of grace login use times.
     final ArgumentParser setGraceLoginTimesParser =
-         createSubCommandParser(SET_GRACE_LOGIN_USE_TIMES);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_GRACE_LOGIN_USE_TIMES);
 
     final TimestampArgument setGraceLoginTimesValueArg =
          new TimestampArgument('O', "graceLoginUseTime", false, 0, null,
@@ -1235,8 +1288,10 @@ public final class ManageAccount
     setGraceLoginTimesValueArg.addLongIdentifier("operation-value", true);
     setGraceLoginTimesParser.addArgument(setGraceLoginTimesValueArg);
 
-    createSubCommand(SET_GRACE_LOGIN_USE_TIMES, setGraceLoginTimesParser,
-         createSubCommandExample(SET_GRACE_LOGIN_USE_TIMES,
+    createSubCommand(ManageAccountSubCommandType.SET_GRACE_LOGIN_USE_TIMES,
+         setGraceLoginTimesParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_GRACE_LOGIN_USE_TIMES,
               INFO_MANAGE_ACCT_SC_SET_GRACE_LOGIN_TIMES_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, olderGeneralizedTime,
                    currentGeneralizedTime),
@@ -1245,26 +1300,29 @@ public final class ManageAccount
 
 
     // Define the subcommand to clear the grace login use times.
-    createSubCommand(CLEAR_GRACE_LOGIN_USE_TIMES,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_GRACE_LOGIN_USE_TIMES,
          INFO_MANAGE_ACCT_SC_CLEAR_GRACE_LOGIN_TIMES_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the remaining grace login count.
-    createSubCommand(GET_REMAINING_GRACE_LOGIN_COUNT,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_REMAINING_GRACE_LOGIN_COUNT,
          INFO_MANAGE_ACCT_SC_GET_REMAINING_GRACE_LOGIN_COUNT_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the password changed by required time value.
-    createSubCommand(GET_PASSWORD_CHANGED_BY_REQUIRED_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_PASSWORD_CHANGED_BY_REQUIRED_TIME,
          INFO_MANAGE_ACCT_SC_GET_PW_CHANGED_BY_REQ_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to set the password changed by required time value.
     final ArgumentParser setPWChangedByReqTimeParser =
-         createSubCommandParser(SET_PASSWORD_CHANGED_BY_REQUIRED_TIME);
+         createSubCommandParser(ManageAccountSubCommandType.
+              SET_PASSWORD_CHANGED_BY_REQUIRED_TIME);
 
     final TimestampArgument setPWChangedByReqTimeValueArg =
          new TimestampArgument('O', "passwordChangedByRequiredTime", false, 1,
@@ -1277,80 +1335,87 @@ public final class ManageAccount
     setPWChangedByReqTimeParser.addArgument(
          setPWChangedByReqTimeValueArg);
 
-    createSubCommand(SET_PASSWORD_CHANGED_BY_REQUIRED_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.SET_PASSWORD_CHANGED_BY_REQUIRED_TIME,
          setPWChangedByReqTimeParser,
-         createSubCommandExample(SET_PASSWORD_CHANGED_BY_REQUIRED_TIME,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_PASSWORD_CHANGED_BY_REQUIRED_TIME,
               INFO_MANAGE_ACCT_SC_SET_PW_CHANGED_BY_REQ_TIME_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN)));
 
 
     // Define the subcommand to clear the password changed by required time
     // value.
-    createSubCommand(CLEAR_PASSWORD_CHANGED_BY_REQUIRED_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.CLEAR_PASSWORD_CHANGED_BY_REQUIRED_TIME,
          INFO_MANAGE_ACCT_SC_CLEAR_PW_CHANGED_BY_REQ_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the length of time until the required change
     // time.
-    createSubCommand(GET_SECONDS_UNTIL_REQUIRED_PASSWORD_CHANGE_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.
+              GET_SECONDS_UNTIL_REQUIRED_PASSWORD_CHANGE_TIME,
          INFO_MANAGE_ACCT_SC_GET_SECS_UNTIL_REQ_CHANGE_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the password history count.
-    createSubCommand(GET_PASSWORD_HISTORY_COUNT,
+    createSubCommand(ManageAccountSubCommandType.GET_PASSWORD_HISTORY_COUNT,
          INFO_MANAGE_ACCT_SC_GET_PW_HISTORY_COUNT_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to clear a user's password history.
-    createSubCommand(CLEAR_PASSWORD_HISTORY,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_PASSWORD_HISTORY,
          INFO_MANAGE_ACCT_SC_CLEAR_PW_HISTORY_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user has a retired password.
-    createSubCommand(GET_HAS_RETIRED_PASSWORD,
+    createSubCommand(ManageAccountSubCommandType.GET_HAS_RETIRED_PASSWORD,
          INFO_MANAGE_ACCT_SC_GET_HAS_RETIRED_PW_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the time that a user's former password
     // was retired.
-    createSubCommand(GET_PASSWORD_RETIRED_TIME,
+    createSubCommand(ManageAccountSubCommandType.GET_PASSWORD_RETIRED_TIME,
          INFO_MANAGE_ACCT_SC_GET_PW_RETIRED_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to retrieve the retired password expiration time.
-    createSubCommand(GET_RETIRED_PASSWORD_EXPIRATION_TIME,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_RETIRED_PASSWORD_EXPIRATION_TIME,
          INFO_MANAGE_ACCT_SC_GET_RETIRED_PW_EXP_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to purge a retired password.
-    createSubCommand(CLEAR_RETIRED_PASSWORD,
+    createSubCommand(ManageAccountSubCommandType.CLEAR_RETIRED_PASSWORD,
          INFO_MANAGE_ACCT_SC_PURGE_RETIRED_PW_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the available SASL mechanisms for a user.
-    createSubCommand(GET_AVAILABLE_SASL_MECHANISMS,
+    createSubCommand(ManageAccountSubCommandType.GET_AVAILABLE_SASL_MECHANISMS,
          INFO_MANAGE_ACCT_SC_GET_AVAILABLE_SASL_MECHS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the available OTP delivery mechanisms for a
     // user.
-    createSubCommand(GET_AVAILABLE_OTP_DELIVERY_MECHANISMS,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_AVAILABLE_OTP_DELIVERY_MECHANISMS,
          INFO_MANAGE_ACCT_SC_GET_AVAILABLE_OTP_MECHS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user has at least one TOTP
     // shared secret.
-    createSubCommand(GET_HAS_TOTP_SHARED_SECRET,
+    createSubCommand(ManageAccountSubCommandType.GET_HAS_TOTP_SHARED_SECRET,
          INFO_MANAGE_ACCT_SC_GET_HAS_TOTP_SHARED_SECRET_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
@@ -1358,7 +1423,8 @@ public final class ManageAccount
     // Define the subcommand to add a value to the set of TOTP shared secrets
     // for a user.
     final ArgumentParser addTOTPSharedSecretParser =
-         createSubCommandParser(ADD_TOTP_SHARED_SECRET);
+         createSubCommandParser(
+              ManageAccountSubCommandType.ADD_TOTP_SHARED_SECRET);
 
     final StringArgument addTOTPSharedSecretValueArg =
          new StringArgument('O', "totpSharedSecret", true, 0, null,
@@ -1370,8 +1436,10 @@ public final class ManageAccount
     addTOTPSharedSecretParser.addArgument(
          addTOTPSharedSecretValueArg);
 
-    createSubCommand(ADD_TOTP_SHARED_SECRET, addTOTPSharedSecretParser,
-         createSubCommandExample(ADD_TOTP_SHARED_SECRET,
+    createSubCommand(ManageAccountSubCommandType.ADD_TOTP_SHARED_SECRET,
+         addTOTPSharedSecretParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.ADD_TOTP_SHARED_SECRET,
               INFO_MANAGE_ACCT_SC_ADD_TOTP_SHARED_SECRET_EXAMPLE.get(
                    "abcdefghijklmnop", EXAMPLE_TARGET_USER_DN),
               "--totpSharedSecret", "abcdefghijklmnop"));
@@ -1380,7 +1448,8 @@ public final class ManageAccount
     // Define the subcommand to remove a value from the set of TOTP shared
     // secrets for a user.
     final ArgumentParser removeTOTPSharedSecretParser =
-         createSubCommandParser(REMOVE_TOTP_SHARED_SECRET);
+         createSubCommandParser(
+              ManageAccountSubCommandType.REMOVE_TOTP_SHARED_SECRET);
 
     final StringArgument removeTOTPSharedSecretValueArg =
          new StringArgument('O', "totpSharedSecret", true, 0, null,
@@ -1393,8 +1462,10 @@ public final class ManageAccount
     removeTOTPSharedSecretParser.addArgument(
          removeTOTPSharedSecretValueArg);
 
-    createSubCommand(REMOVE_TOTP_SHARED_SECRET, removeTOTPSharedSecretParser,
-         createSubCommandExample(REMOVE_TOTP_SHARED_SECRET,
+    createSubCommand(ManageAccountSubCommandType.REMOVE_TOTP_SHARED_SECRET,
+         removeTOTPSharedSecretParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.REMOVE_TOTP_SHARED_SECRET,
               INFO_MANAGE_ACCT_SC_REMOVE_TOTP_SHARED_SECRET_EXAMPLE.get(
                    "abcdefghijklmnop", EXAMPLE_TARGET_USER_DN),
               "--totpSharedSecret", "abcdefghijklmnop"));
@@ -1402,7 +1473,8 @@ public final class ManageAccount
 
     // Define the subcommand to replace set of TOTP shared secrets for a user.
     final ArgumentParser setTOTPSharedSecretsParser =
-         createSubCommandParser(SET_TOTP_SHARED_SECRETS);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_TOTP_SHARED_SECRETS);
 
     final StringArgument setTOTPSharedSecretsValueArg =
          new StringArgument('O', "totpSharedSecret", true, 0, null,
@@ -1414,30 +1486,34 @@ public final class ManageAccount
     setTOTPSharedSecretsParser.addArgument(
          setTOTPSharedSecretsValueArg);
 
-    createSubCommand(SET_TOTP_SHARED_SECRETS,
+    createSubCommand(ManageAccountSubCommandType.SET_TOTP_SHARED_SECRETS,
          setTOTPSharedSecretsParser,
-         createSubCommandExample(SET_TOTP_SHARED_SECRETS,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_TOTP_SHARED_SECRETS,
               INFO_MANAGE_ACCT_SC_SET_TOTP_SHARED_SECRETS_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, "abcdefghijklmnop"),
               "--totpSharedSecret", "abcdefghijklmnop"));
 
 
     // Define the subcommand to clear the set of TOTP shared secrets for a user.
-    createSubCommand(CLEAR_TOTP_SHARED_SECRETS,
+    createSubCommand(
+         ManageAccountSubCommandType.CLEAR_TOTP_SHARED_SECRETS,
          INFO_MANAGE_ACCT_SC_CLEAR_TOTP_SHARED_SECRETS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user has at least one
     // registered YubiKey OTP device public ID.
-    createSubCommand(GET_HAS_REGISTERED_YUBIKEY_PUBLIC_ID,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_HAS_REGISTERED_YUBIKEY_PUBLIC_ID,
          INFO_MANAGE_ACCT_SC_GET_HAS_YUBIKEY_ID_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to get the set of registered YubiKey OTP device
     // public IDs for a user.
-    createSubCommand(GET_REGISTERED_YUBIKEY_PUBLIC_IDS,
+    createSubCommand(
+         ManageAccountSubCommandType.GET_REGISTERED_YUBIKEY_PUBLIC_IDS,
          INFO_MANAGE_ACCT_SC_GET_YUBIKEY_IDS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
@@ -1445,7 +1521,8 @@ public final class ManageAccount
     // Define the subcommand to add a value to the set of registered YubiKey OTP
     // device public IDs for a user.
     final ArgumentParser addRegisteredYubiKeyPublicIDParser =
-         createSubCommandParser(ADD_REGISTERED_YUBIKEY_PUBLIC_ID);
+         createSubCommandParser(
+              ManageAccountSubCommandType.ADD_REGISTERED_YUBIKEY_PUBLIC_ID);
 
     final StringArgument addRegisteredYubiKeyPublicIDValueArg =
          new StringArgument('O', "publicID", true, 0, null,
@@ -1458,9 +1535,11 @@ public final class ManageAccount
     addRegisteredYubiKeyPublicIDParser.addArgument(
          addRegisteredYubiKeyPublicIDValueArg);
 
-    createSubCommand(ADD_REGISTERED_YUBIKEY_PUBLIC_ID,
+    createSubCommand(
+         ManageAccountSubCommandType.ADD_REGISTERED_YUBIKEY_PUBLIC_ID,
          addRegisteredYubiKeyPublicIDParser,
-         createSubCommandExample(ADD_REGISTERED_YUBIKEY_PUBLIC_ID,
+         createSubCommandExample(
+              ManageAccountSubCommandType.ADD_REGISTERED_YUBIKEY_PUBLIC_ID,
               INFO_MANAGE_ACCT_SC_ADD_YUBIKEY_ID_EXAMPLE.get(
                    "abcdefghijkl", EXAMPLE_TARGET_USER_DN),
               "--publicID", "abcdefghijkl"));
@@ -1469,7 +1548,8 @@ public final class ManageAccount
     // Define the subcommand to remove a value from the set of registered
     // YubiKey OTP device public IDs for a user.
     final ArgumentParser removeRegisteredYubiKeyPublicIDParser =
-         createSubCommandParser(REMOVE_REGISTERED_YUBIKEY_PUBLIC_ID);
+         createSubCommandParser(
+              ManageAccountSubCommandType.REMOVE_REGISTERED_YUBIKEY_PUBLIC_ID);
 
     final StringArgument removeRegisteredYubiKeyPublicIDValueArg =
          new StringArgument('O', "publicID", true, 0, null,
@@ -1483,9 +1563,11 @@ public final class ManageAccount
     removeRegisteredYubiKeyPublicIDParser.addArgument(
          removeRegisteredYubiKeyPublicIDValueArg);
 
-    createSubCommand(REMOVE_REGISTERED_YUBIKEY_PUBLIC_ID,
+    createSubCommand(
+         ManageAccountSubCommandType.REMOVE_REGISTERED_YUBIKEY_PUBLIC_ID,
          removeRegisteredYubiKeyPublicIDParser,
-         createSubCommandExample(REMOVE_REGISTERED_YUBIKEY_PUBLIC_ID,
+         createSubCommandExample(
+              ManageAccountSubCommandType.REMOVE_REGISTERED_YUBIKEY_PUBLIC_ID,
               INFO_MANAGE_ACCT_SC_REMOVE_YUBIKEY_ID_EXAMPLE.get(
                    "abcdefghijkl", EXAMPLE_TARGET_USER_DN),
               "--publicID", "abcdefghijkl"));
@@ -1494,7 +1576,8 @@ public final class ManageAccount
     // Define the subcommand to replace set of registered YubiKey OTP device
     // public IDs for a user.
     final ArgumentParser setRegisteredYubiKeyPublicIDParser =
-         createSubCommandParser(SET_REGISTERED_YUBIKEY_PUBLIC_IDS);
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_REGISTERED_YUBIKEY_PUBLIC_IDS);
 
     final StringArgument setRegisteredYubiKeyPublicIDValueArg =
          new StringArgument('O', "publicID", true, 0, null,
@@ -1507,9 +1590,11 @@ public final class ManageAccount
     setRegisteredYubiKeyPublicIDParser.addArgument(
          setRegisteredYubiKeyPublicIDValueArg);
 
-    createSubCommand(SET_REGISTERED_YUBIKEY_PUBLIC_IDS,
+    createSubCommand(
+         ManageAccountSubCommandType.SET_REGISTERED_YUBIKEY_PUBLIC_IDS,
          setRegisteredYubiKeyPublicIDParser,
-         createSubCommandExample(SET_REGISTERED_YUBIKEY_PUBLIC_IDS,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_REGISTERED_YUBIKEY_PUBLIC_IDS,
               INFO_MANAGE_ACCT_SC_SET_YUBIKEY_IDS_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN, "abcdefghijkl"),
               "--publicID", "abcdefghijkl"));
@@ -1517,14 +1602,15 @@ public final class ManageAccount
 
     // Define the subcommand to clear the set of registered YubiKey OTP device
     // public IDs for a user.
-    createSubCommand(CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS,
+    createSubCommand(
+         ManageAccountSubCommandType.CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS,
          INFO_MANAGE_ACCT_SC_CLEAR_YUBIKEY_IDS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
 
     // Define the subcommand to determine whether a user has at least one static
     // password.
-    createSubCommand(GET_HAS_STATIC_PASSWORD,
+    createSubCommand(ManageAccountSubCommandType.GET_HAS_STATIC_PASSWORD,
          INFO_MANAGE_ACCT_SC_GET_HAS_STATIC_PW_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
   }
@@ -1567,8 +1653,7 @@ public final class ManageAccount
                       final ManageAccountSubCommandType t,
                       final String description, final String... args)
   {
-    final LinkedHashMap<String[], String> examples =
-         new LinkedHashMap<String[], String>(1);
+    final LinkedHashMap<String[], String> examples = new LinkedHashMap<>(1);
     createSubCommandExample(examples, t, description, args);
     return examples;
   }
@@ -1591,7 +1676,7 @@ public final class ManageAccount
        final ManageAccountSubCommandType t, final String description,
        final String... args)
   {
-    final ArrayList<String> argList = new ArrayList<String>(10 + args.length);
+    final ArrayList<String> argList = new ArrayList<>(10 + args.length);
     argList.add(t.getPrimaryName());
     argList.add("--hostname");
     argList.add("server.example.com");
@@ -1766,7 +1851,7 @@ public final class ManageAccount
       pool.setRetryFailedOperationsDueToInvalidConnections(false);
 
       // Set a maximum connection age of 30 minutes.
-      pool.setMaxConnectionAgeMillis(1800000L);
+      pool.setMaxConnectionAgeMillis(1_800_000L);
     }
     catch (final LDAPException le)
     {
@@ -2211,6 +2296,7 @@ public final class ManageAccount
    * @param notification The unsolicited notification that has been received
    *                     from the server.
    */
+  @Override()
   public void handleUnsolicitedNotification(final LDAPConnection connection,
                                             final ExtendedResult notification)
   {
@@ -2245,22 +2331,25 @@ public final class ManageAccount
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(4);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(4);
 
-    createSubCommandExample(examples, GET_ALL,
+    createSubCommandExample(examples,
+         ManageAccountSubCommandType.GET_ALL,
          INFO_MANAGE_ACCT_SC_GET_ALL_EXAMPLE.get(EXAMPLE_TARGET_USER_DN));
 
-    createSubCommandExample(examples, GET_ACCOUNT_USABILITY_ERRORS,
+    createSubCommandExample(examples,
+         ManageAccountSubCommandType.GET_ACCOUNT_USABILITY_ERRORS,
          INFO_MANAGE_ACCT_SC_GET_USABILITY_ERRORS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 
-    createSubCommandExample(examples, SET_ACCOUNT_IS_DISABLED,
+    createSubCommandExample(examples,
+         ManageAccountSubCommandType.SET_ACCOUNT_IS_DISABLED,
          INFO_MANAGE_ACCT_SC_SET_IS_DISABLED_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN),
          "--accountIsDisabled", "true");
 
-    createSubCommandExample(examples, CLEAR_AUTHENTICATION_FAILURE_TIMES,
+    createSubCommandExample(examples,
+         ManageAccountSubCommandType.CLEAR_AUTHENTICATION_FAILURE_TIMES,
          INFO_MANAGE_ACCT_SC_CLEAR_AUTH_FAILURE_TIMES_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
 

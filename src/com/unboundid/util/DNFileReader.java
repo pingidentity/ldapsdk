@@ -130,7 +130,7 @@ public final class DNFileReader
       }
 
       final String trimmedLine = line.trim();
-      if ((trimmedLine.length() == 0) || trimmedLine.startsWith("#"))
+      if (trimmedLine.isEmpty() || trimmedLine.startsWith("#"))
       {
         continue;
       }
@@ -184,6 +184,7 @@ public final class DNFileReader
    *
    * @throws  IOException  If a problem is encountered while closing the reader.
    */
+  @Override()
   public void close()
          throws IOException
   {

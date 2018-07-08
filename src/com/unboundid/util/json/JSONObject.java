@@ -140,7 +140,7 @@ public final class JSONObject
     else
     {
       final LinkedHashMap<String,JSONValue> m =
-           new LinkedHashMap<String,JSONValue>(fields.length);
+           new LinkedHashMap<>(fields.length);
       for (final JSONField f : fields)
       {
         m.put(f.getName(), f.getValue());
@@ -172,8 +172,7 @@ public final class JSONObject
     }
     else
     {
-      this.fields = Collections.unmodifiableMap(
-           new LinkedHashMap<String,JSONValue>(fields));
+      this.fields = Collections.unmodifiableMap(new LinkedHashMap<>(fields));
     }
 
     hashCode = null;
@@ -212,8 +211,7 @@ public final class JSONObject
            stringRepresentation));
     }
 
-    final LinkedHashMap<String,JSONValue> m =
-         new LinkedHashMap<String,JSONValue>(10);
+    final LinkedHashMap<String,JSONValue> m = new LinkedHashMap<>(10);
     readObject(chars, m);
     fields = Collections.unmodifiableMap(m);
 
@@ -708,7 +706,7 @@ public final class JSONObject
   {
     // The opening square bracket will have already been consumed, so read
     // JSON values until we hit a closing square bracket.
-    final ArrayList<JSONValue> values = new ArrayList<JSONValue>(10);
+    final ArrayList<JSONValue> values = new ArrayList<>(10);
     boolean firstToken = true;
     while (true)
     {
@@ -729,7 +727,7 @@ public final class JSONObject
       else if (token.equals('{'))
       {
         final LinkedHashMap<String,JSONValue> fieldMap =
-             new LinkedHashMap<String,JSONValue>(10);
+             new LinkedHashMap<>(10);
         values.add(readObject(chars, fieldMap));
       }
       else if (token.equals(']') && firstToken)
@@ -842,8 +840,7 @@ public final class JSONObject
       }
       else if (token.equals('{'))
       {
-        final LinkedHashMap<String,JSONValue> m =
-             new LinkedHashMap<String,JSONValue>(10);
+        final LinkedHashMap<String,JSONValue> m = new LinkedHashMap<>(10);
         final JSONObject o = readObject(chars, m);
         fields.put(fieldName, o);
       }
@@ -1008,8 +1005,7 @@ public final class JSONObject
     // map (e.g., because they have field names that differ only in case and
     // values that are logically equivalent).  It also makes iterating through
     // the values faster as we make more progress.
-    final HashMap<String,JSONValue> thatMap =
-         new HashMap<String,JSONValue>(o.fields);
+    final HashMap<String,JSONValue> thatMap = new HashMap<>(o.fields);
     final Iterator<Map.Entry<String,JSONValue>> thisIterator =
          fields.entrySet().iterator();
     while (thisIterator.hasNext())
@@ -1255,7 +1251,7 @@ public final class JSONObject
       tempBuffer = decodeBuffer;
     }
 
-    final TreeMap<String,String> m = new TreeMap<String,String>();
+    final TreeMap<String,String> m = new TreeMap<>();
     for (final Map.Entry<String,JSONValue> e : fields.entrySet())
     {
       tempBuffer.setLength(0);

@@ -150,8 +150,7 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
       {
         final ASN1Element[] propElements =
              ASN1Sequence.decodeAsSequence(elements[1]).elements();
-        final ArrayList<String> propList =
-             new ArrayList<String>(propElements.length);
+        final ArrayList<String> propList = new ArrayList<>(propElements.length);
         for (final ASN1Element e : propElements)
         {
           propList.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -225,7 +224,7 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
     else
     {
       this.properties =
-           Collections.unmodifiableList(new ArrayList<String>(properties));
+           Collections.unmodifiableList(new ArrayList<>(properties));
     }
   }
 
@@ -258,13 +257,13 @@ public final class GetBackupCompatibilityDescriptorExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
     elements.add(new ASN1OctetString(TYPE_DESCRIPTOR, descriptor.getValue()));
 
     if ((properties != null) && (! properties.isEmpty()))
     {
       final ArrayList<ASN1Element> propElements =
-           new ArrayList<ASN1Element>(properties.size());
+           new ArrayList<>(properties.size());
       for (final String property : properties)
       {
         propElements.add(new ASN1OctetString(property));

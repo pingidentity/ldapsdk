@@ -116,7 +116,7 @@ public final class ExcludeAttributeTransformation
 
     // Identify all of the names that may be used to reference the attributes
     // to suppress.
-    final HashSet<String> attrNames = new HashSet<String>(3*attributes.size());
+    final HashSet<String> attrNames = new HashSet<>(3*attributes.size());
     for (final String attrName : attributes)
     {
       final String baseName =
@@ -174,7 +174,7 @@ public final class ExcludeAttributeTransformation
 
     // Create a copy of the entry with all appropriate attributes removed.
     final ArrayList<Attribute> attributesToKeep =
-         new ArrayList<Attribute>(originalAttributes.size());
+         new ArrayList<>(originalAttributes.size());
     for (final Attribute a : originalAttributes)
     {
       if (! attributes.contains(StaticUtils.toLowerCase(a.getBaseName())))
@@ -225,7 +225,7 @@ public final class ExcludeAttributeTransformation
 
       final Modification[] originalMods = modifyRecord.getModifications();
       final ArrayList<Modification> modsToKeep =
-           new ArrayList<Modification>(originalMods.length);
+           new ArrayList<>(originalMods.length);
       for (final Modification m : originalMods)
       {
         final String attrName = StaticUtils.toLowerCase(

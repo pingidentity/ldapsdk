@@ -79,8 +79,8 @@ public final class AggregateLDAPConnectionPoolHealthCheck
     }
     else
     {
-      this.healthChecks = Collections.unmodifiableList(
-           new ArrayList<LDAPConnectionPoolHealthCheck>(healthChecks));
+      this.healthChecks =
+           Collections.unmodifiableList(new ArrayList<>(healthChecks));
     }
   }
 

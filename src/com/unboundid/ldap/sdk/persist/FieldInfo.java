@@ -30,14 +30,14 @@ import java.util.List;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -131,7 +131,7 @@ public final class FieldInfo
   FieldInfo(final Field f, final Class<?> c)
        throws LDAPPersistException
   {
-    ensureNotNull(f, c);
+    Validator.ensureNotNull(f, c);
 
     field = f;
     f.setAccessible(true);
@@ -204,10 +204,10 @@ public final class FieldInfo
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPPersistException(ERR_FIELD_INFO_CANNOT_GET_ENCODER.get(
            a.encoderClass().getName(), f.getName(), c.getName(),
-           getExceptionMessage(e)), e);
+           StaticUtils.getExceptionMessage(e)), e);
     }
 
     if (! encoder.supportsType(f.getGenericType()))
@@ -242,7 +242,7 @@ public final class FieldInfo
     }
 
     final String attrName = a.attribute();
-    if ((attrName == null) || (attrName.length() == 0))
+    if ((attrName == null) || attrName.isEmpty())
     {
       attributeName = f.getName();
     }
@@ -259,9 +259,9 @@ public final class FieldInfo
     }
 
     final String structuralClass;
-    if (o.structuralClass().length() == 0)
+    if (o.structuralClass().isEmpty())
     {
-      structuralClass = getUnqualifiedClassName(c);
+      structuralClass = StaticUtils.getUnqualifiedClassName(c);
     }
     else
     {
@@ -642,14 +642,15 @@ public final class FieldInfo
     }
     catch (final LDAPPersistException lpe)
     {
-      debugException(lpe);
+      Debug.debugException(lpe);
       throw lpe;
     }
     catch (final Exception e)
     {
-      debugException(e);
-      throw new LDAPPersistException(ERR_FIELD_INFO_CANNOT_ENCODE.get(
-           field.getName(), containingClass.getName(), getExceptionMessage(e)),
+      Debug.debugException(e);
+      throw new LDAPPersistException(
+           ERR_FIELD_INFO_CANNOT_ENCODE.get(field.getName(),
+                containingClass.getName(), StaticUtils.getExceptionMessage(e)),
            e);
     }
   }
@@ -697,7 +698,7 @@ public final class FieldInfo
         }
         catch (final LDAPPersistException lpe)
         {
-          debugException(lpe);
+          Debug.debugException(lpe);
           successful = false;
           failureReasons.add(lpe.getMessage());
         }
@@ -719,7 +720,7 @@ public final class FieldInfo
     }
     catch (final LDAPPersistException lpe)
     {
-      debugException(lpe);
+      Debug.debugException(lpe);
       if (failOnInvalidValue)
       {
         successful = false;

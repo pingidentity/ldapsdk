@@ -21,7 +21,6 @@
 
 
 
-
 /**
  * This package provides an API which intends to make it easy to interact with
  * directory data using Java objects.  It is primarily a persistence framework,

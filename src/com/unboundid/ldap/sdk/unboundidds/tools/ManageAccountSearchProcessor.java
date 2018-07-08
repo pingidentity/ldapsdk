@@ -133,9 +133,8 @@ final class ManageAccountSearchProcessor
          ManageAccount.ARG_NUM_SEARCH_THREADS).getValue();
     if (numSearchThreads > 1)
     {
-      filterQueue = new LinkedBlockingQueue<Filter>(100);
-      searchProcessorThreads =
-           new ArrayList<ManageAccountSearchProcessorThread>(numSearchThreads);
+      filterQueue = new LinkedBlockingQueue<>(100);
+      searchProcessorThreads = new ArrayList<>(numSearchThreads);
       for (int i=1; i <= numSearchThreads; i++)
       {
         final ManageAccountSearchProcessorThread t =

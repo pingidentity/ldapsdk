@@ -203,11 +203,6 @@ public final class SoftDeletedEntry
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_SOFT_DELETED_ENTRY_MISSING_FROM_DN.get(entry.getDN()));
     }
-
-    // NOTE:  This isn't actually used, but it's needed to satisfy checkstyle
-    // because although we reference SoftDeletedEntryAccessRequestControl in
-    // the javadoc, checkstyle doesn't recognize that as a use of the class.
-    final SoftDeletedEntryAccessRequestControl c = null;
   }
 
 

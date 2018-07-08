@@ -29,13 +29,13 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -150,7 +150,7 @@ public final class ProxiedAuthorizationV1RequestControl
   {
     super(PROXIED_AUTHORIZATION_V1_REQUEST_OID, true, encodeValue(proxyDN));
 
-    ensureNotNull(proxyDN);
+    Validator.ensureNotNull(proxyDN);
 
     this.proxyDN = proxyDN;
   }
@@ -206,7 +206,7 @@ public final class ProxiedAuthorizationV1RequestControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_PROXYV1_DECODE_ERROR.get(e), e);
     }

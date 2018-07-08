@@ -50,8 +50,6 @@ import com.unboundid.ldap.sdk.unboundidds.tools.ToolInvocationLogger;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolInvocationLogDetails;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolInvocationLogShutdownHook;
 
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
 
 
@@ -224,7 +222,7 @@ public abstract class CommandLineTool
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           exceptionFromParsingWithNoArgumentsExplicitlyProvided = true;
         }
       }
@@ -276,7 +274,7 @@ public abstract class CommandLineTool
           out(nameBuffer.toString());
 
           for (final String descriptionLine :
-               wrapLine(sc.getDescription(),
+               StaticUtils.wrapLine(sc.getDescription(),
                     (StaticUtils.TERMINAL_WIDTH_COLUMNS - 3)))
           {
             out("  " + descriptionLine);
@@ -313,10 +311,10 @@ public abstract class CommandLineTool
           }
           catch (final LDAPException le)
           {
-            debugException(le);
+            Debug.debugException(le);
 
             final String message = le.getMessage();
-            if ((message != null) && (message.length() > 0))
+            if ((message != null) && (! message.isEmpty()))
             {
               err(message);
             }
@@ -333,7 +331,7 @@ public abstract class CommandLineTool
     }
     catch (final ArgumentException ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       err(ae.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -352,9 +350,9 @@ public abstract class CommandLineTool
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         err(ERR_CL_TOOL_ERROR_CREATING_OUTPUT_FILE.get(
-             outputFile.getAbsolutePath(), getExceptionMessage(e)));
+             outputFile.getAbsolutePath(), StaticUtils.getExceptionMessage(e)));
         return ResultCode.LOCAL_ERROR;
       }
 
@@ -379,10 +377,10 @@ public abstract class CommandLineTool
         (! parser.suppressPropertiesFileComment()))
     {
       for (final String line :
-           wrapLine(
+           StaticUtils.wrapLine(
                 INFO_CL_TOOL_ARGS_FROM_PROPERTIES_FILE.get(
                      parser.getPropertiesFileUsed().getPath()),
-                (TERMINAL_WIDTH_COLUMNS - 3)))
+                (StaticUtils.TERMINAL_WIDTH_COLUMNS - 3)))
       {
         out("# ", line);
       }
@@ -427,8 +425,7 @@ public abstract class CommandLineTool
 
 
     CommandLineToolShutdownHook shutdownHook = null;
-    final AtomicReference<ResultCode> exitCode =
-         new AtomicReference<ResultCode>();
+    final AtomicReference<ResultCode> exitCode = new AtomicReference<>();
     if (registerShutdownHook())
     {
       shutdownHook = new CommandLineToolShutdownHook(this, exitCode);
@@ -440,7 +437,7 @@ public abstract class CommandLineTool
                     getToolName(), logToolInvocationByDefault(), getErr());
     ToolInvocationLogShutdownHook logShutdownHook = null;
 
-    if(logDetails.logInvocation())
+    if (logDetails.logInvocation())
     {
       final HashSet<Argument> argumentsSetFromPropertiesFile =
            new HashSet<>(10);
@@ -485,8 +482,8 @@ public abstract class CommandLineTool
     }
     catch (final Exception e)
     {
-      debugException(e);
-      err(getExceptionMessage(e));
+      Debug.debugException(e);
+      err(StaticUtils.getExceptionMessage(e));
       exitCode.set(ResultCode.LOCAL_ERROR);
     }
     finally
@@ -707,7 +704,7 @@ public abstract class CommandLineTool
   private static TreeMap<String,SubCommand> getSortedSubCommands(
                                                  final ArgumentParser parser)
   {
-    final TreeMap<String,SubCommand> m = new TreeMap<String,SubCommand>();
+    final TreeMap<String,SubCommand> m = new TreeMap<>();
     for (final SubCommand sc : parser.getSubCommands())
     {
       m.put(sc.getPrimaryName(), sc);
@@ -1076,7 +1073,7 @@ public abstract class CommandLineTool
     }
 
     final String version = getToolVersion();
-    if ((version != null) && (version.length() > 0) &&
+    if ((version != null) && (! version.isEmpty()) &&
         (parser.getNamedArgument("version") == null))
     {
       final Character shortIdentifier;
@@ -1130,7 +1127,7 @@ public abstract class CommandLineTool
    */
   static Set<String> getUsageArgumentIdentifiers(final CommandLineTool tool)
   {
-    final LinkedHashSet<String> ids = new LinkedHashSet<String>(9);
+    final LinkedHashSet<String> ids = new LinkedHashSet<>(9);
 
     ids.add("help");
     ids.add("version");
@@ -1539,7 +1536,8 @@ public abstract class CommandLineTool
     {
       boolean firstLine = true;
       for (final String line :
-           wrapLine(buffer.toString(), (wrapColumn - firstLineIndent),
+           StaticUtils.wrapLine(buffer.toString(),
+                (wrapColumn - firstLineIndent),
                 (wrapColumn - subsequentLineIndent)))
       {
         final int indent;

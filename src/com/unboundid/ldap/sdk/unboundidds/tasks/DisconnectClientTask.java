@@ -32,12 +32,12 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -180,7 +180,6 @@ public final class DisconnectClientTask
     connectionID      = -1;
     disconnectMessage = null;
   }
-
 
 
 
@@ -357,7 +356,7 @@ public final class DisconnectClientTask
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new TaskException(ERR_DISCONNECT_TASK_CONN_ID_NOT_LONG.get(
                                      getTaskEntryDN(), idStr),
                                 e);
@@ -499,7 +498,7 @@ public final class DisconnectClientTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_DISCONNECT_CLIENT_TASK);
+    return Collections.singletonList(OC_DISCONNECT_CLIENT_TASK);
   }
 
 
@@ -510,7 +509,7 @@ public final class DisconnectClientTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(3);
+    final ArrayList<Attribute> attrs = new ArrayList<>(3);
 
     attrs.add(new Attribute(ATTR_CONNECTION_ID, String.valueOf(connectionID)));
     attrs.add(new Attribute(ATTR_NOTIFY_CLIENT, String.valueOf(notifyClient)));
@@ -548,11 +547,10 @@ public final class DisconnectClientTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(10);
 
     props.put(PROPERTY_CONNECTION_ID,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   connectionID)));
+              Collections.<Object>singletonList(connectionID));
 
     if (disconnectMessage == null)
     {
@@ -561,13 +559,11 @@ public final class DisconnectClientTask
     else
     {
       props.put(PROPERTY_DISCONNECT_MESSAGE,
-                Collections.<Object>unmodifiableList(Arrays.asList(
-                     disconnectMessage)));
+                Collections.<Object>singletonList(disconnectMessage));
     }
 
     props.put(PROPERTY_NOTIFY_CLIENT,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   notifyClient)));
+              Collections.<Object>singletonList(notifyClient));
 
     props.putAll(super.getTaskPropertyValues());
     return Collections.unmodifiableMap(props);

@@ -119,7 +119,6 @@ public final class EXTERNALBindRequest
 
 
 
-
   /**
    * Creates a new SASL EXTERNAL bind request with the provided set of controls.
    *
@@ -130,7 +129,6 @@ public final class EXTERNALBindRequest
   {
     this(null, controls);
   }
-
 
 
 
@@ -323,8 +321,7 @@ public final class EXTERNALBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(2);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(2);
 
     if (authzID != null)
     {

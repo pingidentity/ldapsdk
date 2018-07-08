@@ -22,7 +22,6 @@ package com.unboundid.util.args;
 
 
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -202,8 +201,7 @@ public final class BooleanValueArgument
     {
       if (useDefault && (defaultValue != null))
       {
-        return Collections.unmodifiableList(Arrays.asList(
-             defaultValue.toString()));
+        return Collections.singletonList(defaultValue.toString());
       }
       else
       {
@@ -212,7 +210,7 @@ public final class BooleanValueArgument
     }
     else
     {
-      return Collections.unmodifiableList(Arrays.asList(value.toString()));
+      return Collections.singletonList(value.toString());
     }
   }
 

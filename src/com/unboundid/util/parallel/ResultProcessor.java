@@ -41,7 +41,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 @InternalUseOnly()
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
-public interface ResultProcessor<I, O>
+public interface ResultProcessor<I,O>
 {
   /**
    * Processes the result of an invocation of {@code Processor#process()}.
@@ -54,6 +54,6 @@ public interface ResultProcessor<I, O>
    *                    all processing by the AsynchronousParallelProcessor
    *                    should be aborted.
    */
-  void processResult(Result<I, O> result)
+  void processResult(Result<I,O> result)
        throws Exception;
 }

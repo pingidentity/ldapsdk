@@ -175,7 +175,7 @@ public final class ContainsFieldJSONObjectFilter
    * The pre-allocated set of required field names.
    */
   private static final Set<String> REQUIRED_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_FIELD_PATH)));
 
 
@@ -184,7 +184,7 @@ public final class ContainsFieldJSONObjectFilter
    * The pre-allocated set of optional field names.
    */
   private static final Set<String> OPTIONAL_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_EXPECTED_TYPE)));
 
 
@@ -268,7 +268,7 @@ public final class ContainsFieldJSONObjectFilter
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
 
-    this.field = Collections.unmodifiableList(new ArrayList<String>(field));
+    this.field = Collections.unmodifiableList(new ArrayList<>(field));
 
     expectedValueTypes = ALL_EXPECTED_VALUE_TYPES;
   }
@@ -315,7 +315,7 @@ public final class ContainsFieldJSONObjectFilter
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
 
-    this.field = Collections.unmodifiableList(new ArrayList<String>(field));
+    this.field = Collections.unmodifiableList(new ArrayList<>(field));
   }
 
 
@@ -483,8 +483,7 @@ public final class ContainsFieldJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields =
-         new LinkedHashMap<String,JSONValue>(3);
+    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(3);
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 
@@ -495,7 +494,7 @@ public final class ContainsFieldJSONObjectFilter
     else
     {
       final ArrayList<JSONValue> fieldNameValues =
-           new ArrayList<JSONValue>(field.size());
+           new ArrayList<>(field.size());
       for (final String s : field)
       {
         fieldNameValues.add(new JSONString(s));
@@ -513,7 +512,7 @@ public final class ContainsFieldJSONObjectFilter
       else
       {
         final ArrayList<JSONValue> expectedTypeValues =
-             new ArrayList<JSONValue>(expectedValueTypes.size());
+             new ArrayList<>(expectedValueTypes.size());
         for (final ExpectedValueType t : expectedValueTypes)
         {
           expectedTypeValues.add(new JSONString(t.toString()));

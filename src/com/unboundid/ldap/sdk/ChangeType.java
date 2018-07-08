@@ -26,8 +26,6 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.util.StaticUtils.*;
-
 
 
 /**

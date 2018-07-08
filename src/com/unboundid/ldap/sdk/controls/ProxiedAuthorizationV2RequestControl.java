@@ -29,9 +29,9 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -150,7 +150,7 @@ public final class ProxiedAuthorizationV2RequestControl
     super(PROXIED_AUTHORIZATION_V2_REQUEST_OID, true,
           new ASN1OctetString(authorizationID));
 
-    ensureNotNull(authorizationID);
+    Validator.ensureNotNull(authorizationID);
 
     this.authorizationID = authorizationID;
   }

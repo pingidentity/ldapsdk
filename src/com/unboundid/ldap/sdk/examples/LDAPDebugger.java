@@ -275,6 +275,7 @@ public final class LDAPDebugger
    * @return  {@code true} if this tool should default to interactively
    *          prompting for the bind password, or {@code false} if not.
    */
+  @Override()
   protected boolean defaultToPromptForBindPassword()
   {
     return true;
@@ -341,7 +342,7 @@ public final class LDAPDebugger
          "no value is provided, then a free port will be automatically " +
          "selected.";
     listenPort = new IntegerArgument('L', "listenPort", true, 1, "{port}",
-         description, 0, 65535, 0);
+         description, 0, 65_535, 0);
     listenPort.addLongIdentifier("listen-port", true);
     parser.addArgument(listenPort);
 
@@ -565,8 +566,7 @@ public final class LDAPDebugger
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>();
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(1);
 
     final String[] args =
     {

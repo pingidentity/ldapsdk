@@ -22,7 +22,7 @@ package com.unboundid.ldap.listener;
 
 
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.Control;
@@ -77,7 +77,8 @@ public final class WhoAmIExtendedOperationHandler
   @Override()
   public List<String> getSupportedExtendedRequestOIDs()
   {
-    return Arrays.asList(WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID);
+    return Collections.singletonList(
+         WhoAmIExtendedRequest.WHO_AM_I_REQUEST_OID);
   }
 
 

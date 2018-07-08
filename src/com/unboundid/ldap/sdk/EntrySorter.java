@@ -37,11 +37,10 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -198,8 +197,7 @@ public final class EntrySorter
     }
     else
     {
-      this.sortKeys =
-           Collections.unmodifiableList(new ArrayList<SortKey>(sortKeys));
+      this.sortKeys = Collections.unmodifiableList(new ArrayList<>(sortKeys));
     }
   }
 
@@ -215,7 +213,7 @@ public final class EntrySorter
    */
   public SortedSet<Entry> sort(final Collection<? extends Entry> entries)
   {
-    final TreeSet<Entry> entrySet = new TreeSet<Entry>(this);
+    final TreeSet<Entry> entrySet = new TreeSet<>(this);
     entrySet.addAll(entries);
     return entrySet;
   }
@@ -258,7 +256,7 @@ public final class EntrySorter
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
       }
     }
 
@@ -318,7 +316,7 @@ public final class EntrySorter
             }
             catch (final LDAPException le)
             {
-              debugException(le);
+              Debug.debugException(le);
             }
           }
         }
@@ -341,7 +339,7 @@ public final class EntrySorter
             }
             catch (final LDAPException le)
             {
-              debugException(le);
+              Debug.debugException(le);
             }
           }
         }
@@ -356,7 +354,7 @@ public final class EntrySorter
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
       else
@@ -381,7 +379,7 @@ public final class EntrySorter
             }
             catch (final LDAPException le)
             {
-              debugException(le);
+              Debug.debugException(le);
             }
           }
         }
@@ -404,7 +402,7 @@ public final class EntrySorter
             }
             catch (final LDAPException le)
             {
-              debugException(le);
+              Debug.debugException(le);
             }
           }
         }
@@ -419,7 +417,7 @@ public final class EntrySorter
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
       }
     }
@@ -443,9 +441,9 @@ public final class EntrySorter
     }
     catch (final LDAPException le)
     {
-      debugException(le);
-      final String lowerDN1 = toLowerCase(e1.getDN());
-      final String lowerDN2 = toLowerCase(e2.getDN());
+      Debug.debugException(le);
+      final String lowerDN1 = StaticUtils.toLowerCase(e1.getDN());
+      final String lowerDN2 = StaticUtils.toLowerCase(e2.getDN());
       return lowerDN1.compareTo(lowerDN2);
     }
   }
@@ -478,7 +476,7 @@ public final class EntrySorter
         hashCode *= 31;
       }
 
-      hashCode += toLowerCase(k.getAttributeName()).hashCode();
+      hashCode += StaticUtils.toLowerCase(k.getAttributeName()).hashCode();
     }
 
     return hashCode;

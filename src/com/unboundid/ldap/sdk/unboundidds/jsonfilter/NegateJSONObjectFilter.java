@@ -106,7 +106,7 @@ public final class NegateJSONObjectFilter
    * The pre-allocated set of required field names.
    */
   private static final Set<String> REQUIRED_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_NEGATE_FILTER)));
 
 
@@ -235,8 +235,7 @@ public final class NegateJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields =
-         new LinkedHashMap<String,JSONValue>(2);
+    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(2);
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
     fields.put(FIELD_NEGATE_FILTER, negateFilter.toJSONObject());

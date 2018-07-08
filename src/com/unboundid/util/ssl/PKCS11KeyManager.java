@@ -27,12 +27,12 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.ssl.SSLMessages.*;
 
 
@@ -97,7 +97,7 @@ public final class PKCS11KeyManager
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new KeyStoreException(
            ERR_PKCS11_CANNOT_ACCESS.get(StaticUtils.getExceptionMessage(e)), e);
@@ -112,7 +112,7 @@ public final class PKCS11KeyManager
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new KeyStoreException(
            ERR_PKCS11_CANNOT_GET_KEY_MANAGERS.get(

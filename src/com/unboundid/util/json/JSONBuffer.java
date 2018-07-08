@@ -58,7 +58,7 @@ public final class JSONBuffer
   /**
    * The default maximum buffer size.
    */
-  private static final int DEFAULT_MAX_BUFFER_SIZE = 1048576;
+  private static final int DEFAULT_MAX_BUFFER_SIZE = 1_048_576;
 
 
 
@@ -143,7 +143,7 @@ public final class JSONBuffer
     this.multiLine = multiLine;
     this.maxBufferSize = maxBufferSize;
 
-    indents = new LinkedList<String>();
+    indents = new LinkedList<>();
     needComma = false;
 
     if (buffer == null)

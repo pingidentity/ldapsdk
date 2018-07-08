@@ -58,9 +58,6 @@ import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.args.SubCommand;
 import com.unboundid.util.args.TimestampArgument;
 
-import static com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount.*;
-import static com.unboundid.ldap.sdk.unboundidds.extensions.
-            PasswordPolicyStateOperation.*;
 import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
 
 
@@ -154,7 +151,7 @@ final class ManageAccountProcessor
     parser = manageAccount.getArgumentParser();
 
     suppressEmptyResultOperations = parser.getBooleanArgument(
-         ARG_SUPPRESS_EMPTY_RESULT_OPERATIONS).isPresent();
+         ManageAccount.ARG_SUPPRESS_EMPTY_RESULT_OPERATIONS).isPresent();
 
 
     // Create the password policy state operation that will be processed for
@@ -168,13 +165,12 @@ final class ManageAccountProcessor
     // If there should be more than one, then create a queue to hold the DNs
     // of the entries to process.
     final int numThreads =
-         parser.getIntegerArgument(ARG_NUM_THREADS).getValue();
+         parser.getIntegerArgument(ManageAccount.ARG_NUM_THREADS).getValue();
     if (numThreads > 1)
     {
-      dnQueue = new LinkedBlockingQueue<String>(100);
+      dnQueue = new LinkedBlockingQueue<>(100);
 
-      processorThreads =
-           new ArrayList<ManageAccountProcessorThread>(numThreads);
+      processorThreads = new ArrayList<>(numThreads);
       for (int i=1; i <= numThreads; i++)
       {
         final ManageAccountProcessorThread processorThread =
@@ -445,8 +441,8 @@ final class ManageAccountProcessor
    * @param  request  The request that was processed.
    * @param  le       The exception caught during processing.
    */
-  void handleResult(final PasswordPolicyStateExtendedRequest request,
-                    final LDAPException le)
+  private void handleResult(final PasswordPolicyStateExtendedRequest request,
+                            final LDAPException le)
   {
     try
     {
@@ -471,8 +467,8 @@ final class ManageAccountProcessor
    * @param  request  The request that was processed.
    * @param  result   The result of the processing.
    */
-  void handleResult(final PasswordPolicyStateExtendedRequest request,
-                    final PasswordPolicyStateExtendedResult result)
+  private void handleResult(final PasswordPolicyStateExtendedRequest request,
+                            final PasswordPolicyStateExtendedResult result)
   {
     handleResult(createResultEntry(request, result),
          (result.getResultCode() != ResultCode.SUCCESS));
@@ -779,267 +775,336 @@ final class ManageAccountProcessor
         return null;
 
       case GET_PASSWORD_POLICY_DN:
-        return createGetPasswordPolicyDNOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordPolicyDNOperation();
 
       case GET_ACCOUNT_IS_USABLE:
-        return createGetAccountIsUsableOperation();
+        return PasswordPolicyStateOperation.createGetAccountIsUsableOperation();
 
       case GET_ACCOUNT_USABILITY_NOTICES:
-        return createGetAccountUsabilityNoticesOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountUsabilityNoticesOperation();
 
       case GET_ACCOUNT_USABILITY_WARNINGS:
-        return createGetAccountUsabilityWarningsOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountUsabilityWarningsOperation();
 
       case GET_ACCOUNT_USABILITY_ERRORS:
-        return createGetAccountUsabilityErrorsOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountUsabilityErrorsOperation();
 
       case GET_PASSWORD_CHANGED_TIME:
-        return createGetPasswordChangedTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordChangedTimeOperation();
 
       case SET_PASSWORD_CHANGED_TIME:
-        return createSetPasswordChangedTimeOperation(
-             getDate(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetPasswordChangedTimeOperation(
+                  getDate(subcommand, commandBuffer));
 
       case CLEAR_PASSWORD_CHANGED_TIME:
-        return createClearPasswordChangedTimeOperation();
+        return PasswordPolicyStateOperation.
+             createClearPasswordChangedTimeOperation();
 
       case GET_ACCOUNT_IS_DISABLED:
-        return createGetAccountDisabledStateOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountDisabledStateOperation();
 
       case SET_ACCOUNT_IS_DISABLED:
-        return createSetAccountDisabledStateOperation(
-             getBoolean(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetAccountDisabledStateOperation(
+                  getBoolean(subcommand, commandBuffer));
 
       case CLEAR_ACCOUNT_IS_DISABLED:
-        return createClearAccountDisabledStateOperation();
+        return PasswordPolicyStateOperation.
+             createClearAccountDisabledStateOperation();
 
       case GET_ACCOUNT_ACTIVATION_TIME:
-        return createGetAccountActivationTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountActivationTimeOperation();
 
       case SET_ACCOUNT_ACTIVATION_TIME:
-        return createSetAccountActivationTimeOperation(
-             getDate(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetAccountActivationTimeOperation(
+                  getDate(subcommand, commandBuffer));
 
       case CLEAR_ACCOUNT_ACTIVATION_TIME:
-        return createClearAccountActivationTimeOperation();
+        return PasswordPolicyStateOperation.
+             createClearAccountActivationTimeOperation();
 
       case GET_SECONDS_UNTIL_ACCOUNT_ACTIVATION:
-        return createGetSecondsUntilAccountActivationOperation();
+        return PasswordPolicyStateOperation.
+             createGetSecondsUntilAccountActivationOperation();
 
       case GET_ACCOUNT_IS_NOT_YET_ACTIVE:
-        return createGetAccountIsNotYetActiveOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountIsNotYetActiveOperation();
 
       case GET_ACCOUNT_EXPIRATION_TIME:
-        return createGetAccountExpirationTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountExpirationTimeOperation();
 
       case SET_ACCOUNT_EXPIRATION_TIME:
-        return createSetAccountExpirationTimeOperation(
-             getDate(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetAccountExpirationTimeOperation(
+                  getDate(subcommand, commandBuffer));
 
       case CLEAR_ACCOUNT_EXPIRATION_TIME:
-        return createClearAccountExpirationTimeOperation();
+        return PasswordPolicyStateOperation.
+             createClearAccountExpirationTimeOperation();
 
       case GET_SECONDS_UNTIL_ACCOUNT_EXPIRATION:
-        return createGetSecondsUntilAccountExpirationOperation();
+        return PasswordPolicyStateOperation.
+             createGetSecondsUntilAccountExpirationOperation();
 
       case GET_ACCOUNT_IS_EXPIRED:
-        return createGetAccountIsExpiredOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountIsExpiredOperation();
 
       case GET_PASSWORD_EXPIRATION_WARNED_TIME:
-        return createGetPasswordExpirationWarnedTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordExpirationWarnedTimeOperation();
 
       case SET_PASSWORD_EXPIRATION_WARNED_TIME:
-        return createSetPasswordExpirationWarnedTimeOperation(
-             getDate(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetPasswordExpirationWarnedTimeOperation(
+                  getDate(subcommand, commandBuffer));
 
       case CLEAR_PASSWORD_EXPIRATION_WARNED_TIME:
-        return createClearPasswordExpirationWarnedTimeOperation();
+        return PasswordPolicyStateOperation.
+             createClearPasswordExpirationWarnedTimeOperation();
 
       case GET_SECONDS_UNTIL_PASSWORD_EXPIRATION_WARNING:
-        return createGetSecondsUntilPasswordExpirationWarningOperation();
+        return PasswordPolicyStateOperation.
+             createGetSecondsUntilPasswordExpirationWarningOperation();
 
       case GET_PASSWORD_EXPIRATION_TIME:
-        return createGetPasswordExpirationTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordExpirationTimeOperation();
 
       case GET_SECONDS_UNTIL_PASSWORD_EXPIRATION:
-        return createGetSecondsUntilPasswordExpirationOperation();
+        return PasswordPolicyStateOperation.
+             createGetSecondsUntilPasswordExpirationOperation();
 
       case GET_PASSWORD_IS_EXPIRED:
-        return createGetPasswordIsExpiredOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordIsExpiredOperation();
 
       case GET_ACCOUNT_IS_FAILURE_LOCKED:
-        return createGetAccountIsFailureLockedOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountIsFailureLockedOperation();
 
       case SET_ACCOUNT_IS_FAILURE_LOCKED:
-        return createSetAccountIsFailureLockedOperation(
-             getBoolean(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetAccountIsFailureLockedOperation(
+                  getBoolean(subcommand, commandBuffer));
 
       case GET_FAILURE_LOCKOUT_TIME:
-        return createGetFailureLockoutTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetFailureLockoutTimeOperation();
 
       case GET_SECONDS_UNTIL_AUTHENTICATION_FAILURE_UNLOCK:
-        return createGetSecondsUntilAuthenticationFailureUnlockOperation();
+        return PasswordPolicyStateOperation.
+             createGetSecondsUntilAuthenticationFailureUnlockOperation();
 
       case GET_AUTHENTICATION_FAILURE_TIMES:
-        return createGetAuthenticationFailureTimesOperation();
+        return PasswordPolicyStateOperation.
+             createGetAuthenticationFailureTimesOperation();
 
       case ADD_AUTHENTICATION_FAILURE_TIME:
-        return createAddAuthenticationFailureTimeOperation(
-             getDates(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createAddAuthenticationFailureTimeOperation(
+                  getDates(subcommand, commandBuffer));
 
       case SET_AUTHENTICATION_FAILURE_TIMES:
-        return createSetAuthenticationFailureTimesOperation(
-             getDates(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetAuthenticationFailureTimesOperation(
+                  getDates(subcommand, commandBuffer));
 
       case CLEAR_AUTHENTICATION_FAILURE_TIMES:
-        return createClearAuthenticationFailureTimesOperation();
+        return PasswordPolicyStateOperation.
+             createClearAuthenticationFailureTimesOperation();
 
       case GET_REMAINING_AUTHENTICATION_FAILURE_COUNT:
-        return createGetRemainingAuthenticationFailureCountOperation();
+        return PasswordPolicyStateOperation.
+             createGetRemainingAuthenticationFailureCountOperation();
 
       case GET_ACCOUNT_IS_IDLE_LOCKED:
-        return createGetAccountIsIdleLockedOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountIsIdleLockedOperation();
 
       case GET_SECONDS_UNTIL_IDLE_LOCKOUT:
-        return createGetSecondsUntilIdleLockoutOperation();
+        return PasswordPolicyStateOperation.
+             createGetSecondsUntilIdleLockoutOperation();
 
       case GET_IDLE_LOCKOUT_TIME:
-        return createGetIdleLockoutTimeOperation();
+        return PasswordPolicyStateOperation.createGetIdleLockoutTimeOperation();
 
       case GET_MUST_CHANGE_PASSWORD:
-        return createGetPasswordResetStateOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordResetStateOperation();
 
       case SET_MUST_CHANGE_PASSWORD:
-        return createSetPasswordResetStateOperation(
-             getBoolean(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetPasswordResetStateOperation(
+                  getBoolean(subcommand, commandBuffer));
 
       case CLEAR_MUST_CHANGE_PASSWORD:
-        return createClearPasswordResetStateOperation();
+        return PasswordPolicyStateOperation.
+             createClearPasswordResetStateOperation();
 
       case GET_ACCOUNT_IS_PASSWORD_RESET_LOCKED:
-        return createGetAccountIsResetLockedOperation();
+        return PasswordPolicyStateOperation.
+             createGetAccountIsResetLockedOperation();
 
       case GET_SECONDS_UNTIL_PASSWORD_RESET_LOCKOUT:
-        return createGetSecondsUntilPasswordResetLockoutOperation();
+        return PasswordPolicyStateOperation.
+             createGetSecondsUntilPasswordResetLockoutOperation();
 
       case GET_PASSWORD_RESET_LOCKOUT_TIME:
-        return createGetResetLockoutTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetResetLockoutTimeOperation();
 
       case GET_LAST_LOGIN_TIME:
-        return createGetLastLoginTimeOperation();
+        return PasswordPolicyStateOperation.createGetLastLoginTimeOperation();
 
       case SET_LAST_LOGIN_TIME:
-        return createSetLastLoginTimeOperation(
+        return PasswordPolicyStateOperation.createSetLastLoginTimeOperation(
              getDate(subcommand, commandBuffer));
 
       case CLEAR_LAST_LOGIN_TIME:
-        return createClearLastLoginTimeOperation();
+        return PasswordPolicyStateOperation.createClearLastLoginTimeOperation();
 
       case GET_LAST_LOGIN_IP_ADDRESS:
-        return createGetLastLoginIPAddressOperation();
+        return PasswordPolicyStateOperation.
+             createGetLastLoginIPAddressOperation();
 
       case SET_LAST_LOGIN_IP_ADDRESS:
-        return createSetLastLoginIPAddressOperation(
-             getString(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetLastLoginIPAddressOperation(
+                  getString(subcommand, commandBuffer));
 
       case CLEAR_LAST_LOGIN_IP_ADDRESS:
-        return createClearLastLoginIPAddressOperation();
+        return PasswordPolicyStateOperation.
+             createClearLastLoginIPAddressOperation();
 
       case GET_GRACE_LOGIN_USE_TIMES:
-        return createGetGraceLoginUseTimesOperation();
+        return PasswordPolicyStateOperation.
+             createGetGraceLoginUseTimesOperation();
 
       case ADD_GRACE_LOGIN_USE_TIME:
-        return createAddGraceLoginUseTimeOperation(
+        return PasswordPolicyStateOperation.createAddGraceLoginUseTimeOperation(
              getDates(subcommand, commandBuffer));
 
       case SET_GRACE_LOGIN_USE_TIMES:
-        return createSetGraceLoginUseTimesOperation(
-             getDates(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetGraceLoginUseTimesOperation(
+                  getDates(subcommand, commandBuffer));
 
       case CLEAR_GRACE_LOGIN_USE_TIMES:
-        return createClearGraceLoginUseTimesOperation();
+        return PasswordPolicyStateOperation.
+             createClearGraceLoginUseTimesOperation();
 
       case GET_REMAINING_GRACE_LOGIN_COUNT:
-        return createGetRemainingGraceLoginCountOperation();
+        return PasswordPolicyStateOperation.
+             createGetRemainingGraceLoginCountOperation();
 
       case GET_PASSWORD_CHANGED_BY_REQUIRED_TIME:
-        return createGetPasswordChangedByRequiredTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordChangedByRequiredTimeOperation();
 
       case SET_PASSWORD_CHANGED_BY_REQUIRED_TIME:
-        return createSetPasswordChangedByRequiredTimeOperation(
-             getDate(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetPasswordChangedByRequiredTimeOperation(
+                  getDate(subcommand, commandBuffer));
 
       case CLEAR_PASSWORD_CHANGED_BY_REQUIRED_TIME:
-        return createClearPasswordChangedByRequiredTimeOperation();
+        return PasswordPolicyStateOperation.
+             createClearPasswordChangedByRequiredTimeOperation();
 
       case GET_SECONDS_UNTIL_REQUIRED_PASSWORD_CHANGE_TIME:
-        return createGetSecondsUntilRequiredChangeTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetSecondsUntilRequiredChangeTimeOperation();
 
       case GET_PASSWORD_HISTORY_COUNT:
-        return createGetPasswordHistoryCountOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordHistoryCountOperation();
 
       case CLEAR_PASSWORD_HISTORY:
-        return createClearPasswordHistoryOperation();
+        return PasswordPolicyStateOperation.
+             createClearPasswordHistoryOperation();
 
       case GET_HAS_RETIRED_PASSWORD:
-        return createHasRetiredPasswordOperation();
+        return PasswordPolicyStateOperation.createHasRetiredPasswordOperation();
 
       case GET_PASSWORD_RETIRED_TIME:
-        return createGetPasswordRetiredTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetPasswordRetiredTimeOperation();
 
       case GET_RETIRED_PASSWORD_EXPIRATION_TIME:
-        return createGetRetiredPasswordExpirationTimeOperation();
+        return PasswordPolicyStateOperation.
+             createGetRetiredPasswordExpirationTimeOperation();
 
       case CLEAR_RETIRED_PASSWORD:
-        return createPurgeRetiredPasswordOperation();
+        return PasswordPolicyStateOperation.
+             createPurgeRetiredPasswordOperation();
 
       case GET_AVAILABLE_SASL_MECHANISMS:
-        return createGetAvailableSASLMechanismsOperation();
+        return PasswordPolicyStateOperation.
+             createGetAvailableSASLMechanismsOperation();
 
       case GET_AVAILABLE_OTP_DELIVERY_MECHANISMS:
-        return createGetAvailableOTPDeliveryMechanismsOperation();
+        return PasswordPolicyStateOperation.
+             createGetAvailableOTPDeliveryMechanismsOperation();
 
       case GET_HAS_TOTP_SHARED_SECRET:
-        return createHasTOTPSharedSecret();
+        return PasswordPolicyStateOperation.createHasTOTPSharedSecret();
 
       case ADD_TOTP_SHARED_SECRET:
-        return createAddTOTPSharedSecretOperation(
+        return PasswordPolicyStateOperation.createAddTOTPSharedSecretOperation(
              getStrings(subcommand, commandBuffer));
 
       case REMOVE_TOTP_SHARED_SECRET:
-        return createRemoveTOTPSharedSecretOperation(
-             getStrings(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createRemoveTOTPSharedSecretOperation(
+                  getStrings(subcommand, commandBuffer));
 
       case SET_TOTP_SHARED_SECRETS:
-        return createSetTOTPSharedSecretsOperation(
+        return PasswordPolicyStateOperation.createSetTOTPSharedSecretsOperation(
              getStrings(subcommand, commandBuffer));
 
       case CLEAR_TOTP_SHARED_SECRETS:
-        return createClearTOTPSharedSecretsOperation();
+        return PasswordPolicyStateOperation.
+             createClearTOTPSharedSecretsOperation();
 
       case GET_HAS_REGISTERED_YUBIKEY_PUBLIC_ID:
-        return createHasYubiKeyPublicIDOperation();
+        return PasswordPolicyStateOperation.createHasYubiKeyPublicIDOperation();
 
       case GET_REGISTERED_YUBIKEY_PUBLIC_IDS:
-        return createGetRegisteredYubiKeyPublicIDsOperation();
+        return PasswordPolicyStateOperation.
+             createGetRegisteredYubiKeyPublicIDsOperation();
 
       case ADD_REGISTERED_YUBIKEY_PUBLIC_ID:
-        return createAddRegisteredYubiKeyPublicIDOperation(
-             getStrings(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createAddRegisteredYubiKeyPublicIDOperation(
+                  getStrings(subcommand, commandBuffer));
 
       case REMOVE_REGISTERED_YUBIKEY_PUBLIC_ID:
-        return createRemoveRegisteredYubiKeyPublicIDOperation(
-             getStrings(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createRemoveRegisteredYubiKeyPublicIDOperation(
+                  getStrings(subcommand, commandBuffer));
 
       case SET_REGISTERED_YUBIKEY_PUBLIC_IDS:
-        return createSetRegisteredYubiKeyPublicIDsOperation(
-             getStrings(subcommand, commandBuffer));
+        return PasswordPolicyStateOperation.
+             createSetRegisteredYubiKeyPublicIDsOperation(
+                  getStrings(subcommand, commandBuffer));
 
       case CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS:
-        return createClearRegisteredYubiKeyPublicIDsOperation();
+        return PasswordPolicyStateOperation.
+             createClearRegisteredYubiKeyPublicIDsOperation();
 
       case GET_HAS_STATIC_PASSWORD:
-        return createHasStaticPasswordOperation();
+        return PasswordPolicyStateOperation.createHasStaticPasswordOperation();
 
       default:
         // This should never happen.

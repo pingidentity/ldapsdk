@@ -131,18 +131,6 @@ public final class UnboundIDYubiKeyOTPBindRequest
 
 
 
-  // This is an ugly hack to prevent checkstyle from complaining about the
-  // imports for classes only referenced in the javadoc.  Checkstyle apparently
-  // doesn't recognize that so we just need to use it in some way in this class
-  // to placate checkstyle.
-  static
-  {
-    final RegisterYubiKeyOTPDeviceExtendedRequest rr = null;
-    final DeregisterYubiKeyOTPDeviceExtendedRequest dr = null;
-  }
-
-
-
   // The static password for the user, if provided.
   private final ASN1OctetString staticPassword;
 
@@ -545,7 +533,7 @@ public final class UnboundIDYubiKeyOTPBindRequest
     Validator.ensureNotNull(authenticationID);
     Validator.ensureNotNull(yubiKeyOTP);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1OctetString(TYPE_AUTHENTICATION_ID, authenticationID));
 
     if (authorizationID != null)

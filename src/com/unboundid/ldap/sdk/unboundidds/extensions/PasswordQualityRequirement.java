@@ -244,7 +244,7 @@ public final class PasswordQualityRequirement
     else
     {
       this.clientSideValidationProperties = Collections.unmodifiableMap(
-           new LinkedHashMap<String,String>(clientSideValidationProperties));
+           new LinkedHashMap<>(clientSideValidationProperties));
     }
   }
 
@@ -311,20 +311,18 @@ public final class PasswordQualityRequirement
    */
   public ASN1Element encode()
   {
-    final ArrayList<ASN1Element> requirementElements =
-         new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> requirementElements = new ArrayList<>(2);
     requirementElements.add(new ASN1OctetString(description));
 
     if (clientSideValidationType != null)
     {
-      final ArrayList<ASN1Element> clientSideElements =
-           new ArrayList<ASN1Element>(2);
+      final ArrayList<ASN1Element> clientSideElements = new ArrayList<>(2);
       clientSideElements.add(new ASN1OctetString(clientSideValidationType));
 
       if (! clientSideValidationProperties.isEmpty())
       {
         final ArrayList<ASN1Element> propertyElements =
-             new ArrayList<ASN1Element>(clientSideValidationProperties.size());
+             new ArrayList<>(clientSideValidationProperties.size());
         for (final Map.Entry<String,String> e :
              clientSideValidationProperties.entrySet())
         {
@@ -390,7 +388,7 @@ public final class PasswordQualityRequirement
                   final ASN1Element[] csvPropElements =
                        ASN1Sequence.decodeAsSequence(csvInfoElement).elements();
                   clientSideValidationProperties =
-                       new LinkedHashMap<String,String>(csvPropElements.length);
+                       new LinkedHashMap<>(csvPropElements.length);
                   for (final ASN1Element csvPropElement : csvPropElements)
                   {
                     final ASN1Element[] propElements =

@@ -184,7 +184,7 @@ public final class SubstringJSONObjectFilter
    * The pre-allocated set of required field names.
    */
   private static final Set<String> REQUIRED_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_FIELD_PATH)));
 
 
@@ -193,7 +193,7 @@ public final class SubstringJSONObjectFilter
    * The pre-allocated set of optional field names.
    */
   private static final Set<String> OPTIONAL_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(FIELD_STARTS_WITH, FIELD_CONTAINS, FIELD_ENDS_WITH,
                  FIELD_CASE_SENSITIVE)));
 
@@ -351,7 +351,7 @@ public final class SubstringJSONObjectFilter
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
 
-    this.field = Collections.unmodifiableList(new ArrayList<String>(field));
+    this.field = Collections.unmodifiableList(new ArrayList<>(field));
     caseSensitive = false;
 
     setSubstringComponents(startsWith, contains, endsWith);
@@ -399,7 +399,7 @@ public final class SubstringJSONObjectFilter
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
 
-    this.field= Collections.unmodifiableList(new ArrayList<String>(field));
+    this.field= Collections.unmodifiableList(new ArrayList<>(field));
   }
 
 
@@ -526,9 +526,9 @@ public final class SubstringJSONObjectFilter
     else
     {
       this.contains =
-           Collections.unmodifiableList(new ArrayList<String>(contains));
+           Collections.unmodifiableList(new ArrayList<>(contains));
 
-      final ArrayList<String> mcList = new ArrayList<String>(contains.size());
+      final ArrayList<String> mcList = new ArrayList<>(contains.size());
       for (final String s : contains)
       {
         minLength += s.length();
@@ -751,8 +751,7 @@ public final class SubstringJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields =
-         new LinkedHashMap<String,JSONValue>(6);
+    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(6);
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 
@@ -763,7 +762,7 @@ public final class SubstringJSONObjectFilter
     else
     {
       final ArrayList<JSONValue> fieldNameValues =
-           new ArrayList<JSONValue>(field.size());
+           new ArrayList<>(field.size());
       for (final String s : field)
       {
         fieldNameValues.add(new JSONString(s));
@@ -785,7 +784,7 @@ public final class SubstringJSONObjectFilter
       else
       {
         final ArrayList<JSONValue> containsValues =
-             new ArrayList<JSONValue>(contains.size());
+             new ArrayList<>(contains.size());
         for (final String s : contains)
         {
           containsValues.add(new JSONString(s));

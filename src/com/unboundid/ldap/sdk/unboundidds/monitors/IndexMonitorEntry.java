@@ -775,7 +775,7 @@ public final class IndexMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(19);
+         new LinkedHashMap<>(19);
 
     if (indexName != null)
     {

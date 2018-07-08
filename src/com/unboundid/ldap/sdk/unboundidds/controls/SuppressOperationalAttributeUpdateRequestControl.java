@@ -263,7 +263,7 @@ public final class SuppressOperationalAttributeUpdateRequestControl
                       final Collection<SuppressType> suppressTypes)
   {
     final ArrayList<ASN1Element> suppressTypeElements =
-         new ArrayList<ASN1Element>(suppressTypes.size());
+         new ArrayList<>(suppressTypes.size());
     for (final SuppressType t : suppressTypes)
     {
       suppressTypeElements.add(new ASN1Enumerated(t.intValue()));

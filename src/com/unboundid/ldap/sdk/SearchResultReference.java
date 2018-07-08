@@ -28,14 +28,14 @@ import java.util.ArrayList;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPResponse;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -100,7 +100,7 @@ public final class SearchResultReference
   public SearchResultReference(final int messageID, final String[] referralURLs,
                                final Control[] controls)
   {
-    ensureNotNull(referralURLs);
+    Validator.ensureNotNull(referralURLs);
 
     this.messageID    = messageID;
     this.referralURLs = referralURLs;
@@ -140,7 +140,7 @@ public final class SearchResultReference
   {
     try
     {
-      final ArrayList<String> refList = new ArrayList<String>(5);
+      final ArrayList<String> refList = new ArrayList<>(5);
       final ASN1StreamReaderSequence refSequence = reader.beginSequence();
       while (refSequence.hasMoreElements())
       {
@@ -153,7 +153,7 @@ public final class SearchResultReference
       Control[] controls = NO_CONTROLS;
       if (messageSequence.hasMoreElements())
       {
-        final ArrayList<Control> controlList = new ArrayList<Control>(5);
+        final ArrayList<Control> controlList = new ArrayList<>(5);
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();
         while (controlSequence.hasMoreElements())
         {
@@ -168,14 +168,16 @@ public final class SearchResultReference
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_REFERENCE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_SEARCH_REFERENCE_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -264,6 +266,7 @@ public final class SearchResultReference
    * @param  buffer  The buffer to which to append the string representation of
    *                 this search result reference.
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("SearchResultReference(referralURLs={");

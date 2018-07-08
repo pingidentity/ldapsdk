@@ -282,7 +282,7 @@ public final class SoftDeletedEntryAccessRequestControl
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
     if (! includeNonSoftDeletedEntries)
     {
       elements.add(new ASN1Boolean(TYPE_INCLUDE_NON_SOFT_DELETED_ENTRIES,

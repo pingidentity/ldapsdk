@@ -104,7 +104,7 @@ public final class LDAPListenerConfig
   public LDAPListenerConfig(final int listenPort,
                             final LDAPListenerRequestHandler requestHandler)
   {
-    Validator.ensureTrue((listenPort >= 0) && (listenPort <= 65535));
+    Validator.ensureTrue((listenPort >= 0) && (listenPort <= 65_535));
     Validator.ensureNotNull(requestHandler);
 
     this.listenPort     = listenPort;
@@ -149,7 +149,7 @@ public final class LDAPListenerConfig
    */
   public void setListenPort(final int listenPort)
   {
-    Validator.ensureTrue((listenPort >= 0) && (listenPort <= 65535));
+    Validator.ensureTrue((listenPort >= 0) && (listenPort <= 65_535));
 
     this.listenPort = listenPort;
   }
@@ -353,7 +353,7 @@ public final class LDAPListenerConfig
    */
   public void setLingerTimeoutSeconds(final int lingerTimeout)
   {
-    Validator.ensureTrue((lingerTimeout >= 0) && (lingerTimeout <= 65535));
+    Validator.ensureTrue((lingerTimeout >= 0) && (lingerTimeout <= 65_535));
 
     this.lingerTimeout = lingerTimeout;
   }

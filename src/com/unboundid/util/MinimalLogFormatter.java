@@ -53,7 +53,7 @@ public final class MinimalLogFormatter
    * message timestamps.
    */
   private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
-       new ThreadLocal<SimpleDateFormat>();
+       new ThreadLocal<>();
 
 
 
@@ -61,8 +61,7 @@ public final class MinimalLogFormatter
    * The set of thread-local buffers that will be used for generating the
    * message.
    */
-  private static final ThreadLocal<StringBuilder> BUFFERS =
-       new ThreadLocal<StringBuilder>();
+  private static final ThreadLocal<StringBuilder> BUFFERS = new ThreadLocal<>();
 
 
 

@@ -26,13 +26,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -135,14 +135,14 @@ public final class DNEntrySource
   public DNEntrySource(final LDAPInterface connection, final DN[] dns,
                        final String... attributes)
   {
-    ensureNotNull(connection, dns);
+    Validator.ensureNotNull(connection, dns);
 
     this.connection = connection;
     dnIterator = Arrays.asList(dns).iterator();
 
     if (attributes == null)
     {
-      this.attributes = NO_STRINGS;
+      this.attributes = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -185,14 +185,14 @@ public final class DNEntrySource
   public DNEntrySource(final LDAPInterface connection,
                        final Collection<String> dns, final String... attributes)
   {
-    ensureNotNull(connection, dns);
+    Validator.ensureNotNull(connection, dns);
 
     this.connection = connection;
     dnIterator = dns.iterator();
 
     if (attributes == null)
     {
-      this.attributes = NO_STRINGS;
+      this.attributes = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -231,10 +231,10 @@ public final class DNEntrySource
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new EntrySourceException(true,
            ERR_DN_ENTRY_SOURCE_ERR_RETRIEVING_ENTRY.get(dn,
-                getExceptionMessage(le)),
+                StaticUtils.getExceptionMessage(le)),
            le);
     }
   }

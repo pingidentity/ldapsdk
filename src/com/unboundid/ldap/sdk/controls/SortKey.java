@@ -31,14 +31,14 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -143,7 +143,7 @@ public final class SortKey
   public SortKey(final String attributeName, final String matchingRuleID,
                  final boolean reverseOrder)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     this.attributeName  = attributeName;
     this.matchingRuleID = matchingRuleID;
@@ -203,7 +203,7 @@ public final class SortKey
    */
   ASN1Sequence encode()
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
     elements.add(new ASN1OctetString(attributeName));
 
     if (matchingRuleID != null)
@@ -241,16 +241,15 @@ public final class SortKey
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_SORT_KEY_NOT_SEQUENCE.get(e), e);
+           ERR_SORT_KEY_NOT_SEQUENCE.get(e), e);
     }
 
     if ((elements.length < 1) || (elements.length > 3))
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_SORT_KEY_INVALID_ELEMENT_COUNT.get(
-                                   elements.length));
+           ERR_SORT_KEY_INVALID_ELEMENT_COUNT.get(elements.length));
     }
 
     boolean reverseOrder   = false;
@@ -274,16 +273,16 @@ public final class SortKey
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                                    ERR_SORT_KEY_REVERSE_NOT_BOOLEAN.get(e), e);
+                 ERR_SORT_KEY_REVERSE_NOT_BOOLEAN.get(e), e);
           }
           break;
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_SORT_KEY_ELEMENT_INVALID_TYPE.get(
-                                       toHex(elements[i].getType())));
+               ERR_SORT_KEY_ELEMENT_INVALID_TYPE.get(
+                    StaticUtils.toHex(elements[i].getType())));
       }
     }
 

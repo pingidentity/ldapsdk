@@ -22,12 +22,11 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -114,7 +113,7 @@ public class BindRequestAccessLogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
     authenticationType = authType;
   }

@@ -44,16 +44,16 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -546,7 +546,7 @@ public final class GSSAPIBindRequest
   {
     super(controls);
 
-    ensureNotNull(gssapiProperties);
+    Validator.ensureNotNull(gssapiProperties);
 
     authenticationID           = gssapiProperties.getAuthenticationID();
     password                   = gssapiProperties.getPassword();
@@ -569,9 +569,9 @@ public final class GSSAPIBindRequest
     suppressedSystemProperties =
          gssapiProperties.getSuppressedSystemProperties();
 
-    unhandledCallbackMessages = new ArrayList<String>(5);
+    unhandledCallbackMessages = new ArrayList<>(5);
 
-    conn      = new AtomicReference<LDAPConnection>();
+    conn      = new AtomicReference<>();
     messageID = -1;
 
     final String authzID = gssapiProperties.getAuthorizationID();
@@ -968,7 +968,7 @@ public final class GSSAPIBindRequest
         catch (final ClassNotFoundException cnfe)
         {
           // This is fine.
-          debugException(cnfe);
+          Debug.debugException(cnfe);
         }
 
 
@@ -987,7 +987,7 @@ public final class GSSAPIBindRequest
         catch (final ClassNotFoundException cnfe)
         {
           // This is fine.
-          debugException(cnfe);
+          Debug.debugException(cnfe);
         }
 
 
@@ -1004,15 +1004,17 @@ public final class GSSAPIBindRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_GSSAPI_CANNOT_CREATE_JAAS_CONFIG.get(getExceptionMessage(e)), e);
+           ERR_GSSAPI_CANNOT_CREATE_JAAS_CONFIG.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -1175,12 +1177,12 @@ public final class GSSAPIBindRequest
     setProperty(PROPERTY_CONFIG_FILE, configFilePath);
     setProperty(PROPERTY_SUBJECT_CREDS_ONLY,
          String.valueOf(useSubjectCredentialsOnly));
-    if (debugEnabled(DebugType.LDAP))
+    if (Debug.debugEnabled(DebugType.LDAP))
     {
-      debug(Level.CONFIG, DebugType.LDAP,
+      Debug.debug(Level.CONFIG, DebugType.LDAP,
            "Using config file property " + PROPERTY_CONFIG_FILE + " = '" +
                 configFilePath + "'.");
-      debug(Level.CONFIG, DebugType.LDAP,
+      Debug.debug(Level.CONFIG, DebugType.LDAP,
            "Using subject creds only property " + PROPERTY_SUBJECT_CREDS_ONLY +
                 " = '" + useSubjectCredentialsOnly + "'.");
     }
@@ -1190,18 +1192,18 @@ public final class GSSAPIBindRequest
       if (DEFAULT_KDC_ADDRESS == null)
       {
         clearProperty(PROPERTY_KDC_ADDRESS);
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debug(Level.CONFIG, DebugType.LDAP,
+          Debug.debug(Level.CONFIG, DebugType.LDAP,
                "Clearing kdcAddress property '" + PROPERTY_KDC_ADDRESS + "'.");
         }
       }
       else
       {
         setProperty(PROPERTY_KDC_ADDRESS, DEFAULT_KDC_ADDRESS);
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debug(Level.CONFIG, DebugType.LDAP,
+          Debug.debug(Level.CONFIG, DebugType.LDAP,
                "Using default kdcAddress property " + PROPERTY_KDC_ADDRESS +
                     " = '" + DEFAULT_KDC_ADDRESS + "'.");
         }
@@ -1210,9 +1212,9 @@ public final class GSSAPIBindRequest
     else
     {
       setProperty(PROPERTY_KDC_ADDRESS, kdcAddress);
-      if (debugEnabled(DebugType.LDAP))
+      if (Debug.debugEnabled(DebugType.LDAP))
       {
-        debug(Level.CONFIG, DebugType.LDAP,
+        Debug.debug(Level.CONFIG, DebugType.LDAP,
              "Using kdcAddress property " + PROPERTY_KDC_ADDRESS + " = '" +
                   kdcAddress + "'.");
       }
@@ -1223,18 +1225,18 @@ public final class GSSAPIBindRequest
       if (DEFAULT_REALM == null)
       {
         clearProperty(PROPERTY_REALM);
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debug(Level.CONFIG, DebugType.LDAP,
+          Debug.debug(Level.CONFIG, DebugType.LDAP,
                "Clearing realm property '" + PROPERTY_REALM + "'.");
         }
       }
       else
       {
         setProperty(PROPERTY_REALM, DEFAULT_REALM);
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debug(Level.CONFIG, DebugType.LDAP,
+          Debug.debug(Level.CONFIG, DebugType.LDAP,
                "Using default realm property " + PROPERTY_REALM + " = '" +
                     DEFAULT_REALM + "'.");
         }
@@ -1243,9 +1245,9 @@ public final class GSSAPIBindRequest
     else
     {
       setProperty(PROPERTY_REALM, realm);
-      if (debugEnabled(DebugType.LDAP))
+      if (Debug.debugEnabled(DebugType.LDAP))
       {
-        debug(Level.CONFIG, DebugType.LDAP,
+        Debug.debug(Level.CONFIG, DebugType.LDAP,
              "Using realm property " + PROPERTY_REALM + " = '" + realm + "'.");
       }
     }
@@ -1260,11 +1262,12 @@ public final class GSSAPIBindRequest
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-                       ERR_GSSAPI_CANNOT_INITIALIZE_JAAS_CONTEXT.get(
-                            getExceptionMessage(e)), e);
+             ERR_GSSAPI_CANNOT_INITIALIZE_JAAS_CONTEXT.get(
+                  StaticUtils.getExceptionMessage(e)),
+             e);
       }
 
       try
@@ -1273,7 +1276,7 @@ public final class GSSAPIBindRequest
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         if (e instanceof LDAPException)
         {
           throw (LDAPException) e;
@@ -1281,8 +1284,9 @@ public final class GSSAPIBindRequest
         else
         {
           throw new LDAPException(ResultCode.LOCAL_ERROR,
-                         ERR_GSSAPI_AUTHENTICATION_FAILED.get(
-                              getExceptionMessage(e)), e);
+               ERR_GSSAPI_AUTHENTICATION_FAILED.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
         }
       }
     }
@@ -1302,6 +1306,7 @@ public final class GSSAPIBindRequest
    * @throws  LDAPException  If a problem occurs during processing.
    */
   @InternalUseOnly()
+  @Override()
   public Object run()
          throws LDAPException
   {
@@ -1309,9 +1314,8 @@ public final class GSSAPIBindRequest
 
     final LDAPConnection connection = conn.get();
 
-    final String[] mechanisms = { GSSAPI_MECHANISM_NAME };
 
-    final HashMap<String,Object> saslProperties = new HashMap<String,Object>(2);
+    final HashMap<String,Object> saslProperties = new HashMap<>(2);
     saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
     saslProperties.put(Sasl.SERVER_AUTH, "true");
 
@@ -1324,14 +1328,17 @@ public final class GSSAPIBindRequest
         serverName = connection.getConnectedAddress();
       }
 
+      final String[] mechanisms = { GSSAPI_MECHANISM_NAME };
       saslClient = Sasl.createSaslClient(mechanisms, authorizationID,
            servicePrincipalProtocol, serverName, saslProperties, this);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_GSSAPI_CANNOT_CREATE_SASL_CLIENT.get(getExceptionMessage(e)), e);
+           ERR_GSSAPI_CANNOT_CREATE_SASL_CLIENT.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
 
     final SASLHelper helper = new SASLHelper(this, connection,
@@ -1379,7 +1386,7 @@ public final class GSSAPIBindRequest
     catch (final Exception e)
     {
       // This should never happen.
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }
@@ -1434,9 +1441,9 @@ public final class GSSAPIBindRequest
       else
       {
         // This is an unexpected callback.
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debug(Level.WARNING, DebugType.LDAP,
+          Debug.debug(Level.WARNING, DebugType.LDAP,
                 "Unexpected GSSAPI SASL callback of type " +
                 callback.getClass().getName());
         }
@@ -1507,7 +1514,7 @@ public final class GSSAPIBindRequest
     catch (final Exception e)
     {
       // This should never happen.
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }
@@ -1646,7 +1653,7 @@ public final class GSSAPIBindRequest
            ToCodeArgHelper.createString(realm, null));
     }
 
-    final ArrayList<String> qopValues = new ArrayList<String>();
+    final ArrayList<String> qopValues = new ArrayList<>(3);
     for (final SASLQualityOfProtection qop : allowedQoP)
     {
       qopValues.add("SASLQualityOfProtection." + qop.name());
@@ -1739,7 +1746,7 @@ public final class GSSAPIBindRequest
         (! suppressedSystemProperties.isEmpty()))
     {
       final ArrayList<ToCodeArgHelper> suppressedArgs =
-           new ArrayList<ToCodeArgHelper>(suppressedSystemProperties.size());
+           new ArrayList<>(suppressedSystemProperties.size());
       for (final String s : suppressedSystemProperties)
       {
         suppressedArgs.add(ToCodeArgHelper.createString(s, null));
@@ -1759,8 +1766,7 @@ public final class GSSAPIBindRequest
 
 
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(2);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(2);
     constructorArgs.add(
          ToCodeArgHelper.createRaw(requestID + "RequestProperties", null));
 

@@ -81,8 +81,7 @@ public final class AggregateInputStream
   {
     Validator.ensureNotNull(inputStreams);
 
-    final ArrayList<InputStream> streamList =
-         new ArrayList<InputStream>(inputStreams);
+    final ArrayList<InputStream> streamList = new ArrayList<>(inputStreams);
     streamIterator = streamList.iterator();
     activeInputStream = null;
   }

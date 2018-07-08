@@ -101,7 +101,7 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
     matchingRule = MatchingRule.selectEqualityMatchingRule(attributeType,
          schema);
 
-    indexMap = new HashMap<ASN1OctetString,TreeSet<DN>>(100);
+    indexMap = new HashMap<>(100);
   }
 
 
@@ -138,10 +138,10 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
   synchronized Map<ASN1OctetString,TreeSet<DN>> copyMap()
   {
     final HashMap<ASN1OctetString,TreeSet<DN>> m =
-         new HashMap<ASN1OctetString,TreeSet<DN>>(indexMap.size());
+         new HashMap<>(indexMap.size());
     for (final Map.Entry<ASN1OctetString,TreeSet<DN>> e : indexMap.entrySet())
     {
-      m.put(e.getKey(), new TreeSet<DN>(e.getValue()));
+      m.put(e.getKey(), new TreeSet<>(e.getValue()));
     }
 
     return Collections.unmodifiableMap(m);
@@ -209,7 +209,7 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
         TreeSet<DN> dnSet = indexMap.get(v);
         if (dnSet == null)
         {
-          dnSet = new TreeSet<DN>();
+          dnSet = new TreeSet<>();
           indexMap.put(v, dnSet);
         }
         dnSet.add(dn);

@@ -285,7 +285,7 @@ public final class UndeleteRequestControl
                                 final Boolean mustChangePassword,
                                 final Boolean disableAccount)
   {
-    final ArrayList<Attribute> attributes = new ArrayList<Attribute>(6);
+    final ArrayList<Attribute> attributes = new ArrayList<>(6);
     attributes.add(new Attribute(ATTR_SOFT_DELETED_ENTRY_DN,
          softDeletedEntryDN));
 

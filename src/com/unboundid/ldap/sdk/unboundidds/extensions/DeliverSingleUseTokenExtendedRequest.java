@@ -382,8 +382,7 @@ public final class DeliverSingleUseTokenExtendedRequest
     else
     {
       this.preferredDeliveryMechanisms = Collections.unmodifiableList(
-           new ArrayList<ObjectPair<String,String>>(
-                preferredDeliveryMechanisms));
+           new ArrayList<>(preferredDeliveryMechanisms));
     }
   }
 
@@ -424,8 +423,7 @@ public final class DeliverSingleUseTokenExtendedRequest
       String fullAfter = null;
       String compactBefore = null;
       String compactAfter = null;
-      final ArrayList<ObjectPair<String,String>> pdmList =
-           new ArrayList<ObjectPair<String,String>>(10);
+      final ArrayList<ObjectPair<String,String>> pdmList = new ArrayList<>(10);
       boolean ifPasswordExpired = false;
       boolean ifAccountLocked = false;
       boolean ifAccountDisabled = false;
@@ -482,7 +480,7 @@ public final class DeliverSingleUseTokenExtendedRequest
               {
                 recipientID = null;
               }
-              pdmList.add(new ObjectPair<String,String>(name, recipientID));
+              pdmList.add(new ObjectPair<>(name, recipientID));
             }
             break;
 
@@ -653,7 +651,7 @@ public final class DeliverSingleUseTokenExtendedRequest
     }
 
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(13);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(13);
     elements.add(new ASN1OctetString(userDN));
     elements.add(new ASN1OctetString(tokenID));
 
@@ -697,10 +695,10 @@ public final class DeliverSingleUseTokenExtendedRequest
         (! preferredDeliveryMechanisms.isEmpty()))
     {
       final ArrayList<ASN1Element> pdmElements =
-           new ArrayList<ASN1Element>(preferredDeliveryMechanisms.size());
+           new ArrayList<>(preferredDeliveryMechanisms.size());
       for (final ObjectPair<String,String> p : preferredDeliveryMechanisms)
       {
-        final ArrayList<ASN1Element> l = new ArrayList<ASN1Element>(2);
+        final ArrayList<ASN1Element> l = new ArrayList<>(2);
         l.add(new ASN1OctetString(p.getFirst()));
         if (p.getSecond() != null)
         {

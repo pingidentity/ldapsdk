@@ -111,8 +111,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
                 ATTR_ATTRIBUTE_CHANGES));
     }
 
-    final ArrayList<Modification> mods =
-         new ArrayList<Modification>(changes.length);
+    final ArrayList<Modification> mods = new ArrayList<>(changes.length);
     for (final byte[] changeBytes : changes)
     {
       int colonPos = -1;
@@ -248,7 +247,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
     }
 
     final LinkedHashMap<String,List<Attribute>> attrMap =
-         new LinkedHashMap<String,List<Attribute>>(formerAttrBytes.length);
+         new LinkedHashMap<>(formerAttrBytes.length);
     for (final byte[] attrBytes : formerAttrBytes)
     {
       int colonPos = -1;
@@ -292,7 +291,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
       List<Attribute> attrList = attrMap.get(lowerName);
       if (attrList == null)
       {
-        attrList = new ArrayList<Attribute>(10);
+        attrList = new ArrayList<>(10);
         attrMap.put(lowerName, attrList);
       }
 
@@ -306,8 +305,7 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
       attrList.add(new Attribute(attrName, attrValue));
     }
 
-    final ArrayList<Attribute> oldAttributes =
-         new ArrayList<Attribute>(attrMap.size());
+    final ArrayList<Attribute> oldAttributes = new ArrayList<>(attrMap.size());
     for (final List<Attribute> attrList : attrMap.values())
     {
       if (attrList.size() == 1)

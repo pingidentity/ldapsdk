@@ -131,7 +131,7 @@ public abstract class WrapperKeyManager
   public final synchronized String[] getClientAliases(final String keyType,
                                           final Principal[] issuers)
   {
-    final LinkedHashSet<String> clientAliases = new LinkedHashSet<String>();
+    final LinkedHashSet<String> clientAliases = new LinkedHashSet<>(10);
 
     for (final X509KeyManager m : keyManagers)
     {
@@ -299,7 +299,7 @@ public abstract class WrapperKeyManager
   public final synchronized String[] getServerAliases(final String keyType,
                                           final Principal[] issuers)
   {
-    final LinkedHashSet<String> serverAliases = new LinkedHashSet<String>();
+    final LinkedHashSet<String> serverAliases = new LinkedHashSet<>(10);
 
     for (final X509KeyManager m : keyManagers)
     {

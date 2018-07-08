@@ -156,7 +156,7 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
          super.getMonitorAttributes();
 
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(superAttrs.size()+1);
+         new LinkedHashMap<>(superAttrs.size()+1);
     attrs.putAll(superAttrs);
 
     if (applicationName != null)

@@ -39,15 +39,15 @@ import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.ldif.LDIFModifyDNChangeRecord;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -118,7 +118,7 @@ public final class ModifyDNRequest
 
   // The queue that will be used to receive response messages from the server.
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
-       new LinkedBlockingQueue<LDAPResponse>();
+       new LinkedBlockingQueue<>();
 
   // Indicates whether to delete the current RDN value from the entry.
   private boolean deleteOldRDN;
@@ -153,7 +153,7 @@ public final class ModifyDNRequest
   {
     super(null);
 
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     this.dn           = dn;
     this.newRDN       = newRDN;
@@ -180,7 +180,7 @@ public final class ModifyDNRequest
   {
     super(null);
 
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     this.dn           = dn.toString();
     this.newRDN       = newRDN.toString();
@@ -210,7 +210,7 @@ public final class ModifyDNRequest
   {
     super(null);
 
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     this.dn            = dn;
     this.newRDN        = newRDN;
@@ -239,7 +239,7 @@ public final class ModifyDNRequest
   {
     super(null);
 
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     this.dn            = dn.toString();
     this.newRDN        = newRDN.toString();
@@ -274,7 +274,7 @@ public final class ModifyDNRequest
   {
     super(controls);
 
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     this.dn           = dn;
     this.newRDN       = newRDN;
@@ -302,7 +302,7 @@ public final class ModifyDNRequest
   {
     super(controls);
 
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     this.dn           = dn.toString();
     this.newRDN       = newRDN.toString();
@@ -334,7 +334,7 @@ public final class ModifyDNRequest
   {
     super(controls);
 
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     this.dn            = dn;
     this.newRDN        = newRDN;
@@ -365,7 +365,7 @@ public final class ModifyDNRequest
   {
     super(controls);
 
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     this.dn            = dn.toString();
     this.newRDN        = newRDN.toString();
@@ -402,7 +402,7 @@ public final class ModifyDNRequest
    */
   public void setDN(final String dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
   }
@@ -417,7 +417,7 @@ public final class ModifyDNRequest
    */
   public void setDN(final DN dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn.toString();
   }
@@ -442,7 +442,7 @@ public final class ModifyDNRequest
    */
   public void setNewRDN(final String newRDN)
   {
-    ensureNotNull(newRDN);
+    Validator.ensureNotNull(newRDN);
 
     this.newRDN = newRDN;
   }
@@ -456,7 +456,7 @@ public final class ModifyDNRequest
    */
   public void setNewRDN(final RDN newRDN)
   {
-    ensureNotNull(newRDN);
+    Validator.ensureNotNull(newRDN);
 
     this.newRDN = newRDN.toString();
   }
@@ -649,7 +649,7 @@ public final class ModifyDNRequest
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_MODDN_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -723,14 +723,14 @@ public final class ModifyDNRequest
     // Send the request to the server.
     try
     {
-      debugLDAPRequest(Level.INFO, this, messageID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumModifyDNRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       connection.deregisterResponseAcceptor(messageID);
       throw le;
@@ -772,7 +772,7 @@ public final class ModifyDNRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(Level.INFO, this, messageID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumModifyDNRequests();
     try
     {
@@ -780,7 +780,7 @@ public final class ModifyDNRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (allowRetry)
       {
@@ -804,7 +804,7 @@ public final class ModifyDNRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if ((le.getResultCode() == ResultCode.TIMEOUT) &&
             connection.getConnectionOptions().abandonOnTimeout())
@@ -871,7 +871,8 @@ public final class ModifyDNRequest
   {
     if (response == null)
     {
-      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      final long waitTime =
+           StaticUtils.nanosToMillis(System.nanoTime() - requestTime);
       if (connection.getConnectionOptions().abandonOnTimeout())
       {
         connection.abandon(messageID);
@@ -977,7 +978,7 @@ public final class ModifyDNRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     return null;
@@ -1047,7 +1048,7 @@ public final class ModifyDNRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
       }
     }
 
@@ -1072,7 +1073,7 @@ public final class ModifyDNRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -1080,7 +1081,8 @@ public final class ModifyDNRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)), e);
     }
   }
 
@@ -1227,8 +1229,7 @@ public final class ModifyDNRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(4);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(4);
     constructorArgs.add(ToCodeArgHelper.createString(dn, "Current DN"));
     constructorArgs.add(ToCodeArgHelper.createString(newRDN, "New RDN"));
     constructorArgs.add(ToCodeArgHelper.createBoolean(deleteOldRDN,

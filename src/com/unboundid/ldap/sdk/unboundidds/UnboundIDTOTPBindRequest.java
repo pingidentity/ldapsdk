@@ -393,7 +393,7 @@ public abstract class UnboundIDTOTPBindRequest
     Validator.ensureNotNull(authenticationID);
     Validator.ensureNotNull(totpPassword);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1OctetString(TYPE_AUTHENTICATION_ID, authenticationID));
 
     if (authorizationID != null)

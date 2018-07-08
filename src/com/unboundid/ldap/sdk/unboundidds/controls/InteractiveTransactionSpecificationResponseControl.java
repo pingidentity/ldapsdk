@@ -38,11 +38,11 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartInteractiveTransactionExtendedRequest;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -122,18 +122,6 @@ public final class InteractiveTransactionSpecificationResponseControl
 
 
 
-  // This is an ugly hack to prevent checkstyle from complaining about imports
-  // for classes that are needed by javadoc @link elements but aren't otherwise
-  // used in the class.  It appears that checkstyle does not recognize the use
-  // of these classes in javadoc @link elements so we must ensure that they are
-  // referenced elsewhere in the class to prevent checkstyle from complaining.
-  static
-  {
-    final StartInteractiveTransactionExtendedRequest r = null;
-  }
-
-
-
   /**
    * Creates a new empty control instance that is intended to be used only for
    * decoding controls via the {@code DecodeableControl} interface.
@@ -173,7 +161,7 @@ public final class InteractiveTransactionSpecificationResponseControl
     else
     {
       this.baseDNs =
-           Collections.unmodifiableList(new ArrayList<String>(baseDNs));
+           Collections.unmodifiableList(new ArrayList<>(baseDNs));
     }
   }
 
@@ -241,7 +229,7 @@ public final class InteractiveTransactionSpecificationResponseControl
           try
           {
             final ASN1Sequence s = ASN1Sequence.decodeAsSequence(element);
-            baseDNList = new ArrayList<String>(s.elements().length);
+            baseDNList = new ArrayList<>(s.elements().length);
             for (final ASN1Element e : s.elements())
             {
               baseDNList.add(
@@ -257,8 +245,8 @@ public final class InteractiveTransactionSpecificationResponseControl
           break;
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_INT_TXN_RESPONSE_INVALID_ELEMENT_TYPE.get(
-                                       toHex(element.getType())));
+               ERR_INT_TXN_RESPONSE_INVALID_ELEMENT_TYPE.get(
+                    StaticUtils.toHex(element.getType())));
       }
     }
 

@@ -270,7 +270,7 @@ public final class StartAdministrativeSessionExtendedRequest
   private static ASN1OctetString encodeValue(final String clientName,
                                       final boolean useDedicatedThreadPool)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
 
     if (clientName != null)
     {

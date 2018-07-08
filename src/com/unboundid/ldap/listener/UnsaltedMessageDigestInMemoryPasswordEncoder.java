@@ -57,7 +57,6 @@ public final class UnsaltedMessageDigestInMemoryPasswordEncoder
 
 
 
-
   /**
    * Creates a new instance of this in-memory directory server password encoder
    * with the provided information.

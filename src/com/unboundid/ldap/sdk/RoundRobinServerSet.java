@@ -24,12 +24,11 @@ package com.unboundid.ldap.sdk;
 
 import javax.net.SocketFactory;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -249,12 +248,12 @@ public final class RoundRobinServerSet
                              final BindRequest bindRequest,
                              final PostConnectProcessor postConnectProcessor)
   {
-    ensureNotNull(addresses, ports);
-    ensureTrue(addresses.length > 0,
-               "RoundRobinServerSet.addresses must not be empty.");
-    ensureTrue(addresses.length == ports.length,
-               "RoundRobinServerSet addresses and ports arrays must be the " +
-                    "same size.");
+    Validator.ensureNotNull(addresses, ports);
+    Validator.ensureTrue(addresses.length > 0,
+         "RoundRobinServerSet.addresses must not be empty.");
+    Validator.ensureTrue(addresses.length == ports.length,
+         "RoundRobinServerSet addresses and ports arrays must be the same " +
+              "size.");
 
     this.addresses = addresses;
     this.ports = ports;
@@ -398,7 +397,7 @@ public final class RoundRobinServerSet
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       LDAPException lastException = le;
 
       while (nextSlot != initialSlotNumber)
@@ -419,7 +418,7 @@ public final class RoundRobinServerSet
         }
         catch (final LDAPException le2)
         {
-          debugException(le2);
+          Debug.debugException(le2);
           lastException = le2;
         }
       }

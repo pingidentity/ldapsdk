@@ -24,6 +24,7 @@ package com.unboundid.asn1;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -401,7 +402,7 @@ public final class ASN1GeneralizedTime
          new GregorianCalendar(StaticUtils.getUTCTimeZone());
 
     final int year = Integer.parseInt(timestamp.substring(0, 4));
-    calendar.set(GregorianCalendar.YEAR, year);
+    calendar.set(Calendar.YEAR, year);
 
     final int month = Integer.parseInt(timestamp.substring(4, 6));
     if ((month < 1) || (month > 12))
@@ -410,7 +411,7 @@ public final class ASN1GeneralizedTime
     }
     else
     {
-      calendar.set(GregorianCalendar.MONTH, (month - 1));
+      calendar.set(Calendar.MONTH, (month - 1));
     }
 
     final int day = Integer.parseInt(timestamp.substring(6, 8));
@@ -420,7 +421,7 @@ public final class ASN1GeneralizedTime
     }
     else
     {
-      calendar.set(GregorianCalendar.DAY_OF_MONTH, day);
+      calendar.set(Calendar.DAY_OF_MONTH, day);
     }
 
     final int hour = Integer.parseInt(timestamp.substring(8, 10));
@@ -430,7 +431,7 @@ public final class ASN1GeneralizedTime
     }
     else
     {
-      calendar.set(GregorianCalendar.HOUR_OF_DAY, hour);
+      calendar.set(Calendar.HOUR_OF_DAY, hour);
     }
 
     final int minute = Integer.parseInt(timestamp.substring(10, 12));
@@ -440,7 +441,7 @@ public final class ASN1GeneralizedTime
     }
     else
     {
-      calendar.set(GregorianCalendar.MINUTE, minute);
+      calendar.set(Calendar.MINUTE, minute);
     }
 
     final int second = Integer.parseInt(timestamp.substring(12, 14));
@@ -451,7 +452,7 @@ public final class ASN1GeneralizedTime
     }
     else
     {
-      calendar.set(GregorianCalendar.SECOND, second);
+      calendar.set(Calendar.SECOND, second);
     }
 
     if (hasSubSecond)
@@ -483,16 +484,16 @@ public final class ASN1GeneralizedTime
       final int millisecond = Integer.parseInt(subSecondString.toString());
       if (addOne)
       {
-        calendar.set(GregorianCalendar.MILLISECOND, (millisecond + 1));
+        calendar.set(Calendar.MILLISECOND, (millisecond + 1));
       }
       else
       {
-        calendar.set(GregorianCalendar.MILLISECOND, millisecond);
+        calendar.set(Calendar.MILLISECOND, millisecond);
       }
     }
     else
     {
-      calendar.set(GregorianCalendar.MILLISECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
     }
 
     return calendar.getTimeInMillis();

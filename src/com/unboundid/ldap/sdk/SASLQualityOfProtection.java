@@ -138,9 +138,8 @@ public enum SASLQualityOfProtection
   public static List<SASLQualityOfProtection> decodeQoPList(final String s)
          throws LDAPException
   {
-    final ArrayList<SASLQualityOfProtection> qopValues =
-         new ArrayList<SASLQualityOfProtection>(3);
-    if ((s == null) || (s.length() == 0))
+    final ArrayList<SASLQualityOfProtection> qopValues = new ArrayList<>(3);
+    if ((s == null) || s.isEmpty())
     {
       return qopValues;
     }

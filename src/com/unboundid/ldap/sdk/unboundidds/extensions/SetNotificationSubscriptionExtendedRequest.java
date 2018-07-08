@@ -162,8 +162,8 @@ public final class SetNotificationSubscriptionExtendedRequest
     this.managerID = managerID;
     this.destinationID = destinationID;
     this.subscriptionID = subscriptionID;
-    this.subscriptionDetails = Collections.unmodifiableList(
-         new ArrayList<ASN1OctetString>(subscriptionDetails));
+    this.subscriptionDetails =
+         Collections.unmodifiableList(new ArrayList<>(subscriptionDetails));
   }
 
 
@@ -204,7 +204,7 @@ public final class SetNotificationSubscriptionExtendedRequest
       final ASN1Element[] detailElements =
            ASN1Sequence.decodeAsSequence(elements[3]).elements();
       final ArrayList<ASN1OctetString> detailList =
-           new ArrayList<ASN1OctetString>(detailElements.length);
+           new ArrayList<>(detailElements.length);
       for (final ASN1Element e : detailElements)
       {
         detailList.add(ASN1OctetString.decodeAsOctetString(e));

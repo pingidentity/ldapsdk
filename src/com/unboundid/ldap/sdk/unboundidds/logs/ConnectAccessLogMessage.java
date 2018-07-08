@@ -69,7 +69,6 @@ public final class ConnectAccessLogMessage
 
 
 
-
   /**
    * Creates a new connect access log message from the provided message string.
    *

@@ -22,10 +22,6 @@ package com.unboundid.util;
 
 
 
-import static com.unboundid.util.StaticUtils.*;
-
-
-
 /**
  * This enumeration defines a set of debugging types that are used by the LDAP
  * SDK.
@@ -138,7 +134,7 @@ public enum DebugType
    */
   public static DebugType forName(final String name)
   {
-    switch (toLowerCase(name))
+    switch (StaticUtils.toLowerCase(name))
     {
       case "asn1":
         return ASN1;
@@ -182,7 +178,7 @@ public enum DebugType
         buffer.append(", ");
       }
 
-      buffer.append(types[i].getName());
+      buffer.append(types[i].name);
     }
 
     return buffer.toString();

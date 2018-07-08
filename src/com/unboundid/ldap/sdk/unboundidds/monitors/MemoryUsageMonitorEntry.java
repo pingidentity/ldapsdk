@@ -32,13 +32,13 @@ import java.util.TreeSet;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -352,22 +352,22 @@ public final class MemoryUsageMonitorEntry
     reservedMemoryPercentFull = getLong(ATTR_RESERVED_MEMORY_PERCENT_FULL);
 
 
-    final TreeMap<Long,Long> pauses = new TreeMap<Long,Long>();
+    final TreeMap<Long,Long> pauses = new TreeMap<>();
 
-    final TreeSet<String> mpNames = new TreeSet<String>();
-    final TreeSet<String> gcNames = new TreeSet<String>();
+    final TreeSet<String> mpNames = new TreeSet<>();
+    final TreeSet<String> gcNames = new TreeSet<>();
 
-    final TreeMap<String,Long> averageDurations = new TreeMap<String,Long>();
-    final TreeMap<String,Long> currentBytesUsed = new TreeMap<String,Long>();
-    final TreeMap<String,Long> lastBytesUsed    = new TreeMap<String,Long>();
-    final TreeMap<String,Long> recentDurations  = new TreeMap<String,Long>();
-    final TreeMap<String,Long> totalCounts      = new TreeMap<String,Long>();
-    final TreeMap<String,Long> totalDurations   = new TreeMap<String,Long>();
+    final TreeMap<String,Long> averageDurations = new TreeMap<>();
+    final TreeMap<String,Long> currentBytesUsed = new TreeMap<>();
+    final TreeMap<String,Long> lastBytesUsed    = new TreeMap<>();
+    final TreeMap<String,Long> recentDurations  = new TreeMap<>();
+    final TreeMap<String,Long> totalCounts      = new TreeMap<>();
+    final TreeMap<String,Long> totalDurations   = new TreeMap<>();
 
     for (final Attribute a : entry.getAttributes())
     {
       final String name      = a.getName();
-      final String lowerName = toLowerCase(name);
+      final String lowerName = StaticUtils.toLowerCase(name);
 
       if (lowerName.startsWith(ATTR_PREFIX_DETECTED_PAUSE))
       {
@@ -385,7 +385,7 @@ public final class MemoryUsageMonitorEntry
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
           }
         }
         else if (timeStr.endsWith("s"))
@@ -398,7 +398,7 @@ public final class MemoryUsageMonitorEntry
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
           }
         }
       }
@@ -412,7 +412,7 @@ public final class MemoryUsageMonitorEntry
         final Long l = getLong(name);
         if (l != null)
         {
-          averageDurations.put(toLowerCase(gcName), l);
+          averageDurations.put(StaticUtils.toLowerCase(gcName), l);
         }
 
         continue;
@@ -427,7 +427,7 @@ public final class MemoryUsageMonitorEntry
         final Long l = getLong(name);
         if (l != null)
         {
-          lastBytesUsed.put(toLowerCase(mpName), l);
+          lastBytesUsed.put(StaticUtils.toLowerCase(mpName), l);
         }
 
         continue;
@@ -442,7 +442,7 @@ public final class MemoryUsageMonitorEntry
         final Long l = getLong(name);
         if (l != null)
         {
-          currentBytesUsed.put(toLowerCase(mpName), l);
+          currentBytesUsed.put(StaticUtils.toLowerCase(mpName), l);
         }
 
         continue;
@@ -457,7 +457,7 @@ public final class MemoryUsageMonitorEntry
         final Long l = getLong(name);
         if (l != null)
         {
-          recentDurations.put(toLowerCase(gcName), l);
+          recentDurations.put(StaticUtils.toLowerCase(gcName), l);
         }
 
         continue;
@@ -472,7 +472,7 @@ public final class MemoryUsageMonitorEntry
         final Long l = getLong(name);
         if (l != null)
         {
-          totalCounts.put(toLowerCase(gcName), l);
+          totalCounts.put(StaticUtils.toLowerCase(gcName), l);
         }
 
         continue;
@@ -487,7 +487,7 @@ public final class MemoryUsageMonitorEntry
         final Long l = getLong(name);
         if (l != null)
         {
-          totalDurations.put(toLowerCase(gcName), l);
+          totalDurations.put(StaticUtils.toLowerCase(gcName), l);
         }
 
         continue;
@@ -496,9 +496,9 @@ public final class MemoryUsageMonitorEntry
 
 
     garbageCollectors =
-         Collections.unmodifiableList(new ArrayList<String>(gcNames));
+         Collections.unmodifiableList(new ArrayList<>(gcNames));
 
-    memoryPools = Collections.unmodifiableList(new ArrayList<String>(mpNames));
+    memoryPools = Collections.unmodifiableList(new ArrayList<>(mpNames));
 
     totalCollectionCountPerGC = Collections.unmodifiableMap(totalCounts);
 
@@ -646,7 +646,8 @@ public final class MemoryUsageMonitorEntry
    */
   public Long getTotalCollectionCount(final String collectorName)
   {
-    return totalCollectionCountPerGC.get(toLowerCase(collectorName));
+    return totalCollectionCountPerGC.get(
+         StaticUtils.toLowerCase(collectorName));
   }
 
 
@@ -678,7 +679,8 @@ public final class MemoryUsageMonitorEntry
    */
   public Long getTotalCollectionDuration(final String collectorName)
   {
-    return totalCollectionDurationPerGC.get(toLowerCase(collectorName));
+    return totalCollectionDurationPerGC.get(
+         StaticUtils.toLowerCase(collectorName));
   }
 
 
@@ -710,7 +712,8 @@ public final class MemoryUsageMonitorEntry
    */
   public Long getAverageCollectionDuration(final String collectorName)
   {
-    return averageCollectionDurationPerGC.get(toLowerCase(collectorName));
+    return averageCollectionDurationPerGC.get(
+         StaticUtils.toLowerCase(collectorName));
   }
 
 
@@ -742,7 +745,8 @@ public final class MemoryUsageMonitorEntry
    */
   public Long getRecentCollectionDuration(final String collectorName)
   {
-    return recentCollectionDurationPerGC.get(toLowerCase(collectorName));
+    return recentCollectionDurationPerGC.get(
+         StaticUtils.toLowerCase(collectorName));
   }
 
 
@@ -771,7 +775,7 @@ public final class MemoryUsageMonitorEntry
    */
   public Long getCurrentBytesUsed(final String poolName)
   {
-    return currentBytesUsedPerMP.get(toLowerCase(poolName));
+    return currentBytesUsedPerMP.get(StaticUtils.toLowerCase(poolName));
   }
 
 
@@ -803,7 +807,8 @@ public final class MemoryUsageMonitorEntry
    */
   public Long getBytesUsedAfterLastCollection(final String poolName)
   {
-    return bytesUsedAfterLastCollectionPerMP.get(toLowerCase(poolName));
+    return bytesUsedAfterLastCollectionPerMP.get(
+         StaticUtils.toLowerCase(poolName));
   }
 
 
@@ -923,7 +928,7 @@ public final class MemoryUsageMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(50);
 
     if (maxReservableMemoryMB != null)
     {
@@ -1099,7 +1104,7 @@ public final class MemoryUsageMonitorEntry
     if (! detectedPauses.isEmpty())
     {
       final ArrayList<String> values =
-           new ArrayList<String>(detectedPauses.size());
+           new ArrayList<>(detectedPauses.size());
       for (final Map.Entry<Long,Long> e : detectedPauses.entrySet())
       {
         values.add(e.getKey() + "ms=" + e.getValue());

@@ -44,14 +44,14 @@ import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -844,7 +844,7 @@ public final class LDAPMessage
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
                ERR_MESSAGE_DECODE_INVALID_PROTOCOL_OP_TYPE.get(
-                    toHex(elements[1].getType())));
+                    StaticUtils.toHex(elements[1].getType())));
       }
 
       final Control[] controls;
@@ -862,14 +862,14 @@ public final class LDAPMessage
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MESSAGE_DECODE_ERROR.get(getExceptionMessage(e)),
+           ERR_MESSAGE_DECODE_ERROR.get(StaticUtils.getExceptionMessage(e)),
            e);
     }
   }
@@ -943,18 +943,19 @@ public final class LDAPMessage
       if (! ((ioe instanceof SocketTimeoutException) ||
              (ioe instanceof InterruptedIOException)))
       {
-        debugException(ioe);
+        Debug.debugException(ioe);
       }
 
       throw new LDAPException(ResultCode.SERVER_DOWN,
-           ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
+           ERR_MESSAGE_IO_ERROR.get(StaticUtils.getExceptionMessage(ioe)), ioe);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_MESSAGE_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)),
+           e);
     }
 
     try
@@ -1032,10 +1033,11 @@ public final class LDAPMessage
           break;
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_MESSAGE_INVALID_PROTOCOL_OP_TYPE.get(toHex(protocolOpType)));
+               ERR_MESSAGE_INVALID_PROTOCOL_OP_TYPE.get(
+                    StaticUtils.toHex(protocolOpType)));
       }
 
-      final ArrayList<Control> controls = new ArrayList<Control>(5);
+      final ArrayList<Control> controls = new ArrayList<>(5);
       if (messageSequence.hasMoreElements())
       {
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();
@@ -1049,12 +1051,12 @@ public final class LDAPMessage
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final IOException ioe)
     {
-      debugException(ioe);
+      Debug.debugException(ioe);
 
       if ((ioe instanceof SocketTimeoutException) ||
           (ioe instanceof InterruptedIOException))
@@ -1063,20 +1065,23 @@ public final class LDAPMessage
         // to ensure that a failure in the middle of the response causes the
         // connection to be terminated.
         throw new LDAPException(ResultCode.DECODING_ERROR,
-             ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(ioe)));
+             ERR_MESSAGE_CANNOT_DECODE.get(StaticUtils.
+                  getExceptionMessage(ioe)));
       }
       else
       {
         throw new LDAPException(ResultCode.SERVER_DOWN,
-             ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
+             ERR_MESSAGE_IO_ERROR.get(StaticUtils.getExceptionMessage(ioe)),
+             ioe);
       }
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_MESSAGE_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -1154,18 +1159,19 @@ public final class LDAPMessage
       if (! ((ioe instanceof SocketTimeoutException) ||
              (ioe instanceof InterruptedIOException)))
       {
-        debugException(ioe);
+        Debug.debugException(ioe);
       }
 
       throw new LDAPException(ResultCode.SERVER_DOWN,
-           ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
+           ERR_MESSAGE_IO_ERROR.get(StaticUtils.getExceptionMessage(ioe)), ioe);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_MESSAGE_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)),
+           e);
     }
 
     try
@@ -1223,21 +1229,22 @@ public final class LDAPMessage
         case PROTOCOL_OP_TYPE_UNBIND_REQUEST:
           throw new LDAPException(ResultCode.DECODING_ERROR,
                ERR_MESSAGE_PROTOCOL_OP_TYPE_NOT_RESPONSE.get(
-                    toHex(protocolOpType)));
+                    StaticUtils.toHex(protocolOpType)));
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_MESSAGE_INVALID_PROTOCOL_OP_TYPE.get(toHex(protocolOpType)));
+               ERR_MESSAGE_INVALID_PROTOCOL_OP_TYPE.get(
+                    StaticUtils.toHex(protocolOpType)));
       }
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final IOException ioe)
     {
-      debugException(ioe);
+      Debug.debugException(ioe);
 
       if ((ioe instanceof SocketTimeoutException) ||
           (ioe instanceof InterruptedIOException))
@@ -1246,20 +1253,23 @@ public final class LDAPMessage
         // to ensure that a failure in the middle of the response causes the
         // connection to be terminated.
         throw new LDAPException(ResultCode.DECODING_ERROR,
-             ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(ioe)));
+             ERR_MESSAGE_CANNOT_DECODE.get(
+                  StaticUtils.getExceptionMessage(ioe)));
       }
       else
       {
         throw new LDAPException(ResultCode.SERVER_DOWN,
-             ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
+             ERR_MESSAGE_IO_ERROR.get(StaticUtils.getExceptionMessage(ioe)),
+             ioe);
       }
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_MESSAGE_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

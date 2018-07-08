@@ -259,8 +259,8 @@ final class SearchRateThread
 
     connection.setConnectionName("search-" + threadNumber);
 
-    resultCode    = new AtomicReference<ResultCode>(null);
-    searchThread  = new AtomicReference<Thread>(null);
+    resultCode    = new AtomicReference<>(null);
+    searchThread  = new AtomicReference<>(null);
     stopRequested = new AtomicBoolean(false);
     searchRequest = new SearchRequest(this, "", scope, dereferencePolicy,
          sizeLimit, timeLimitSeconds, typesOnly,

@@ -343,7 +343,7 @@ public final class ContentSyncRequestControl
   {
     Validator.ensureNotNull(mode);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
     elements.add(new ASN1Enumerated(mode.intValue()));
 
     if (cookie != null)

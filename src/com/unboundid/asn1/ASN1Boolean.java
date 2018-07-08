@@ -22,13 +22,12 @@ package com.unboundid.asn1;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -80,8 +79,10 @@ public final class ASN1Boolean
    */
   public ASN1Boolean(final boolean booleanValue)
   {
-    super(UNIVERSAL_BOOLEAN_TYPE,
-          (booleanValue ? BOOLEAN_VALUE_TRUE : BOOLEAN_VALUE_FALSE));
+    super(ASN1Constants.UNIVERSAL_BOOLEAN_TYPE,
+          (booleanValue
+               ? ASN1Constants.BOOLEAN_VALUE_TRUE
+               : ASN1Constants.BOOLEAN_VALUE_FALSE));
 
     this.booleanValue = booleanValue;
   }
@@ -97,7 +98,9 @@ public final class ASN1Boolean
    */
   public ASN1Boolean(final byte type, final boolean booleanValue)
   {
-    super(type, (booleanValue ? BOOLEAN_VALUE_TRUE : BOOLEAN_VALUE_FALSE));
+    super(type, (booleanValue
+         ? ASN1Constants.BOOLEAN_VALUE_TRUE
+         : ASN1Constants.BOOLEAN_VALUE_FALSE));
 
     this.booleanValue = booleanValue;
   }
@@ -180,12 +183,12 @@ public final class ASN1Boolean
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }

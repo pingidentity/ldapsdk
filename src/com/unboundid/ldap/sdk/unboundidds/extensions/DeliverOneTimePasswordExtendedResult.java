@@ -335,7 +335,7 @@ public final class DeliverOneTimePasswordExtendedResult
          "If a delivery mechanism is provided, then a recipient DN must also " +
               "be provided.");
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1OctetString(TYPE_MECH, deliveryMechanism));
     elements.add(new ASN1OctetString(TYPE_RECIPIENT_DN, recipientDN));
 

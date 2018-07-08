@@ -384,7 +384,7 @@ public final class RegisterYubiKeyOTPDeviceExtendedRequest
   {
     Validator.ensureNotNull(yubiKeyOTP);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     if (authenticationID != null)
     {

@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-import static com.unboundid.util.Debug.*;
-
 
 
 /**
@@ -105,7 +103,7 @@ public final class FixedRateBarrier
       }
       catch (final InterruptedException e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
       final long sleepMillis = System.currentTimeMillis() - timeBefore;
       minSleepMillisMeasurements.add(sleepMillis);
@@ -120,7 +118,7 @@ public final class FixedRateBarrier
     final String message = "Calibrated FixedRateBarrier to use " +
           "minSleepMillis=" + minSleepMillis + ".  " +
           "Minimum sleep measurements = " + minSleepMillisMeasurements;
-    debug(Level.INFO, DebugType.OTHER, message);
+    Debug.debug(Level.INFO, DebugType.OTHER, message);
   }
 
 
@@ -352,7 +350,7 @@ public final class FixedRateBarrier
           }
           catch (final InterruptedException e)
           {
-            debugException(e);
+            Debug.debugException(e);
             Thread.currentThread().interrupt();
             return shutdownRequested;
           }

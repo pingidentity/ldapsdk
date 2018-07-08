@@ -30,13 +30,13 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -249,7 +249,7 @@ public abstract class SchemaElement
       }
 
       if (((pos+1) < length) && (s.charAt(pos) == '\\') &&
-          isHex(s.charAt(pos+1)))
+          StaticUtils.isHex(s.charAt(pos+1)))
       {
         // It appears that there are more hex-encoded bytes to follow, so keep
         // reading.
@@ -268,11 +268,11 @@ public abstract class SchemaElement
 
     try
     {
-      buffer.append(toUTF8String(byteArray));
+      buffer.append(StaticUtils.toUTF8String(byteArray));
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       // This should never happen.
       buffer.append(new String(byteArray));
     }
@@ -622,7 +622,7 @@ public abstract class SchemaElement
       final char c = value.charAt(i);
       if ((c < ' ') || (c > '~') || (c == '\\') || (c == '\''))
       {
-        hexEncode(c, buffer);
+        StaticUtils.hexEncode(c, buffer);
       }
       else
       {
@@ -680,7 +680,7 @@ public abstract class SchemaElement
     {
       final String[] v1 = e.getValue();
       final String[] v2 = m2.get(e.getKey());
-      if (! arraysEqualOrderIndependent(v1, v2))
+      if (! StaticUtils.arraysEqualOrderIndependent(v1, v2))
       {
         return false;
       }
@@ -706,7 +706,7 @@ public abstract class SchemaElement
       return null;
     }
 
-    return c.toArray(NO_STRINGS);
+    return c.toArray(StaticUtils.NO_STRINGS);
   }
 
 

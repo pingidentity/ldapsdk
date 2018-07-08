@@ -194,7 +194,7 @@ public final class CannedResponseRequestHandler
     else
     {
       final ArrayList<SearchResultEntryProtocolOp> l =
-           new ArrayList<SearchResultEntryProtocolOp>(searchEntries.size());
+           new ArrayList<>(searchEntries.size());
       for (final Entry e : searchEntries)
       {
         l.add(new SearchResultEntryProtocolOp(e));
@@ -210,8 +210,7 @@ public final class CannedResponseRequestHandler
     else
     {
       final ArrayList<SearchResultReferenceProtocolOp> l =
-           new ArrayList<SearchResultReferenceProtocolOp>(
-                searchReferences.size());
+           new ArrayList<>(searchReferences.size());
       for (final SearchResultReference r : searchReferences)
       {
         l.add(new SearchResultReferenceProtocolOp(r));

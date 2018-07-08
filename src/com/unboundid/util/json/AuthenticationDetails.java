@@ -512,7 +512,7 @@ final class AuthenticationDetails
                                             final String... allowedFields)
           throws LDAPException
   {
-    final HashSet<String> s = new HashSet<String>(Arrays.asList(allowedFields));
+    final HashSet<String> s = new HashSet<>(Arrays.asList(allowedFields));
     for (final String fieldName : o.getFields().keySet())
     {
       if (fieldName.equals(FIELD_AUTHENTICATION_TYPE))
@@ -613,7 +613,7 @@ final class AuthenticationDetails
     {
       final JSONArray a = (JSONArray) v;
       final ArrayList<SASLQualityOfProtection> qopList =
-           new ArrayList<SASLQualityOfProtection>(a.size());
+           new ArrayList<>(a.size());
       for (final JSONValue av : a.getValues())
       {
         if (av instanceof JSONString)

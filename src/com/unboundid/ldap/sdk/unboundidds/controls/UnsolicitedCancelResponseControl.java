@@ -102,7 +102,7 @@ public final class UnsolicitedCancelResponseControl
                                           final ASN1OctetString value)
          throws LDAPException
   {
-    super(oid, isCritical,  value);
+    super(oid, isCritical, value);
 
     if (value != null)
     {

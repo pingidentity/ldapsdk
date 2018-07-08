@@ -64,7 +64,7 @@ final class AsyncTimeoutTimerTask
   public void run()
   {
     final long waitTimeNanos = System.nanoTime() - helper.getCreateTimeNanos();
-    final long waitTimeMillis = waitTimeNanos / 1000000L;
+    final long waitTimeMillis = waitTimeNanos / 1_000_000L;
 
     final LDAPConnection conn = helper.getConnection();
     final boolean abandon = conn.getConnectionOptions().abandonOnTimeout();

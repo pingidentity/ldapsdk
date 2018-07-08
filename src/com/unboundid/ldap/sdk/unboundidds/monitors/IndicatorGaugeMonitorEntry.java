@@ -103,7 +103,7 @@ public final class IndicatorGaugeMonitorEntry
     }
     else
     {
-      final ArrayList<String> valueList = new ArrayList<String>(10);
+      final ArrayList<String> valueList = new ArrayList<>(10);
       final StringTokenizer tokenizer =
            new StringTokenizer(observedValuesStr, ",");
       while (tokenizer.hasMoreTokens())
@@ -187,7 +187,7 @@ public final class IndicatorGaugeMonitorEntry
          super.getMonitorAttributes();
 
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(superAttributes.size() + 3);
+         new LinkedHashMap<>(superAttributes.size() + 3);
     attrs.putAll(superAttributes);
 
     if (currentValue != null)

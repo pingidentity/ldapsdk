@@ -22,11 +22,10 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -153,7 +152,7 @@ public abstract class ServerSet
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         c.close();
         throw le;
       }
@@ -247,7 +246,7 @@ public abstract class ServerSet
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
           bindException = le;
           bindResult = new BindResult(le);
         }
@@ -276,7 +275,7 @@ public abstract class ServerSet
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       connection.closeWithoutUnbind();
       throw le;
     }

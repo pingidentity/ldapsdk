@@ -39,14 +39,14 @@ import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.util.Base64;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -111,7 +111,7 @@ public final class Modification
   public Modification(final ModificationType modificationType,
                       final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     this.modificationType = modificationType;
     this.attributeName    = attributeName;
@@ -133,7 +133,7 @@ public final class Modification
   public Modification(final ModificationType modificationType,
                       final String attributeName, final String attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     this.modificationType = modificationType;
     this.attributeName    = attributeName;
@@ -155,7 +155,7 @@ public final class Modification
   public Modification(final ModificationType modificationType,
                       final String attributeName, final byte[] attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     this.modificationType = modificationType;
     this.attributeName    = attributeName;
@@ -178,7 +178,7 @@ public final class Modification
                       final String attributeName,
                       final String... attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
 
     this.modificationType = modificationType;
     this.attributeName    = attributeName;
@@ -205,7 +205,7 @@ public final class Modification
                       final String attributeName,
                       final byte[]... attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
 
     this.modificationType = modificationType;
     this.attributeName    = attributeName;
@@ -298,7 +298,7 @@ public final class Modification
   {
     if (values.length == 0)
     {
-      return NO_STRINGS;
+      return StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -424,15 +424,14 @@ public final class Modification
   {
     try
     {
-      ensureNotNull(reader.beginSequence());
+      Validator.ensureNotNull(reader.beginSequence());
       final ModificationType modType =
            ModificationType.valueOf(reader.readEnumerated());
 
-      ensureNotNull(reader.beginSequence());
+      Validator.ensureNotNull(reader.beginSequence());
       final String attrName = reader.readString();
 
-      final ArrayList<ASN1OctetString> valueList =
-           new ArrayList<ASN1OctetString>(5);
+      final ArrayList<ASN1OctetString> valueList = new ArrayList<>(5);
       final ASN1StreamReaderSet valueSet = reader.beginSet();
       while (valueSet.hasMoreElements())
       {
@@ -446,9 +445,9 @@ public final class Modification
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MOD_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_MOD_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)), e);
     }
   }
 
@@ -468,7 +467,7 @@ public final class Modification
   public static Modification decode(final ASN1Sequence modificationSequence)
          throws LDAPException
   {
-    ensureNotNull(modificationSequence);
+    Validator.ensureNotNull(modificationSequence);
 
     final ASN1Element[] modificationElements = modificationSequence.elements();
     if (modificationElements.length != 2)
@@ -487,9 +486,10 @@ public final class Modification
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MOD_DECODE_CANNOT_PARSE_MOD_TYPE.get(getExceptionMessage(ae)),
+           ERR_MOD_DECODE_CANNOT_PARSE_MOD_TYPE.get(
+                StaticUtils.getExceptionMessage(ae)),
            ae);
     }
 
@@ -500,17 +500,18 @@ public final class Modification
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MOD_DECODE_CANNOT_PARSE_ATTR.get(getExceptionMessage(ae)), ae);
+           ERR_MOD_DECODE_CANNOT_PARSE_ATTR.get(
+                StaticUtils.getExceptionMessage(ae)),
+           ae);
     }
 
     final ASN1Element[] attrElements = attrSequence.elements();
     if (attrElements.length != 2)
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_MOD_DECODE_INVALID_ATTR_ELEMENT_COUNT.get(
-                                   attrElements.length));
+           ERR_MOD_DECODE_INVALID_ATTR_ELEMENT_COUNT.get(attrElements.length));
     }
 
     final String attrName =
@@ -523,10 +524,10 @@ public final class Modification
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_MOD_DECODE_CANNOT_PARSE_ATTR_VALUE_SET.get(
-                                   getExceptionMessage(ae)), ae);
+           ERR_MOD_DECODE_CANNOT_PARSE_ATTR_VALUE_SET.get(
+                StaticUtils.getExceptionMessage(ae)), ae);
     }
 
     final ASN1Element[] valueElements = valueSet.elements();
@@ -551,7 +552,7 @@ public final class Modification
   public int hashCode()
   {
     int hashCode = modificationType.intValue() +
-                   toLowerCase(attributeName).hashCode();
+         StaticUtils.toLowerCase(attributeName).hashCode();
 
     for (final ASN1OctetString value : values)
     {
@@ -820,7 +821,7 @@ public final class Modification
       boolean allPrintable = true;
 
       final ASN1OctetString[] attrValues;
-      if (isSensitiveToCodeAttribute(attributeName))
+      if (StaticUtils.isSensitiveToCodeAttribute(attributeName))
       {
         attrValues = new ASN1OctetString[values.length];
         for (int i=0; i < values.length; i++)
@@ -834,7 +835,7 @@ public final class Modification
         attrValues = values;
         for (final ASN1OctetString v : values)
         {
-          if (! isPrintableString(v.getValue()))
+          if (! StaticUtils.isPrintableString(v.getValue()))
           {
             allPrintable = false;
             break;
@@ -858,7 +859,7 @@ public final class Modification
         }
         else
         {
-          byteArrayToCode(v.getValue(), buffer);
+          StaticUtils.byteArrayToCode(v.getValue(), buffer);
         }
       }
     }

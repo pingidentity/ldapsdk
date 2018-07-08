@@ -26,11 +26,11 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.matchingrules.MatchingRuleMessages.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -64,7 +64,7 @@ public final class IntegerMatchingRule
    * lowercase characters.
    */
   static final String LOWER_EQUALITY_RULE_NAME =
-       toLowerCase(EQUALITY_RULE_NAME);
+       StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
 
@@ -87,7 +87,7 @@ public final class IntegerMatchingRule
    * in all lowercase characters.
    */
   static final String LOWER_ORDERING_RULE_NAME =
-       toLowerCase(ORDERING_RULE_NAME);
+       StaticUtils.toLowerCase(ORDERING_RULE_NAME);
 
 
 
@@ -361,7 +361,7 @@ public final class IntegerMatchingRule
       // There is either a leading or trailing space, which needs to be
       // stripped out so we'll have to allocate memory for this.
       final String valueStr = value.stringValue().trim();
-      if (valueStr.length() == 0)
+      if (valueStr.isEmpty())
       {
         throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
                                 ERR_INTEGER_ZERO_LENGTH_NOT_ALLOWED.get());

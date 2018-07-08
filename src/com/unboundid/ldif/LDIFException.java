@@ -34,8 +34,7 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -158,7 +157,7 @@ public final class LDIFException
   {
     super(message, cause);
 
-    ensureNotNull(message);
+    Validator.ensureNotNull(message);
 
     this.lineNumber         = lineNumber;
     this.mayContinueReading = mayContinueReading;
@@ -169,8 +168,7 @@ public final class LDIFException
     }
     else
     {
-      final ArrayList<String> lineList =
-           new ArrayList<String>(dataLines.size());
+      final ArrayList<String> lineList = new ArrayList<>(dataLines.size());
       for (final CharSequence s : dataLines)
       {
         lineList.add(s.toString());

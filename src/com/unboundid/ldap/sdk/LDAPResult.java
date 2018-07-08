@@ -31,14 +31,14 @@ import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -150,7 +150,8 @@ public class LDAPResult
    */
   public LDAPResult(final int messageID, final ResultCode resultCode)
   {
-    this(null, messageID, resultCode, null, null, NO_STRINGS, NO_CONTROLS);
+    this(null, messageID, resultCode, null, null, StaticUtils.NO_STRINGS,
+         NO_CONTROLS);
   }
 
 
@@ -235,7 +236,7 @@ public class LDAPResult
 
     if (referralURLs == null)
     {
-      this.referralURLs = NO_STRINGS;
+      this.referralURLs = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -284,7 +285,7 @@ public class LDAPResult
 
     if ((referralURLs == null) || referralURLs.isEmpty())
     {
-      this.referralURLs = NO_STRINGS;
+      this.referralURLs = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -335,21 +336,21 @@ public class LDAPResult
       final ResultCode resultCode = ResultCode.valueOf(reader.readEnumerated());
 
       String matchedDN = reader.readString();
-      if (matchedDN.length() == 0)
+      if (matchedDN.isEmpty())
       {
         matchedDN = null;
       }
 
       String diagnosticMessage = reader.readString();
-      if (diagnosticMessage.length() == 0)
+      if (diagnosticMessage.isEmpty())
       {
         diagnosticMessage = null;
       }
 
-      String[] referralURLs = NO_STRINGS;
+      String[] referralURLs = StaticUtils.NO_STRINGS;
       if (protocolOpSequence.hasMoreElements())
       {
-        final ArrayList<String> refList = new ArrayList<String>(1);
+        final ArrayList<String> refList = new ArrayList<>(1);
         final ASN1StreamReaderSequence refSequence = reader.beginSequence();
         while (refSequence.hasMoreElements())
         {
@@ -363,7 +364,7 @@ public class LDAPResult
       Control[] responseControls = NO_CONTROLS;
       if (messageSequence.hasMoreElements())
       {
-        final ArrayList<Control> controlList = new ArrayList<Control>(1);
+        final ArrayList<Control> controlList = new ArrayList<>(1);
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();
         while (controlSequence.hasMoreElements())
         {
@@ -379,20 +380,20 @@ public class LDAPResult
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_RESULT_CANNOT_DECODE.get(ae.getMessage()), ae);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_RESULT_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_RESULT_CANNOT_DECODE.get(StaticUtils.getExceptionMessage(e)), e);
     }
   }
 
@@ -405,6 +406,7 @@ public class LDAPResult
    * @return  The message ID for the LDAP message with which this LDAP result
    *          is associated.
    */
+  @Override()
   public final int getMessageID()
   {
     return messageID;
@@ -555,14 +557,14 @@ public class LDAPResult
     buffer.append(resultCode);
     buffer.append('\'');
 
-    if ((diagnosticMessage != null) && (diagnosticMessage.length() > 0))
+    if ((diagnosticMessage != null) && (! diagnosticMessage.isEmpty()))
     {
       buffer.append(" diagnostic message='");
       buffer.append(diagnosticMessage);
       buffer.append('\'');
     }
 
-    if ((matchedDN != null) && (matchedDN.length() > 0))
+    if ((matchedDN != null) && (! matchedDN.isEmpty()))
     {
       buffer.append("  matched DN='");
       buffer.append(matchedDN);
@@ -614,6 +616,7 @@ public class LDAPResult
    * @param  buffer  The buffer to which to append a string representation of
    *                 this LDAP result.
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("LDAPResult(resultCode=");

@@ -112,7 +112,7 @@ final class SequentialValuePatternComponent
     }
 
     this.formatString = formatString;
-    decimalFormat     = new ThreadLocal<DecimalFormat>();
+    decimalFormat     = new ThreadLocal<>();
     nextValue         = new AtomicLong(lowerBound);
   }
 

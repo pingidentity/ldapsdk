@@ -33,13 +33,13 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 import static com.unboundid.util.ssl.SSLMessages.*;
 
 
@@ -166,7 +166,7 @@ public final class TrustStoreTrustManager
                                 final String trustStoreFormat,
                                 final boolean examineValidityDates)
   {
-    ensureNotNull(trustStoreFile);
+    Validator.ensureNotNull(trustStoreFile);
 
     this.trustStoreFile       = trustStoreFile;
     this.trustStorePIN        = trustStorePIN;
@@ -264,7 +264,7 @@ public final class TrustStoreTrustManager
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new CertificateException(
            ERR_TRUSTSTORE_UNSUPPORTED_FORMAT.get(trustStoreFormat), e);
@@ -278,7 +278,7 @@ public final class TrustStoreTrustManager
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new CertificateException(
            ERR_TRUSTSTORE_CANNOT_LOAD.get(trustStoreFile, trustStoreFormat,
@@ -295,7 +295,7 @@ public final class TrustStoreTrustManager
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
       }
     }
@@ -316,7 +316,7 @@ public final class TrustStoreTrustManager
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new CertificateException(
            ERR_TRUSTSTORE_CANNOT_GET_TRUST_MANAGERS.get(trustStoreFile,

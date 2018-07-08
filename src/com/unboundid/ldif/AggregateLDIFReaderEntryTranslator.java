@@ -80,8 +80,8 @@ public final class AggregateLDIFReaderEntryTranslator
     }
     else
     {
-      this.translators = Collections.unmodifiableList(
-           new ArrayList<LDIFReaderEntryTranslator>(translators));
+      this.translators =
+           Collections.unmodifiableList(new ArrayList<>(translators));
     }
   }
 

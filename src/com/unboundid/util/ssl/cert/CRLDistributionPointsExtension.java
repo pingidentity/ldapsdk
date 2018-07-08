@@ -123,7 +123,6 @@ public final class CRLDistributionPointsExtension
 
 
 
-
   /**
    * Creates a new CRL distribution points extension from the provided generic
    * extension.

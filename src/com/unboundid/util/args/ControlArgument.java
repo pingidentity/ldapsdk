@@ -93,8 +93,7 @@ public final class ControlArgument
   private static final Map<String,String> OIDS_BY_NAME;
   static
   {
-    final HashMap<String,String> oidsByName =
-         new HashMap<String,String>(100);
+    final HashMap<String,String> oidsByName = new HashMap<>(100);
 
     // The authorization identity request control.
     oidsByName.put("authzid",
@@ -464,8 +463,8 @@ public final class ControlArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<Control>(5);
-    validators = new ArrayList<ArgumentValueValidator>(5);
+    values = new ArrayList<>(5);
+    validators = new ArrayList<>(5);
   }
 
 
@@ -481,8 +480,8 @@ public final class ControlArgument
     super(source);
 
     defaultValues = source.defaultValues;
-    validators    = new ArrayList<ArgumentValueValidator>(source.validators);
-    values        = new ArrayList<Control>(5);
+    validators    = new ArrayList<>(source.validators);
+    values        = new ArrayList<>(5);
   }
 
 
@@ -701,8 +700,7 @@ public final class ControlArgument
     }
 
     final StringBuilder buffer = new StringBuilder();
-    final ArrayList<String> valueStrings =
-         new ArrayList<String>(controls.size());
+    final ArrayList<String> valueStrings = new ArrayList<>(controls.size());
     for (final Control c : controls)
     {
       buffer.setLength(0);

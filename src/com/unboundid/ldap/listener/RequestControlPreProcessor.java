@@ -93,8 +93,7 @@ final class RequestControlPreProcessor
                                              final List<Control> controls)
          throws LDAPException
   {
-    final Map<String,Control> m =
-         new LinkedHashMap<String,Control>(controls.size());
+    final Map<String,Control> m = new LinkedHashMap<>(controls.size());
 
     for (final Control control : controls)
     {

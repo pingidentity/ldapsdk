@@ -38,13 +38,12 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -102,9 +101,9 @@ public final class LDIFAddChangeRecord
   {
     super(dn, controls);
 
-    ensureNotNull(attributes);
-    ensureTrue(attributes.length > 0,
-               "LDIFAddChangeRecord.attributes must not be empty.");
+    Validator.ensureNotNull(attributes);
+    Validator.ensureTrue(attributes.length > 0,
+         "LDIFAddChangeRecord.attributes must not be empty.");
 
     this.attributes = attributes;
   }
@@ -142,9 +141,9 @@ public final class LDIFAddChangeRecord
   {
     super(dn, controls);
 
-    ensureNotNull(attributes);
-    ensureFalse(attributes.isEmpty(),
-                "LDIFAddChangeRecord.attributes must not be empty.");
+    Validator.ensureNotNull(attributes);
+    Validator.ensureFalse(attributes.isEmpty(),
+         "LDIFAddChangeRecord.attributes must not be empty.");
 
     this.attributes = new Attribute[attributes.size()];
     attributes.toArray(this.attributes);
@@ -300,7 +299,7 @@ public final class LDIFAddChangeRecord
   @Override()
   public String[] toLDIF(final int wrapColumn)
   {
-    List<String> ldifLines = new ArrayList<String>(2*attributes.length);
+    List<String> ldifLines = new ArrayList<>(2*attributes.length);
     encodeNameAndValue("dn", new ASN1OctetString(getDN()), ldifLines);
 
     for (final Control c : getControls())
@@ -339,18 +338,18 @@ public final class LDIFAddChangeRecord
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     for (final Control c : getControls())
     {
       LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
            wrapColumn);
-      buffer.append(EOL_BYTES);
+      buffer.append(StaticUtils.EOL_BYTES);
     }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("add"),
                                   buffer, wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     for (final Attribute a : attributes)
     {
@@ -358,7 +357,7 @@ public final class LDIFAddChangeRecord
       for (final ASN1OctetString value : a.getRawValues())
       {
         LDIFWriter.encodeNameAndValue(name, value, buffer, wrapColumn);
-        buffer.append(EOL_BYTES);
+        buffer.append(StaticUtils.EOL_BYTES);
       }
     }
   }
@@ -373,18 +372,18 @@ public final class LDIFAddChangeRecord
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     for (final Control c : getControls())
     {
       LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
            wrapColumn);
-      buffer.append(EOL);
+      buffer.append(StaticUtils.EOL);
     }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("add"),
                                   buffer, wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     for (final Attribute a : attributes)
     {
@@ -392,7 +391,7 @@ public final class LDIFAddChangeRecord
       for (final ASN1OctetString value : a.getRawValues())
       {
         LDIFWriter.encodeNameAndValue(name, value, buffer, wrapColumn);
-        buffer.append(EOL);
+        buffer.append(StaticUtils.EOL);
       }
     }
   }
@@ -417,7 +416,7 @@ public final class LDIFAddChangeRecord
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return new Entry(getDN(), attributes).hashCode();
     }
   }
@@ -447,8 +446,8 @@ public final class LDIFAddChangeRecord
 
     final LDIFAddChangeRecord r = (LDIFAddChangeRecord) o;
 
-    final HashSet<Control> c1 = new HashSet<Control>(getControls());
-    final HashSet<Control> c2 = new HashSet<Control>(r.getControls());
+    final HashSet<Control> c1 = new HashSet<>(getControls());
+    final HashSet<Control> c2 = new HashSet<>(r.getControls());
     if (! c1.equals(c2))
     {
       return false;

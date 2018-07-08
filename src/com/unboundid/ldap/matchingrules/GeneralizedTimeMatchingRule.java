@@ -30,12 +30,12 @@ import java.util.TimeZone;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.matchingrules.MatchingRuleMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -85,7 +85,7 @@ public final class GeneralizedTimeMatchingRule
    * all lowercase characters.
    */
   static final String LOWER_EQUALITY_RULE_NAME =
-       toLowerCase(EQUALITY_RULE_NAME);
+       StaticUtils.toLowerCase(EQUALITY_RULE_NAME);
 
 
 
@@ -109,7 +109,7 @@ public final class GeneralizedTimeMatchingRule
    * formatted in all lowercase characters.
    */
   static final String LOWER_ORDERING_RULE_NAME =
-       toLowerCase(ORDERING_RULE_NAME);
+       StaticUtils.toLowerCase(ORDERING_RULE_NAME);
 
 
 
@@ -129,7 +129,7 @@ public final class GeneralizedTimeMatchingRule
 
   // The thread-local date formatter for this class.
   private static final ThreadLocal<SimpleDateFormat> dateFormat =
-       new ThreadLocal<SimpleDateFormat>();
+       new ThreadLocal<>();
 
 
 
@@ -232,11 +232,11 @@ public final class GeneralizedTimeMatchingRule
     final Date d1;
     try
     {
-      d1 = decodeGeneralizedTime(value1.stringValue());
+      d1 = StaticUtils.decodeGeneralizedTime(value1.stringValue());
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
            ERR_GENERALIZED_TIME_INVALID_VALUE.get(pe.getMessage()), pe);
     }
@@ -244,11 +244,11 @@ public final class GeneralizedTimeMatchingRule
     final Date d2;
     try
     {
-      d2 = decodeGeneralizedTime(value2.stringValue());
+      d2 = StaticUtils.decodeGeneralizedTime(value2.stringValue());
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
            ERR_GENERALIZED_TIME_INVALID_VALUE.get(pe.getMessage()), pe);
     }
@@ -275,11 +275,12 @@ public final class GeneralizedTimeMatchingRule
     final Date assertionValueDate;
     try
     {
-      assertionValueDate = decodeGeneralizedTime(assertionValue.stringValue());
+      assertionValueDate =
+           StaticUtils.decodeGeneralizedTime(assertionValue.stringValue());
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
            ERR_GENERALIZED_TIME_INVALID_VALUE.get(pe.getMessage()), pe);
     }
@@ -289,14 +290,14 @@ public final class GeneralizedTimeMatchingRule
       try
       {
         if (assertionValueDate.equals(
-             decodeGeneralizedTime(attributeValue.stringValue())))
+             StaticUtils.decodeGeneralizedTime(attributeValue.stringValue())))
         {
           return true;
         }
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
 
@@ -332,11 +333,11 @@ public final class GeneralizedTimeMatchingRule
     final Date d1;
     try
     {
-      d1 = decodeGeneralizedTime(value1.stringValue());
+      d1 = StaticUtils.decodeGeneralizedTime(value1.stringValue());
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
            ERR_GENERALIZED_TIME_INVALID_VALUE.get(pe.getMessage()), pe);
     }
@@ -344,11 +345,11 @@ public final class GeneralizedTimeMatchingRule
     final Date d2;
     try
     {
-      d2 = decodeGeneralizedTime(value2.stringValue());
+      d2 = StaticUtils.decodeGeneralizedTime(value2.stringValue());
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
            ERR_GENERALIZED_TIME_INVALID_VALUE.get(pe.getMessage()), pe);
     }
@@ -368,11 +369,11 @@ public final class GeneralizedTimeMatchingRule
     final Date d;
     try
     {
-      d = decodeGeneralizedTime(value.stringValue());
+      d = StaticUtils.decodeGeneralizedTime(value.stringValue());
     }
     catch (final ParseException pe)
     {
-      debugException(pe);
+      Debug.debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
            ERR_GENERALIZED_TIME_INVALID_VALUE.get(pe.getMessage()), pe);
     }

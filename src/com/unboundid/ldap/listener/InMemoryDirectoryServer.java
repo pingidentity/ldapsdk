@@ -334,11 +334,9 @@ public final class InMemoryDirectoryServer
     final List<InMemoryListenerConfig> listenerConfigs =
          config.getListenerConfigs();
 
-    listeners = new LinkedHashMap<String,LDAPListener>(listenerConfigs.size());
-    ldapListenerConfigs =
-         new LinkedHashMap<String,LDAPListenerConfig>(listenerConfigs.size());
-    clientSocketFactories =
-         new LinkedHashMap<String,SocketFactory>(listenerConfigs.size());
+    listeners = new LinkedHashMap<>(listenerConfigs.size());
+    ldapListenerConfigs = new LinkedHashMap<>(listenerConfigs.size());
+    clientSocketFactories = new LinkedHashMap<>(listenerConfigs.size());
 
     for (final InMemoryListenerConfig c : listenerConfigs)
     {
@@ -386,7 +384,7 @@ public final class InMemoryDirectoryServer
   public synchronized void startListening()
          throws LDAPException
   {
-    final ArrayList<String> messages = new ArrayList<String>(listeners.size());
+    final ArrayList<String> messages = new ArrayList<>(listeners.size());
 
     for (final Map.Entry<String,LDAPListenerConfig> cfgEntry :
          ldapListenerConfigs.entrySet())
@@ -1465,7 +1463,7 @@ public final class InMemoryDirectoryServer
          throws LDAPException
   {
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(addRequest.getControlList());
+         new ArrayList<>(addRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 
@@ -1584,7 +1582,7 @@ public final class InMemoryDirectoryServer
       buffer.append(StaticUtils.EOL_BYTES);
     }
 
-    final ArrayList<Entry> entryList = new ArrayList<Entry>(10);
+    final ArrayList<Entry> entryList = new ArrayList<>(10);
     final LDIFReader reader = new LDIFReader(buffer.asInputStream());
 
     final Schema schema = getSchema();
@@ -1663,7 +1661,7 @@ public final class InMemoryDirectoryServer
          throws LDAPException
   {
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(bindRequest.getControlList());
+         new ArrayList<>(bindRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 
@@ -1753,7 +1751,7 @@ public final class InMemoryDirectoryServer
          throws LDAPException
   {
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(compareRequest.getControlList());
+         new ArrayList<>(compareRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 
@@ -1828,7 +1826,7 @@ public final class InMemoryDirectoryServer
          throws LDAPException
   {
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(deleteRequest.getControlList());
+         new ArrayList<>(deleteRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 
@@ -2009,7 +2007,7 @@ public final class InMemoryDirectoryServer
     Validator.ensureNotNull(extendedRequest);
 
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(extendedRequest.getControlList());
+         new ArrayList<>(extendedRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 
@@ -2158,7 +2156,7 @@ public final class InMemoryDirectoryServer
          throws LDAPException
   {
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(modifyRequest.getControlList());
+         new ArrayList<>(modifyRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 
@@ -2251,7 +2249,7 @@ public final class InMemoryDirectoryServer
          throws LDAPException
   {
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(modifyDNRequest.getControlList());
+         new ArrayList<>(modifyDNRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 
@@ -2470,14 +2468,14 @@ public final class InMemoryDirectoryServer
          throws LDAPSearchException
   {
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(searchRequest.getControlList());
+         new ArrayList<>(searchRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 
     final List<SearchResultEntry> entryList =
-         new ArrayList<SearchResultEntry>(10);
+         new ArrayList<>(10);
     final List<SearchResultReference> referenceList =
-         new ArrayList<SearchResultReference>(10);
+         new ArrayList<>(10);
 
     final LDAPMessage responseMessage = inMemoryHandler.processSearchRequest(1,
          new SearchRequestProtocolOp(searchRequest.getBaseDN(),
@@ -2674,7 +2672,7 @@ public final class InMemoryDirectoryServer
          throws LDAPSearchException
   {
     final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(searchRequest.getControlList());
+         new ArrayList<>(searchRequest.getControlList());
     requestControlList.add(new Control(
          InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
 

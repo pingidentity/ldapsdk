@@ -160,7 +160,7 @@ public enum AccessLogOperationType
   {
     for (final AccessLogOperationType t : values())
     {
-      if (t.getLogIdentifier().equals(logIdentifier))
+      if (t.logIdentifier.equals(logIdentifier))
       {
         return t;
       }

@@ -37,15 +37,15 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.LDAPSDKUsageException;
-import com.unboundid.util.NotMutable;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -268,7 +268,7 @@ public final class BindRequestProtocolOp
       bindDN          = reader.readString();
       credentialsType = (byte) reader.peek();
 
-      ensureNotNull(bindDN);
+      Validator.ensureNotNull(bindDN);
 
       switch (credentialsType)
       {
@@ -277,13 +277,13 @@ public final class BindRequestProtocolOp
                new ASN1OctetString(credentialsType, reader.readBytes());
           saslMechanism   = null;
           saslCredentials = null;
-          ensureNotNull(bindDN);
+          Validator.ensureNotNull(bindDN);
           break;
 
         case CRED_TYPE_SASL:
           final ASN1StreamReaderSequence saslSequence = reader.beginSequence();
           saslMechanism = reader.readString();
-          ensureNotNull(saslMechanism);
+          Validator.ensureNotNull(saslMechanism);
           if (saslSequence.hasMoreElements())
           {
             saslCredentials = new ASN1OctetString(reader.readBytes());
@@ -297,20 +297,23 @@ public final class BindRequestProtocolOp
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_BIND_REQUEST_INVALID_CRED_TYPE.get(toHex(credentialsType)));
+               ERR_BIND_REQUEST_INVALID_CRED_TYPE.get(
+                    StaticUtils.toHex(credentialsType)));
       }
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_BIND_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_BIND_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -521,7 +524,7 @@ public final class BindRequestProtocolOp
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
                ERR_BIND_REQUEST_INVALID_CRED_TYPE.get(
-                    toHex(elements[2].getType())));
+                    StaticUtils.toHex(elements[2].getType())));
       }
 
       return new BindRequestProtocolOp(version, bindDN, elements[2].getType(),
@@ -529,14 +532,15 @@ public final class BindRequestProtocolOp
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_BIND_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           ERR_BIND_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

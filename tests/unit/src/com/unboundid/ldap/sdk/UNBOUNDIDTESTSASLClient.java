@@ -80,6 +80,7 @@ final class UNBOUNDIDTESTSASLClient
    *
    * @return  The name for the SASL mechanism.
    */
+  @Override()
   public String getMechanismName()
   {
     return "UNBOUNDID-TEST";
@@ -95,6 +96,7 @@ final class UNBOUNDIDTESTSASLClient
    * @return  {@code true} if this SASL mechanism has an initial response, or
    *          {@code false} if not.  This method always returns {@code false}.
    */
+  @Override()
   public boolean hasInitialResponse()
   {
     return false;
@@ -111,6 +113,7 @@ final class UNBOUNDIDTESTSASLClient
    *
    * @throws  SaslException  If a problem is encountered during authentication.
    */
+  @Override()
   public byte[] evaluateChallenge(final byte[] challenge)
          throws SaslException
   {
@@ -148,6 +151,7 @@ final class UNBOUNDIDTESTSASLClient
    * @return  {@code true} if authentication processing has completed, or
    *          {@code false} if not.
    */
+  @Override()
   public boolean isComplete()
   {
     return (negotiatedQoP != null);
@@ -163,6 +167,7 @@ final class UNBOUNDIDTESTSASLClient
    * @return  The negotiated value for the specified property, or {@code null}
    *          if no value was negotiated.
    */
+  @Override()
   public Object getNegotiatedProperty(final String name)
   {
     if (name.equals(Sasl.QOP))
@@ -194,6 +199,7 @@ final class UNBOUNDIDTESTSASLClient
    *
    * @return  An array containing the wrapped representation of the data.
    */
+  @Override()
   public byte[] wrap(final byte[] outgoing, final int offset, final int len)
   {
     final byte[] b = new byte[len];
@@ -213,6 +219,7 @@ final class UNBOUNDIDTESTSASLClient
    *
    * @return  An array containing the unwrapped representation of the data.
    */
+  @Override()
   public byte[] unwrap(final byte[] incoming, final int offset, final int len)
   {
     final byte[] b = new byte[len];
@@ -225,6 +232,7 @@ final class UNBOUNDIDTESTSASLClient
   /**
    * Disposes of any sensitive information associated with this SASL mechanism.
    */
+  @Override()
   public void dispose()
   {
     // Clear the password.

@@ -22,10 +22,9 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -169,7 +168,7 @@ public enum TaskState
    */
   public static TaskState forName(final String name)
   {
-    switch (toLowerCase(name))
+    switch (StaticUtils.toLowerCase(name))
     {
       case "canceledbeforestarting":
       case "canceled-before-starting":

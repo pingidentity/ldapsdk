@@ -32,15 +32,15 @@ import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.NotMutable;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -125,14 +125,16 @@ public final class CompareRequestProtocolOp
       reader.beginSequence();
       attributeName = reader.readString();
       assertionValue = new ASN1OctetString(reader.readBytes());
-      ensureNotNull(dn, attributeName, assertionValue);
+      Validator.ensureNotNull(dn, attributeName, assertionValue);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_COMPARE_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_COMPARE_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -232,9 +234,10 @@ public final class CompareRequestProtocolOp
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_COMPARE_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           ERR_COMPARE_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

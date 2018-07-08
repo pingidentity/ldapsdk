@@ -37,13 +37,13 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -213,8 +213,7 @@ public final class StreamDirectoryValuesIntermediateResponse
     }
     else
     {
-      this.values = Collections.unmodifiableList(
-           new ArrayList<ASN1OctetString>(values));
+      this.values = Collections.unmodifiableList(new ArrayList<>(values));
     }
   }
 
@@ -248,8 +247,7 @@ public final class StreamDirectoryValuesIntermediateResponse
     int    tmpResult  = -1;
     String tmpAttr    = null;
     String tmpMessage = null;
-    final ArrayList<ASN1OctetString> tmpValues  =
-         new ArrayList<ASN1OctetString>();
+    final ArrayList<ASN1OctetString> tmpValues = new ArrayList<>(100);
 
     try
     {
@@ -284,7 +282,7 @@ public final class StreamDirectoryValuesIntermediateResponse
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_STREAM_DIRECTORY_VALUES_RESPONSE_INVALID_SEQUENCE_TYPE.get(
-                      toHex(e.getType())));
+                      StaticUtils.toHex(e.getType())));
         }
       }
     }
@@ -294,10 +292,10 @@ public final class StreamDirectoryValuesIntermediateResponse
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_STREAM_DIRECTORY_VALUES_RESPONSE_CANNOT_DECODE.get(
-                getExceptionMessage(e)), e);
+                StaticUtils.getExceptionMessage(e)), e);
     }
 
     if (tmpResult < 0)
@@ -340,7 +338,7 @@ public final class StreamDirectoryValuesIntermediateResponse
                final int result, final String diagnosticMessage,
                final Collection<ASN1OctetString> values)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
 
     if (attributeName != null)
     {

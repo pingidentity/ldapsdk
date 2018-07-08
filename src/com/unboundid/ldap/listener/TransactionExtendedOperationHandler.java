@@ -238,9 +238,9 @@ public final class TransactionExtendedOperationHandler
     // the transaction.  Store it in the connection state.
     final ASN1OctetString txnID =
          new ASN1OctetString(String.valueOf(TXN_ID_COUNTER.getAndIncrement()));
-    final List<LDAPMessage> requestList = new ArrayList<LDAPMessage>(10);
+    final List<LDAPMessage> requestList = new ArrayList<>(10);
     final ObjectPair<ASN1OctetString,List<LDAPMessage>> txnInfo =
-         new ObjectPair<ASN1OctetString,List<LDAPMessage>>(txnID, requestList);
+         new ObjectPair<>(txnID, requestList);
     connectionState.put(STATE_VARIABLE_TXN_INFO, txnInfo);
 
 
@@ -364,7 +364,7 @@ public final class TransactionExtendedOperationHandler
       // operations processed as part of the transaction.
       final List<?> requestMessages = (List<?>) txnInfo.getSecond();
       final Map<Integer,Control[]> opResponseControls =
-           new LinkedHashMap<Integer,Control[]>(requestMessages.size());
+           new LinkedHashMap<>(requestMessages.size());
 
       // Iterate through the requests that have been submitted as part of the
       // transaction and attempt to process them.

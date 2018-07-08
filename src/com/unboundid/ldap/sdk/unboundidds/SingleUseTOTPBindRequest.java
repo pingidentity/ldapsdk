@@ -352,8 +352,7 @@ public final class SingleUseTOTPBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(5);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(5);
     constructorArgs.add(ToCodeArgHelper.createString(getAuthenticationID(),
          "Authentication ID"));
     constructorArgs.add(ToCodeArgHelper.createString(getAuthorizationID(),

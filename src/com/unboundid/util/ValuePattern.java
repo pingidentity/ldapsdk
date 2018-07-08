@@ -29,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
 
 
@@ -281,8 +279,8 @@ public final class ValuePattern
     Validator.ensureNotNull(s);
 
     pattern  = s;
-    refLists = new ThreadLocal<ArrayList<String>>();
-    buffers  = new ThreadLocal<StringBuilder>();
+    refLists = new ThreadLocal<>();
+    buffers  = new ThreadLocal<>();
 
     final AtomicBoolean hasRef = new AtomicBoolean(false);
 
@@ -296,8 +294,7 @@ public final class ValuePattern
       random = new Random(r);
     }
 
-    final ArrayList<ValuePatternComponent> l =
-         new ArrayList<ValuePatternComponent>(3);
+    final ArrayList<ValuePatternComponent> l = new ArrayList<>(3);
     parse(s, 0, l, random, hasRef);
 
     hasBackReference = hasRef.get();
@@ -432,9 +429,9 @@ public final class ValuePattern
         }
         catch (final IOException ioe)
         {
-          debugException(ioe);
+          Debug.debugException(ioe);
           throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
-               path, getExceptionMessage(ioe)), o+pos);
+               path, StaticUtils.getExceptionMessage(ioe)), o+pos);
         }
       }
       else if (bracketedToken.startsWith("randomfile:"))
@@ -446,9 +443,9 @@ public final class ValuePattern
         }
         catch (final IOException ioe)
         {
-          debugException(ioe);
+          Debug.debugException(ioe);
           throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
-               path, getExceptionMessage(ioe)), o+pos);
+               path, StaticUtils.getExceptionMessage(ioe)), o+pos);
         }
       }
       else if (bracketedToken.startsWith("sequentialfile:"))
@@ -460,9 +457,9 @@ public final class ValuePattern
         }
         catch (final IOException ioe)
         {
-          debugException(ioe);
+          Debug.debugException(ioe);
           throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
-               path, getExceptionMessage(ioe)), o+pos);
+               path, StaticUtils.getExceptionMessage(ioe)), o+pos);
         }
       }
       else if (bracketedToken.startsWith("streamfile:"))
@@ -474,9 +471,9 @@ public final class ValuePattern
         }
         catch (final IOException ioe)
         {
-          debugException(ioe);
+          Debug.debugException(ioe);
           throw new ParseException(ERR_STREAM_FILE_VALUE_PATTERN_NOT_USABLE.get(
-               path, getExceptionMessage(ioe)), o+pos);
+               path, StaticUtils.getExceptionMessage(ioe)), o+pos);
         }
       }
       else if (bracketedToken.startsWith("http://"))
@@ -487,9 +484,9 @@ public final class ValuePattern
         }
         catch (final IOException ioe)
         {
-          debugException(ioe);
+          Debug.debugException(ioe);
           throw new ParseException(ERR_HTTP_VALUE_PATTERN_NOT_USABLE.get(
-               bracketedToken, getExceptionMessage(ioe)), o+pos);
+               bracketedToken, StaticUtils.getExceptionMessage(ioe)), o+pos);
         }
       }
       else if (bracketedToken.startsWith("timestamp"))
@@ -526,7 +523,7 @@ public final class ValuePattern
         }
         catch (final NumberFormatException nfe)
         {
-          debugException(nfe);
+          Debug.debugException(nfe);
           throw new ParseException(
                ERR_REF_VALUE_PATTERN_NOT_VALID.get(valueStr),  (o+pos+4));
         }
@@ -948,7 +945,7 @@ incrementLoop:
     {
       if (refList == null)
       {
-        refList = new ArrayList<String>(10);
+        refList = new ArrayList<>(10);
         refLists.set(refList);
       }
       else

@@ -116,7 +116,7 @@ public final class RenameAttributeTransformation
     this.schema = s;
 
 
-    final HashSet<String> sourceNames = new HashSet<String>(5);
+    final HashSet<String> sourceNames = new HashSet<>(5);
     final String baseSourceName =
          StaticUtils.toLowerCase(Attribute.getBaseName(sourceAttribute));
     sourceNames.add(baseSourceName);
@@ -168,7 +168,7 @@ public final class RenameAttributeTransformation
     // replacements.
     final Collection<Attribute> originalAttributes = e.getAttributes();
     final ArrayList<Attribute> newAttributes =
-         new ArrayList<Attribute>(originalAttributes.size());
+         new ArrayList<>(originalAttributes.size());
     for (final Attribute a : originalAttributes)
     {
       // Determine if we we should rename this attribute.

@@ -30,12 +30,12 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -168,7 +168,7 @@ public final class JoinBaseDN
    */
   public static JoinBaseDN createUseCustomBaseDN(final String baseDN)
   {
-    ensureNotNull(baseDN);
+    Validator.ensureNotNull(baseDN);
     return new JoinBaseDN(BASE_TYPE_CUSTOM, baseDN);
   }
 
@@ -252,7 +252,8 @@ public final class JoinBaseDN
 
       default:
         throw new LDAPException(ResultCode.DECODING_ERROR,
-             ERR_JOIN_BASE_DECODE_INVALID_TYPE.get(toHex(element.getType())));
+             ERR_JOIN_BASE_DECODE_INVALID_TYPE.get(
+                  StaticUtils.toHex(element.getType())));
     }
   }
 

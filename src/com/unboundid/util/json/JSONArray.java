@@ -120,7 +120,7 @@ public final class JSONArray
     else
     {
       this.values =
-           Collections.unmodifiableList(new ArrayList<JSONValue>(values));
+           Collections.unmodifiableList(new ArrayList<>(values));
     }
 
     hashCode = null;
@@ -271,8 +271,7 @@ public final class JSONArray
     // Create a new list that we can remove values from as we find matches.
     // This is important because arrays can have duplicate values, and we don't
     // want to keep matching the same element.
-    final ArrayList<JSONValue> thatValues =
-         new ArrayList<JSONValue>(array.values);
+    final ArrayList<JSONValue> thatValues = new ArrayList<>(array.values);
     final Iterator<JSONValue> thisIterator = values.iterator();
     while (thisIterator.hasNext())
     {

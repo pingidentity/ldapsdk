@@ -137,7 +137,6 @@ public final class GetPasswordQualityRequirementsExtendedResult
 
 
 
-
   /**
    * Creates a new get password quality requirements extended result with the
    * provided information.
@@ -221,7 +220,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
     else
     {
       this.passwordRequirements = Collections.unmodifiableList(
-           new ArrayList<PasswordQualityRequirement>(passwordRequirements));
+           new ArrayList<>(passwordRequirements));
     }
 
     this.currentPasswordRequired = currentPasswordRequired;
@@ -265,8 +264,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
       final ASN1Element[] requirementElements =
            ASN1Sequence.decodeAsSequence(elements[0]).elements();
       final ArrayList<PasswordQualityRequirement> requirementList =
-           new ArrayList<PasswordQualityRequirement>(
-                requirementElements.length);
+           new ArrayList<>(requirementElements.length);
       for (final ASN1Element e : requirementElements)
       {
         requirementList.add(PasswordQualityRequirement.decode(e));
@@ -381,7 +379,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> valueSequence = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> valueSequence = new ArrayList<>(4);
 
     if (passwordRequirements == null)
     {
@@ -390,7 +388,7 @@ public final class GetPasswordQualityRequirementsExtendedResult
     else
     {
       final ArrayList<ASN1Element> requirementElements =
-           new ArrayList<ASN1Element>(passwordRequirements.size());
+           new ArrayList<>(passwordRequirements.size());
       for (final PasswordQualityRequirement r : passwordRequirements)
       {
         requirementElements.add(r.encode());

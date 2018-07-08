@@ -30,14 +30,14 @@ import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -126,7 +126,7 @@ public final class SearchResultEntry
   {
     super(dn, schema, attributes);
 
-    ensureNotNull(controls);
+    Validator.ensureNotNull(controls);
 
     this.messageID = messageID;
     this.controls  = controls;
@@ -195,7 +195,7 @@ public final class SearchResultEntry
   {
     super(dn, schema, attributes);
 
-    ensureNotNull(controls);
+    Validator.ensureNotNull(controls);
 
     this.messageID = messageID;
     this.controls  = controls;
@@ -233,7 +233,7 @@ public final class SearchResultEntry
   {
     super(entry);
 
-    ensureNotNull(controls);
+    Validator.ensureNotNull(controls);
 
     this.messageID = messageID;
     this.controls  = controls;
@@ -271,7 +271,7 @@ public final class SearchResultEntry
       reader.beginSequence();
       final String dn = reader.readString();
 
-      final ArrayList<Attribute> attrList = new ArrayList<Attribute>(10);
+      final ArrayList<Attribute> attrList = new ArrayList<>(10);
       final ASN1StreamReaderSequence attrSequence = reader.beginSequence();
       while (attrSequence.hasMoreElements())
       {
@@ -281,7 +281,7 @@ public final class SearchResultEntry
       Control[] controls = NO_CONTROLS;
       if (messageSequence.hasMoreElements())
       {
-        final ArrayList<Control> controlList = new ArrayList<Control>(5);
+        final ArrayList<Control> controlList = new ArrayList<>(5);
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();
         while (controlSequence.hasMoreElements())
         {
@@ -296,14 +296,16 @@ public final class SearchResultEntry
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_ENTRY_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_SEARCH_ENTRY_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

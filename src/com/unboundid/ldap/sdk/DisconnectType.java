@@ -22,11 +22,11 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -267,7 +267,7 @@ public enum DisconnectType
    */
   public static DisconnectType forName(final String name)
   {
-    switch (toLowerCase(name))
+    switch (StaticUtils.toLowerCase(name))
     {
       case "unbind":
         return UNBIND;

@@ -95,7 +95,6 @@ public final class GetPasswordQualityRequirementsExtendedRequest
 
 
 
-
   // The target type for this get password quality requirements extended
   // request.
   private final GetPasswordQualityRequirementsTargetType targetType;

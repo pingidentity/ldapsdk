@@ -147,7 +147,7 @@ public final class EqualsAnyJSONObjectFilter
    * The pre-allocated set of required field names.
    */
   private static final Set<String> REQUIRED_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(FIELD_FIELD_PATH, FIELD_VALUES)));
 
 
@@ -156,7 +156,7 @@ public final class EqualsAnyJSONObjectFilter
    * The pre-allocated set of optional field names.
    */
   private static final Set<String> OPTIONAL_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_CASE_SENSITIVE)));
 
 
@@ -301,9 +301,9 @@ public final class EqualsAnyJSONObjectFilter
     Validator.ensureNotNull(values);
     Validator.ensureFalse(values.isEmpty());
 
-    this.field= Collections.unmodifiableList(new ArrayList<String>(field));
+    this.field= Collections.unmodifiableList(new ArrayList<>(field));
     this.values =
-         Collections.unmodifiableList(new ArrayList<JSONValue>(values));
+         Collections.unmodifiableList(new ArrayList<>(values));
 
     caseSensitive = false;
   }
@@ -350,7 +350,7 @@ public final class EqualsAnyJSONObjectFilter
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
 
-    this.field = Collections.unmodifiableList(new ArrayList<String>(field));
+    this.field = Collections.unmodifiableList(new ArrayList<>(field));
   }
 
 
@@ -407,7 +407,7 @@ public final class EqualsAnyJSONObjectFilter
     Validator.ensureFalse(values.isEmpty());
 
     this.values =
-         Collections.unmodifiableList(new ArrayList<JSONValue>(values));
+         Collections.unmodifiableList(new ArrayList<>(values));
   }
 
 
@@ -422,8 +422,7 @@ public final class EqualsAnyJSONObjectFilter
    */
   private static List<JSONValue> toJSONValues(final String... values)
   {
-    final ArrayList<JSONValue> valueList =
-         new ArrayList<JSONValue>(values.length);
+    final ArrayList<JSONValue> valueList = new ArrayList<>(values.length);
     for (final String s : values)
     {
       valueList.add(new JSONString(s));
@@ -540,8 +539,7 @@ public final class EqualsAnyJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields =
-         new LinkedHashMap<String,JSONValue>(4);
+    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(4);
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 
@@ -552,7 +550,7 @@ public final class EqualsAnyJSONObjectFilter
     else
     {
       final ArrayList<JSONValue> fieldNameValues =
-           new ArrayList<JSONValue>(field.size());
+           new ArrayList<>(field.size());
       for (final String s : field)
       {
         fieldNameValues.add(new JSONString(s));

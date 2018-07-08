@@ -23,7 +23,6 @@ package com.unboundid.util.args;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -227,7 +226,9 @@ public final class IntegerArgument
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
          valuePlaceholder, description, Integer.MIN_VALUE, Integer.MAX_VALUE,
-         ((defaultValue == null) ? null : Arrays.asList(defaultValue)));
+         ((defaultValue == null)
+              ? null
+              : Collections.singletonList(defaultValue)));
   }
 
 
@@ -321,7 +322,9 @@ public final class IntegerArgument
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
          valuePlaceholder, description, lowerBound, upperBound,
-         ((defaultValue == null) ? null : Arrays.asList(defaultValue)));
+         ((defaultValue == null)
+              ? null
+              : Collections.singletonList(defaultValue)));
   }
 
 
@@ -386,8 +389,8 @@ public final class IntegerArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<Integer>(5);
-    validators = new ArrayList<ArgumentValueValidator>(5);
+    values = new ArrayList<>(5);
+    validators = new ArrayList<>(5);
   }
 
 
@@ -405,8 +408,8 @@ public final class IntegerArgument
     lowerBound    = source.lowerBound;
     upperBound    = source.upperBound;
     defaultValues = source.defaultValues;
-    validators    = new ArrayList<ArgumentValueValidator>(source.validators);
-    values        = new ArrayList<Integer>(5);
+    validators    = new ArrayList<>(source.validators);
+    values        = new ArrayList<>(5);
   }
 
 
@@ -587,8 +590,7 @@ public final class IntegerArgument
       return Collections.emptyList();
     }
 
-    final ArrayList<String> valueStrings =
-         new ArrayList<String>(intValues.size());
+    final ArrayList<String> valueStrings = new ArrayList<>(intValues.size());
     for (final Integer i : intValues)
     {
       valueStrings.add(i.toString());

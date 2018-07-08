@@ -187,7 +187,7 @@ public final class ToolInvocationLogger
     // Load the properties file.  If this fails, then report an error and do not
     // attempt any additional logging.
     final Properties loggingProperties = new Properties();
-    try (FileInputStream inputStream =
+    try (final FileInputStream inputStream =
               new FileInputStream(invocationLoggingPropertiesFile))
     {
       loggingProperties.load(inputStream);
@@ -490,7 +490,7 @@ public final class ToolInvocationLogger
     msgBuffer.append(StaticUtils.EOL);
 
     final String systemUserName = System.getProperty("user.name");
-    if ((systemUserName != null) && (systemUserName.length() > 0))
+    if ((systemUserName != null) && (! systemUserName.isEmpty()))
     {
       msgBuffer.append("# System User: ");
       msgBuffer.append(systemUserName);
@@ -746,11 +746,11 @@ public final class ToolInvocationLogger
       fileAttributes = new FileAttribute<?>[] { filePermissionsAttribute };
     }
 
-    try (FileChannel fileChannel =
+    try (final FileChannel fileChannel =
               FileChannel.open(logFile.toPath(), openOptionsSet,
                    fileAttributes))
     {
-      try (FileLock fileLock =
+      try (final FileLock fileLock =
                 acquireFileLock(fileChannel, logFile, toolErrorStream))
       {
         if (fileLock != null)

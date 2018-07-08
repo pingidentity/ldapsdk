@@ -122,13 +122,13 @@ public final class InMemoryListenerConfig
                                 final SSLSocketFactory startTLSSocketFactory)
          throws LDAPException
   {
-    if ((listenerName == null) || (listenerName.length() == 0))
+    if ((listenerName == null) || listenerName.isEmpty())
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
            ERR_LISTENER_CFG_NO_NAME.get());
     }
 
-    if ((listenPort < 0) || (listenPort > 65535))
+    if ((listenPort < 0) || (listenPort > 65_535))
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
            ERR_LISTENER_CFG_INVALID_PORT.get(listenPort));

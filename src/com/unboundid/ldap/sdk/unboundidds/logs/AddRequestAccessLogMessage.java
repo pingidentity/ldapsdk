@@ -107,7 +107,7 @@ public class AddRequestAccessLogMessage
     }
     else
     {
-      final ArrayList<String> l = new ArrayList<String>(10);
+      final ArrayList<String> l = new ArrayList<>(10);
       final StringTokenizer tokenizer = new StringTokenizer(attrs, ",");
       while (tokenizer.hasMoreTokens())
       {

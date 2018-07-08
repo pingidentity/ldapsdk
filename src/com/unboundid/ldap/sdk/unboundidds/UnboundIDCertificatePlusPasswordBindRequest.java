@@ -271,8 +271,7 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(2);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(2);
     constructorArgs.add(ToCodeArgHelper.createString("---redacted-password---",
          "Bind Password"));
 

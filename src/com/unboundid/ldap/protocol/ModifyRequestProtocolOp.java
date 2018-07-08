@@ -39,15 +39,15 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.NotMutable;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -123,9 +123,9 @@ public final class ModifyRequestProtocolOp
     {
       reader.beginSequence();
       dn = reader.readString();
-      ensureNotNull(dn);
+      Validator.ensureNotNull(dn);
 
-      final ArrayList<Modification> mods = new ArrayList<Modification>(5);
+      final ArrayList<Modification> mods = new ArrayList<>(5);
       final ASN1StreamReaderSequence modSequence = reader.beginSequence();
       while (modSequence.hasMoreElements())
       {
@@ -136,15 +136,17 @@ public final class ModifyRequestProtocolOp
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MODIFY_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_MODIFY_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -192,7 +194,7 @@ public final class ModifyRequestProtocolOp
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> modElements =
-         new ArrayList<ASN1Element>(modifications.size());
+         new ArrayList<>(modifications.size());
     for (final Modification m : modifications)
     {
       modElements.add(m.encode());
@@ -228,8 +230,7 @@ public final class ModifyRequestProtocolOp
 
       final ASN1Element[] modElements =
            ASN1Sequence.decodeAsSequence(elements[1]).elements();
-      final ArrayList<Modification> mods =
-           new ArrayList<Modification>(modElements.length);
+      final ArrayList<Modification> mods = new ArrayList<>(modElements.length);
       for (final ASN1Element e : modElements)
       {
         mods.add(Modification.decode(ASN1Sequence.decodeAsSequence(e)));
@@ -239,9 +240,10 @@ public final class ModifyRequestProtocolOp
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MODIFY_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           ERR_MODIFY_REQUEST_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

@@ -853,7 +853,7 @@ public final class ToolUtils
     // Try to read a passphrase-encrypted stream header from the beginning of
     // the stream.  Just decode the header, but don't attempt to make it usable
     // for encryption or decryption.
-    PassphraseEncryptedStreamHeader streamHeaderShell = null;
+    final PassphraseEncryptedStreamHeader streamHeaderShell;
     try
     {
       streamHeaderShell = PassphraseEncryptedStreamHeader.readFrom(

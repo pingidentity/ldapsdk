@@ -127,7 +127,7 @@ public final class FilterFileReader
       }
 
       final String filterString = line.trim();
-      if ((filterString.length() == 0) || filterString.startsWith("#"))
+      if (filterString.isEmpty() || filterString.startsWith("#"))
       {
         continue;
       }
@@ -154,6 +154,7 @@ public final class FilterFileReader
    *
    * @throws  IOException  If a problem is encountered while closing the reader.
    */
+  @Override()
   public void close()
          throws IOException
   {

@@ -72,8 +72,7 @@ final class DefaultChangelogEntryListener
    */
   DefaultChangelogEntryListener(final GetChangelogBatchExtendedRequest r)
   {
-    entryList =
-         new ArrayList<ChangelogEntryIntermediateResponse>(r.getMaxChanges());
+    entryList = new ArrayList<>(r.getMaxChanges());
   }
 
 

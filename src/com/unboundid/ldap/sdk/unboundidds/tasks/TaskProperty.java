@@ -28,8 +28,7 @@ import java.util.Date;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -169,11 +168,12 @@ public final class TaskProperty
                       final boolean required, final boolean multiValued,
                       final boolean advanced, final Object[] allowedValues)
   {
-    ensureNotNull(attributeName, displayName, description, dataType);
-    ensureTrue(dataType.equals(Boolean.class) || dataType.equals(Date.class) ||
-               dataType.equals(Long.class) || dataType.equals(String.class));
-    ensureFalse(required && advanced,
-                "TaskProperty.required and advanced must not both be true.");
+    Validator.ensureNotNull(attributeName, displayName, description, dataType);
+    Validator.ensureTrue(
+         dataType.equals(Boolean.class) || dataType.equals(Date.class) ||
+              dataType.equals(Long.class) || dataType.equals(String.class));
+    Validator.ensureFalse(required && advanced,
+         "TaskProperty.required and advanced must not both be true.");
 
     this.attributeName = attributeName;
     this.displayName   = displayName;
@@ -191,7 +191,7 @@ public final class TaskProperty
     {
       for (final Object o : allowedValues)
       {
-        ensureTrue(dataType.equals(o.getClass()));
+        Validator.ensureTrue(dataType.equals(o.getClass()));
       }
 
       this.allowedValues = allowedValues;

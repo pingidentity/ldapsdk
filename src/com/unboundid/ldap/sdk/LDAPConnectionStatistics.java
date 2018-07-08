@@ -388,7 +388,7 @@ public final class LDAPConnectionStatistics
    */
   public long getTotalAddResponseTimeMillis()
   {
-    return Math.round(totalAddResponseTime.get() / 1000000.0d);
+    return Math.round(totalAddResponseTime.get() / 1_000_000.0d);
   }
 
 
@@ -433,7 +433,7 @@ public final class LDAPConnectionStatistics
 
     if (totalTime > 0)
     {
-      return (totalTime / 1000000.0d / totalCount);
+      return (totalTime / 1_000_000.0d / totalCount);
     }
     else
     {
@@ -518,7 +518,7 @@ public final class LDAPConnectionStatistics
    */
   public long getTotalBindResponseTimeMillis()
   {
-    return Math.round(totalBindResponseTime.get() / 1000000.0d);
+    return Math.round(totalBindResponseTime.get() / 1_000_000.0d);
   }
 
 
@@ -563,7 +563,7 @@ public final class LDAPConnectionStatistics
 
     if (totalTime > 0)
     {
-      return (totalTime / 1000000.0d / totalCount);
+      return (totalTime / 1_000_000.0d / totalCount);
     }
     else
     {
@@ -651,7 +651,7 @@ public final class LDAPConnectionStatistics
    */
   public long getTotalCompareResponseTimeMillis()
   {
-    return Math.round(totalCompareResponseTime.get() / 1000000.0d);
+    return Math.round(totalCompareResponseTime.get() / 1_000_000.0d);
   }
 
 
@@ -698,7 +698,7 @@ public final class LDAPConnectionStatistics
 
     if (totalTime > 0)
     {
-      return (totalTime / 1000000.0d / totalCount);
+      return (totalTime / 1_000_000.0d / totalCount);
     }
     else
     {
@@ -784,7 +784,7 @@ public final class LDAPConnectionStatistics
    */
   public long getTotalDeleteResponseTimeMillis()
   {
-    return Math.round(totalDeleteResponseTime.get() / 1000000.0d);
+    return Math.round(totalDeleteResponseTime.get() / 1_000_000.0d);
   }
 
 
@@ -831,7 +831,7 @@ public final class LDAPConnectionStatistics
 
     if (totalTime > 0)
     {
-      return (totalTime / 1000000.0d / totalCount);
+      return (totalTime / 1_000_000.0d / totalCount);
     }
     else
     {
@@ -921,7 +921,7 @@ public final class LDAPConnectionStatistics
    */
   public long getTotalExtendedResponseTimeMillis()
   {
-    return Math.round(totalExtendedResponseTime.get() / 1000000.0d);
+    return Math.round(totalExtendedResponseTime.get() / 1_000_000.0d);
   }
 
 
@@ -968,7 +968,7 @@ public final class LDAPConnectionStatistics
 
     if (totalTime > 0)
     {
-      return (totalTime / 1000000.0d / totalCount);
+      return (totalTime / 1_000_000.0d / totalCount);
     }
     else
     {
@@ -1054,7 +1054,7 @@ public final class LDAPConnectionStatistics
    */
   public long getTotalModifyResponseTimeMillis()
   {
-    return Math.round(totalModifyResponseTime.get() / 1000000.0d);
+    return Math.round(totalModifyResponseTime.get() / 1_000_000.0d);
   }
 
 
@@ -1101,7 +1101,7 @@ public final class LDAPConnectionStatistics
 
     if (totalTime > 0)
     {
-      return (totalTime / 1000000.0d / totalCount);
+      return (totalTime / 1_000_000.0d / totalCount);
     }
     else
     {
@@ -1192,7 +1192,7 @@ public final class LDAPConnectionStatistics
    */
   public long getTotalModifyDNResponseTimeMillis()
   {
-    return Math.round(totalModifyDNResponseTime.get() / 1000000.0d);
+    return Math.round(totalModifyDNResponseTime.get() / 1_000_000.0d);
   }
 
 
@@ -1239,7 +1239,7 @@ public final class LDAPConnectionStatistics
 
     if (totalTime > 0)
     {
-      return (totalTime / 1000000.0d / totalCount);
+      return (totalTime / 1_000_000.0d / totalCount);
     }
     else
     {
@@ -1365,7 +1365,7 @@ public final class LDAPConnectionStatistics
    */
   public long getTotalSearchResponseTimeMillis()
   {
-    return Math.round(totalSearchResponseTime.get() / 1000000.0d);
+    return Math.round(totalSearchResponseTime.get() / 1_000_000.0d);
   }
 
 
@@ -1412,7 +1412,7 @@ public final class LDAPConnectionStatistics
 
     if (totalTime > 0)
     {
-      return (totalTime / 1000000.0d / totalCount);
+      return (totalTime / 1_000_000.0d / totalCount);
     }
     else
     {

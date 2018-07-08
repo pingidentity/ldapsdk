@@ -127,7 +127,7 @@ public final class ListNotificationSubscriptionsExtendedResult
       final ASN1Element[] destsElements =
            ASN1Sequence.decodeAsSequence(value.getValue()).elements();
       final ArrayList<NotificationDestinationDetails> destList =
-           new ArrayList<NotificationDestinationDetails>(destsElements.length);
+           new ArrayList<>(destsElements.length);
       for (final ASN1Element destElement : destsElements)
       {
         final ASN1Element[] destElements =
@@ -138,7 +138,7 @@ public final class ListNotificationSubscriptionsExtendedResult
         final ASN1Element[] destDetailsElements =
              ASN1Sequence.decodeAsSequence(destElements[1]).elements();
         final ArrayList<ASN1OctetString> destDetailsList =
-             new ArrayList<ASN1OctetString>(destDetailsElements.length);
+             new ArrayList<>(destDetailsElements.length);
         for (final ASN1Element e : destDetailsElements)
         {
           destDetailsList.add(ASN1OctetString.decodeAsOctetString(e));
@@ -147,7 +147,7 @@ public final class ListNotificationSubscriptionsExtendedResult
         final ASN1Element[] subElements =
              ASN1Sequence.decodeAsSequence(destElements[2]).elements();
         final ArrayList<NotificationSubscriptionDetails> subscriptions =
-             new ArrayList<NotificationSubscriptionDetails>(subElements.length);
+             new ArrayList<>(subElements.length);
         for (final ASN1Element e : subElements)
         {
           final ASN1Element[] sElements =
@@ -158,7 +158,7 @@ public final class ListNotificationSubscriptionsExtendedResult
           final ASN1Element[] subDetailsElements =
                ASN1Sequence.decodeAsSequence(sElements[1]).elements();
           final ArrayList<ASN1OctetString> subDetails =
-               new ArrayList<ASN1OctetString>(subDetailsElements.length);
+               new ArrayList<>(subDetailsElements.length);
           for (final ASN1Element sde : subDetailsElements)
           {
             subDetails.add(ASN1OctetString.decodeAsOctetString(sde));
@@ -228,8 +228,8 @@ public final class ListNotificationSubscriptionsExtendedResult
     }
     else
     {
-      this.destinations = Collections.unmodifiableList(
-           new ArrayList<NotificationDestinationDetails>(destinations));
+      this.destinations =
+           Collections.unmodifiableList(new ArrayList<>(destinations));
     }
   }
 
@@ -255,15 +255,15 @@ public final class ListNotificationSubscriptionsExtendedResult
     }
 
     final ArrayList<ASN1Element> elements =
-         new ArrayList<ASN1Element>(destinations.size());
+         new ArrayList<>(destinations.size());
     for (final NotificationDestinationDetails destDetails : destinations)
     {
-      final ArrayList<ASN1Element> destElements = new ArrayList<ASN1Element>(3);
+      final ArrayList<ASN1Element> destElements = new ArrayList<>(3);
       destElements.add(new ASN1OctetString(destDetails.getID()));
       destElements.add(new ASN1Sequence(destDetails.getDetails()));
 
       final ArrayList<ASN1Element> subElements =
-           new ArrayList<ASN1Element>(destDetails.getSubscriptions().size());
+           new ArrayList<>(destDetails.getSubscriptions().size());
       for (final NotificationSubscriptionDetails subDetails :
            destDetails.getSubscriptions())
       {

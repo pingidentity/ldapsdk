@@ -66,7 +66,8 @@ public class TestSearchResultListener
    * @param  searchEntry  The search result entry that has been returned by the
    *                      server.
    */
-  public void searchEntryReturned(SearchResultEntry searchEntry)
+  @Override()
+  public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     numEntries++;
     if (firstDN == null)
@@ -84,7 +85,9 @@ public class TestSearchResultListener
    * @param  searchReference  The search result reference that has been returned
    *                          by the server.
    */
-  public void searchReferenceReturned(SearchResultReference searchReference)
+  @Override()
+  public void searchReferenceReturned(
+                   final SearchResultReference searchReference)
   {
     numReferences++;
   }

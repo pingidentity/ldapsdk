@@ -95,21 +95,21 @@ public final class UnboundIDDeliveredOTPBindRequest
   /**
    * The BER type for the authentication ID included in the request.
    */
-  static final byte TYPE_AUTHENTICATION_ID = (byte) 0x80;
+  private static final byte TYPE_AUTHENTICATION_ID = (byte) 0x80;
 
 
 
   /**
    * The BER type for the authorization ID included in the request.
    */
-  static final byte TYPE_AUTHORIZATION_ID = (byte) 0x81;
+  private static final byte TYPE_AUTHORIZATION_ID = (byte) 0x81;
 
 
 
   /**
    * The BER type for the one-time password included in the request.
    */
-  static final byte TYPE_OTP = (byte) 0x82;
+  private static final byte TYPE_OTP = (byte) 0x82;
 
 
 
@@ -117,18 +117,6 @@ public final class UnboundIDDeliveredOTPBindRequest
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 8148101285676071058L;
-
-
-
-  // This is an ugly hack to prevent checkstyle from complaining about the
-  // import for the DeliverOneTimePasswordExtendedRequest class.  It is used
-  // by the @link element in the javadoc, but checkstyle apparently doesn't
-  // recognize that so we just need to use it in some way in this class to
-  // placate checkstyle.
-  static
-  {
-    final DeliverOneTimePasswordExtendedRequest r = null;
-  }
 
 
 
@@ -346,7 +334,7 @@ public final class UnboundIDDeliveredOTPBindRequest
     Validator.ensureNotNull(authenticationID);
     Validator.ensureNotNull(oneTimePassword);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
     elements.add(new ASN1OctetString(TYPE_AUTHENTICATION_ID, authenticationID));
 
     if (authorizationID != null)
@@ -454,8 +442,7 @@ public final class UnboundIDDeliveredOTPBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(4);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(4);
     constructorArgs.add(ToCodeArgHelper.createString(authenticationID,
          "Authentication ID"));
     constructorArgs.add(ToCodeArgHelper.createString(authorizationID,

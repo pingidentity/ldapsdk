@@ -33,13 +33,13 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -218,7 +218,7 @@ public final class AssertionRequestControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_ASSERT_CANNOT_DECODE.get(e), e);
     }
@@ -252,7 +252,7 @@ public final class AssertionRequestControl
     if ((attributes == null) || (attributes.length == 0))
     {
       final Collection<Attribute> entryAttrs = sourceEntry.getAttributes();
-      andComponents = new ArrayList<Filter>(entryAttrs.size());
+      andComponents = new ArrayList<>(entryAttrs.size());
       for (final Attribute a : entryAttrs)
       {
         for (final ASN1OctetString v : a.getRawValues())
@@ -264,7 +264,7 @@ public final class AssertionRequestControl
     }
     else
     {
-      andComponents = new ArrayList<Filter>(attributes.length);
+      andComponents = new ArrayList<>(attributes.length);
       for (final String name : attributes)
       {
         final Attribute a = sourceEntry.getAttribute(name);

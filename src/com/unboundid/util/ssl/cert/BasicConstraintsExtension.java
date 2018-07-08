@@ -107,7 +107,6 @@ public final class BasicConstraintsExtension
 
 
 
-
   /**
    * Creates a new basic constraints extension from the provided generic
    * extension.

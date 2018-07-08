@@ -282,7 +282,7 @@ public final class DeliverPasswordResetTokenExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
     elements.add(new ASN1OctetString(deliveryMechanism));
 
     if (recipientID != null)

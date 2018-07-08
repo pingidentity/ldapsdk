@@ -378,7 +378,7 @@ public abstract class DraftChuLDAPLogSchema00Entry
       return Collections.emptyList();
     }
 
-    final ArrayList<Control> controls = new ArrayList<Control>(values.length);
+    final ArrayList<Control> controls = new ArrayList<>(values.length);
     for (final byte[] controlBytes : values)
     {
       try

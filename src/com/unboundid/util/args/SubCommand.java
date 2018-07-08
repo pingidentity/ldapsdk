@@ -134,7 +134,7 @@ public final class SubCommand
     addName(name);
 
     this.description = description;
-    if ((description == null) || (description.length() == 0))
+    if ((description == null) || description.isEmpty())
     {
       throw new ArgumentException(
            ERR_SUBCOMMAND_DESCRIPTION_NULL_OR_EMPTY.get());
@@ -157,7 +157,7 @@ public final class SubCommand
 
     if (exampleUsages == null)
     {
-      this.exampleUsages = new LinkedHashMap<>();
+      this.exampleUsages = new LinkedHashMap<>(10);
     }
     else
     {
@@ -295,7 +295,7 @@ public final class SubCommand
   public void addName(final String name, final boolean isHidden)
          throws ArgumentException
   {
-    if ((name == null) || (name.length() == 0))
+    if ((name == null) || name.isEmpty())
     {
       throw new ArgumentException(ERR_SUBCOMMAND_NAME_NULL_OR_EMPTY.get());
     }

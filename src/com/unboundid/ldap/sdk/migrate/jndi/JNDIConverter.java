@@ -47,10 +47,9 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -67,7 +66,6 @@ public final class JNDIConverter
    * An empty array of attributes.
    */
   private static final Attribute[] NO_ATTRIBUTES = new Attribute[0];
-
 
 
 
@@ -94,12 +92,10 @@ public final class JNDIConverter
 
 
 
-
   /**
    * An empty array of SDK controls.
    */
   private static final Control[] NO_SDK_CONTROLS = new Control[0];
-
 
 
 
@@ -309,7 +305,7 @@ public final class JNDIConverter
       }
       catch (final ASN1Exception ae)
       {
-        throw new NamingException(getExceptionMessage(ae));
+        throw new NamingException(StaticUtils.getExceptionMessage(ae));
       }
     }
 
@@ -686,14 +682,14 @@ public final class JNDIConverter
     }
 
     final String dn;
-    if ((contextBaseDN == null) || (contextBaseDN.length() == 0))
+    if ((contextBaseDN == null) || contextBaseDN.isEmpty())
     {
       dn = r.getName();
     }
     else
     {
       final String name = r.getName();
-      if ((name == null) || (name.length() == 0))
+      if ((name == null) || name.isEmpty())
       {
         dn = contextBaseDN;
       }
@@ -746,7 +742,7 @@ public final class JNDIConverter
     }
 
     String name = e.getDN();
-    if ((contextBaseDN != null) && (contextBaseDN.length() > 0))
+    if ((contextBaseDN != null) && (! contextBaseDN.isEmpty()))
     {
       try
       {

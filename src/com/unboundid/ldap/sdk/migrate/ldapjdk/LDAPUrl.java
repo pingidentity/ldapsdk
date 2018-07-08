@@ -33,12 +33,11 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -87,7 +86,7 @@ public class LDAPUrl
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new MalformedURLException(le.getMessage());
     }
   }
@@ -115,7 +114,7 @@ public class LDAPUrl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new RuntimeException(e);
     }
   }
@@ -151,7 +150,7 @@ public class LDAPUrl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new RuntimeException(e);
     }
   }
@@ -190,7 +189,7 @@ public class LDAPUrl
       }
       else
       {
-        final ArrayList<String> attrList = new ArrayList<String>();
+        final ArrayList<String> attrList = new ArrayList<>(10);
         while (attributes.hasMoreElements())
         {
           attrList.add(attributes.nextElement());
@@ -204,7 +203,7 @@ public class LDAPUrl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new RuntimeException(e);
     }
   }
@@ -284,7 +283,7 @@ public class LDAPUrl
     }
     else
     {
-      return new IterableEnumeration<String>(Arrays.asList(attributes));
+      return new IterableEnumeration<>(Arrays.asList(attributes));
     }
   }
 

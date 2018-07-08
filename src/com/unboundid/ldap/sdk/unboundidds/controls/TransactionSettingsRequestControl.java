@@ -584,7 +584,7 @@ public final class TransactionSettingsRequestControl
                final Long maxTxnLockTimeoutMillis,
                final boolean returnResponseControl)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(7);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(7);
 
     if (transactionName != null)
     {

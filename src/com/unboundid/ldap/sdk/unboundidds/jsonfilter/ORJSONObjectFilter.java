@@ -145,7 +145,7 @@ public final class ORJSONObjectFilter
    * The pre-allocated set of required field names.
    */
   private static final Set<String> REQUIRED_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_OR_FILTERS)));
 
 
@@ -154,7 +154,7 @@ public final class ORJSONObjectFilter
    * The pre-allocated set of optional field names.
    */
   private static final Set<String> OPTIONAL_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_EXCLUSIVE)));
 
 
@@ -259,8 +259,7 @@ public final class ORJSONObjectFilter
     }
     else
     {
-      this.orFilters = Collections.unmodifiableList(
-           new ArrayList<JSONObjectFilter>(orFilters));
+      this.orFilters = Collections.unmodifiableList(new ArrayList<>(orFilters));
     }
   }
 
@@ -372,13 +371,11 @@ public final class ORJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields =
-         new LinkedHashMap<String,JSONValue>(3);
+    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(3);
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 
-    final ArrayList<JSONValue> filterValues =
-         new ArrayList<JSONValue>(orFilters.size());
+    final ArrayList<JSONValue> filterValues = new ArrayList<>(orFilters.size());
     for (final JSONObjectFilter f : orFilters)
     {
       filterValues.add(f.toJSONObject());

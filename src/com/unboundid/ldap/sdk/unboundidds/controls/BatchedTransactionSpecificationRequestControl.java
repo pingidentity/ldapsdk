@@ -40,7 +40,6 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -111,24 +110,6 @@ public final class BatchedTransactionSpecificationRequestControl
 
   // The transaction ID for the associated transaction.
   private final ASN1OctetString transactionID;
-
-
-
-  // This is an ugly hack to prevent checkstyle from complaining about the
-  // imports for classes only referenced in the javadoc.  Checkstyle apparently
-  // doesn't recognize that so we just need to use it in some way in this class
-  // to placate checkstyle.
-  static
-  {
-    final AssertionRequestControl assertionControl = null;
-    final ManageDsaITRequestControl manageDsaITControl = null;
-    final PreReadRequestControl preReadControl = null;
-    final PostReadRequestControl postReadControl = null;
-    final ProxiedAuthorizationV1RequestControl proxiedAuthV1Control = null;
-    final ProxiedAuthorizationV2RequestControl proxiedAuthV2Control = null;
-    final SubtreeDeleteRequestControl subtreeDeleteControl = null;
-    final StartBatchedTransactionExtendedRequest startBatchedTxnRequest = null;
-  }
 
 
 

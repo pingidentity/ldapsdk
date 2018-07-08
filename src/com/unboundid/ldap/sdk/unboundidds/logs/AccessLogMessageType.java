@@ -201,7 +201,7 @@ public enum AccessLogMessageType
   {
     for (final AccessLogMessageType t : values())
     {
-      if (t.getLogIdentifier().equals(logIdentifier))
+      if (t.logIdentifier.equals(logIdentifier))
       {
         return t;
       }

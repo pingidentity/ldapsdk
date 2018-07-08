@@ -24,6 +24,7 @@ package com.unboundid.asn1;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -195,7 +196,7 @@ public final class ASN1UTCTime
     final GregorianCalendar calendar =
          new GregorianCalendar(StaticUtils.getUTCTimeZone());
     calendar.setTimeInMillis(time);
-    calendar.set(GregorianCalendar.MILLISECOND, 0);
+    calendar.set(Calendar.MILLISECOND, 0);
 
     this.time = calendar.getTimeInMillis();
     stringRepresentation = encodeTimestamp(time);

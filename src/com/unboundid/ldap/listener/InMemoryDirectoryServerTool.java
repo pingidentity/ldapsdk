@@ -284,7 +284,7 @@ public final class InMemoryDirectoryServerTool
   // The argument used to specify the server vendor name.
   private StringArgument vendorNameArgument;
 
-  // The argument used to specify the server vendor veresion.
+  // The argument used to specify the server vendor version.
   private StringArgument vendorVersionArgument;
 
 
@@ -424,7 +424,7 @@ public final class InMemoryDirectoryServerTool
   {
     portArgument = new IntegerArgument('p', "port", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PORT.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_PORT.get(), 0, 65535);
+         INFO_MEM_DS_TOOL_ARG_DESC_PORT.get(), 0, 65_535);
     portArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(portArgument);
@@ -822,7 +822,7 @@ public final class InMemoryDirectoryServerTool
     }
     else if (useSchemaFileArgument.isPresent())
     {
-      final ArrayList<File> schemaFiles = new ArrayList<File>(10);
+      final ArrayList<File> schemaFiles = new ArrayList<>(10);
       for (final File f : useSchemaFileArgument.getValues())
       {
         if (f.exists())
@@ -1070,8 +1070,7 @@ public final class InMemoryDirectoryServerTool
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleUsages =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> exampleUsages = new LinkedHashMap<>(2);
 
     final String[] example1Args =
     {

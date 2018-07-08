@@ -30,13 +30,13 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -257,7 +257,7 @@ public final class ServerSideSortRequestControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_SORT_REQUEST_CANNOT_DECODE.get(e), e);
     }
@@ -278,9 +278,9 @@ public final class ServerSideSortRequestControl
    */
   private static ASN1OctetString encodeValue(final SortKey[] sortKeys)
   {
-    ensureNotNull(sortKeys);
-    ensureTrue(sortKeys.length > 0,
-               "ServerSideSortRequestControl.sortKeys must not be empty.");
+    Validator.ensureNotNull(sortKeys);
+    Validator.ensureTrue(sortKeys.length > 0,
+         "ServerSideSortRequestControl.sortKeys must not be empty.");
 
     final ASN1Element[] valueElements = new ASN1Element[sortKeys.length];
     for (int i=0; i < sortKeys.length; i++)

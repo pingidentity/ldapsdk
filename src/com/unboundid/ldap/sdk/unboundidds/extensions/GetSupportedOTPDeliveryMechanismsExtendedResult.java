@@ -149,7 +149,7 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedResult
         final ASN1Element[] elements =
              ASN1Sequence.decodeAsSequence(value.getValue()).elements();
         final ArrayList<SupportedOTPDeliveryMechanismInfo> mechInfo =
-             new ArrayList<SupportedOTPDeliveryMechanismInfo>(elements.length);
+             new ArrayList<>(elements.length);
         for (final ASN1Element e : elements)
         {
           final ASN1Element[] infoElements =
@@ -245,8 +245,7 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedResult
     else
     {
       this.deliveryMechanismInfo = Collections.unmodifiableList(
-           new ArrayList<SupportedOTPDeliveryMechanismInfo>(
-                deliveryMechanismInfo));
+           new ArrayList<>(deliveryMechanismInfo));
     }
   }
 
@@ -280,11 +279,11 @@ public final class GetSupportedOTPDeliveryMechanismsExtendedResult
       return new ASN1OctetString(new ASN1Sequence().encode());
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(
-         deliveryMechanismInfo.size());
+    final ArrayList<ASN1Element> elements =
+         new ArrayList<>(deliveryMechanismInfo.size());
     for (final SupportedOTPDeliveryMechanismInfo i : deliveryMechanismInfo)
     {
-      final ArrayList<ASN1Element> infoElements = new ArrayList<ASN1Element>(3);
+      final ArrayList<ASN1Element> infoElements = new ArrayList<>(3);
       infoElements.add(new ASN1OctetString(TYPE_DELIVERY_MECHANISM,
            i.getDeliveryMechanism()));
 

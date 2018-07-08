@@ -35,13 +35,13 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -124,7 +124,7 @@ public final class EndBatchedTransactionExtendedResult
   {
     super(extendedResult);
 
-    opResponseControls = new TreeMap<Integer,Control[]>();
+    opResponseControls = new TreeMap<>();
 
     final ASN1OctetString value = extendedResult.getValue();
     if (value == null)
@@ -141,11 +141,9 @@ public final class EndBatchedTransactionExtendedResult
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_END_TXN_RESPONSE_VALUE_NOT_SEQUENCE.get(
-                                   ae.getMessage()),
-                              ae);
+           ERR_END_TXN_RESPONSE_VALUE_NOT_SEQUENCE.get(ae.getMessage()), ae);
     }
 
     final ASN1Element[] valueElements = valueSequence.elements();
@@ -157,8 +155,8 @@ public final class EndBatchedTransactionExtendedResult
     else if (valueElements.length > 2)
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_END_TXN_RESPONSE_INVALID_ELEMENT_COUNT.get(
-                                   valueElements.length));
+           ERR_END_TXN_RESPONSE_INVALID_ELEMENT_COUNT.get(
+                valueElements.length));
     }
 
     int msgID = -1;
@@ -172,9 +170,9 @@ public final class EndBatchedTransactionExtendedResult
         }
         catch (final ASN1Exception ae)
         {
-          debugException(ae);
+          Debug.debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                         ERR_END_TXN_RESPONSE_CANNOT_DECODE_MSGID.get(ae), ae);
+               ERR_END_TXN_RESPONSE_CANNOT_DECODE_MSGID.get(ae), ae);
         }
       }
       else if (e.getType() == ASN1Constants.UNIVERSAL_SEQUENCE_TYPE)
@@ -184,8 +182,8 @@ public final class EndBatchedTransactionExtendedResult
       else
       {
         throw new LDAPException(ResultCode.DECODING_ERROR,
-                                ERR_END_TXN_RESPONSE_INVALID_TYPE.get(
-                                     toHex(e.getType())));
+             ERR_END_TXN_RESPONSE_INVALID_TYPE.get(
+                  StaticUtils.toHex(e.getType())));
       }
     }
 
@@ -237,12 +235,11 @@ public final class EndBatchedTransactionExtendedResult
 
     if (opResponseControls == null)
     {
-      this.opResponseControls = new TreeMap<Integer,Control[]>();
+      this.opResponseControls = new TreeMap<>();
     }
     else
     {
-      this.opResponseControls =
-           new TreeMap<Integer,Control[]>(opResponseControls);
+      this.opResponseControls = new TreeMap<>(opResponseControls);
     }
   }
 
@@ -271,9 +268,9 @@ public final class EndBatchedTransactionExtendedResult
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                     ERR_END_TXN_RESPONSE_CONTROLS_NOT_SEQUENCE.get(ae), ae);
+           ERR_END_TXN_RESPONSE_CONTROLS_NOT_SEQUENCE.get(ae), ae);
     }
 
     for (final ASN1Element e : ctlsSequence.elements())
@@ -285,17 +282,17 @@ public final class EndBatchedTransactionExtendedResult
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
-                       ERR_END_TXN_RESPONSE_CONTROL_NOT_SEQUENCE.get(ae), ae);
+             ERR_END_TXN_RESPONSE_CONTROL_NOT_SEQUENCE.get(ae), ae);
       }
 
       final ASN1Element[] ctlSequenceElements = ctlSequence.elements();
       if (ctlSequenceElements.length != 2)
       {
         throw new LDAPException(ResultCode.DECODING_ERROR,
-                       ERR_END_TXN_RESPONSE_CONTROL_INVALID_ELEMENT_COUNT.get(
-                            ctlSequenceElements.length));
+             ERR_END_TXN_RESPONSE_CONTROL_INVALID_ELEMENT_COUNT.get(
+                  ctlSequenceElements.length));
       }
 
       final int msgID;
@@ -305,9 +302,9 @@ public final class EndBatchedTransactionExtendedResult
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
-                       ERR_END_TXN_RESPONSE_CONTROL_MSGID_NOT_INT.get(ae), ae);
+             ERR_END_TXN_RESPONSE_CONTROL_MSGID_NOT_INT.get(ae), ae);
       }
 
       final ASN1Sequence controlsSequence;
@@ -318,7 +315,7 @@ public final class EndBatchedTransactionExtendedResult
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
              ERR_END_TXN_RESPONSE_CONTROLS_ELEMENT_NOT_SEQUENCE.get(ae), ae);
       }
@@ -357,7 +354,7 @@ public final class EndBatchedTransactionExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
     if (failedOpMessageID != null)
     {
       elements.add(new ASN1Integer(failedOpMessageID));
@@ -365,8 +362,7 @@ public final class EndBatchedTransactionExtendedResult
 
     if ((opResponseControls != null) && (! opResponseControls.isEmpty()))
     {
-      final ArrayList<ASN1Element> controlElements =
-           new ArrayList<ASN1Element>();
+      final ArrayList<ASN1Element> controlElements = new ArrayList<>(10);
       for (final Map.Entry<Integer,Control[]> e : opResponseControls.entrySet())
       {
         final ASN1Element[] ctlElements =
@@ -382,7 +378,6 @@ public final class EndBatchedTransactionExtendedResult
 
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
   }
-
 
 
 

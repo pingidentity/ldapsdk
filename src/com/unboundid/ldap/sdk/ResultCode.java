@@ -1462,7 +1462,7 @@ public final class ResultCode
   /**
    * The integer value (16654) for the "NO_OPERATION" result code.
    */
-  public static final int NO_OPERATION_INT_VALUE = 16654;
+  public static final int NO_OPERATION_INT_VALUE = 16_654;
 
 
 
@@ -1480,7 +1480,8 @@ public final class ResultCode
    * The integer value (30221001) for the "INTERACTIVE_TRANSACTION_ABORTED"
    * result code.
    */
-  public static final int INTERACTIVE_TRANSACTION_ABORTED_INT_VALUE = 30221001;
+  public static final int INTERACTIVE_TRANSACTION_ABORTED_INT_VALUE =
+       30_221_001;
 
 
 
@@ -1498,7 +1499,7 @@ public final class ResultCode
   /**
    * The integer value (30221002) for the "DATABASE_LOCK_CONFLICT" result code.
    */
-  public static final int DATABASE_LOCK_CONFLICT_INT_VALUE = 30221002;
+  public static final int DATABASE_LOCK_CONFLICT_INT_VALUE = 30_221_002;
 
 
 
@@ -1516,7 +1517,8 @@ public final class ResultCode
    * The integer value (30221003) for the "MIRRORED_SUBTREE_DIGEST_MISMATCH"
    * result code.
    */
-  public static final int MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE = 30221003;
+  public static final int MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE =
+       30_221_003;
 
 
 
@@ -1536,7 +1538,7 @@ public final class ResultCode
    * result code.
    */
   public static final int TOKEN_DELIVERY_MECHANISM_UNAVAILABLE_INT_VALUE =
-       30221004;
+       30_221_004;
 
 
 
@@ -1556,7 +1558,7 @@ public final class ResultCode
    * The integer value (30221005) for the "TOKEN_DELIVERY_ATTEMPT_FAILED"
    * result code.
    */
-  public static final int TOKEN_DELIVERY_ATTEMPT_FAILED_INT_VALUE = 30221005;
+  public static final int TOKEN_DELIVERY_ATTEMPT_FAILED_INT_VALUE = 30_221_005;
 
 
 
@@ -1577,7 +1579,7 @@ public final class ResultCode
    * result code.
    */
   public static final int TOKEN_DELIVERY_INVALID_RECIPIENT_ID_INT_VALUE =
-       30221006;
+       30_221_006;
 
 
 
@@ -1598,7 +1600,7 @@ public final class ResultCode
    * result code.
    */
   public static final int TOKEN_DELIVERY_INVALID_ACCOUNT_STATE_INT_VALUE =
-       30221007;
+       30_221_007;
 
 
 
@@ -1620,7 +1622,7 @@ public final class ResultCode
    * values.
    */
   private static final ConcurrentHashMap<Integer,ResultCode>
-       UNDEFINED_RESULT_CODES = new ConcurrentHashMap<Integer,ResultCode>(10);
+       UNDEFINED_RESULT_CODES = new ConcurrentHashMap<>(10);
 
 
 

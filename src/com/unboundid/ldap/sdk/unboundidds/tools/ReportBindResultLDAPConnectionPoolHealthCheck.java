@@ -143,7 +143,7 @@ public final class ReportBindResultLDAPConnectionPoolHealthCheck
 
       if (displayResult)
       {
-        final ArrayList<String> lines = new ArrayList<String>(10);
+        final ArrayList<String> lines = new ArrayList<>(10);
         lines.add("# " + INFO_REPORT_BIND_RESULT_HEADER.get());
 
         ResultUtils.formatResult(lines, bindResult, true, false, 5, wrapColumn);
@@ -156,7 +156,7 @@ public final class ReportBindResultLDAPConnectionPoolHealthCheck
     }
     else
     {
-      final ArrayList<String> lines = new ArrayList<String>(10);
+      final ArrayList<String> lines = new ArrayList<>(10);
       lines.add("# " + INFO_REPORT_BIND_RESULT_HEADER.get());
 
       ResultUtils.formatResult(lines, bindResult, true, false, 0, wrapColumn);

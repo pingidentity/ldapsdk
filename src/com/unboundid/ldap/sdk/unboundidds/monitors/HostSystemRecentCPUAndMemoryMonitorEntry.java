@@ -347,8 +347,7 @@ public final class HostSystemRecentCPUAndMemoryMonitorEntry
   @Override()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
-    final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(9);
+    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(9);
 
     if (timestamp != null)
     {

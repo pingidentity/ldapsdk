@@ -58,10 +58,9 @@ import com.unboundid.util.Mutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 import com.unboundid.util.ssl.SSLSocketVerifier;
 import com.unboundid.util.ssl.TrustAllSSLSocketVerifier;
-
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -1970,7 +1969,7 @@ public final class LDAPConnectionOptions
    */
   public void setReferralHopLimit(final int referralHopLimit)
   {
-    ensureTrue(referralHopLimit > 0,
+    Validator.ensureTrue(referralHopLimit > 0,
          "LDAPConnectionOptions.referralHopLimit must be greater than 0.");
 
     this.referralHopLimit = referralHopLimit;

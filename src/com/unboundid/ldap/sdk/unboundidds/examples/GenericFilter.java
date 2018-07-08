@@ -28,10 +28,9 @@ import java.util.TreeSet;
 
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -83,7 +82,7 @@ public final class GenericFilter
   /**
    * Creates a new generic filter from the provided search filter.
    *
-   * @param  f  The filter to use to create a generic filte.r
+   * @param  f  The filter to use to create a generic filter.
    */
   public GenericFilter(final Filter f)
   {
@@ -103,12 +102,12 @@ public final class GenericFilter
         break;
 
       case Filter.FILTER_TYPE_EQUALITY:
-        b.append(toLowerCase(f.getAttributeName()));
+        b.append(StaticUtils.toLowerCase(f.getAttributeName()));
         b.append("=?");
         break;
 
       case Filter.FILTER_TYPE_SUBSTRING:
-        b.append(toLowerCase(f.getAttributeName()));
+        b.append(StaticUtils.toLowerCase(f.getAttributeName()));
         b.append('=');
         if (f.getRawSubInitialValue() != null)
         {
@@ -126,28 +125,28 @@ public final class GenericFilter
         break;
 
       case Filter.FILTER_TYPE_GREATER_OR_EQUAL:
-        b.append(toLowerCase(f.getAttributeName()));
+        b.append(StaticUtils.toLowerCase(f.getAttributeName()));
         b.append(">=?");
         break;
 
       case Filter.FILTER_TYPE_LESS_OR_EQUAL:
-        b.append(toLowerCase(f.getAttributeName()));
+        b.append(StaticUtils.toLowerCase(f.getAttributeName()));
         b.append("<=?");
         break;
 
       case Filter.FILTER_TYPE_PRESENCE:
-        b.append(toLowerCase(f.getAttributeName()));
+        b.append(StaticUtils.toLowerCase(f.getAttributeName()));
         b.append("=*");
         break;
 
       case Filter.FILTER_TYPE_APPROXIMATE_MATCH:
-        b.append(toLowerCase(f.getAttributeName()));
+        b.append(StaticUtils.toLowerCase(f.getAttributeName()));
         b.append("~=?");
         break;
 
       case Filter.FILTER_TYPE_EXTENSIBLE_MATCH:
-        final String attrName = toLowerCase(f.getAttributeName());
-        final String mrID     = toLowerCase(f.getMatchingRuleID());
+        final String attrName = StaticUtils.toLowerCase(f.getAttributeName());
+        final String mrID     = StaticUtils.toLowerCase(f.getMatchingRuleID());
         if (attrName != null)
         {
           b.append(attrName);
@@ -192,7 +191,7 @@ public final class GenericFilter
     }
 
     final TreeSet<Filter> compSet =
-         new TreeSet<Filter>(FilterComparator.getInstance());
+         new TreeSet<>(FilterComparator.getInstance());
     compSet.addAll(Arrays.asList(f.getComponents()));
     for (final Filter fc : compSet)
     {

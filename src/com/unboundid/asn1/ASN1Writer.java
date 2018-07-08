@@ -28,10 +28,9 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -46,14 +45,14 @@ public final class ASN1Writer
    * The thread-local buffers that will be used for encoding the elements.
    */
   private static final ThreadLocal<ByteStringBuffer> buffers =
-       new ThreadLocal<ByteStringBuffer>();
+       new ThreadLocal<>();
 
 
 
   /**
    * The maximum amount of memory that will be used for a thread-local buffer.
    */
-  private static final int MAX_BUFFER_LENGTH = 524288;
+  private static final int MAX_BUFFER_LENGTH = 524_288;
 
 
 
@@ -81,7 +80,7 @@ public final class ASN1Writer
                                   final OutputStream outputStream)
          throws IOException
   {
-    debugASN1Write(element);
+    Debug.debugASN1Write(element);
 
     ByteStringBuffer buffer = buffers.get();
     if (buffer == null)
@@ -124,7 +123,7 @@ public final class ASN1Writer
                                   final ByteBuffer buffer)
          throws BufferOverflowException
   {
-    debugASN1Write(element);
+    Debug.debugASN1Write(element);
 
     ByteStringBuffer b = buffers.get();
     if (b == null)

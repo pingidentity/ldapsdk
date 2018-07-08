@@ -99,18 +99,6 @@ public final class GetConnectionIDExtendedRequest
 
 
 
-  // This is an ugly hack to prevent checkstyle from complaining about the
-  // import for the IntermediateClientRequestControl class.  It is used by the
-  // @link element in the javadoc, but checkstyle apparently doesn't recognize
-  // that so we just need to use it in some way in this class to placate
-  // checkstyle.
-  static
-  {
-    final IntermediateClientRequestControl c = null;
-  }
-
-
-
   /**
    * Creates a new get connection ID extended request with no controls.
    */

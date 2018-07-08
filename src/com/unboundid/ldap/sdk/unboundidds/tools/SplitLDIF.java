@@ -398,7 +398,7 @@ public final class SplitLDIF
     splitUsingHashOnRDNParser.addArgument(splitUsingHashOnRDNNumSets);
 
     final LinkedHashMap<String[],String> splitUsingHashOnRDNExamples =
-         new LinkedHashMap<String[],String>(1);
+         new LinkedHashMap<>(1);
     splitUsingHashOnRDNExamples.put(
          new String[]
          {
@@ -458,7 +458,7 @@ public final class SplitLDIF
          splitUsingHashOnAttributeAssumeFlatDIT);
 
     final LinkedHashMap<String[],String> splitUsingHashOnAttributeExamples =
-         new LinkedHashMap<String[],String>(1);
+         new LinkedHashMap<>(1);
     splitUsingHashOnAttributeExamples.put(
          new String[]
          {
@@ -503,7 +503,7 @@ public final class SplitLDIF
          splitUsingFewestEntriesAssumeFlatDIT);
 
     final LinkedHashMap<String[],String> splitUsingFewestEntriesExamples =
-         new LinkedHashMap<String[],String>(1);
+         new LinkedHashMap<>(1);
     splitUsingFewestEntriesExamples.put(
          new String[]
          {
@@ -540,7 +540,7 @@ public final class SplitLDIF
     splitUsingFilterParser.addArgument(splitUsingFilterAssumeFlatDIT);
 
     final LinkedHashMap<String[],String> splitUsingFilterExamples =
-         new LinkedHashMap<String[],String>(1);
+         new LinkedHashMap<>(1);
     splitUsingFilterExamples.put(
          new String[]
          {
@@ -595,7 +595,7 @@ public final class SplitLDIF
     {
       final List<Filter> filterList = splitUsingFilterFilter.getValues();
       final Set<Filter> filterSet =
-           new LinkedHashSet<Filter>(filterList.size());
+           new LinkedHashSet<>(filterList.size());
       for (final Filter f : filterList)
       {
         if (filterSet.contains(f))
@@ -690,7 +690,7 @@ public final class SplitLDIF
     {
       final List<Filter> filterList = splitUsingFilterFilter.getValues();
       final LinkedHashSet<Filter> filterSet =
-           new LinkedHashSet<Filter>(filterList.size());
+           new LinkedHashSet<>(filterList.size());
       for (final Filter f : filterList)
       {
         filterSet.add(f);
@@ -755,13 +755,12 @@ public final class SplitLDIF
     // Iterate through and process all of the entries.
     ResultCode resultCode = ResultCode.SUCCESS;
     final LinkedHashMap<String,OutputStream> outputStreams =
-         new LinkedHashMap<String,OutputStream>(10);
+         new LinkedHashMap<>(10);
     try
     {
       final AtomicLong entriesRead = new AtomicLong(0L);
       final AtomicLong entriesExcluded = new AtomicLong(0L);
-      final TreeMap<String,AtomicLong> fileCounts =
-           new TreeMap<String,AtomicLong>();
+      final TreeMap<String,AtomicLong> fileCounts = new TreeMap<>();
 
 readLoop:
       while (true)
@@ -1105,7 +1104,7 @@ readLoop:
     // paths.
     if (schemaPath.isPresent())
     {
-      final ArrayList<File> schemaFiles = new ArrayList<File>(10);
+      final ArrayList<File> schemaFiles = new ArrayList<>(10);
       for (final File path : schemaPath.getValues())
       {
         if (path.isFile())
@@ -1114,7 +1113,7 @@ readLoop:
         }
         else
         {
-          final TreeMap<String,File> fileMap = new TreeMap<String,File>();
+          final TreeMap<String,File> fileMap = new TreeMap<>();
           for (final File schemaDirFile : path.listFiles())
           {
             final String name = schemaDirFile.getName();
@@ -1163,7 +1162,7 @@ readLoop:
           final File schemaDir = new File(configDir, "schema");
           if (schemaDir.exists())
           {
-            final TreeMap<String,File> fileMap = new TreeMap<String,File>();
+            final TreeMap<String,File> fileMap = new TreeMap<>();
             for (final File schemaDirFile : schemaDir.listFiles())
             {
               final String name = schemaDirFile.getName();
@@ -1176,7 +1175,7 @@ readLoop:
 
             if (! fileMap.isEmpty())
             {
-              return Schema.getSchema(new ArrayList<File>(fileMap.values()));
+              return Schema.getSchema(new ArrayList<>(fileMap.values()));
             }
           }
         }
@@ -1228,7 +1227,7 @@ readLoop:
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<String[],String>(4);
+         new LinkedHashMap<>(4);
 
     for (final Map.Entry<String[],String> e :
          splitUsingHashOnRDN.getExampleUsages().entrySet())

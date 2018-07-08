@@ -584,8 +584,7 @@ public final class LDAPCompare
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>();
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(1);
 
     final String[] args =
     {

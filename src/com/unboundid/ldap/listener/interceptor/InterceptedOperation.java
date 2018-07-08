@@ -74,7 +74,7 @@ abstract class InterceptedOperation
     this.clientConnection = clientConnection;
     this.messageID        = messageID;
 
-    propertyMap = new HashMap<String,Object>(10);
+    propertyMap = new HashMap<>(10);
   }
 
 

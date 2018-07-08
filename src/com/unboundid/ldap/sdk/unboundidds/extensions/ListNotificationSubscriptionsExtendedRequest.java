@@ -152,8 +152,8 @@ public final class ListNotificationSubscriptionsExtendedRequest
     }
     else
     {
-      this.destinationIDs = Collections.unmodifiableSet(
-           new LinkedHashSet<String>(destinationIDs));
+      this.destinationIDs =
+           Collections.unmodifiableSet(new LinkedHashSet<>(destinationIDs));
     }
   }
 
@@ -194,7 +194,7 @@ public final class ListNotificationSubscriptionsExtendedRequest
              ASN1Sequence.decodeAsSequence(elements[1]).elements();
 
         final LinkedHashSet<String> destIDs =
-             new LinkedHashSet<String>(destIDElements.length);
+             new LinkedHashSet<>(destIDElements.length);
         for (final ASN1Element e : destIDElements)
         {
           destIDs.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -237,13 +237,13 @@ public final class ListNotificationSubscriptionsExtendedRequest
   {
     Validator.ensureNotNull(managerID);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
     elements.add(new ASN1OctetString(managerID));
 
     if ((destinationIDs != null) && (! destinationIDs.isEmpty()))
     {
       final LinkedHashSet<ASN1Element> destIDElements =
-           new LinkedHashSet<ASN1Element>(destinationIDs.size());
+           new LinkedHashSet<>(destinationIDs.size());
       for (final String destinationID : destinationIDs)
       {
         destIDElements.add(new ASN1OctetString(destinationID));

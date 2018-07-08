@@ -25,12 +25,11 @@ package com.unboundid.ldap.sdk.unboundidds.monitors;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -128,7 +127,7 @@ public final class ReplicationSummaryReplica
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         a = null;
         p = null;
       }
@@ -160,7 +159,7 @@ public final class ReplicationSummaryReplica
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         mc = null;
       }
 
@@ -182,7 +181,7 @@ public final class ReplicationSummaryReplica
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         r = null;
       }
       recentUpdateRate = r;
@@ -203,7 +202,7 @@ public final class ReplicationSummaryReplica
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         r = null;
       }
       peakUpdateRate = r;
@@ -230,11 +229,11 @@ public final class ReplicationSummaryReplica
       try
       {
         final int spacePos = dateStr.indexOf(' ');
-        d = decodeGeneralizedTime(dateStr.substring(0, spacePos));
+        d = StaticUtils.decodeGeneralizedTime(dateStr.substring(0, spacePos));
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         d = null;
       }
 

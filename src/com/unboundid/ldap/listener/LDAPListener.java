@@ -133,11 +133,10 @@ public final class LDAPListener
 
     stopRequested = new AtomicBoolean(false);
     nextConnectionID = new AtomicLong(0L);
-    serverSocket = new AtomicReference<ServerSocket>(null);
-    thread = new AtomicReference<Thread>(null);
+    serverSocket = new AtomicReference<>(null);
+    thread = new AtomicReference<>(null);
     startLatch = new CountDownLatch(1);
-    establishedConnections =
-         new ConcurrentHashMap<Long,LDAPListenerClientConnection>();
+    establishedConnections = new ConcurrentHashMap<>(20);
     setName("LDAP Listener Thread (not listening");
   }
 
@@ -297,8 +296,7 @@ public final class LDAPListener
          new NoticeOfDisconnectionExtendedResult(ResultCode.OTHER, null);
 
     final ArrayList<LDAPListenerClientConnection> connList =
-         new ArrayList<LDAPListenerClientConnection>(
-              establishedConnections.values());
+         new ArrayList<>(establishedConnections.values());
     for (final LDAPListenerClientConnection c : connList)
     {
       if (sendNoticeOfDisconnection)

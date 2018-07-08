@@ -138,8 +138,8 @@ public class SanityCheck
   public SanityCheck()
   {
     baseDir              = null;
-    osgiImportedPackages = new HashSet<String>();
-    srcImportedPackages  = new HashSet<String>();
+    osgiImportedPackages = new HashSet<>(50);
+    srcImportedPackages  = new HashSet<>(50);
   }
 
 
@@ -686,7 +686,7 @@ public class SanityCheck
     {
       jar = new JarFile(jarFile);
 
-      final HashSet<String> packageNames = new HashSet<String>();
+      final HashSet<String> packageNames = new HashSet<>(50);
 
       // Look at the files contained in the jar to make sure they are correct.
       final Enumeration<? extends JarEntry> entries = jar.entries();

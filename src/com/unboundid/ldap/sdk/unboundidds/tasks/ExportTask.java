@@ -32,14 +32,14 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -513,7 +513,6 @@ public final class ExportTask
 
 
 
-
   /**
    * Creates a new export task with the provided information.
    *
@@ -885,7 +884,7 @@ public final class ExportTask
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
          alertOnSuccess, alertOnError);
 
-    ensureNotNull(backendID, ldifFile);
+    Validator.ensureNotNull(backendID, ldifFile);
 
     this.backendID = backendID;
     this.ldifFile = ldifFile;
@@ -1029,7 +1028,7 @@ public final class ExportTask
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new TaskException(ERR_EXPORT_TASK_CANNOT_PARSE_WRAP_COLUMN.get(
                                      getTaskEntryDN(), wrapStr), e);
       }
@@ -1470,7 +1469,7 @@ public final class ExportTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_EXPORT_TASK);
+    return Collections.singletonList(OC_EXPORT_TASK);
   }
 
 
@@ -1481,7 +1480,7 @@ public final class ExportTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(20);
+    final ArrayList<Attribute> attrs = new ArrayList<>(20);
 
     attrs.add(new Attribute(ATTR_BACKEND_ID, backendID));
     attrs.add(new Attribute(ATTR_LDIF_FILE, ldifFile));
@@ -1584,17 +1583,16 @@ public final class ExportTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(30);
 
     props.put(PROPERTY_BACKEND_ID,
-              Collections.<Object>unmodifiableList(Arrays.asList(backendID)));
+              Collections.<Object>singletonList(backendID));
 
     props.put(PROPERTY_LDIF_FILE,
-              Collections.<Object>unmodifiableList(Arrays.asList(ldifFile)));
+              Collections.<Object>singletonList(ldifFile));
 
     props.put(PROPERTY_APPEND_TO_LDIF,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   appendToLDIF)));
+              Collections.<Object>singletonList(appendToLDIF));
 
     props.put(PROPERTY_INCLUDE_BRANCH,
               Collections.<Object>unmodifiableList(includeBranches));
@@ -1615,14 +1613,13 @@ public final class ExportTask
               Collections.<Object>unmodifiableList(excludeAttributes));
 
     props.put(PROPERTY_WRAP_COLUMN,
-              Collections.<Object>unmodifiableList(Arrays.asList(
-                   Long.valueOf(wrapColumn))));
+              Collections.<Object>singletonList((long) wrapColumn));
 
     props.put(PROPERTY_COMPRESS,
-              Collections.<Object>unmodifiableList(Arrays.asList(compress)));
+              Collections.<Object>singletonList(compress));
 
     props.put(PROPERTY_ENCRYPT,
-              Collections.<Object>unmodifiableList(Arrays.asList(encrypt)));
+              Collections.<Object>singletonList(encrypt));
 
     if (encryptionPassphraseFile == null)
     {
@@ -1631,8 +1628,7 @@ public final class ExportTask
     else
     {
       props.put(PROPERTY_ENCRYPTION_PASSPHRASE_FILE,
-         Collections.<Object>unmodifiableList(Arrays.asList(
-              encryptionPassphraseFile)));
+         Collections.<Object>singletonList(encryptionPassphraseFile));
     }
 
     if (encryptionSettingsDefinitionID == null)
@@ -1643,12 +1639,10 @@ public final class ExportTask
     else
     {
       props.put(PROPERTY_ENCRYPTION_SETTINGS_DEFINITION_ID,
-         Collections.<Object>unmodifiableList(Arrays.asList(
-              encryptionSettingsDefinitionID)));
+         Collections.<Object>singletonList(encryptionSettingsDefinitionID));
     }
 
-    props.put(PROPERTY_SIGN,
-              Collections.<Object>unmodifiableList(Arrays.asList(sign)));
+    props.put(PROPERTY_SIGN, Collections.<Object>singletonList(sign));
 
     if (maxMegabytesPerSecond == null)
     {
@@ -1657,8 +1651,7 @@ public final class ExportTask
     else
     {
       props.put(PROPERTY_MAX_MEGABYTES_PER_SECOND,
-         Collections.<Object>unmodifiableList(Arrays.asList(
-              maxMegabytesPerSecond.longValue())));
+         Collections.<Object>singletonList(maxMegabytesPerSecond.longValue()));
     }
 
     props.putAll(super.getTaskPropertyValues());

@@ -83,10 +83,8 @@ final class SRVRecordPrioritySet
 
     long w = 0L;
 
-    final ArrayList<SRVRecord> nRecords =
-         new ArrayList<SRVRecord>(records.size());
-    final ArrayList<SRVRecord> zRecords =
-         new ArrayList<SRVRecord>(records.size());
+    final ArrayList<SRVRecord> nRecords = new ArrayList<>(records.size());
+    final ArrayList<SRVRecord> zRecords = new ArrayList<>(records.size());
 
     for (final SRVRecord r : records)
     {
@@ -129,8 +127,7 @@ final class SRVRecordPrioritySet
    */
   List<SRVRecord> getOrderedRecords()
   {
-    final ArrayList<SRVRecord> records =
-         new ArrayList<SRVRecord>(allRecords.size());
+    final ArrayList<SRVRecord> records = new ArrayList<>(allRecords.size());
 
     if (! nonzeroWeightRecords.isEmpty())
     {
@@ -142,8 +139,7 @@ final class SRVRecordPrioritySet
       {
         final Random r = ThreadLocalRandom.get();
         long tw = totalWeight;
-        final ArrayList<SRVRecord> rl =
-             new ArrayList<SRVRecord>(nonzeroWeightRecords);
+        final ArrayList<SRVRecord> rl = new ArrayList<>(nonzeroWeightRecords);
         while (! rl.isEmpty())
         {
           long w = ((r.nextLong() & 0x7FFFFFFFFFFFFFFFL) % tw);
@@ -194,7 +190,7 @@ final class SRVRecordPrioritySet
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  void toString(final StringBuilder buffer)
+  private void toString(final StringBuilder buffer)
   {
     buffer.append("SRVRecordPrioritySet(records={");
 

@@ -191,7 +191,7 @@ public final class MatchingEntryCountResponseControl
     else
     {
       this.debugInfo =
-           Collections.unmodifiableList(new ArrayList<String>(debugInfo));
+           Collections.unmodifiableList(new ArrayList<>(debugInfo));
     }
   }
 
@@ -272,7 +272,7 @@ public final class MatchingEntryCountResponseControl
           case TYPE_DEBUG_INFO:
             final ASN1Element[] debugElements =
                  ASN1Sequence.decodeAsSequence(elements[i]).elements();
-            debugMessages = new ArrayList<String>(debugElements.length);
+            debugMessages = new ArrayList<>(debugElements.length);
             for (final ASN1Element e : debugElements)
             {
               debugMessages.add(
@@ -494,7 +494,7 @@ public final class MatchingEntryCountResponseControl
                                       final boolean searchIndexed,
                                       final Collection<String> debugInfo)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     switch (countType)
     {
@@ -511,7 +511,7 @@ public final class MatchingEntryCountResponseControl
     if (debugInfo != null)
     {
       final ArrayList<ASN1Element> debugElements =
-           new ArrayList<ASN1Element>(debugInfo.size());
+           new ArrayList<>(debugInfo.size());
       for (final String s : debugInfo)
       {
         debugElements.add(new ASN1OctetString(s));

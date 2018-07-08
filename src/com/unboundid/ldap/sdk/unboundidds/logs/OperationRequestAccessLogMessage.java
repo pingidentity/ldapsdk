@@ -108,7 +108,7 @@ public abstract class OperationRequestAccessLogMessage
     }
     else
     {
-      final LinkedList<String> controlList = new LinkedList<String>();
+      final LinkedList<String> controlList = new LinkedList<>();
       final StringTokenizer t = new StringTokenizer(controlStr, ",");
       while (t.hasMoreTokens())
       {

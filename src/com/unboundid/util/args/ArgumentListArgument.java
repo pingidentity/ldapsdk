@@ -145,8 +145,8 @@ public final class ArgumentListArgument
 
     this.parser = parser.getCleanCopy();
 
-    values = new ArrayList<ArgumentParser>();
-    valueStrings = new ArrayList<String>();
+    values = new ArrayList<>(10);
+    valueStrings = new ArrayList<>(10);
   }
 
 
@@ -162,8 +162,8 @@ public final class ArgumentListArgument
     super(source);
 
     parser = source.parser;
-    values = new ArrayList<ArgumentParser>();
-    valueStrings = new ArrayList<String>();
+    values = new ArrayList<>(10);
+    valueStrings = new ArrayList<>(10);
   }
 
 

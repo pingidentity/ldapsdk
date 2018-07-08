@@ -36,13 +36,13 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -142,7 +142,7 @@ public final class PreReadResponseControl
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_PRE_READ_RESPONSE_VALUE_NOT_SEQUENCE.get(ae),
                               ae);
@@ -166,7 +166,7 @@ public final class PreReadResponseControl
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                      ERR_PRE_READ_RESPONSE_ATTRIBUTES_NOT_SEQUENCE.get(ae), ae);
     }
@@ -182,7 +182,7 @@ public final class PreReadResponseControl
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
                        ERR_PRE_READ_RESPONSE_ATTR_NOT_SEQUENCE.get(ae), ae);
       }
@@ -255,11 +255,10 @@ public final class PreReadResponseControl
    */
   private static ASN1OctetString encodeValue(final ReadOnlyEntry entry)
   {
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     final Collection<Attribute> attrs = entry.getAttributes();
-    final ArrayList<ASN1Element> attrElements =
-         new ArrayList<ASN1Element>(attrs.size());
+    final ArrayList<ASN1Element> attrElements = new ArrayList<>(attrs.size());
     for (final Attribute a : attrs)
     {
       attrElements.add(a.encode());

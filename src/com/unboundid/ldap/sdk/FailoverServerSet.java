@@ -26,13 +26,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.net.SocketFactory;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -295,10 +294,10 @@ public final class FailoverServerSet
                            final BindRequest bindRequest,
                            final PostConnectProcessor postConnectProcessor)
   {
-    ensureNotNull(addresses, ports);
-    ensureTrue(addresses.length > 0,
-               "FailoverServerSet.addresses must not be empty.");
-    ensureTrue(addresses.length == ports.length,
+    Validator.ensureNotNull(addresses, ports);
+    Validator.ensureTrue(addresses.length > 0,
+         "FailoverServerSet.addresses must not be empty.");
+    Validator.ensureTrue(addresses.length == ports.length,
          "FailoverServerSet addresses and ports arrays must be the same size.");
 
     reOrderOnFailover = new AtomicBoolean(false);
@@ -348,7 +347,7 @@ public final class FailoverServerSet
    */
   public FailoverServerSet(final ServerSet... serverSets)
   {
-    this(toList(serverSets));
+    this(StaticUtils.toList(serverSets));
   }
 
 
@@ -367,9 +366,9 @@ public final class FailoverServerSet
    */
   public FailoverServerSet(final List<ServerSet> serverSets)
   {
-    ensureNotNull(serverSets);
-    ensureFalse(serverSets.isEmpty(),
-                "FailoverServerSet.serverSets must not be empty.");
+    Validator.ensureNotNull(serverSets);
+    Validator.ensureFalse(serverSets.isEmpty(),
+         "FailoverServerSet.serverSets must not be empty.");
 
     this.serverSets = new ServerSet[serverSets.size()];
     serverSets.toArray(this.serverSets);
@@ -401,7 +400,7 @@ public final class FailoverServerSet
 
     if (anySupportsAuthentication)
     {
-      ensureTrue(allSupportAuthentication,
+      Validator.ensureTrue(allSupportAuthentication,
            "When creating a FailoverServerSet from a collection of server " +
                 "sets, either all of those sets must include authentication, " +
                 "or none of those sets may include authentication.");
@@ -409,7 +408,7 @@ public final class FailoverServerSet
 
     if (anySupportsPostConnectProcessing)
     {
-      ensureTrue(allSupportPostConnectProcessing,
+      Validator.ensureTrue(allSupportPostConnectProcessing,
            "When creating a FailoverServerSet from a collection of server " +
                 "sets, either all of those sets must include post-connect " +
                 "processing, or none of those sets may include post-connect " +
@@ -590,7 +589,7 @@ public final class FailoverServerSet
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
         }
 
         // If we've gotten here, then we will need to re-order the list unless
@@ -608,7 +607,7 @@ public final class FailoverServerSet
           }
           catch (final LDAPException le)
           {
-            debugException(le);
+            Debug.debugException(le);
             lastException = le;
           }
         }
@@ -663,7 +662,7 @@ public final class FailoverServerSet
         catch (final LDAPException le)
         {
           first = false;
-          debugException(le);
+          Debug.debugException(le);
           lastException = le;
         }
       }

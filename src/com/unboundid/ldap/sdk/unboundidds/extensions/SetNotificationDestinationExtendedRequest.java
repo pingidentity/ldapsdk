@@ -193,8 +193,8 @@ public final class SetNotificationDestinationExtendedRequest
 
     this.managerID = managerID;
     this.destinationID = destinationID;
-    this.destinationDetails = Collections.unmodifiableList(
-         new ArrayList<ASN1OctetString>(destinationDetails));
+    this.destinationDetails =
+         Collections.unmodifiableList(new ArrayList<>(destinationDetails));
 
     if (changeType == null)
     {
@@ -242,7 +242,7 @@ public final class SetNotificationDestinationExtendedRequest
       final ASN1Element[] detailElements =
            ASN1Sequence.decodeAsSequence(elements[2]).elements();
       final ArrayList<ASN1OctetString> detailList =
-           new ArrayList<ASN1OctetString>(detailElements.length);
+           new ArrayList<>(detailElements.length);
       for (final ASN1Element e : detailElements)
       {
         detailList.add(ASN1OctetString.decodeAsOctetString(e));
@@ -318,7 +318,7 @@ public final class SetNotificationDestinationExtendedRequest
     Validator.ensureNotNull(destinationDetails);
     Validator.ensureFalse(destinationDetails.isEmpty());
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
     elements.add(new ASN1OctetString(managerID));
     elements.add(new ASN1OctetString(destinationID));
     elements.add(new ASN1Sequence(

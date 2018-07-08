@@ -239,7 +239,7 @@ public final class FlattenSubtreeTransformation
         // If appropriate allocate a set to hold omitted RDN values.
         if (addOmittedRDNAttributesToEntry || addOmittedRDNAttributesToRDN)
         {
-          omittedRDNValues = new LinkedHashSet<ObjectPair<String,String>>(5);
+          omittedRDNValues = new LinkedHashSet<>(5);
         }
 
 
@@ -260,12 +260,12 @@ public final class FlattenSubtreeTransformation
     // values.
     final Collection<Attribute> originalAttributes = e.getAttributes();
     final ArrayList<Attribute> newAttributes =
-         new ArrayList<Attribute>(originalAttributes.size());
+         new ArrayList<>(originalAttributes.size());
 
     final LinkedHashSet<ObjectPair<String,String>> tempOmittedRDNValues;
     if (addOmittedRDNAttributesToRDN)
     {
-      tempOmittedRDNValues = new LinkedHashSet<ObjectPair<String,String>>(5);
+      tempOmittedRDNValues = new LinkedHashSet<>(5);
     }
     else
     {
@@ -351,8 +351,7 @@ public final class FlattenSubtreeTransformation
         final String[] values = originalRDNs[i].getAttributeValues();
         for (int j=0; j < names.length; j++)
         {
-          omittedRDNValues.add(
-               new ObjectPair<String,String>(names[j], values[j]));
+          omittedRDNValues.add(new ObjectPair<>(names[j], values[j]));
         }
       }
 
@@ -362,8 +361,7 @@ public final class FlattenSubtreeTransformation
       final String[] origValues = originalRDNs[0].getAttributeValues();
       for (int i=0; i < origNames.length; i++)
       {
-        omittedRDNValues.remove(
-             new ObjectPair<String,String>(origNames[i], origValues[i]));
+        omittedRDNValues.remove(new ObjectPair<>(origNames[i], origValues[i]));
       }
 
       // If we should include omitted RDN values in the new RDN, then construct

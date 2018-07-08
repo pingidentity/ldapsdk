@@ -147,8 +147,7 @@ final class UNBOUNDIDTESTBindRequest
     final SaslClient saslClient =
          new UNBOUNDIDTESTSASLClient(dn, password, qop);
 
-    final ArrayList<String> unhandledCallbackMessages =
-         new ArrayList<String>(0);
+    final ArrayList<String> unhandledCallbackMessages = new ArrayList<>(0);
     final SASLHelper helper = new SASLHelper(this, connection,
          UNBOUNDID_TEST_MECHANISM_NAME, saslClient, getControls(),
          getResponseTimeoutMillis(connection), unhandledCallbackMessages);

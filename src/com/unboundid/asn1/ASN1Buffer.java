@@ -31,12 +31,11 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -55,7 +54,7 @@ public final class ASN1Buffer
   /**
    * The default maximum buffer size.
    */
-  private static final int DEFAULT_MAX_BUFFER_SIZE = 1048576;
+  private static final int DEFAULT_MAX_BUFFER_SIZE = 1_048_576;
 
 
 
@@ -367,18 +366,18 @@ public final class ASN1Buffer
 
     if (intValue < 0)
     {
-      if ((intValue & 0xFFFFFF80) == 0xFFFFFF80)
+      if ((intValue & 0xFFFF_FF80) == 0xFFFF_FF80)
       {
         buffer.append((byte) 0x01);
         buffer.append((byte) (intValue & 0xFF));
       }
-      else if ((intValue & 0xFFFF8000) == 0xFFFF8000)
+      else if ((intValue & 0xFFFF_8000) == 0xFFFF_8000)
       {
         buffer.append((byte) 0x02);
         buffer.append((byte) ((intValue >> 8) & 0xFF));
         buffer.append((byte) (intValue & 0xFF));
       }
-      else if ((intValue & 0xFF800000) == 0xFF800000)
+      else if ((intValue & 0xFF80_0000) == 0xFF80_0000)
       {
         buffer.append((byte) 0x03);
         buffer.append((byte) ((intValue >> 16) & 0xFF));
@@ -396,18 +395,18 @@ public final class ASN1Buffer
     }
     else
     {
-      if ((intValue & 0x0000007F) == intValue)
+      if ((intValue & 0x0000_007F) == intValue)
       {
         buffer.append((byte) 0x01);
         buffer.append((byte) (intValue & 0x7F));
       }
-      else if ((intValue & 0x00007FFF) == intValue)
+      else if ((intValue & 0x0000_7FFF) == intValue)
       {
         buffer.append((byte) 0x02);
         buffer.append((byte) ((intValue >> 8) & 0x7F));
         buffer.append((byte) (intValue & 0xFF));
       }
-      else if ((intValue & 0x007FFFFF) == intValue)
+      else if ((intValue & 0x007F_FFFF) == intValue)
       {
         buffer.append((byte) 0x03);
         buffer.append((byte) ((intValue >> 16) & 0x7F));
@@ -451,25 +450,25 @@ public final class ASN1Buffer
 
     if (longValue < 0)
     {
-      if ((longValue & 0xFFFFFFFFFFFFFF80L) == 0xFFFFFFFFFFFFFF80L)
+      if ((longValue & 0xFFFF_FFFF_FFFF_FF80L) == 0xFFFF_FFFF_FFFF_FF80L)
       {
         buffer.append((byte) 0x01);
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0xFFFFFFFFFFFF8000L) == 0xFFFFFFFFFFFF8000L)
+      else if ((longValue & 0xFFFF_FFFF_FFFF_8000L) == 0xFFFF_FFFF_FFFF_8000L)
       {
         buffer.append((byte) 0x02);
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0xFFFFFFFFFF800000L) == 0xFFFFFFFFFF800000L)
+      else if ((longValue & 0xFFFF_FFFF_FF80_0000L) == 0xFFFF_FFFF_FF80_0000L)
       {
         buffer.append((byte) 0x03);
         buffer.append((byte) ((longValue >> 16) & 0xFFL));
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0xFFFFFFFF80000000L) == 0xFFFFFFFF80000000L)
+      else if ((longValue & 0xFFFF_FFFF_8000_0000L) == 0xFFFF_FFFF_8000_0000L)
       {
         buffer.append((byte) 0x04);
         buffer.append((byte) ((longValue >> 24) & 0xFFL));
@@ -477,7 +476,7 @@ public final class ASN1Buffer
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0xFFFFFF8000000000L) == 0xFFFFFF8000000000L)
+      else if ((longValue & 0xFFFF_FF80_0000_0000L) == 0xFFFF_FF80_0000_0000L)
       {
         buffer.append((byte) 0x05);
         buffer.append((byte) ((longValue >> 32) & 0xFFL));
@@ -486,7 +485,7 @@ public final class ASN1Buffer
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0xFFFF800000000000L) == 0xFFFF800000000000L)
+      else if ((longValue & 0xFFFF_8000_0000_0000L) == 0xFFFF_8000_0000_0000L)
       {
         buffer.append((byte) 0x06);
         buffer.append((byte) ((longValue >> 40) & 0xFFL));
@@ -496,7 +495,7 @@ public final class ASN1Buffer
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0xFF80000000000000L) == 0xFF80000000000000L)
+      else if ((longValue & 0xFF80_0000_0000_0000L) == 0xFF80_0000_0000_0000L)
       {
         buffer.append((byte) 0x07);
         buffer.append((byte) ((longValue >> 48) & 0xFFL));
@@ -522,25 +521,25 @@ public final class ASN1Buffer
     }
     else
     {
-      if ((longValue & 0x000000000000007FL) == longValue)
+      if ((longValue & 0x0000_0000_0000_007FL) == longValue)
       {
         buffer.append((byte) 0x01);
         buffer.append((byte) (longValue & 0x7FL));
       }
-      else if ((longValue & 0x0000000000007FFFL) == longValue)
+      else if ((longValue & 0x0000_0000_0000_7FFFL) == longValue)
       {
         buffer.append((byte) 0x02);
         buffer.append((byte) ((longValue >> 8) & 0x7FL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0x00000000007FFFFFL) == longValue)
+      else if ((longValue & 0x0000_0000_007F_FFFFL) == longValue)
       {
         buffer.append((byte) 0x03);
         buffer.append((byte) ((longValue >> 16) & 0x7FL));
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0x000000007FFFFFFFL) == longValue)
+      else if ((longValue & 0x0000_0000_7FFF_FFFFL) == longValue)
       {
         buffer.append((byte) 0x04);
         buffer.append((byte) ((longValue >> 24) & 0x7FL));
@@ -548,7 +547,7 @@ public final class ASN1Buffer
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0x0000007FFFFFFFFFL) == longValue)
+      else if ((longValue & 0x0000_007F_FFFF_FFFFL) == longValue)
       {
         buffer.append((byte) 0x05);
         buffer.append((byte) ((longValue >> 32) & 0x7FL));
@@ -557,7 +556,7 @@ public final class ASN1Buffer
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0x00007FFFFFFFFFFFL) == longValue)
+      else if ((longValue & 0x0000_7FFF_FFFF_FFFFL) == longValue)
       {
         buffer.append((byte) 0x06);
         buffer.append((byte) ((longValue >> 40) & 0x7FL));
@@ -567,7 +566,7 @@ public final class ASN1Buffer
         buffer.append((byte) ((longValue >> 8) & 0xFFL));
         buffer.append((byte) (longValue & 0xFFL));
       }
-      else if ((longValue & 0x007FFFFFFFFFFFFFL) == longValue)
+      else if ((longValue & 0x007F_FFFF_FFFF_FFFFL) == longValue)
       {
         buffer.append((byte) 0x07);
         buffer.append((byte) ((longValue >> 48) & 0x7FL));
@@ -969,7 +968,7 @@ public final class ASN1Buffer
       backingArray[valueStartPos+1] = (byte) ((length >> 8) & 0xFF);
       backingArray[valueStartPos+2] = (byte) (length & 0xFF);
     }
-    else if ((length & 0xFFFFFF) == length)
+    else if ((length & 0x00FF_FFFF) == length)
     {
       buffer.insert(valueStartPos, MULTIBYTE_LENGTH_HEADER_PLUS_THREE);
 
@@ -1004,9 +1003,9 @@ public final class ASN1Buffer
   public void writeTo(final OutputStream outputStream)
          throws IOException
   {
-    if (debugEnabled(DebugType.ASN1))
+    if (Debug.debugEnabled(DebugType.ASN1))
     {
-      debugASN1Write(this);
+      Debug.debugASN1Write(this);
     }
 
     buffer.write(outputStream);

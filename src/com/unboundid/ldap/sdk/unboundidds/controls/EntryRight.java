@@ -22,10 +22,9 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -125,7 +124,7 @@ public enum EntryRight
    */
   public static EntryRight forName(final String name)
   {
-    switch (toLowerCase(name))
+    switch (StaticUtils.toLowerCase(name))
     {
       case "add":
         return ADD;

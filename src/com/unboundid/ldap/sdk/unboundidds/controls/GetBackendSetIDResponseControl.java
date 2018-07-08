@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -152,7 +151,8 @@ public final class GetBackendSetIDResponseControl
               final String entryBalancingRequestProcessorID,
               final String backendSetID)
   {
-    this(entryBalancingRequestProcessorID, Arrays.asList(backendSetID));
+    this(entryBalancingRequestProcessorID,
+         Collections.singletonList(backendSetID));
   }
 
 
@@ -180,7 +180,7 @@ public final class GetBackendSetIDResponseControl
 
     this.entryBalancingRequestProcessorID = entryBalancingRequestProcessorID;
     this.backendSetIDs =
-         Collections.unmodifiableSet(new LinkedHashSet<String>(backendSetIDs));
+         Collections.unmodifiableSet(new LinkedHashSet<>(backendSetIDs));
   }
 
 
@@ -221,7 +221,7 @@ public final class GetBackendSetIDResponseControl
       final ASN1Element[] backendSetIDElements =
            ASN1Set.decodeAsSet(elements[1]).elements();
       final LinkedHashSet<String> setIDs =
-           new LinkedHashSet<String>(backendSetIDElements.length);
+           new LinkedHashSet<>(backendSetIDElements.length);
       for (final ASN1Element e : backendSetIDElements)
       {
         setIDs.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -265,7 +265,7 @@ public final class GetBackendSetIDResponseControl
     Validator.ensureFalse(backendSetIDs.isEmpty());
 
     final ArrayList<ASN1Element> backendSetIDElements =
-         new ArrayList<ASN1Element>(backendSetIDs.size());
+         new ArrayList<>(backendSetIDs.size());
     for (final String s : backendSetIDs)
     {
       backendSetIDElements.add(new ASN1OctetString(s));
@@ -420,7 +420,7 @@ public final class GetBackendSetIDResponseControl
     }
 
     final ArrayList<GetBackendSetIDResponseControl> decodedControls =
-         new ArrayList<GetBackendSetIDResponseControl>(controls.length);
+         new ArrayList<>(controls.length);
     for (final Control c : controls)
     {
       if (c instanceof GetBackendSetIDResponseControl)

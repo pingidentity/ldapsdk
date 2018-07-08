@@ -27,12 +27,11 @@ import java.net.InetAddress;
 import java.net.Socket;
 import javax.net.SocketFactory;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -192,8 +191,8 @@ public final class JavaToLDAPSocketFactory
     }
     catch (final Exception e)
     {
-      debugException(e);
-      throw new LDAPException(getExceptionMessage(e),
+      Debug.debugException(e);
+      throw new LDAPException(StaticUtils.getExceptionMessage(e),
            LDAPException.CONNECT_ERROR);
     }
   }

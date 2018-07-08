@@ -34,9 +34,9 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -104,7 +104,6 @@ public final class AddSchemaFileTask
 
 
 
-
   /**
    * The serial version UID for this serializable class.
    */
@@ -130,7 +129,6 @@ public final class AddSchemaFileTask
 
 
 
-
   /**
    * Creates a new add schema file task to add the specified file to the server
    * schema.
@@ -144,11 +142,11 @@ public final class AddSchemaFileTask
    */
   public AddSchemaFileTask(final String taskID, final String schemaFileName)
   {
-    this(taskID, Arrays.asList(schemaFileName), null, null, null, null, null);
+    this(taskID, Collections.singletonList(schemaFileName), null, null, null,
+         null, null);
 
-    ensureNotNull(schemaFileName);
+    Validator.ensureNotNull(schemaFileName);
   }
-
 
 
 
@@ -270,9 +268,9 @@ public final class AddSchemaFileTask
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
          alertOnSuccess, alertOnError);
 
-    ensureNotNull(schemaFileNames);
-    ensureFalse(schemaFileNames.isEmpty(),
-                "AddSchemaFileTask.schemaFileNames must not be empty.");
+    Validator.ensureNotNull(schemaFileNames);
+    Validator.ensureFalse(schemaFileNames.isEmpty(),
+         "AddSchemaFileTask.schemaFileNames must not be empty.");
 
     this.schemaFileNames = Collections.unmodifiableList(schemaFileNames);
   }
@@ -387,7 +385,7 @@ public final class AddSchemaFileTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_ADD_SCHEMA_FILE_TASK);
+    return Collections.singletonList(OC_ADD_SCHEMA_FILE_TASK);
   }
 
 
@@ -398,7 +396,8 @@ public final class AddSchemaFileTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    return Arrays.asList(new Attribute(ATTR_SCHEMA_FILE, schemaFileNames));
+    return Collections.singletonList(
+         new Attribute(ATTR_SCHEMA_FILE, schemaFileNames));
   }
 
 
@@ -409,7 +408,7 @@ public final class AddSchemaFileTask
   @Override()
   public List<TaskProperty> getTaskSpecificProperties()
   {
-    return Collections.unmodifiableList(Arrays.asList(PROPERTY_SCHEMA_FILE));
+    return Collections.singletonList(PROPERTY_SCHEMA_FILE);
   }
 
 
@@ -421,7 +420,7 @@ public final class AddSchemaFileTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>();
+         new LinkedHashMap<>(10);
 
     props.put(PROPERTY_SCHEMA_FILE,
               Collections.<Object>unmodifiableList(schemaFileNames));

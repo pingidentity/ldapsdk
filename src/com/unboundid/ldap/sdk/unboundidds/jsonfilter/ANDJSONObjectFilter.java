@@ -125,7 +125,7 @@ public final class ANDJSONObjectFilter
    * The pre-allocated set of required field names.
    */
   private static final Set<String> REQUIRED_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Collections.singletonList(FIELD_AND_FILTERS)));
 
 
@@ -228,8 +228,8 @@ public final class ANDJSONObjectFilter
     }
     else
     {
-      this.andFilters = Collections.unmodifiableList(
-           new ArrayList<JSONObjectFilter>(andFilters));
+      this.andFilters =
+           Collections.unmodifiableList(new ArrayList<>(andFilters));
     }
   }
 
@@ -293,13 +293,12 @@ public final class ANDJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields =
-         new LinkedHashMap<String,JSONValue>(2);
+    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(2);
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 
     final ArrayList<JSONValue> filterValues =
-         new ArrayList<JSONValue>(andFilters.size());
+         new ArrayList<>(andFilters.size());
     for (final JSONObjectFilter f : andFilters)
     {
       filterValues.add(f.toJSONObject());

@@ -64,8 +64,9 @@ public final class ResultCodeCounter
    */
   public ResultCodeCounter()
   {
-    rcMap = new AtomicReference<ConcurrentHashMap<ResultCode,AtomicLong>>();
-    rcMap.set(new ConcurrentHashMap<ResultCode,AtomicLong>());
+    rcMap = new AtomicReference<>();
+    rcMap.set(new ConcurrentHashMap<ResultCode,AtomicLong>(
+         ResultCode.values().length));
   }
 
 
@@ -114,7 +115,8 @@ public final class ResultCodeCounter
    */
   public void reset()
   {
-    rcMap.set(new ConcurrentHashMap<ResultCode, AtomicLong>());
+    rcMap.set(new ConcurrentHashMap<ResultCode,AtomicLong>(
+         ResultCode.values().length));
   }
 
 
@@ -135,11 +137,12 @@ public final class ResultCodeCounter
     final ConcurrentHashMap<ResultCode,AtomicLong> m;
     if (reset)
     {
-      m = rcMap.getAndSet(new ConcurrentHashMap<ResultCode,AtomicLong>());
+      m = rcMap.getAndSet(new ConcurrentHashMap<ResultCode,AtomicLong>(
+           ResultCode.values().length));
     }
     else
     {
-      m = new ConcurrentHashMap<ResultCode,AtomicLong>(rcMap.get());
+      m = new ConcurrentHashMap<>(rcMap.get());
     }
 
 
@@ -150,15 +153,14 @@ public final class ResultCodeCounter
 
 
     final TreeMap<Long,TreeMap<Integer,ResultCode>> sortedMap =
-         new TreeMap<Long,TreeMap<Integer,ResultCode>>(
-              new ReverseComparator<Long>());
+         new TreeMap<>(new ReverseComparator<Long>());
     for (final Map.Entry<ResultCode,AtomicLong> e : m.entrySet())
     {
       final long l = e.getValue().longValue();
       TreeMap<Integer,ResultCode> rcByValue = sortedMap.get(l);
       if (rcByValue == null)
       {
-        rcByValue = new TreeMap<Integer,ResultCode>();
+        rcByValue = new TreeMap<>();
         sortedMap.put(l, rcByValue);
       }
 
@@ -168,14 +170,14 @@ public final class ResultCodeCounter
 
 
     final ArrayList<ObjectPair<ResultCode,Long>> rcCounts =
-         new ArrayList<ObjectPair<ResultCode,Long>>(2*sortedMap.size());
+         new ArrayList<>(2*sortedMap.size());
     for (final Map.Entry<Long,TreeMap<Integer,ResultCode>> e :
          sortedMap.entrySet())
     {
       final long count = e.getKey();
       for (final ResultCode rc : e.getValue().values())
       {
-        rcCounts.add(new ObjectPair<ResultCode,Long>(rc, count));
+        rcCounts.add(new ObjectPair<>(rc, count));
       }
     }
 

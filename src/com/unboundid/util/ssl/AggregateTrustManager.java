@@ -30,13 +30,13 @@ import java.util.Collections;
 import java.util.List;
 import javax.net.ssl.X509TrustManager;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.ssl.SSLMessages.*;
 
 
@@ -109,8 +109,8 @@ public final class AggregateTrustManager
          "The set of associated trust managers must not be empty.");
 
     this.requireAllAccepted = requireAllAccepted;
-    this.trustManagers = Collections.unmodifiableList(
-         new ArrayList<X509TrustManager>(trustManagers));
+    this.trustManagers =
+         Collections.unmodifiableList(new ArrayList<>(trustManagers));
   }
 
 
@@ -176,7 +176,7 @@ public final class AggregateTrustManager
       }
       catch (final CertificateException ce)
       {
-        debugException(ce);
+        Debug.debugException(ce);
 
         if (requireAllAccepted)
         {
@@ -186,7 +186,7 @@ public final class AggregateTrustManager
         {
           if (exceptionMessages == null)
           {
-            exceptionMessages = new ArrayList<String>(trustManagers.size());
+            exceptionMessages = new ArrayList<>(trustManagers.size());
           }
 
           exceptionMessages.add(ce.getMessage());
@@ -246,7 +246,7 @@ public final class AggregateTrustManager
       }
       catch (final CertificateException ce)
       {
-        debugException(ce);
+        Debug.debugException(ce);
 
         if (requireAllAccepted)
         {
@@ -256,7 +256,7 @@ public final class AggregateTrustManager
         {
           if (exceptionMessages == null)
           {
-            exceptionMessages = new ArrayList<String>(trustManagers.size());
+            exceptionMessages = new ArrayList<>(trustManagers.size());
           }
 
           exceptionMessages.add(ce.getMessage());

@@ -27,14 +27,14 @@ import java.util.ArrayList;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -216,7 +216,7 @@ public class ExtendedResult
         switch (type)
         {
           case TYPE_REFERRAL_URLS:
-            final ArrayList<String> refList = new ArrayList<String>(1);
+            final ArrayList<String> refList = new ArrayList<>(1);
             final ASN1StreamReaderSequence refSequence = reader.beginSequence();
             while (refSequence.hasMoreElements())
             {
@@ -236,14 +236,15 @@ public class ExtendedResult
 
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                 ERR_EXTENDED_RESULT_INVALID_ELEMENT.get(toHex(type)));
+                 ERR_EXTENDED_RESULT_INVALID_ELEMENT.get(
+                      StaticUtils.toHex(type)));
         }
       }
 
       Control[] controls = NO_CONTROLS;
       if (messageSequence.hasMoreElements())
       {
-        final ArrayList<Control> controlList = new ArrayList<Control>(1);
+        final ArrayList<Control> controlList = new ArrayList<>(1);
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();
         while (controlSequence.hasMoreElements())
         {
@@ -259,14 +260,16 @@ public class ExtendedResult
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw le;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_EXTENDED_RESULT_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_EXTENDED_RESULT_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

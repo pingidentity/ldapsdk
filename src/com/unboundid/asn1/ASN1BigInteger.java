@@ -24,13 +24,12 @@ package com.unboundid.asn1;
 
 import java.math.BigInteger;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -67,7 +66,7 @@ public final class ASN1BigInteger
    */
   public ASN1BigInteger(final BigInteger value)
   {
-    this(UNIVERSAL_INTEGER_TYPE, value);
+    this(ASN1Constants.UNIVERSAL_INTEGER_TYPE, value);
   }
 
 
@@ -103,7 +102,7 @@ public final class ASN1BigInteger
                          final byte[] berValue)
   {
     super(type, berValue);
-    this.value = bigIntegerValue;
+    value = bigIntegerValue;
   }
 
 
@@ -116,7 +115,7 @@ public final class ASN1BigInteger
    */
   public ASN1BigInteger(final long value)
   {
-    this(UNIVERSAL_INTEGER_TYPE, BigInteger.valueOf(value));
+    this(ASN1Constants.UNIVERSAL_INTEGER_TYPE, BigInteger.valueOf(value));
   }
 
 
@@ -196,12 +195,12 @@ public final class ASN1BigInteger
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }

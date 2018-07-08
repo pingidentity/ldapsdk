@@ -34,15 +34,15 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -121,7 +121,7 @@ public class MonitorEntry
    */
   public MonitorEntry(final Entry entry)
   {
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     this.entry = new ReadOnlyEntry(entry);
 
@@ -217,11 +217,11 @@ public class MonitorEntry
   {
     // Retrieve a map of all attributes in the entry except cn and objectClass.
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(20);
 
     for (final Attribute a : entry.getAttributes())
     {
-      final String lowerName = toLowerCase(a.getName());
+      final String lowerName = StaticUtils.toLowerCase(a.getName());
       if (lowerName.equals("cn") || lowerName.equals("objectclass"))
       {
         continue;
@@ -459,11 +459,11 @@ public class MonitorEntry
       {
         if (monitorOC != null)
         {
-          if (debugEnabled(DebugType.MONITOR))
+          if (Debug.debugEnabled(DebugType.MONITOR))
           {
-            debugMonitor(entry,
-                         "Multiple monitor subclasses detected:  " +
-                              monitorOC + " and " + oc);
+            Debug.debugMonitor(entry,
+                 "Multiple monitor subclasses detected:  " + monitorOC +
+                      " and " + oc);
           }
         }
 
@@ -475,11 +475,11 @@ public class MonitorEntry
     {
       if (entry.hasObjectClass(GENERIC_MONITOR_OC))
       {
-        debugMonitor(entry, "No appropriate monitor subclass");
+        Debug.debugMonitor(entry, "No appropriate monitor subclass");
       }
       else
       {
-        debugMonitor(entry, "Missing the generic monitor class");
+        Debug.debugMonitor(entry, "Missing the generic monitor class");
       }
 
       return GENERIC_MONITOR_OC;
@@ -506,9 +506,10 @@ public class MonitorEntry
     final String valueStr = entry.getAttributeValue(attributeName);
     if (valueStr == null)
     {
-      if (debugEnabled(DebugType.MONITOR))
+      if (Debug.debugEnabled(DebugType.MONITOR))
       {
-        debugMonitor(entry, "No value for Boolean attribute " + attributeName);
+        Debug.debugMonitor(entry, "No value for Boolean attribute " +
+             attributeName);
       }
 
       return null;
@@ -523,11 +524,11 @@ public class MonitorEntry
     }
     else
     {
-      if (debugEnabled(DebugType.MONITOR))
+      if (Debug.debugEnabled(DebugType.MONITOR))
       {
-        debugMonitor(entry,
-                     "Invalid value '" + valueStr + "' for Boolean attribute " +
-                          attributeName);
+        Debug.debugMonitor(entry,
+             "Invalid value '" + valueStr + "' for Boolean attribute " +
+                  attributeName);
       }
 
       return null;
@@ -550,9 +551,10 @@ public class MonitorEntry
     final String valueStr = entry.getAttributeValue(attributeName);
     if (valueStr == null)
     {
-      if (debugEnabled(DebugType.MONITOR))
+      if (Debug.debugEnabled(DebugType.MONITOR))
       {
-        debugMonitor(entry, "No value for Date attribute " + attributeName);
+        Debug.debugMonitor(entry, "No value for Date attribute " +
+             attributeName);
       }
 
       return null;
@@ -561,17 +563,17 @@ public class MonitorEntry
     {
       try
       {
-        return decodeGeneralizedTime(valueStr);
+        return StaticUtils.decodeGeneralizedTime(valueStr);
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
-        if (debugEnabled(DebugType.MONITOR))
+        if (Debug.debugEnabled(DebugType.MONITOR))
         {
-          debugMonitor(entry,
-                       "Invalid value '" + valueStr + "' for Date attribute " +
-                            attributeName);
+          Debug.debugMonitor(entry,
+               "Invalid value '" + valueStr + "' for Date attribute " +
+                    attributeName);
         }
 
         return null;
@@ -595,9 +597,10 @@ public class MonitorEntry
     final String valueStr = entry.getAttributeValue(attributeName);
     if (valueStr == null)
     {
-      if (debugEnabled(DebugType.MONITOR))
+      if (Debug.debugEnabled(DebugType.MONITOR))
       {
-        debugMonitor(entry, "No value for Double attribute " + attributeName);
+        Debug.debugMonitor(entry, "No value for Double attribute " +
+             attributeName);
       }
 
       return null;
@@ -610,13 +613,13 @@ public class MonitorEntry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
-        if (debugEnabled(DebugType.MONITOR))
+        if (Debug.debugEnabled(DebugType.MONITOR))
         {
-          debugMonitor(entry,
-                       "Invalid value '" + valueStr +
-                            "' for Double attribute " + attributeName);
+          Debug.debugMonitor(entry,
+               "Invalid value '" + valueStr + "' for Double attribute " +
+                    attributeName);
         }
 
         return null;
@@ -641,9 +644,10 @@ public class MonitorEntry
     final String valueStr = entry.getAttributeValue(attributeName);
     if (valueStr == null)
     {
-      if (debugEnabled(DebugType.MONITOR))
+      if (Debug.debugEnabled(DebugType.MONITOR))
       {
-        debugMonitor(entry, "No value for Integer attribute " + attributeName);
+        Debug.debugMonitor(entry, "No value for Integer attribute " +
+             attributeName);
       }
 
       return null;
@@ -656,11 +660,11 @@ public class MonitorEntry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
-        if (debugEnabled(DebugType.MONITOR))
+        if (Debug.debugEnabled(DebugType.MONITOR))
         {
-          debugMonitor(entry,
+          Debug.debugMonitor(entry,
                "Invalid value '" + valueStr + "' for Integer attribute " +
                     attributeName);
         }
@@ -686,9 +690,10 @@ public class MonitorEntry
     final String valueStr = entry.getAttributeValue(attributeName);
     if (valueStr == null)
     {
-      if (debugEnabled(DebugType.MONITOR))
+      if (Debug.debugEnabled(DebugType.MONITOR))
       {
-        debugMonitor(entry, "No value for Long attribute " + attributeName);
+        Debug.debugMonitor(entry,
+             "No value for Long attribute " + attributeName);
       }
 
       return null;
@@ -701,13 +706,13 @@ public class MonitorEntry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
-        if (debugEnabled(DebugType.MONITOR))
+        if (Debug.debugEnabled(DebugType.MONITOR))
         {
-          debugMonitor(entry,
-                       "Invalid value '" + valueStr + "' for Long attribute " +
-                            attributeName);
+          Debug.debugMonitor(entry,
+               "Invalid value '" + valueStr + "' for Long attribute " +
+                    attributeName);
         }
 
         return null;
@@ -728,9 +733,10 @@ public class MonitorEntry
   protected final String getString(final String attributeName)
   {
     final String valueStr = entry.getAttributeValue(attributeName);
-    if ((valueStr == null) && debugEnabled(DebugType.MONITOR))
+    if ((valueStr == null) && Debug.debugEnabled(DebugType.MONITOR))
     {
-      debugMonitor(entry, "No value for string attribute " + attributeName);
+      Debug.debugMonitor(entry,
+           "No value for string attribute " + attributeName);
     }
 
     return valueStr;
@@ -751,9 +757,10 @@ public class MonitorEntry
     final String[] valueStrs = entry.getAttributeValues(attributeName);
     if (valueStrs == null)
     {
-      if (debugEnabled(DebugType.MONITOR))
+      if (Debug.debugEnabled(DebugType.MONITOR))
       {
-        debugMonitor(entry, "No values for string attribute " + attributeName);
+        Debug.debugMonitor(entry,
+             "No values for string attribute " + attributeName);
       }
 
       return Collections.emptyList();
@@ -784,7 +791,7 @@ public class MonitorEntry
                              final String name, final String displayName,
                              final String description, final Boolean value)
   {
-    final String lowerName = toLowerCase(name);
+    final String lowerName = StaticUtils.toLowerCase(name);
 
     final MonitorAttribute a =
          new MonitorAttribute(lowerName, displayName, description, value);
@@ -813,7 +820,7 @@ public class MonitorEntry
                              final String name, final String displayName,
                              final String description, final Date value)
   {
-    final String lowerName = toLowerCase(name);
+    final String lowerName = StaticUtils.toLowerCase(name);
 
     final MonitorAttribute a =
          new MonitorAttribute(lowerName, displayName, description, value);
@@ -842,7 +849,7 @@ public class MonitorEntry
                              final String name, final String displayName,
                              final String description, final Double value)
   {
-    final String lowerName = toLowerCase(name);
+    final String lowerName = StaticUtils.toLowerCase(name);
 
     final MonitorAttribute a =
          new MonitorAttribute(lowerName, displayName, description, value);
@@ -871,7 +878,7 @@ public class MonitorEntry
                              final String name, final String displayName,
                              final String description, final Integer value)
   {
-    final String lowerName = toLowerCase(name);
+    final String lowerName = StaticUtils.toLowerCase(name);
 
     final MonitorAttribute a =
          new MonitorAttribute(lowerName, displayName, description, value);
@@ -900,7 +907,7 @@ public class MonitorEntry
                              final String name, final String displayName,
                              final String description, final Long value)
   {
-    final String lowerName = toLowerCase(name);
+    final String lowerName = StaticUtils.toLowerCase(name);
 
     final MonitorAttribute a =
          new MonitorAttribute(lowerName, displayName, description, value);
@@ -929,7 +936,7 @@ public class MonitorEntry
                              final String name, final String displayName,
                              final String description, final String value)
   {
-    final String lowerName = toLowerCase(name);
+    final String lowerName = StaticUtils.toLowerCase(name);
 
     final MonitorAttribute a =
          new MonitorAttribute(lowerName, displayName, description, value);
@@ -959,7 +966,7 @@ public class MonitorEntry
                              final String description,
                              final List<String> values)
   {
-    final String lowerName = toLowerCase(name);
+    final String lowerName = StaticUtils.toLowerCase(name);
 
     final MonitorAttribute a =
          new MonitorAttribute(lowerName, displayName, description,

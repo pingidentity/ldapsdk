@@ -31,12 +31,12 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -116,15 +116,13 @@ public final class StackTraceMonitorEntry
     }
     else
     {
-      final ArrayList<ThreadStackTrace> traces =
-           new ArrayList<ThreadStackTrace>(100);
+      final ArrayList<ThreadStackTrace> traces = new ArrayList<>(100);
 
       try
       {
         int currentThreadID = -1;
         String currentName  = null;
-        ArrayList<StackTraceElement> currentElements =
-             new ArrayList<StackTraceElement>(20);
+        ArrayList<StackTraceElement> currentElements = new ArrayList<>(20);
         for (final String line : traceLines)
         {
           final int equalPos = line.indexOf('=');
@@ -139,7 +137,7 @@ public final class StackTraceMonitorEntry
             }
 
             currentThreadID = id;
-            currentElements = new ArrayList<StackTraceElement>(20);
+            currentElements = new ArrayList<>(20);
 
             final int dashesPos1 = line.indexOf("---------- ", spacePos);
             final int dashesPos2 = line.indexOf(" ----------", dashesPos1);
@@ -196,7 +194,7 @@ public final class StackTraceMonitorEntry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
 
       stackTraces = Collections.unmodifiableList(traces);
@@ -247,8 +245,7 @@ public final class StackTraceMonitorEntry
   @Override()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
-    final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(1);
 
     final Attribute traceAttr = getEntry().getAttribute(ATTR_JVM_STACK_TRACE);
     if (traceAttr != null)

@@ -707,7 +707,7 @@ public final class LDAPModify
 
 
     final LinkedHashSet<String> multiUpdateErrorBehaviorAllowedValues =
-         new LinkedHashSet<String>(3);
+         new LinkedHashSet<>(3);
     multiUpdateErrorBehaviorAllowedValues.add("atomic");
     multiUpdateErrorBehaviorAllowedValues.add("abort-on-error");
     multiUpdateErrorBehaviorAllowedValues.add("continue-on-error");
@@ -809,7 +809,7 @@ public final class LDAPModify
 
 
     final LinkedHashSet<String> assuredReplicationLocalLevelAllowedValues =
-         new LinkedHashSet<String>(3);
+         new LinkedHashSet<>(3);
     assuredReplicationLocalLevelAllowedValues.add("none");
     assuredReplicationLocalLevelAllowedValues.add("received-any-server");
     assuredReplicationLocalLevelAllowedValues.add("processed-all-servers");
@@ -827,7 +827,7 @@ public final class LDAPModify
 
 
     final LinkedHashSet<String> assuredReplicationRemoteLevelAllowedValues =
-         new LinkedHashSet<String>(4);
+         new LinkedHashSet<>(4);
     assuredReplicationRemoteLevelAllowedValues.add("none");
     assuredReplicationRemoteLevelAllowedValues.add(
          "received-any-remote-location");
@@ -969,7 +969,7 @@ public final class LDAPModify
 
     final LinkedHashSet<String>
          suppressOperationalAttributeUpdatesAllowedValues =
-              new LinkedHashSet<String>(4);
+              new LinkedHashSet<>(4);
     suppressOperationalAttributeUpdatesAllowedValues.add("last-access-time");
     suppressOperationalAttributeUpdatesAllowedValues.add("last-login-time");
     suppressOperationalAttributeUpdatesAllowedValues.add("last-login-ip");
@@ -1324,7 +1324,7 @@ public final class LDAPModify
   @Override()
   protected List<Control> getBindControls()
   {
-    final ArrayList<Control> bindControls = new ArrayList<Control>(10);
+    final ArrayList<Control> bindControls = new ArrayList<>(10);
 
     if (bindControl.isPresent())
     {
@@ -1423,11 +1423,11 @@ public final class LDAPModify
   {
     // Examine the arguments to determine the sets of controls to use for each
     // type of request.
-    final ArrayList<Control> addControls = new ArrayList<Control>(10);
-    final ArrayList<Control> deleteControls = new ArrayList<Control>(10);
-    final ArrayList<Control> modifyControls = new ArrayList<Control>(10);
-    final ArrayList<Control> modifyDNControls = new ArrayList<Control>(10);
-    final ArrayList<Control> searchControls = new ArrayList<Control>(10);
+    final ArrayList<Control> addControls = new ArrayList<>(10);
+    final ArrayList<Control> deleteControls = new ArrayList<>(10);
+    final ArrayList<Control> modifyControls = new ArrayList<>(10);
+    final ArrayList<Control> modifyDNControls = new ArrayList<>(10);
+    final ArrayList<Control> searchControls = new ArrayList<>(10);
     try
     {
       createRequestControls(addControls, deleteControls, modifyControls,
@@ -1691,7 +1691,7 @@ public final class LDAPModify
       boolean commitTransaction = true;
       ResultCode resultCode = null;
       final ArrayList<LDAPRequest> multiUpdateRequests =
-           new ArrayList<LDAPRequest>(10);
+           new ArrayList<>(10);
       final boolean isBulkModify = modifyEntriesMatchingFilter.isPresent() ||
            modifyEntriesMatchingFiltersFromFile.isPresent() ||
            modifyEntryWithDN.isPresent() ||
@@ -2250,7 +2250,7 @@ readChangeRecordLoop:
 
     final LDIFModifyChangeRecord modifyChangeRecord =
          (LDIFModifyChangeRecord) changeRecord;
-    final HashSet<DN> processedDNs = new HashSet<DN>(100);
+    final HashSet<DN> processedDNs = new HashSet<>(100);
 
 
     // If we need to use the simple paged results control, then we may have to
@@ -2807,7 +2807,7 @@ readChangeRecordLoop:
 
     if (preReadAttribute.isPresent())
     {
-      final ArrayList<String> attrList = new ArrayList<String>(10);
+      final ArrayList<String> attrList = new ArrayList<>(10);
       for (final String value : preReadAttribute.getValues())
       {
         final StringTokenizer tokenizer = new StringTokenizer(value, ", ");
@@ -2826,7 +2826,7 @@ readChangeRecordLoop:
 
     if (postReadAttribute.isPresent())
     {
-      final ArrayList<String> attrList = new ArrayList<String>(10);
+      final ArrayList<String> attrList = new ArrayList<>(10);
       for (final String value : postReadAttribute.getValues())
       {
         final StringTokenizer tokenizer = new StringTokenizer(value, ", ");
@@ -3732,9 +3732,10 @@ readChangeRecordLoop:
    * @param  inTransaction  Indicates whether the operation is part of a
    *                        transaction.
    */
-  void displayResult(final LDAPResult result, final boolean inTransaction)
+  private void displayResult(final LDAPResult result,
+                             final boolean inTransaction)
   {
-    final ArrayList<String> resultLines = new ArrayList<String>(10);
+    final ArrayList<String> resultLines = new ArrayList<>(10);
     ResultUtils.formatResult(resultLines, result, true, inTransaction, 0,
          WRAP_COLUMN);
 
@@ -3824,7 +3825,7 @@ readChangeRecordLoop:
       buffer.append(StaticUtils.EOL);
     }
 
-    final ArrayList<String> resultLines = new ArrayList<String>(10);
+    final ArrayList<String> resultLines = new ArrayList<>(10);
     ResultUtils.formatResult(resultLines, ldapResult, false, false, 0, 0);
     for (final String resultLine : resultLines)
     {
@@ -3899,7 +3900,7 @@ readChangeRecordLoop:
   public void handleUnsolicitedNotification(final LDAPConnection connection,
                                             final ExtendedResult notification)
   {
-    final ArrayList<String> lines = new ArrayList<String>(10);
+    final ArrayList<String> lines = new ArrayList<>(10);
     ResultUtils.formatUnsolicitedNotification(lines, notification, true, 0,
          WRAP_COLUMN);
     for (final String line : lines)
@@ -3917,8 +3918,7 @@ readChangeRecordLoop:
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
 
     final String[] args1 =
     {

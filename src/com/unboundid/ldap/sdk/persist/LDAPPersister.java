@@ -57,14 +57,14 @@ import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -103,7 +103,7 @@ public final class LDAPPersister<T>
    * The map of instances created so far.
    */
   private static final ConcurrentHashMap<Class<?>,LDAPPersister<?>> INSTANCES =
-       new ConcurrentHashMap<Class<?>,LDAPPersister<?>>();
+       new ConcurrentHashMap<>(10);
 
 
 
@@ -126,7 +126,7 @@ public final class LDAPPersister<T>
   private LDAPPersister(final Class<T> type)
           throws LDAPPersistException
   {
-    handler = new LDAPObjectHandler<T>(type);
+    handler = new LDAPObjectHandler<>(type);
   }
 
 
@@ -150,12 +150,12 @@ public final class LDAPPersister<T>
   public static <T> LDAPPersister<T> getInstance(final Class<T> type)
          throws LDAPPersistException
   {
-    ensureNotNull(type);
+    Validator.ensureNotNull(type);
 
     LDAPPersister<T> p = (LDAPPersister<T>) INSTANCES.get(type);
     if (p == null)
     {
-      p = new LDAPPersister<T>(type);
+      p = new LDAPPersister<>(type);
       INSTANCES.put(type, p);
     }
 
@@ -235,8 +235,7 @@ public final class LDAPPersister<T>
                                             final OIDAllocator a)
          throws LDAPPersistException
   {
-    final LinkedList<AttributeTypeDefinition> attrList =
-         new LinkedList<AttributeTypeDefinition>();
+    final LinkedList<AttributeTypeDefinition> attrList = new LinkedList<>();
 
     for (final FieldInfo i : handler.getFields().values())
     {
@@ -360,7 +359,7 @@ public final class LDAPPersister<T>
     final List<ObjectClassDefinition> generatedClasses =
          constructObjectClasses(a);
 
-    final LinkedList<String> newAttrList = new LinkedList<String>();
+    final LinkedList<String> newAttrList = new LinkedList<>();
     for (final AttributeTypeDefinition d : generatedTypes)
     {
       if (s.getAttributeType(d.getNameOrOID()) == null)
@@ -369,7 +368,7 @@ public final class LDAPPersister<T>
       }
     }
 
-    final LinkedList<String> newOCList = new LinkedList<String>();
+    final LinkedList<String> newOCList = new LinkedList<>();
     for (final ObjectClassDefinition d : generatedClasses)
     {
       final ObjectClassDefinition existing = s.getObjectClass(d.getNameOrOID());
@@ -384,8 +383,7 @@ public final class LDAPPersister<T>
         final Set<AttributeTypeDefinition> existingOptional =
              existing.getOptionalAttributes(s, true);
 
-        final LinkedHashSet<String> newOptionalNames =
-             new LinkedHashSet<String>(0);
+        final LinkedHashSet<String> newOptionalNames = new LinkedHashSet<>(0);
         addMissingAttrs(d.getRequiredAttributes(), existingRequired,
              existingOptional, newOptionalNames);
         addMissingAttrs(d.getOptionalAttributes(), existingRequired,
@@ -393,8 +391,7 @@ public final class LDAPPersister<T>
 
         if (! newOptionalNames.isEmpty())
         {
-          final LinkedHashSet<String> newOptionalSet =
-               new LinkedHashSet<String>();
+          final LinkedHashSet<String> newOptionalSet = new LinkedHashSet<>(20);
           newOptionalSet.addAll(
                Arrays.asList(existing.getOptionalAttributes()));
           newOptionalSet.addAll(newOptionalNames);
@@ -413,7 +410,7 @@ public final class LDAPPersister<T>
       }
     }
 
-    final LinkedList<Modification> mods = new LinkedList<Modification>();
+    final LinkedList<Modification> mods = new LinkedList<>();
     if (! newAttrList.isEmpty())
     {
       final String[] newAttrValues = new String[newAttrList.size()];
@@ -514,7 +511,7 @@ public final class LDAPPersister<T>
   public Entry encode(final T o, final String parentDN)
          throws LDAPPersistException
   {
-    ensureNotNull(o);
+    Validator.ensureNotNull(o);
     return handler.encode(o, parentDN);
   }
 
@@ -536,7 +533,7 @@ public final class LDAPPersister<T>
   public T decode(final Entry entry)
          throws LDAPPersistException
   {
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
     return handler.decode(entry);
   }
 
@@ -560,7 +557,7 @@ public final class LDAPPersister<T>
   public void decode(final T o, final Entry entry)
          throws LDAPPersistException
   {
-    ensureNotNull(o, entry);
+    Validator.ensureNotNull(o, entry);
     handler.decode(o, entry);
   }
 
@@ -596,7 +593,7 @@ public final class LDAPPersister<T>
                         final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(o, i);
+    Validator.ensureNotNull(o, i);
     final Entry e = encode(o, parentDN);
 
     try
@@ -611,7 +608,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
   }
@@ -639,7 +636,7 @@ public final class LDAPPersister<T>
                            final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(o, i);
+    Validator.ensureNotNull(o, i);
     final String dn = handler.getEntryDN(o);
     if (dn == null)
     {
@@ -658,7 +655,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
   }
@@ -748,7 +745,7 @@ public final class LDAPPersister<T>
                                              final String... attributes)
          throws LDAPPersistException
   {
-    ensureNotNull(o);
+    Validator.ensureNotNull(o);
     return handler.getModifications(o, deleteNullValues, byteForByte,
          attributes);
   }
@@ -905,7 +902,7 @@ public final class LDAPPersister<T>
                            final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(o, i);
+    Validator.ensureNotNull(o, i);
     final List<Modification> mods =
          handler.getModifications(o, deleteNullValues, byteForByte, attributes);
     if (mods.isEmpty())
@@ -939,7 +936,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
   }
@@ -979,7 +976,7 @@ public final class LDAPPersister<T>
                          final LDAPConnection c, final Control... controls)
          throws LDAPException
   {
-    ensureNotNull(o, password, c);
+    Validator.ensureNotNull(o, password, c);
 
     String dn = handler.getEntryDN(o);
     if (dn == null)
@@ -1058,7 +1055,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
 
@@ -1096,7 +1093,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
 
@@ -1128,7 +1125,7 @@ public final class LDAPPersister<T>
                          final FieldInfo... fields)
          throws LDAPPersistException
   {
-    ensureNotNull(o, i);
+    Validator.ensureNotNull(o, i);
 
     final String[] attrs;
     if ((fields == null) || (fields.length == 0))
@@ -1137,7 +1134,7 @@ public final class LDAPPersister<T>
     }
     else
     {
-      final ArrayList<String> attrList = new ArrayList<String>(fields.length);
+      final ArrayList<String> attrList = new ArrayList<>(fields.length);
       for (final FieldInfo f : fields)
       {
         if (f.lazilyLoad())
@@ -1167,7 +1164,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
 
@@ -1178,11 +1175,11 @@ public final class LDAPPersister<T>
     }
 
     boolean successful = true;
-    final ArrayList<String> failureReasons = new ArrayList<String>(5);
+    final ArrayList<String> failureReasons = new ArrayList<>(5);
     final Map<String,FieldInfo> fieldMap = handler.getFields();
     for (final Attribute a : entry.getAttributes())
     {
-      final String lowerName = toLowerCase(a.getName());
+      final String lowerName = StaticUtils.toLowerCase(a.getName());
       final FieldInfo f = fieldMap.get(lowerName);
       if (f != null)
       {
@@ -1192,8 +1189,8 @@ public final class LDAPPersister<T>
 
     if (! successful)
     {
-      throw new LDAPPersistException(concatenateStrings(failureReasons), o,
-           null);
+      throw new LDAPPersistException(
+           StaticUtils.concatenateStrings(failureReasons), o, null);
     }
   }
 
@@ -1337,7 +1334,7 @@ public final class LDAPPersister<T>
                                     final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(o, c, scope, derefPolicy);
+    Validator.ensureNotNull(o, c, scope, derefPolicy);
 
     final String base;
     if (baseDN == null)
@@ -1374,11 +1371,11 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
 
-    return new PersistedObjects<T>(this, entrySource);
+    return new PersistedObjects<>(this, entrySource);
   }
 
 
@@ -1504,7 +1501,7 @@ public final class LDAPPersister<T>
                              final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(o, i, scope, derefPolicy, l);
+    Validator.ensureNotNull(o, i, scope, derefPolicy, l);
 
     final String base;
     if (baseDN == null)
@@ -1527,7 +1524,7 @@ public final class LDAPPersister<T>
            Filter.createANDFilter(handler.createFilter(o), extraFilter), true);
     }
 
-    final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
+    final SearchListenerBridge<T> bridge = new SearchListenerBridge<>(this, l);
 
     final SearchRequest searchRequest = new SearchRequest(bridge, base, scope,
          derefPolicy, sizeLimit, timeLimit, false, filter,
@@ -1543,7 +1540,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
   }
@@ -1592,7 +1589,7 @@ public final class LDAPPersister<T>
                                     final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(c, scope, derefPolicy, filter);
+    Validator.ensureNotNull(c, scope, derefPolicy, filter);
 
     final String base;
     if (baseDN == null)
@@ -1621,11 +1618,11 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
 
-    return new PersistedObjects<T>(this, entrySource);
+    return new PersistedObjects<>(this, entrySource);
   }
 
 
@@ -1676,7 +1673,7 @@ public final class LDAPPersister<T>
                              final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(i, scope, derefPolicy, filter, l);
+    Validator.ensureNotNull(i, scope, derefPolicy, filter, l);
 
     final String base;
     if (baseDN == null)
@@ -1690,7 +1687,7 @@ public final class LDAPPersister<T>
 
     final Filter f = Filter.simplifyFilter(
          Filter.createANDFilter(filter, handler.createBaseFilter()), true);
-    final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
+    final SearchListenerBridge<T> bridge = new SearchListenerBridge<>(this, l);
 
     final SearchRequest searchRequest = new SearchRequest(bridge, base, scope,
          derefPolicy, sizeLimit, timeLimit, false, f,
@@ -1706,7 +1703,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
   }
@@ -1845,7 +1842,7 @@ public final class LDAPPersister<T>
                            final Filter extraFilter, final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(o, i, scope, derefPolicy);
+    Validator.ensureNotNull(o, i, scope, derefPolicy);
 
     final String base;
     if (baseDN == null)
@@ -1890,12 +1887,12 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPPersistException lpe)
     {
-      debugException(lpe);
+      Debug.debugException(lpe);
       throw lpe;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
   }
@@ -1932,7 +1929,7 @@ public final class LDAPPersister<T>
                              final Control... controls)
          throws LDAPPersistException
   {
-    ensureNotNull(i, l);
+    Validator.ensureNotNull(i, l);
 
     final String base;
     if (baseDN == null)
@@ -1944,7 +1941,7 @@ public final class LDAPPersister<T>
       base = baseDN;
     }
 
-    final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
+    final SearchListenerBridge<T> bridge = new SearchListenerBridge<>(this, l);
     final SearchRequest searchRequest = new SearchRequest(bridge, base,
          SearchScope.SUB, DereferencePolicy.NEVER, 0, 0, false,
          handler.createBaseFilter(), handler.getAttributesToRequest());
@@ -1959,7 +1956,7 @@ public final class LDAPPersister<T>
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPPersistException(le);
     }
   }

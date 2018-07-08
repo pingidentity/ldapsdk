@@ -33,13 +33,13 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPExtendedOperationException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ssl.SSLUtil;
 
 import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -57,9 +57,9 @@ import static com.unboundid.util.Debug.*;
  * <H2>Example</H2>
  * The following example attempts to use the StartTLS extended request in order
  * to secure communication on a previously insecure connection.  In this case,
- * it will use the {@link com.unboundid.util.ssl.SSLUtil} class in conjunction
- * with the {@link com.unboundid.util.ssl.TrustStoreTrustManager} class to
- * ensure that only certificates from trusted authorities will be accepted.
+ * it will use the {@link SSLUtil} class in conjunction with the
+ * {@link com.unboundid.util.ssl.TrustStoreTrustManager} class to ensure that
+ * only certificates from trusted authorities will be accepted.
  * <PRE>
  * // Create an SSLContext that will be used to perform the cryptographic
  * // processing.
@@ -210,7 +210,7 @@ public final class StartTLSExtendedRequest
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_STARTTLS_REQUEST_CANNOT_CREATE_DEFAULT_CONTEXT.get(e), e);
       }
@@ -252,7 +252,7 @@ public final class StartTLSExtendedRequest
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_STARTTLS_REQUEST_CANNOT_CREATE_DEFAULT_CONTEXT.get(e), e);
       }
@@ -359,7 +359,7 @@ public final class StartTLSExtendedRequest
     {
       // This should never happen, since an exception should only be thrown if
       // there is no SSL context, but this instance already has a context.
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }

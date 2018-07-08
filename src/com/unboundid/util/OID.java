@@ -107,7 +107,7 @@ public final class OID
     else
     {
       this.components =
-           Collections.unmodifiableList(new ArrayList<Integer>(components));
+           Collections.unmodifiableList(new ArrayList<>(components));
 
       final StringBuilder buffer = new StringBuilder();
       for (final Integer i : components)
@@ -138,8 +138,7 @@ public final class OID
       return null;
     }
 
-    final ArrayList<Integer> compList =
-         new ArrayList<Integer>(components.length);
+    final ArrayList<Integer> compList = new ArrayList<>(components.length);
     for (final int i : components)
     {
       compList.add(i);
@@ -161,7 +160,7 @@ public final class OID
    */
   public static List<Integer> parseComponents(final String oidString)
   {
-    if ((oidString == null) || (oidString.length() == 0) ||
+    if ((oidString == null) || oidString.isEmpty() ||
         oidString.startsWith(".") || oidString.endsWith(".") ||
         (oidString.indexOf("..") > 0))
     {
@@ -169,7 +168,7 @@ public final class OID
     }
 
     final StringTokenizer tokenizer = new StringTokenizer(oidString, ".");
-    final ArrayList<Integer> compList = new ArrayList<Integer>(10);
+    final ArrayList<Integer> compList = new ArrayList<>(10);
     while (tokenizer.hasMoreTokens())
     {
       final String token = tokenizer.nextToken();
@@ -382,6 +381,7 @@ public final class OID
    *          the provided OID in a sorted list, or zero if the two OIDs
    *          represent equivalent values.
    */
+  @Override()
   public int compareTo(final OID oid)
   {
     if (components == null)

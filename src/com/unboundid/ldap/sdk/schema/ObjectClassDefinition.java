@@ -34,12 +34,12 @@ import java.util.Set;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -104,7 +104,7 @@ public final class ObjectClassDefinition
   public ObjectClassDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     objectClassString = s.trim();
 
@@ -135,11 +135,11 @@ public final class ObjectClassDefinition
     // Technically, object class elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<String>    nameList = new ArrayList<String>(1);
-    final ArrayList<String>    supList  = new ArrayList<String>(1);
-    final ArrayList<String>    reqAttrs = new ArrayList<String>();
-    final ArrayList<String>    optAttrs = new ArrayList<String>();
-    final Map<String,String[]> exts     = new LinkedHashMap<String,String[]>();
+    final ArrayList<String>    nameList = new ArrayList<>(1);
+    final ArrayList<String>    supList  = new ArrayList<>(1);
+    final ArrayList<String>    reqAttrs = new ArrayList<>(20);
+    final ArrayList<String>    optAttrs = new ArrayList<>(20);
+    final Map<String,String[]> exts     = new LinkedHashMap<>(5);
     Boolean                    obsolete = null;
     ObjectClassType            ocType   = null;
     String                     descr    = null;
@@ -167,7 +167,7 @@ public final class ObjectClassDefinition
         pos--;
       }
 
-      final String lowerToken = toLowerCase(token);
+      final String lowerToken = StaticUtils.toLowerCase(token);
       if (lowerToken.equals(")"))
       {
         // This indicates that we're at the end of the value.  There should not
@@ -309,7 +309,7 @@ public final class ObjectClassDefinition
       {
         pos = skipSpaces(objectClassString, pos, length);
 
-        final ArrayList<String> valueList = new ArrayList<String>();
+        final ArrayList<String> valueList = new ArrayList<>(5);
         pos = readQDStrings(objectClassString, pos, length, valueList);
 
         final String[] values = new String[valueList.size()];
@@ -472,7 +472,7 @@ public final class ObjectClassDefinition
                                final String[] optionalAttributes,
                                final Map<String,String[]> extensions)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid             = oid;
     this.isObsolete      = isObsolete;
@@ -481,7 +481,7 @@ public final class ObjectClassDefinition
 
     if (names == null)
     {
-      this.names = NO_STRINGS;
+      this.names = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -490,7 +490,7 @@ public final class ObjectClassDefinition
 
     if (superiorClasses == null)
     {
-      this.superiorClasses = NO_STRINGS;
+      this.superiorClasses = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -499,7 +499,7 @@ public final class ObjectClassDefinition
 
     if (requiredAttributes == null)
     {
-      this.requiredAttributes = NO_STRINGS;
+      this.requiredAttributes = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -508,7 +508,7 @@ public final class ObjectClassDefinition
 
     if (optionalAttributes == null)
     {
-      this.optionalAttributes = NO_STRINGS;
+      this.optionalAttributes = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -805,7 +805,7 @@ public final class ObjectClassDefinition
                                                        final boolean recursive)
   {
     final LinkedHashSet<ObjectClassDefinition> ocSet =
-         new LinkedHashSet<ObjectClassDefinition>();
+         new LinkedHashSet<>(10);
     for (final String s : superiorClasses)
     {
       final ObjectClassDefinition d = schema.getObjectClass(s);
@@ -938,8 +938,7 @@ public final class ObjectClassDefinition
   public Set<AttributeTypeDefinition> getRequiredAttributes(final Schema schema,
                                            final boolean includeSuperiorClasses)
   {
-    final HashSet<AttributeTypeDefinition> attrSet =
-         new HashSet<AttributeTypeDefinition>();
+    final HashSet<AttributeTypeDefinition> attrSet = new HashSet<>(20);
     for (final String s : requiredAttributes)
     {
       final AttributeTypeDefinition d = schema.getAttributeType(s);
@@ -1034,8 +1033,7 @@ public final class ObjectClassDefinition
   public Set<AttributeTypeDefinition> getOptionalAttributes(final Schema schema,
                                            final boolean includeSuperiorClasses)
   {
-    final HashSet<AttributeTypeDefinition> attrSet =
-         new HashSet<AttributeTypeDefinition>();
+    final HashSet<AttributeTypeDefinition> attrSet = new HashSet<>(20);
     for (final String s : optionalAttributes)
     {
       final AttributeTypeDefinition d = schema.getAttributeType(s);
@@ -1153,15 +1151,15 @@ public final class ObjectClassDefinition
 
     final ObjectClassDefinition d = (ObjectClassDefinition) o;
     return (oid.equals(d.oid) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
               d.requiredAttributes) &&
-         stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
               d.optionalAttributes) &&
-         stringsEqualIgnoreCaseOrderIndependent(superiorClasses,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(superiorClasses,
               d.superiorClasses) &&
-         bothNullOrEqual(objectClassType, d.objectClassType) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
+         StaticUtils.bothNullOrEqual(objectClassType, d.objectClassType) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(description, d.description) &&
          (isObsolete == d.isObsolete) &&
          extensionsEqual(extensions, d.extensions));
   }

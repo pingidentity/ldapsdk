@@ -49,17 +49,18 @@ import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.controls.RetainIdentityRequestControl;
 import com.unboundid.ldif.LDIFException;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.SynchronizedSocketFactory;
 import com.unboundid.util.SynchronizedSSLSocketFactory;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 import com.unboundid.util.WeakHashSet;
+import com.unboundid.util.ssl.SSLUtil;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -107,16 +108,15 @@ import static com.unboundid.util.Validator.*;
  * By default, connections will use standard unencrypted network sockets.
  * However, it may be desirable to create connections that use SSL/TLS to
  * encrypt communication.  This can be done by specifying a
- * {@link javax.net.SocketFactory} that should be used to create the socket to
- * use to communicate with the directory server.  The
- * {@link javax.net.ssl.SSLSocketFactory#getDefault} method or the
- * {@link javax.net.ssl.SSLContext#getSocketFactory} method may be used to
- * obtain a socket factory for performing SSL communication.  See the
+ * {@code SocketFactory} that should be used to create the socket to use to
+ * communicate with the directory server.  The
+ * {@code SSLSocketFactory.getDefault} method or the
+ * {@code SSLContext.getSocketFactory} method may be used to obtain a socket
+ * factory for performing SSL communication.  See the
  * <A HREF=
  * "http://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html">
  * JSSE Reference Guide</A> for more information on using these classes.
- * Alternately, you may use the {@link com.unboundid.util.ssl.SSLUtil} class to
- * simplify the process.
+ * Alternately, you may use the {@link SSLUtil} class to simplify the process.
  * <BR><BR>
  * Whenever the connection is no longer needed, it may be terminated using the
  * {@link LDAPConnection#close} method.
@@ -220,8 +220,7 @@ public final class LDAPConnection
    * A set of weak references to schema objects that can be shared across
    * connections if they are identical.
    */
-  private static final WeakHashSet<Schema> SCHEMA_SET =
-       new WeakHashSet<Schema>();
+  private static final WeakHashSet<Schema> SCHEMA_SET = new WeakHashSet<>();
 
 
 
@@ -370,7 +369,7 @@ public final class LDAPConnection
                         final LDAPConnectionOptions connectionOptions)
   {
     needsReconnect = new AtomicBoolean(false);
-    disconnectInfo = new AtomicReference<DisconnectInfo>();
+    disconnectInfo = new AtomicReference<>();
     lastCommunicationTime = -1L;
 
     connectionID = NEXT_CONNECTION_ID.getAndIncrement();
@@ -672,7 +671,7 @@ public final class LDAPConnection
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
       close();
       throw le;
@@ -752,9 +751,9 @@ public final class LDAPConnection
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.CONNECT_ERROR,
-           ERR_CONN_RESOLVE_ERROR.get(host, getExceptionMessage(e)),
+           ERR_CONN_RESOLVE_ERROR.get(host, StaticUtils.getExceptionMessage(e)),
            e);
     }
 
@@ -834,7 +833,7 @@ public final class LDAPConnection
                       final int port, final int timeout)
          throws LDAPException
   {
-    ensureNotNull(host, inetAddress, port);
+    Validator.ensureNotNull(host, inetAddress, port);
 
     needsReconnect.set(false);
     hostPort = host + ':' + port;
@@ -865,11 +864,12 @@ public final class LDAPConnection
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       setDisconnectInfo(DisconnectType.LOCAL_ERROR, null, e);
       connectionInternals = null;
       throw new LDAPException(ResultCode.CONNECT_ERROR,
-           ERR_CONN_CONNECT_ERROR.get(getHostPort(), getExceptionMessage(e)),
+           ERR_CONN_CONNECT_ERROR.get(getHostPort(),
+                StaticUtils.getExceptionMessage(e)),
            e);
     }
 
@@ -881,7 +881,7 @@ public final class LDAPConnection
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
   }
@@ -929,7 +929,7 @@ public final class LDAPConnection
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -954,7 +954,7 @@ public final class LDAPConnection
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         setDisconnectInfo(DisconnectType.SECURITY_PROBLEM, null, le);
         terminate(null);
 
@@ -970,7 +970,7 @@ public final class LDAPConnection
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
         terminate(null);
 
@@ -1109,15 +1109,16 @@ public final class LDAPConnection
     else
     {
       final LDAPConnectionOptions newOptions = connectionOptions.duplicate();
-      if (debugEnabled(DebugType.LDAP) && newOptions.useSynchronousMode() &&
+      if (Debug.debugEnabled(DebugType.LDAP) &&
+           newOptions.useSynchronousMode() &&
           (! connectionOptions.useSynchronousMode()) && isConnected())
       {
-        debug(Level.WARNING, DebugType.LDAP,
-              "A call to LDAPConnection.setConnectionOptions() with " +
-              "useSynchronousMode=true will have no effect for this " +
-              "connection because it is already established.  The " +
-              "useSynchronousMode option must be set before the connection " +
-              "is established to have any effect.");
+        Debug.debug(Level.WARNING, DebugType.LDAP,
+             "A call to LDAPConnection.setConnectionOptions() with " +
+                  "useSynchronousMode=true will have no effect for this " +
+                  "connection because it is already established.  The " +
+                  "useSynchronousMode option must be set before the " +
+                  "connection is established to have any effect.");
       }
 
       this.connectionOptions = newOptions;
@@ -1488,9 +1489,10 @@ public final class LDAPConnection
    * to complete before attempting to close an active connection.
    */
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_NOT_THREADSAFE)
+  @Override()
   public void close()
   {
-    close(NO_CONTROLS);
+    close(StaticUtils.NO_CONTROLS);
   }
 
 
@@ -1579,10 +1581,10 @@ public final class LDAPConnection
         setDisconnectInfo(DisconnectType.UNBIND, null, null);
 
         final int messageID = nextMessageID();
-        if (debugEnabled(DebugType.LDAP))
+        if (Debug.debugEnabled(DebugType.LDAP))
         {
-          debugLDAPRequest(Level.INFO, createUnbindRequestString(controls),
-               messageID, this);
+          Debug.debugLDAPRequest(Level.INFO,
+               createUnbindRequestString(controls), messageID, this);
         }
 
         connectionStatistics.incrementNumUnbindRequests();
@@ -1593,7 +1595,7 @@ public final class LDAPConnection
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
 
@@ -1688,6 +1690,7 @@ public final class LDAPConnection
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server root DSE.
    */
+  @Override()
   public RootDSE getRootDSE()
          throws LDAPException
   {
@@ -1710,6 +1713,7 @@ public final class LDAPConnection
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
+  @Override()
   public Schema getSchema()
          throws LDAPException
   {
@@ -1737,6 +1741,7 @@ public final class LDAPConnection
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
+  @Override()
   public Schema getSchema(final String entryDN)
          throws LDAPException
   {
@@ -1758,6 +1763,7 @@ public final class LDAPConnection
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
+  @Override()
   public SearchResultEntry getEntry(final String dn)
          throws LDAPException
   {
@@ -1782,6 +1788,7 @@ public final class LDAPConnection
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
+  @Override()
   public SearchResultEntry getEntry(final String dn, final String... attributes)
          throws LDAPException
   {
@@ -1869,14 +1876,14 @@ public final class LDAPConnection
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     connectionStatistics.incrementNumAbandonRequests();
     final int abandonMessageID = nextMessageID();
-    if (debugEnabled(DebugType.LDAP))
+    if (Debug.debugEnabled(DebugType.LDAP))
     {
-      debugLDAPRequest(Level.INFO,
+      Debug.debugLDAPRequest(Level.INFO,
            createAbandonRequestString(messageID, controls), abandonMessageID,
            this);
     }
@@ -1909,14 +1916,14 @@ public final class LDAPConnection
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     connectionStatistics.incrementNumAbandonRequests();
     final int abandonMessageID = nextMessageID();
-    if (debugEnabled(DebugType.LDAP))
+    if (Debug.debugEnabled(DebugType.LDAP))
     {
-      debugLDAPRequest(Level.INFO,
+      Debug.debugLDAPRequest(Level.INFO,
            createAbandonRequestString(messageID, controls), abandonMessageID,
            this);
     }
@@ -1980,10 +1987,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final String dn, final Attribute... attributes)
          throws LDAPException
   {
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     return add(new AddRequest(dn, attributes));
   }
@@ -2004,10 +2012,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final String dn, final Collection<Attribute> attributes)
          throws LDAPException
   {
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     return add(new AddRequest(dn, attributes));
   }
@@ -2025,10 +2034,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final Entry entry)
          throws LDAPException
   {
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     return add(new AddRequest(entry));
   }
@@ -2050,6 +2060,7 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final String... ldifLines)
          throws LDIFException, LDAPException
   {
@@ -2070,10 +2081,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final AddRequest addRequest)
          throws LDAPException
   {
-    ensureNotNull(addRequest);
+    Validator.ensureNotNull(addRequest);
 
     final LDAPResult ldapResult = addRequest.process(this, 1);
 
@@ -2102,6 +2114,7 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final ReadOnlyAddRequest addRequest)
          throws LDAPException
   {
@@ -2129,7 +2142,7 @@ public final class LDAPConnection
                                  final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(addRequest);
+    Validator.ensureNotNull(addRequest);
 
     if (synchronousMode())
     {
@@ -2247,7 +2260,7 @@ public final class LDAPConnection
   public BindResult bind(final BindRequest bindRequest)
          throws LDAPException
   {
-    ensureNotNull(bindRequest);
+    Validator.ensureNotNull(bindRequest);
 
     final BindResult bindResult = processBindOperation(bindRequest);
     switch (bindResult.getResultCode().intValue())
@@ -2279,11 +2292,12 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public CompareResult compare(final String dn, final String attributeName,
                                final String assertionValue)
          throws LDAPException
   {
-    ensureNotNull(dn, attributeName, assertionValue);
+    Validator.ensureNotNull(dn, attributeName, assertionValue);
 
     return compare(new CompareRequest(dn, attributeName, assertionValue));
   }
@@ -2302,10 +2316,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public CompareResult compare(final CompareRequest compareRequest)
          throws LDAPException
   {
-    ensureNotNull(compareRequest);
+    Validator.ensureNotNull(compareRequest);
 
     final LDAPResult result = compareRequest.process(this, 1);
     switch (result.getResultCode().intValue())
@@ -2333,6 +2348,7 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public CompareResult compare(final ReadOnlyCompareRequest compareRequest)
          throws LDAPException
   {
@@ -2360,7 +2376,7 @@ public final class LDAPConnection
                              final AsyncCompareResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(compareRequest);
+    Validator.ensureNotNull(compareRequest);
 
     if (synchronousMode())
     {
@@ -2425,6 +2441,7 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult delete(final String dn)
          throws LDAPException
   {
@@ -2445,10 +2462,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult delete(final DeleteRequest deleteRequest)
          throws LDAPException
   {
-    ensureNotNull(deleteRequest);
+    Validator.ensureNotNull(deleteRequest);
 
     final LDAPResult ldapResult = deleteRequest.process(this, 1);
 
@@ -2477,6 +2495,7 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
          throws LDAPException
   {
@@ -2504,7 +2523,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(deleteRequest);
+    Validator.ensureNotNull(deleteRequest);
 
     if (synchronousMode())
     {
@@ -2592,7 +2611,7 @@ public final class LDAPConnection
   public ExtendedResult processExtendedOperation(final String requestOID)
          throws LDAPException
   {
-    ensureNotNull(requestOID);
+    Validator.ensureNotNull(requestOID);
 
     return processExtendedOperation(new ExtendedRequest(requestOID));
   }
@@ -2638,7 +2657,7 @@ public final class LDAPConnection
                              final ASN1OctetString requestValue)
          throws LDAPException
   {
-    ensureNotNull(requestOID);
+    Validator.ensureNotNull(requestOID);
 
     return processExtendedOperation(new ExtendedRequest(requestOID,
                                                         requestValue));
@@ -2681,7 +2700,7 @@ public final class LDAPConnection
                                final ExtendedRequest extendedRequest)
          throws LDAPException
   {
-    ensureNotNull(extendedRequest);
+    Validator.ensureNotNull(extendedRequest);
 
     final ExtendedResult extendedResult = extendedRequest.process(this, 1);
 
@@ -2731,10 +2750,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final String dn, final Modification mod)
          throws LDAPException
   {
-    ensureNotNull(dn, mod);
+    Validator.ensureNotNull(dn, mod);
 
     return modify(new ModifyRequest(dn, mod));
   }
@@ -2753,10 +2773,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final String dn, final Modification... mods)
          throws LDAPException
   {
-    ensureNotNull(dn, mods);
+    Validator.ensureNotNull(dn, mods);
 
     return modify(new ModifyRequest(dn, mods));
   }
@@ -2776,10 +2797,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final String dn, final List<Modification> mods)
          throws LDAPException
   {
-    ensureNotNull(dn, mods);
+    Validator.ensureNotNull(dn, mods);
 
     return modify(new ModifyRequest(dn, mods));
   }
@@ -2804,10 +2826,11 @@ public final class LDAPConnection
    *                         reading the response.
    *
    */
+  @Override()
   public LDAPResult modify(final String... ldifModificationLines)
          throws LDIFException, LDAPException
   {
-    ensureNotNull(ldifModificationLines);
+    Validator.ensureNotNull(ldifModificationLines);
 
     return modify(new ModifyRequest(ldifModificationLines));
   }
@@ -2826,10 +2849,11 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final ModifyRequest modifyRequest)
          throws LDAPException
   {
-    ensureNotNull(modifyRequest);
+    Validator.ensureNotNull(modifyRequest);
 
     final LDAPResult ldapResult = modifyRequest.process(this, 1);
 
@@ -2858,6 +2882,7 @@ public final class LDAPConnection
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
          throws LDAPException
   {
@@ -2885,7 +2910,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(modifyRequest);
+    Validator.ensureNotNull(modifyRequest);
 
     if (synchronousMode())
     {
@@ -2954,11 +2979,12 @@ public final class LDAPConnection
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public LDAPResult modifyDN(final String dn, final String newRDN,
                              final boolean deleteOldRDN)
          throws LDAPException
   {
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     return modifyDN(new ModifyDNRequest(dn, newRDN, deleteOldRDN));
   }
@@ -2984,12 +3010,13 @@ public final class LDAPConnection
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public LDAPResult modifyDN(final String dn, final String newRDN,
                              final boolean deleteOldRDN,
                              final String newSuperiorDN)
          throws LDAPException
   {
-    ensureNotNull(dn, newRDN);
+    Validator.ensureNotNull(dn, newRDN);
 
     return modifyDN(new ModifyDNRequest(dn, newRDN, deleteOldRDN,
                                         newSuperiorDN));
@@ -3009,10 +3036,11 @@ public final class LDAPConnection
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
-    ensureNotNull(modifyDNRequest);
+    Validator.ensureNotNull(modifyDNRequest);
 
     final LDAPResult ldapResult = modifyDNRequest.process(this, 1);
 
@@ -3041,6 +3069,7 @@ public final class LDAPConnection
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
@@ -3068,7 +3097,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(modifyDNRequest);
+    Validator.ensureNotNull(modifyDNRequest);
 
     if (synchronousMode())
     {
@@ -3162,11 +3191,12 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final String filter, final String... attributes)
          throws LDAPSearchException
   {
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     try
     {
@@ -3174,12 +3204,12 @@ public final class LDAPConnection
     }
     catch (final LDAPSearchException lse)
     {
-      debugException(lse);
+      Debug.debugException(lse);
       throw lse;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
   }
@@ -3224,11 +3254,12 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final Filter filter, final String... attributes)
          throws LDAPSearchException
   {
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     return search(new SearchRequest(baseDN, scope, filter, attributes));
   }
@@ -3281,12 +3312,13 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
                              final String filter, final String... attributes)
          throws LDAPSearchException
   {
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     try
     {
@@ -3295,12 +3327,12 @@ public final class LDAPConnection
     }
     catch (final LDAPSearchException lse)
     {
-      debugException(lse);
+      Debug.debugException(lse);
       throw lse;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
   }
@@ -3351,12 +3383,13 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
                              final Filter filter, final String... attributes)
          throws LDAPSearchException
   {
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     try
     {
@@ -3365,7 +3398,7 @@ public final class LDAPConnection
     }
     catch (final LDAPSearchException lse)
     {
-      debugException(lse);
+      Debug.debugException(lse);
       throw lse;
     }
   }
@@ -3422,6 +3455,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
@@ -3429,7 +3463,7 @@ public final class LDAPConnection
                              final String... attributes)
          throws LDAPSearchException
   {
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     try
     {
@@ -3439,12 +3473,12 @@ public final class LDAPConnection
     }
     catch (final LDAPSearchException lse)
     {
-      debugException(lse);
+      Debug.debugException(lse);
       throw lse;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
   }
@@ -3499,6 +3533,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
@@ -3506,7 +3541,7 @@ public final class LDAPConnection
                              final String... attributes)
          throws LDAPSearchException
   {
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     return search(new SearchRequest(baseDN, scope, derefPolicy, sizeLimit,
                                     timeLimit, typesOnly, filter, attributes));
@@ -3573,6 +3608,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
@@ -3581,7 +3617,7 @@ public final class LDAPConnection
                              final String... attributes)
          throws LDAPSearchException
   {
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     try
     {
@@ -3591,12 +3627,12 @@ public final class LDAPConnection
     }
     catch (final LDAPSearchException lse)
     {
-      debugException(lse);
+      Debug.debugException(lse);
       throw lse;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
   }
@@ -3660,6 +3696,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
@@ -3668,7 +3705,7 @@ public final class LDAPConnection
                              final String... attributes)
          throws LDAPSearchException
   {
-    ensureNotNull(baseDN, filter);
+    Validator.ensureNotNull(baseDN, filter);
 
     return search(new SearchRequest(searchResultListener, baseDN, scope,
                                     derefPolicy, sizeLimit, timeLimit,
@@ -3708,10 +3745,11 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchRequest searchRequest)
          throws LDAPSearchException
   {
-    ensureNotNull(searchRequest);
+    Validator.ensureNotNull(searchRequest);
 
     final SearchResult searchResult;
     try
@@ -3720,12 +3758,12 @@ public final class LDAPConnection
     }
     catch (final LDAPSearchException lse)
     {
-      debugException(lse);
+      Debug.debugException(lse);
       throw lse;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
 
@@ -3770,6 +3808,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
@@ -3819,6 +3858,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
                                           final String filter,
@@ -3833,7 +3873,7 @@ public final class LDAPConnection
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
 
@@ -3883,6 +3923,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
                                           final Filter filter,
@@ -3943,6 +3984,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
                                           final DereferencePolicy derefPolicy,
@@ -3960,7 +4002,7 @@ public final class LDAPConnection
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
 
@@ -4016,6 +4058,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
                                           final DereferencePolicy derefPolicy,
@@ -4065,6 +4108,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
          throws LDAPSearchException
   {
@@ -4098,7 +4142,7 @@ public final class LDAPConnection
     }
     catch (final LDAPSearchException lse)
     {
-      debugException(lse);
+      Debug.debugException(lse);
 
       if (lse.getResultCode() == ResultCode.NO_SUCH_OBJECT)
       {
@@ -4154,6 +4198,7 @@ public final class LDAPConnection
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(
                                 final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
@@ -4181,7 +4226,7 @@ public final class LDAPConnection
   public AsyncRequestID asyncSearch(final SearchRequest searchRequest)
          throws LDAPException
   {
-    ensureNotNull(searchRequest);
+    Validator.ensureNotNull(searchRequest);
 
     final SearchResultListener searchListener =
          searchRequest.getSearchResultListener();
@@ -4189,14 +4234,14 @@ public final class LDAPConnection
     {
       final LDAPException le = new LDAPException(ResultCode.PARAM_ERROR,
            ERR_ASYNC_SEARCH_NO_LISTENER.get());
-      debugCodingError(le);
+      Debug.debugCodingError(le);
       throw le;
     }
     else if (! (searchListener instanceof AsyncSearchResultListener))
     {
       final LDAPException le = new LDAPException(ResultCode.PARAM_ERROR,
            ERR_ASYNC_SEARCH_INVALID_LISTENER.get());
-      debugCodingError(le);
+      Debug.debugCodingError(le);
       throw le;
     }
 
@@ -4320,7 +4365,7 @@ public final class LDAPConnection
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
           }
         }
       }
@@ -4574,12 +4619,12 @@ public final class LDAPConnection
 
         setDisconnectInfo(DisconnectType.OTHER,
              ERR_CONN_CLOSED_BY_UNEXPECTED_CALL_PATH.get(
-                  getStackTrace(parentStackElements)),
+                  StaticUtils.getStackTrace(parentStackElements)),
              null);
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
 
@@ -4716,7 +4761,7 @@ public final class LDAPConnection
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         conn.setDisconnectInfo(DisconnectType.SECURITY_PROBLEM, null, le);
         conn.close();
 
@@ -4732,7 +4777,7 @@ public final class LDAPConnection
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         conn.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
         conn.close();
 
@@ -4878,7 +4923,7 @@ public final class LDAPConnection
     {
       final LDAPResponse response =
            internals.getConnectionReader().readResponse(messageID);
-      debugLDAPResult(response, this);
+      Debug.debugLDAPResult(response, this);
       return response;
     }
     else
@@ -5066,7 +5111,7 @@ public final class LDAPConnection
   {
     if (attachments == null)
     {
-      attachments = new HashMap<String,Object>(10);
+      attachments = new HashMap<>(10);
     }
 
     if (value == null)

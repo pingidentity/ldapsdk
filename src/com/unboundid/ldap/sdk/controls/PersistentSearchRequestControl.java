@@ -34,13 +34,13 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -311,7 +311,7 @@ public final class PersistentSearchRequestControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_PSEARCH_CANNOT_DECODE.get(e), e);
     }
@@ -340,7 +340,7 @@ public final class PersistentSearchRequestControl
                final PersistentSearchChangeType changeType,
                final boolean changesOnly, final boolean returnECs)
   {
-    ensureNotNull(changeType);
+    Validator.ensureNotNull(changeType);
 
     final ASN1Element[] elements =
     {
@@ -375,8 +375,8 @@ public final class PersistentSearchRequestControl
                final Set<PersistentSearchChangeType> changeTypes,
                final boolean changesOnly, final boolean returnECs)
   {
-    ensureNotNull(changeTypes);
-    ensureFalse(changeTypes.isEmpty(),
+    Validator.ensureNotNull(changeTypes);
+    Validator.ensureFalse(changeTypes.isEmpty(),
          "PersistentSearchRequestControl.changeTypes must not be empty.");
 
     final ASN1Element[] elements =

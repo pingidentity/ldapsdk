@@ -170,7 +170,7 @@ public final class RedactAttributeTransformation
 
     // Identify all of the names that may be used to reference the attributes
     // to redact.
-    final HashSet<String> attrNames = new HashSet<String>(3*attributes.size());
+    final HashSet<String> attrNames = new HashSet<>(3*attributes.size());
     for (final String attrName : attributes)
     {
       final String baseName =
@@ -223,7 +223,7 @@ public final class RedactAttributeTransformation
     // Create a copy of the entry with all appropriate attributes redacted.
     final Collection<Attribute> originalAttributes = e.getAttributes();
     final ArrayList<Attribute> newAttributes =
-         new ArrayList<Attribute>(originalAttributes.size());
+         new ArrayList<>(originalAttributes.size());
     for (final Attribute a : originalAttributes)
     {
       final String baseName = StaticUtils.toLowerCase(a.getBaseName());

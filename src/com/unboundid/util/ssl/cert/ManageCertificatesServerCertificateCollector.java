@@ -66,7 +66,8 @@ final class ManageCertificatesServerCertificateCollector
   /**
    * The column at which to wrap long lines of output.
    */
-  static final int WRAP_COLUMN = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
+  private static final int WRAP_COLUMN =
+       StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
 
 
 

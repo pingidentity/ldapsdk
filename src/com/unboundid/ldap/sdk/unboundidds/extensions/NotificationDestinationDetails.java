@@ -97,7 +97,7 @@ public final class NotificationDestinationDetails
 
     this.id = id;
     this.details =
-         Collections.unmodifiableList(new ArrayList<ASN1OctetString>(details));
+         Collections.unmodifiableList(new ArrayList<>(details));
 
     if (subscriptions == null)
     {
@@ -105,8 +105,8 @@ public final class NotificationDestinationDetails
     }
     else
     {
-      this.subscriptions = Collections.unmodifiableList(
-           new ArrayList<NotificationSubscriptionDetails>(subscriptions));
+      this.subscriptions =
+           Collections.unmodifiableList(new ArrayList<>(subscriptions));
     }
   }
 

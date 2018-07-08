@@ -22,11 +22,10 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -127,7 +126,7 @@ public final class ErrorLogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
     category = cat;
 
@@ -138,7 +137,7 @@ public final class ErrorLogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
     severity = sev;
   }

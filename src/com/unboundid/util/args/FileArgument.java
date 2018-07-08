@@ -269,8 +269,8 @@ public final class FileArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values                = new ArrayList<File>(5);
-    validators            = new ArrayList<ArgumentValueValidator>(5);
+    values                = new ArrayList<>(5);
+    validators            = new ArrayList<>(5);
     relativeBaseDirectory = null;
   }
 
@@ -292,9 +292,8 @@ public final class FileArgument
     parentMustExist       = source.parentMustExist;
     defaultValues         = source.defaultValues;
     relativeBaseDirectory = source.relativeBaseDirectory;
-    validators            =
-         new ArrayList<ArgumentValueValidator>(source.validators);
-    values                = new ArrayList<File>(5);
+    validators            = new ArrayList<>(source.validators);
+    values                = new ArrayList<>(5);
   }
 
 
@@ -561,7 +560,7 @@ public final class FileArgument
       return null;
     }
 
-    final ArrayList<String> lines  = new ArrayList<String>();
+    final ArrayList<String> lines  = new ArrayList<>(20);
     final BufferedReader    reader = new BufferedReader(new FileReader(f));
     try
     {
@@ -603,14 +602,14 @@ public final class FileArgument
       return null;
     }
 
-    final ArrayList<String> lines = new ArrayList<String>();
+    final ArrayList<String> lines = new ArrayList<>(20);
     final BufferedReader reader = new BufferedReader(new FileReader(f));
     try
     {
       String line = reader.readLine();
       while (line != null)
       {
-        if (line.length() > 0)
+        if (! line.isEmpty())
         {
           lines.add(line);
         }
@@ -705,7 +704,7 @@ public final class FileArgument
       return Collections.emptyList();
     }
 
-    final ArrayList<String> valueStrings = new ArrayList<String>(files.size());
+    final ArrayList<String> valueStrings = new ArrayList<>(files.size());
     for (final File f : files)
     {
       valueStrings.add(f.getAbsolutePath());

@@ -475,7 +475,7 @@ public class CopyDocs
     try
     {
       r = new BufferedReader(new FileReader(f));
-      final LinkedList<String> lines = new LinkedList<String>();
+      final LinkedList<String> lines = new LinkedList<>();
 
       while (true)
       {

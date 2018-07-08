@@ -62,13 +62,13 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.AttributeUsage;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -415,7 +415,7 @@ public final class DefaultObjectEncoder
     final LDAPField at = f.getAnnotation(LDAPField.class);
 
     final String attrName;
-    if (at.attribute().length() == 0)
+    if (at.attribute().isEmpty())
     {
       attrName = f.getName();
     }
@@ -466,9 +466,9 @@ public final class DefaultObjectEncoder
     final LDAPGetter at = m.getAnnotation(LDAPGetter.class);
 
     final String attrName;
-    if (at.attribute().length() == 0)
+    if (at.attribute().isEmpty())
     {
-      attrName = toInitialLowerCase(m.getName().substring(3));
+      attrName = StaticUtils.toInitialLowerCase(m.getName().substring(3));
     }
     else
     {
@@ -744,7 +744,7 @@ public final class DefaultObjectEncoder
     else if (c.equals(Date.class))
     {
       final Date d = (Date) value;
-      return new Attribute(name, encodeGeneralizedTime(d));
+      return new Attribute(name, StaticUtils.encodeGeneralizedTime(d));
     }
     else if (typeInfo.isArray())
     {
@@ -772,10 +772,10 @@ public final class DefaultObjectEncoder
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_DEFAULT_ENCODER_CANNOT_SERIALIZE.get(name,
-                  getExceptionMessage(e)),
+                  StaticUtils.getExceptionMessage(e)),
              e);
       }
     }
@@ -867,7 +867,7 @@ public final class DefaultObjectEncoder
       else if (arrayType.equals(Date.class))
       {
         final Date d = (Date) o;
-        values[i] = new ASN1OctetString(encodeGeneralizedTime(d));
+        values[i] = new ASN1OctetString(StaticUtils.encodeGeneralizedTime(d));
       }
       else if (arrayType.isEnum())
       {
@@ -886,10 +886,10 @@ public final class DefaultObjectEncoder
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPPersistException(
                ERR_DEFAULT_ENCODER_CANNOT_SERIALIZE.get(attributeName,
-                    getExceptionMessage(e)),
+                    StaticUtils.getExceptionMessage(e)),
                e);
         }
       }
@@ -987,7 +987,7 @@ public final class DefaultObjectEncoder
       else if (genericType.equals(Date.class))
       {
         final Date d = (Date) o;
-        values[i] = new ASN1OctetString(encodeGeneralizedTime(d));
+        values[i] = new ASN1OctetString(StaticUtils.encodeGeneralizedTime(d));
       }
       else if (genericType.isEnum())
       {
@@ -1006,10 +1006,10 @@ public final class DefaultObjectEncoder
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPPersistException(
                ERR_DEFAULT_ENCODER_CANNOT_SERIALIZE.get(attributeName,
-                    getExceptionMessage(e)),
+                    StaticUtils.getExceptionMessage(e)),
                e);
         }
       }
@@ -1130,13 +1130,13 @@ public final class DefaultObjectEncoder
     }
     catch (final LDAPPersistException lpe)
     {
-      debugException(lpe);
+      Debug.debugException(lpe);
       throw lpe;
     }
     catch (final Exception e)
     {
-      debugException(e);
-      throw new LDAPPersistException(getExceptionMessage(e), e);
+      Debug.debugException(e);
+      throw new LDAPPersistException(StaticUtils.getExceptionMessage(e), e);
     }
   }
 
@@ -1245,23 +1245,23 @@ public final class DefaultObjectEncoder
     }
     catch (final LDAPPersistException lpe)
     {
-      debugException(lpe);
+      Debug.debugException(lpe);
       throw lpe;
     }
     catch (final Throwable t)
     {
-      debugException(t);
+      Debug.debugException(t);
 
       if (t instanceof InvocationTargetException)
       {
         final Throwable targetException =
              ((InvocationTargetException) t).getTargetException();
-        throw new LDAPPersistException(getExceptionMessage(targetException),
-             targetException);
+        throw new LDAPPersistException(
+             StaticUtils.getExceptionMessage(targetException), targetException);
       }
       else
       {
-        throw new LDAPPersistException(getExceptionMessage(t), t);
+        throw new LDAPPersistException(StaticUtils.getExceptionMessage(t), t);
       }
     }
   }
@@ -1344,10 +1344,10 @@ public final class DefaultObjectEncoder
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_DEFAULT_ENCODER_VALUE_INVALID_URI.get(v.stringValue(),
-                  getExceptionMessage(e)), e);
+                  StaticUtils.getExceptionMessage(e)), e);
       }
     }
     else if (t.equals(URL.class))
@@ -1358,10 +1358,10 @@ public final class DefaultObjectEncoder
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_DEFAULT_ENCODER_VALUE_INVALID_URL.get(v.stringValue(),
-                  getExceptionMessage(e)), e);
+                  StaticUtils.getExceptionMessage(e)), e);
       }
     }
     else if (t.equals(UUID.class))
@@ -1372,10 +1372,10 @@ public final class DefaultObjectEncoder
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_DEFAULT_ENCODER_VALUE_INVALID_UUID.get(v.stringValue(),
-                  getExceptionMessage(e)), e);
+                  StaticUtils.getExceptionMessage(e)), e);
       }
     }
     else if (t.equals(DN.class))
@@ -1386,7 +1386,7 @@ public final class DefaultObjectEncoder
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         throw new LDAPPersistException(le.getMessage(), le);
       }
     }
@@ -1398,7 +1398,7 @@ public final class DefaultObjectEncoder
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         throw new LDAPPersistException(le.getMessage(), le);
       }
     }
@@ -1410,7 +1410,7 @@ public final class DefaultObjectEncoder
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         throw new LDAPPersistException(le.getMessage(), le);
       }
     }
@@ -1422,7 +1422,7 @@ public final class DefaultObjectEncoder
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         throw new LDAPPersistException(le.getMessage(), le);
       }
     }
@@ -1447,11 +1447,11 @@ public final class DefaultObjectEncoder
     {
       try
       {
-        return decodeGeneralizedTime(v.stringValue());
+        return StaticUtils.decodeGeneralizedTime(v.stringValue());
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_DEFAULT_ENCODER_VALUE_INVALID_DATE.get(v.stringValue(),
                   e.getMessage()), e);
@@ -1479,10 +1479,10 @@ public final class DefaultObjectEncoder
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_DEFAULT_ENCODER_VALUE_INVALID_ENUM.get(v.stringValue(),
-                  getExceptionMessage(e)), e);
+                  StaticUtils.getExceptionMessage(e)), e);
       }
     }
     else if (Serializable.class.isAssignableFrom(t))
@@ -1505,10 +1505,10 @@ public final class DefaultObjectEncoder
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPPersistException(
              ERR_DEFAULT_ENCODER_CANNOT_DESERIALIZE.get(a.getName(),
-                  getExceptionMessage(e)),
+                  StaticUtils.getExceptionMessage(e)),
              e);
       }
     }
@@ -1545,9 +1545,11 @@ public final class DefaultObjectEncoder
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPPersistException(
-               ERR_DEFAULT_ENCODER_CANNOT_ADD.get(getExceptionMessage(e)), e);
+               ERR_DEFAULT_ENCODER_CANNOT_ADD.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
         }
       }
     }

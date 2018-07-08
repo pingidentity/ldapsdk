@@ -217,13 +217,13 @@ public class DeleteResultAccessLogMessage
     }
 
     final String refStr = getNamedValue("referralURLs");
-    if ((refStr == null) || (refStr.length() == 0))
+    if ((refStr == null) || refStr.isEmpty())
     {
       referralURLs = Collections.emptyList();
     }
     else
     {
-      final LinkedList<String> refs = new LinkedList<String>();
+      final LinkedList<String> refs = new LinkedList<>();
       int startPos = 0;
       while (true)
       {
@@ -249,7 +249,7 @@ public class DeleteResultAccessLogMessage
     }
     else
     {
-      final LinkedList<String> controlList = new LinkedList<String>();
+      final LinkedList<String> controlList = new LinkedList<>();
       final StringTokenizer t = new StringTokenizer(controlStr, ",");
       while (t.hasMoreTokens())
       {
@@ -259,13 +259,13 @@ public class DeleteResultAccessLogMessage
     }
 
     final String serversAccessedStr = getNamedValue("serversAccessed");
-    if ((serversAccessedStr == null) || (serversAccessedStr.length() == 0))
+    if ((serversAccessedStr == null) || serversAccessedStr.isEmpty())
     {
       serversAccessed = Collections.emptyList();
     }
     else
     {
-      final LinkedList<String> servers = new LinkedList<String>();
+      final LinkedList<String> servers = new LinkedList<>();
       final StringTokenizer tokenizer =
            new StringTokenizer(serversAccessedStr, ",");
       while (tokenizer.hasMoreTokens())
@@ -306,13 +306,13 @@ public class DeleteResultAccessLogMessage
          getNamedValueAsBoolean("responseDelayedByAssurance");
 
     final String usedPrivilegesStr = getNamedValue("usedPrivileges");
-    if ((usedPrivilegesStr == null) || (usedPrivilegesStr.length() == 0))
+    if ((usedPrivilegesStr == null) || usedPrivilegesStr.isEmpty())
     {
       usedPrivileges = Collections.emptyList();
     }
     else
     {
-      final LinkedList<String> privileges = new LinkedList<String>();
+      final LinkedList<String> privileges = new LinkedList<>();
       final StringTokenizer tokenizer =
            new StringTokenizer(usedPrivilegesStr, ",");
       while (tokenizer.hasMoreTokens())
@@ -325,13 +325,13 @@ public class DeleteResultAccessLogMessage
     final String preAuthZUsedPrivilegesStr =
          getNamedValue("preAuthZUsedPrivileges");
     if ((preAuthZUsedPrivilegesStr == null) ||
-        (preAuthZUsedPrivilegesStr.length() == 0))
+         preAuthZUsedPrivilegesStr.isEmpty())
     {
       preAuthZUsedPrivileges = Collections.emptyList();
     }
     else
     {
-      final LinkedList<String> privileges = new LinkedList<String>();
+      final LinkedList<String> privileges = new LinkedList<>();
       final StringTokenizer tokenizer =
            new StringTokenizer(preAuthZUsedPrivilegesStr, ",");
       while (tokenizer.hasMoreTokens())
@@ -342,13 +342,13 @@ public class DeleteResultAccessLogMessage
     }
 
     final String missingPrivilegesStr = getNamedValue("missingPrivileges");
-    if ((missingPrivilegesStr == null) || (missingPrivilegesStr.length() == 0))
+    if ((missingPrivilegesStr == null) || missingPrivilegesStr.isEmpty())
     {
       missingPrivileges = Collections.emptyList();
     }
     else
     {
-      final LinkedList<String> privileges = new LinkedList<String>();
+      final LinkedList<String> privileges = new LinkedList<>();
       final StringTokenizer tokenizer =
            new StringTokenizer(missingPrivilegesStr, ",");
       while (tokenizer.hasMoreTokens())
@@ -360,13 +360,13 @@ public class DeleteResultAccessLogMessage
 
     final String indexesNearLimitStr =
          getNamedValue("indexesWithKeysAccessedNearEntryLimit");
-    if ((indexesNearLimitStr == null) || (indexesNearLimitStr.length() == 0))
+    if ((indexesNearLimitStr == null) || indexesNearLimitStr.isEmpty())
     {
       indexesWithKeysAccessedNearEntryLimit = Collections.emptyList();
     }
     else
     {
-      final LinkedList<String> indexes = new LinkedList<String>();
+      final LinkedList<String> indexes = new LinkedList<>();
       final StringTokenizer tokenizer =
            new StringTokenizer(indexesNearLimitStr, ",");
       while (tokenizer.hasMoreTokens())
@@ -379,13 +379,13 @@ public class DeleteResultAccessLogMessage
 
     final String indexesOverLimitStr =
          getNamedValue("indexesWithKeysAccessedExceedingEntryLimit");
-    if ((indexesOverLimitStr == null) || (indexesOverLimitStr.length() == 0))
+    if ((indexesOverLimitStr == null) || indexesOverLimitStr.isEmpty())
     {
       indexesWithKeysAccessedOverEntryLimit = Collections.emptyList();
     }
     else
     {
-      final LinkedList<String> indexes = new LinkedList<String>();
+      final LinkedList<String> indexes = new LinkedList<>();
       final StringTokenizer tokenizer =
            new StringTokenizer(indexesOverLimitStr, ",");
       while (tokenizer.hasMoreTokens())
@@ -405,6 +405,7 @@ public class DeleteResultAccessLogMessage
    * @return  The result code for the operation, or {@code null} if it is not
    *          included in the log message.
    */
+  @Override()
   public ResultCode getResultCode()
   {
     return resultCode;
@@ -418,6 +419,7 @@ public class DeleteResultAccessLogMessage
    * @return  The diagnostic message for the operation, or {@code null} if it is
    *          not included in the log message.
    */
+  @Override()
   public String getDiagnosticMessage()
   {
     return diagnosticMessage;
@@ -433,6 +435,7 @@ public class DeleteResultAccessLogMessage
    *          operation, or {@code null} if it is not included in the log
    *          message.
    */
+  @Override()
   public String getAdditionalInformation()
   {
     return additionalInformation;
@@ -446,6 +449,7 @@ public class DeleteResultAccessLogMessage
    * @return  The matched DN for the operation, or {@code null} if it is not
    *          included in the log message.
    */
+  @Override()
   public String getMatchedDN()
   {
     return matchedDN;
@@ -459,6 +463,7 @@ public class DeleteResultAccessLogMessage
    * @return  The list of referral URLs for the operation, or an empty list if
    *          it is not included in the log message.
    */
+  @Override()
   public List<String> getReferralURLs()
   {
     return referralURLs;
@@ -474,6 +479,7 @@ public class DeleteResultAccessLogMessage
    *          client in the course of processing the operation, or {@code null}
    *          if it is not included in the log message.
    */
+  @Override()
   public Long getIntermediateResponsesReturned()
   {
     return intermediateResponsesReturned;
@@ -489,6 +495,7 @@ public class DeleteResultAccessLogMessage
    *          operation, or {@code null} if it is not included in the log
    *          message.
    */
+  @Override()
   public Double getProcessingTimeMillis()
   {
     return processingTime;
@@ -504,6 +511,7 @@ public class DeleteResultAccessLogMessage
    *          wait on the work queue, or {@code null} if it is not included in
    *          the log message.
    */
+  @Override()
   public Double getQueueTimeMillis()
   {
     return queueTime;
@@ -517,6 +525,7 @@ public class DeleteResultAccessLogMessage
    * @return  The OIDs of any response controls contained in the log message, or
    *          an empty list if it is not included in the log message.
    */
+  @Override()
   public List<String> getResponseControlOIDs()
   {
     return responseControlOIDs;
@@ -534,6 +543,7 @@ public class DeleteResultAccessLogMessage
    *          of processing the operation, or an empty list if it is not
    *          included in the log message.
    */
+  @Override()
   public List<String> getServersAccessed()
   {
     return serversAccessed;
@@ -565,6 +575,7 @@ public class DeleteResultAccessLogMessage
    * @return  The content of the intermediate client result for the operation,
    *          or {@code null} if it is not included in the log message.
    */
+  @Override()
   public String getIntermediateClientResult()
   {
     return intermediateClientResult;

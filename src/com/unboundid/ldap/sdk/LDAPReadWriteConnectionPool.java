@@ -28,11 +28,10 @@ import java.util.List;
 
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
+import com.unboundid.util.Debug;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -120,19 +119,19 @@ public final class LDAPReadWriteConnectionPool
               final int initialWriteConnections, final int maxWriteConnections)
          throws LDAPException
   {
-    ensureNotNull(readConnection, writeConnection);
-    ensureTrue(initialReadConnections >= 1,
-               "LDAPReadWriteConnectionPool.initialReadConnections must be " +
-                    "at least 1.");
-    ensureTrue(maxReadConnections >= initialReadConnections,
-               "LDAPReadWriteConnectionPool.initialReadConnections must not " +
-                    "be greater than maxReadConnections.");
-    ensureTrue(initialWriteConnections >= 1,
-               "LDAPReadWriteConnectionPool.initialWriteConnections must be " +
-                    "at least 1.");
-    ensureTrue(maxWriteConnections >= initialWriteConnections,
-               "LDAPReadWriteConnectionPool.initialWriteConnections must not " +
-                    "be greater than maxWriteConnections.");
+    Validator.ensureNotNull(readConnection, writeConnection);
+    Validator.ensureTrue(initialReadConnections >= 1,
+         "LDAPReadWriteConnectionPool.initialReadConnections must be at " +
+              "least 1.");
+    Validator.ensureTrue(maxReadConnections >= initialReadConnections,
+         "LDAPReadWriteConnectionPool.initialReadConnections must not be " +
+              "greater than maxReadConnections.");
+    Validator.ensureTrue(initialWriteConnections >= 1,
+         "LDAPReadWriteConnectionPool.initialWriteConnections must be at " +
+              "least 1.");
+    Validator.ensureTrue(maxWriteConnections >= initialWriteConnections,
+         "LDAPReadWriteConnectionPool.initialWriteConnections must not be " +
+              "greater than maxWriteConnections.");
 
     readPool = new LDAPConnectionPool(readConnection, initialReadConnections,
                                       maxReadConnections);
@@ -144,7 +143,7 @@ public final class LDAPReadWriteConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       readPool.close();
       throw le;
     }
@@ -164,7 +163,7 @@ public final class LDAPReadWriteConnectionPool
   public LDAPReadWriteConnectionPool(final LDAPConnectionPool readPool,
                                      final LDAPConnectionPool writePool)
   {
-    ensureNotNull(readPool, writePool);
+    Validator.ensureNotNull(readPool, writePool);
 
     this.readPool  = readPool;
     this.writePool = writePool;
@@ -178,6 +177,7 @@ public final class LDAPReadWriteConnectionPool
    * connections will be automatically closed when they are released back to the
    * pool.
    */
+  @Override()
   public void close()
   {
     readPool.close();
@@ -341,6 +341,7 @@ public final class LDAPReadWriteConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server root DSE.
    */
+  @Override()
   public RootDSE getRootDSE()
          throws LDAPException
   {
@@ -364,6 +365,7 @@ public final class LDAPReadWriteConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
+  @Override()
   public Schema getSchema()
          throws LDAPException
   {
@@ -392,6 +394,7 @@ public final class LDAPReadWriteConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
+  @Override()
   public Schema getSchema(final String entryDN)
          throws LDAPException
   {
@@ -414,6 +417,7 @@ public final class LDAPReadWriteConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
+  @Override()
   public SearchResultEntry getEntry(final String dn)
          throws LDAPException
   {
@@ -439,6 +443,7 @@ public final class LDAPReadWriteConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
+  @Override()
   public SearchResultEntry getEntry(final String dn, final String... attributes)
          throws LDAPException
   {
@@ -462,6 +467,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final String dn, final Attribute... attributes)
          throws LDAPException
   {
@@ -485,6 +491,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final String dn, final Collection<Attribute> attributes)
          throws LDAPException
   {
@@ -505,6 +512,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final Entry entry)
          throws LDAPException
   {
@@ -529,6 +537,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final String... ldifLines)
          throws LDIFException, LDAPException
   {
@@ -550,6 +559,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final AddRequest addRequest)
          throws LDAPException
   {
@@ -571,6 +581,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult add(final ReadOnlyAddRequest addRequest)
          throws LDAPException
   {
@@ -650,6 +661,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public CompareResult compare(final String dn, final String attributeName,
                                final String assertionValue)
          throws LDAPException
@@ -672,6 +684,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public CompareResult compare(final CompareRequest compareRequest)
          throws LDAPException
   {
@@ -693,6 +706,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public CompareResult compare(final ReadOnlyCompareRequest compareRequest)
          throws LDAPException
   {
@@ -713,6 +727,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult delete(final String dn)
          throws LDAPException
   {
@@ -734,6 +749,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult delete(final DeleteRequest deleteRequest)
          throws LDAPException
   {
@@ -755,6 +771,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
          throws LDAPException
   {
@@ -777,6 +794,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final String dn, final Modification mod)
          throws LDAPException
   {
@@ -798,6 +816,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final String dn, final Modification... mods)
          throws LDAPException
   {
@@ -820,6 +839,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final String dn, final List<Modification> mods)
          throws LDAPException
   {
@@ -846,6 +866,7 @@ public final class LDAPReadWriteConnectionPool
    *                         reading the response.
    *
    */
+  @Override()
   public LDAPResult modify(final String... ldifModificationLines)
          throws LDIFException, LDAPException
   {
@@ -867,6 +888,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final ModifyRequest modifyRequest)
          throws LDAPException
   {
@@ -888,6 +910,7 @@ public final class LDAPReadWriteConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
          throws LDAPException
   {
@@ -913,6 +936,7 @@ public final class LDAPReadWriteConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public LDAPResult modifyDN(final String dn, final String newRDN,
                              final boolean deleteOldRDN)
          throws LDAPException
@@ -942,6 +966,7 @@ public final class LDAPReadWriteConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public LDAPResult modifyDN(final String dn, final String newRDN,
                              final boolean deleteOldRDN,
                              final String newSuperiorDN)
@@ -965,6 +990,7 @@ public final class LDAPReadWriteConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
@@ -986,6 +1012,7 @@ public final class LDAPReadWriteConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
@@ -1035,6 +1062,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final String filter, final String... attributes)
          throws LDAPSearchException
@@ -1083,6 +1111,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final Filter filter, final String... attributes)
          throws LDAPSearchException
@@ -1139,6 +1168,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
                              final String filter, final String... attributes)
@@ -1195,6 +1225,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
                              final Filter filter, final String... attributes)
@@ -1257,6 +1288,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
@@ -1319,6 +1351,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
@@ -1392,6 +1425,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
@@ -1464,6 +1498,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
@@ -1510,6 +1545,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final SearchRequest searchRequest)
          throws LDAPSearchException
   {
@@ -1550,6 +1586,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResult search(final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
@@ -1600,6 +1637,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
                                           final String filter,
@@ -1653,6 +1691,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
                                           final Filter filter,
@@ -1713,6 +1752,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
                                           final DereferencePolicy derefPolicy,
@@ -1776,6 +1816,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
                                           final DereferencePolicy derefPolicy,
@@ -1826,6 +1867,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
          throws LDAPSearchException
   {
@@ -1869,6 +1911,7 @@ public final class LDAPReadWriteConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public SearchResultEntry searchForEntry(
                                 final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException

@@ -36,12 +36,12 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartInteractiveTransactionExtendedResult;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -136,19 +136,6 @@ public final class InteractiveTransactionSpecificationRequestControl
   // Indicates whether the server should attempt to obtain a write lock on the
   // target entry if the associated operation is a read operation.
   private final boolean writeLock;
-
-
-
-  // This is an ugly hack to prevent checkstyle from complaining about imports
-  // for classes that are needed by javadoc @link elements but aren't otherwise
-  // used in the class.  It appears that checkstyle does not recognize the use
-  // of these classes in javadoc @link elements so we must ensure that they are
-  // referenced elsewhere in the class to prevent checkstyle from complaining.
-  static
-  {
-    final StartInteractiveTransactionExtendedRequest r1 = null;
-    final StartInteractiveTransactionExtendedResult  r2 = null;
-  }
 
 
 
@@ -276,7 +263,7 @@ public final class InteractiveTransactionSpecificationRequestControl
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
                ERR_INT_TXN_REQUEST_INVALID_ELEMENT_TYPE.get(
-                    toHex(element.getType())));
+                    StaticUtils.toHex(element.getType())));
       }
     }
 
@@ -317,9 +304,9 @@ public final class InteractiveTransactionSpecificationRequestControl
                  final ASN1OctetString transactionID,
                  final boolean abortOnFailure, final boolean writeLock)
   {
-    ensureNotNull(transactionID);
+    Validator.ensureNotNull(transactionID);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
     elements.add(new ASN1OctetString(TYPE_TXN_ID, transactionID.getValue()));
 
     if (abortOnFailure)

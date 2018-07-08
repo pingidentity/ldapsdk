@@ -90,6 +90,7 @@ public final class ReverseComparator<T>
    *          their relative orders.
    */
   @SuppressWarnings("unchecked")
+  @Override()
   public int compare(final T o1, final T o2)
   {
     final int baseValue;

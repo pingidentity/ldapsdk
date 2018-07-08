@@ -33,14 +33,14 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -112,7 +112,7 @@ public final class RDN
   public RDN(final String attributeName, final String attributeValue,
              final Schema schema)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     this.schema = schema;
 
@@ -152,7 +152,7 @@ public final class RDN
   public RDN(final String attributeName, final byte[] attributeValue,
              final Schema schema)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     this.schema = schema;
 
@@ -196,11 +196,11 @@ public final class RDN
   public RDN(final String[] attributeNames, final String[] attributeValues,
              final Schema schema)
   {
-    ensureNotNull(attributeNames, attributeValues);
-    ensureTrue(attributeNames.length == attributeValues.length,
-               "RDN.attributeNames and attributeValues must be the same size.");
-    ensureTrue(attributeNames.length > 0,
-               "RDN.attributeNames must not be empty.");
+    Validator.ensureNotNull(attributeNames, attributeValues);
+    Validator.ensureTrue(attributeNames.length == attributeValues.length,
+         "RDN.attributeNames and attributeValues must be the same size.");
+    Validator.ensureTrue(attributeNames.length > 0,
+         "RDN.attributeNames must not be empty.");
 
     this.attributeNames = attributeNames;
     this.schema         = schema;
@@ -247,11 +247,11 @@ public final class RDN
   public RDN(final String[] attributeNames, final byte[][] attributeValues,
              final Schema schema)
   {
-    ensureNotNull(attributeNames, attributeValues);
-    ensureTrue(attributeNames.length == attributeValues.length,
-               "RDN.attributeNames and attributeValues must be the same size.");
-    ensureTrue(attributeNames.length > 0,
-               "RDN.attributeNames must not be empty.");
+    Validator.ensureNotNull(attributeNames, attributeValues);
+    Validator.ensureTrue(attributeNames.length == attributeValues.length,
+         "RDN.attributeNames and attributeValues must be the same size.");
+    Validator.ensureTrue(attributeNames.length > 0,
+         "RDN.attributeNames must not be empty.");
 
     this.attributeNames = attributeNames;
     this.schema         = schema;
@@ -341,7 +341,7 @@ public final class RDN
   public RDN(final String rdnString, final Schema schema)
          throws LDAPException
   {
-    ensureNotNull(rdnString);
+    Validator.ensureNotNull(rdnString);
 
     this.rdnString = rdnString;
     this.schema    = schema;
@@ -375,7 +375,7 @@ public final class RDN
     // Extract the attribute name, then skip over any spaces between the
     // attribute name and the equal sign.
     String attrName = rdnString.substring(attrStartPos, pos);
-    if (attrName.length() == 0)
+    if (attrName.isEmpty())
     {
       throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
            ERR_RDN_NO_ATTR_NAME.get(rdnString));
@@ -425,7 +425,7 @@ public final class RDN
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
              ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(rdnString, attrName), e);
       }
@@ -457,9 +457,8 @@ public final class RDN
 
     // It's a multivalued RDN, so create temporary lists to hold the names and
     // values.
-    final ArrayList<String> nameList = new ArrayList<String>(5);
-    final ArrayList<ASN1OctetString> valueList =
-         new ArrayList<ASN1OctetString>(5);
+    final ArrayList<String> nameList = new ArrayList<>(5);
+    final ArrayList<ASN1OctetString> valueList = new ArrayList<>(5);
     nameList.add(attrName);
     valueList.add(value);
 
@@ -502,7 +501,7 @@ public final class RDN
 
       // Skip over any spaces between the attribute name and the equal sign.
       attrName = rdnString.substring(attrStartPos, pos);
-      if (attrName.length() == 0)
+      if (attrName.isEmpty())
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
              ERR_RDN_NO_ATTR_NAME.get(rdnString));
@@ -549,7 +548,7 @@ public final class RDN
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
                ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(rdnString, attrName), e);
         }
@@ -831,7 +830,7 @@ valueLoop:
           {
             pos++;
             c = rdnString.charAt(pos);
-            if (isHex(c))
+            if (StaticUtils.isHex(c))
             {
               // We need to subtract one from the resulting position because
               // it will be incremented later.
@@ -1095,7 +1094,7 @@ valueLoop:
       }
 
       if (((pos+1) < length) && (rdnString.charAt(pos) == '\\') &&
-          isHex(rdnString.charAt(pos+1)))
+          StaticUtils.isHex(rdnString.charAt(pos+1)))
       {
         // It appears that there are more hex-encoded bytes to follow, so keep
         // reading.
@@ -1114,11 +1113,11 @@ valueLoop:
 
     try
     {
-      buffer.append(toUTF8String(byteArray));
+      buffer.append(StaticUtils.toUTF8String(byteArray));
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       // This should never happen.
       buffer.append(new String(byteArray));
     }
@@ -1476,7 +1475,7 @@ valueLoop:
             // unless we're using minimized encoding.
             if ((! minimizeEncoding) && ((c < ' ') || (c > '~')))
             {
-              hexEncode(c, buffer);
+              StaticUtils.hexEncode(c, buffer);
             }
             else
             {
@@ -1529,8 +1528,7 @@ valueLoop:
     else
     {
       // It's a multivalued RDN, so we need to sort the components.
-      final TreeMap<String,ASN1OctetString> valueMap =
-           new TreeMap<String,ASN1OctetString>();
+      final TreeMap<String,ASN1OctetString> valueMap = new TreeMap<>();
       for (int i=0; i < attributeNames.length; i++)
       {
         final String name = normalizeAttrName(attributeNames[i]);
@@ -1573,7 +1571,7 @@ valueLoop:
         n = at.getNameOrOID();
       }
     }
-    return toLowerCase(n);
+    return StaticUtils.toLowerCase(n);
   }
 
 
@@ -1644,9 +1642,9 @@ valueLoop:
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       rawNormValue =
-           new ASN1OctetString(toLowerCase(value.stringValue()));
+           new ASN1OctetString(StaticUtils.toLowerCase(value.stringValue()));
     }
 
     final String valueString = rawNormValue.stringValue();
@@ -1712,17 +1710,17 @@ valueLoop:
             {
               final char c2 = valueString.charAt(++i);
               final int codePoint = Character.toCodePoint(c, c2);
-              hexEncode(codePoint, buffer);
+              StaticUtils.hexEncode(codePoint, buffer);
             }
             else
             {
               // This should never happen.
-              hexEncode(c, buffer);
+              StaticUtils.hexEncode(c, buffer);
             }
           }
           else
           {
-            hexEncode(c, buffer);
+            StaticUtils.hexEncode(c, buffer);
           }
           break;
       }
@@ -1838,6 +1836,7 @@ valueLoop:
    *          the provided RDN in a sorted list, or zero if the provided RDN
    *          can be considered equal to this RDN.
    */
+  @Override()
   public int compareTo(final RDN rdn)
   {
     return compare(this, rdn);
@@ -1857,9 +1856,10 @@ valueLoop:
    *          come after the second RDN in a sorted list, or zero if the two RDN
    *          values can be considered equal.
    */
+  @Override()
   public int compare(final RDN rdn1, final RDN rdn2)
   {
-    ensureNotNull(rdn1, rdn2);
+    Validator.ensureNotNull(rdn1, rdn2);
 
     return(rdn1.toNormalizedString().compareTo(rdn2.toNormalizedString()));
   }

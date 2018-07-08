@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -227,8 +226,8 @@ public final class GSSAPIBindRequestProperties
     keyTabPath                 = null;
     ticketCachePath            = null;
     suppressedSystemProperties = Collections.emptySet();
-    allowedQoP                 = Collections.unmodifiableList(Arrays.asList(
-         SASLQualityOfProtection.AUTH));
+    allowedQoP                 =
+         Collections.singletonList(SASLQualityOfProtection.AUTH);
   }
 
 
@@ -420,13 +419,12 @@ public final class GSSAPIBindRequestProperties
   {
     if ((allowedQoP == null) || allowedQoP.isEmpty())
     {
-      this.allowedQoP = Collections.unmodifiableList(Arrays.asList(
-           SASLQualityOfProtection.AUTH));
+      this.allowedQoP = Collections.singletonList(SASLQualityOfProtection.AUTH);
     }
     else
     {
-      this.allowedQoP = Collections.unmodifiableList(
-           new ArrayList<SASLQualityOfProtection>(allowedQoP));
+      this.allowedQoP =
+           Collections.unmodifiableList(new ArrayList<>(allowedQoP));
     }
   }
 
@@ -944,7 +942,7 @@ public final class GSSAPIBindRequestProperties
     else
     {
       this.suppressedSystemProperties = Collections.unmodifiableSet(
-           new LinkedHashSet<String>(suppressedSystemProperties));
+           new LinkedHashSet<>(suppressedSystemProperties));
     }
   }
 

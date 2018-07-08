@@ -59,17 +59,17 @@ import com.unboundid.util.ThreadSafetyLevel;
  */
 @InternalUseOnly()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class AsynchronousParallelProcessor<I, O>
+public final class AsynchronousParallelProcessor<I,O>
 {
 
   // Queue of input items.
   private final BlockingQueue<I> pendingQueue;
 
   // The ParallelProcessor that is used to process the input items.
-  private final ParallelProcessor<I, O> parallelProcessor;
+  private final ParallelProcessor<I,O> parallelProcessor;
 
   // Processor for the results.
-  private final ResultProcessor<I, O> resultProcessor;
+  private final ResultProcessor<I,O> resultProcessor;
 
   // Thread that pulls items from pendingQueue, passes them to
   // parallelProcessor, and processes the results.
@@ -81,7 +81,7 @@ public final class AsynchronousParallelProcessor<I, O>
   // Set by worker threads to signal that there was a problem during processing.
   // Once this is set, all calls to submit() will fail with this exception.
   private final AtomicReference<Throwable> invocationException =
-       new AtomicReference<Throwable>();
+       new AtomicReference<>();
 
 
 
@@ -105,15 +105,15 @@ public final class AsynchronousParallelProcessor<I, O>
    */
   public AsynchronousParallelProcessor(
        final BlockingQueue<I> pendingQueue,
-       final ParallelProcessor<I, O> parallelProcessor,
-       final ResultProcessor<I, O> resultProcessor)
+       final ParallelProcessor<I,O> parallelProcessor,
+       final ResultProcessor<I,O> resultProcessor)
   {
     this.pendingQueue = pendingQueue;
     this.parallelProcessor = parallelProcessor;
     this.resultProcessor = resultProcessor;
 
-    this.invokerThread = new InvokerThread();
-    this.invokerThread.start();
+    invokerThread = new InvokerThread();
+    invokerThread.start();
   }
 
 
@@ -140,11 +140,10 @@ public final class AsynchronousParallelProcessor<I, O>
    */
   public AsynchronousParallelProcessor(
        final BlockingQueue<I> pendingQueue,
-       final ParallelProcessor<I, O> parallelProcessor,
-       final BlockingQueue<Result<I, O>> outputQueue)
+       final ParallelProcessor<I,O> parallelProcessor,
+       final BlockingQueue<Result<I,O>> outputQueue)
   {
-    this(pendingQueue, parallelProcessor,
-         new OutputEnqueuer<I, O>(outputQueue));
+    this(pendingQueue, parallelProcessor, new OutputEnqueuer<>(outputQueue));
   }
 
 
@@ -212,10 +211,10 @@ public final class AsynchronousParallelProcessor<I, O>
    * @param <I>  The type of the input items of {@code processAll}.
    * @param <O>  The type of the output items of {@code processAll}.
    */
-  private static final class OutputEnqueuer<I, O>
-       implements ResultProcessor<I, O>
+  private static final class OutputEnqueuer<I,O>
+       implements ResultProcessor<I,O>
   {
-    private final BlockingQueue<Result<I, O>> outputQueue;
+    private final BlockingQueue<Result<I,O>> outputQueue;
 
 
 
@@ -224,7 +223,7 @@ public final class AsynchronousParallelProcessor<I, O>
      *
      * @param outputQueue  The queue where results will be enqueued.
      */
-    private OutputEnqueuer(final BlockingQueue<Result<I, O>> outputQueue)
+    private OutputEnqueuer(final BlockingQueue<Result<I,O>> outputQueue)
     {
       this.outputQueue = outputQueue;
     }
@@ -234,7 +233,7 @@ public final class AsynchronousParallelProcessor<I, O>
      * {@inheritDoc}
      */
     @Override()
-    public void processResult(final Result<I, O> ioResult)
+    public void processResult(final Result<I,O> ioResult)
          throws Exception
     {
       outputQueue.put(ioResult);
@@ -276,14 +275,14 @@ public final class AsynchronousParallelProcessor<I, O>
           final I item = pendingQueue.poll(100, TimeUnit.MILLISECONDS);
           if (item != null)
           {
-            final List<I> items = new ArrayList<I>(1 + pendingQueue.size());
+            final List<I> items = new ArrayList<>(1 + pendingQueue.size());
             items.add(item);
             pendingQueue.drainTo(items);
 
-            final List<Result<I, O>> results =
+            final List<Result<I,O>> results =
                  parallelProcessor.processAll(items);
 
-            for (final Result<I, O> result : results)
+            for (final Result<I,O> result : results)
             {
               resultProcessor.processResult(result);
             }

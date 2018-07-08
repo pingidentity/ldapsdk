@@ -38,8 +38,7 @@ import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -150,7 +149,7 @@ public abstract class LDIFChangeRecord
    */
   protected LDIFChangeRecord(final String dn, final List<Control> controls)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
     parsedDN = null;
@@ -172,6 +171,7 @@ public abstract class LDIFChangeRecord
    *
    * @return  The DN for this LDIF change record.
    */
+  @Override()
   public final String getDN()
   {
     return dn;
@@ -186,6 +186,7 @@ public abstract class LDIFChangeRecord
    *
    * @throws  LDAPException  If a problem occurs while trying to parse the DN.
    */
+  @Override()
   public final DN getParsedDN()
          throws LDAPException
   {
@@ -291,6 +292,7 @@ public abstract class LDIFChangeRecord
    * @return  A string array whose lines contain an LDIF representation of this
    *          change record.
    */
+  @Override()
   public final String[] toLDIF()
   {
     return toLDIF(0);
@@ -309,6 +311,7 @@ public abstract class LDIFChangeRecord
    * @return  A string array whose lines contain an LDIF representation of this
    *          change record.
    */
+  @Override()
   public abstract String[] toLDIF(int wrapColumn);
 
 
@@ -351,6 +354,7 @@ public abstract class LDIFChangeRecord
    * @param  buffer  The buffer to which to append an LDIF representation of
    *                 this change record.
    */
+  @Override()
   public final void toLDIF(final ByteStringBuffer buffer)
   {
     toLDIF(buffer, 0);
@@ -368,6 +372,7 @@ public abstract class LDIFChangeRecord
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
+  @Override()
   public abstract void toLDIF(ByteStringBuffer buffer, int wrapColumn);
 
 
@@ -377,6 +382,7 @@ public abstract class LDIFChangeRecord
    *
    * @return  An LDIF string representation of this change record.
    */
+  @Override()
   public final String toLDIFString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -395,6 +401,7 @@ public abstract class LDIFChangeRecord
    *
    * @return  An LDIF string representation of this change record.
    */
+  @Override()
   public final String toLDIFString(final int wrapColumn)
   {
     final StringBuilder buffer = new StringBuilder();
@@ -411,6 +418,7 @@ public abstract class LDIFChangeRecord
    * @param  buffer  The buffer to which to append an LDIF representation of
    *                 this change record.
    */
+  @Override()
   public final void toLDIFString(final StringBuilder buffer)
   {
     toLDIFString(buffer, 0);
@@ -428,6 +436,7 @@ public abstract class LDIFChangeRecord
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
+  @Override()
   public abstract void toLDIFString(StringBuilder buffer, int wrapColumn);
 
 

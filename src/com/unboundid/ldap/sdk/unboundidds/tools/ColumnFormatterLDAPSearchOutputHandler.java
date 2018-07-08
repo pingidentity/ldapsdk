@@ -121,7 +121,7 @@ final class ColumnFormatterLDAPSearchOutputHandler
 
     formatter = new ColumnFormatter(false, null, outputFormat, " ", columns);
 
-    formattedLines = new ArrayList<String>(20);
+    formattedLines = new ArrayList<>(20);
     formattedLineBuffer = new StringBuilder(100);
   }
 

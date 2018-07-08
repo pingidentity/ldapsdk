@@ -366,7 +366,7 @@ public final class DeregisterYubiKeyOTPDeviceExtendedRequest
                                       final ASN1OctetString staticPassword,
                                       final String yubiKeyOTP)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     if (authenticationID != null)
     {

@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk.unboundidds.jsonfilter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -352,7 +351,7 @@ public abstract class JSONObjectFilter
    * objects to filters of that type.
    */
   private static final ConcurrentHashMap<String,JSONObjectFilter> FILTER_TYPES =
-       new ConcurrentHashMap<String,JSONObjectFilter>(10);
+       new ConcurrentHashMap<>(10);
   static
   {
     registerFilterType(
@@ -482,7 +481,7 @@ public abstract class JSONObjectFilter
 
     if (v instanceof JSONString)
     {
-      return Arrays.asList(((JSONString) v).stringValue());
+      return Collections.singletonList(((JSONString) v).stringValue());
     }
     else if (v instanceof JSONArray)
     {
@@ -500,7 +499,7 @@ public abstract class JSONObjectFilter
         }
       }
 
-      final ArrayList<String> valueList = new ArrayList<String>(values.size());
+      final ArrayList<String> valueList = new ArrayList<>(values.size());
       for (final JSONValue av : values)
       {
         if (av instanceof JSONString)
@@ -676,7 +675,7 @@ public abstract class JSONObjectFilter
 
     final List<JSONValue> values = ((JSONArray) value).getValues();
     final ArrayList<JSONObjectFilter> filterList =
-         new ArrayList<JSONObjectFilter>(values.size());
+         new ArrayList<>(values.size());
     for (final JSONValue arrayValue : values)
     {
       if (! (arrayValue instanceof JSONObject))
@@ -719,7 +718,7 @@ public abstract class JSONObjectFilter
   protected static List<JSONValue> getValues(final JSONObject o,
                                              final List<String> fieldName)
   {
-    final ArrayList<JSONValue> values = new ArrayList<JSONValue>(10);
+    final ArrayList<JSONValue> values = new ArrayList<>(10);
     getValues(o, fieldName, 0, values);
     return values;
   }
@@ -846,8 +845,7 @@ public abstract class JSONObjectFilter
     // Validate the set of fields contained in the provided object to ensure
     // that all required fields were provided and that no disallowed fields were
     // included.
-    final HashSet<String> objectFields =
-         new HashSet<String>(o.getFields().keySet());
+    final HashSet<String> objectFields = new HashSet<>(o.getFields().keySet());
     objectFields.remove(FIELD_FILTER_TYPE);
     for (final String requiredField : decoder.getRequiredFieldNames())
     {

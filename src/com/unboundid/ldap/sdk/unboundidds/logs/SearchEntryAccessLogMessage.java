@@ -110,7 +110,7 @@ public final class SearchEntryAccessLogMessage
     }
     else
     {
-      final LinkedList<String> controlList = new LinkedList<String>();
+      final LinkedList<String> controlList = new LinkedList<>();
       final StringTokenizer t = new StringTokenizer(controlStr, ",");
       while (t.hasMoreTokens())
       {
@@ -126,7 +126,7 @@ public final class SearchEntryAccessLogMessage
     }
     else
     {
-      final ArrayList<String> l = new ArrayList<String>(10);
+      final ArrayList<String> l = new ArrayList<>(10);
       final StringTokenizer tokenizer = new StringTokenizer(attrs, ",");
       while (tokenizer.hasMoreTokens())
       {

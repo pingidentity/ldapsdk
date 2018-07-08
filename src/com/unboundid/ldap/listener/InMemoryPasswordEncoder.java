@@ -78,7 +78,7 @@ public abstract class InMemoryPasswordEncoder
   protected InMemoryPasswordEncoder(final String prefix,
                  final PasswordEncoderOutputFormatter outputFormatter)
   {
-    Validator.ensureTrue(((prefix != null) && (prefix.length() > 0)),
+    Validator.ensureNotNullOrEmpty(prefix,
          "The password encoder prefix must not be null or empty.");
 
     this.prefix = prefix;

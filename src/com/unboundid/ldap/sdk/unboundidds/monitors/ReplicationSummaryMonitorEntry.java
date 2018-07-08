@@ -134,7 +134,7 @@ public final class ReplicationSummaryMonitorEntry
 
     final List<String> replicaStrings = getStrings(ATTR_REPLICA);
     final ArrayList<ReplicationSummaryReplica> replList =
-         new ArrayList<ReplicationSummaryReplica>(replicaStrings.size());
+         new ArrayList<>(replicaStrings.size());
     for (final String s : replicaStrings)
     {
       replList.add(new ReplicationSummaryReplica(s));
@@ -143,8 +143,7 @@ public final class ReplicationSummaryMonitorEntry
 
     final List<String> serverStrings = getStrings(ATTR_REPLICATION_SERVER);
     final ArrayList<ReplicationSummaryReplicationServer> serverList =
-         new ArrayList<ReplicationSummaryReplicationServer>(
-                  serverStrings.size());
+         new ArrayList<>(serverStrings.size());
     for (final String s : serverStrings)
     {
       serverList.add(new ReplicationSummaryReplicationServer(s));
@@ -226,7 +225,7 @@ public final class ReplicationSummaryMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(10);
 
     if (baseDN != null)
     {
@@ -239,8 +238,7 @@ public final class ReplicationSummaryMonitorEntry
 
     if (! replicas.isEmpty())
     {
-      final ArrayList<String> replStrings =
-           new ArrayList<String>(replicas.size());
+      final ArrayList<String> replStrings = new ArrayList<>(replicas.size());
       for (final ReplicationSummaryReplica r : replicas)
       {
         replStrings.add(r.toString());
@@ -256,7 +254,7 @@ public final class ReplicationSummaryMonitorEntry
     if (! replicationServers.isEmpty())
     {
       final ArrayList<String> serverStrings =
-           new ArrayList<String>(replicationServers.size());
+           new ArrayList<>(replicationServers.size());
       for (final ReplicationSummaryReplicationServer s : replicationServers)
       {
         serverStrings.add(s.toString());

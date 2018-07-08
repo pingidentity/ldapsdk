@@ -50,6 +50,7 @@ import com.unboundid.ldif.LDIFReaderEntryTranslator;
 import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
@@ -58,8 +59,6 @@ import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -643,7 +642,7 @@ public final class ValidateLDIF
 
       try
       {
-        final TreeMap<String,File> fileMap = new TreeMap<String,File>();
+        final TreeMap<String,File> fileMap = new TreeMap<>();
         for (final File f : schemaDir.listFiles())
         {
           final String name = f.getName();
@@ -660,14 +659,15 @@ public final class ValidateLDIF
           return ResultCode.PARAM_ERROR;
         }
 
-        final ArrayList<File> fileList = new ArrayList<File>(fileMap.values());
+        final ArrayList<File> fileList = new ArrayList<>(fileMap.values());
         schema = Schema.getSchema(fileList);
       }
       catch (final Exception e)
       {
         Debug.debugException(e);
         err("Unable to read schema from files in directory " +
-            schemaDir.getAbsolutePath() + ":  " + getExceptionMessage(e));
+            schemaDir.getAbsolutePath() + ":  " +
+             StaticUtils.getExceptionMessage(e));
         return ResultCode.LOCAL_ERROR;
       }
     }
@@ -767,7 +767,8 @@ public final class ValidateLDIF
     catch (final Exception e)
     {
       Debug.debugException(e);
-      err("Unable to open the LDIF reader:  ", getExceptionMessage(e));
+      err("Unable to open the LDIF reader:  ",
+           StaticUtils.getExceptionMessage(e));
       return ResultCode.LOCAL_ERROR;
     }
 
@@ -795,7 +796,8 @@ public final class ValidateLDIF
       catch (final Exception e)
       {
         Debug.debugException(e);
-        err("Unable to create the reject writer:  ", getExceptionMessage(e));
+        err("Unable to create the reject writer:  ",
+             StaticUtils.getExceptionMessage(e));
         return ResultCode.LOCAL_ERROR;
       }
 
@@ -834,15 +836,18 @@ public final class ValidateLDIF
                    "Unable to parse an entry read from LDIF:", false, false);
               if (le.mayContinueReading())
               {
-                rejectWriter.writeComment(getExceptionMessage(le), false, true);
+                rejectWriter.writeComment(
+                     StaticUtils.getExceptionMessage(le), false, true);
               }
               else
               {
-                rejectWriter.writeComment(getExceptionMessage(le), false,
-                                          false);
+                rejectWriter.writeComment(
+                     StaticUtils.getExceptionMessage(le), false,
+                     false);
                 rejectWriter.writeComment("Unable to continue LDIF processing.",
-                                          false, true);
-                err("Aborting LDIF processing:  ", getExceptionMessage(le));
+                     false, true);
+                err("Aborting LDIF processing:  ",
+                     StaticUtils.getExceptionMessage(le));
                 return ResultCode.LOCAL_ERROR;
               }
             }
@@ -850,9 +855,9 @@ public final class ValidateLDIF
             {
               Debug.debugException(ioe);
               err("Unable to write to the reject file:",
-                  getExceptionMessage(ioe));
+                  StaticUtils.getExceptionMessage(ioe));
               err("LDIF parse failure that triggered the rejection:  ",
-                  getExceptionMessage(le));
+                  StaticUtils.getExceptionMessage(le));
               return ResultCode.LOCAL_ERROR;
             }
           }
@@ -866,15 +871,16 @@ public final class ValidateLDIF
             try
             {
               rejectWriter.writeComment("I/O error reading from LDIF:", false,
-                                        false);
-              rejectWriter.writeComment(getExceptionMessage(ioe), false,
-                                        true);
+                   false);
+              rejectWriter.writeComment(StaticUtils.getExceptionMessage(ioe),
+                   false, true);
               return ResultCode.LOCAL_ERROR;
             }
             catch (final Exception ex)
             {
               Debug.debugException(ex);
-              err("I/O error reading from LDIF:", getExceptionMessage(ioe));
+              err("I/O error reading from LDIF:",
+                   StaticUtils.getExceptionMessage(ioe));
               return ResultCode.LOCAL_ERROR;
             }
           }
@@ -949,9 +955,10 @@ public final class ValidateLDIF
    *          performed in this method and the entry isn't needed any more
    *          after this method is done.
    */
+  @Override()
   public Entry translate(final Entry entry, final long firstLineNumber)
   {
-    final ArrayList<String> invalidReasons = new ArrayList<String>(5);
+    final ArrayList<String> invalidReasons = new ArrayList<>(5);
     if (! entryValidator.entryIsValid(entry, invalidReasons))
     {
       if (rejectWriter != null)
@@ -1019,8 +1026,7 @@ public final class ValidateLDIF
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
 
     String[] args =
     {

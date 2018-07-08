@@ -32,14 +32,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -82,7 +82,7 @@ public final class LDAPThreadLocalConnectionPool
    * The default health check interval for this connection pool, which is set to
    * 60000 milliseconds (60 seconds).
    */
-  private static final long DEFAULT_HEALTH_CHECK_INTERVAL = 60000L;
+  private static final long DEFAULT_HEALTH_CHECK_INTERVAL = 60_000L;
 
 
 
@@ -195,7 +195,7 @@ public final class LDAPThreadLocalConnectionPool
               final PostConnectProcessor postConnectProcessor)
          throws LDAPException
   {
-    ensureNotNull(connection);
+    Validator.ensureNotNull(connection);
 
     // NOTE:  The post-connect processor (if any) will be used in the server
     // set that we create rather than in the connection pool itself.
@@ -205,7 +205,7 @@ public final class LDAPThreadLocalConnectionPool
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
     poolStatistics            = new LDAPConnectionPoolStatistics(this);
     connectionPoolName        = null;
-    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
+    retryOperationTypes       = new AtomicReference<>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
 
     if (! connection.isConnected())
@@ -222,7 +222,7 @@ public final class LDAPThreadLocalConnectionPool
                                     connection.getConnectionOptions(), null,
                                     postConnectProcessor);
 
-    connections = new ConcurrentHashMap<Thread,LDAPConnection>();
+    connections = new ConcurrentHashMap<>(20);
     connections.put(Thread.currentThread(), connection);
 
     lastExpiredDisconnectTime = 0L;
@@ -247,18 +247,17 @@ public final class LDAPThreadLocalConnectionPool
           final long timeout = opts.getPooledSchemaTimeoutMillis();
           if ((timeout <= 0L) || (timeout+currentTime <= 0L))
           {
-            pooledSchema = new ObjectPair<Long,Schema>(Long.MAX_VALUE, schema);
+            pooledSchema = new ObjectPair<>(Long.MAX_VALUE, schema);
           }
           else
           {
-            pooledSchema =
-                 new ObjectPair<Long,Schema>(timeout+currentTime, schema);
+            pooledSchema = new ObjectPair<>(timeout+currentTime, schema);
           }
         }
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
   }
@@ -327,7 +326,7 @@ public final class LDAPThreadLocalConnectionPool
               final BindRequest bindRequest,
               final PostConnectProcessor postConnectProcessor)
   {
-    ensureNotNull(serverSet);
+    Validator.ensureNotNull(serverSet);
 
     this.serverSet            = serverSet;
     this.bindRequest          = bindRequest;
@@ -335,14 +334,14 @@ public final class LDAPThreadLocalConnectionPool
 
     if (serverSet.includesAuthentication())
     {
-      ensureTrue((bindRequest != null),
+      Validator.ensureTrue((bindRequest != null),
            "LDAPThreadLocalConnectionPool.bindRequest must not be null if " +
                 "serverSet.includesAuthentication returns true");
     }
 
     if (serverSet.includesPostConnectProcessing())
     {
-      ensureTrue((postConnectProcessor == null),
+      Validator.ensureTrue((postConnectProcessor == null),
            "LDAPThreadLocalConnectionPool.postConnectProcessor must be null " +
                 "if serverSet.includesPostConnectProcessing returns true.");
     }
@@ -351,10 +350,10 @@ public final class LDAPThreadLocalConnectionPool
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
     poolStatistics            = new LDAPConnectionPoolStatistics(this);
     connectionPoolName        = null;
-    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
+    retryOperationTypes       = new AtomicReference<>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
 
-    connections = new ConcurrentHashMap<Thread,LDAPConnection>();
+    connections = new ConcurrentHashMap<>(20);
 
     lastExpiredDisconnectTime = 0L;
     maxConnectionAge          = 0L;
@@ -387,7 +386,7 @@ public final class LDAPThreadLocalConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       poolStatistics.incrementNumFailedConnectionAttempts();
       throw le;
     }
@@ -414,7 +413,7 @@ public final class LDAPThreadLocalConnectionPool
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
         try
         {
@@ -424,7 +423,7 @@ public final class LDAPThreadLocalConnectionPool
         }
         catch (final Exception e2)
         {
-          debugException(e2);
+          Debug.debugException(e2);
         }
 
         if (e instanceof LDAPException)
@@ -434,7 +433,9 @@ public final class LDAPThreadLocalConnectionPool
         else
         {
           throw new LDAPException(ResultCode.CONNECT_ERROR,
-               ERR_POOL_POST_CONNECT_ERROR.get(getExceptionMessage(e)), e);
+               ERR_POOL_POST_CONNECT_ERROR.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
         }
       }
     }
@@ -450,12 +451,12 @@ public final class LDAPThreadLocalConnectionPool
       }
       catch (final LDAPBindException lbe)
       {
-        debugException(lbe);
+        Debug.debugException(lbe);
         bindResult = lbe.getBindResult();
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         bindResult = new BindResult(le);
       }
 
@@ -469,7 +470,7 @@ public final class LDAPThreadLocalConnectionPool
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         try
         {
@@ -479,7 +480,7 @@ public final class LDAPThreadLocalConnectionPool
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
 
         throw le;
@@ -496,7 +497,7 @@ public final class LDAPThreadLocalConnectionPool
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         try
         {
           poolStatistics.incrementNumFailedConnectionAttempts();
@@ -505,7 +506,7 @@ public final class LDAPThreadLocalConnectionPool
         }
         catch (final Exception e2)
         {
-          debugException(e2);
+          Debug.debugException(e2);
         }
 
         if (e instanceof LDAPException)
@@ -515,7 +516,9 @@ public final class LDAPThreadLocalConnectionPool
         else
         {
           throw new LDAPException(ResultCode.CONNECT_ERROR,
-               ERR_POOL_POST_CONNECT_ERROR.get(getExceptionMessage(e)), e);
+               ERR_POOL_POST_CONNECT_ERROR.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
         }
       }
     }
@@ -537,19 +540,17 @@ public final class LDAPThreadLocalConnectionPool
             final long timeout = opts.getPooledSchemaTimeoutMillis();
             if ((timeout <= 0L) || (currentTime + timeout <= 0L))
             {
-              pooledSchema =
-                   new ObjectPair<Long,Schema>(Long.MAX_VALUE, schema);
+              pooledSchema = new ObjectPair<>(Long.MAX_VALUE, schema);
             }
             else
             {
-              pooledSchema =
-                   new ObjectPair<Long,Schema>((currentTime+timeout), schema);
+              pooledSchema = new ObjectPair<>((currentTime+timeout), schema);
             }
           }
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
 
           // There was a problem retrieving the schema from the server, but if
           // we have an earlier copy then we can assume it's still valid.
@@ -599,7 +600,7 @@ public final class LDAPThreadLocalConnectionPool
     if (numThreads > 1)
     {
       final ArrayList<LDAPConnection> connList =
-           new ArrayList<LDAPConnection>(connections.size());
+           new ArrayList<>(connections.size());
       final Iterator<LDAPConnection> iterator = connections.values().iterator();
       while (iterator.hasNext())
       {
@@ -719,7 +720,7 @@ public final class LDAPThreadLocalConnectionPool
     }
     catch (final Throwable t)
     {
-      debugException(t);
+      Debug.debugException(t);
 
       if (t instanceof LDAPException)
       {
@@ -739,7 +740,7 @@ public final class LDAPThreadLocalConnectionPool
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
 
           // This implies that the connection is not valid.  If the pool is
           // configured to re-try bind operations on a newly-established
@@ -767,7 +768,7 @@ public final class LDAPThreadLocalConnectionPool
       {
         releaseDefunctConnection(conn);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
+             ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
       }
     }
 
@@ -784,7 +785,7 @@ public final class LDAPThreadLocalConnectionPool
     }
     catch (final Throwable t)
     {
-      debugException(t);
+      Debug.debugException(t);
 
       if (t instanceof LDAPException)
       {
@@ -797,7 +798,7 @@ public final class LDAPThreadLocalConnectionPool
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           releaseDefunctConnection(conn);
         }
 
@@ -807,7 +808,7 @@ public final class LDAPThreadLocalConnectionPool
       {
         releaseDefunctConnection(conn);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
+             ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
       }
     }
   }
@@ -860,7 +861,7 @@ public final class LDAPThreadLocalConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       conn.setClosed();
       connections.remove(t);
@@ -882,7 +883,7 @@ public final class LDAPThreadLocalConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       poolStatistics.incrementNumFailedCheckouts();
 
@@ -924,7 +925,7 @@ public final class LDAPThreadLocalConnectionPool
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
       }
     }
 
@@ -984,7 +985,7 @@ public final class LDAPThreadLocalConnectionPool
       }
       catch (final LDAPBindException lbe)
       {
-        debugException(lbe);
+        Debug.debugException(lbe);
         bindResult = lbe.getBindResult();
       }
 
@@ -999,7 +1000,7 @@ public final class LDAPThreadLocalConnectionPool
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         try
         {
@@ -1009,7 +1010,7 @@ public final class LDAPThreadLocalConnectionPool
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
 
         throw le;
@@ -1019,7 +1020,7 @@ public final class LDAPThreadLocalConnectionPool
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       releaseDefunctConnection(connection);
     }
   }
@@ -1071,7 +1072,7 @@ public final class LDAPThreadLocalConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
     }
   }
 
@@ -1201,7 +1202,7 @@ public final class LDAPThreadLocalConnectionPool
    */
   public void setServerSet(final ServerSet serverSet)
   {
-    ensureNotNull(serverSet);
+    Validator.ensureNotNull(serverSet);
     this.serverSet = serverSet;
   }
 
@@ -1333,7 +1334,7 @@ public final class LDAPThreadLocalConnectionPool
    */
   public void setHealthCheck(final LDAPConnectionPoolHealthCheck healthCheck)
   {
-    ensureNotNull(healthCheck);
+    Validator.ensureNotNull(healthCheck);
     this.healthCheck = healthCheck;
   }
 
@@ -1356,7 +1357,7 @@ public final class LDAPThreadLocalConnectionPool
   @Override()
   public void setHealthCheckIntervalMillis(final long healthCheckInterval)
   {
-    ensureTrue(healthCheckInterval > 0L,
+    Validator.ensureTrue(healthCheckInterval > 0L,
          "LDAPConnectionPool.healthCheckInterval must be greater than 0.");
     this.healthCheckInterval = healthCheckInterval;
     healthCheckThread.wakeUp();

@@ -30,11 +30,10 @@ import java.util.TreeSet;
 
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -116,9 +115,10 @@ public final class FilterComparator
    *          after the second, or zero if there is no difference in their
    *          relative orders.
    */
+  @Override()
   public int compare(final Filter f1, final Filter f2)
   {
-    if(f1 == f2)
+    if (f1 == f2)
     {
       return 0;
     }
@@ -133,8 +133,8 @@ public final class FilterComparator
       return ((type1 & 0x1F) - (type2 & 0x1F));
     }
 
-    final String name1 = toLowerCase(f1.getAttributeName());
-    final String name2 = toLowerCase(f2.getAttributeName());
+    final String name1 = StaticUtils.toLowerCase(f1.getAttributeName());
+    final String name2 = StaticUtils.toLowerCase(f2.getAttributeName());
     if ((name1 != null) && (name2 != null))
     {
       final int cmpValue = name1.compareTo(name2);
@@ -199,8 +199,8 @@ public final class FilterComparator
    */
   private static int compareANDOrOR(final Filter f1, final Filter f2)
   {
-    final TreeSet<Filter> set1 = new TreeSet<Filter>(INSTANCE);
-    final TreeSet<Filter> set2 = new TreeSet<Filter>(INSTANCE);
+    final TreeSet<Filter> set1 = new TreeSet<>(INSTANCE);
+    final TreeSet<Filter> set2 = new TreeSet<>(INSTANCE);
 
     set1.addAll(Arrays.asList(f1.getComponents()));
     set2.addAll(Arrays.asList(f2.getComponents()));

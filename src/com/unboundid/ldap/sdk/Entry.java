@@ -46,15 +46,15 @@ import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFRecord;
 import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -158,12 +158,12 @@ public class Entry
    */
   public Entry(final String dn, final Schema schema)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn     = dn;
     this.schema = schema;
 
-    attributes = new LinkedHashMap<String,Attribute>();
+    attributes = new LinkedHashMap<>(20);
   }
 
 
@@ -189,13 +189,13 @@ public class Entry
    */
   public Entry(final DN dn, final Schema schema)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     parsedDN    = dn;
     this.dn     = parsedDN.toString();
     this.schema = schema;
 
-    attributes = new LinkedHashMap<String,Attribute>();
+    attributes = new LinkedHashMap<>(20);
   }
 
 
@@ -226,15 +226,15 @@ public class Entry
   public Entry(final String dn, final Schema schema,
                final Attribute... attributes)
   {
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn     = dn;
     this.schema = schema;
 
-    this.attributes = new LinkedHashMap<String,Attribute>(attributes.length);
+    this.attributes = new LinkedHashMap<>(attributes.length);
     for (final Attribute a : attributes)
     {
-      final String name = toLowerCase(a.getName());
+      final String name = StaticUtils.toLowerCase(a.getName());
       final Attribute attr = this.attributes.get(name);
       if (attr == null)
       {
@@ -274,16 +274,16 @@ public class Entry
    */
   public Entry(final DN dn, final Schema schema, final Attribute... attributes)
   {
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     parsedDN    = dn;
     this.dn     = parsedDN.toString();
     this.schema = schema;
 
-    this.attributes = new LinkedHashMap<String,Attribute>(attributes.length);
+    this.attributes = new LinkedHashMap<>(attributes.length);
     for (final Attribute a : attributes)
     {
-      final String name = toLowerCase(a.getName());
+      final String name = StaticUtils.toLowerCase(a.getName());
       final Attribute attr = this.attributes.get(name);
       if (attr == null)
       {
@@ -324,15 +324,15 @@ public class Entry
   public Entry(final String dn, final Schema schema,
                final Collection<Attribute> attributes)
   {
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn     = dn;
     this.schema = schema;
 
-    this.attributes = new LinkedHashMap<String,Attribute>(attributes.size());
+    this.attributes = new LinkedHashMap<>(attributes.size());
     for (final Attribute a : attributes)
     {
-      final String name = toLowerCase(a.getName());
+      final String name = StaticUtils.toLowerCase(a.getName());
       final Attribute attr = this.attributes.get(name);
       if (attr == null)
       {
@@ -373,16 +373,16 @@ public class Entry
   public Entry(final DN dn, final Schema schema,
                final Collection<Attribute> attributes)
   {
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     parsedDN    = dn;
     this.dn     = parsedDN.toString();
     this.schema = schema;
 
-    this.attributes = new LinkedHashMap<String,Attribute>(attributes.size());
+    this.attributes = new LinkedHashMap<>(attributes.size());
     for (final Attribute a : attributes)
     {
-      final String name = toLowerCase(a.getName());
+      final String name = StaticUtils.toLowerCase(a.getName());
       final Attribute attr = this.attributes.get(name);
       if (attr == null)
       {
@@ -444,6 +444,7 @@ public class Entry
    *
    * @return  The DN for this entry.
    */
+  @Override()
   public final String getDN()
   {
     return dn;
@@ -458,7 +459,7 @@ public class Entry
    */
   public void setDN(final String dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
     parsedDN = null;
@@ -473,7 +474,7 @@ public class Entry
    */
   public void setDN(final DN dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     parsedDN = dn;
     this.dn  = parsedDN.toString();
@@ -488,6 +489,7 @@ public class Entry
    *
    * @throws  LDAPException  If the DN string cannot be parsed as a valid DN.
    */
+  @Override()
   public final DN getParsedDN()
          throws LDAPException
   {
@@ -610,9 +612,9 @@ public class Entry
   public final boolean hasAttribute(final String attributeName,
                                     final Schema schema)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    if (attributes.containsKey(toLowerCase(attributeName)))
+    if (attributes.containsKey(StaticUtils.toLowerCase(attributeName)))
     {
       return true;
     }
@@ -625,7 +627,8 @@ public class Entry
       if (semicolonPos > 0)
       {
         baseName = attributeName.substring(0, semicolonPos);
-        options  = toLowerCase(attributeName.substring(semicolonPos));
+        options =
+             StaticUtils.toLowerCase(attributeName.substring(semicolonPos));
       }
       else
       {
@@ -636,14 +639,16 @@ public class Entry
       final AttributeTypeDefinition at = schema.getAttributeType(baseName);
       if (at != null)
       {
-        if (attributes.containsKey(toLowerCase(at.getOID()) + options))
+        if (attributes.containsKey(
+             StaticUtils.toLowerCase(at.getOID()) + options))
         {
           return true;
         }
 
         for (final String name : at.getNames())
         {
-          if (attributes.containsKey(toLowerCase(name) + options))
+          if (attributes.containsKey(
+               StaticUtils.toLowerCase(name) + options))
           {
             return true;
           }
@@ -669,9 +674,9 @@ public class Entry
    */
   public final boolean hasAttribute(final Attribute attribute)
   {
-    ensureNotNull(attribute);
+    Validator.ensureNotNull(attribute);
 
-    final String lowerName = toLowerCase(attribute.getName());
+    final String lowerName = StaticUtils.toLowerCase(attribute.getName());
     final Attribute attr = attributes.get(lowerName);
     return ((attr != null) && attr.equals(attribute));
   }
@@ -693,9 +698,10 @@ public class Entry
   public final boolean hasAttributeValue(final String attributeName,
                                          final String attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
-    final Attribute attr = attributes.get(toLowerCase(attributeName));
+    final Attribute attr =
+         attributes.get(StaticUtils.toLowerCase(attributeName));
     return ((attr != null) && attr.hasValue(attributeValue));
   }
 
@@ -719,9 +725,10 @@ public class Entry
                                          final String attributeValue,
                                          final MatchingRule matchingRule)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
-    final Attribute attr = attributes.get(toLowerCase(attributeName));
+    final Attribute attr =
+         attributes.get(StaticUtils.toLowerCase(attributeName));
     return ((attr != null) && attr.hasValue(attributeValue, matchingRule));
   }
 
@@ -742,9 +749,10 @@ public class Entry
   public final boolean hasAttributeValue(final String attributeName,
                                          final byte[] attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
-    final Attribute attr = attributes.get(toLowerCase(attributeName));
+    final Attribute attr =
+         attributes.get(StaticUtils.toLowerCase(attributeName));
     return ((attr != null) && attr.hasValue(attributeValue));
   }
 
@@ -768,9 +776,10 @@ public class Entry
                                          final byte[] attributeValue,
                                          final MatchingRule matchingRule)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
-    final Attribute attr = attributes.get(toLowerCase(attributeName));
+    final Attribute attr =
+         attributes.get(StaticUtils.toLowerCase(attributeName));
     return ((attr != null) && attr.hasValue(attributeValue, matchingRule));
   }
 
@@ -835,9 +844,9 @@ public class Entry
   public final Attribute getAttribute(final String attributeName,
                                       final Schema schema)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    Attribute a = attributes.get(toLowerCase(attributeName));
+    Attribute a = attributes.get(StaticUtils.toLowerCase(attributeName));
     if ((a == null) && (schema != null))
     {
       final String baseName;
@@ -846,7 +855,8 @@ public class Entry
       if (semicolonPos > 0)
       {
         baseName = attributeName.substring(0, semicolonPos);
-        options  = toLowerCase(attributeName.substring(semicolonPos));
+        options =
+             StaticUtils.toLowerCase(attributeName.substring(semicolonPos));
       }
       else
       {
@@ -860,12 +870,12 @@ public class Entry
         return null;
       }
 
-      a = attributes.get(toLowerCase(at.getOID() + options));
+      a = attributes.get(StaticUtils.toLowerCase(at.getOID() + options));
       if (a == null)
       {
         for (final String name : at.getNames())
         {
-          a = attributes.get(toLowerCase(name) + options);
+          a = attributes.get(StaticUtils.toLowerCase(name) + options);
           if (a != null)
           {
             return a;
@@ -902,9 +912,9 @@ public class Entry
   public final List<Attribute> getAttributesWithOptions(final String baseName,
                                     final Set<String> options)
   {
-    ensureNotNull(baseName);
+    Validator.ensureNotNull(baseName);
 
-    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(10);
+    final ArrayList<Attribute> attrList = new ArrayList<>(10);
 
     for (final Attribute a : attributes.values())
     {
@@ -951,9 +961,10 @@ public class Entry
    */
   public String getAttributeValue(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a =
+         attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -979,9 +990,10 @@ public class Entry
    */
   public byte[] getAttributeValueBytes(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a =
+         attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -1010,9 +1022,10 @@ public class Entry
    */
   public Boolean getAttributeValueAsBoolean(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a =
+         attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -1039,9 +1052,9 @@ public class Entry
    */
   public Date getAttributeValueAsDate(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a = attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -1068,9 +1081,9 @@ public class Entry
    */
   public DN getAttributeValueAsDN(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a = attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -1097,9 +1110,9 @@ public class Entry
    */
   public Integer getAttributeValueAsInteger(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a = attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -1126,9 +1139,9 @@ public class Entry
    */
   public Long getAttributeValueAsLong(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a = attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -1152,9 +1165,9 @@ public class Entry
    */
   public String[] getAttributeValues(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a = attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -1179,9 +1192,9 @@ public class Entry
    */
   public byte[][] getAttributeValueByteArrays(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
-    final Attribute a = attributes.get(toLowerCase(attributeName));
+    final Attribute a = attributes.get(StaticUtils.toLowerCase(attributeName));
     if (a == null)
     {
       return null;
@@ -1232,9 +1245,9 @@ public class Entry
    */
   public boolean addAttribute(final Attribute attribute)
   {
-    ensureNotNull(attribute);
+    Validator.ensureNotNull(attribute);
 
-    final String lowerName = toLowerCase(attribute.getName());
+    final String lowerName = StaticUtils.toLowerCase(attribute.getName());
     final Attribute attr = attributes.get(lowerName);
     if (attr == null)
     {
@@ -1266,7 +1279,7 @@ public class Entry
   public boolean addAttribute(final String attributeName,
                               final String attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
     return addAttribute(new Attribute(attributeName, schema, attributeValue));
   }
 
@@ -1287,7 +1300,7 @@ public class Entry
   public boolean addAttribute(final String attributeName,
                               final byte[] attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
     return addAttribute(new Attribute(attributeName, schema, attributeValue));
   }
 
@@ -1308,7 +1321,7 @@ public class Entry
   public boolean addAttribute(final String attributeName,
                               final String... attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
     return addAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
@@ -1329,7 +1342,7 @@ public class Entry
   public boolean addAttribute(final String attributeName,
                               final byte[]... attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
     return addAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
@@ -1350,7 +1363,7 @@ public class Entry
   public boolean addAttribute(final String attributeName,
                               final Collection<String> attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
     return addAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
@@ -1367,11 +1380,12 @@ public class Entry
    */
   public boolean removeAttribute(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     if (schema == null)
     {
-      return (attributes.remove(toLowerCase(attributeName)) != null);
+      return
+           (attributes.remove(StaticUtils.toLowerCase(attributeName)) != null);
     }
     else
     {
@@ -1382,7 +1396,7 @@ public class Entry
       }
       else
       {
-        attributes.remove(toLowerCase(a.getName()));
+        attributes.remove(StaticUtils.toLowerCase(a.getName()));
         return true;
       }
     }
@@ -1433,7 +1447,7 @@ public class Entry
                                       final String attributeValue,
                                       final MatchingRule matchingRule)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     final Attribute attr = getAttribute(attributeName, schema);
     if (attr == null)
@@ -1442,7 +1456,7 @@ public class Entry
     }
     else
     {
-      final String lowerName = toLowerCase(attr.getName());
+      final String lowerName = StaticUtils.toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
            new Attribute(attributeName, attributeValue), matchingRule);
       if (newAttr.hasValue())
@@ -1503,7 +1517,7 @@ public class Entry
                                       final byte[] attributeValue,
                                       final MatchingRule matchingRule)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     final Attribute attr = getAttribute(attributeName, schema);
     if (attr == null)
@@ -1512,7 +1526,7 @@ public class Entry
     }
     else
     {
-      final String lowerName = toLowerCase(attr.getName());
+      final String lowerName = StaticUtils.toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
            new Attribute(attributeName, attributeValue), matchingRule);
       if (newAttr.hasValue())
@@ -1547,7 +1561,7 @@ public class Entry
   public boolean removeAttributeValues(final String attributeName,
                                        final String... attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
 
     final Attribute attr = getAttribute(attributeName, schema);
     if (attr == null)
@@ -1556,7 +1570,7 @@ public class Entry
     }
     else
     {
-      final String lowerName = toLowerCase(attr.getName());
+      final String lowerName = StaticUtils.toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
            new Attribute(attributeName, attributeValues));
       if (newAttr.hasValue())
@@ -1591,7 +1605,7 @@ public class Entry
   public boolean removeAttributeValues(final String attributeName,
                                        final byte[]... attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
 
     final Attribute attr = getAttribute(attributeName, schema);
     if (attr == null)
@@ -1600,7 +1614,7 @@ public class Entry
     }
     else
     {
-      final String lowerName = toLowerCase(attr.getName());
+      final String lowerName = StaticUtils.toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
            new Attribute(attributeName, attributeValues));
       if (newAttr.hasValue())
@@ -1627,17 +1641,17 @@ public class Entry
    */
   public void setAttribute(final Attribute attribute)
   {
-    ensureNotNull(attribute);
+    Validator.ensureNotNull(attribute);
 
     final String lowerName;
     final Attribute a = getAttribute(attribute.getName(), schema);
     if (a == null)
     {
-      lowerName = toLowerCase(attribute.getName());
+      lowerName = StaticUtils.toLowerCase(attribute.getName());
     }
     else
     {
-      lowerName = toLowerCase(a.getName());
+      lowerName = StaticUtils.toLowerCase(a.getName());
     }
 
     attributes.put(lowerName, attribute);
@@ -1657,7 +1671,7 @@ public class Entry
   public void setAttribute(final String attributeName,
                            final String attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
     setAttribute(new Attribute(attributeName, schema, attributeValue));
   }
 
@@ -1675,7 +1689,7 @@ public class Entry
   public void setAttribute(final String attributeName,
                            final byte[] attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
     setAttribute(new Attribute(attributeName, schema, attributeValue));
   }
 
@@ -1693,7 +1707,7 @@ public class Entry
   public void setAttribute(final String attributeName,
                            final String... attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
     setAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
@@ -1711,7 +1725,7 @@ public class Entry
   public void setAttribute(final String attributeName,
                            final byte[]... attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
     setAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
@@ -1729,7 +1743,7 @@ public class Entry
   public void setAttribute(final String attributeName,
                            final Collection<String> attributeValues)
   {
-    ensureNotNull(attributeName, attributeValues);
+    Validator.ensureNotNull(attributeName, attributeValues);
     setAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
@@ -1914,24 +1928,23 @@ public class Entry
     HashSet<String> compareAttrs = null;
     if ((attributes != null) && (attributes.length > 0))
     {
-      compareAttrs = new HashSet<String>(attributes.length);
+      compareAttrs = new HashSet<>(attributes.length);
       for (final String s : attributes)
       {
-        compareAttrs.add(toLowerCase(Attribute.getBaseName(s)));
+        compareAttrs.add(StaticUtils.toLowerCase(Attribute.getBaseName(s)));
       }
     }
 
     final LinkedHashMap<String,Attribute> sourceOnlyAttrs =
-         new LinkedHashMap<String,Attribute>();
+         new LinkedHashMap<>(20);
     final LinkedHashMap<String,Attribute> targetOnlyAttrs =
-         new LinkedHashMap<String,Attribute>();
-    final LinkedHashMap<String,Attribute> commonAttrs =
-         new LinkedHashMap<String,Attribute>();
+         new LinkedHashMap<>(20);
+    final LinkedHashMap<String,Attribute> commonAttrs = new LinkedHashMap<>(20);
 
     for (final Map.Entry<String,Attribute> e :
          sourceEntry.attributes.entrySet())
     {
-      final String lowerName = toLowerCase(e.getKey());
+      final String lowerName = StaticUtils.toLowerCase(e.getKey());
       if ((compareAttrs != null) &&
           (! compareAttrs.contains(Attribute.getBaseName(lowerName))))
       {
@@ -1957,7 +1970,7 @@ public class Entry
     for (final Map.Entry<String,Attribute> e :
          targetEntry.attributes.entrySet())
     {
-      final String lowerName = toLowerCase(e.getKey());
+      final String lowerName = StaticUtils.toLowerCase(e.getKey());
       if ((compareAttrs != null) &&
           (! compareAttrs.contains(Attribute.getBaseName(lowerName))))
       {
@@ -2000,7 +2013,7 @@ public class Entry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
 
       try
@@ -2009,11 +2022,11 @@ public class Entry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
 
-    final ArrayList<Modification> mods = new ArrayList<Modification>(10);
+    final ArrayList<Modification> mods = new ArrayList<>(10);
 
     for (final Attribute a : sourceOnlyAttrs.values())
     {
@@ -2023,7 +2036,7 @@ public class Entry
         if ((sourceRDN != null) && (sourceRDN.hasAttribute(a.getName())))
         {
           final ArrayList<ASN1OctetString> newValues =
-               new ArrayList<ASN1OctetString>(values.length);
+               new ArrayList<>(values.length);
           for (final ASN1OctetString value : values)
           {
             if (! sourceRDN.hasAttributeValue(a.getName(), value.getValue()))
@@ -2058,7 +2071,7 @@ public class Entry
       if ((targetRDN != null) && (targetRDN.hasAttribute(a.getName())))
       {
         final ArrayList<ASN1OctetString> newValues =
-             new ArrayList<ASN1OctetString>(values.length);
+             new ArrayList<>(values.length);
         for (final ASN1OctetString value : values)
         {
           if (! targetRDN.hasAttributeValue(a.getName(), value.getValue()))
@@ -2108,8 +2121,7 @@ public class Entry
       {
         final ASN1OctetString[] sourceValueArray = sourceAttr.getRawValues();
         final LinkedHashMap<ASN1OctetString,ASN1OctetString> sourceValues =
-             new LinkedHashMap<ASN1OctetString,ASN1OctetString>(
-                  sourceValueArray.length);
+             new LinkedHashMap<>(sourceValueArray.length);
         for (final ASN1OctetString s : sourceValueArray)
         {
           try
@@ -2118,15 +2130,14 @@ public class Entry
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             sourceValues.put(s, s);
           }
         }
 
         final ASN1OctetString[] targetValueArray = targetAttr.getRawValues();
         final LinkedHashMap<ASN1OctetString,ASN1OctetString> targetValues =
-             new LinkedHashMap<ASN1OctetString,ASN1OctetString>(
-                  targetValueArray.length);
+             new LinkedHashMap<>(targetValueArray.length);
         for (final ASN1OctetString s : targetValueArray)
         {
           try
@@ -2135,7 +2146,7 @@ public class Entry
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             targetValues.put(s, s);
           }
         }
@@ -2173,9 +2184,9 @@ public class Entry
         }
 
         final ArrayList<ASN1OctetString> addValues =
-             new ArrayList<ASN1OctetString>(targetValues.values());
+             new ArrayList<>(targetValues.values());
         final ArrayList<ASN1OctetString> delValues =
-             new ArrayList<ASN1OctetString>(sourceValues.values());
+             new ArrayList<>(sourceValues.values());
 
         if (! addValues.isEmpty())
         {
@@ -2217,8 +2228,8 @@ public class Entry
    */
   public static Entry mergeEntries(final Entry... entries)
   {
-    ensureNotNull(entries);
-    ensureTrue(entries.length > 0);
+    Validator.ensureNotNull(entries);
+    Validator.ensureTrue(entries.length > 0);
 
     final Entry newEntry = entries[0].duplicate();
 
@@ -2248,8 +2259,8 @@ public class Entry
    */
   public static Entry intersectEntries(final Entry... entries)
   {
-    ensureNotNull(entries);
-    ensureTrue(entries.length > 0);
+    Validator.ensureNotNull(entries);
+    Validator.ensureTrue(entries.length > 0);
 
     final Entry newEntry = entries[0].duplicate();
 
@@ -2298,8 +2309,8 @@ public class Entry
                                          final Modification... modifications)
          throws LDAPException
   {
-    ensureNotNull(entry, modifications);
-    ensureFalse(modifications.length == 0);
+    Validator.ensureNotNull(entry, modifications);
+    Validator.ensureFalse(modifications.length == 0);
 
     return applyModifications(entry, lenient, Arrays.asList(modifications));
   }
@@ -2330,12 +2341,11 @@ public class Entry
                                          final List<Modification> modifications)
          throws LDAPException
   {
-    ensureNotNull(entry, modifications);
-    ensureFalse(modifications.isEmpty());
+    Validator.ensureNotNull(entry, modifications);
+    Validator.ensureFalse(modifications.isEmpty());
 
     final Entry e = entry.duplicate();
-    final ArrayList<String> errors =
-         new ArrayList<String>(modifications.size());
+    final ArrayList<String> errors = new ArrayList<>(modifications.size());
     ResultCode resultCode = null;
 
     // Get the RDN for the entry to ensure that RDN modifications are not
@@ -2347,7 +2357,7 @@ public class Entry
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
     }
 
     for (final Modification m : modifications)
@@ -2464,7 +2474,7 @@ public class Entry
           }
           catch (final NumberFormatException nfe)
           {
-            debugException(nfe);
+            Debug.debugException(nfe);
             errors.add(
                  ERR_ENTRY_APPLY_MODS_INCREMENT_ENTRY_VALUE_NOT_INTEGER.get(
                       name, a.getValue()));
@@ -2491,7 +2501,7 @@ public class Entry
           }
           catch (final NumberFormatException nfe)
           {
-            debugException(nfe);
+            Debug.debugException(nfe);
             errors.add(ERR_ENTRY_APPLY_MODS_INCREMENT_MOD_VALUE_NOT_INTEGER.get(
                  name, incrementValueStr));
             continue;
@@ -2541,7 +2551,7 @@ public class Entry
 
     throw new LDAPException(resultCode,
          ERR_ENTRY_APPLY_MODS_FAILURE.get(e.getDN(),
-              concatenateStrings(errors)));
+              StaticUtils.concatenateStrings(errors)));
   }
 
 
@@ -2607,8 +2617,8 @@ public class Entry
                                     final String newSuperiorDN)
          throws LDAPException
   {
-    ensureNotNull(entry);
-    ensureNotNull(newRDN);
+    Validator.ensureNotNull(entry);
+    Validator.ensureNotNull(newRDN);
 
     // Parse all of the necessary elements from the request.
     final DN  parsedOldDN         = entry.getParsedDN();
@@ -2689,7 +2699,7 @@ public class Entry
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       hashCode += dn.hashCode();
     }
 
@@ -2744,7 +2754,7 @@ public class Entry
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       if (! dn.equals(e.dn))
       {
         return false;
@@ -2808,7 +2818,7 @@ public class Entry
   @Override()
   public final String[] toLDIF(final int wrapColumn)
   {
-    List<String> ldifLines = new ArrayList<String>(2*attributes.size());
+    List<String> ldifLines = new ArrayList<>(2*attributes.size());
     encodeNameAndValue("dn", new ASN1OctetString(dn), ldifLines);
 
     for (final Attribute a : attributes.values())
@@ -2900,7 +2910,7 @@ public class Entry
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(dn), buffer,
                        wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     for (final Attribute a : attributes.values())
     {
@@ -2910,14 +2920,14 @@ public class Entry
         for (final ASN1OctetString value : a.getRawValues())
         {
           LDIFWriter.encodeNameAndValue(name, value, buffer, wrapColumn);
-          buffer.append(EOL_BYTES);
+          buffer.append(StaticUtils.EOL_BYTES);
         }
       }
       else
       {
         LDIFWriter.encodeNameAndValue(name, EMPTY_OCTET_STRING, buffer,
              wrapColumn);
-        buffer.append(EOL_BYTES);
+        buffer.append(StaticUtils.EOL_BYTES);
       }
     }
   }
@@ -2992,7 +3002,7 @@ public class Entry
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(dn), buffer,
                                   wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     for (final Attribute a : attributes.values())
     {
@@ -3002,14 +3012,14 @@ public class Entry
         for (final ASN1OctetString value : a.getRawValues())
         {
           LDIFWriter.encodeNameAndValue(name, value, buffer, wrapColumn);
-          buffer.append(EOL);
+          buffer.append(StaticUtils.EOL);
         }
       }
       else
       {
         LDIFWriter.encodeNameAndValue(name, EMPTY_OCTET_STRING, buffer,
              wrapColumn);
-        buffer.append(EOL);
+        buffer.append(StaticUtils.EOL);
       }
     }
   }

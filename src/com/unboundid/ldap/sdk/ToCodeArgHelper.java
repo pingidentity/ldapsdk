@@ -22,7 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -66,7 +66,7 @@ public final class ToCodeArgHelper
    */
   private ToCodeArgHelper(final String argString, final String comment)
   {
-    argStrings = Arrays.asList(argString);
+    argStrings = Collections.singletonList(argString);
     this.comment = comment;
   }
 
@@ -179,15 +179,15 @@ public final class ToCodeArgHelper
   {
     if (b == null)
     {
-      return Arrays.asList("(byte[]) null");
+      return Collections.singletonList("(byte[]) null");
     }
 
     if (b.length == 0)
     {
-      return Arrays.asList("new byte[0]");
+      return Collections.singletonList("new byte[0]");
     }
 
-    final ArrayList<String> lines = new ArrayList<String>(3 + b.length);
+    final ArrayList<String> lines = new ArrayList<>(3 + b.length);
     lines.add("new byte[]");
     lines.add("{");
 
@@ -320,7 +320,7 @@ public final class ToCodeArgHelper
     }
     else
     {
-      final ArrayList<String> lines = new ArrayList<String>(10);
+      final ArrayList<String> lines = new ArrayList<>(10);
 
       final boolean universalType =
            (s.getType() == ASN1Constants.UNIVERSAL_OCTET_STRING_TYPE);
@@ -505,7 +505,7 @@ public final class ToCodeArgHelper
     }
 
     final ASN1OctetString[] rawValues = a.getRawValues();
-    final ArrayList<String> lines = new ArrayList<String>(2 + rawValues.length);
+    final ArrayList<String> lines = new ArrayList<>(2 + rawValues.length);
     lines.add("new Attribute(");
     lines.add("     \"" + a.getName() + "\",");
 
@@ -611,7 +611,7 @@ public final class ToCodeArgHelper
     }
 
     final ASN1OctetString[] rawValues = m.getRawValues();
-    final ArrayList<String> lines = new ArrayList<String>(3 + rawValues.length);
+    final ArrayList<String> lines = new ArrayList<>(3 + rawValues.length);
 
     lines.add("new Modification(");
     lines.add("     " +  createModificationType(m.getModificationType(),
@@ -722,7 +722,7 @@ public final class ToCodeArgHelper
       return new ToCodeArgHelper("(Filter) null", comment);
     }
 
-    final ArrayList<String> lines = new ArrayList<String>(10);
+    final ArrayList<String> lines = new ArrayList<>(10);
     addFilterLines(lines, f, "", "");
 
     return new ToCodeArgHelper(lines, comment);
@@ -1118,7 +1118,7 @@ public final class ToCodeArgHelper
     // code for that type of control if possible.  If not, then use the
     // following generic code:
 
-    final ArrayList<String> lines = new ArrayList<String>(10);
+    final ArrayList<String> lines = new ArrayList<>(10);
     lines.add("new Control(");
     lines.add("     \"" + c.getOID() + "\",");
 
@@ -1175,7 +1175,7 @@ public final class ToCodeArgHelper
       return new ToCodeArgHelper("new Control[0]", comment);
     }
 
-    final ArrayList<String> lines = new ArrayList<String>(10);
+    final ArrayList<String> lines = new ArrayList<>(10);
     lines.add("new Control[]");
     lines.add("{");
 

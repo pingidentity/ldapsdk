@@ -39,9 +39,9 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -424,7 +424,7 @@ public final class AuditDataSecurityTask
     this.reportFilters   = getStringList(reportFilters);
     this.outputDirectory = outputDirectory;
 
-    ensureTrue(
+    Validator.ensureTrue(
          (this.includeAuditors.isEmpty() || this.excludeAuditors.isEmpty()),
          "You cannot request both include and exclude auditors.");
   }
@@ -474,10 +474,10 @@ public final class AuditDataSecurityTask
     super(AUDIT_DATA_SECURITY_TASK_CLASS, properties);
 
     String outputDir = null;
-    final LinkedList<String> includeAuditorsList = new LinkedList<String>();
-    final LinkedList<String> excludeAuditorsList = new LinkedList<String>();
-    final LinkedList<String> backendIDList       = new LinkedList<String>();
-    final LinkedList<String> reportFilterList    = new LinkedList<String>();
+    final LinkedList<String> includeAuditorsList = new LinkedList<>();
+    final LinkedList<String> excludeAuditorsList = new LinkedList<>();
+    final LinkedList<String> backendIDList       = new LinkedList<>();
+    final LinkedList<String> reportFilterList    = new LinkedList<>();
     for (final Map.Entry<TaskProperty,List<Object>> entry :
          properties.entrySet())
     {
@@ -641,8 +641,7 @@ public final class AuditDataSecurityTask
       return Collections.emptyList();
     }
 
-    final ArrayList<Filter> filterList =
-         new ArrayList<Filter>(reportFilters.size());
+    final ArrayList<Filter> filterList = new ArrayList<>(reportFilters.size());
     for (final String filter : reportFilters)
     {
       filterList.add(Filter.create(filter));
@@ -672,7 +671,7 @@ public final class AuditDataSecurityTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_AUDIT_DATA_SECURITY_TASK);
+    return Collections.singletonList(OC_AUDIT_DATA_SECURITY_TASK);
   }
 
 
@@ -683,7 +682,7 @@ public final class AuditDataSecurityTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final LinkedList<Attribute> attrList = new LinkedList<Attribute>();
+    final LinkedList<Attribute> attrList = new LinkedList<>();
 
     if (! includeAuditors.isEmpty())
     {
@@ -738,7 +737,7 @@ public final class AuditDataSecurityTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>(5);
+         new LinkedHashMap<>(5);
 
     if (! includeAuditors.isEmpty())
     {
@@ -767,8 +766,7 @@ public final class AuditDataSecurityTask
     if (outputDirectory != null)
     {
       props.put(PROPERTY_OUTPUT_DIRECTORY,
-           Collections.<Object>unmodifiableList(Arrays.asList(
-                outputDirectory)));
+           Collections.<Object>singletonList(outputDirectory));
     }
 
     return Collections.unmodifiableMap(props);

@@ -83,6 +83,7 @@ public class ParallelProcessorTestCase
   {
     Processor<Integer, Integer> processor = new Processor<Integer, Integer>()
     {
+      @Override()
       public Integer process(Integer input)
            throws Throwable
       {
@@ -196,6 +197,7 @@ public class ParallelProcessorTestCase
          new ParallelProcessor<Integer, Integer>(
               new Processor<Integer, Integer>()
               {
+                @Override()
                 public Integer process(Integer input)
                      throws Exception
                 {
@@ -210,6 +212,7 @@ public class ParallelProcessorTestCase
     // We invoke the tasks in the background.
     Thread backgroundInvokerThread = new Thread()
     {
+      @Override()
       public void run()
       {
         try
@@ -262,6 +265,7 @@ public class ParallelProcessorTestCase
   {
     return new Processor<Integer, Integer>()
     {
+      @Override()
       public Integer process(Integer input)
            throws Exception
       {

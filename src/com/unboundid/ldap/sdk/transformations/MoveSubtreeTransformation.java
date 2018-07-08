@@ -94,7 +94,7 @@ public final class MoveSubtreeTransformation
     // replacements
     final Collection<Attribute> originalAttributes = e.getAttributes();
     final ArrayList<Attribute> newAttributes =
-         new ArrayList<Attribute>(originalAttributes.size());
+         new ArrayList<>(originalAttributes.size());
     for (final Attribute a : originalAttributes)
     {
       final String[] originalValues = a.getValues();
@@ -210,7 +210,7 @@ public final class MoveSubtreeTransformation
 
       final RDN[] originalRDNs = dn.getRDNs();
       final RDN[] sourceRDNs = sourceDN.getRDNs();
-      final ArrayList<RDN> newRDNs = new ArrayList<RDN>(2*originalRDNs.length);
+      final ArrayList<RDN> newRDNs = new ArrayList<>(2*originalRDNs.length);
       final int numComponentsToKeep = originalRDNs.length - sourceRDNs.length;
       for (int i=0; i < numComponentsToKeep; i++)
       {

@@ -135,7 +135,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
     else
     {
       this.attributeNames =
-           Collections.unmodifiableList(new ArrayList<String>(attributeNames));
+           Collections.unmodifiableList(new ArrayList<>(attributeNames));
     }
 
     this.ignoreOperationalAttributes = ignoreOperationalAttributes;
@@ -167,8 +167,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
            ASN1Sequence.decodeAsSequence(innerElement).elements();
       final ASN1Element[] attrElements =
            ASN1Sequence.decodeAsSequence(elements[0]).elements();
-      final ArrayList<String> attrNames =
-           new ArrayList<String>(attrElements.length);
+      final ArrayList<String> attrNames = new ArrayList<>(attrElements.length);
       for (final ASN1Element e : attrElements)
       {
         attrNames.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -227,7 +226,7 @@ public final class IgnoreAttributesChangeSelectionCriteria
   public ASN1Element encodeInnerElement()
   {
     final ArrayList<ASN1Element> attrNameElements =
-         new ArrayList<ASN1Element>(attributeNames.size());
+         new ArrayList<>(attributeNames.size());
     for (final String s : attributeNames)
     {
       attrNameElements.add(new ASN1OctetString(s));

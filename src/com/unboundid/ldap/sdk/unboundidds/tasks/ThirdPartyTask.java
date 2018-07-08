@@ -35,9 +35,9 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -149,7 +149,6 @@ public final class ThirdPartyTask
     taskArguments = null;
     taskClassName = null;
   }
-
 
 
 
@@ -277,7 +276,7 @@ public final class ThirdPartyTask
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
          alertOnSuccess, alertOnError);
 
-    ensureNotNull(taskClassName);
+    Validator.ensureNotNull(taskClassName);
 
     this.taskClassName = taskClassName;
 
@@ -440,7 +439,7 @@ public final class ThirdPartyTask
   @Override()
   protected List<String> getAdditionalObjectClasses()
   {
-    return Arrays.asList(OC_THIRD_PARTY_TASK);
+    return Collections.singletonList(OC_THIRD_PARTY_TASK);
   }
 
 
@@ -451,7 +450,7 @@ public final class ThirdPartyTask
   @Override()
   protected List<Attribute> getAdditionalAttributes()
   {
-    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(2);
+    final ArrayList<Attribute> attrList = new ArrayList<>(2);
     attrList.add(new Attribute(ATTR_THIRD_PARTY_TASK_CLASS, taskClassName));
 
     if (! taskArguments.isEmpty())
@@ -485,10 +484,10 @@ public final class ThirdPartyTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<TaskProperty,List<Object>>(2);
+         new LinkedHashMap<>(2);
 
     props.put(PROPERTY_TASK_CLASS,
-         Collections.<Object>unmodifiableList(Arrays.asList(taskClassName)));
+         Collections.<Object>singletonList(taskClassName));
 
     props.put(PROPERTY_TASK_ARG,
          Collections.<Object>unmodifiableList(taskArguments));

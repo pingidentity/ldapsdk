@@ -157,7 +157,7 @@ public final class DiskSpaceUsageMonitorEntry
     currentState = getString(ATTR_CURRENT_STATE);
 
     int i=1;
-    final ArrayList<DiskSpaceInfo> list = new ArrayList<DiskSpaceInfo>(5);
+    final ArrayList<DiskSpaceInfo> list = new ArrayList<>(5);
     while (true)
     {
       final String name = getString(ATTR_PREFIX_CONSUMER_NAME + i);
@@ -241,7 +241,7 @@ public final class DiskSpaceUsageMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(10);
 
     if (currentState != null)
     {

@@ -207,7 +207,7 @@ public final class GetConfigurationExtendedRequest
                       final GetConfigurationType configurationType,
                       final String fileName)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(0);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(0);
     switch (configurationType)
     {
       case ACTIVE:

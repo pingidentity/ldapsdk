@@ -400,7 +400,7 @@ public final class GetUserResourceLimitsResponseControl
     else
     {
       this.groupDNs =
-           Collections.unmodifiableList(new ArrayList<String>(groupDNs));
+           Collections.unmodifiableList(new ArrayList<>(groupDNs));
     }
 
     if (privilegeNames == null)
@@ -410,7 +410,7 @@ public final class GetUserResourceLimitsResponseControl
     else
     {
       this.privilegeNames =
-           Collections.unmodifiableList(new ArrayList<String>(privilegeNames));
+           Collections.unmodifiableList(new ArrayList<>(privilegeNames));
     }
 
     if (otherAttributes == null)
@@ -419,8 +419,8 @@ public final class GetUserResourceLimitsResponseControl
     }
     else
     {
-      this.otherAttributes = Collections.unmodifiableList(
-           new ArrayList<Attribute>(otherAttributes));
+      this.otherAttributes =
+           Collections.unmodifiableList(new ArrayList<>(otherAttributes));
     }
   }
 
@@ -491,7 +491,7 @@ public final class GetUserResourceLimitsResponseControl
               final List<String> groupDNs, final List<String> privilegeNames,
               final List<Attribute> otherAttributes)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(10);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(10);
 
     if (sizeLimit != null)
     {
@@ -556,7 +556,7 @@ public final class GetUserResourceLimitsResponseControl
     if (groupDNs != null)
     {
       final ArrayList<ASN1Element> dnElements =
-           new ArrayList<ASN1Element>(groupDNs.size());
+           new ArrayList<>(groupDNs.size());
       for (final String s : groupDNs)
       {
         dnElements.add(new ASN1OctetString(s));
@@ -568,7 +568,7 @@ public final class GetUserResourceLimitsResponseControl
     if (privilegeNames != null)
     {
       final ArrayList<ASN1Element> privElements =
-           new ArrayList<ASN1Element>(privilegeNames.size());
+           new ArrayList<>(privilegeNames.size());
       for (final String s : privilegeNames)
       {
         privElements.add(new ASN1OctetString(s));
@@ -580,7 +580,7 @@ public final class GetUserResourceLimitsResponseControl
     if ((otherAttributes != null) && (! otherAttributes.isEmpty()))
     {
       final ArrayList<ASN1Element> attrElements =
-           new ArrayList<ASN1Element>(otherAttributes.size());
+           new ArrayList<>(otherAttributes.size());
       for (final Attribute a : otherAttributes)
       {
         attrElements.add(a.encode());
@@ -661,7 +661,7 @@ public final class GetUserResourceLimitsResponseControl
           case TYPE_GROUP_DNS:
             final ASN1Element[] groupElements =
                  ASN1Set.decodeAsSet(e).elements();
-            gd = new ArrayList<String>(groupElements.length);
+            gd = new ArrayList<>(groupElements.length);
             for (final ASN1Element pe : groupElements)
             {
               gd.add(ASN1OctetString.decodeAsOctetString(pe).stringValue());
@@ -671,7 +671,7 @@ public final class GetUserResourceLimitsResponseControl
           case TYPE_PRIVILEGE_NAMES:
             final ASN1Element[] privElements =
                  ASN1Set.decodeAsSet(e).elements();
-            pn = new ArrayList<String>(privElements.length);
+            pn = new ArrayList<>(privElements.length);
             for (final ASN1Element pe : privElements)
             {
               pn.add(ASN1OctetString.decodeAsOctetString(pe).stringValue());
@@ -681,7 +681,7 @@ public final class GetUserResourceLimitsResponseControl
           case TYPE_OTHER_ATTRIBUTES:
             final ASN1Element[] attrElemnets =
                  ASN1Sequence.decodeAsSequence(e).elements();
-            oa = new ArrayList<Attribute>(attrElemnets.length);
+            oa = new ArrayList<>(attrElemnets.length);
             for (final ASN1Element ae : attrElemnets)
             {
               oa.add(Attribute.decode(ASN1Sequence.decodeAsSequence(ae)));

@@ -30,12 +30,12 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -91,7 +91,7 @@ public final class MatchingRuleDefinition
   public MatchingRuleDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     matchingRuleString = s.trim();
 
@@ -122,11 +122,11 @@ public final class MatchingRuleDefinition
     // Technically, matching rule elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<String> nameList = new ArrayList<String>(1);
+    final ArrayList<String> nameList = new ArrayList<>(1);
     String               descr       = null;
     Boolean              obsolete    = null;
     String               synOID      = null;
-    final Map<String,String[]> exts  = new LinkedHashMap<String,String[]>();
+    final Map<String,String[]> exts  = new LinkedHashMap<>(5);
 
     while (true)
     {
@@ -151,7 +151,7 @@ public final class MatchingRuleDefinition
         pos--;
       }
 
-      final String lowerToken = toLowerCase(token);
+      final String lowerToken = StaticUtils.toLowerCase(token);
       if (lowerToken.equals(")"))
       {
         // This indicates that we're at the end of the value.  There should not
@@ -229,7 +229,7 @@ public final class MatchingRuleDefinition
       {
         pos = skipSpaces(matchingRuleString, pos, length);
 
-        final ArrayList<String> valueList = new ArrayList<String>();
+        final ArrayList<String> valueList = new ArrayList<>(5);
         pos = readQDStrings(matchingRuleString, pos, length, valueList);
 
         final String[] values = new String[valueList.size()];
@@ -321,7 +321,7 @@ public final class MatchingRuleDefinition
                                 final String syntaxOID,
                                 final Map<String,String[]> extensions)
   {
-    ensureNotNull(oid, syntaxOID);
+    Validator.ensureNotNull(oid, syntaxOID);
 
     this.oid                   = oid;
     this.description           = description;
@@ -330,7 +330,7 @@ public final class MatchingRuleDefinition
 
     if (names == null)
     {
-      this.names = NO_STRINGS;
+      this.names = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -588,8 +588,8 @@ public final class MatchingRuleDefinition
     final MatchingRuleDefinition d = (MatchingRuleDefinition) o;
     return (oid.equals(d.oid) &&
          syntaxOID.equals(d.syntaxOID) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(description, d.description) &&
          (isObsolete == d.isObsolete) &&
          extensionsEqual(extensions, d.extensions));
   }

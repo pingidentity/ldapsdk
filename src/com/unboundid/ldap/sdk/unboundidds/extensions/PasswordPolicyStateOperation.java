@@ -33,13 +33,13 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -2679,7 +2679,7 @@ public final class PasswordPolicyStateOperation
            ERR_PWP_STATE_INVALID_BOOLEAN_VALUE_COUNT.get(values.length));
     }
 
-    final String valueString = toLowerCase(values[0].stringValue());
+    final String valueString = StaticUtils.toLowerCase(values[0].stringValue());
     if (valueString.equals("true"))
     {
       return true;
@@ -2743,7 +2743,7 @@ public final class PasswordPolicyStateOperation
       return null;
     }
 
-    return decodeGeneralizedTime(values[0].stringValue());
+    return StaticUtils.decodeGeneralizedTime(values[0].stringValue());
   }
 
 
@@ -2766,7 +2766,8 @@ public final class PasswordPolicyStateOperation
     final Date[] dateValues = new Date[values.length];
     for (int i=0; i < values.length; i++)
     {
-      dateValues[i] = decodeGeneralizedTime(values[i].stringValue());
+      dateValues[i] =
+           StaticUtils.decodeGeneralizedTime(values[i].stringValue());
     }
 
     return dateValues;
@@ -2795,7 +2796,8 @@ public final class PasswordPolicyStateOperation
     {
       if (d != null)
       {
-        valueList.add(new ASN1OctetString(encodeGeneralizedTime(d)));
+        valueList.add(new ASN1OctetString(
+             StaticUtils.encodeGeneralizedTime(d)));
       }
     }
 
@@ -2856,9 +2858,9 @@ public final class PasswordPolicyStateOperation
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_PWP_STATE_ELEMENT_NOT_SEQUENCE.get(e), e);
+           ERR_PWP_STATE_ELEMENT_NOT_SEQUENCE.get(e), e);
     }
 
     if ((elements.length < 1) || (elements.length > 2))
@@ -2875,9 +2877,9 @@ public final class PasswordPolicyStateOperation
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_PWP_STATE_OP_TYPE_NOT_INTEGER.get(e), e);
+           ERR_PWP_STATE_OP_TYPE_NOT_INTEGER.get(e), e);
     }
 
     final ASN1OctetString[] values;
@@ -2895,9 +2897,9 @@ public final class PasswordPolicyStateOperation
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,
-                                ERR_PWP_STATE_CANNOT_DECODE_VALUES.get(e), e);
+             ERR_PWP_STATE_CANNOT_DECODE_VALUES.get(e), e);
       }
     }
     else

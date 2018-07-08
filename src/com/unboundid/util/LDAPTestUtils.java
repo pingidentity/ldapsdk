@@ -370,7 +370,7 @@ public final class LDAPTestUtils
                            final String password,
                            final Collection<Attribute> additionalAttributes)
   {
-    final List<Attribute> attrList = new ArrayList<Attribute>(4);
+    final List<Attribute> attrList = new ArrayList<>(4);
     attrList.add(new Attribute("givenName", firstName));
     attrList.add(new Attribute("sn", lastName));
     attrList.add(new Attribute("cn", firstName + ' ' + lastName));
@@ -442,7 +442,7 @@ public final class LDAPTestUtils
                            final String parentDN,
                            final Collection<String> memberDNs)
   {
-    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(1);
+    final ArrayList<Attribute> attrList = new ArrayList<>(1);
     attrList.add(new Attribute("member",
          DistinguishedNameMatchingRule.getInstance(), memberDNs));
 
@@ -496,7 +496,7 @@ public final class LDAPTestUtils
                            final String parentDN,
                            final Collection<String> memberDNs)
   {
-    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(1);
+    final ArrayList<Attribute> attrList = new ArrayList<>(1);
     attrList.add(new Attribute("uniqueMember",
          DistinguishedNameMatchingRule.getInstance(), memberDNs));
 
@@ -533,7 +533,7 @@ public final class LDAPTestUtils
     final RDN rdn = new RDN(rdnAttr, rdnValue);
 
     final String dn;
-    if ((parentDN == null) || (parentDN.trim().length() == 0))
+    if ((parentDN == null) || parentDN.trim().isEmpty())
     {
       dn = rdn.toString();
     }
@@ -640,7 +640,7 @@ public final class LDAPTestUtils
   {
     final Collection<Attribute> attrs = entry.getAttributes();
 
-    final List<Filter> comps = new ArrayList<Filter>(attrs.size());
+    final List<Filter> comps = new ArrayList<>(attrs.size());
     for (final Attribute a : attrs)
     {
       for (final byte[] value : a.getValueByteArrays())
@@ -766,7 +766,7 @@ public final class LDAPTestUtils
     }
 
     final Collection<Attribute> attributes = entry.getAttributes();
-    final List<String> messages = new ArrayList<String>(attributes.size());
+    final List<String> messages = new ArrayList<>(attributes.size());
 
     for (final Attribute a : attributes)
     {
@@ -855,7 +855,7 @@ public final class LDAPTestUtils
                                                 final Collection<String> dns)
          throws LDAPException
   {
-    final List<String> missingDNs = new ArrayList<String>(dns.size());
+    final List<String> missingDNs = new ArrayList<>(dns.size());
 
     for (final String dn : dns)
     {
@@ -915,7 +915,7 @@ public final class LDAPTestUtils
       return;
     }
 
-    final ArrayList<String> msgList = new ArrayList<String>(missingDNs.size());
+    final ArrayList<String> msgList = new ArrayList<>(missingDNs.size());
     for (final String dn : missingDNs)
     {
       msgList.add(ERR_TEST_ENTRY_MISSING.get(dn));
@@ -978,8 +978,7 @@ public final class LDAPTestUtils
                                   final Collection<String> attributeNames)
          throws LDAPException
   {
-    final List<String> missingAttrs =
-         new ArrayList<String>(attributeNames.size());
+    final List<String> missingAttrs = new ArrayList<>(attributeNames.size());
 
     // We will use a separate search for each target attribute so that we can
     // handle the case in which the attribute is present with a different name
@@ -1072,7 +1071,7 @@ public final class LDAPTestUtils
       return;
     }
 
-    final List<String> msgList = new ArrayList<String>(missingAttrs.size());
+    final List<String> msgList = new ArrayList<>(missingAttrs.size());
     for (final String attrName : missingAttrs)
     {
       msgList.add(ERR_TEST_ATTR_MISSING.get(dn, attrName));
@@ -1138,8 +1137,7 @@ public final class LDAPTestUtils
                                   final Collection<String> attributeValues)
        throws LDAPException
   {
-    final List<String> missingValues =
-         new ArrayList<String>(attributeValues.size());
+    final List<String> missingValues = new ArrayList<>(attributeValues.size());
 
     for (final String value : attributeValues)
     {
@@ -1329,7 +1327,7 @@ public final class LDAPTestUtils
                           final Collection<String> attributeNames)
          throws LDAPException, AssertionError
   {
-    final List<String> messages = new ArrayList<String>(attributeNames.size());
+    final List<String> messages = new ArrayList<>(attributeNames.size());
     for (final String attrName : attributeNames)
     {
       try
@@ -1423,7 +1421,7 @@ public final class LDAPTestUtils
                           final Collection<String> attributeValues)
          throws LDAPException, AssertionError
   {
-    final List<String> messages = new ArrayList<String>(attributeValues.size());
+    final List<String> messages = new ArrayList<>(attributeValues.size());
     for (final String value : attributeValues)
     {
       try

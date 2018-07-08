@@ -56,6 +56,7 @@ final class ParallelPoolCloserTask
   /**
    * Closes the connection.
    */
+  @Override()
   public void run()
   {
     final AbstractConnectionPool pool = connection.getConnectionPool();

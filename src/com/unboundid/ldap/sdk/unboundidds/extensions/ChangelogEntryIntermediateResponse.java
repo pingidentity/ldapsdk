@@ -95,7 +95,6 @@ public final class ChangelogEntryIntermediateResponse
 
 
 
-
   // A token that may be used to start retrieving changelog entries
   // immediately after this entry.
   private final ASN1OctetString resumeToken;
@@ -211,7 +210,7 @@ public final class ChangelogEntryIntermediateResponse
       final ASN1Element[] attrsElements =
            ASN1Sequence.decodeAsSequence(valueElements[3]).elements();
       final ArrayList<Attribute> attributes =
-           new ArrayList<Attribute>(attrsElements.length);
+           new ArrayList<>(attrsElements.length);
       for (final ASN1Element e : attrsElements)
       {
         attributes.add(Attribute.decode(ASN1Sequence.decodeAsSequence(e)));
@@ -255,7 +254,7 @@ public final class ChangelogEntryIntermediateResponse
 
     final Collection<Attribute> attrs = changeLogEntry.getAttributes();
     final ArrayList<ASN1Element> attrElements =
-         new ArrayList<ASN1Element>(attrs.size());
+         new ArrayList<>(attrs.size());
     for (final Attribute a : attrs)
     {
       attrElements.add(a.encode());

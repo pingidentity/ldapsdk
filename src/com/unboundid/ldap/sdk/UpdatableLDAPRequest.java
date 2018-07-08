@@ -27,8 +27,7 @@ import java.util.List;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -120,7 +119,7 @@ public abstract class UpdatableLDAPRequest
    */
   public final void addControl(final Control control)
   {
-    ensureNotNull(control);
+    Validator.ensureNotNull(control);
 
     final Control[] controls = getControls();
 
@@ -173,7 +172,7 @@ public abstract class UpdatableLDAPRequest
    */
   public final Control removeControl(final String oid)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     final Control[] controls = getControls();
 
@@ -229,7 +228,7 @@ public abstract class UpdatableLDAPRequest
    */
   public final boolean removeControl(final Control control)
   {
-    ensureNotNull(control);
+    Validator.ensureNotNull(control);
 
     final Control[] controls = getControls();
 
@@ -285,7 +284,7 @@ public abstract class UpdatableLDAPRequest
    */
   public final Control replaceControl(final Control control)
   {
-    ensureNotNull(control);
+    Validator.ensureNotNull(control);
 
     return replaceControl(control.getOID(), control);
   }
@@ -310,7 +309,7 @@ public abstract class UpdatableLDAPRequest
    */
   public final Control replaceControl(final String oid, final Control control)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     if (control == null)
     {

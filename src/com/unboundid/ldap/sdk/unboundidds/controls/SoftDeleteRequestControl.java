@@ -288,7 +288,7 @@ public final class SoftDeleteRequestControl
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(1);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(1);
     elements.add(new ASN1Boolean(TYPE_RETURN_SOFT_DELETE_RESPONSE, false));
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
   }

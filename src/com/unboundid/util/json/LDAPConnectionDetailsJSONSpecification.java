@@ -1635,7 +1635,7 @@ public final class LDAPConnectionDetailsJSONSpecification
                                     final String... a)
          throws LDAPException
   {
-    final HashSet<String> s = new HashSet<String>(Arrays.asList(a));
+    final HashSet<String> s = new HashSet<>(Arrays.asList(a));
     for (final String n : o.getFields().keySet())
     {
       if (! s.contains(n))
@@ -1912,7 +1912,7 @@ public final class LDAPConnectionDetailsJSONSpecification
              ERR_LDAP_SPEC_READ_FILE_MULTIPLE_LINES.get(path, fieldName));
       }
 
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         throw new LDAPException(ResultCode.PARAM_ERROR,
              ERR_LDAP_SPEC_READ_FILE_EMPTY_LINE.get(path, fieldName));

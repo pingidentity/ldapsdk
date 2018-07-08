@@ -27,8 +27,7 @@ import javax.net.SocketFactory;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -179,9 +178,9 @@ public final class SingleServerSet
                          final BindRequest bindRequest,
                          final PostConnectProcessor postConnectProcessor)
   {
-    ensureNotNull(address);
-    ensureTrue((port > 0) && (port < 65536),
-               "SingleServerSet.port must be between 1 and 65535.");
+    Validator.ensureNotNull(address);
+    Validator.ensureTrue((port > 0) && (port < 65_536),
+         "SingleServerSet.port must be between 1 and 65535.");
 
     this.address = address;
     this.port = port;

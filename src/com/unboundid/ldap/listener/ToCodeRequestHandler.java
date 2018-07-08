@@ -184,7 +184,7 @@ public final class ToCodeRequestHandler
     this.requestHandler    = requestHandler;
 
     firstMessage     = new AtomicBoolean(true);
-    lineLists        = new ThreadLocal<List<String>>();
+    lineLists        = new ThreadLocal<>();
     clientConnection = null;
   }
 
@@ -269,7 +269,7 @@ public final class ToCodeRequestHandler
     {
       final List<String> lineList = getLineList(messageID);
 
-      final ArrayList<ToCodeArgHelper> args = new ArrayList<ToCodeArgHelper>(2);
+      final ArrayList<ToCodeArgHelper> args = new ArrayList<>(2);
       args.add(ToCodeArgHelper.createRaw(
            "asyncRequestID" + request.getIDToAbandon(), "Async Request ID"));
       if (! controls.isEmpty())
@@ -484,7 +484,7 @@ public final class ToCodeRequestHandler
     {
       final List<String> lineList = getLineList(messageID);
 
-      final ArrayList<ToCodeArgHelper> args = new ArrayList<ToCodeArgHelper>(1);
+      final ArrayList<ToCodeArgHelper> args = new ArrayList<>(1);
       if (! controls.isEmpty())
       {
         final Control[] controlArray = new Control[controls.size()];
@@ -518,7 +518,7 @@ public final class ToCodeRequestHandler
     List<String> lineList = lineLists.get();
     if (lineList == null)
     {
-      lineList = new ArrayList<String>(20);
+      lineList = new ArrayList<>(20);
       lineLists.set(lineList);
     }
     else

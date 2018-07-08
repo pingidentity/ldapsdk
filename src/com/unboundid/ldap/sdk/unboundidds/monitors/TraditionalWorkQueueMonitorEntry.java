@@ -277,7 +277,7 @@ public final class TraditionalWorkQueueMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(10);
 
     if (requestsSubmitted != null)
     {

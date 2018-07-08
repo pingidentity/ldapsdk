@@ -240,7 +240,7 @@ public final class ScrambleAttributeTransformation
                                          final Collection<String> jsonFields)
   {
     createTime = System.currentTimeMillis();
-    randoms = new ThreadLocal<Random>();
+    randoms = new ThreadLocal<>();
 
     this.scrambleEntryDNs = scrambleEntryDNs;
 
@@ -277,7 +277,7 @@ public final class ScrambleAttributeTransformation
     // Iterate through the set of provided attribute names.  Identify all of the
     // alternate names (including the OID) that may be used to reference the
     // attribute, and identify the associated matching rule.
-    final HashMap<String,MatchingRule> m = new HashMap<String,MatchingRule>(10);
+    final HashMap<String,MatchingRule> m = new HashMap<>(10);
     for (final String a : attributes)
     {
       final String baseName = StaticUtils.toLowerCase(Attribute.getBaseName(a));
@@ -313,7 +313,7 @@ public final class ScrambleAttributeTransformation
     }
     else
     {
-      final HashSet<String> fieldNames = new HashSet<String>(jsonFields.size());
+      final HashSet<String> fieldNames = new HashSet<>(jsonFields.size());
       for (final String fieldName : jsonFields)
       {
         fieldNames.add(StaticUtils.toLowerCase(fieldName));
@@ -347,7 +347,7 @@ public final class ScrambleAttributeTransformation
 
     final Collection<Attribute> originalAttributes = e.getAttributes();
     final ArrayList<Attribute> scrambledAttributes =
-         new ArrayList<Attribute>(originalAttributes.size());
+         new ArrayList<>(originalAttributes.size());
 
     for (final Attribute a : originalAttributes)
     {
@@ -1108,7 +1108,7 @@ public final class ScrambleAttributeTransformation
     final boolean scrambleAllFields = jsonFields.isEmpty();
     final Map<String,JSONValue> originalFields = o.getFields();
     final LinkedHashMap<String,JSONValue> scrambledFields =
-         new LinkedHashMap<String,JSONValue>(originalFields.size());
+         new LinkedHashMap<>(originalFields.size());
     for (final Map.Entry<String,JSONValue> e : originalFields.entrySet())
     {
       final JSONValue scrambledValue;
@@ -1157,7 +1157,7 @@ public final class ScrambleAttributeTransformation
       final JSONArray a = (JSONArray) v;
       final List<JSONValue> originalValues = a.getValues();
       final ArrayList<JSONValue> scrambledValues =
-           new ArrayList<JSONValue>(originalValues.size());
+           new ArrayList<>(originalValues.size());
       for (final JSONValue arrayValue : originalValues)
       {
         scrambledValues.add(scrambleJSONValue(arrayValue, true));
@@ -1186,7 +1186,7 @@ public final class ScrambleAttributeTransformation
       final JSONObject o = (JSONObject) v;
       final Map<String,JSONValue> originalFields = o.getFields();
       final LinkedHashMap<String,JSONValue> scrambledFields =
-           new LinkedHashMap<String,JSONValue>(originalFields.size());
+           new LinkedHashMap<>(originalFields.size());
       for (final Map.Entry<String,JSONValue> e : originalFields.entrySet())
       {
         final JSONValue scrambledValue;
@@ -1244,7 +1244,7 @@ public final class ScrambleAttributeTransformation
   {
     final List<JSONValue> originalValues = a.getValues();
     final ArrayList<JSONValue> scrambledValues =
-         new ArrayList<JSONValue>(originalValues.size());
+         new ArrayList<>(originalValues.size());
 
     for (final JSONValue arrayValue : originalValues)
     {

@@ -53,13 +53,13 @@ import com.unboundid.util.Validator;
  */
 @InternalUseOnly()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class ParallelProcessor<I, O>
+public final class ParallelProcessor<I,O>
 {
   /**
    * This processes the input items.  It is called in parallel by each worker
    * thread.  So it must be thread-safe.
    */
-  private final Processor<I, O> processor;
+  private final Processor<I,O> processor;
 
   /**
    * The work done in parallel during processAll is done by the invoking thread
@@ -92,15 +92,15 @@ public final class ParallelProcessor<I, O>
    * invoke().
    */
   private final AtomicReference<List<? extends I>> inputItems =
-       new AtomicReference<List<? extends I>>();
+       new AtomicReference<>();
 
   /**
    * This is how the Worker threads return the results of processor.process()
    * back to processAll.  The list is pre-populated with null values, and the
    * Worker just sets the values.
    */
-  private final AtomicReference<List<Result<I, O>>> outputItems =
-       new AtomicReference<List<Result<I, O>>>();
+  private final AtomicReference<List<Result<I,O>>> outputItems =
+       new AtomicReference<>();
 
   /**
    * This is how each worker thread decides what inputItems to process. It's
@@ -148,7 +148,7 @@ public final class ParallelProcessor<I, O>
    *                       too large is a bigger danger than having it be too
    *                       small.
    */
-  public ParallelProcessor(final Processor<I, O> processor,
+  public ParallelProcessor(final Processor<I,O> processor,
                            final int totalThreads,
                            final int minPerThread)
   {
@@ -185,7 +185,7 @@ public final class ParallelProcessor<I, O>
    *                        too large is a bigger danger than having it be too
    *                        small.
    */
-  public ParallelProcessor(final Processor<I, O> processor,
+  public ParallelProcessor(final Processor<I,O> processor,
                            final ThreadFactory threadFactory,
                            final int totalThreads,
                            final int minPerThread)
@@ -212,7 +212,7 @@ public final class ParallelProcessor<I, O>
     }
 
     final int numExtraThreads = totalThreads - 1;
-    final List<Thread> workerList = new ArrayList<Thread>(numExtraThreads);
+    final List<Thread> workerList = new ArrayList<>(numExtraThreads);
     for (int i = 0; i < numExtraThreads; i++)
     {
       final Thread worker = tf.newThread(new Worker());
@@ -240,7 +240,7 @@ public final class ParallelProcessor<I, O>
    *                               processing.
    * @throws IllegalStateException If this thread is called after shutdown().
    */
-  public synchronized ArrayList<Result<I, O>> processAll(
+  public synchronized ArrayList<Result<I,O>> processAll(
        final List<? extends I> items)
        throws InterruptedException, IllegalStateException
   {
@@ -262,8 +262,7 @@ public final class ParallelProcessor<I, O>
     // Process everything in this thread.
     if (extraThreads <= 0)
     {
-      final ArrayList<Result<I, O>> output =
-           new ArrayList<Result<I, O>>(items.size());
+      final ArrayList<Result<I,O>> output = new ArrayList<>(items.size());
       for (final I item : items)
       {
         output.add(process(item));
@@ -278,8 +277,7 @@ public final class ParallelProcessor<I, O>
     // Pre-populate the output List with null values so that the results can
     // be set out-of-order by the individual threads by calling
     // List#set(index, value)
-    final ArrayList<Result<I, O>> output =
-         new ArrayList<Result<I, O>>(items.size());
+    final ArrayList<Result<I,O>> output = new ArrayList<>(items.size());
     for (int i = 0; i < items.size(); i++)
     {
       output.add(null); // So we can just call set later
@@ -338,7 +336,7 @@ public final class ParallelProcessor<I, O>
     try
     {
       final List<? extends I> items = inputItems.get();
-      final List<Result<I, O>> outputs = outputItems.get();
+      final List<Result<I,O>> outputs = outputItems.get();
       final int size = items.size();
       int next;
       while ((next = nextToProcess.getAndIncrement()) < size)
@@ -405,6 +403,7 @@ public final class ParallelProcessor<I, O>
      * Iteratively process batches of work passed in to processAll until
      * shutdown.
      */
+    @Override()
     public void run()
     {
       while (true)
@@ -452,7 +451,7 @@ public final class ParallelProcessor<I, O>
    * Result of processing a single item.
    */
   private final class ProcessResult
-       implements Result<I, O>
+       implements Result<I,O>
   {
     // The item that was passed into processAll.
     private final I inputItem;

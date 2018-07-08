@@ -412,7 +412,7 @@ public final class OperationPurposeRequestControl
          (applicationVersion == null) && (codeLocation == null) &&
          (requestPurpose == null));
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
 
     if (applicationName != null)
     {

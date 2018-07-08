@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -136,8 +135,7 @@ public final class DIGESTMD5BindRequestProperties
 
     authorizationID = null;
     realm           = null;
-    allowedQoP      = Collections.unmodifiableList(Arrays.asList(
-         SASLQualityOfProtection.AUTH));
+    allowedQoP      = Collections.singletonList(SASLQualityOfProtection.AUTH);
   }
 
 
@@ -266,7 +264,6 @@ public final class DIGESTMD5BindRequestProperties
 
 
 
-
   /**
    * Retrieves the realm for the DIGEST-MD5 bind request.
    *
@@ -329,13 +326,12 @@ public final class DIGESTMD5BindRequestProperties
   {
     if ((allowedQoP == null) || allowedQoP.isEmpty())
     {
-      this.allowedQoP = Collections.unmodifiableList(Arrays.asList(
-           SASLQualityOfProtection.AUTH));
+      this.allowedQoP = Collections.singletonList(SASLQualityOfProtection.AUTH);
     }
     else
     {
-      this.allowedQoP = Collections.unmodifiableList(
-           new ArrayList<SASLQualityOfProtection>(allowedQoP));
+      this.allowedQoP =
+           Collections.unmodifiableList(new ArrayList<>(allowedQoP));
     }
   }
 

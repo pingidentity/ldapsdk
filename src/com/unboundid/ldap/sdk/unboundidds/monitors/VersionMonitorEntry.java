@@ -634,7 +634,7 @@ public final class VersionMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(20);
+         new LinkedHashMap<>(20);
 
     if (productName != null)
     {

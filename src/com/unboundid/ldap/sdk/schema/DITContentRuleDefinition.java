@@ -31,12 +31,12 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -102,7 +102,7 @@ public final class DITContentRuleDefinition
   public DITContentRuleDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     ditContentRuleString = s.trim();
 
@@ -133,12 +133,12 @@ public final class DITContentRuleDefinition
     // Technically, DIT content elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<String>    nameList = new ArrayList<String>(1);
-    final ArrayList<String>    reqAttrs = new ArrayList<String>();
-    final ArrayList<String>    optAttrs = new ArrayList<String>();
-    final ArrayList<String>    notAttrs = new ArrayList<String>();
-    final ArrayList<String>    auxOCs   = new ArrayList<String>();
-    final Map<String,String[]> exts     = new LinkedHashMap<String,String[]>();
+    final ArrayList<String>    nameList = new ArrayList<>(5);
+    final ArrayList<String>    reqAttrs = new ArrayList<>(10);
+    final ArrayList<String>    optAttrs = new ArrayList<>(10);
+    final ArrayList<String>    notAttrs = new ArrayList<>(10);
+    final ArrayList<String>    auxOCs   = new ArrayList<>(10);
+    final Map<String,String[]> exts     = new LinkedHashMap<>(5);
     Boolean obsolete = null;
     String  descr    = null;
 
@@ -165,7 +165,7 @@ public final class DITContentRuleDefinition
         pos--;
       }
 
-      final String lowerToken = toLowerCase(token);
+      final String lowerToken = StaticUtils.toLowerCase(token);
       if (lowerToken.equals(")"))
       {
         // This indicates that we're at the end of the value.  There should not
@@ -282,7 +282,7 @@ public final class DITContentRuleDefinition
       {
         pos = skipSpaces(ditContentRuleString, pos, length);
 
-        final ArrayList<String> valueList = new ArrayList<String>();
+        final ArrayList<String> valueList = new ArrayList<>(5);
         pos = readQDStrings(ditContentRuleString, pos, length, valueList);
 
         final String[] values = new String[valueList.size()];
@@ -456,7 +456,7 @@ public final class DITContentRuleDefinition
                                   final String[] prohibitedAttributes,
                                   final Map<String,String[]> extensions)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid             = oid;
     this.isObsolete      = isObsolete;
@@ -464,7 +464,7 @@ public final class DITContentRuleDefinition
 
     if (names == null)
     {
-      this.names = NO_STRINGS;
+      this.names = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -473,7 +473,7 @@ public final class DITContentRuleDefinition
 
     if (auxiliaryClasses == null)
     {
-      this.auxiliaryClasses = NO_STRINGS;
+      this.auxiliaryClasses = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -482,7 +482,7 @@ public final class DITContentRuleDefinition
 
     if (requiredAttributes == null)
     {
-      this.requiredAttributes = NO_STRINGS;
+      this.requiredAttributes = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -491,7 +491,7 @@ public final class DITContentRuleDefinition
 
     if (optionalAttributes == null)
     {
-      this.optionalAttributes = NO_STRINGS;
+      this.optionalAttributes = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -500,7 +500,7 @@ public final class DITContentRuleDefinition
 
     if (prohibitedAttributes == null)
     {
-      this.prohibitedAttributes = NO_STRINGS;
+      this.prohibitedAttributes = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -904,16 +904,16 @@ public final class DITContentRuleDefinition
 
     final DITContentRuleDefinition d = (DITContentRuleDefinition) o;
     return (oid.equals(d.oid) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         stringsEqualIgnoreCaseOrderIndependent(auxiliaryClasses,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(auxiliaryClasses,
               d.auxiliaryClasses) &&
-         stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
               d.requiredAttributes) &&
-         stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
               d.optionalAttributes) &&
-         stringsEqualIgnoreCaseOrderIndependent(prohibitedAttributes,
-              d.prohibitedAttributes) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(
+              prohibitedAttributes, d.prohibitedAttributes) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(description, d.description) &&
          (isObsolete == d.isObsolete) &&
          extensionsEqual(extensions, d.extensions));
   }

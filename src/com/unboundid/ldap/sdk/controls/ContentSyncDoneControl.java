@@ -220,7 +220,7 @@ public final class ContentSyncDoneControl
   private static ASN1OctetString encodeValue(final ASN1OctetString cookie,
                                              final boolean refreshDeletes)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
 
     if (cookie != null)
     {

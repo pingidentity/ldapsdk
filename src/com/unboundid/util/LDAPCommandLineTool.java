@@ -68,8 +68,6 @@ import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 import com.unboundid.util.ssl.TrustStoreTrustManager;
 
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
 
 
@@ -274,7 +272,7 @@ public abstract class LDAPCommandLineTool
   static Set<String> getLongLDAPArgumentIdentifiers(
                           final LDAPCommandLineTool tool)
   {
-    final LinkedHashSet<String> ids = new LinkedHashSet<String>(21);
+    final LinkedHashSet<String> ids = new LinkedHashSet<>(21);
 
     ids.add("hostname");
     ids.add("port");
@@ -384,7 +382,7 @@ public abstract class LDAPCommandLineTool
     port = new IntegerArgument(getShortIdentifierIfNotSuppressed('p'), "port",
          true, (supportsMultipleServers() ? 0 : 1),
          INFO_LDAP_TOOL_PLACEHOLDER_PORT.get(),
-         INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65535, 389);
+         INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65_535, 389);
     port.setArgumentGroupName(argumentGroup);
     parser.addArgument(port);
 
@@ -901,7 +899,7 @@ public abstract class LDAPCommandLineTool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       connection.close();
       throw le;
     }
@@ -952,7 +950,7 @@ public abstract class LDAPCommandLineTool
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         connection.close();
         throw le;
       }
@@ -1065,8 +1063,7 @@ public abstract class LDAPCommandLineTool
 
 
     // Prepare the post-connect processor for the pool.
-    final ArrayList<PostConnectProcessor> pcpList =
-         new ArrayList<PostConnectProcessor>(3);
+    final ArrayList<PostConnectProcessor> pcpList = new ArrayList<>(3);
     if (beforeStartTLSProcessor != null)
     {
       pcpList.add(beforeStartTLSProcessor);
@@ -1126,10 +1123,11 @@ public abstract class LDAPCommandLineTool
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_LDAP_TOOL_CANNOT_CREATE_SSL_SOCKET_FACTORY.get(
-                  getExceptionMessage(e)), e);
+                  StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
     else if (useStartTLS.isPresent())
@@ -1140,10 +1138,11 @@ public abstract class LDAPCommandLineTool
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_LDAP_TOOL_CANNOT_CREATE_SSL_SOCKET_FACTORY.get(
-                  getExceptionMessage(e)), e);
+                  StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
 
@@ -1228,10 +1227,11 @@ public abstract class LDAPCommandLineTool
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDAPException(ResultCode.LOCAL_ERROR,
                  ERR_LDAP_TOOL_CANNOT_READ_KEY_STORE_PASSWORD.get(
-                      getExceptionMessage(e)), e);
+                      StaticUtils.getExceptionMessage(e)),
+                 e);
           }
         }
         else if (promptForKeyStorePassword.isPresent())
@@ -1249,10 +1249,11 @@ public abstract class LDAPCommandLineTool
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDAPException(ResultCode.LOCAL_ERROR,
                ERR_LDAP_TOOL_CANNOT_CREATE_KEY_MANAGER.get(
-                    getExceptionMessage(e)), e);
+                    StaticUtils.getExceptionMessage(e)),
+               e);
         }
       }
 
@@ -1277,10 +1278,10 @@ public abstract class LDAPCommandLineTool
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDAPException(ResultCode.LOCAL_ERROR,
                  ERR_LDAP_TOOL_CANNOT_READ_TRUST_STORE_PASSWORD.get(
-                      getExceptionMessage(e)), e);
+                      StaticUtils.getExceptionMessage(e)), e);
           }
         }
         else if (promptForTrustStorePassword.isPresent())
@@ -1300,7 +1301,7 @@ public abstract class LDAPCommandLineTool
       }
       else
       {
-        final ArrayList<String> expectedAddresses = new ArrayList<String>(5);
+        final ArrayList<String> expectedAddresses = new ArrayList<>(5);
         if (useSSL.isPresent() || useStartTLS.isPresent())
         {
           expectedAddresses.addAll(host.getValues());
@@ -1351,7 +1352,7 @@ public abstract class LDAPCommandLineTool
     final List<Control> bindControlList = getBindControls();
     if ((bindControlList == null) || bindControlList.isEmpty())
     {
-      bindControls = NO_CONTROLS;
+      bindControls = StaticUtils.NO_CONTROLS;
     }
     else
     {
@@ -1373,10 +1374,10 @@ public abstract class LDAPCommandLineTool
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_LDAP_TOOL_CANNOT_READ_BIND_PASSWORD.get(
-                  getExceptionMessage(e)), e);
+                  StaticUtils.getExceptionMessage(e)), e);
       }
     }
     else if (promptForBindPassword.isPresent())

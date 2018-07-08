@@ -35,13 +35,13 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -93,7 +93,7 @@ public final class EndTransactionExtendedResult
   {
     super(extendedResult);
 
-    opResponseControls = new TreeMap<Integer,Control[]>();
+    opResponseControls = new TreeMap<>();
 
     final ASN1OctetString value = extendedResult.getValue();
     if (value == null)
@@ -110,7 +110,7 @@ public final class EndTransactionExtendedResult
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_END_TXN_RESPONSE_VALUE_NOT_SEQUENCE.get(ae.getMessage()), ae);
     }
@@ -139,7 +139,7 @@ public final class EndTransactionExtendedResult
         }
         catch (final ASN1Exception ae)
         {
-          debugException(ae);
+          Debug.debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
                ERR_END_TXN_RESPONSE_CANNOT_DECODE_MSGID.get(ae), ae);
         }
@@ -151,7 +151,8 @@ public final class EndTransactionExtendedResult
       else
       {
         throw new LDAPException(ResultCode.DECODING_ERROR,
-             ERR_END_TXN_RESPONSE_INVALID_TYPE.get(toHex(e.getType())));
+             ERR_END_TXN_RESPONSE_INVALID_TYPE.get(
+                  StaticUtils.toHex(e.getType())));
       }
     }
 
@@ -203,12 +204,11 @@ public final class EndTransactionExtendedResult
 
     if (opResponseControls == null)
     {
-      this.opResponseControls = new TreeMap<Integer,Control[]>();
+      this.opResponseControls = new TreeMap<>();
     }
     else
     {
-      this.opResponseControls =
-           new TreeMap<Integer,Control[]>(opResponseControls);
+      this.opResponseControls = new TreeMap<>(opResponseControls);
     }
   }
 
@@ -237,7 +237,7 @@ public final class EndTransactionExtendedResult
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                      ERR_END_TXN_RESPONSE_CONTROLS_NOT_SEQUENCE.get(ae), ae);
     }
@@ -251,7 +251,7 @@ public final class EndTransactionExtendedResult
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
                        ERR_END_TXN_RESPONSE_CONTROL_NOT_SEQUENCE.get(ae), ae);
       }
@@ -271,7 +271,7 @@ public final class EndTransactionExtendedResult
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
                        ERR_END_TXN_RESPONSE_CONTROL_MSGID_NOT_INT.get(ae), ae);
       }
@@ -284,7 +284,7 @@ public final class EndTransactionExtendedResult
       }
       catch (final ASN1Exception ae)
       {
-        debugException(ae);
+        Debug.debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
              ERR_END_TXN_RESPONSE_CONTROLS_ELEMENT_NOT_SEQUENCE.get(ae), ae);
       }
@@ -323,7 +323,7 @@ public final class EndTransactionExtendedResult
       return null;
     }
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(2);
     if (failedOpMessageID != null)
     {
       elements.add(new ASN1Integer(failedOpMessageID));
@@ -331,8 +331,7 @@ public final class EndTransactionExtendedResult
 
     if ((opResponseControls != null) && (! opResponseControls.isEmpty()))
     {
-      final ArrayList<ASN1Element> controlElements =
-           new ArrayList<ASN1Element>();
+      final ArrayList<ASN1Element> controlElements = new ArrayList<>(10);
       for (final Map.Entry<Integer,Control[]> e : opResponseControls.entrySet())
       {
         final ASN1Element[] ctlElements =
@@ -348,7 +347,6 @@ public final class EndTransactionExtendedResult
 
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
   }
-
 
 
 

@@ -28,13 +28,12 @@ import java.util.List;
 import java.util.TreeMap;
 import javax.net.SocketFactory;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -258,19 +257,19 @@ public final class FewestConnectionsServerSet
               final BindRequest bindRequest,
               final PostConnectProcessor postConnectProcessor)
   {
-    ensureNotNull(addresses, ports);
-    ensureTrue(addresses.length > 0,
-               "FewestConnectionsServerSet.addresses must not be empty.");
-    ensureTrue(addresses.length == ports.length,
-               "FewestConnectionsServerSet addresses and ports arrays must " +
-                    "be the same size.");
+    Validator.ensureNotNull(addresses, ports);
+    Validator.ensureTrue(addresses.length > 0,
+         "FewestConnectionsServerSet.addresses must not be empty.");
+    Validator.ensureTrue(addresses.length == ports.length,
+         "FewestConnectionsServerSet addresses and ports arrays must be " +
+              "the same size.");
 
     this.addresses = addresses;
     this.ports = ports;
     this.bindRequest = bindRequest;
     this.postConnectProcessor = postConnectProcessor;
 
-    establishedConnections = new ArrayList<LDAPConnection>(100);
+    establishedConnections = new ArrayList<>(100);
 
     if (socketFactory == null)
     {
@@ -427,18 +426,17 @@ public final class FewestConnectionsServerSet
 
 
     // Sort the servers based on the number of established connections.
-    final TreeMap<Integer,List<ObjectPair<String,Integer>>> m =
-         new TreeMap<Integer,List<ObjectPair<String,Integer>>>();
+    final TreeMap<Integer,List<ObjectPair<String,Integer>>> m = new TreeMap<>();
     for (int i=0; i < counts.length; i++)
     {
       final Integer count = counts[i];
       List<ObjectPair<String,Integer>> serverList = m.get(count);
       if (serverList == null)
       {
-        serverList = new ArrayList<ObjectPair<String,Integer>>(counts.length);
+        serverList = new ArrayList<>(counts.length);
         m.put(count, serverList);
       }
-      serverList.add(new ObjectPair<String,Integer>(addresses[i], ports[i]));
+      serverList.add(new ObjectPair<>(addresses[i], ports[i]));
     }
 
 
@@ -460,7 +458,7 @@ public final class FewestConnectionsServerSet
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
           lastException = le;
         }
       }

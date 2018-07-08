@@ -35,15 +35,15 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.protocol.ProtocolMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -140,8 +140,8 @@ public abstract class GenericResponseProtocolOp
       resultCode = reader.readEnumerated();
 
       String s = reader.readString();
-      ensureNotNull(s);
-      if (s.length() == 0)
+      Validator.ensureNotNull(s);
+      if (s.isEmpty())
       {
         matchedDN = null;
       }
@@ -151,8 +151,8 @@ public abstract class GenericResponseProtocolOp
       }
 
       s = reader.readString();
-      ensureNotNull(s);
-      if (s.length() == 0)
+      Validator.ensureNotNull(s);
+      if (s.isEmpty())
       {
         diagnosticMessage = null;
       }
@@ -163,7 +163,7 @@ public abstract class GenericResponseProtocolOp
 
       if (opSequence.hasMoreElements())
       {
-        final ArrayList<String> refs = new ArrayList<String>(1);
+        final ArrayList<String> refs = new ArrayList<>(1);
         final ASN1StreamReaderSequence refSequence = reader.beginSequence();
         while (refSequence.hasMoreElements())
         {
@@ -178,9 +178,10 @@ public abstract class GenericResponseProtocolOp
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_RESPONSE_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_RESPONSE_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)), e);
     }
   }
 
@@ -288,7 +289,7 @@ public abstract class GenericResponseProtocolOp
     final String[] refs;
     if (referralURLs.isEmpty())
     {
-      refs = NO_STRINGS;
+      refs = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -324,7 +325,7 @@ public abstract class GenericResponseProtocolOp
   public final void toString(final StringBuilder buffer)
   {
     buffer.append("ResponseProtocolOp(type=");
-    toHex(type, buffer);
+    StaticUtils.toHex(type, buffer);
     buffer.append(", resultCode=");
     buffer.append(resultCode);
 

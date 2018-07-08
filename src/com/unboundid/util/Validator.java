@@ -25,8 +25,6 @@ package com.unboundid.util;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
 
 
@@ -62,8 +60,9 @@ public final class Validator
     {
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_NULL_CHECK_FAILURE.get(0,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -87,8 +86,9 @@ public final class Validator
     {
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_FAILURE_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -121,8 +121,9 @@ public final class Validator
 
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_NULL_CHECK_FAILURE.get(index,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -161,8 +162,9 @@ public final class Validator
 
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_NULL_CHECK_FAILURE.get(index,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -206,8 +208,9 @@ public final class Validator
 
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_NULL_CHECK_FAILURE.get(index,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -258,8 +261,9 @@ public final class Validator
 
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_NULL_CHECK_FAILURE.get(index,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -280,17 +284,17 @@ public final class Validator
     if (collection == null)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_COLLECTION_NULL.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_COLLECTION_NULL.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (collection.isEmpty())
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_COLLECTION_EMPTY.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_COLLECTION_EMPTY.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -315,16 +319,18 @@ public final class Validator
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_COLLECTION_NULL_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (collection.isEmpty())
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_COLLECTION_EMPTY_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -345,17 +351,17 @@ public final class Validator
     if (map == null)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_MAP_NULL.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_MAP_NULL.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (map.isEmpty())
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_MAP_EMPTY.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_MAP_EMPTY.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -380,16 +386,18 @@ public final class Validator
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_MAP_NULL_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (map.isEmpty())
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_MAP_EMPTY_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -410,17 +418,17 @@ public final class Validator
     if (array == null)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_NULL.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_NULL.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_EMPTY.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_EMPTY.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -445,16 +453,18 @@ public final class Validator
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -475,17 +485,17 @@ public final class Validator
     if (array == null)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_NULL.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_NULL.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_EMPTY.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_EMPTY.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -510,16 +520,18 @@ public final class Validator
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -540,17 +552,17 @@ public final class Validator
     if (array == null)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_NULL.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_NULL.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_EMPTY.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_EMPTY.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -575,16 +587,18 @@ public final class Validator
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -605,17 +619,17 @@ public final class Validator
     if (array == null)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_NULL.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_NULL.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_EMPTY.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_EMPTY.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -640,16 +654,18 @@ public final class Validator
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -670,17 +686,17 @@ public final class Validator
     if (array == null)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_NULL.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_NULL.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_ARRAY_EMPTY.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_ARRAY_EMPTY.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -705,16 +721,18 @@ public final class Validator
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_NULL_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (array.length == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_ARRAY_EMPTY_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -735,17 +753,17 @@ public final class Validator
     if (charSequence == null)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_CHAR_SEQUENCE_NULL.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_CHAR_SEQUENCE_NULL.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (charSequence.length() == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
-           ERR_VALIDATOR_CHAR_SEQUENCE_EMPTY.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_CHAR_SEQUENCE_EMPTY.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -771,16 +789,18 @@ public final class Validator
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_CHAR_SEQUENCE_NULL_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
     else if (charSequence.length() == 0)
     {
       final LDAPSDKUsageException e =  new LDAPSDKUsageException(
            ERR_VALIDATOR_CHAR_SEQUENCE_EMPTY_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -800,9 +820,9 @@ public final class Validator
     if (! condition)
     {
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
-           ERR_VALIDATOR_TRUE_CHECK_FAILURE.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_TRUE_CHECK_FAILURE.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -825,8 +845,9 @@ public final class Validator
     {
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_FAILURE_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -846,9 +867,9 @@ public final class Validator
     if (condition)
     {
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
-           ERR_VALIDATOR_FALSE_CHECK_FAILURE.get(
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+           ERR_VALIDATOR_FALSE_CHECK_FAILURE.get(StaticUtils.getStackTrace(
+                Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -871,8 +892,9 @@ public final class Validator
     {
       final LDAPSDKUsageException e = new LDAPSDKUsageException(
            ERR_VALIDATOR_FAILURE_CUSTOM_MESSAGE.get(message,
-                getStackTrace(Thread.currentThread().getStackTrace())));
-      debugCodingError(e);
+                StaticUtils.getStackTrace(
+                     Thread.currentThread().getStackTrace())));
+      Debug.debugCodingError(e);
       throw e;
     }
   }
@@ -911,7 +933,7 @@ public final class Validator
          throws LDAPSDKUsageException
   {
     final LDAPSDKUsageException e = new LDAPSDKUsageException(message, cause);
-    debugCodingError(e);
+    Debug.debugCodingError(e);
     throw e;
   }
 }

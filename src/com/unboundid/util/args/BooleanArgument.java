@@ -22,7 +22,6 @@ package com.unboundid.util.args;
 
 
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -147,8 +146,7 @@ public final class BooleanArgument
   @Override()
   public List<String> getValueStringRepresentations(final boolean useDefault)
   {
-    return Collections.unmodifiableList(
-         Arrays.asList(String.valueOf(isPresent())));
+    return Collections.singletonList(String.valueOf(isPresent()));
   }
 
 

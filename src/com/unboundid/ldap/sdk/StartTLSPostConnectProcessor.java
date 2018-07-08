@@ -29,8 +29,7 @@ import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -92,7 +91,7 @@ public final class StartTLSPostConnectProcessor
    */
   public StartTLSPostConnectProcessor(final SSLContext sslContext)
   {
-    ensureNotNull(sslContext);
+    Validator.ensureNotNull(sslContext);
 
     this.sslContext = sslContext;
     sslSocketFactory = null;
@@ -109,7 +108,7 @@ public final class StartTLSPostConnectProcessor
    */
   public StartTLSPostConnectProcessor(final SSLSocketFactory sslSocketFactory)
   {
-    ensureNotNull(sslSocketFactory);
+    Validator.ensureNotNull(sslSocketFactory);
 
     this.sslSocketFactory = sslSocketFactory;
     sslContext = null;

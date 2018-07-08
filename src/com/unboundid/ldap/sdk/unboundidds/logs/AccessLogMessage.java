@@ -103,7 +103,6 @@ public abstract class AccessLogMessage
 
 
 
-
   /**
    * Retrieves the server product name for this access log message.
    *

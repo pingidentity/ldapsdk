@@ -29,14 +29,14 @@ import java.util.LinkedHashMap;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -116,7 +116,7 @@ public final class AttributeTypeDefinition
   public AttributeTypeDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     attributeTypeString = s.trim();
 
@@ -147,13 +147,13 @@ public final class AttributeTypeDefinition
     // Technically, attribute type elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<String> nameList = new ArrayList<String>(1);
+    final ArrayList<String> nameList = new ArrayList<>(1);
     AttributeUsage       attrUsage   = null;
     Boolean              collective  = null;
     Boolean              noUserMod   = null;
     Boolean              obsolete    = null;
     Boolean              singleValue = null;
-    final Map<String,String[]> exts  = new LinkedHashMap<String,String[]>();
+    final Map<String,String[]> exts  = new LinkedHashMap<>(5);
     String               descr       = null;
     String               eqRule      = null;
     String               ordRule     = null;
@@ -185,7 +185,7 @@ public final class AttributeTypeDefinition
         pos--;
       }
 
-      final String lowerToken = toLowerCase(token);
+      final String lowerToken = StaticUtils.toLowerCase(token);
       if (lowerToken.equals(")"))
       {
         // This indicates that we're at the end of the value.  There should not
@@ -376,7 +376,7 @@ public final class AttributeTypeDefinition
           buffer = new StringBuilder();
           pos = readOID(attributeTypeString, pos, length, buffer);
 
-          final String usageStr = toLowerCase(buffer.toString());
+          final String usageStr = StaticUtils.toLowerCase(buffer.toString());
           if (usageStr.equals("userapplications"))
           {
             attrUsage = AttributeUsage.USER_APPLICATIONS;
@@ -411,7 +411,7 @@ public final class AttributeTypeDefinition
       {
         pos = skipSpaces(attributeTypeString, pos, length);
 
-        final ArrayList<String> valueList = new ArrayList<String>();
+        final ArrayList<String> valueList = new ArrayList<>(5);
         pos = readQDStrings(attributeTypeString, pos, length, valueList);
 
         final String[] values = new String[valueList.size()];
@@ -571,7 +571,7 @@ public final class AttributeTypeDefinition
                                  final AttributeUsage usage,
                                  final Map<String,String[]> extensions)
   {
-    ensureNotNull(oid);
+    Validator.ensureNotNull(oid);
 
     this.oid                   = oid;
     this.description           = description;
@@ -587,7 +587,7 @@ public final class AttributeTypeDefinition
 
     if (names == null)
     {
-      this.names = NO_STRINGS;
+      this.names = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -1177,7 +1177,7 @@ public final class AttributeTypeDefinition
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         return -1;
       }
     }
@@ -1306,17 +1306,17 @@ public final class AttributeTypeDefinition
 
     final AttributeTypeDefinition d = (AttributeTypeDefinition) o;
     return(oid.equals(d.oid) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         bothNullOrEqual(usage, d.usage) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
-         bothNullOrEqualIgnoreCase(equalityMatchingRule,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         StaticUtils.bothNullOrEqual(usage, d.usage) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(description, d.description) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(equalityMatchingRule,
               d.equalityMatchingRule) &&
-         bothNullOrEqualIgnoreCase(orderingMatchingRule,
+         StaticUtils.bothNullOrEqualIgnoreCase(orderingMatchingRule,
               d.orderingMatchingRule) &&
-         bothNullOrEqualIgnoreCase(substringMatchingRule,
+         StaticUtils.bothNullOrEqualIgnoreCase(substringMatchingRule,
               d.substringMatchingRule) &&
-         bothNullOrEqualIgnoreCase(superiorType, d.superiorType) &&
-         bothNullOrEqualIgnoreCase(syntaxOID, d.syntaxOID) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(superiorType, d.superiorType) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(syntaxOID, d.syntaxOID) &&
          (isCollective == d.isCollective) &&
          (isNoUserModification == d.isNoUserModification) &&
          (isObsolete == d.isObsolete) &&

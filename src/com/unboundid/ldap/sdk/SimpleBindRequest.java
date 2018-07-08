@@ -38,15 +38,15 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -103,7 +103,7 @@ public final class SimpleBindRequest
 
   // The queue that will be used to receive response messages from the server.
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
-       new LinkedBlockingQueue<LDAPResponse>();
+       new LinkedBlockingQueue<>();
 
   // The password provider that should be used to obtain the password for this
   // simple bind request.
@@ -463,7 +463,7 @@ public final class SimpleBindRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         throw new LDAPRuntimeException(le);
       }
 
@@ -522,7 +522,7 @@ public final class SimpleBindRequest
       {
         final LDAPException le = new LDAPException(ResultCode.PARAM_ERROR,
              ERR_SIMPLE_BIND_DN_WITHOUT_PASSWORD.get());
-        debugCodingError(le);
+        Debug.debugCodingError(le);
         throw le;
       }
     }
@@ -550,7 +550,7 @@ public final class SimpleBindRequest
     {
       // Send the request to the server.
       final long responseTimeout = getResponseTimeoutMillis(connection);
-      debugLDAPRequest(Level.INFO, this, messageID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumBindRequests();
       connection.sendMessage(message, responseTimeout);
@@ -570,7 +570,7 @@ public final class SimpleBindRequest
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_BIND_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -615,7 +615,7 @@ public final class SimpleBindRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(Level.INFO, this, messageID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumBindRequests();
     try
     {
@@ -623,7 +623,7 @@ public final class SimpleBindRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (allowRetry)
       {
@@ -683,7 +683,8 @@ public final class SimpleBindRequest
   {
     if (response == null)
     {
-      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      final long waitTime =
+           StaticUtils.nanosToMillis(System.nanoTime() - requestTime);
       throw new LDAPException(ResultCode.TIMEOUT,
            ERR_SIMPLE_BIND_CLIENT_TIMEOUT.get(waitTime, messageID,
                 bindDN.stringValue(), connection.getHostPort()));
@@ -764,7 +765,7 @@ public final class SimpleBindRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     return null;
@@ -798,7 +799,7 @@ public final class SimpleBindRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -806,7 +807,9 @@ public final class SimpleBindRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -898,8 +901,7 @@ public final class SimpleBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(3);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(3);
     constructorArgs.add(ToCodeArgHelper.createString(bindDN.stringValue(),
          "Bind DN"));
     constructorArgs.add(ToCodeArgHelper.createString("---redacted-password---",

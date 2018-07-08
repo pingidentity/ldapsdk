@@ -44,11 +44,11 @@ import com.unboundid.ldap.matchingrules.OctetStringMatchingRule;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -269,7 +269,8 @@ public class ChangeLogEntry
           throw new LDAPException(ResultCode.DECODING_ERROR,
                                   ERR_CHANGELOG_MISSING_DELETE_OLD_RDN.get());
         }
-        final String delOldRDNStr = toLowerCase(deleteOldRDNAttr.getValue());
+        final String delOldRDNStr =
+             StaticUtils.toLowerCase(deleteOldRDNAttr.getValue());
         if (delOldRDNStr.equals("true"))
         {
           deleteOldRDN = true;
@@ -336,7 +337,7 @@ public class ChangeLogEntry
         for (int i=1; i < entryLdifLines.length; i++)
         {
           entryLDIFBuffer.append(entryLdifLines[i]);
-          entryLDIFBuffer.append(EOL);
+          entryLDIFBuffer.append(StaticUtils.EOL);
         }
         e.addAttribute(new Attribute(ATTR_CHANGES,
              OctetStringMatchingRule.getInstance(),
@@ -356,7 +357,7 @@ public class ChangeLogEntry
         for (int i=2; i < modLdifLines.length; i++)
         {
           modLDIFBuffer.append(modLdifLines[i]);
-          modLDIFBuffer.append(EOL);
+          modLDIFBuffer.append(StaticUtils.EOL);
         }
         e.addAttribute(new Attribute(ATTR_CHANGES,
              OctetStringMatchingRule.getInstance(), modLDIFBuffer.toString()));
@@ -411,7 +412,7 @@ public class ChangeLogEntry
                               ERR_CHANGELOG_MISSING_CHANGES.get());
     }
 
-    final ArrayList<String> ldifLines = new ArrayList<String>();
+    final ArrayList<String> ldifLines = new ArrayList<>(20);
     ldifLines.add("dn: " + targetDN);
 
     final StringTokenizer tokenizer =
@@ -428,15 +429,14 @@ public class ChangeLogEntry
     {
       final Entry e = LDIFReader.decodeEntry(true, TrailingSpaceBehavior.RETAIN,
            null, lineArray);
-      return Collections.unmodifiableList(
-                  new ArrayList<Attribute>(e.getAttributes()));
+      return Collections.unmodifiableList(new ArrayList<>(e.getAttributes()));
     }
     catch (final LDIFException le)
     {
       Debug.debugException(le);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_CHANGELOG_CANNOT_PARSE_ATTR_LIST.get(attrName,
-                getExceptionMessage(le)),
+                StaticUtils.getExceptionMessage(le)),
            le);
     }
   }
@@ -477,7 +477,7 @@ public class ChangeLogEntry
       final String valueStr = new String(valueBytes, 0, valueBytes.length-2,
            StandardCharsets.UTF_8);
 
-      final ArrayList<String> ldifLines = new ArrayList<String>();
+      final ArrayList<String> ldifLines = new ArrayList<>(20);
       ldifLines.add("dn: " + targetDN);
       ldifLines.add("changetype: modify");
 
@@ -496,8 +496,7 @@ public class ChangeLogEntry
         final LDIFModifyChangeRecord changeRecord =
              (LDIFModifyChangeRecord) LDIFReader.decodeChangeRecord(lineArray);
         final Modification[] mods = changeRecord.getModifications();
-        final ArrayList<Attribute> attrs =
-             new ArrayList<Attribute>(mods.length);
+        final ArrayList<Attribute> attrs = new ArrayList<>(mods.length);
         for (final Modification m : mods)
         {
           if (! m.getModificationType().equals(ModificationType.DELETE))
@@ -517,12 +516,14 @@ public class ChangeLogEntry
         Debug.debugException(le);
         throw new LDAPException(ResultCode.DECODING_ERROR,
              ERR_CHANGELOG_INVALID_DELENTRYATTRS_MODS.get(
-                  ATTR_DELETED_ENTRY_ATTRS, getExceptionMessage(le)), le);
+                  ATTR_DELETED_ENTRY_ATTRS,
+                  StaticUtils.getExceptionMessage(le)),
+             le);
       }
     }
     else
     {
-      final ArrayList<String> ldifLines = new ArrayList<String>();
+      final ArrayList<String> ldifLines = new ArrayList<>(20);
       ldifLines.add("dn: " + targetDN);
 
       final StringTokenizer tokenizer =
@@ -539,15 +540,16 @@ public class ChangeLogEntry
       {
         final Entry e = LDIFReader.decodeEntry(true,
              TrailingSpaceBehavior.RETAIN, null, lineArray);
-        return Collections.unmodifiableList(
-                    new ArrayList<Attribute>(e.getAttributes()));
+        return Collections.unmodifiableList(new ArrayList<>(e.getAttributes()));
       }
       catch (final LDIFException le)
       {
         Debug.debugException(le);
         throw new LDAPException(ResultCode.DECODING_ERROR,
              ERR_CHANGELOG_CANNOT_PARSE_DELENTRYATTRS.get(
-                  ATTR_DELETED_ENTRY_ATTRS, getExceptionMessage(le)), le);
+                  ATTR_DELETED_ENTRY_ATTRS,
+                  StaticUtils.getExceptionMessage(le)),
+             le);
       }
     }
   }
@@ -584,7 +586,7 @@ public class ChangeLogEntry
     }
 
 
-    final ArrayList<String> ldifLines = new ArrayList<String>();
+    final ArrayList<String> ldifLines = new ArrayList<>(20);
     ldifLines.add("dn: " + targetDN);
     ldifLines.add("changetype: modify");
 
@@ -624,7 +626,7 @@ public class ChangeLogEntry
       Debug.debugException(le);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_CHANGELOG_CANNOT_PARSE_MOD_LIST.get(ATTR_CHANGES,
-                getExceptionMessage(le)),
+                StaticUtils.getExceptionMessage(le)),
            le);
     }
   }

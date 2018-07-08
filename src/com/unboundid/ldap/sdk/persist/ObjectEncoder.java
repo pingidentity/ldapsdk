@@ -29,13 +29,13 @@ import java.lang.reflect.Type;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -314,10 +314,11 @@ public abstract class ObjectEncoder
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPPersistException(
            ERR_ENCODER_CANNOT_SET_NULL_FIELD_VALUE.get(f.getName(),
-                o.getClass().getName(), getExceptionMessage(e)), e);
+                o.getClass().getName(), StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -387,10 +388,11 @@ public abstract class ObjectEncoder
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPPersistException(
            ERR_ENCODER_CANNOT_SET_NULL_METHOD_VALUE.get(m.getName(),
-                o.getClass().getName(), getExceptionMessage(e)), e);
+                o.getClass().getName(), StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

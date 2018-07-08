@@ -279,7 +279,6 @@ public final class Base64Tool
   @Override()
   public boolean supportsInteractiveMode()
   {
-    // TODO:  Add support for interactive mode for tools with subcommands.
     return true;
   }
 
@@ -297,7 +296,6 @@ public final class Base64Tool
   @Override()
   public boolean defaultsToInteractiveMode()
   {
-    // TODO:  Add support for interactive mode for tools with subcommands.
     return true;
   }
 
@@ -315,8 +313,6 @@ public final class Base64Tool
   @Override()
   public boolean supportsPropertiesFile()
   {
-    // TODO:  Add support for using a properties file for subcommand-specific
-    // properties.
     return true;
   }
 
@@ -416,7 +412,7 @@ public final class Base64Tool
          encodeDataFileArgument);
 
     final LinkedHashMap<String[],String> encodeExamples =
-         new LinkedHashMap<String[],String>(3);
+         new LinkedHashMap<>(3);
     encodeExamples.put(
          new String[]
          {
@@ -501,7 +497,7 @@ public final class Base64Tool
          decodeDataFileArgument);
 
     final LinkedHashMap<String[],String> decodeExamples =
-         new LinkedHashMap<String[],String>(3);
+         new LinkedHashMap<>(3);
     decodeExamples.put(
          new String[]
          {
@@ -870,8 +866,7 @@ stripEOLLoop:
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
 
     examples.put(
          new String[]

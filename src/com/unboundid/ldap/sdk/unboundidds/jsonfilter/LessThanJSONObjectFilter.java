@@ -179,7 +179,7 @@ public final class LessThanJSONObjectFilter
    * The pre-allocated set of required field names.
    */
   private static final Set<String> REQUIRED_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(FIELD_FIELD_PATH, FIELD_VALUE)));
 
 
@@ -188,7 +188,7 @@ public final class LessThanJSONObjectFilter
    * The pre-allocated set of optional field names.
    */
   private static final Set<String> OPTIONAL_FIELD_NAMES =
-       Collections.unmodifiableSet(new HashSet<String>(
+       Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(FIELD_ALLOW_EQUALS, FIELD_MATCH_ALL_ELEMENTS,
                  FIELD_CASE_SENSITIVE)));
 
@@ -354,7 +354,7 @@ public final class LessThanJSONObjectFilter
     Validator.ensureTrue((value instanceof JSONNumber) ||
          (value instanceof JSONString));
 
-    this.field = Collections.unmodifiableList(new ArrayList<String>(field));
+    this.field = Collections.unmodifiableList(new ArrayList<>(field));
     this.value = value;
 
     allowEquals = false;
@@ -404,7 +404,7 @@ public final class LessThanJSONObjectFilter
     Validator.ensureNotNull(field);
     Validator.ensureFalse(field.isEmpty());
 
-    this.field = Collections.unmodifiableList(new ArrayList<String>(field));
+    this.field = Collections.unmodifiableList(new ArrayList<>(field));
   }
 
 
@@ -724,8 +724,7 @@ public final class LessThanJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields =
-         new LinkedHashMap<String,JSONValue>(6);
+    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(6);
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 
@@ -736,7 +735,7 @@ public final class LessThanJSONObjectFilter
     else
     {
       final ArrayList<JSONValue> fieldNameValues =
-           new ArrayList<JSONValue>(field.size());
+           new ArrayList<>(field.size());
       for (final String s : field)
       {
         fieldNameValues.add(new JSONString(s));

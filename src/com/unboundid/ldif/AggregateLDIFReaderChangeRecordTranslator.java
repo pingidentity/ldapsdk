@@ -79,8 +79,8 @@ public final class AggregateLDIFReaderChangeRecordTranslator
     }
     else
     {
-      this.translators = Collections.unmodifiableList(
-           new ArrayList<LDIFReaderChangeRecordTranslator>(translators));
+      this.translators =
+           Collections.unmodifiableList(new ArrayList<>(translators));
     }
   }
 

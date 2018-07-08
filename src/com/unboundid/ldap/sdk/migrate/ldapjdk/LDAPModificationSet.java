@@ -66,7 +66,7 @@ public class LDAPModificationSet
    */
   public LDAPModificationSet()
   {
-    mods = new ArrayList<LDAPModification>(1);
+    mods = new ArrayList<>(1);
   }
 
 

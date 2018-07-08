@@ -25,7 +25,6 @@ package com.unboundid.util.args;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Collections;
 import java.util.Iterator;
@@ -177,7 +176,9 @@ public final class TimestampArgument
   {
     this(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
          valuePlaceholder, description,
-         ((defaultValue == null) ? null : Arrays.asList(defaultValue)));
+         ((defaultValue == null)
+              ? null
+              : Collections.singletonList(defaultValue)));
   }
 
 
@@ -232,8 +233,8 @@ public final class TimestampArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<ObjectPair<Date,String>>(5);
-    validators = new ArrayList<ArgumentValueValidator>(5);
+    values = new ArrayList<>(5);
+    validators = new ArrayList<>(5);
   }
 
 
@@ -249,8 +250,8 @@ public final class TimestampArgument
     super(source);
 
     defaultValues = source.defaultValues;
-    values        = new ArrayList<ObjectPair<Date,String>>(5);
-    validators    = new ArrayList<ArgumentValueValidator>(source.validators);
+    values        = new ArrayList<>(5);
+    validators    = new ArrayList<>(source.validators);
   }
 
 
@@ -317,7 +318,7 @@ public final class TimestampArgument
       v.validateArgumentValue(this, valueString);
     }
 
-    values.add(new ObjectPair<Date,String>(d, valueString));
+    values.add(new ObjectPair<>(d, valueString));
   }
 
 
@@ -417,7 +418,7 @@ public final class TimestampArgument
       return defaultValues;
     }
 
-    final ArrayList<Date> dateList = new ArrayList<Date>(values.size());
+    final ArrayList<Date> dateList = new ArrayList<>(values.size());
     for (final ObjectPair<Date,String> p : values)
     {
       dateList.add(p.getFirst());
@@ -462,8 +463,7 @@ public final class TimestampArgument
   {
     if (! values.isEmpty())
     {
-      final ArrayList<String> valueStrings =
-           new ArrayList<String>(values.size());
+      final ArrayList<String> valueStrings = new ArrayList<>(values.size());
       for (final ObjectPair<Date,String> p : values)
       {
         valueStrings.add(p.getSecond());
@@ -475,7 +475,7 @@ public final class TimestampArgument
     if (useDefault && (defaultValues != null) && (! defaultValues.isEmpty()))
     {
       final ArrayList<String> valueStrings =
-           new ArrayList<String>(defaultValues.size());
+           new ArrayList<>(defaultValues.size());
       for (final Date d : defaultValues)
       {
         valueStrings.add(StaticUtils.encodeGeneralizedTime(d));

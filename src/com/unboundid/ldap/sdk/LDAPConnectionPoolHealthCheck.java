@@ -23,11 +23,11 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -282,7 +282,7 @@ public class LDAPConnectionPoolHealthCheck
     {
       throw new LDAPException(ResultCode.SERVER_DOWN,
            ERR_POOL_HEALTH_CHECK_CONN_INVALID_AFTER_EXCEPTION.get(
-                getExceptionMessage(exception)),
+                StaticUtils.getExceptionMessage(exception)),
            exception);
     }
   }

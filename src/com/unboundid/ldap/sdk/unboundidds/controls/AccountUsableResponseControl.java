@@ -36,13 +36,13 @@ import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -280,7 +280,7 @@ public final class AccountUsableResponseControl
     this.remainingGraceLogins = remainingGraceLogins;
     this.secondsUntilUnlock   = secondsUntilUnlock;
 
-    final ArrayList<String> unusableList = new ArrayList<String>(5);
+    final ArrayList<String> unusableList = new ArrayList<>(5);
     if (isInactive)
     {
       unusableList.add(ERR_ACCT_UNUSABLE_INACTIVE.get());
@@ -357,7 +357,7 @@ public final class AccountUsableResponseControl
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                      ERR_ACCOUNT_USABLE_RESPONSE_VALUE_NOT_ELEMENT.get(e), e);
     }
@@ -371,7 +371,7 @@ public final class AccountUsableResponseControl
     int     decodedSecondsUntilExpiration = -1;
     int     decodedSecondsUntilUnlock     = -1;
 
-    final List<String> decodedUnusableReasons = new ArrayList<String>(5);
+    final List<String> decodedUnusableReasons = new ArrayList<>(5);
 
 
     final byte type = valueElement.getType();
@@ -390,7 +390,7 @@ public final class AccountUsableResponseControl
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,
                        ERR_ACCOUNT_USABLE_RESPONSE_STE_NOT_INT.get(e), e);
       }
@@ -406,7 +406,7 @@ public final class AccountUsableResponseControl
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,
                        ERR_ACCOUNT_USABLE_RESPONSE_VALUE_NOT_SEQUENCE.get(e),
                        e);
@@ -425,7 +425,7 @@ public final class AccountUsableResponseControl
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
                    ERR_ACCOUNT_USABLE_RESPONSE_INACTIVE_NOT_BOOLEAN.get(e), e);
             }
@@ -441,7 +441,7 @@ public final class AccountUsableResponseControl
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
                    ERR_ACCOUNT_USABLE_RESPONSE_MUST_CHANGE_NOT_BOOLEAN.get(e),
                    e);
@@ -457,7 +457,7 @@ public final class AccountUsableResponseControl
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
                    ERR_ACCOUNT_USABLE_RESPONSE_IS_EXP_NOT_BOOLEAN.get(e), e);
             }
@@ -494,7 +494,7 @@ public final class AccountUsableResponseControl
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
                    ERR_ACCOUNT_USABLE_RESPONSE_GRACE_LOGINS_NOT_INT.get(e), e);
             }
@@ -518,24 +518,24 @@ public final class AccountUsableResponseControl
             }
             catch (final Exception e)
             {
-              debugException(e);
+              Debug.debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
-                             ERR_ACCOUNT_USABLE_RESPONSE_STU_NOT_INT.get(e), e);
+                   ERR_ACCOUNT_USABLE_RESPONSE_STU_NOT_INT.get(e), e);
             }
             break;
 
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ACCOUNT_USABLE_RESPONSE_MORE_INFO_INVALID_TYPE.get(
-                      toHex(element.getType())));
+                      StaticUtils.toHex(element.getType())));
         }
       }
     }
     else
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
-                              ERR_ACCOUNT_USABLE_RESPONSE_INVALID_TYPE.get(
-                                   toHex(type)));
+           ERR_ACCOUNT_USABLE_RESPONSE_INVALID_TYPE.get(
+                StaticUtils.toHex(type)));
     }
 
     isUsable               = decodedIsUsable;
@@ -596,7 +596,7 @@ public final class AccountUsableResponseControl
                                              final int remainingGraceLogins,
                                              final int secondsUntilUnlock)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(5);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(5);
 
     if (isInactive)
     {

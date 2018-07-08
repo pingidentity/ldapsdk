@@ -29,14 +29,14 @@ import java.lang.reflect.Type;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -99,7 +99,7 @@ public final class GetterInfo
   GetterInfo(final Method m, final Class<?> c)
        throws LDAPPersistException
   {
-    ensureNotNull(m, c);
+    Validator.ensureNotNull(m, c);
 
     method = m;
     m.setAccessible(true);
@@ -144,10 +144,10 @@ public final class GetterInfo
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new LDAPPersistException(ERR_GETTER_INFO_CANNOT_GET_ENCODER.get(
            a.encoderClass().getName(), m.getName(), c.getName(),
-           getExceptionMessage(e)), e);
+           StaticUtils.getExceptionMessage(e)), e);
     }
 
     if (! encoder.supportsType(m.getGenericReturnType()))
@@ -159,9 +159,9 @@ public final class GetterInfo
     }
 
     final String structuralClass;
-    if (o.structuralClass().length() == 0)
+    if (o.structuralClass().isEmpty())
     {
-      structuralClass = getUnqualifiedClassName(c);
+      structuralClass = StaticUtils.getUnqualifiedClassName(c);
     }
     else
     {
@@ -201,12 +201,12 @@ public final class GetterInfo
     }
 
     final String attrName = a.attribute();
-    if ((attrName == null) || (attrName.length() == 0))
+    if ((attrName == null) || attrName.isEmpty())
     {
       final String methodName = m.getName();
       if (methodName.startsWith("get") && (methodName.length() >= 4))
       {
-        attributeName = toInitialLowerCase(methodName.substring(3));
+        attributeName = StaticUtils.toInitialLowerCase(methodName.substring(3));
       }
       else
       {
@@ -418,9 +418,10 @@ public final class GetterInfo
     }
     catch (final Exception e)
     {
-      debugException(e);
-      throw new LDAPPersistException(ERR_GETTER_INFO_CANNOT_ENCODE.get(
-           method.getName(), containingClass.getName(), getExceptionMessage(e)),
+      Debug.debugException(e);
+      throw new LDAPPersistException(
+           ERR_GETTER_INFO_CANNOT_ENCODE.get(method.getName(),
+                containingClass.getName(), StaticUtils.getExceptionMessage(e)),
            e);
     }
   }

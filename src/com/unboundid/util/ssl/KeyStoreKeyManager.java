@@ -30,13 +30,13 @@ import java.security.KeyStoreException;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 import static com.unboundid.util.ssl.SSLMessages.*;
 
 
@@ -205,7 +205,7 @@ public final class KeyStoreKeyManager
                                              final String keyStoreFormat)
           throws KeyStoreException
   {
-    ensureNotNull(keyStoreFile);
+    Validator.ensureNotNull(keyStoreFile);
 
     String type = keyStoreFormat;
     if (type == null)
@@ -228,7 +228,7 @@ public final class KeyStoreKeyManager
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new KeyStoreException(
            ERR_KEYSTORE_CANNOT_LOAD.get(keyStoreFile, type, String.valueOf(e)),
@@ -244,7 +244,7 @@ public final class KeyStoreKeyManager
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
       }
     }
@@ -258,7 +258,7 @@ public final class KeyStoreKeyManager
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new KeyStoreException(
            ERR_KEYSTORE_CANNOT_GET_KEY_MANAGERS.get(keyStoreFile,

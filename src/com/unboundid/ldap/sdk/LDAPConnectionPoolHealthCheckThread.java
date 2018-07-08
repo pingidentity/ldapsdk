@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.unboundid.util.Debug.*;
+import com.unboundid.util.Debug;
 
 
 
@@ -68,7 +68,7 @@ class LDAPConnectionPoolHealthCheckThread
     this.pool = pool;
 
     stopRequested = new AtomicBoolean(false);
-    queue = new LinkedBlockingQueue<Object>(1);
+    queue = new LinkedBlockingQueue<>(1);
     thread = null;
   }
 
@@ -95,7 +95,7 @@ class LDAPConnectionPoolHealthCheckThread
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
         lastCheckTime = System.currentTimeMillis();
       }
@@ -103,14 +103,14 @@ class LDAPConnectionPoolHealthCheckThread
       {
         final long sleepTime = Math.min(
              (pool.getHealthCheckIntervalMillis() - timeSinceLastCheck),
-             30000L);
+             30_000L);
         try
         {
           queue.poll(sleepTime, TimeUnit.MILLISECONDS);
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
       }
     }
@@ -146,7 +146,7 @@ class LDAPConnectionPoolHealthCheckThread
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
 
           if (e instanceof InterruptedException)
           {

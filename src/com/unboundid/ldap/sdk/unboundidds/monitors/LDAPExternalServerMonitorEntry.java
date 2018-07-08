@@ -1956,7 +1956,7 @@ public final class LDAPExternalServerMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(50);
 
     if (serverAddress != null)
     {

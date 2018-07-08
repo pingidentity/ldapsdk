@@ -51,8 +51,8 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
-import static com.unboundid.util.Validator.*;
 import static com.unboundid.util.ssl.SSLMessages.*;
 
 
@@ -139,7 +139,7 @@ public final class SSLUtil
    * set of enabled SSL protocols that should be used, as a comma-delimited
    * list.  If this is not set, then the enabled SSL protocols will be
    * dynamically determined.  This can be overridden via the
-   * {@link #setEnabledSSLProtocols(java.util.Collection)} method.
+   * {@link #setEnabledSSLProtocols(Collection)} method.
    */
   public static final String PROPERTY_ENABLED_SSL_PROTOCOLS =
        "com.unboundid.util.SSLUtil.enabledSSLProtocols";
@@ -151,7 +151,7 @@ public final class SSLUtil
    * no explicit protocol is specified.
    */
   private static final AtomicReference<String> DEFAULT_SSL_PROTOCOL =
-       new AtomicReference<String>("TLSv1");
+       new AtomicReference<>("TLSv1");
 
 
 
@@ -160,7 +160,7 @@ public final class SSLUtil
    * for SSL sockets created within the LDAP SDK.
    */
   private static final AtomicReference<Set<String>> ENABLED_SSL_PROTOCOLS =
-       new AtomicReference<Set<String>>();
+       new AtomicReference<>();
 
 
 
@@ -388,7 +388,7 @@ public final class SSLUtil
   public SSLContext createSSLContext(final String protocol)
          throws GeneralSecurityException
   {
-    ensureNotNull(protocol);
+    Validator.ensureNotNull(protocol);
 
     final SSLContext sslContext = SSLContext.getInstance(protocol);
     sslContext.init(keyManagers, trustManagers, null);
@@ -418,7 +418,7 @@ public final class SSLUtil
                                      final String provider)
          throws GeneralSecurityException
   {
-    ensureNotNull(protocol, provider);
+    Validator.ensureNotNull(protocol, provider);
 
     final SSLContext sslContext = SSLContext.getInstance(protocol, provider);
     sslContext.init(keyManagers, trustManagers, null);
@@ -598,7 +598,7 @@ public final class SSLUtil
    */
   public static void setDefaultSSLProtocol(final String defaultSSLProtocol)
   {
-    ensureNotNull(defaultSSLProtocol);
+    Validator.ensureNotNull(defaultSSLProtocol);
 
     DEFAULT_SSL_PROTOCOL.set(defaultSSLProtocol);
   }
@@ -645,7 +645,7 @@ public final class SSLUtil
     else
     {
       ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(
-           new HashSet<String>(enabledSSLProtocols)));
+           new HashSet<>(enabledSSLProtocols)));
     }
   }
 
@@ -783,15 +783,14 @@ public final class SSLUtil
                                final String[] supportedProtocols)
          throws IOException
   {
-    final Set<String> lowerProtocols =
-         new HashSet<String>(desiredProtocols.size());
+    final Set<String> lowerProtocols = new HashSet<>(desiredProtocols.size());
     for (final String s : desiredProtocols)
     {
       lowerProtocols.add(StaticUtils.toLowerCase(s));
     }
 
     final ArrayList<String> enabledList =
-         new ArrayList<String>(supportedProtocols.length);
+         new ArrayList<>(supportedProtocols.length);
     for (final String supportedProtocol : supportedProtocols)
     {
       if (lowerProtocols.contains(StaticUtils.toLowerCase(supportedProtocol)))
@@ -853,7 +852,7 @@ public final class SSLUtil
     // protocol should be.  If not, then try to dynamically determine it.
     final String defaultPropValue =
          System.getProperty(PROPERTY_DEFAULT_SSL_PROTOCOL);
-    if ((defaultPropValue != null) && (defaultPropValue.length() > 0))
+    if ((defaultPropValue != null) && (! defaultPropValue.isEmpty()))
     {
       DEFAULT_SSL_PROTOCOL.set(defaultPropValue);
     }
@@ -870,7 +869,7 @@ public final class SSLUtil
              defaultContext.getSupportedSSLParameters().getProtocols();
 
         final HashSet<String> protocolMap =
-             new HashSet<String>(Arrays.asList(supportedProtocols));
+             new HashSet<>(Arrays.asList(supportedProtocols));
         if (protocolMap.contains("TLSv1.2"))
         {
           DEFAULT_SSL_PROTOCOL.set("TLSv1.2");
@@ -896,7 +895,7 @@ public final class SSLUtil
     // enabled protocols will not include SSLv3 even if the JVM might otherwise
     // include it as a default enabled protocol because of known security
     // problems with SSLv3.
-    final HashSet<String> enabledProtocols = new HashSet<String>(10);
+    final HashSet<String> enabledProtocols = new HashSet<>(10);
     enabledProtocols.add("TLSv1");
     if (DEFAULT_SSL_PROTOCOL.get().equals("TLSv1.2"))
     {
@@ -912,7 +911,7 @@ public final class SSLUtil
     // to use, then it will override the defaults.
     final String enabledPropValue =
          System.getProperty(PROPERTY_ENABLED_SSL_PROTOCOLS);
-    if ((enabledPropValue != null) && (enabledPropValue.length() > 0))
+    if ((enabledPropValue != null) && (! enabledPropValue.isEmpty()))
     {
       enabledProtocols.clear();
 
@@ -921,7 +920,7 @@ public final class SSLUtil
       while (tokenizer.hasMoreTokens())
       {
         final String token = tokenizer.nextToken();
-        if (token.length() > 0)
+        if (! token.isEmpty())
         {
           enabledProtocols.add(token);
         }

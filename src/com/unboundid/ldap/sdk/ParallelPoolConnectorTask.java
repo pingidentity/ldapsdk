@@ -87,6 +87,7 @@ final class ParallelPoolConnectorTask
   /**
    * Establishes the connection, or catches an exception while trying.
    */
+  @Override()
   public void run()
   {
     try

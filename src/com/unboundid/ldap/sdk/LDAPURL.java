@@ -26,14 +26,14 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -168,7 +168,7 @@ public final class LDAPURL
   /**
    * The default set of attributes that will be used if none is provided.
    */
-  private static final String[] DEFAULT_ATTRIBUTES = NO_STRINGS;
+  private static final String[] DEFAULT_ATTRIBUTES = StaticUtils.NO_STRINGS;
 
 
 
@@ -236,7 +236,7 @@ public final class LDAPURL
   public LDAPURL(final String urlString)
          throws LDAPException
   {
-    ensureNotNull(urlString);
+    Validator.ensureNotNull(urlString);
 
     this.urlString = urlString;
 
@@ -250,7 +250,7 @@ public final class LDAPURL
                               ERR_LDAPURL_NO_COLON_SLASHES.get());
     }
 
-    scheme = toLowerCase(urlString.substring(0, colonPos));
+    scheme = StaticUtils.toLowerCase(urlString.substring(0, colonPos));
     final int defaultPort;
     if (scheme.equals("ldap"))
     {
@@ -393,8 +393,8 @@ public final class LDAPURL
       filterProvided = false;
 
       final String scopeStr =
-           toLowerCase(urlString.substring(questionMark2Pos+1));
-      if (scopeStr.length() == 0)
+           StaticUtils.toLowerCase(urlString.substring(questionMark2Pos+1));
+      if (scopeStr.isEmpty())
       {
         scope         = SearchScope.BASE;
         scopeProvided = false;
@@ -427,9 +427,9 @@ public final class LDAPURL
       return;
     }
 
-    final String scopeStr =
-         toLowerCase(urlString.substring(questionMark2Pos+1, questionMark3Pos));
-    if (scopeStr.length() == 0)
+    final String scopeStr = StaticUtils.toLowerCase(
+         urlString.substring(questionMark2Pos+1, questionMark3Pos));
+    if (scopeStr.isEmpty())
     {
       scope         = SearchScope.BASE;
       scopeProvided = false;
@@ -464,7 +464,7 @@ public final class LDAPURL
     // The remainder of the value must be the filter.
     final String filterStr =
          percentDecode(urlString.substring(questionMark3Pos+1));
-    if (filterStr.length() == 0)
+    if (filterStr.isEmpty())
     {
       filter = DEFAULT_FILTER;
       filterProvided = false;
@@ -508,11 +508,11 @@ public final class LDAPURL
                  final SearchScope scope, final Filter filter)
          throws LDAPException
   {
-    ensureNotNull(scheme);
+    Validator.ensureNotNull(scheme);
 
     final StringBuilder buffer = new StringBuilder();
 
-    this.scheme = toLowerCase(scheme);
+    this.scheme = StaticUtils.toLowerCase(scheme);
     final int defaultPort;
     if (scheme.equals("ldap"))
     {
@@ -535,7 +535,7 @@ public final class LDAPURL
     buffer.append(scheme);
     buffer.append("://");
 
-    if ((host == null) || (host.length() == 0))
+    if ((host == null) || host.isEmpty())
     {
       this.host = null;
     }
@@ -557,7 +557,7 @@ public final class LDAPURL
       buffer.append(':');
       buffer.append(port);
 
-      if ((port < 1) || (port > 65535))
+      if ((port < 1) || (port > 65_535))
       {
         throw new LDAPException(ResultCode.PARAM_ERROR,
                                 ERR_LDAPURL_INVALID_PORT.get(port));
@@ -736,7 +736,7 @@ public final class LDAPURL
           {
             final int decodedPort =
                  Integer.parseInt(hostPort.substring(closingBracketPos+2));
-            if ((decodedPort >= 1) && (decodedPort <= 65535))
+            if ((decodedPort >= 1) && (decodedPort <= 65_535))
             {
               return decodedPort;
             }
@@ -749,7 +749,7 @@ public final class LDAPURL
           }
           catch (final NumberFormatException nfe)
           {
-            debugException(nfe);
+            Debug.debugException(nfe);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                                     ERR_LDAPURL_PORT_NOT_INT.get(hostPort),
                                     nfe);
@@ -775,7 +775,7 @@ public final class LDAPURL
       {
         final int decodedPort =
              Integer.parseInt(hostPort.substring(colonPos+1));
-        if ((decodedPort >= 1) && (decodedPort <= 65535))
+        if ((decodedPort >= 1) && (decodedPort <= 65_535))
         {
           hostBuffer.append(hostPort.substring(0, colonPos));
           return decodedPort;
@@ -788,7 +788,7 @@ public final class LDAPURL
       }
       catch (final NumberFormatException nfe)
       {
-        debugException(nfe);
+        Debug.debugException(nfe);
         throw new LDAPException(ResultCode.DECODING_ERROR,
                                 ERR_LDAPURL_PORT_NOT_INT.get(hostPort), nfe);
       }
@@ -816,7 +816,7 @@ public final class LDAPURL
       return DEFAULT_ATTRIBUTES;
     }
 
-    final ArrayList<String> attrList = new ArrayList<String>();
+    final ArrayList<String> attrList = new ArrayList<>(10);
     int startPos = 0;
     while (startPos < length)
     {
@@ -825,7 +825,7 @@ public final class LDAPURL
       {
         // There are no more commas, so there can only be one attribute left.
         final String attrName = s.substring(startPos).trim();
-        if (attrName.length() == 0)
+        if (attrName.isEmpty())
         {
           // This is only acceptable if the attribute list is empty (there was
           // probably a space in the attribute list string, which is technically
@@ -851,7 +851,7 @@ public final class LDAPURL
       else
       {
         final String attrName = s.substring(startPos, commaPos).trim();
-        if (attrName.length() == 0)
+        if (attrName.isEmpty())
         {
           throw new LDAPException(ResultCode.DECODING_ERROR,
                                   ERR_LDAPURL_ATTRLIST_EMPTY_ATTRIBUTE.get());
@@ -1068,7 +1068,7 @@ public final class LDAPURL
         final byte[] byteArray = new byte[byteBuffer.limit()];
         byteBuffer.get(byteArray);
 
-        buffer.append(toUTF8String(byteArray));
+        buffer.append(StaticUtils.toUTF8String(byteArray));
       }
       else
       {
@@ -1180,11 +1180,12 @@ public final class LDAPURL
           break;
 
         default:
-          final byte[] charBytes = getBytes(new String(new char[] { c }));
+          final byte[] charBytes =
+               StaticUtils.getBytes(new String(new char[] { c }));
           for (final byte b : charBytes)
           {
             buffer.append('%');
-            toHex(b, buffer);
+            StaticUtils.toHex(b, buffer);
           }
           break;
       }
@@ -1468,12 +1469,12 @@ public final class LDAPURL
       if (host.indexOf(':') >= 0)
       {
         buffer.append('[');
-        buffer.append(toLowerCase(host));
+        buffer.append(StaticUtils.toLowerCase(host));
         buffer.append(']');
       }
       else
       {
-        buffer.append(toLowerCase(host));
+        buffer.append(StaticUtils.toLowerCase(host));
       }
     }
 
@@ -1494,7 +1495,7 @@ public final class LDAPURL
         buffer.append(',');
       }
 
-      buffer.append(toLowerCase(attributes[i]));
+      buffer.append(StaticUtils.toLowerCase(attributes[i]));
     }
 
     buffer.append('?');

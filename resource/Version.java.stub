@@ -237,7 +237,7 @@ public final class Version
    */
   public static List<String> getVersionLines()
   {
-    final ArrayList<String> versionLines = new ArrayList<String>(11);
+    final ArrayList<String> versionLines = new ArrayList<>(11);
 
     versionLines.add("Full Version String:   " + FULL_VERSION_STRING);
     versionLines.add("Short Version String:  " + SHORT_VERSION_STRING);

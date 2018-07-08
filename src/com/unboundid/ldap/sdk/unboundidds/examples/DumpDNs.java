@@ -169,7 +169,6 @@ public final class DumpDNs
 
 
 
-
   /**
    * Retrieves the name of this tool.  It should be the name of the command used
    * to invoke this tool.
@@ -444,8 +443,7 @@ public final class DumpDNs
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<String[],String>(1);
+    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(1);
 
     final String[] args =
     {
@@ -473,6 +471,7 @@ public final class DumpDNs
    * @param  intermediateResponse  The intermediate response that has been
    *                               returned by the server.
    */
+  @Override()
   public void intermediateResponseReturned(
                    final IntermediateResponse intermediateResponse)
   {
@@ -493,7 +492,7 @@ public final class DumpDNs
     }
 
     final String diagnosticMessage = streamValuesIR.getDiagnosticMessage();
-    if ((diagnosticMessage != null) && (diagnosticMessage.length() > 0))
+    if ((diagnosticMessage != null) && (! diagnosticMessage.isEmpty()))
     {
       err(diagnosticMessage);
     }

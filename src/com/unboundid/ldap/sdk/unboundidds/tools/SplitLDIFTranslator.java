@@ -90,8 +90,8 @@ abstract class SplitLDIFTranslator
 
     splitBaseRDNs = splitBaseDN.getRDNs();
     errorSetNames = Collections.singleton(SplitLDIFEntry.SET_NAME_ERRORS);
-    ldifBuffers = new ThreadLocal<ByteStringBuffer>();
-    messageDigests = new ThreadLocal<MessageDigest>();
+    ldifBuffers = new ThreadLocal<>();
+    messageDigests = new ThreadLocal<>();
   }
 
 

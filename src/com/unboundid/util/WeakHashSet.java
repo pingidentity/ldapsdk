@@ -59,7 +59,7 @@ public final class WeakHashSet<T>
    */
   public WeakHashSet()
   {
-    m = new WeakHashMap<T,WeakReference<T>>(16);
+    m = new WeakHashMap<>(16);
   }
 
 
@@ -72,7 +72,7 @@ public final class WeakHashSet<T>
    */
   public WeakHashSet(final int initialCapacity)
   {
-    m = new WeakHashMap<T,WeakReference<T>>(initialCapacity);
+    m = new WeakHashMap<>(initialCapacity);
   }
 
 
@@ -80,6 +80,7 @@ public final class WeakHashSet<T>
   /**
    * Clears the contents of this set.
    */
+  @Override()
   public void clear()
   {
     m.clear();
@@ -92,6 +93,7 @@ public final class WeakHashSet<T>
    *
    * @return  {@code true} if this set is empty, or {@code false} if not.
    */
+  @Override()
   public boolean isEmpty()
   {
     return m.isEmpty();
@@ -104,6 +106,7 @@ public final class WeakHashSet<T>
    *
    * @return  The number of elements currently held in this set.
    */
+  @Override()
   public int size()
   {
     return m.size();
@@ -119,6 +122,7 @@ public final class WeakHashSet<T>
    * @return  {@code true} if this set contains the specified element, or
    *          {@code false} if not.
    */
+  @Override()
   public boolean contains(final Object e)
   {
     return m.containsKey(e);
@@ -135,6 +139,7 @@ public final class WeakHashSet<T>
    * @return  {@code true} if this set currently contains all of the elements in
    *          the provided collection, or {@code false} if not.
    */
+  @Override()
   public boolean containsAll(final Collection<?> c)
   {
     return m.keySet().containsAll(c);
@@ -174,6 +179,7 @@ public final class WeakHashSet<T>
    *          not already present), or {@code false} if the element was not
    *          added (because it was already in the set).
    */
+  @Override()
   public boolean add(final T e)
   {
     if (m.containsKey(e))
@@ -182,7 +188,7 @@ public final class WeakHashSet<T>
     }
     else
     {
-      m.put(e, new WeakReference<T>(e));
+      m.put(e, new WeakReference<>(e));
       return true;
     }
   }
@@ -199,6 +205,7 @@ public final class WeakHashSet<T>
    *          the set and was added, or {@code false} if no elements were added
    *          because they were already all present.
    */
+  @Override()
   public boolean addAll(final Collection<? extends T> c)
   {
     boolean changed = false;
@@ -206,7 +213,7 @@ public final class WeakHashSet<T>
     {
       if (! m.containsKey(e))
       {
-        m.put(e, new WeakReference<T>(e));
+        m.put(e, new WeakReference<>(e));
         changed = true;
       }
     }
@@ -237,7 +244,7 @@ public final class WeakHashSet<T>
       }
     }
 
-    m.put(e, new WeakReference<T>(e));
+    m.put(e, new WeakReference<>(e));
     return e;
   }
 
@@ -251,6 +258,7 @@ public final class WeakHashSet<T>
    * @return  {@code true} if the element existed in the set and was removed, or
    *          {@code false} if not.
    */
+  @Override()
   public boolean remove(final Object e)
   {
     return (m.remove(e) != null);
@@ -268,6 +276,7 @@ public final class WeakHashSet<T>
    *          or {@code false} if none of the elements in the given collection
    *          were contained in this set.
    */
+  @Override()
   public boolean removeAll(final Collection<?> c)
   {
     boolean changed = false;
@@ -296,6 +305,7 @@ public final class WeakHashSet<T>
    *          if this set did not have any elements that were not in the
    *          provided collection.
    */
+  @Override()
   public boolean retainAll(final Collection<?> c)
   {
     boolean changed = false;
@@ -321,6 +331,7 @@ public final class WeakHashSet<T>
    *
    * @return  An iterator across all elements in this set.
    */
+  @Override()
   public Iterator<T> iterator()
   {
     return m.keySet().iterator();
@@ -335,6 +346,7 @@ public final class WeakHashSet<T>
    * @return  An array containing all of the elements currently held in this
    *          set.
    */
+  @Override()
   public Object[] toArray()
   {
     return m.keySet().toArray();
@@ -356,6 +368,7 @@ public final class WeakHashSet<T>
    *          set), or a newly-allocated array if the provided array was not
    *          large enough.
    */
+  @Override()
   public <E> E[] toArray(final E[] a)
   {
     return m.keySet().toArray(a);
@@ -368,6 +381,7 @@ public final class WeakHashSet<T>
    *
    * @return  A hash code for this set.
    */
+  @Override()
   public int hashCode()
   {
     return m.keySet().hashCode();
@@ -383,6 +397,7 @@ public final class WeakHashSet<T>
    * @return  {@code true} if the provided object is a non-{@code null} set with
    *          the same elements as this set, or {@code false} if not.
    */
+  @Override()
   public boolean equals(final Object o)
   {
     return ((o != null) && (o instanceof Set) && m.keySet().equals(o));

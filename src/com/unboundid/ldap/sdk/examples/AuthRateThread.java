@@ -233,8 +233,8 @@ final class AuthRateThread
       this.authType = AUTH_TYPE_SIMPLE;
     }
 
-    resultCode    = new AtomicReference<ResultCode>(null);
-    authThread    = new AtomicReference<Thread>(null);
+    resultCode    = new AtomicReference<>(null);
+    authThread    = new AtomicReference<>(null);
     stopRequested = new AtomicBoolean(false);
     searchRequest = new SearchRequest("", scope,
          Filter.createPresenceFilter("objectClass"), attributes);

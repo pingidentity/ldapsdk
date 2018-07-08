@@ -252,8 +252,7 @@ public final class LoadBalancingAlgorithmMonitorEntry
     final List<String> externalServerStrings =
          getStrings(ATTR_LDAP_EXTERNAL_SERVER);
     final ArrayList<LoadBalancingAlgorithmServerAvailabilityData> serverData =
-         new ArrayList<LoadBalancingAlgorithmServerAvailabilityData>(
-              externalServerStrings.size());
+         new ArrayList<>(externalServerStrings.size());
     for (final String s : externalServerStrings)
     {
       try
@@ -432,8 +431,7 @@ public final class LoadBalancingAlgorithmMonitorEntry
   @Override()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
-    final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>(9);
+    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(9);
 
     if (algorithmName != null)
     {
@@ -484,7 +482,7 @@ public final class LoadBalancingAlgorithmMonitorEntry
         (! serverAvailabilityData.isEmpty()))
     {
       final ArrayList<String> availabilityStrings =
-           new ArrayList<String>(serverAvailabilityData.size());
+           new ArrayList<>(serverAvailabilityData.size());
       for (final LoadBalancingAlgorithmServerAvailabilityData d :
            serverAvailabilityData)
       {

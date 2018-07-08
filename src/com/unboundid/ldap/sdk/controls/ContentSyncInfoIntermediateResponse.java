@@ -348,7 +348,7 @@ public final class ContentSyncInfoIntermediateResponse
               case ASN1Constants.UNIVERSAL_SET_TYPE:
                 final ASN1Set uuidSet = ASN1Set.decodeAsSet(e);
                 final ASN1Element[] uuidElements = uuidSet.elements();
-                entryUUIDs = new ArrayList<UUID>(uuidElements.length);
+                entryUUIDs = new ArrayList<>(uuidElements.length);
                 for (final ASN1Element uuidElement : uuidElements)
                 {
                   try
@@ -429,7 +429,7 @@ public final class ContentSyncInfoIntermediateResponse
 
       case REFRESH_DELETE:
       case REFRESH_PRESENT:
-        ArrayList<ASN1Element> l = new ArrayList<ASN1Element>(2);
+        ArrayList<ASN1Element> l = new ArrayList<>(2);
         if (cookie != null)
         {
           l.add(cookie);
@@ -444,7 +444,7 @@ public final class ContentSyncInfoIntermediateResponse
         break;
 
       case SYNC_ID_SET:
-        l = new ArrayList<ASN1Element>(3);
+        l = new ArrayList<>(3);
 
         if (cookie != null)
         {
@@ -457,7 +457,7 @@ public final class ContentSyncInfoIntermediateResponse
         }
 
         final ArrayList<ASN1Element> uuidElements =
-             new ArrayList<ASN1Element>(entryUUIDs.size());
+             new ArrayList<>(entryUUIDs.size());
         for (final UUID uuid : entryUUIDs)
         {
           uuidElements.add(new ASN1OctetString(StaticUtils.encodeUUID(uuid)));

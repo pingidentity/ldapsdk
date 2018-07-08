@@ -30,12 +30,12 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -161,8 +161,7 @@ public final class ReplicationServerMonitorEntry
     sslEncryptionAvailable = getBoolean(ATTR_SSL_AVAILABLE);
 
     final List<String> baseDNsAndIDs = getStrings(ATTR_BASE_DN_GENERATION_ID);
-    final Map<DN,String> idMap =
-         new LinkedHashMap<DN,String>(baseDNsAndIDs.size());
+    final Map<DN,String> idMap = new LinkedHashMap<>(baseDNsAndIDs.size());
     for (final String s : baseDNsAndIDs)
     {
       try
@@ -173,7 +172,7 @@ public final class ReplicationServerMonitorEntry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
       }
     }
     generationIDs = Collections.unmodifiableMap(idMap);
@@ -226,7 +225,7 @@ public final class ReplicationServerMonitorEntry
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }
@@ -318,7 +317,7 @@ public final class ReplicationServerMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(10);
 
     if (! baseDNs.isEmpty())
     {
@@ -332,7 +331,7 @@ public final class ReplicationServerMonitorEntry
     if (! generationIDs.isEmpty())
     {
       final ArrayList<String> idStrings =
-           new ArrayList<String>(generationIDs.size());
+           new ArrayList<>(generationIDs.size());
       for (final Map.Entry<DN,String> e : generationIDs.entrySet())
       {
         idStrings.add(e.getKey().toNormalizedString() + ' ' + e.getValue());

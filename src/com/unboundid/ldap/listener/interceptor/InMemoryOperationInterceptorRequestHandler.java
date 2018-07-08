@@ -118,7 +118,7 @@ public final class InMemoryOperationInterceptorRequestHandler
     interceptors.toArray(this.interceptors);
 
     connection       = null;
-    activeOperations = new HashMap<Integer,InterceptedOperation>(5);
+    activeOperations = new HashMap<>(5);
   }
 
 
@@ -146,7 +146,7 @@ public final class InMemoryOperationInterceptorRequestHandler
     this.wrappedHandler = wrappedHandler;
     this.connection     = connection;
 
-    activeOperations = new HashMap<Integer,InterceptedOperation>(5);
+    activeOperations = new HashMap<>(5);
   }
 
 
@@ -866,8 +866,7 @@ public final class InMemoryOperationInterceptorRequestHandler
          (InterceptedSearchOperation) activeOperations.get(messageID);
     if (op == null)
     {
-      return new ObjectPair<SearchResultEntryProtocolOp,Control[]>(entry,
-           controls);
+      return new ObjectPair<>(entry, controls);
     }
 
     final InterceptedSearchEntry e =
@@ -889,8 +888,7 @@ public final class InMemoryOperationInterceptorRequestHandler
       }
     }
 
-    return new ObjectPair<SearchResultEntryProtocolOp,Control[]>(
-         new SearchResultEntryProtocolOp(e.getSearchEntry()),
+    return new ObjectPair<>(new SearchResultEntryProtocolOp(e.getSearchEntry()),
          e.getSearchEntry().getControls());
   }
 
@@ -909,8 +907,7 @@ public final class InMemoryOperationInterceptorRequestHandler
          (InterceptedSearchOperation) activeOperations.get(messageID);
     if (op == null)
     {
-      return new ObjectPair<SearchResultReferenceProtocolOp,Control[]>(
-           reference, controls);
+      return new ObjectPair<>(reference, controls);
     }
 
     final InterceptedSearchReference r =
@@ -932,7 +929,7 @@ public final class InMemoryOperationInterceptorRequestHandler
       }
     }
 
-    return new ObjectPair<SearchResultReferenceProtocolOp,Control[]>(
+    return new ObjectPair<>(
          new SearchResultReferenceProtocolOp(r.getSearchReference()),
          r.getSearchReference().getControls());
   }
@@ -962,8 +959,7 @@ public final class InMemoryOperationInterceptorRequestHandler
     final InterceptedOperation op = activeOperations.get(messageID);
     if (op == null)
     {
-      return new ObjectPair<IntermediateResponseProtocolOp,Control[]>(response,
-           controls);
+      return new ObjectPair<>(response, controls);
     }
 
     final InterceptedIntermediateResponse r =
@@ -985,7 +981,7 @@ public final class InMemoryOperationInterceptorRequestHandler
       }
     }
 
-    return new ObjectPair<IntermediateResponseProtocolOp,Control[]>(
+    return new ObjectPair<>(
          new IntermediateResponseProtocolOp(r.getIntermediateResponse()),
          r.getIntermediateResponse().getControls());
   }

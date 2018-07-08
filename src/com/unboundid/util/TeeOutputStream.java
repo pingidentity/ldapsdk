@@ -66,7 +66,7 @@ public final class TeeOutputStream
     else
     {
       streams = Collections.unmodifiableList(
-           new ArrayList<OutputStream>(Arrays.asList(targetStreams)));
+           new ArrayList<>(Arrays.asList(targetStreams)));
     }
   }
 
@@ -88,8 +88,7 @@ public final class TeeOutputStream
     }
     else
     {
-      streams = Collections.unmodifiableList(
-           new ArrayList<OutputStream>(targetStreams));
+      streams = Collections.unmodifiableList(new ArrayList<>(targetStreams));
     }
   }
 

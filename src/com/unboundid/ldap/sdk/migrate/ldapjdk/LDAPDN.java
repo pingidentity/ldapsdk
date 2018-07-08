@@ -24,12 +24,11 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.RDN;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -73,8 +72,8 @@ public final class LDAPDN
     }
     catch (final Exception e)
     {
-      debugException(e);
-      return toLowerCase(dn.trim());
+      Debug.debugException(e);
+      return StaticUtils.toLowerCase(dn.trim());
     }
   }
 
@@ -122,7 +121,7 @@ public final class LDAPDN
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return new String[] { dn };
     }
   }
@@ -164,7 +163,7 @@ public final class LDAPDN
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return new String[] { rdn };
     }
   }
@@ -190,7 +189,7 @@ public final class LDAPDN
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return false;
     }
   }

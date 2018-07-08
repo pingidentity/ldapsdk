@@ -35,12 +35,11 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -167,7 +166,7 @@ public final class LDIFDeleteChangeRecord
   @Override()
   public String[] toLDIF(final int wrapColumn)
   {
-    List<String> ldifLines = new ArrayList<String>(5);
+    List<String> ldifLines = new ArrayList<>(5);
     encodeNameAndValue("dn", new ASN1OctetString(getDN()), ldifLines);
 
     for (final Control c : getControls())
@@ -197,18 +196,18 @@ public final class LDIFDeleteChangeRecord
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     for (final Control c : getControls())
     {
       LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
            wrapColumn);
-      buffer.append(EOL_BYTES);
+      buffer.append(StaticUtils.EOL_BYTES);
     }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("delete"),
                                   buffer, wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
   }
 
 
@@ -221,18 +220,18 @@ public final class LDIFDeleteChangeRecord
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     for (final Control c : getControls())
     {
       LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
            wrapColumn);
-      buffer.append(EOL);
+      buffer.append(StaticUtils.EOL);
     }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("delete"),
                                   buffer, wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
   }
 
 
@@ -249,8 +248,8 @@ public final class LDIFDeleteChangeRecord
     }
     catch (final Exception e)
     {
-      debugException(e);
-      return toLowerCase(getDN()).hashCode();
+      Debug.debugException(e);
+      return StaticUtils.toLowerCase(getDN()).hashCode();
     }
   }
 
@@ -279,8 +278,8 @@ public final class LDIFDeleteChangeRecord
 
     final LDIFDeleteChangeRecord r = (LDIFDeleteChangeRecord) o;
 
-    final HashSet<Control> c1 = new HashSet<Control>(getControls());
-    final HashSet<Control> c2 = new HashSet<Control>(r.getControls());
+    final HashSet<Control> c1 = new HashSet<>(getControls());
+    final HashSet<Control> c2 = new HashSet<>(r.getControls());
     if (! c1.equals(c2))
     {
       return false;
@@ -292,8 +291,9 @@ public final class LDIFDeleteChangeRecord
     }
     catch (final Exception e)
     {
-      debugException(e);
-      return toLowerCase(getDN()).equals(toLowerCase(r.getDN()));
+      Debug.debugException(e);
+      return StaticUtils.toLowerCase(getDN()).equals(
+           StaticUtils.toLowerCase(r.getDN()));
     }
   }
 

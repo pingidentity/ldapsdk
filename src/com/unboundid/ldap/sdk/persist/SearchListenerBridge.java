@@ -25,10 +25,9 @@ package com.unboundid.ldap.sdk.persist;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.util.Debug;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -90,7 +89,7 @@ final class SearchListenerBridge<T>
     }
     catch (final LDAPPersistException lpe)
     {
-      debugException(lpe);
+      Debug.debugException(lpe);
       listener.unparsableEntryReturned(searchEntry, lpe);
     }
   }

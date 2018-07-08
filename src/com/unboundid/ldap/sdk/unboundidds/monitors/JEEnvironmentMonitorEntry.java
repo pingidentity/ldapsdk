@@ -31,11 +31,11 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -507,30 +507,33 @@ public final class JEEnvironmentMonitorEntry
          getLong(ATTR_TOTAL_CHECKPOINT_DURATION_MILLIS);
 
     final LinkedHashMap<String,String> tmpEnvStats =
-         new LinkedHashMap<String,String>();
+         new LinkedHashMap<>(20);
     final LinkedHashMap<String,String> tmpLockStats =
-         new LinkedHashMap<String,String>();
+         new LinkedHashMap<>(20);
     final LinkedHashMap<String,String> tmpTxnStats =
-         new LinkedHashMap<String,String>();
+         new LinkedHashMap<>(20);
     for (final Attribute a : entry.getAttributes())
     {
-      final String name = toLowerCase(a.getName());
+      final String name = StaticUtils.toLowerCase(a.getName());
       if (name.startsWith(ATTR_PREFIX_ENV_STAT))
       {
         tmpEnvStats.put(
-             toLowerCase(name.substring(ATTR_PREFIX_ENV_STAT.length())),
+             StaticUtils.toLowerCase(name.substring(
+                  ATTR_PREFIX_ENV_STAT.length())),
              a.getValue());
       }
       else if (name.startsWith(ATTR_PREFIX_LOCK_STAT))
       {
         tmpLockStats.put(
-             toLowerCase(name.substring(ATTR_PREFIX_LOCK_STAT.length())),
+             StaticUtils.toLowerCase(name.substring(
+                  ATTR_PREFIX_LOCK_STAT.length())),
              a.getValue());
       }
       else if (name.startsWith(ATTR_PREFIX_TXN_STAT))
       {
         tmpTxnStats.put(
-             toLowerCase(name.substring(ATTR_PREFIX_TXN_STAT.length())),
+             StaticUtils.toLowerCase(name.substring(
+                  ATTR_PREFIX_TXN_STAT.length())),
              a.getValue());
       }
     }
@@ -944,7 +947,7 @@ public final class JEEnvironmentMonitorEntry
    */
   public String getEnvironmentStat(final String statName)
   {
-    return envStats.get(toLowerCase(statName));
+    return envStats.get(StaticUtils.toLowerCase(statName));
   }
 
 
@@ -976,7 +979,7 @@ public final class JEEnvironmentMonitorEntry
    */
   public String getLockStat(final String statName)
   {
-    return lockStats.get(toLowerCase(statName));
+    return lockStats.get(StaticUtils.toLowerCase(statName));
   }
 
 
@@ -1009,7 +1012,7 @@ public final class JEEnvironmentMonitorEntry
    */
   public String getTransactionStat(final String statName)
   {
-    return txnStats.get(toLowerCase(statName));
+    return txnStats.get(StaticUtils.toLowerCase(statName));
   }
 
 
@@ -1043,7 +1046,7 @@ public final class JEEnvironmentMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(20);
 
     if (backendID != null)
     {
@@ -1272,7 +1275,7 @@ public final class JEEnvironmentMonitorEntry
 
     if (! envStats.isEmpty())
     {
-      final ArrayList<String> values = new ArrayList<String>(envStats.size());
+      final ArrayList<String> values = new ArrayList<>(envStats.size());
       for (final Map.Entry<String,String> e : envStats.entrySet())
       {
         values.add(e.getKey() + '=' + e.getValue());
@@ -1287,7 +1290,7 @@ public final class JEEnvironmentMonitorEntry
 
     if (! lockStats.isEmpty())
     {
-      final ArrayList<String> values = new ArrayList<String>(lockStats.size());
+      final ArrayList<String> values = new ArrayList<>(lockStats.size());
       for (final Map.Entry<String,String> e : lockStats.entrySet())
       {
         values.add(e.getKey() + '=' + e.getValue());
@@ -1302,7 +1305,7 @@ public final class JEEnvironmentMonitorEntry
 
     if (! txnStats.isEmpty())
     {
-      final ArrayList<String> values = new ArrayList<String>(txnStats.size());
+      final ArrayList<String> values = new ArrayList<>(txnStats.size());
       for (final Map.Entry<String,String> e : txnStats.entrySet())
       {
         values.add(e.getKey() + '=' + e.getValue());

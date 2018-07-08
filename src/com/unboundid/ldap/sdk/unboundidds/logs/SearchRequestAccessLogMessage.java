@@ -30,12 +30,11 @@ import java.util.StringTokenizer;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -134,7 +133,7 @@ public class SearchRequestAccessLogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
     scope = ss;
 
@@ -164,7 +163,7 @@ public class SearchRequestAccessLogMessage
     }
     else
     {
-      final LinkedList<String> attrs = new LinkedList<String>();
+      final LinkedList<String> attrs = new LinkedList<>();
       final StringTokenizer st = new StringTokenizer(attrStr, ",", false);
       while (st.hasMoreTokens())
       {
@@ -237,7 +236,7 @@ public class SearchRequestAccessLogMessage
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return null;
     }
   }

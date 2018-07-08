@@ -28,13 +28,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -134,7 +134,7 @@ public final class BackendMonitorEntry
 
 
   /**
-   * The name of the attribute that holds the number of undeletes  processed
+   * The name of the attribute that holds the number of undeletes processed
    * since the backend was initialized.
    */
   private static final String ATTR_UNDELETE_COUNT =
@@ -205,7 +205,7 @@ public final class BackendMonitorEntry
 
     final List<String> entriesPerBase = getStrings(ATTR_ENTRIES_PER_BASE_DN);
     final LinkedHashMap<String,Long> countMap =
-         new LinkedHashMap<String,Long>(entriesPerBase.size());
+         new LinkedHashMap<>(entriesPerBase.size());
     for (final String s : entriesPerBase)
     {
       try
@@ -217,13 +217,13 @@ public final class BackendMonitorEntry
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
 
-        if (debugEnabled(DebugType.MONITOR))
+        if (Debug.debugEnabled(DebugType.MONITOR))
         {
-          debugMonitor(entry,
-                       "Cannot parse value '" + s + "' for attribute " +
-                            ATTR_ENTRIES_PER_BASE_DN);
+          Debug.debugMonitor(entry,
+               "Cannot parse value '" + s + "' for attribute " +
+                    ATTR_ENTRIES_PER_BASE_DN);
         }
       }
     }
@@ -373,7 +373,7 @@ public final class BackendMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(20);
 
     if (backendID != null)
     {

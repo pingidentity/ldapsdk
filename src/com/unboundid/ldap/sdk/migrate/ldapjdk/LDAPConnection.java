@@ -46,12 +46,11 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.UpdatableLDAPRequest;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -471,7 +470,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPException(le);
     }
   }
@@ -670,7 +669,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPException(le);
     }
   }
@@ -705,7 +704,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPException(le);
     }
   }
@@ -748,12 +747,11 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }
   }
-
 
 
 
@@ -925,7 +923,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }
@@ -982,7 +980,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }
@@ -1026,7 +1024,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }
@@ -1100,7 +1098,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }
@@ -1187,7 +1185,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }
@@ -1320,7 +1318,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }
@@ -1414,7 +1412,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }
@@ -1489,7 +1487,7 @@ public class LDAPConnection
     }
     catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       setResponseControls(le);
       throw new LDAPException(le);
     }

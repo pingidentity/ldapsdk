@@ -96,6 +96,7 @@ public class AsynchronousParallelProcessorTestCase
   {
     Processor<Integer, Integer> processor = new Processor<Integer, Integer>()
     {
+      @Override()
       public Integer process(Integer input)
            throws Throwable
       {
@@ -126,6 +127,7 @@ public class AsynchronousParallelProcessorTestCase
     // Submit all of the items in the background
     Thread submitInBackgroundThread = new Thread()
     {
+      @Override()
       public void run()
       {
         try
@@ -193,6 +195,7 @@ public class AsynchronousParallelProcessorTestCase
   {
     Processor<Integer, Integer> processor = new Processor<Integer, Integer>()
     {
+      @Override()
       public Integer process(Integer input)
            throws Throwable
       {
@@ -217,6 +220,7 @@ public class AsynchronousParallelProcessorTestCase
               // This ResultProcessor will throw every time.
               new ResultProcessor<Integer, Integer>()
               {
+                @Override()
                 public void processResult(
                      Result<Integer, Integer> integerIntegerResult)
                      throws Exception

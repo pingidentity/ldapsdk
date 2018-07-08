@@ -36,14 +36,14 @@ import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -205,7 +205,7 @@ public final class EntryChangeNotificationControl
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_ECN_VALUE_NOT_SEQUENCE.get(ae), ae);
     }
@@ -225,7 +225,7 @@ public final class EntryChangeNotificationControl
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_ECN_FIRST_NOT_ENUMERATED.get(ae), ae);
     }
@@ -257,17 +257,16 @@ public final class EntryChangeNotificationControl
           }
           catch (final ASN1Exception ae)
           {
-            debugException(ae);
+            Debug.debugException(ae);
             throw new LDAPException(ResultCode.DECODING_ERROR,
-                                    ERR_ECN_CANNOT_DECODE_CHANGE_NUMBER.get(ae),
-                                    ae);
+                 ERR_ECN_CANNOT_DECODE_CHANGE_NUMBER.get(ae), ae);
           }
           break;
 
         default:
           throw new LDAPException(ResultCode.DECODING_ERROR,
-                                  ERR_ECN_INVALID_ELEMENT_TYPE.get(
-                                       toHex(ecnElements[i].getType())));
+               ERR_ECN_INVALID_ELEMENT_TYPE.get(
+                    StaticUtils.toHex(ecnElements[i].getType())));
       }
     }
 
@@ -346,9 +345,9 @@ public final class EntryChangeNotificationControl
                final PersistentSearchChangeType changeType,
                final String previousDN, final long changeNumber)
   {
-    ensureNotNull(changeType);
+    Validator.ensureNotNull(changeType);
 
-    final ArrayList<ASN1Element> elementList = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elementList = new ArrayList<>(3);
     elementList.add(new ASN1Enumerated(changeType.intValue()));
 
     if (previousDN != null)

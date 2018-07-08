@@ -124,7 +124,7 @@ public final class SearchScope
    * The set of search scope objects created with undefined int values.
    */
   private static final HashMap<Integer,SearchScope> UNDEFINED_SCOPES =
-       new HashMap<Integer,SearchScope>();
+       new HashMap<>(5);
 
 
 

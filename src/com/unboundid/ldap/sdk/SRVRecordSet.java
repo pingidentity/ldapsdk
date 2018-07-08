@@ -59,14 +59,6 @@ final class SRVRecordSet
       implements Serializable
 {
   /**
-   * The name of the JNDI context factory that should be used for querying DNS.
-   */
-  private static final String JNDI_DNS_CONTEXT_FACTORY =
-       "com.sun.jndi.dns.DnsContextFactory";
-
-
-
-  /**
    * The attribute name that will be used to retrieve the SRV record.
    */
   private static final String DNS_ATTR_SRV = "SRV";
@@ -117,23 +109,21 @@ final class SRVRecordSet
     allRecords = Collections.unmodifiableList(records);
     totalRecords = records.size();
 
-    final TreeMap<Long,List<SRVRecord>> m =
-         new TreeMap<Long,List<SRVRecord>>();
+    final TreeMap<Long,List<SRVRecord>> m = new TreeMap<>();
     for (final SRVRecord r : records)
     {
-      final Long priority = Long.valueOf(r.getPriority());
+      final Long priority = r.getPriority();
       List<SRVRecord> l = m.get(priority);
       if (l == null)
       {
-        l = new ArrayList<SRVRecord>(records.size());
+        l = new ArrayList<>(records.size());
         m.put(priority, l);
       }
 
       l.add(r);
     }
 
-    final ArrayList<SRVRecordPrioritySet> l =
-         new ArrayList<SRVRecordPrioritySet>(m.size());
+    final ArrayList<SRVRecordPrioritySet> l = new ArrayList<>(m.size());
     for (final Map.Entry<Long,List<SRVRecord>> e : m.entrySet())
     {
       l.add(new SRVRecordPrioritySet(e.getKey(), e.getValue()));
@@ -176,7 +166,7 @@ final class SRVRecordSet
    */
   List<SRVRecord> getOrderedRecords()
   {
-    final ArrayList<SRVRecord> l = new ArrayList<SRVRecord>(totalRecords);
+    final ArrayList<SRVRecord> l = new ArrayList<>(totalRecords);
 
     for (final SRVRecordPrioritySet s : recordSets)
     {
@@ -208,7 +198,7 @@ final class SRVRecordSet
                            final long ttlMillis)
          throws LDAPException
   {
-    final ArrayList<String> recordStrings = new ArrayList<String>(10);
+    final ArrayList<String> recordStrings = new ArrayList<>(10);
     DirContext context = null;
 
     try
@@ -275,8 +265,7 @@ final class SRVRecordSet
            ERR_SRV_RECORD_SET_NO_RECORDS.get(name));
     }
 
-    final List<SRVRecord> recordList =
-         new ArrayList<SRVRecord>(recordStrings.size());
+    final List<SRVRecord> recordList = new ArrayList<>(recordStrings.size());
     for (final String s : recordStrings)
     {
       final SRVRecord r = new SRVRecord(s);
@@ -314,7 +303,7 @@ final class SRVRecordSet
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  void toString(final StringBuilder buffer)
+  private void toString(final StringBuilder buffer)
   {
     buffer.append("SRVRecordSet(records={");
 

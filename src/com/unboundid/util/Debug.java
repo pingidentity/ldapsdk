@@ -41,8 +41,6 @@ import com.unboundid.ldap.sdk.LDAPRequest;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldif.LDIFRecord;
 
-import static com.unboundid.util.StaticUtils.*;
-
 
 
 /**
@@ -239,7 +237,7 @@ public final class Debug
     }
 
     final String enabledProp = properties.getProperty(PROPERTY_DEBUG_ENABLED);
-    if ((enabledProp != null) && (enabledProp.length() > 0))
+    if ((enabledProp != null) && (! enabledProp.isEmpty()))
     {
       if (enabledProp.equalsIgnoreCase("true"))
       {
@@ -261,7 +259,7 @@ public final class Debug
 
     final String stackProp =
          properties.getProperty(PROPERTY_INCLUDE_STACK_TRACE);
-    if ((stackProp != null) && (stackProp.length() > 0))
+    if ((stackProp != null) && (! stackProp.isEmpty()))
     {
       if (stackProp.equalsIgnoreCase("true"))
       {
@@ -282,7 +280,7 @@ public final class Debug
     }
 
     final String typesProp = properties.getProperty(PROPERTY_DEBUG_TYPE);
-    if ((typesProp != null) && (typesProp.length() > 0))
+    if ((typesProp != null) && (! typesProp.isEmpty()))
     {
       debugTypes = EnumSet.noneOf(DebugType.class);
       final StringTokenizer t = new StringTokenizer(typesProp, ", ");
@@ -307,7 +305,7 @@ public final class Debug
     }
 
     final String levelProp = properties.getProperty(PROPERTY_DEBUG_LEVEL);
-    if ((levelProp != null) && (levelProp.length() > 0))
+    if ((levelProp != null) && (! levelProp.isEmpty()))
     {
       logger.setLevel(Level.parse(levelProp));
     }
@@ -466,7 +464,7 @@ public final class Debug
       final StringBuilder buffer = new StringBuilder();
       addCommonHeader(buffer, l);
       buffer.append("caughtException=\"");
-      getStackTrace(t, buffer);
+      StaticUtils.getStackTrace(t, buffer);
       buffer.append('"');
 
       logger.log(l, buffer.toString(), t);
@@ -732,7 +730,7 @@ public final class Debug
       if (e != null)
       {
         buffer.append("\" disconnectCause=\"");
-        getStackTrace(e, buffer);
+        StaticUtils.getStackTrace(e, buffer);
         buffer.append('"');
       }
 
@@ -1073,7 +1071,7 @@ public final class Debug
       final StringBuilder buffer = new StringBuilder();
       addCommonHeader(buffer, l);
       buffer.append("writingASN1Element=\"");
-      toHex(b.toByteArray(), buffer);
+      StaticUtils.toHex(b.toByteArray(), buffer);
       buffer.append('"');
 
       logger.log(l, buffer.toString());
@@ -1150,7 +1148,7 @@ public final class Debug
       buffer.append("readASN1Element=\"dataType='");
       buffer.append(dataType);
       buffer.append("' berType='");
-      buffer.append(toHex((byte) (berType & 0xFF)));
+      buffer.append(StaticUtils.toHex((byte) (berType & 0xFF)));
       buffer.append('\'');
       buffer.append("' valueLength=");
       buffer.append(length);
@@ -1160,7 +1158,7 @@ public final class Debug
         buffer.append(" value='");
         if (value instanceof byte[])
         {
-          toHex((byte[]) value, buffer);
+          StaticUtils.toHex((byte[]) value, buffer);
         }
         else
         {
@@ -1314,7 +1312,7 @@ public final class Debug
       final StringBuilder buffer = new StringBuilder();
       addCommonHeader(buffer, Level.SEVERE);
       buffer.append("codingError=\"");
-      getStackTrace(t, buffer);
+      StaticUtils.getStackTrace(t, buffer);
       buffer.append('"');
 
       logger.log(Level.SEVERE, buffer.toString());
@@ -1365,7 +1363,7 @@ public final class Debug
       buffer.append(m);
       buffer.append('"');
       buffer.append(" exception=\"");
-      getStackTrace(e, buffer);
+      StaticUtils.getStackTrace(e, buffer);
       buffer.append('"');
 
       logger.log(l, buffer.toString(), e);

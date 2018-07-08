@@ -221,8 +221,7 @@ public final class GenericSASLBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(4);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(4);
     constructorArgs.add(ToCodeArgHelper.createString(bindDN, "Bind DN"));
     constructorArgs.add(ToCodeArgHelper.createString(mechanism,
          "SASL Mechanism Name"));

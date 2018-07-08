@@ -98,13 +98,13 @@ public final class SearchReferenceAccessLogMessage
     super(m);
 
     final String refStr = getNamedValue("referralURLs");
-    if ((refStr == null) || (refStr.length() == 0))
+    if ((refStr == null) || refStr.isEmpty())
     {
       referralURLs = Collections.emptyList();
     }
     else
     {
-      final LinkedList<String> refs = new LinkedList<String>();
+      final LinkedList<String> refs = new LinkedList<>();
       int startPos = 0;
       while (true)
       {
@@ -130,7 +130,7 @@ public final class SearchReferenceAccessLogMessage
     }
     else
     {
-      final LinkedList<String> controlList = new LinkedList<String>();
+      final LinkedList<String> controlList = new LinkedList<>();
       final StringTokenizer t = new StringTokenizer(controlStr, ",");
       while (t.hasMoreTokens())
       {

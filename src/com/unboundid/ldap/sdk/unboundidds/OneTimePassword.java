@@ -163,15 +163,15 @@ public final class OneTimePassword
       switch (numDigits)
       {
         case 6:
-          modulus = 1000000;
+          modulus = 1_000_000;
           decimalFormat = new DecimalFormat("000000");
           break;
         case 7:
-          modulus = 10000000;
+          modulus = 10_000_000;
           decimalFormat = new DecimalFormat("0000000");
           break;
         case 8:
-          modulus = 100000000;
+          modulus = 100_000_000;
           decimalFormat = new DecimalFormat("00000000");
           break;
         default:

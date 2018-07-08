@@ -46,15 +46,15 @@ import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -98,7 +98,7 @@ public final class AddRequest
 
   // The queue that will be used to receive response messages from the server.
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
-       new LinkedBlockingQueue<LDAPResponse>();
+       new LinkedBlockingQueue<>();
 
   // The set of attributes to include in the entry to add.
   private ArrayList<Attribute> attributes;
@@ -123,11 +123,11 @@ public final class AddRequest
   {
     super(null);
 
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn = dn;
 
-    this.attributes = new ArrayList<Attribute>(attributes.length);
+    this.attributes = new ArrayList<>(attributes.length);
     this.attributes.addAll(Arrays.asList(attributes));
   }
 
@@ -147,11 +147,11 @@ public final class AddRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn = dn;
 
-    this.attributes = new ArrayList<Attribute>(attributes.length);
+    this.attributes = new ArrayList<>(attributes.length);
     this.attributes.addAll(Arrays.asList(attributes));
   }
 
@@ -169,10 +169,10 @@ public final class AddRequest
   {
     super(null);
 
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn         = dn;
-    this.attributes = new ArrayList<Attribute>(attributes);
+    this.attributes = new ArrayList<>(attributes);
   }
 
 
@@ -191,10 +191,10 @@ public final class AddRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn         = dn;
-    this.attributes = new ArrayList<Attribute>(attributes);
+    this.attributes = new ArrayList<>(attributes);
   }
 
 
@@ -211,11 +211,11 @@ public final class AddRequest
   {
     super(null);
 
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn = dn.toString();
 
-    this.attributes = new ArrayList<Attribute>(attributes.length);
+    this.attributes = new ArrayList<>(attributes.length);
     this.attributes.addAll(Arrays.asList(attributes));
   }
 
@@ -235,11 +235,11 @@ public final class AddRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn = dn.toString();
 
-    this.attributes = new ArrayList<Attribute>(attributes.length);
+    this.attributes = new ArrayList<>(attributes.length);
     this.attributes.addAll(Arrays.asList(attributes));
   }
 
@@ -257,10 +257,10 @@ public final class AddRequest
   {
     super(null);
 
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn         = dn.toString();
-    this.attributes = new ArrayList<Attribute>(attributes);
+    this.attributes = new ArrayList<>(attributes);
   }
 
 
@@ -279,10 +279,10 @@ public final class AddRequest
   {
     super(controls);
 
-    ensureNotNull(dn, attributes);
+    Validator.ensureNotNull(dn, attributes);
 
     this.dn         = dn.toString();
-    this.attributes = new ArrayList<Attribute>(attributes);
+    this.attributes = new ArrayList<>(attributes);
   }
 
 
@@ -296,10 +296,10 @@ public final class AddRequest
   {
     super(null);
 
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     dn         = entry.getDN();
-    attributes = new ArrayList<Attribute>(entry.getAttributes());
+    attributes = new ArrayList<>(entry.getAttributes());
   }
 
 
@@ -314,10 +314,10 @@ public final class AddRequest
   {
     super(controls);
 
-    ensureNotNull(entry);
+    Validator.ensureNotNull(entry);
 
     dn         = entry.getDN();
-    attributes = new ArrayList<Attribute>(entry.getAttributes());
+    attributes = new ArrayList<>(entry.getAttributes());
   }
 
 
@@ -344,7 +344,7 @@ public final class AddRequest
     if (changeRecord instanceof LDIFAddChangeRecord)
     {
       dn = changeRecord.getDN();
-      attributes = new ArrayList<Attribute>(Arrays.asList(
+      attributes = new ArrayList<>(Arrays.asList(
            ((LDIFAddChangeRecord) changeRecord).getAttributes()));
       setControls(changeRecord.getControls());
     }
@@ -377,7 +377,7 @@ public final class AddRequest
    */
   public void setDN(final String dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn;
   }
@@ -391,7 +391,7 @@ public final class AddRequest
    */
   public void setDN(final DN dn)
   {
-    ensureNotNull(dn);
+    Validator.ensureNotNull(dn);
 
     this.dn = dn.toString();
   }
@@ -415,7 +415,7 @@ public final class AddRequest
   @Override()
   public Attribute getAttribute(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     for (final Attribute a : attributes)
     {
@@ -447,7 +447,7 @@ public final class AddRequest
   @Override()
   public boolean hasAttribute(final Attribute attribute)
   {
-    ensureNotNull(attribute);
+    Validator.ensureNotNull(attribute);
 
     final Attribute a = getAttribute(attribute.getName());
     return ((a != null) && attribute.equals(a));
@@ -462,7 +462,7 @@ public final class AddRequest
   public boolean hasAttributeValue(final String attributeName,
                                    final String attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     final Attribute a = getAttribute(attributeName);
     return ((a != null) && a.hasValue(attributeValue));
@@ -478,7 +478,7 @@ public final class AddRequest
                                    final String attributeValue,
                                    final MatchingRule matchingRule)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     final Attribute a = getAttribute(attributeName);
     return ((a != null) && a.hasValue(attributeValue, matchingRule));
@@ -493,7 +493,7 @@ public final class AddRequest
   public boolean hasAttributeValue(final String attributeName,
                                    final byte[] attributeValue)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     final Attribute a = getAttribute(attributeName);
     return ((a != null) && a.hasValue(attributeValue));
@@ -509,7 +509,7 @@ public final class AddRequest
                                    final byte[] attributeValue,
                                    final MatchingRule matchingRule)
   {
-    ensureNotNull(attributeName, attributeValue);
+    Validator.ensureNotNull(attributeName, attributeValue);
 
     final Attribute a = getAttribute(attributeName);
     return ((a != null) && a.hasValue(attributeValue, matchingRule));
@@ -547,7 +547,7 @@ public final class AddRequest
    */
   public void setAttributes(final Attribute[] attributes)
   {
-    ensureNotNull(attributes);
+    Validator.ensureNotNull(attributes);
 
     this.attributes.clear();
     this.attributes.addAll(Arrays.asList(attributes));
@@ -563,7 +563,7 @@ public final class AddRequest
    */
   public void setAttributes(final Collection<Attribute> attributes)
   {
-    ensureNotNull(attributes);
+    Validator.ensureNotNull(attributes);
 
     this.attributes.clear();
     this.attributes.addAll(attributes);
@@ -579,7 +579,7 @@ public final class AddRequest
    */
   public void addAttribute(final Attribute attribute)
   {
-    ensureNotNull(attribute);
+    Validator.ensureNotNull(attribute);
 
     for (int i=0 ; i < attributes.size(); i++)
     {
@@ -606,7 +606,7 @@ public final class AddRequest
    */
   public void addAttribute(final String name, final String value)
   {
-    ensureNotNull(name, value);
+    Validator.ensureNotNull(name, value);
     addAttribute(new Attribute(name, value));
   }
 
@@ -622,7 +622,7 @@ public final class AddRequest
    */
   public void addAttribute(final String name, final byte[] value)
   {
-    ensureNotNull(name, value);
+    Validator.ensureNotNull(name, value);
     addAttribute(new Attribute(name, value));
   }
 
@@ -638,7 +638,7 @@ public final class AddRequest
    */
   public void addAttribute(final String name, final String... values)
   {
-    ensureNotNull(name, values);
+    Validator.ensureNotNull(name, values);
     addAttribute(new Attribute(name, values));
   }
 
@@ -654,7 +654,7 @@ public final class AddRequest
    */
   public void addAttribute(final String name, final byte[]... values)
   {
-    ensureNotNull(name, values);
+    Validator.ensureNotNull(name, values);
     addAttribute(new Attribute(name, values));
   }
 
@@ -672,7 +672,7 @@ public final class AddRequest
    */
   public boolean removeAttribute(final String attributeName)
   {
-    ensureNotNull(attributeName);
+    Validator.ensureNotNull(attributeName);
 
     final Iterator<Attribute> iterator = attributes.iterator();
     while (iterator.hasNext())
@@ -704,7 +704,7 @@ public final class AddRequest
    */
   public boolean removeAttributeValue(final String name, final String value)
   {
-    ensureNotNull(name, value);
+    Validator.ensureNotNull(name, value);
 
     int pos = -1;
     for (int i=0; i < attributes.size(); i++)
@@ -759,7 +759,7 @@ public final class AddRequest
    */
   public boolean removeAttribute(final String name, final byte[] value)
   {
-    ensureNotNull(name, value);
+    Validator.ensureNotNull(name, value);
 
     int pos = -1;
     for (int i=0; i < attributes.size(); i++)
@@ -809,7 +809,7 @@ public final class AddRequest
    */
   public void replaceAttribute(final Attribute attribute)
   {
-    ensureNotNull(attribute);
+    Validator.ensureNotNull(attribute);
 
     for (int i=0; i < attributes.size(); i++)
     {
@@ -836,7 +836,7 @@ public final class AddRequest
    */
   public void replaceAttribute(final String name, final String value)
   {
-    ensureNotNull(name, value);
+    Validator.ensureNotNull(name, value);
 
     for (int i=0; i < attributes.size(); i++)
     {
@@ -863,7 +863,7 @@ public final class AddRequest
    */
   public void replaceAttribute(final String name, final byte[] value)
   {
-    ensureNotNull(name, value);
+    Validator.ensureNotNull(name, value);
 
     for (int i=0; i < attributes.size(); i++)
     {
@@ -890,7 +890,7 @@ public final class AddRequest
    */
   public void replaceAttribute(final String name, final String... values)
   {
-    ensureNotNull(name, values);
+    Validator.ensureNotNull(name, values);
 
     for (int i=0; i < attributes.size(); i++)
     {
@@ -917,7 +917,7 @@ public final class AddRequest
    */
   public void replaceAttribute(final String name, final byte[]... values)
   {
-    ensureNotNull(name, values);
+    Validator.ensureNotNull(name, values);
 
     for (int i=0; i < attributes.size(); i++)
     {
@@ -1042,7 +1042,7 @@ public final class AddRequest
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_ADD_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -1116,14 +1116,14 @@ public final class AddRequest
     // Send the request to the server.
     try
     {
-      debugLDAPRequest(Level.INFO, this, messageID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumAddRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       connection.deregisterResponseAcceptor(messageID);
       throw le;
@@ -1164,7 +1164,7 @@ public final class AddRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(Level.INFO, this, messageID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumAddRequests();
     try
     {
@@ -1172,7 +1172,7 @@ public final class AddRequest
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (allowRetry)
       {
@@ -1196,7 +1196,7 @@ public final class AddRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
 
         if ((le.getResultCode() == ResultCode.TIMEOUT) &&
             connection.getConnectionOptions().abandonOnTimeout())
@@ -1263,7 +1263,8 @@ public final class AddRequest
   {
     if (response == null)
     {
-      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      final long waitTime =
+           StaticUtils.nanosToMillis(System.nanoTime() - requestTime);
       if (connection.getConnectionOptions().abandonOnTimeout())
       {
         connection.abandon(messageID);
@@ -1371,7 +1372,7 @@ public final class AddRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
     }
 
     return null;
@@ -1439,7 +1440,7 @@ public final class AddRequest
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
       }
     }
 
@@ -1489,7 +1490,7 @@ public final class AddRequest
   @Override()
   public AddRequest duplicate(final Control[] controls)
   {
-    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(attributes);
+    final ArrayList<Attribute> attrs = new ArrayList<>(attributes);
     final AddRequest r = new AddRequest(dn, attrs, controls);
 
     if (followReferralsInternal() != null)
@@ -1523,7 +1524,7 @@ public final class AddRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -1531,7 +1532,9 @@ public final class AddRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -1621,7 +1624,7 @@ public final class AddRequest
   {
     // Create the request variable.
     final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(attributes.size() + 1);
+         new ArrayList<>(attributes.size() + 1);
     constructorArgs.add(ToCodeArgHelper.createString(dn, "Entry DN"));
 
     boolean firstAttribute = true;

@@ -29,15 +29,14 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.asn1.ASN1Constants.*;
 import static com.unboundid.asn1.ASN1Messages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -84,7 +83,7 @@ public class ASN1Element
   public ASN1Element(final byte type)
   {
     this.type   = type;
-    value       = NO_VALUE;
+    value       = ASN1Constants.NO_VALUE;
     valueOffset = 0;
     valueLength = 0;
   }
@@ -103,7 +102,7 @@ public class ASN1Element
 
     if (value == null)
     {
-      this.value = NO_VALUE;
+      this.value = ASN1Constants.NO_VALUE;
     }
     else
     {
@@ -299,7 +298,7 @@ public class ASN1Element
       buffer.append((byte) ((length >> 8) & 0xFF));
       buffer.append((byte) (length & 0xFF));
     }
-    else if ((length & 0xFFFFFF) == length)
+    else if ((length & 0x00FF_FFFF) == length)
     {
       buffer.append((byte) 0x83);
       buffer.append((byte) ((length >> 16) & 0xFF));
@@ -356,137 +355,137 @@ public class ASN1Element
   {
     switch (length)
     {
-      case 0:  return LENGTH_0;
-      case 1:  return LENGTH_1;
-      case 2:  return LENGTH_2;
-      case 3:  return LENGTH_3;
-      case 4:  return LENGTH_4;
-      case 5:  return LENGTH_5;
-      case 6:  return LENGTH_6;
-      case 7:  return LENGTH_7;
-      case 8:  return LENGTH_8;
-      case 9:  return LENGTH_9;
-      case 10:  return LENGTH_10;
-      case 11:  return LENGTH_11;
-      case 12:  return LENGTH_12;
-      case 13:  return LENGTH_13;
-      case 14:  return LENGTH_14;
-      case 15:  return LENGTH_15;
-      case 16:  return LENGTH_16;
-      case 17:  return LENGTH_17;
-      case 18:  return LENGTH_18;
-      case 19:  return LENGTH_19;
-      case 20:  return LENGTH_20;
-      case 21:  return LENGTH_21;
-      case 22:  return LENGTH_22;
-      case 23:  return LENGTH_23;
-      case 24:  return LENGTH_24;
-      case 25:  return LENGTH_25;
-      case 26:  return LENGTH_26;
-      case 27:  return LENGTH_27;
-      case 28:  return LENGTH_28;
-      case 29:  return LENGTH_29;
-      case 30:  return LENGTH_30;
-      case 31:  return LENGTH_31;
-      case 32:  return LENGTH_32;
-      case 33:  return LENGTH_33;
-      case 34:  return LENGTH_34;
-      case 35:  return LENGTH_35;
-      case 36:  return LENGTH_36;
-      case 37:  return LENGTH_37;
-      case 38:  return LENGTH_38;
-      case 39:  return LENGTH_39;
-      case 40:  return LENGTH_40;
-      case 41:  return LENGTH_41;
-      case 42:  return LENGTH_42;
-      case 43:  return LENGTH_43;
-      case 44:  return LENGTH_44;
-      case 45:  return LENGTH_45;
-      case 46:  return LENGTH_46;
-      case 47:  return LENGTH_47;
-      case 48:  return LENGTH_48;
-      case 49:  return LENGTH_49;
-      case 50:  return LENGTH_50;
-      case 51:  return LENGTH_51;
-      case 52:  return LENGTH_52;
-      case 53:  return LENGTH_53;
-      case 54:  return LENGTH_54;
-      case 55:  return LENGTH_55;
-      case 56:  return LENGTH_56;
-      case 57:  return LENGTH_57;
-      case 58:  return LENGTH_58;
-      case 59:  return LENGTH_59;
-      case 60:  return LENGTH_60;
-      case 61:  return LENGTH_61;
-      case 62:  return LENGTH_62;
-      case 63:  return LENGTH_63;
-      case 64:  return LENGTH_64;
-      case 65:  return LENGTH_65;
-      case 66:  return LENGTH_66;
-      case 67:  return LENGTH_67;
-      case 68:  return LENGTH_68;
-      case 69:  return LENGTH_69;
-      case 70:  return LENGTH_70;
-      case 71:  return LENGTH_71;
-      case 72:  return LENGTH_72;
-      case 73:  return LENGTH_73;
-      case 74:  return LENGTH_74;
-      case 75:  return LENGTH_75;
-      case 76:  return LENGTH_76;
-      case 77:  return LENGTH_77;
-      case 78:  return LENGTH_78;
-      case 79:  return LENGTH_79;
-      case 80:  return LENGTH_80;
-      case 81:  return LENGTH_81;
-      case 82:  return LENGTH_82;
-      case 83:  return LENGTH_83;
-      case 84:  return LENGTH_84;
-      case 85:  return LENGTH_85;
-      case 86:  return LENGTH_86;
-      case 87:  return LENGTH_87;
-      case 88:  return LENGTH_88;
-      case 89:  return LENGTH_89;
-      case 90:  return LENGTH_90;
-      case 91:  return LENGTH_91;
-      case 92:  return LENGTH_92;
-      case 93:  return LENGTH_93;
-      case 94:  return LENGTH_94;
-      case 95:  return LENGTH_95;
-      case 96:  return LENGTH_96;
-      case 97:  return LENGTH_97;
-      case 98:  return LENGTH_98;
-      case 99:  return LENGTH_99;
-      case 100:  return LENGTH_100;
-      case 101:  return LENGTH_101;
-      case 102:  return LENGTH_102;
-      case 103:  return LENGTH_103;
-      case 104:  return LENGTH_104;
-      case 105:  return LENGTH_105;
-      case 106:  return LENGTH_106;
-      case 107:  return LENGTH_107;
-      case 108:  return LENGTH_108;
-      case 109:  return LENGTH_109;
-      case 110:  return LENGTH_110;
-      case 111:  return LENGTH_111;
-      case 112:  return LENGTH_112;
-      case 113:  return LENGTH_113;
-      case 114:  return LENGTH_114;
-      case 115:  return LENGTH_115;
-      case 116:  return LENGTH_116;
-      case 117:  return LENGTH_117;
-      case 118:  return LENGTH_118;
-      case 119:  return LENGTH_119;
-      case 120:  return LENGTH_120;
-      case 121:  return LENGTH_121;
-      case 122:  return LENGTH_122;
-      case 123:  return LENGTH_123;
-      case 124:  return LENGTH_124;
-      case 125:  return LENGTH_125;
-      case 126:  return LENGTH_126;
-      case 127:  return LENGTH_127;
+      case 0:  return ASN1Constants.LENGTH_0;
+      case 1:  return ASN1Constants.LENGTH_1;
+      case 2:  return ASN1Constants.LENGTH_2;
+      case 3:  return ASN1Constants.LENGTH_3;
+      case 4:  return ASN1Constants.LENGTH_4;
+      case 5:  return ASN1Constants.LENGTH_5;
+      case 6:  return ASN1Constants.LENGTH_6;
+      case 7:  return ASN1Constants.LENGTH_7;
+      case 8:  return ASN1Constants.LENGTH_8;
+      case 9:  return ASN1Constants.LENGTH_9;
+      case 10:  return ASN1Constants.LENGTH_10;
+      case 11:  return ASN1Constants.LENGTH_11;
+      case 12:  return ASN1Constants.LENGTH_12;
+      case 13:  return ASN1Constants.LENGTH_13;
+      case 14:  return ASN1Constants.LENGTH_14;
+      case 15:  return ASN1Constants.LENGTH_15;
+      case 16:  return ASN1Constants.LENGTH_16;
+      case 17:  return ASN1Constants.LENGTH_17;
+      case 18:  return ASN1Constants.LENGTH_18;
+      case 19:  return ASN1Constants.LENGTH_19;
+      case 20:  return ASN1Constants.LENGTH_20;
+      case 21:  return ASN1Constants.LENGTH_21;
+      case 22:  return ASN1Constants.LENGTH_22;
+      case 23:  return ASN1Constants.LENGTH_23;
+      case 24:  return ASN1Constants.LENGTH_24;
+      case 25:  return ASN1Constants.LENGTH_25;
+      case 26:  return ASN1Constants.LENGTH_26;
+      case 27:  return ASN1Constants.LENGTH_27;
+      case 28:  return ASN1Constants.LENGTH_28;
+      case 29:  return ASN1Constants.LENGTH_29;
+      case 30:  return ASN1Constants.LENGTH_30;
+      case 31:  return ASN1Constants.LENGTH_31;
+      case 32:  return ASN1Constants.LENGTH_32;
+      case 33:  return ASN1Constants.LENGTH_33;
+      case 34:  return ASN1Constants.LENGTH_34;
+      case 35:  return ASN1Constants.LENGTH_35;
+      case 36:  return ASN1Constants.LENGTH_36;
+      case 37:  return ASN1Constants.LENGTH_37;
+      case 38:  return ASN1Constants.LENGTH_38;
+      case 39:  return ASN1Constants.LENGTH_39;
+      case 40:  return ASN1Constants.LENGTH_40;
+      case 41:  return ASN1Constants.LENGTH_41;
+      case 42:  return ASN1Constants.LENGTH_42;
+      case 43:  return ASN1Constants.LENGTH_43;
+      case 44:  return ASN1Constants.LENGTH_44;
+      case 45:  return ASN1Constants.LENGTH_45;
+      case 46:  return ASN1Constants.LENGTH_46;
+      case 47:  return ASN1Constants.LENGTH_47;
+      case 48:  return ASN1Constants.LENGTH_48;
+      case 49:  return ASN1Constants.LENGTH_49;
+      case 50:  return ASN1Constants.LENGTH_50;
+      case 51:  return ASN1Constants.LENGTH_51;
+      case 52:  return ASN1Constants.LENGTH_52;
+      case 53:  return ASN1Constants.LENGTH_53;
+      case 54:  return ASN1Constants.LENGTH_54;
+      case 55:  return ASN1Constants.LENGTH_55;
+      case 56:  return ASN1Constants.LENGTH_56;
+      case 57:  return ASN1Constants.LENGTH_57;
+      case 58:  return ASN1Constants.LENGTH_58;
+      case 59:  return ASN1Constants.LENGTH_59;
+      case 60:  return ASN1Constants.LENGTH_60;
+      case 61:  return ASN1Constants.LENGTH_61;
+      case 62:  return ASN1Constants.LENGTH_62;
+      case 63:  return ASN1Constants.LENGTH_63;
+      case 64:  return ASN1Constants.LENGTH_64;
+      case 65:  return ASN1Constants.LENGTH_65;
+      case 66:  return ASN1Constants.LENGTH_66;
+      case 67:  return ASN1Constants.LENGTH_67;
+      case 68:  return ASN1Constants.LENGTH_68;
+      case 69:  return ASN1Constants.LENGTH_69;
+      case 70:  return ASN1Constants.LENGTH_70;
+      case 71:  return ASN1Constants.LENGTH_71;
+      case 72:  return ASN1Constants.LENGTH_72;
+      case 73:  return ASN1Constants.LENGTH_73;
+      case 74:  return ASN1Constants.LENGTH_74;
+      case 75:  return ASN1Constants.LENGTH_75;
+      case 76:  return ASN1Constants.LENGTH_76;
+      case 77:  return ASN1Constants.LENGTH_77;
+      case 78:  return ASN1Constants.LENGTH_78;
+      case 79:  return ASN1Constants.LENGTH_79;
+      case 80:  return ASN1Constants.LENGTH_80;
+      case 81:  return ASN1Constants.LENGTH_81;
+      case 82:  return ASN1Constants.LENGTH_82;
+      case 83:  return ASN1Constants.LENGTH_83;
+      case 84:  return ASN1Constants.LENGTH_84;
+      case 85:  return ASN1Constants.LENGTH_85;
+      case 86:  return ASN1Constants.LENGTH_86;
+      case 87:  return ASN1Constants.LENGTH_87;
+      case 88:  return ASN1Constants.LENGTH_88;
+      case 89:  return ASN1Constants.LENGTH_89;
+      case 90:  return ASN1Constants.LENGTH_90;
+      case 91:  return ASN1Constants.LENGTH_91;
+      case 92:  return ASN1Constants.LENGTH_92;
+      case 93:  return ASN1Constants.LENGTH_93;
+      case 94:  return ASN1Constants.LENGTH_94;
+      case 95:  return ASN1Constants.LENGTH_95;
+      case 96:  return ASN1Constants.LENGTH_96;
+      case 97:  return ASN1Constants.LENGTH_97;
+      case 98:  return ASN1Constants.LENGTH_98;
+      case 99:  return ASN1Constants.LENGTH_99;
+      case 100:  return ASN1Constants.LENGTH_100;
+      case 101:  return ASN1Constants.LENGTH_101;
+      case 102:  return ASN1Constants.LENGTH_102;
+      case 103:  return ASN1Constants.LENGTH_103;
+      case 104:  return ASN1Constants.LENGTH_104;
+      case 105:  return ASN1Constants.LENGTH_105;
+      case 106:  return ASN1Constants.LENGTH_106;
+      case 107:  return ASN1Constants.LENGTH_107;
+      case 108:  return ASN1Constants.LENGTH_108;
+      case 109:  return ASN1Constants.LENGTH_109;
+      case 110:  return ASN1Constants.LENGTH_110;
+      case 111:  return ASN1Constants.LENGTH_111;
+      case 112:  return ASN1Constants.LENGTH_112;
+      case 113:  return ASN1Constants.LENGTH_113;
+      case 114:  return ASN1Constants.LENGTH_114;
+      case 115:  return ASN1Constants.LENGTH_115;
+      case 116:  return ASN1Constants.LENGTH_116;
+      case 117:  return ASN1Constants.LENGTH_117;
+      case 118:  return ASN1Constants.LENGTH_118;
+      case 119:  return ASN1Constants.LENGTH_119;
+      case 120:  return ASN1Constants.LENGTH_120;
+      case 121:  return ASN1Constants.LENGTH_121;
+      case 122:  return ASN1Constants.LENGTH_122;
+      case 123:  return ASN1Constants.LENGTH_123;
+      case 124:  return ASN1Constants.LENGTH_124;
+      case 125:  return ASN1Constants.LENGTH_125;
+      case 126:  return ASN1Constants.LENGTH_126;
+      case 127:  return ASN1Constants.LENGTH_127;
     }
 
-    if ((length & 0x000000FF) == length)
+    if ((length & 0x0000_00FF) == length)
     {
       return new byte[]
       {
@@ -494,7 +493,7 @@ public class ASN1Element
         (byte) (length & 0xFF)
       };
     }
-    else if ((length & 0x0000FFFF) == length)
+    else if ((length & 0x0000_FFFF) == length)
     {
       return new byte[]
       {
@@ -503,7 +502,7 @@ public class ASN1Element
         (byte) (length & 0xFF)
       };
     }
-    else if ((length & 0x00FFFFFF) == length)
+    else if ((length & 0x00FF_FFFF) == length)
     {
       return new byte[]
       {
@@ -569,12 +568,12 @@ public class ASN1Element
     }
     catch (final ASN1Exception ae)
     {
-      debugException(ae);
+      Debug.debugException(ae);
       throw ae;
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new ASN1Exception(ERR_ELEMENT_DECODE_EXCEPTION.get(e), e);
     }
   }
@@ -951,7 +950,7 @@ public class ASN1Element
     }
 
     final ASN1Element e = new ASN1Element(type, value);
-    debugASN1Read(e);
+    Debug.debugASN1Read(e);
     return e;
   }
 
@@ -974,7 +973,7 @@ public class ASN1Element
   public final int writeTo(final OutputStream outputStream)
          throws IOException
   {
-    debugASN1Write(this);
+    Debug.debugASN1Write(this);
 
     final ByteStringBuffer buffer = new ByteStringBuffer();
     encodeTo(buffer);
@@ -1037,7 +1036,7 @@ public class ASN1Element
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return false;
     }
   }
@@ -1095,11 +1094,11 @@ public class ASN1Element
   {
     final byte[] v = getValue();
     buffer.append("ASN1Element(type=");
-    toHex(type, buffer);
+    StaticUtils.toHex(type, buffer);
     buffer.append(", valueLength=");
     buffer.append(v.length);
     buffer.append(", valueBytes='");
-    toHex(v, buffer);
+    StaticUtils.toHex(v, buffer);
     buffer.append("')");
   }
 }

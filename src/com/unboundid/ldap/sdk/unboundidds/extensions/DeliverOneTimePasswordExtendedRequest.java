@@ -452,8 +452,7 @@ public final class DeliverOneTimePasswordExtendedRequest
     else
     {
       final ArrayList<ObjectPair<String,String>> l =
-           new ArrayList<ObjectPair<String,String>>(
-                preferredDeliveryMechanisms.size());
+           new ArrayList<>(preferredDeliveryMechanisms.size());
       for (final String s : preferredDeliveryMechanisms)
       {
         l.add(new ObjectPair<String,String>(s, null));
@@ -829,8 +828,7 @@ public final class DeliverOneTimePasswordExtendedRequest
     String fullAfter = null;
     String compactBefore = null;
     String compactAfter = null;
-    final ArrayList<ObjectPair<String,String>> pdmList =
-         new ArrayList<ObjectPair<String,String>>(10);
+    final ArrayList<ObjectPair<String,String>> pdmList = new ArrayList<>(10);
     try
     {
       for (final ASN1Element e :
@@ -851,7 +849,7 @@ public final class DeliverOneTimePasswordExtendedRequest
                  ASN1Sequence.decodeAsSequence(e).elements();
             for (final ASN1Element mechElement : mechNameElements)
             {
-              pdmList.add(new ObjectPair<String, String>(
+              pdmList.add(new ObjectPair<String,String>(
                    ASN1OctetString.decodeAsOctetString(mechElement).
                         stringValue(),
                    null));
@@ -879,7 +877,7 @@ public final class DeliverOneTimePasswordExtendedRequest
                 recipientID = null;
               }
 
-              pdmList.add(new ObjectPair<String,String>(mech, recipientID));
+              pdmList.add(new ObjectPair<>(mech, recipientID));
             }
             break;
 
@@ -988,7 +986,7 @@ public final class DeliverOneTimePasswordExtendedRequest
                       final ASN1OctetString staticPassword,
                       final List<String> preferredDeliveryMechanisms)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     elements.add(new ASN1OctetString(TYPE_AUTHN_ID, authenticationID));
 
@@ -1001,7 +999,7 @@ public final class DeliverOneTimePasswordExtendedRequest
         (! preferredDeliveryMechanisms.isEmpty()))
     {
       final ArrayList<ASN1Element> dmElements =
-           new ArrayList<ASN1Element>(preferredDeliveryMechanisms.size());
+           new ArrayList<>(preferredDeliveryMechanisms.size());
       for (final String s : preferredDeliveryMechanisms)
       {
         dmElements.add(new ASN1OctetString(s));
@@ -1105,7 +1103,7 @@ public final class DeliverOneTimePasswordExtendedRequest
        final String compactTextBeforeOTP, final String compactTextAfterOTP,
        final List<ObjectPair<String,String>> preferredDeliveryMechanisms)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(8);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(8);
 
     elements.add(new ASN1OctetString(TYPE_AUTHN_ID, authenticationID));
 
@@ -1148,7 +1146,7 @@ public final class DeliverOneTimePasswordExtendedRequest
         (! preferredDeliveryMechanisms.isEmpty()))
     {
       final ArrayList<ASN1Element> pdmElements =
-           new ArrayList<ASN1Element>(preferredDeliveryMechanisms.size());
+           new ArrayList<>(preferredDeliveryMechanisms.size());
       for (final ObjectPair<String,String> p : preferredDeliveryMechanisms)
       {
         if (p.getSecond() == null)
@@ -1220,13 +1218,13 @@ public final class DeliverOneTimePasswordExtendedRequest
     else
     {
       final LinkedHashSet<String> s =
-           new LinkedHashSet<String>(preferredDeliveryMechanisms.size());
+           new LinkedHashSet<>(preferredDeliveryMechanisms.size());
       for (final ObjectPair<String,String> p : preferredDeliveryMechanisms)
       {
         s.add(p.getFirst());
       }
 
-      return Collections.unmodifiableList(new ArrayList<String>(s));
+      return Collections.unmodifiableList(new ArrayList<>(s));
     }
   }
 

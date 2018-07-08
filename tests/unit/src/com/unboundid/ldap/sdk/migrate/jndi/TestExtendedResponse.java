@@ -79,6 +79,7 @@ public class TestExtendedResponse
    *
    * @return  The OID for this extended response.
    */
+  @Override()
   public String getID()
   {
     return oid;
@@ -91,6 +92,7 @@ public class TestExtendedResponse
    *
    * @return  The encoded value for this extended response.
    */
+  @Override()
   public byte[] getEncodedValue()
   {
     return value;

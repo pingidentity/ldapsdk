@@ -31,12 +31,12 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -92,7 +92,7 @@ public final class MatchingRuleUseDefinition
   public MatchingRuleUseDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(s);
+    Validator.ensureNotNull(s);
 
     matchingRuleUseString = s.trim();
 
@@ -123,11 +123,11 @@ public final class MatchingRuleUseDefinition
     // Technically, matching rule use elements are supposed to appear in a
     // specific order, but we'll be lenient and allow remaining elements to come
     // in any order.
-    final ArrayList<String> nameList = new ArrayList<String>(1);
-    final ArrayList<String> typeList = new ArrayList<String>(1);
+    final ArrayList<String> nameList = new ArrayList<>(1);
+    final ArrayList<String> typeList = new ArrayList<>(1);
     String               descr       = null;
     Boolean              obsolete    = null;
-    final Map<String,String[]> exts  = new LinkedHashMap<String,String[]>();
+    final Map<String,String[]> exts  = new LinkedHashMap<>(5);
 
     while (true)
     {
@@ -152,7 +152,7 @@ public final class MatchingRuleUseDefinition
         pos--;
       }
 
-      final String lowerToken = toLowerCase(token);
+      final String lowerToken = StaticUtils.toLowerCase(token);
       if (lowerToken.equals(")"))
       {
         // This indicates that we're at the end of the value.  There should not
@@ -227,7 +227,7 @@ public final class MatchingRuleUseDefinition
       {
         pos = skipSpaces(matchingRuleUseString, pos, length);
 
-        final ArrayList<String> valueList = new ArrayList<String>();
+        final ArrayList<String> valueList = new ArrayList<>(5);
         pos = readQDStrings(matchingRuleUseString, pos, length, valueList);
 
         final String[] values = new String[valueList.size()];
@@ -353,8 +353,8 @@ public final class MatchingRuleUseDefinition
                                    final String[] applicableTypes,
                                    final Map<String,String[]> extensions)
   {
-    ensureNotNull(oid, applicableTypes);
-    ensureFalse(applicableTypes.length == 0);
+    Validator.ensureNotNull(oid, applicableTypes);
+    Validator.ensureFalse(applicableTypes.length == 0);
 
     this.oid             = oid;
     this.description     = description;
@@ -363,7 +363,7 @@ public final class MatchingRuleUseDefinition
 
     if (names == null)
     {
-      this.names = NO_STRINGS;
+      this.names = StaticUtils.NO_STRINGS;
     }
     else
     {
@@ -641,10 +641,10 @@ public final class MatchingRuleUseDefinition
 
     final MatchingRuleUseDefinition d = (MatchingRuleUseDefinition) o;
     return (oid.equals(d.oid) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         stringsEqualIgnoreCaseOrderIndependent(applicableTypes,
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         StaticUtils.stringsEqualIgnoreCaseOrderIndependent(applicableTypes,
               d.applicableTypes) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
+         StaticUtils.bothNullOrEqualIgnoreCase(description, d.description) &&
          (isObsolete == d.isObsolete) &&
          extensionsEqual(extensions, d.extensions));
   }

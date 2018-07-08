@@ -575,12 +575,12 @@ public class LDAPException
                                    final String serverErrorMessage,
                                    final int resultCode)
   {
-    if ((message != null) && (message.length() > 0))
+    if ((message != null) && (! message.isEmpty()))
     {
       return message;
     }
 
-    if ((serverErrorMessage != null) && (serverErrorMessage.length() > 0))
+    if ((serverErrorMessage != null) && (! serverErrorMessage.isEmpty()))
     {
       return serverErrorMessage;
     }

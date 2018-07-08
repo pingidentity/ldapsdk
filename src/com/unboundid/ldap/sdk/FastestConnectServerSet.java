@@ -389,7 +389,7 @@ public final class FastestConnectServerSet
     }
 
     final ArrayBlockingQueue<Object> resultQueue =
-         new ArrayBlockingQueue<Object>(addresses.length, false);
+         new ArrayBlockingQueue<>(addresses.length, false);
     final AtomicBoolean connectionSelected = new AtomicBoolean(false);
 
     final FastestConnectThread[] connectThreads =

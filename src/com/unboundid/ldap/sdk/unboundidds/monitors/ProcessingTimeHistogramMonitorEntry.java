@@ -28,13 +28,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -734,7 +734,7 @@ public class ProcessingTimeHistogramMonitorEntry
 
     try
     {
-      final LinkedHashMap<Long,Long> map = new LinkedHashMap<Long,Long>();
+      final LinkedHashMap<Long,Long> map = new LinkedHashMap<>(50);
 
       // FIXME -- Do we need to figure out how to make this
       // internationalizeable?
@@ -770,7 +770,7 @@ public class ProcessingTimeHistogramMonitorEntry
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return Collections.emptyMap();
     }
   }
@@ -798,7 +798,7 @@ public class ProcessingTimeHistogramMonitorEntry
 
     try
     {
-      final LinkedHashMap<Long,Double> map = new LinkedHashMap<Long,Double>();
+      final LinkedHashMap<Long,Double> map = new LinkedHashMap<>(50);
 
       // FIXME -- Do we need to figure out how to make this
       // internationalizeable?
@@ -856,7 +856,7 @@ public class ProcessingTimeHistogramMonitorEntry
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       return Collections.emptyMap();
     }
   }
@@ -1639,7 +1639,7 @@ public class ProcessingTimeHistogramMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<String,MonitorAttribute>();
+         new LinkedHashMap<>(50);
 
     if (allOpsTotalCount != null)
     {

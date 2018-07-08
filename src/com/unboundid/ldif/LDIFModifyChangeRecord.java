@@ -36,13 +36,12 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -135,8 +134,8 @@ public final class LDIFModifyChangeRecord
   {
     super(dn, controls);
 
-    ensureNotNull(modifications);
-    ensureTrue(modifications.length > 0,
+    Validator.ensureNotNull(modifications);
+    Validator.ensureTrue(modifications.length > 0,
          "LDIFModifyChangeRecord.modifications must not be empty.");
 
     this.modifications = modifications;
@@ -179,8 +178,8 @@ public final class LDIFModifyChangeRecord
   {
     super(dn, controls);
 
-    ensureNotNull(modifications);
-    ensureFalse(modifications.isEmpty(),
+    Validator.ensureNotNull(modifications);
+    Validator.ensureFalse(modifications.isEmpty(),
          "LDIFModifyChangeRecord.modifications must not be empty.");
 
     this.modifications = new Modification[modifications.size()];
@@ -322,7 +321,7 @@ public final class LDIFModifyChangeRecord
   @Override()
   public String[] toLDIF(final int wrapColumn)
   {
-    List<String> ldifLines = new ArrayList<String>(modifications.length*4);
+    List<String> ldifLines = new ArrayList<>(modifications.length*4);
     encodeNameAndValue("dn", new ASN1OctetString(getDN()), ldifLines);
 
     for (final Control c : getControls())
@@ -386,18 +385,18 @@ public final class LDIFModifyChangeRecord
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     for (final Control c : getControls())
     {
       LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
            wrapColumn);
-      buffer.append(EOL_BYTES);
+      buffer.append(StaticUtils.EOL_BYTES);
     }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("modify"),
                                   buffer, wrapColumn);
-    buffer.append(EOL_BYTES);
+    buffer.append(StaticUtils.EOL_BYTES);
 
     for (int i=0; i < modifications.length; i++)
     {
@@ -408,24 +407,24 @@ public final class LDIFModifyChangeRecord
         case 0:
           LDIFWriter.encodeNameAndValue("add", new ASN1OctetString(attrName),
                                         buffer, wrapColumn);
-          buffer.append(EOL_BYTES);
+          buffer.append(StaticUtils.EOL_BYTES);
           break;
         case 1:
           LDIFWriter.encodeNameAndValue("delete", new ASN1OctetString(attrName),
                                         buffer, wrapColumn);
-          buffer.append(EOL_BYTES);
+          buffer.append(StaticUtils.EOL_BYTES);
           break;
         case 2:
           LDIFWriter.encodeNameAndValue("replace",
                                         new ASN1OctetString(attrName), buffer,
                                         wrapColumn);
-          buffer.append(EOL_BYTES);
+          buffer.append(StaticUtils.EOL_BYTES);
           break;
         case 3:
           LDIFWriter.encodeNameAndValue("increment",
                                         new ASN1OctetString(attrName), buffer,
                                         wrapColumn);
-          buffer.append(EOL_BYTES);
+          buffer.append(StaticUtils.EOL_BYTES);
           break;
         default:
           // This should never happen.
@@ -435,13 +434,13 @@ public final class LDIFModifyChangeRecord
       for (final ASN1OctetString value : modifications[i].getRawValues())
       {
         LDIFWriter.encodeNameAndValue(attrName, value, buffer, wrapColumn);
-        buffer.append(EOL_BYTES);
+        buffer.append(StaticUtils.EOL_BYTES);
       }
 
       if (alwaysIncludeTrailingDash || (i < (modifications.length - 1)))
       {
         buffer.append('-');
-        buffer.append(EOL_BYTES);
+        buffer.append(StaticUtils.EOL_BYTES);
       }
     }
   }
@@ -456,18 +455,18 @@ public final class LDIFModifyChangeRecord
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
          wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     for (final Control c : getControls())
     {
       LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
            wrapColumn);
-      buffer.append(EOL);
+      buffer.append(StaticUtils.EOL);
     }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("modify"),
                                   buffer, wrapColumn);
-    buffer.append(EOL);
+    buffer.append(StaticUtils.EOL);
 
     for (int i=0; i < modifications.length; i++)
     {
@@ -478,24 +477,24 @@ public final class LDIFModifyChangeRecord
         case 0:
           LDIFWriter.encodeNameAndValue("add", new ASN1OctetString(attrName),
                                         buffer, wrapColumn);
-          buffer.append(EOL);
+          buffer.append(StaticUtils.EOL);
           break;
         case 1:
           LDIFWriter.encodeNameAndValue("delete", new ASN1OctetString(attrName),
                                         buffer, wrapColumn);
-          buffer.append(EOL);
+          buffer.append(StaticUtils.EOL);
           break;
         case 2:
           LDIFWriter.encodeNameAndValue("replace",
                                         new ASN1OctetString(attrName), buffer,
                                         wrapColumn);
-          buffer.append(EOL);
+          buffer.append(StaticUtils.EOL);
           break;
         case 3:
           LDIFWriter.encodeNameAndValue("increment",
                                         new ASN1OctetString(attrName), buffer,
                                         wrapColumn);
-          buffer.append(EOL);
+          buffer.append(StaticUtils.EOL);
           break;
         default:
           // This should never happen.
@@ -505,13 +504,13 @@ public final class LDIFModifyChangeRecord
       for (final ASN1OctetString value : modifications[i].getRawValues())
       {
         LDIFWriter.encodeNameAndValue(attrName, value, buffer, wrapColumn);
-        buffer.append(EOL);
+        buffer.append(StaticUtils.EOL);
       }
 
       if (alwaysIncludeTrailingDash || (i < (modifications.length - 1)))
       {
         buffer.append('-');
-        buffer.append(EOL);
+        buffer.append(StaticUtils.EOL);
       }
     }
   }
@@ -531,8 +530,8 @@ public final class LDIFModifyChangeRecord
     }
     catch (final Exception e)
     {
-      debugException(e);
-      hashCode = toLowerCase(getDN()).hashCode();
+      Debug.debugException(e);
+      hashCode = StaticUtils.toLowerCase(getDN()).hashCode();
     }
 
     for (final Modification m : modifications)
@@ -568,8 +567,8 @@ public final class LDIFModifyChangeRecord
 
     final LDIFModifyChangeRecord r = (LDIFModifyChangeRecord) o;
 
-    final HashSet<Control> c1 = new HashSet<Control>(getControls());
-    final HashSet<Control> c2 = new HashSet<Control>(r.getControls());
+    final HashSet<Control> c1 = new HashSet<>(getControls());
+    final HashSet<Control> c2 = new HashSet<>(r.getControls());
     if (! c1.equals(c2))
     {
       return false;
@@ -584,8 +583,9 @@ public final class LDIFModifyChangeRecord
     }
     catch (final Exception e)
     {
-      debugException(e);
-      if (! toLowerCase(getDN()).equals(toLowerCase(r.getDN())))
+      Debug.debugException(e);
+      if (! StaticUtils.toLowerCase(getDN()).equals(
+           StaticUtils.toLowerCase(r.getDN())))
       {
         return false;
       }

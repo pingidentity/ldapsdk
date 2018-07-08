@@ -483,8 +483,7 @@ public final class DeliverOneTimePassword
     if (deliveryMechanism.isPresent())
     {
       final List<String> dmList = deliveryMechanism.getValues();
-      preferredDeliveryMechanisms =
-           new ArrayList<ObjectPair<String,String>>(dmList.size());
+      preferredDeliveryMechanisms = new ArrayList<>(dmList.size());
       for (final String s : dmList)
       {
         preferredDeliveryMechanisms.add(new ObjectPair<String,String>(s, null));
@@ -582,8 +581,7 @@ public final class DeliverOneTimePassword
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<String[],String>(2);
+    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(2);
 
     String[] args =
     {

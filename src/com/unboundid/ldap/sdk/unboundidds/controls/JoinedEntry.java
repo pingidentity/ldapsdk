@@ -36,13 +36,13 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -144,11 +144,11 @@ public final class JoinedEntry
    */
   ASN1Element encode()
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     elements.add(new ASN1OctetString(getDN()));
 
-    final ArrayList<ASN1Element> attrElements = new ArrayList<ASN1Element>();
+    final ArrayList<ASN1Element> attrElements = new ArrayList<>(20);
     for (final Attribute a : getAttributes())
     {
       attrElements.add(a.encode());
@@ -158,7 +158,7 @@ public final class JoinedEntry
     if (! nestedJoinResults.isEmpty())
     {
       final ArrayList<ASN1Element> nestedElements =
-           new ArrayList<ASN1Element>(nestedJoinResults.size());
+           new ArrayList<>(nestedJoinResults.size());
       for (final JoinedEntry je : nestedJoinResults)
       {
         nestedElements.add(je.encode());
@@ -193,8 +193,7 @@ public final class JoinedEntry
 
       final ASN1Element[] attrElements =
            ASN1Sequence.decodeAsSequence(elements[1]).elements();
-      final ArrayList<Attribute> attrs =
-           new ArrayList<Attribute>(attrElements.length);
+      final ArrayList<Attribute> attrs = new ArrayList<>(attrElements.length);
       for (final ASN1Element e : attrElements)
       {
         attrs.add(Attribute.decode(ASN1Sequence.decodeAsSequence(e)));
@@ -205,7 +204,7 @@ public final class JoinedEntry
       {
         final ASN1Element[] nestedElements =
              ASN1Sequence.decodeAsSequence(elements[2]).elements();
-        nestedJoinResults = new ArrayList<JoinedEntry>(nestedElements.length);
+        nestedJoinResults = new ArrayList<>(nestedElements.length);
         for (final ASN1Element e : nestedElements)
         {
           nestedJoinResults.add(decode(e));
@@ -213,17 +212,19 @@ public final class JoinedEntry
       }
       else
       {
-        nestedJoinResults = new ArrayList<JoinedEntry>(0);
+        nestedJoinResults = new ArrayList<>(0);
       }
 
       return new JoinedEntry(dn, attrs, nestedJoinResults);
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_JOINED_ENTRY_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_JOINED_ENTRY_CANNOT_DECODE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 

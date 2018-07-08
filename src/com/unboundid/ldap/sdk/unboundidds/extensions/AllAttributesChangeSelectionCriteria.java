@@ -109,7 +109,7 @@ public final class AllAttributesChangeSelectionCriteria
     Validator.ensureFalse(attributeNames.isEmpty());
 
     this.attributeNames =
-         Collections.unmodifiableList(new ArrayList<String>(attributeNames));
+         Collections.unmodifiableList(new ArrayList<>(attributeNames));
   }
 
 
@@ -136,8 +136,7 @@ public final class AllAttributesChangeSelectionCriteria
     {
       final ASN1Element[] attrElements =
            ASN1Sequence.decodeAsSequence(innerElement).elements();
-      final ArrayList<String> attrNames =
-           new ArrayList<String>(attrElements.length);
+      final ArrayList<String> attrNames = new ArrayList<>(attrElements.length);
       for (final ASN1Element e : attrElements)
       {
         attrNames.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -178,7 +177,7 @@ public final class AllAttributesChangeSelectionCriteria
   public ASN1Element encodeInnerElement()
   {
     final ArrayList<ASN1Element> elements =
-         new ArrayList<ASN1Element>(attributeNames.size());
+         new ArrayList<>(attributeNames.size());
     for (final String s : attributeNames)
     {
       elements.add(new ASN1OctetString(s));

@@ -692,7 +692,7 @@ public final class MatchingEntryCountRequestControl
                       final Long slowShortCircuitThreshold,
                       final boolean includeDebugInfo)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(4);
 
     if (maxCandidatesToExamine > 0)
     {

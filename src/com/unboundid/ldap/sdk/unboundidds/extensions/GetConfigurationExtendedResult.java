@@ -83,7 +83,8 @@ public final class GetConfigurationExtendedResult
    * The OID (1.3.6.1.4.1.30221.2.6.29) for the get configuration extended
    * result.
    */
-  public static final String GET_CONFIG_RESULT_OID = "1.3.6.1.4.1.30221.2.6.29";
+  public static final String GET_CONFIG_RESULT_OID =
+       "1.3.6.1.4.1.30221.2.6.29";
 
 
 

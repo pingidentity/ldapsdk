@@ -180,7 +180,7 @@ public final class AssuredReplicationServerResult
    */
   ASN1Element encode()
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(3);
 
     elements.add(new ASN1Enumerated(TYPE_RESULT_CODE, resultCode.intValue()));
 

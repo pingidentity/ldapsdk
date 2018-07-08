@@ -33,14 +33,14 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.protocol.BindRequestProtocolOp;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -91,7 +91,7 @@ public abstract class SASLBindRequest
     super(controls);
 
     messageID     = -1;
-    responseQueue = new LinkedBlockingQueue<LDAPResponse>();
+    responseQueue = new LinkedBlockingQueue<>();
   }
 
 
@@ -195,7 +195,7 @@ public abstract class SASLBindRequest
     connection.registerResponseAcceptor(msgID, this);
     try
     {
-      debugLDAPRequest(Level.INFO, this, msgID, connection);
+      Debug.debugLDAPRequest(Level.INFO, this, msgID, connection);
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumBindRequests();
       connection.sendMessage(requestMessage, timeoutMillis);
@@ -215,7 +215,7 @@ public abstract class SASLBindRequest
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_BIND_INTERRUPTED.get(connection.getHostPort()), ie);
@@ -253,7 +253,7 @@ public abstract class SASLBindRequest
             throws LDAPException
   {
     final int msgID = requestMessage.getMessageID();
-    debugLDAPRequest(Level.INFO, this, msgID, connection);
+    Debug.debugLDAPRequest(Level.INFO, this, msgID, connection);
     final long requestTime = System.nanoTime();
     connection.getConnectionStatistics().incrementNumBindRequests();
     connection.sendMessage(requestMessage, timeoutMillis);
@@ -298,7 +298,8 @@ public abstract class SASLBindRequest
   {
     if (response == null)
     {
-      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      final long waitTime =
+           StaticUtils.nanosToMillis(System.nanoTime() - requestTime);
       throw new LDAPException(ResultCode.TIMEOUT,
            ERR_SASL_BIND_CLIENT_TIMEOUT.get(waitTime, getSASLMechanismName(),
                 messageID, connection.getHostPort()));
@@ -345,7 +346,7 @@ public abstract class SASLBindRequest
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
 
       if (e instanceof InterruptedException)
       {
@@ -353,7 +354,9 @@ public abstract class SASLBindRequest
       }
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
+           ERR_EXCEPTION_HANDLING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 
@@ -367,8 +370,7 @@ public abstract class SASLBindRequest
                      final int indentSpaces, final boolean includeProcessing)
   {
     // Create the request variable.
-    final ArrayList<ToCodeArgHelper> constructorArgs =
-         new ArrayList<ToCodeArgHelper>(4);
+    final ArrayList<ToCodeArgHelper> constructorArgs = new ArrayList<>(4);
     constructorArgs.add(ToCodeArgHelper.createString(null, "Bind DN"));
     constructorArgs.add(ToCodeArgHelper.createString(getSASLMechanismName(),
          "SASL Mechanism Name"));

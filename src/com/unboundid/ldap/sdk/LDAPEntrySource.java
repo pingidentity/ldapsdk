@@ -27,13 +27,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -207,9 +207,9 @@ public final class LDAPEntrySource
                          final int queueSize)
          throws LDAPException
   {
-    ensureNotNull(connection, searchRequest);
-    ensureTrue(queueSize > 0,
-               "LDAPEntrySource.queueSize must be greater than 0.");
+    Validator.ensureNotNull(connection, searchRequest);
+    Validator.ensureTrue(queueSize > 0,
+         "LDAPEntrySource.queueSize must be greater than 0.");
 
     this.connection      = connection;
     this.closeConnection = closeConnection;
@@ -221,8 +221,8 @@ public final class LDAPEntrySource
     }
 
     closed       = new AtomicBoolean(false);
-    searchResult = new AtomicReference<SearchResult>();
-    queue        = new LinkedBlockingQueue<Object>(queueSize);
+    searchResult = new AtomicReference<>();
+    queue        = new LinkedBlockingQueue<>(queueSize);
 
     final SearchRequest r = new SearchRequest(this, searchRequest.getControls(),
          searchRequest.getBaseDN(), searchRequest.getScope(),
@@ -255,7 +255,7 @@ public final class LDAPEntrySource
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
         Thread.currentThread().interrupt();
         throw new EntrySourceException(true,
              ERR_LDAP_ENTRY_SOURCE_NEXT_ENTRY_INTERRUPTED.get(), ie);
@@ -311,7 +311,7 @@ public final class LDAPEntrySource
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
         }
       }
 
@@ -412,7 +412,7 @@ public final class LDAPEntrySource
       }
       catch (final InterruptedException ie)
       {
-        debugException(ie);
+        Debug.debugException(ie);
       }
     }
   }

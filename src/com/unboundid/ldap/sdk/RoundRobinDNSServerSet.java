@@ -430,7 +430,7 @@ public final class RoundRobinDNSServerSet
                                 final PostConnectProcessor postConnectProcessor)
   {
     Validator.ensureNotNull(hostname);
-    Validator.ensureTrue((port >= 1) && (port <= 65535));
+    Validator.ensureTrue((port >= 1) && (port <= 65_535));
     Validator.ensureNotNull(selectionMode);
 
     this.hostname = hostname;
@@ -448,7 +448,7 @@ public final class RoundRobinDNSServerSet
       }
       else
       {
-        this.jndiProperties = new Hashtable<String,String>(2);
+        this.jndiProperties = new Hashtable<>(2);
         this.jndiProperties.put(Context.INITIAL_CONTEXT_FACTORY,
              "com.sun.jndi.dns.DnsContextFactory");
         this.jndiProperties.put(Context.PROVIDER_URL, providerURL);
@@ -456,8 +456,7 @@ public final class RoundRobinDNSServerSet
     }
     else
     {
-      this.jndiProperties =
-           new Hashtable<String,String>(jndiProperties.size()+2);
+      this.jndiProperties = new Hashtable<>(jndiProperties.size()+2);
       for (final Map.Entry<Object,Object> e : jndiProperties.entrySet())
       {
         this.jndiProperties.put(String.valueOf(e.getKey()),
@@ -514,8 +513,7 @@ public final class RoundRobinDNSServerSet
     }
 
     roundRobinCounter = new AtomicLong(0L);
-    resolvedAddressesWithTimeout =
-         new AtomicReference<ObjectPair<InetAddress[],Long>>();
+    resolvedAddressesWithTimeout = new AtomicReference<>();
   }
 
 
@@ -766,7 +764,7 @@ public final class RoundRobinDNSServerSet
       }
       else
       {
-        Attributes attributes = null;
+        final Attributes attributes;
         final InitialDirContext context = new InitialDirContext(jndiProperties);
         try
         {
@@ -779,8 +777,7 @@ public final class RoundRobinDNSServerSet
 
         if (attributes != null)
         {
-          final ArrayList<InetAddress> addressList =
-               new ArrayList<InetAddress>(10);
+          final ArrayList<InetAddress> addressList = new ArrayList<>(10);
           for (final String recordType : dnsRecordTypes)
           {
             final Attribute a = attributes.get(recordType);
@@ -824,8 +821,8 @@ public final class RoundRobinDNSServerSet
         timeoutTime = System.currentTimeMillis() - 1L;
       }
 
-      resolvedAddressesWithTimeout.set(new ObjectPair<InetAddress[],Long>(
-           addresses, timeoutTime));
+      resolvedAddressesWithTimeout.set(
+           new ObjectPair<>(addresses, timeoutTime));
       return addresses;
     }
 
@@ -854,8 +851,7 @@ public final class RoundRobinDNSServerSet
    */
   List<InetAddress> orderAddresses(final InetAddress[] addresses)
   {
-    final ArrayList<InetAddress> l =
-         new ArrayList<InetAddress>(addresses.length);
+    final ArrayList<InetAddress> l = new ArrayList<>(addresses.length);
 
     switch (selectionMode)
     {

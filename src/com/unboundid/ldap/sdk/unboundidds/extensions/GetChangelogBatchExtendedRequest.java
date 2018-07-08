@@ -883,7 +883,7 @@ public final class GetChangelogBatchExtendedRequest
             final ASN1Element[] includeElements =
                  ASN1Sequence.decodeAsSequence(elements[i]).elements();
             final ArrayList<String> includeList =
-                 new ArrayList<String>(includeElements.length);
+                 new ArrayList<>(includeElements.length);
             for (final ASN1Element e : includeElements)
             {
               includeList.add(
@@ -896,7 +896,7 @@ public final class GetChangelogBatchExtendedRequest
             final ASN1Element[] excludeElements =
                  ASN1Sequence.decodeAsSequence(elements[i]).elements();
             final ArrayList<String> excludeList =
-                 new ArrayList<String>(excludeElements.length);
+                 new ArrayList<>(excludeElements.length);
             for (final ASN1Element e : excludeElements)
             {
               excludeList.add(
@@ -1096,7 +1096,7 @@ public final class GetChangelogBatchExtendedRequest
   {
     Validator.ensureNotNull(startingPoint);
 
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(12);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(12);
 
     elements.add(startingPoint.encode());
 
@@ -1121,8 +1121,7 @@ public final class GetChangelogBatchExtendedRequest
 
     if ((includeBaseDNs != null) && (! includeBaseDNs.isEmpty()))
     {
-      final ArrayList<ASN1Element> l =
-           new ArrayList<ASN1Element>(includeBaseDNs.size());
+      final ArrayList<ASN1Element> l = new ArrayList<>(includeBaseDNs.size());
       for (final String s : includeBaseDNs)
       {
         l.add(new ASN1OctetString(s));
@@ -1132,8 +1131,7 @@ public final class GetChangelogBatchExtendedRequest
 
     if ((excludeBaseDNs != null) && (! excludeBaseDNs.isEmpty()))
     {
-      final ArrayList<ASN1Element> l =
-           new ArrayList<ASN1Element>(excludeBaseDNs.size());
+      final ArrayList<ASN1Element> l = new ArrayList<>(excludeBaseDNs.size());
       for (final String s : excludeBaseDNs)
       {
         l.add(new ASN1OctetString(s));
@@ -1144,8 +1142,7 @@ public final class GetChangelogBatchExtendedRequest
     if ((changeTypes != null) && (! changeTypes.isEmpty()) &&
         (! changeTypes.equals(EnumSet.allOf(ChangeType.class))))
     {
-      final ArrayList<ASN1Element> l =
-           new ArrayList<ASN1Element>(changeTypes.size());
+      final ArrayList<ASN1Element> l = new ArrayList<>(changeTypes.size());
       for (final ChangeType t : changeTypes)
       {
         switch (t)

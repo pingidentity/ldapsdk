@@ -27,7 +27,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import javax.net.SocketFactory;
 
-import static com.unboundid.util.Debug.*;
+import com.unboundid.util.Debug;
 
 
 
@@ -87,7 +87,7 @@ final class LDAPToJavaSocketFactory
     }
     catch (final Exception e)
     {
-      debugException(e);
+      Debug.debugException(e);
       throw new IOException(null, e);
     }
   }

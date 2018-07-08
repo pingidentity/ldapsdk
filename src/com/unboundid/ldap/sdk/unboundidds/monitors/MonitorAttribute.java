@@ -31,8 +31,7 @@ import java.util.List;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.Validator.*;
+import com.unboundid.util.Validator;
 
 
 
@@ -100,7 +99,7 @@ public final class MonitorAttribute
   {
     this(name, displayName, description, Boolean.class, new Object[] { value });
 
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
   }
 
 
@@ -124,7 +123,7 @@ public final class MonitorAttribute
   {
     this(name, displayName, description, Date.class, new Object[] { value });
 
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
   }
 
 
@@ -170,7 +169,7 @@ public final class MonitorAttribute
   {
     this(name, displayName, description, Double.class, new Object[] { value });
 
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
   }
 
 
@@ -216,7 +215,7 @@ public final class MonitorAttribute
   {
     this(name, displayName, description, Integer.class, new Object[] { value });
 
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
   }
 
 
@@ -262,7 +261,7 @@ public final class MonitorAttribute
   {
     this(name, displayName, description, Long.class, new Object[] { value });
 
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
   }
 
 
@@ -308,7 +307,7 @@ public final class MonitorAttribute
   {
     this(name, displayName, description, String.class, new Object[] { value });
 
-    ensureNotNull(value);
+    Validator.ensureNotNull(value);
   }
 
 
@@ -357,9 +356,9 @@ public final class MonitorAttribute
                            final String description, final Class<?> dataType,
                            final Object[] values)
   {
-    ensureNotNull(name, displayName, dataType, values);
-    ensureFalse(values.length == 0,
-                "MonitorAttribute.values must not be empty.");
+    Validator.ensureNotNull(name, displayName, dataType, values);
+    Validator.ensureFalse(values.length == 0,
+         "MonitorAttribute.values must not be empty.");
 
     this.name        = name;
     this.displayName = displayName;

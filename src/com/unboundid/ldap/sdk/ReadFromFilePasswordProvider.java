@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.Serializable;
 import java.util.Arrays;
 
 import com.unboundid.util.Debug;
@@ -46,7 +45,6 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class ReadFromFilePasswordProvider
        extends PasswordProvider
-       implements Serializable
 {
   /**
    * The serial version UID for this serializable file.

@@ -22,7 +22,6 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
-import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -104,9 +103,6 @@ final class ModRateThread
   // The result code counter to use for failed operations.
   private final ResultCodeCounter rcCounter;
 
-  // The random number generator to use for this thread.
-  private final Random random;
-
   // The names of the attributes to modify.
   private final String[] attributes;
 
@@ -150,8 +146,6 @@ final class ModRateThread
    *                                    the proxied authorization control.  It
    *                                    may be {@code null} if proxied
    *                                    authorization should not be used.
-   * @param  randomSeed                 The seed to use for the random number
-   *                                    generator.
    * @param  iterationsBeforeReconnect  The number of iterations that should be
    *                                    processed on a connection before it is
    *                                    closed and replaced with a
@@ -179,7 +173,7 @@ final class ModRateThread
                 final String[] attributes, final ValuePattern valuePattern,
                 final int valueCount, final boolean increment,
                 final int incrementAmount, final Control[] modifyControls,
-                final ValuePattern authzID, final long randomSeed,
+                final ValuePattern authzID,
                 final long iterationsBeforeReconnect,
                 final CyclicBarrier startBarrier, final AtomicLong modCounter,
                 final AtomicLong modDurations, final AtomicLong errorCounter,
@@ -219,10 +213,9 @@ final class ModRateThread
 
     connection.setConnectionName("mod-" + threadNumber);
 
-    resultCode    = new AtomicReference<ResultCode>(null);
-    modThread     = new AtomicReference<Thread>(null);
+    resultCode    = new AtomicReference<>(null);
+    modThread     = new AtomicReference<>(null);
     stopRequested = new AtomicBoolean(false);
-    random        = new Random(randomSeed);
   }
 
 

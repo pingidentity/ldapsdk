@@ -57,18 +57,18 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.AggregateInputStream;
 import com.unboundid.util.Base64;
+import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKThreadFactory;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 import com.unboundid.util.parallel.AsynchronousParallelProcessor;
 import com.unboundid.util.parallel.Result;
 import com.unboundid.util.parallel.ParallelProcessor;
 import com.unboundid.util.parallel.Processor;
 
 import static com.unboundid.ldif.LDIFMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 /**
  * This class provides an LDIF reader, which can be used to read and decode
@@ -250,14 +250,14 @@ public final class LDIFReader
   //
 
   // Parses entries asynchronously.
-  private final AsynchronousParallelProcessor<UnparsedLDIFRecord, LDIFRecord>
+  private final AsynchronousParallelProcessor<UnparsedLDIFRecord,LDIFRecord>
        asyncParser;
 
   // Set to true when the end of the input is reached.
   private final AtomicBoolean asyncParsingComplete;
 
   // The records that have been read and parsed.
-  private final BlockingQueue<Result<UnparsedLDIFRecord, LDIFRecord>>
+  private final BlockingQueue<Result<UnparsedLDIFRecord,LDIFRecord>>
        asyncParsedRecords;
 
 
@@ -751,8 +751,8 @@ public final class LDIFReader
               final LDIFReaderEntryTranslator entryTranslator,
               final LDIFReaderChangeRecordTranslator changeRecordTranslator)
   {
-    ensureNotNull(reader);
-    ensureTrue(numParseThreads >= 0,
+    Validator.ensureNotNull(reader);
+    Validator.ensureTrue(numParseThreads >= 0,
                "LDIFReader.numParseThreads must not be negative.");
 
     this.reader = reader;
@@ -780,22 +780,20 @@ public final class LDIFReader
       final LDAPSDKThreadFactory threadFactory =
            new LDAPSDKThreadFactory("LDIFReader Worker", true, null);
       final ParallelProcessor<UnparsedLDIFRecord, LDIFRecord> parallelParser =
-           new ParallelProcessor<UnparsedLDIFRecord, LDIFRecord>(
+           new ParallelProcessor<>(
                 new RecordParser(), threadFactory, numParseThreads,
                 ASYNC_MIN_PER_PARSING_THREAD);
 
       final BlockingQueue<UnparsedLDIFRecord> pendingQueue = new
-           ArrayBlockingQueue<UnparsedLDIFRecord>(ASYNC_QUEUE_SIZE);
+           ArrayBlockingQueue<>(ASYNC_QUEUE_SIZE);
 
       // The output queue must be a little more than twice as big as the input
       // queue to more easily handle being shutdown in the middle of processing
       // when the queues are full and threads are blocked.
-      asyncParsedRecords = new ArrayBlockingQueue
-           <Result<UnparsedLDIFRecord, LDIFRecord>>(2 * ASYNC_QUEUE_SIZE + 100);
+      asyncParsedRecords = new ArrayBlockingQueue<>(2 * ASYNC_QUEUE_SIZE + 100);
 
-      asyncParser = new AsynchronousParallelProcessor
-           <UnparsedLDIFRecord, LDIFRecord>(pendingQueue, parallelParser,
-                                            asyncParsedRecords);
+      asyncParser = new AsynchronousParallelProcessor<>(pendingQueue,
+           parallelParser, asyncParsedRecords);
 
       final LineReaderThread lineReaderThread = new LineReaderThread();
       lineReaderThread.start();
@@ -898,7 +896,7 @@ public final class LDIFReader
   {
     try
     {
-      final ArrayList<Entry> entries = new ArrayList<Entry>(10);
+      final ArrayList<Entry> entries = new ArrayList<>(10);
       while (true)
       {
         final Entry e = reader.readEntry();
@@ -926,6 +924,7 @@ public final class LDIFReader
    * @throws  IOException  If a problem occurs while closing the underlying LDIF
    *                       source.
    */
+  @Override()
   public void close()
          throws IOException
   {
@@ -1320,7 +1319,7 @@ public final class LDIFReader
   private LDIFRecord readLDIFRecordAsync()
           throws IOException, LDIFException
   {
-    Result<UnparsedLDIFRecord, LDIFRecord> result = null;
+    Result<UnparsedLDIFRecord, LDIFRecord> result;
     LDIFRecord record = null;
     while (record == null)
     {
@@ -1391,7 +1390,7 @@ public final class LDIFReader
       }
       catch (final LDIFException e)
       {
-        debugException(e);
+        Debug.debugException(e);
         final long firstLineNumber = result.getInput().getFirstLineNumber();
         throw new LDIFException(e.getExceptionMessage(),
                                 firstLineNumber, true, e);
@@ -1518,7 +1517,7 @@ public final class LDIFReader
       }
       catch (final InterruptedException e)
       {
-        debugException(e);
+        Debug.debugException(e);
         Thread.currentThread().interrupt();
         throw new IOException(e);
       }
@@ -1551,7 +1550,7 @@ public final class LDIFReader
         // We shouldn't ever get interrupted because the put won't ever block.
         // Once we are done reading, this is the only item left in the queue,
         // so we should always be able to re-enqueue it.
-        debugException(e);
+        Debug.debugException(e);
         Thread.currentThread().interrupt();
       }
       return null;
@@ -1663,7 +1662,7 @@ public final class LDIFReader
       }
 
       e = decodeEntry(unparsedRecord, relativeBasePath);
-      debugLDIFRead(e);
+      Debug.debugLDIFRead(e);
 
       if (entryTranslator != null)
       {
@@ -1708,7 +1707,7 @@ public final class LDIFReader
 
       r = decodeChangeRecord(unparsedRecord, relativeBasePath, defaultAdd,
            schema);
-      debugLDIFRead(r);
+      Debug.debugLDIFRead(r);
 
       if (changeRecordTranslator != null)
       {
@@ -1736,7 +1735,7 @@ public final class LDIFReader
   private UnparsedLDIFRecord readUnparsedRecord()
          throws IOException, LDIFException
   {
-    final ArrayList<StringBuilder> lineList = new ArrayList<StringBuilder>(20);
+    final ArrayList<StringBuilder> lineList = new ArrayList<>(20);
     boolean lastWasComment = false;
     long firstLineNumber = lineNumberCounter + 1;
     while (true)
@@ -1760,7 +1759,7 @@ public final class LDIFReader
         }
       }
 
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         // It's a blank line.  If we have read entry data, then this signals the
         // end of the entry.  Otherwise, it's an extra space between entries,
@@ -1847,7 +1846,7 @@ public final class LDIFReader
     final Entry e = decodeEntry(prepareRecord(DuplicateValueBehavior.STRIP,
          TrailingSpaceBehavior.REJECT, null, ldifLines),
          DEFAULT_RELATIVE_BASE_PATH);
-    debugLDIFRead(e);
+    Debug.debugLDIFRead(e);
     return e;
   }
 
@@ -1919,7 +1918,7 @@ public final class LDIFReader
                    : DuplicateValueBehavior.REJECT),
          trailingSpaceBehavior, schema, ldifLines),
          DEFAULT_RELATIVE_BASE_PATH);
-    debugLDIFRead(e);
+    Debug.debugLDIFRead(e);
     return e;
   }
 
@@ -1978,7 +1977,7 @@ public final class LDIFReader
               prepareRecord(DuplicateValueBehavior.STRIP,
                    TrailingSpaceBehavior.REJECT, null, ldifLines),
               DEFAULT_RELATIVE_BASE_PATH, defaultAdd, null);
-    debugLDIFRead(r);
+    Debug.debugLDIFRead(r);
     return r;
   }
 
@@ -2070,7 +2069,7 @@ public final class LDIFReader
                    : DuplicateValueBehavior.REJECT),
               trailingSpaceBehavior, schema, ldifLines),
          DEFAULT_RELATIVE_BASE_PATH, defaultAdd, null);
-    debugLDIFRead(r);
+    Debug.debugLDIFRead(r);
     return r;
   }
 
@@ -2105,23 +2104,22 @@ public final class LDIFReader
                       final Schema schema, final String... ldifLines)
           throws LDIFException
   {
-    ensureNotNull(ldifLines);
-    ensureFalse(ldifLines.length == 0,
-                "LDIFReader.prepareRecord.ldifLines must not be empty.");
+    Validator.ensureNotNull(ldifLines);
+    Validator.ensureFalse(ldifLines.length == 0,
+         "LDIFReader.prepareRecord.ldifLines must not be empty.");
 
     boolean lastWasComment = false;
-    final ArrayList<StringBuilder> lineList =
-         new ArrayList<StringBuilder>(ldifLines.length);
+    final ArrayList<StringBuilder> lineList = new ArrayList<>(ldifLines.length);
     for (int i=0; i < ldifLines.length; i++)
     {
       final String line = ldifLines[i];
-      if (line.length() == 0)
+      if (line.isEmpty())
       {
         // This is only acceptable if there are no more non-empty lines in the
         // array.
         for (int j=i+1; j < ldifLines.length; j++)
         {
-          if (ldifLines[j].length() > 0)
+          if (! ldifLines[j].isEmpty())
           {
             throw new LDIFException(ERR_READ_UNEXPECTED_BLANK.get(i), i, true,
                                     ldifLines, null);
@@ -2224,8 +2222,8 @@ public final class LDIFReader
       }
       else
       {
-        throw new LDIFException(getExceptionMessage(readError),
-                                -1, true, readError);
+        throw new LDIFException(StaticUtils.getExceptionMessage(readError),
+             -1, true, readError);
       }
     }
 
@@ -2247,7 +2245,8 @@ public final class LDIFReader
     }
     else
     {
-      final String lowerSecondLine = toLowerCase(lineList.get(1).toString());
+      final String lowerSecondLine =
+           StaticUtils.toLowerCase(lineList.get(1).toString());
       if (lowerSecondLine.startsWith("control:") ||
           lowerSecondLine.startsWith("changetype:"))
       {
@@ -2259,7 +2258,7 @@ public final class LDIFReader
       }
     }
 
-    debugLDIFRead(r);
+    Debug.debugLDIFRead(r);
     return r;
   }
 
@@ -2341,7 +2340,7 @@ public final class LDIFReader
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new LDIFException(
                        ERR_READ_CANNOT_BASE64_DECODE_DN.get(firstLineNumber,
                                                             pe.getMessage()),
@@ -2349,7 +2348,7 @@ public final class LDIFReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDIFException(
                        ERR_READ_CANNOT_BASE64_DECODE_DN.get(firstLineNumber, e),
                        firstLineNumber, true, ldifLines, e);
@@ -2474,7 +2473,7 @@ public final class LDIFReader
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new LDIFException(
                        ERR_READ_CR_CANNOT_BASE64_DECODE_DN.get(firstLineNumber,
                                                                pe.getMessage()),
@@ -2482,7 +2481,7 @@ public final class LDIFReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDIFException(
                        ERR_READ_CR_CANNOT_BASE64_DECODE_DN.get(firstLineNumber,
                                                                e),
@@ -2514,7 +2513,7 @@ public final class LDIFReader
                               firstLineNumber, true, ldifLines, null);
     }
 
-    String changeType = null;
+    String changeType;
     ArrayList<Control> controls = null;
     while (true)
     {
@@ -2529,12 +2528,12 @@ public final class LDIFReader
              firstLineNumber, true, ldifLines, null);
       }
 
-      final String token = toLowerCase(line.substring(0, colonPos));
+      final String token = StaticUtils.toLowerCase(line.substring(0, colonPos));
       if (token.equals("control"))
       {
         if (controls == null)
         {
-          controls = new ArrayList<Control>(5);
+          controls = new ArrayList<>(5);
         }
 
         controls.add(decodeControl(line, colonPos, firstLineNumber, ldifLines,
@@ -2574,7 +2573,7 @@ public final class LDIFReader
 
     // Make sure that the change type is acceptable and then decode the rest of
     // the change record accordingly.
-    final String lowerChangeType = toLowerCase(changeType);
+    final String lowerChangeType = StaticUtils.toLowerCase(changeType);
     if (lowerChangeType.equals("add"))
     {
       // There must be at least one more line.  If not, then that's an error.
@@ -2712,7 +2711,7 @@ public final class LDIFReader
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new LDIFException(
                        ERR_READ_CANNOT_BASE64_DECODE_CONTROL.get(
                             firstLineNumber, pe.getMessage()),
@@ -2720,7 +2719,7 @@ public final class LDIFReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDIFException(
              ERR_READ_CANNOT_BASE64_DECODE_CONTROL.get(firstLineNumber, e),
              firstLineNumber, true, ldifLines, e);
@@ -2740,7 +2739,7 @@ public final class LDIFReader
     }
 
     // If the resulting control definition is empty, then that's invalid.
-    if (controlString.length() == 0)
+    if (controlString.isEmpty())
     {
       throw new LDIFException(
            ERR_READ_CONTROL_LINE_NO_CONTROL_VALUE.get(firstLineNumber),
@@ -2818,7 +2817,8 @@ public final class LDIFReader
       }
 
       final String criticalityString =
-           toLowerCase(controlString.substring(criticalityStartPos, pos));
+           StaticUtils.toLowerCase(controlString.substring(criticalityStartPos,
+                pos));
       if (criticalityString.equals("true"))
       {
         isCritical = true;
@@ -2881,10 +2881,10 @@ public final class LDIFReader
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDIFException(
                  ERR_READ_CONTROL_LINE_CANNOT_BASE64_DECODE_VALUE.get(
-                      firstLineNumber, getExceptionMessage(e)),
+                      firstLineNumber, StaticUtils.getExceptionMessage(e)),
                  firstLineNumber, true, ldifLines, e);
           }
           break;
@@ -2905,10 +2905,10 @@ public final class LDIFReader
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDIFException(
                  ERR_READ_CONTROL_LINE_CANNOT_RETRIEVE_VALUE_FROM_URL.get(
-                      firstLineNumber, getExceptionMessage(e)),
+                      firstLineNumber, StaticUtils.getExceptionMessage(e)),
                  firstLineNumber, true, ldifLines, e);
           }
           break;
@@ -2977,7 +2977,7 @@ public final class LDIFReader
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new LDIFException(
                        ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber,
                                                             pe.getMessage()),
@@ -2985,7 +2985,7 @@ public final class LDIFReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDIFException(
              ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber, e),
              firstLineNumber, true, ldifLines, e);
@@ -3046,7 +3046,7 @@ public final class LDIFReader
           throws LDIFException
   {
     final LinkedHashMap<String,Object> attributes =
-         new LinkedHashMap<String,Object>(ldifLines.size());
+         new LinkedHashMap<>(ldifLines.size());
     while (iterator.hasNext())
     {
       final StringBuilder line = iterator.next();
@@ -3059,7 +3059,7 @@ public final class LDIFReader
       }
 
       final String attributeName = line.substring(0, colonPos);
-      final String lowerName     = toLowerCase(attributeName);
+      final String lowerName     = StaticUtils.toLowerCase(attributeName);
 
       final MatchingRule matchingRule;
       if (schema == null)
@@ -3123,8 +3123,9 @@ public final class LDIFReader
           }
           catch (final LDAPException le)
           {
-            throw new LDIFException(ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn,
-                 firstLineNumber, attributeName, getExceptionMessage(le)),
+            throw new LDIFException(
+                 ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn, firstLineNumber,
+                      attributeName, StaticUtils.getExceptionMessage(le)),
                  firstLineNumber, true, ldifLines, le);
           }
         }
@@ -3164,19 +3165,20 @@ public final class LDIFReader
             }
             catch (final LDAPException le)
             {
-              throw new LDIFException(ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn,
-                   firstLineNumber, attributeName, getExceptionMessage(le)),
+              throw new LDIFException(
+                   ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn, firstLineNumber,
+                        attributeName, StaticUtils.getExceptionMessage(le)),
                    firstLineNumber, true, ldifLines, le);
             }
           }
         }
         catch (final ParseException pe)
         {
-          debugException(pe);
-          throw new LDIFException(ERR_READ_CANNOT_BASE64_DECODE_ATTR.get(
-                                       attributeName,  firstLineNumber,
-                                       pe.getMessage()),
-                                  firstLineNumber, true, ldifLines, pe);
+          Debug.debugException(pe);
+          throw new LDIFException(
+               ERR_READ_CANNOT_BASE64_DECODE_ATTR.get(attributeName,
+                    firstLineNumber, pe.getMessage()),
+               firstLineNumber, true, ldifLines, pe);
         }
       }
       else if (line.charAt(colonPos+1) == '<')
@@ -3199,7 +3201,7 @@ public final class LDIFReader
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDIFException(
                ERR_READ_URL_EXCEPTION.get(attributeName, urlString,
                     firstLineNumber, e),
@@ -3228,12 +3230,12 @@ public final class LDIFReader
           }
           catch (final LDIFException le)
           {
-            debugException(le);
+            Debug.debugException(le);
             throw le;
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDIFException(
                  ERR_READ_URL_EXCEPTION.get(attributeName, urlString,
                       firstLineNumber, e),
@@ -3274,16 +3276,16 @@ public final class LDIFReader
           }
           catch (final LDAPException le)
           {
-            throw new LDIFException(ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn,
-                 firstLineNumber, attributeName, getExceptionMessage(le)),
+            throw new LDIFException(
+                 ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn, firstLineNumber,
+                      attributeName, StaticUtils.getExceptionMessage(le)),
                  firstLineNumber, true, ldifLines, le);
           }
         }
       }
     }
 
-    final ArrayList<Attribute> attrList =
-         new ArrayList<Attribute>(attributes.size());
+    final ArrayList<Attribute> attrList = new ArrayList<>(attributes.size());
     for (final Object o : attributes.values())
     {
       if (o instanceof Attribute)
@@ -3325,7 +3327,7 @@ public final class LDIFReader
   {
     int pos;
     final String path;
-    final String lowerURLString = toLowerCase(urlString);
+    final String lowerURLString = StaticUtils.toLowerCase(urlString);
     if (lowerURLString.startsWith("file:/"))
     {
       pos = 6;
@@ -3439,8 +3441,7 @@ public final class LDIFReader
                       final long firstLineNumber, final Schema schema)
           throws LDIFException
   {
-    final ArrayList<Modification> modList =
-         new ArrayList<Modification>(ldifLines.size());
+    final ArrayList<Modification> modList = new ArrayList<>(ldifLines.size());
 
     while (iterator.hasNext())
     {
@@ -3456,7 +3457,8 @@ public final class LDIFReader
       }
 
       final ModificationType modType;
-      final String modTypeStr = toLowerCase(line.substring(0, colonPos));
+      final String modTypeStr =
+           StaticUtils.toLowerCase(line.substring(0, colonPos));
       if (modTypeStr.equals("add"))
       {
         modType = ModificationType.ADD;
@@ -3507,7 +3509,7 @@ public final class LDIFReader
         }
         catch (final ParseException pe)
         {
-          debugException(pe);
+          Debug.debugException(pe);
           throw new LDIFException(
                ERR_READ_MOD_CR_MODTYPE_CANNOT_BASE64_DECODE_ATTR.get(
                     firstLineNumber, pe.getMessage()),
@@ -3515,7 +3517,7 @@ public final class LDIFReader
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDIFException(
                ERR_READ_MOD_CR_MODTYPE_CANNOT_BASE64_DECODE_ATTR.get(
                     firstLineNumber, e),
@@ -3535,7 +3537,7 @@ public final class LDIFReader
         attributeName = line.substring(pos);
       }
 
-      if (attributeName.length() == 0)
+      if (attributeName.isEmpty())
       {
         throw new LDIFException(ERR_READ_MOD_CR_MODTYPE_NO_ATTR.get(
                                      firstLineNumber),
@@ -3547,7 +3549,7 @@ public final class LDIFReader
       // reading until we reach the end of the iterator or until we find a line
       // with just a "-".
       final ArrayList<ASN1OctetString> valueList =
-           new ArrayList<ASN1OctetString>(ldifLines.size());
+           new ArrayList<>(ldifLines.size());
       while (iterator.hasNext())
       {
         line = iterator.next();
@@ -3605,19 +3607,19 @@ public final class LDIFReader
           final Set<String> expectedOptions =
                Attribute.getOptions(attributeName);
           final Set<String> lowerExpectedOptions =
-               new HashSet<String>(expectedOptions.size());
+               new HashSet<>(expectedOptions.size());
           for (final String s : expectedOptions)
           {
-            lowerExpectedOptions.add(toLowerCase(s));
+            lowerExpectedOptions.add(StaticUtils.toLowerCase(s));
           }
 
           final Set<String> alternateOptions =
                Attribute.getOptions(alternateName);
           final Set<String> lowerAlternateOptions =
-               new HashSet<String>(alternateOptions.size());
+               new HashSet<>(alternateOptions.size());
           for (final String s : alternateOptions)
           {
-            lowerAlternateOptions.add(toLowerCase(s));
+            lowerAlternateOptions.add(StaticUtils.toLowerCase(s));
           }
 
           final boolean optionsEquivalent =
@@ -3679,14 +3681,14 @@ public final class LDIFReader
           }
           catch (final ParseException pe)
           {
-            debugException(pe);
+            Debug.debugException(pe);
             throw new LDIFException(ERR_READ_CANNOT_BASE64_DECODE_ATTR.get(
                  attributeName, firstLineNumber, pe.getMessage()),
                  firstLineNumber, true, ldifLines, pe);
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             throw new LDIFException(ERR_READ_CANNOT_BASE64_DECODE_ATTR.get(
                                          firstLineNumber, e),
                                     firstLineNumber, true, ldifLines, e);
@@ -3810,7 +3812,7 @@ public final class LDIFReader
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new LDIFException(
              ERR_READ_MODDN_CR_CANNOT_BASE64_DECODE_NEWRDN.get(firstLineNumber,
                                                                pe.getMessage()),
@@ -3818,7 +3820,7 @@ public final class LDIFReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDIFException(
              ERR_READ_MODDN_CR_CANNOT_BASE64_DECODE_NEWRDN.get(firstLineNumber,
                                                                e),
@@ -3838,7 +3840,7 @@ public final class LDIFReader
       newRDN = line.substring(pos);
     }
 
-    if (newRDN.length() == 0)
+    if (newRDN.isEmpty())
     {
       throw new LDIFException(ERR_READ_MODDN_CR_NO_NEWRDN_VALUE.get(
                                    firstLineNumber),
@@ -3893,7 +3895,7 @@ public final class LDIFReader
       }
       catch (final ParseException pe)
       {
-        debugException(pe);
+        Debug.debugException(pe);
         throw new LDIFException(
              ERR_READ_MODDN_CR_CANNOT_BASE64_DECODE_DELOLDRDN.get(
                   firstLineNumber, pe.getMessage()),
@@ -3901,7 +3903,7 @@ public final class LDIFReader
       }
       catch (final Exception e)
       {
-        debugException(e);
+        Debug.debugException(e);
         throw new LDIFException(
              ERR_READ_MODDN_CR_CANNOT_BASE64_DECODE_DELOLDRDN.get(
                   firstLineNumber, e),
@@ -3989,7 +3991,7 @@ public final class LDIFReader
         }
         catch (final ParseException pe)
         {
-          debugException(pe);
+          Debug.debugException(pe);
           throw new LDIFException(
                ERR_READ_MODDN_CR_CANNOT_BASE64_DECODE_NEWSUPERIOR.get(
                     firstLineNumber, pe.getMessage()),
@@ -3997,7 +3999,7 @@ public final class LDIFReader
         }
         catch (final Exception e)
         {
-          debugException(e);
+          Debug.debugException(e);
           throw new LDIFException(
                ERR_READ_MODDN_CR_CANNOT_BASE64_DECODE_NEWSUPERIOR.get(
                     firstLineNumber, e),
@@ -4299,20 +4301,20 @@ public final class LDIFReader
         boolean stopProcessing = false;
         while (!stopProcessing)
         {
-          UnparsedLDIFRecord unparsedRecord = null;
+          UnparsedLDIFRecord unparsedRecord;
           try
           {
             unparsedRecord = readUnparsedRecord();
           }
           catch (final IOException e)
           {
-            debugException(e);
+            Debug.debugException(e);
             unparsedRecord = new UnparsedLDIFRecord(e);
             stopProcessing = true;
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             unparsedRecord = new UnparsedLDIFRecord(e);
           }
 
@@ -4322,14 +4324,14 @@ public final class LDIFReader
           }
           catch (final InterruptedException e)
           {
-            debugException(e);
+            Debug.debugException(e);
             // If this thread is interrupted, then someone wants us to stop
             // processing, so that's what we'll do.
             Thread.currentThread().interrupt();
             stopProcessing = true;
           }
 
-          if ((unparsedRecord == null) || (unparsedRecord.isEOF()))
+          if ((unparsedRecord == null) || unparsedRecord.isEOF())
           {
             stopProcessing = true;
           }
@@ -4343,7 +4345,7 @@ public final class LDIFReader
         }
         catch (final InterruptedException e)
         {
-          debugException(e);
+          Debug.debugException(e);
           Thread.currentThread().interrupt();
         }
         finally

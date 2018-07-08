@@ -165,18 +165,6 @@ public final class StartTransactionExtendedRequest
 
 
 
-  // This is an ugly hack to prevent checkstyle from complaining about imports
-  // for classes that are needed by javadoc @link elements but aren't otherwise
-  // used in the class.  It appears that checkstyle does not recognize the use
-  // of these classes in javadoc @link elements so we must ensure that they are
-  // referenced elsewhere in the class to prevent checkstyle from complaining.
-  static
-  {
-    final TransactionSpecificationRequestControl c = null;
-  }
-
-
-
   /**
    * Creates a new start transaction extended request.
    */

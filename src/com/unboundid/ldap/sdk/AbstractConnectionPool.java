@@ -35,14 +35,14 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
-import static com.unboundid.util.Debug.*;
-import static com.unboundid.util.StaticUtils.*;
-import static com.unboundid.util.Validator.*;
 
 
 
@@ -148,7 +148,7 @@ public abstract class AbstractConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       releaseDefunctConnection(connection);
     }
   }
@@ -206,7 +206,7 @@ public abstract class AbstractConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
 
       if (t instanceof LDAPException)
       {
@@ -215,7 +215,7 @@ public abstract class AbstractConnectionPool
       else
       {
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
+             ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
       }
     }
   }
@@ -581,7 +581,7 @@ public abstract class AbstractConnectionPool
   public final SearchResultEntry getEntry(final String dn)
          throws LDAPException
   {
-    return getEntry(dn, NO_STRINGS);
+    return getEntry(dn, StaticUtils.NO_STRINGS);
   }
 
 
@@ -2047,7 +2047,7 @@ public abstract class AbstractConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
 
@@ -2070,7 +2070,7 @@ public abstract class AbstractConnectionPool
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         throw new LDAPSearchException(le);
       }
 
@@ -2416,7 +2416,7 @@ public abstract class AbstractConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
 
@@ -2439,7 +2439,7 @@ public abstract class AbstractConnectionPool
       }
       catch (final LDAPException le)
       {
-        debugException(le);
+        Debug.debugException(le);
         throw new LDAPSearchException(le);
       }
 
@@ -2525,7 +2525,7 @@ public abstract class AbstractConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
   }
@@ -2559,8 +2559,8 @@ public abstract class AbstractConnectionPool
                                      final boolean continueOnError)
          throws LDAPException
   {
-    ensureNotNull(requests);
-    ensureFalse(requests.isEmpty(),
+    Validator.ensureNotNull(requests);
+    Validator.ensureFalse(requests.isEmpty(),
          "LDAPConnectionPool.processRequests.requests must not be empty.");
 
     final LDAPConnection conn;
@@ -2570,12 +2570,11 @@ public abstract class AbstractConnectionPool
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
 
-    final ArrayList<LDAPResult> results =
-         new ArrayList<LDAPResult>(requests.size());
+    final ArrayList<LDAPResult> results = new ArrayList<>(requests.size());
     boolean isDefunct = false;
 
     try
@@ -2612,7 +2611,7 @@ requestLoop:
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
           results.add(new LDAPResult(request.getLastMessageID(),
                                      le.getResultCode(), le.getMessage(),
                                      le.getMatchedDN(), le.getReferralURLs(),
@@ -2687,8 +2686,8 @@ requestLoop:
          throws LDAPException
   {
     // Make sure the set of requests is not null or empty.
-    ensureNotNull(requests);
-    ensureFalse(requests.isEmpty(),
+    Validator.ensureNotNull(requests);
+    Validator.ensureFalse(requests.isEmpty(),
          "LDAPConnectionPool.processRequests.requests must not be empty.");
 
     // Make sure that all the requests are acceptable.
@@ -2740,13 +2739,13 @@ requestLoop:
     }
     catch (final LDAPException le)
     {
-      debugException(le);
+      Debug.debugException(le);
       throw new LDAPSearchException(le);
     }
 
 
     final ArrayList<AsyncRequestID> requestIDs =
-         new ArrayList<AsyncRequestID>();
+         new ArrayList<>(requests.size());
     boolean isDefunct = false;
 
     try
@@ -2792,7 +2791,7 @@ requestLoop:
         }
         catch (final LDAPException le)
         {
-          debugException(le);
+          Debug.debugException(le);
           requestID = new AsyncRequestID(r.getLastMessageID(), conn);
           requestID.setResult(le.toLDAPResult());
         }
@@ -2829,7 +2828,7 @@ requestLoop:
           }
           catch (final Exception e)
           {
-            debugException(e);
+            Debug.debugException(e);
             requestID.cancel(true);
 
             if (e instanceof TimeoutException)
@@ -2838,15 +2837,15 @@ requestLoop:
                    ResultCode.TIMEOUT,
                    ERR_POOL_PROCESS_REQUESTS_ASYNC_RESULT_TIMEOUT.get(
                         (System.currentTimeMillis() - startWaitingTime)),
-                   null, NO_STRINGS, NO_CONTROLS);
+                   null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
             }
             else
             {
               result = new LDAPResult(requestID.getMessageID(),
                    ResultCode.LOCAL_ERROR,
                    ERR_POOL_PROCESS_REQUESTS_ASYNC_RESULT_EXCEPTION.get(
-                        getExceptionMessage(e)),
-                   null, NO_STRINGS, NO_CONTROLS);
+                        StaticUtils.getExceptionMessage(e)),
+                   null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
             }
             requestID.setResult(result);
           }
@@ -2858,7 +2857,7 @@ requestLoop:
                ResultCode.TIMEOUT,
                ERR_POOL_PROCESS_REQUESTS_ASYNC_RESULT_TIMEOUT.get(
                     (System.currentTimeMillis() - startWaitingTime)),
-               null, NO_STRINGS, NO_CONTROLS);
+               null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
           requestID.setResult(result);
         }
 
@@ -2920,7 +2919,7 @@ requestLoop:
       {
         // If we have gotten this exception, then it indicates that the
         // connection is no longer valid and the operation should be retried.
-        debugException(e);
+        Debug.debugException(e);
         return;
       }
     }
@@ -2963,7 +2962,7 @@ requestLoop:
       {
         // If we have gotten this exception, then it indicates that the
         // connection is no longer valid and the operation should be retried.
-        debugException(e);
+        Debug.debugException(e);
         return;
       }
     }
@@ -2987,7 +2986,7 @@ requestLoop:
   void throwLDAPException(final Throwable t, final LDAPConnection conn)
        throws LDAPException
   {
-    debugException(t);
+    Debug.debugException(t);
     if (t instanceof LDAPException)
     {
       final LDAPException le = (LDAPException) t;
@@ -2998,7 +2997,7 @@ requestLoop:
     {
       releaseDefunctConnection(conn);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
+           ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
     }
   }
 
@@ -3018,7 +3017,7 @@ requestLoop:
   void throwLDAPSearchException(final Throwable t, final LDAPConnection conn)
        throws LDAPSearchException
   {
-    debugException(t);
+    Debug.debugException(t);
     if (t instanceof LDAPException)
     {
       final LDAPSearchException lse;
@@ -3038,7 +3037,7 @@ requestLoop:
     {
       releaseDefunctConnection(conn);
       throw new LDAPSearchException(ResultCode.LOCAL_ERROR,
-           ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
+           ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
     }
   }
 

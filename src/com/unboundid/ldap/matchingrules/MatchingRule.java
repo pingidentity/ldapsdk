@@ -32,10 +32,9 @@ import com.unboundid.ldap.sdk.unboundidds.jsonfilter.
             JSONObjectExactMatchingRule;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -487,12 +486,12 @@ public abstract class MatchingRule
    */
   public static MatchingRule selectEqualityMatchingRule(final String ruleID)
   {
-    if ((ruleID == null) || (ruleID.length() == 0))
+    if ((ruleID == null) || ruleID.isEmpty())
     {
       return getDefaultEqualityMatchingRule();
     }
 
-    final String lowerName = toLowerCase(ruleID);
+    final String lowerName = StaticUtils.toLowerCase(ruleID);
     if (lowerName.equals(BooleanMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
         lowerName.equals(BooleanMatchingRule.EQUALITY_RULE_OID))
     {
@@ -682,12 +681,12 @@ public abstract class MatchingRule
    */
   public static MatchingRule selectOrderingMatchingRule(final String ruleID)
   {
-    if ((ruleID == null) || (ruleID.length() == 0))
+    if ((ruleID == null) || ruleID.isEmpty())
     {
       return getDefaultOrderingMatchingRule();
     }
 
-    final String lowerName = toLowerCase(ruleID);
+    final String lowerName = StaticUtils.toLowerCase(ruleID);
     if (lowerName.equals(
              CaseExactStringMatchingRule.LOWER_ORDERING_RULE_NAME) ||
         lowerName.equals(CaseExactStringMatchingRule.ORDERING_RULE_OID))
@@ -838,12 +837,12 @@ public abstract class MatchingRule
    */
   public static MatchingRule selectSubstringMatchingRule(final String ruleID)
   {
-    if ((ruleID == null) || (ruleID.length() == 0))
+    if ((ruleID == null) || ruleID.isEmpty())
     {
       return getDefaultSubstringMatchingRule();
     }
 
-    final String lowerName = toLowerCase(ruleID);
+    final String lowerName = StaticUtils.toLowerCase(ruleID);
     if (lowerName.equals(
              CaseExactStringMatchingRule.LOWER_SUBSTRING_RULE_NAME) ||
         lowerName.equals(CaseExactStringMatchingRule.SUBSTRING_RULE_OID) ||

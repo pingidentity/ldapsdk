@@ -461,7 +461,7 @@ final class PromptTrustManagerProcessor
    */
   static boolean isHostnameOrIPAddress(final String s)
   {
-    if (s.length() == 0)
+    if (s.isEmpty())
     {
       return false;
     }
@@ -535,8 +535,8 @@ final class PromptTrustManagerProcessor
    * @return  {@code true} if the provided string represents an address in the
    *          set of expected addresses, or {@code false} if not.
    */
-  static boolean isAllowedHostnameOrIPAddress(final String s,
-                      final List<String> expectedAddresses)
+  private static boolean isAllowedHostnameOrIPAddress(final String s,
+                              final List<String> expectedAddresses)
   {
     if (IPAddressArgumentValueValidator.isValidNumericIPAddress(s))
     {
@@ -602,8 +602,8 @@ final class PromptTrustManagerProcessor
    * @return  {@code true} if the provided address represents one that is in the
    *          set of expected addresses, or {@code false} if not.
    */
-  static boolean isAllowedIPAddress(final InetAddress a,
-                                    final List<String> expectedAddresses)
+  private static boolean isAllowedIPAddress(final InetAddress a,
+                              final List<String> expectedAddresses)
   {
     for (final String s : expectedAddresses)
     {
