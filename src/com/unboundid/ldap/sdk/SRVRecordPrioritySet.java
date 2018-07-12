@@ -142,7 +142,7 @@ final class SRVRecordPrioritySet
         final ArrayList<SRVRecord> rl = new ArrayList<>(nonzeroWeightRecords);
         while (! rl.isEmpty())
         {
-          long w = ((r.nextLong() & 0x7FFFFFFFFFFFFFFFL) % tw);
+          long w = ((r.nextLong() & 0x7FFF_FFFF_FFFF_FFFFL) % tw);
           final Iterator<SRVRecord> iterator = rl.iterator();
           while (iterator.hasNext())
           {

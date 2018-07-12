@@ -1493,8 +1493,8 @@ public final class X509Certificate
   private static BigInteger generateSerialNumber()
   {
     final UUID uuid = UUID.randomUUID();
-    final long msb = uuid.getMostSignificantBits() & 0x7FFFFFFFFFFFFFFFL;
-    final long lsb = uuid.getLeastSignificantBits() & 0x7FFFFFFFFFFFFFFFL;
+    final long msb = uuid.getMostSignificantBits() & 0x7FFF_FFFF_FFFF_FFFFL;
+    final long lsb = uuid.getLeastSignificantBits() & 0x7FFF_FFFF_FFFF_FFFFL;
     return BigInteger.valueOf(msb).shiftLeft(64).add(BigInteger.valueOf(lsb));
   }
 

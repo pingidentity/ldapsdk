@@ -788,7 +788,7 @@ public final class ScrambleAttributeTransformation
 
 
     // Generate a random value between zero and the computed time span.
-    final long randomLong = (random.nextLong() & 0x7FFFFFFFFFFFFFFFL);
+    final long randomLong = (random.nextLong() & 0x7FFF_FFFF_FFFF_FFFFL);
     final long randomOffset = randomLong % timeSpan;
 
 

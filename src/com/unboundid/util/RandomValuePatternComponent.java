@@ -118,7 +118,7 @@ final class RandomValuePatternComponent
       random.set(r);
     }
 
-    final long value = ((r.nextLong() & 0x7FFFFFFF) % span) + lowerBound;
+    final long value = ((r.nextLong() & 0x7FFF_FFFF) % span) + lowerBound;
     if (formatString == null)
     {
       buffer.append(value);
