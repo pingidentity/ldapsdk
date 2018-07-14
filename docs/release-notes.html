@@ -93,6 +93,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added client-side support for a new delay task that can be used sleep for a
+                  specified period of time, until the server work queue reports that all
+                  worker threads are idle and there are no pending operations, or until a
+                  given search or set of searches match at least one entry.  The delay task is
+                  primarily intended to be used as a spacer between other tasks in a dependency
+                  chain.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated support for the ignore NO-USER-MODIFICATION request control to make it
                   possible to set the criticality when creating an instance of the control.
                   Previously, new instances were always critical.
