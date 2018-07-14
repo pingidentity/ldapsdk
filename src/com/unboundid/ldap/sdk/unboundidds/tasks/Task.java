@@ -965,6 +965,7 @@ public class Task
          new AlertTask(),
          new AuditDataSecurityTask(),
          new BackupTask(),
+         new DelayTask(),
          new DisconnectClientTask(),
          new DumpDBDetailsTask(),
          new EnterLockdownModeTask(),
@@ -1983,6 +1984,10 @@ public class Task
       else if (taskClass.equals(BackupTask.BACKUP_TASK_CLASS))
       {
         return new BackupTask(entry);
+      }
+      else if (taskClass.equals(DelayTask.DELAY_TASK_CLASS))
+      {
+        return new DelayTask(entry);
       }
       else if (taskClass.equals(
                     DisconnectClientTask.DISCONNECT_CLIENT_TASK_CLASS))
