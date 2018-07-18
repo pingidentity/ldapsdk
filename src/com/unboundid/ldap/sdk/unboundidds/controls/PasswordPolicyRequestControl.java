@@ -37,17 +37,17 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * This class provides an implementation of the password policy request control
  * as described in draft-behera-ldap-password-policy.  It may be used to request
  * information related to a user's password policy.  In the Ping Identity,
- * UnboundID, and Alcatel-Lucent 8661 Directory Server, this control may be
- * included with add, bind, compare, modify, and password modify requests.
+ * UnboundID, and Nokia/Alcatel-Lucent 8661 Directory Server, this control may
+ * be included with add, bind, compare, modify, and password modify requests.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * This request control has an OID of 1.3.6.1.4.1.42.2.27.8.5.1.  The

@@ -151,16 +151,16 @@ import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
  * to a specified file.  This is a much more full-featured tool than the
  * {@link com.unboundid.ldap.sdk.examples.LDAPSearch} tool, and includes a
  * number of features only intended for use with Ping Identity, UnboundID, and
- * Alcatel-Lucent 8661 server products.
+ * Nokia/Alcatel-Lucent 8661 server products.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

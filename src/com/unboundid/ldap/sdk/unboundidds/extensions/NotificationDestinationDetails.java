@@ -39,17 +39,17 @@ import com.unboundid.util.Validator;
 
 /**
  * This class represents a data structure with information about a notification
- * destination defined in a Ping Identity, UnboundID, or Alcatel-Lucent 8661
- * server instance.
+ * destination defined in a Ping Identity, UnboundID, or Nokia/Alcatel-Lucent
+ * 8661 server instance.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
 @NotMutable()

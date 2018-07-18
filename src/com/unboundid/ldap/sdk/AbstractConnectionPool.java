@@ -816,8 +816,8 @@ public abstract class AbstractConnectionPool
    * of the connection in the pool, and therefore this method should only be
    * used if this connection pool is used exclusively for processing bind
    * operations, or if the retain identity request control (a proprietary
-   * control for use with the Ping Identity, UnboundID, or Alcatel-Lucent 8661
-   * Directory Server) is included in the bind request to ensure that the
+   * control for use with the Ping Identity, UnboundID, or Nokia/Alcatel-Lucent
+   * 8661 Directory Server) is included in the bind request to ensure that the
    * authentication state is not impacted.
    *
    * @param  bindDN    The bind DN for the bind operation.
@@ -843,8 +843,8 @@ public abstract class AbstractConnectionPool
    * and therefore this method should only be used if this connection pool is
    * used exclusively for processing bind operations, or if the retain identity
    * request control (a proprietary control for use with the Ping Identity,
-   * UnboundID, or Alcatel-Lucent 8661 Directory Server) is included in the bind
-   * request to ensure that the authentication state is not impacted.
+   * UnboundID, or Nokia/Alcatel-Lucent 8661 Directory Server) is included in
+   * the bind request to ensure that the authentication state is not impacted.
    *
    * @param  bindRequest  The bind request to be processed.  It must not be
    *                      {@code null}.

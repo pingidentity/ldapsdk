@@ -50,7 +50,7 @@ import static com.unboundid.ldap.sdk.unboundidds.jsonfilter.JFMessages.*;
 /**
  * This class defines the base class for all JSON object filter types, which are
  * used to perform matching against JSON objects stored in a Ping Identity,
- * UnboundID, or Alcatel-Lucent 8661 Directory Server via the
+ * UnboundID, or Nokia/Alcatel-Lucent 8661 Directory Server via the
  * jsonObjectFilterExtensibleMatch matching rule.  The
  * {@link #toLDAPFilter(String)} method can be used to easily create an LDAP
  * filter from a JSON object filter.  This filter will have an attribute type
@@ -61,11 +61,11 @@ import static com.unboundid.ldap.sdk.unboundidds.jsonfilter.JFMessages.*;
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * For example, given the JSON object filter:

@@ -45,16 +45,16 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
 
 /**
  * This class provides a number of utility methods for interacting with tasks in
- * Ping Identity, UnboundID, or Alcatel-Lucent 8661 server instances.
+ * Ping Identity, UnboundID, or Nokia/Alcatel-Lucent 8661 server instances.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * It provides methods for the following:
@@ -108,7 +108,7 @@ public final class TaskManager
   {
     // In general, constructing DNs is bad, but we'll do it here because we know
     // we're dealing specifically with the Ping Identity, UnboundID, or
-    // Alcatel-Lucent 8661 Directory Server and we can ensure that this
+    // Nokia/Alcatel-Lucent 8661 Directory Server and we can ensure that this
     // location will not change without extremely good reasons.
     return Task.ATTR_TASK_ID + '=' + taskID + ',' +
            Task.SCHEDULED_TASKS_BASE_DN;

@@ -43,11 +43,11 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * This control can be very useful for applications that perform binds to
@@ -64,8 +64,8 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * request control.
  * <BR><BR>
  * This control is not based on any public standard.  It was originally
- * developed for use with the Ping Identity, UnboundID, and Alcatel-Lucent 8661
- * Directory Server.  It does not have a value.
+ * developed for use with the Ping Identity, UnboundID, and Nokia/Alcatel-Lucent
+ * 8661 Directory Server.  It does not have a value.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the retain identity request

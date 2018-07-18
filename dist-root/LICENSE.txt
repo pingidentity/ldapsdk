@@ -15,5 +15,6 @@ version 2.1.
 See the LICENSE-UnboundID-LDAPSDK.txt file for the UnboundID LDAP SDK Free Use
 License.
 
-Licensees of Ping Identity, UnboundID, and Alcatel-Lucent 8661 server products
-may also use the LDAP SDK under the terms of the server product licenses.
+Licensees of Ping Identity, UnboundID, and Nokia/Alcatel-Lucent 8661 server
+products may also use the LDAP SDK under the terms of the server product
+licenses.

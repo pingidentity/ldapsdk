@@ -45,11 +45,11 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * Note that an operation which includes the no-op control will never have a
@@ -72,7 +72,7 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * are made as a result of this control.  Until such time as these are defined,
  * this implementation uses the OID temporarily assigned for its use by the
  * OpenLDAP Foundation, which is used by at least the OpenLDAP, OpenDS, and the
- * Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server
+ * Ping Identity, UnboundID, and Nokia/Alcatel-Lucent 8661 Directory Server
  * implementations.
  * <BR><BR>
  * This control has an OID of 1.3.6.1.4.1.4203.1.10.2 and a criticality of true.

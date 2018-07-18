@@ -23,21 +23,21 @@
 
 /**
  * This package contains implementations for a number of LDAP controls which are
- * specific to the Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory
- * Server products.  In some cases, they may be based on standard controls which
- * have not yet reached a sufficient stability level to make them available for
- * general use against any kind of server, while in other cases they may be
- * defined specifically for use with the Ping Identity, UnboundID, and
- * Alcatel-Lucent 8661 Directory Server.
+ * specific to the Ping Identity, UnboundID, and Nokia/Alcatel-Lucent 8661
+ * Directory Server products.  In some cases, they may be based on standard
+ * controls which have not yet reached a sufficient stability level to make them
+ * available for general use against any kind of server, while in other cases
+ * they may be defined specifically for use with the Ping Identity, UnboundID,
+ * and Nokia/Alcatel-Lucent 8661 Directory Server.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  The classes within this package, and elsewhere within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
 package com.unboundid.ldap.sdk.unboundidds.controls;

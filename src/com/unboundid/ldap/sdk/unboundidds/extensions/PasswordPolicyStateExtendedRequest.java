@@ -42,7 +42,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 /**
  * This class provides an implementation of the password policy state extended
- * request as used in the Ping Identity, UnboundID, or Alcatel-Lucent 8661
+ * request as used in the Ping Identity, UnboundID, or Nokia/Alcatel-Lucent 8661
  * Directory Server.  It may be used to retrieve and/or alter password policy
  * properties for a user account.  See the documentation in the
  * {@link PasswordPolicyStateOperation} class for information about the types of
@@ -51,11 +51,11 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * The extended request has an OID of 1.3.6.1.4.1.30221.1.6.1 and a value with

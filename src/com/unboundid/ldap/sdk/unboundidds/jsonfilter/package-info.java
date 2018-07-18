@@ -24,23 +24,23 @@
 /**
  * This package provides a number of classes that implement support for
  * interacting with JSON objects in the Ping Identity, UnboundID, or
- * Alcatel-Lucent 8661 Directory Server.  This primarily includes JSON object
- * filters (which are an UnboundID-proprietary mechanism for performing advanced
- * matching on JSON object contents), but also contains other classes in support
- * for interacting with JSON in the Ping Identity, UnboundID, or Alcatel-Lucent
- * 8661 Directory Server.
+ * Nokia/Alcatel-Lucent 8661 Directory Server.  This primarily includes JSON
+ * object filters (which are an UnboundID-proprietary mechanism for performing
+ * advanced matching on JSON object contents), but also contains other classes
+ * in support for interacting with JSON in the Ping Identity, UnboundID, or
+ * Nokia/Alcatel-Lucent 8661 Directory Server.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  The classes within this package, and elsewhere within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
- * The Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server
+ * The Ping Identity, UnboundID, and Nokia/Alcatel-Lucent 8661 Directory Server
  * provides a "JSON Object" attribute syntax, which has an OID of
  * "1.3.6.1.4.1.30221.2.3.4", and can be used for attribute types whose values
  * are valid JSON objects.  This attribute type supports equality matching

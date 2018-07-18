@@ -112,11 +112,11 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
@@ -126,9 +126,9 @@ public final class MoveSubtree
 {
   /**
    * The name of the attribute that appears in the root DSE of Ping
-   * Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server instances to
-   * provide a unique identifier that will be generated every time the server
-   * starts.
+   * Identity, UnboundID, and Nokia/Alcatel-Lucent 8661 Directory Server
+   * instances to provide a unique identifier that will be generated every time
+   * the server starts.
    */
   private static final String ATTR_STARTUP_UUID = "startupUUID";
 

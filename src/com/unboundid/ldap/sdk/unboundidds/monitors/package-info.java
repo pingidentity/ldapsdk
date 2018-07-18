@@ -23,18 +23,18 @@
 
 /**
  * This package contains a number of helper classes for interacting with monitor
- * entries ing Ping Identity, UnboundID, and Alcatel-Lucent 8661 server
+ * entries ing Ping Identity, UnboundID, and Nokia/Alcatel-Lucent 8661 server
  * products.  It provides methods for parsing the monitor entries as specific
  * subtypes and for extracting the information that they provide in useful ways.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  The classes within this package, and elsewhere within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * The {@code MonitorManager} class provides a number of utility methods for

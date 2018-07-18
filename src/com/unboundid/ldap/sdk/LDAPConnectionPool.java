@@ -137,9 +137,9 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * if the bind request is specially crafted so that it will not change the
  * identity of the associated connection (e.g., by including the retain identity
  * request control in the bind request if using the LDAP SDK with a Ping
- * Identity, UnboundID, or Alcatel-Lucent 8661 Directory Server), or if the code
- * using the connection pool makes sure to re-authenticate the connection as the
- * appropriate user whenever its identity has been changed.
+ * Identity, UnboundID, or Nokia/Alcatel-Lucent 8661 Directory Server), or if
+ * the code using the connection pool makes sure to re-authenticate the
+ * connection as the appropriate user whenever its identity has been changed.
  * <BR><BR>
  * The StartTLS extended operation should never be invoked on a connection which
  * is part of a connection pool.  It is acceptable for the pool to maintain

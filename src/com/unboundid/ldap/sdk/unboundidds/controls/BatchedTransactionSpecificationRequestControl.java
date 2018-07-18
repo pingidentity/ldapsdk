@@ -55,11 +55,11 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * Note that directory servers may limit the set of controls that are available
@@ -75,10 +75,11 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * operations within the transaction should be processed with the specified
  * authorization identity.
  * <BR><BR>
- * The Ping Identity, UnboundID, and Alcatel-Lucent 8661 server products support
- * the following additional UnboundID-specific controls in conjunction with
- * operations included in a transaction:  {@link AccountUsableRequestControl},
- * {@link HardDeleteRequestControl}, {@link IntermediateClientRequestControl},
+ * The Ping Identity, UnboundID, and Nokia/Alcatel-Lucent 8661 server products
+ * support the following additional UnboundID-specific controls in conjunction
+ * with operations included in a transaction:
+ * {@link AccountUsableRequestControl}, {@link HardDeleteRequestControl},
+ * {@link IntermediateClientRequestControl},
  * {@link PasswordPolicyRequestControl},
  * {@link ReplicationRepairRequestControl}, {@link SoftDeleteRequestControl},
  * {@link SoftDeletedEntryAccessRequestControl},

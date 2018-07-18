@@ -36,21 +36,21 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 /**
  * This class provides an implementation of a control which can be used to
  * request that the Directory Server include extended information when returning
- * a subschema subentry.  In the Ping Identity, UnboundID, and Alcatel-Lucent
- * 8661 Directory Server, this will cause the server to include the
- * X-SCHEMA-FILE extension (which contains the path to the file in which that
- * schema element is defined) and the X-READ-ONLY extension (which indicates
- * whether that schema element is read-only and cannot be altered by external
- * clients).
+ * a subschema subentry.  In the Ping Identity, UnboundID, and
+ * Nokia/Alcatel-Lucent 8661 Directory Server, this will cause the server to
+ * include the X-SCHEMA-FILE extension (which contains the path to the file in
+ * which that schema element is defined) and the X-READ-ONLY extension (which
+ * indicates whether that schema element is read-only and cannot be altered by
+ * external clients).
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * This control is not based on any public specification, and has been defined

@@ -46,16 +46,17 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * This control is not based on any public standard.  It was originally
- * developed for use with the Ping Identity, UnboundID, and Alcatel-Lucent 8661
- * Directory Server.  The value of this control uses the following encoding:
+ * developed for use with the Ping Identity, UnboundID, and Nokia/Alcatel-Lucent
+ * 8661 Directory Server.  The value of this control uses the following
+ * encoding:
  * <BR><BR>
  * <PRE>
  * IntermediateClientRequest ::= SEQUENCE {

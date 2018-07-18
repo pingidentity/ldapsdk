@@ -72,17 +72,17 @@ import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
 /**
  * This class provides a tool that can be used to perform a variety of account
  * management functions against user entries in the Ping Identity, UnboundID,
- * or Alcatel-Lucent 8661 Directory Server.  It primarily uses the password
- * policy state extended operation for its processing.
+ * or Nokia/Alcatel-Lucent 8661 Directory Server.  It primarily uses the
+ * password policy state extended operation for its processing.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
  *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
- *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
- *   server products.  These classes provide support for proprietary
- *   functionality or for external specifications that are not considered stable
- *   or mature enough to be guaranteed to work in an interoperable way with
- *   other types of LDAP servers.
+ *   supported for use against Ping Identity, UnboundID, and
+ *   Nokia/Alcatel-Lucent 8661 server products.  These classes provide support
+ *   for proprietary functionality or for external specifications that are not
+ *   considered stable or mature enough to be guaranteed to work in an
+ *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

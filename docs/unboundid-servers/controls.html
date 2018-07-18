@@ -12,7 +12,7 @@ ${TARGET="offline"}                <br>
                 page of the Getting Started Guide, the UnboundID LDAP SDK for Java provides
                 support for a number of other controls that are either less standardized or are
                 specific to a particular server or set of servers.  These controls are only tested
-                and assured to work with the Ping Identity, UnboundID, and Alcatel-Lucent
+                and assured to work with the Ping Identity, UnboundID, and Nokia/Alcatel-Lucent
                 Directory Server and are not recommended for use in conjunction with any other
                 type of server.
               </p>
@@ -452,7 +452,7 @@ for (Control c : searchResult.getResponseControls())
                 The LDAP no-op request control is defined in draft-zeilenga-ldap-noop, although
                 because it has not yet been standardized no official OID has been allocated for
                 this control and therefore it uses a temporary OID which is used by OpenLDAP,
-                OpenDS, and the Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory
+                OpenDS, and the Ping Identity, UnboundID, and Nokia/Alcatel-Lucent 8661 Directory
                 Server.  This control may be included in an add, delete, modify, or modify DN
                 request to indicate that the server should perform as much processing as possible
                 for the associated operation but should not actually make any changes to server
