@@ -1474,6 +1474,132 @@ public final class LDAPTestUtilsTestCase
 
 
   /**
+   * Provides test coverage for the methods related to the diagnostic message.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDiagnosticMessage()
+         throws Exception
+  {
+    // Test the assertContainsDiagnosticMessage method with a result.
+    final LDAPResult resultWithDiagnosticMessage = new LDAPResult(1,
+         ResultCode.NO_SUCH_OBJECT, "foo", "dc=example,dc=com",
+         (String[]) null, (Control[]) null);
+    final LDAPResult resultWithoutDiagnosticMessage = new LDAPResult(1,
+         ResultCode.SUCCESS);
+
+    assertContainsDiagnosticMessage(resultWithDiagnosticMessage);
+
+    try
+    {
+      assertContainsDiagnosticMessage(resultWithoutDiagnosticMessage);
+      throw new Exception("Expected an assertion error");
+    }
+    catch (final AssertionError ae)
+    {
+      // This was expected.
+    }
+
+
+    // Test the assertContainsDiagnosticMessage method with an exception.
+    final LDAPException exceptionWithDiagnosticMessage =
+         new LDAPException(resultWithDiagnosticMessage);
+    final LDAPException exceptionWithoutDiagnosticMessage =
+         new LDAPException(resultWithoutDiagnosticMessage);
+
+    assertContainsDiagnosticMessage(exceptionWithDiagnosticMessage);
+
+    try
+    {
+      assertContainsDiagnosticMessage(exceptionWithoutDiagnosticMessage);
+      throw new Exception("Expected an assertion error");
+    }
+    catch (final AssertionError ae)
+    {
+      // This was expected.
+    }
+
+
+    // Test the assertMissingDiagnosticMessage method with a result.
+    assertMissingDiagnosticMessage(resultWithoutDiagnosticMessage);
+
+    try
+    {
+      assertMissingDiagnosticMessage(resultWithDiagnosticMessage);
+      throw new Exception("Expected an assertion error");
+    }
+    catch (final AssertionError ae)
+    {
+      // This was expected.
+    }
+
+
+    // Test the assertMissingDiagnosticMessage method with an exception.
+    assertMissingDiagnosticMessage(exceptionWithoutDiagnosticMessage);
+
+    try
+    {
+      assertMissingDiagnosticMessage(exceptionWithDiagnosticMessage);
+      throw new Exception("Expected an assertion error");
+    }
+    catch (final AssertionError ae)
+    {
+      // This was expected.
+    }
+
+
+    // Test the assertDiagnosticMessageEquals method with a result.
+    assertDiagnosticMessageEquals(resultWithDiagnosticMessage,  "foo");
+
+    try
+    {
+      assertDiagnosticMessageEquals(resultWithoutDiagnosticMessage, "foo");
+      throw new Exception("Expected an assertion error");
+    }
+    catch (final AssertionError ae)
+    {
+      // This was expected
+    }
+
+    try
+    {
+      assertDiagnosticMessageEquals(resultWithDiagnosticMessage, "bar");
+      throw new Exception("Expected an assertion error");
+    }
+    catch (final AssertionError ae)
+    {
+      // This was expected
+    }
+
+
+    // Test the assertDiagnosticMessageEquals method with an exception.
+    assertDiagnosticMessageEquals(exceptionWithDiagnosticMessage,  "foo");
+
+    try
+    {
+      assertDiagnosticMessageEquals(exceptionWithoutDiagnosticMessage, "foo");
+      throw new Exception("Expected an assertion error");
+    }
+    catch (final AssertionError ae)
+    {
+      // This was expected
+    }
+
+    try
+    {
+      assertDiagnosticMessageEquals(exceptionWithDiagnosticMessage, "bar");
+      throw new Exception("Expected an assertion error");
+    }
+    catch (final AssertionError ae)
+    {
+      // This was expected
+    }
+  }
+
+
+
+  /**
    * Provides test coverage for the methods related to referrals.
    *
    * @throws  Exception  If an unexpected problem occurs.

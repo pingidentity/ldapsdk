@@ -1866,6 +1866,158 @@ public final class LDAPTestUtils
 
 
   /**
+   * Ensures that the provided LDAP result contains a diagnostic message.
+   *
+   * @param  result  The LDAP result to examine.
+   *
+   * @throws  AssertionError  If the provided result did not contain a
+   *                          diagnostic message.
+   */
+  public static void assertContainsDiagnosticMessage(final LDAPResult result)
+         throws AssertionError
+  {
+    if (result.getDiagnosticMessage() == null)
+    {
+      throw new AssertionError(ERR_TEST_RESULT_MISSING_DIAGNOSTIC_MESSAGE.get(
+           String.valueOf(result)));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided LDAP exception contains a diagnostic message.
+   *
+   * @param  exception  The LDAP exception to examine.
+   *
+   * @throws  AssertionError  If the provided exception did not contain a
+   *                          diagnostic message.
+   */
+  public static void assertContainsDiagnosticMessage(
+                          final LDAPException exception)
+         throws AssertionError
+  {
+    if (exception.getDiagnosticMessage() == null)
+    {
+      throw new AssertionError(ERR_TEST_RESULT_MISSING_DIAGNOSTIC_MESSAGE.get(
+           StaticUtils.getExceptionMessage(exception)));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided LDAP result does not contain a diagnostic
+   * message.
+   *
+   * @param  result  The LDAP result to examine.
+   *
+   * @throws  AssertionError  If the provided result contained a diagnostic
+   *                          message.
+   */
+  public static void assertMissingDiagnosticMessage(final LDAPResult result)
+         throws AssertionError
+  {
+    if (result.getDiagnosticMessage() != null)
+    {
+      throw new AssertionError(ERR_TEST_RESULT_CONTAINS_DIAGNOSTIC_MESSAGE.get(
+           String.valueOf(result), result.getDiagnosticMessage()));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided LDAP exception does not contain a diagnostic
+   * message.
+   *
+   * @param  exception  The LDAP exception to examine.
+   *
+   * @throws  AssertionError  If the provided exception contained a diagnostic
+   *                          message.
+   */
+  public static void assertMissingDiagnosticMessage(
+                          final LDAPException exception)
+         throws AssertionError
+  {
+    if (exception.getDiagnosticMessage() != null)
+    {
+      throw new AssertionError(ERR_TEST_RESULT_CONTAINS_DIAGNOSTIC_MESSAGE.get(
+           StaticUtils.getExceptionMessage(exception),
+           exception.getDiagnosticMessage()));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided LDAP result has the given diagnostic message.
+   *
+   * @param  result             The LDAP result to examine.
+   * @param  diagnosticMessage  The diagnostic message expected to be found in
+   *                            the provided result.  It must not be
+   *                            {@code null}.
+   *
+   * @throws  AssertionError  If the provided LDAP result did not contain a
+   *                          diagnostic message, or if it had a diagnostic
+   *                          message that differed from the expected value.
+   */
+  public static void assertDiagnosticMessageEquals(final LDAPResult result,
+                          final String diagnosticMessage)
+         throws AssertionError
+  {
+    if (result.getDiagnosticMessage() == null)
+    {
+      throw new AssertionError(
+           ERR_TEST_RESULT_MISSING_EXPECTED_DIAGNOSTIC_MESSAGE.get(
+                String.valueOf(result), diagnosticMessage));
+    }
+
+    if (! result.getDiagnosticMessage().equals(diagnosticMessage))
+    {
+      throw new AssertionError(ERR_TEST_DIAGNOSTIC_MESSAGE_MISMATCH.get(
+           String.valueOf(result), diagnosticMessage,
+           result.getDiagnosticMessage()));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided LDAP exception has the given diagnostic message.
+   *
+   * @param  exception          The LDAP exception to examine.
+   * @param  diagnosticMessage  The diagnostic message expected to be found in
+   *                            the provided exception.  It must not be
+   *                            {@code null}.
+   *
+   * @throws  AssertionError  If the provided LDAP exception did not contain a
+   *                          diagnostic message, or if it had a diagnostic
+   *                          message that differed from the expected value.
+   */
+  public static void assertDiagnosticMessageEquals(
+                          final LDAPException exception,
+                          final String diagnosticMessage)
+         throws AssertionError
+  {
+    if (exception.getDiagnosticMessage() == null)
+    {
+      throw new AssertionError(
+           ERR_TEST_RESULT_MISSING_EXPECTED_DIAGNOSTIC_MESSAGE.get(
+                StaticUtils.getExceptionMessage(exception), diagnosticMessage));
+    }
+
+    if (! exception.getDiagnosticMessage().equals(diagnosticMessage))
+    {
+      throw new AssertionError(ERR_TEST_DIAGNOSTIC_MESSAGE_MISMATCH.get(
+           StaticUtils.getExceptionMessage(exception), diagnosticMessage,
+           exception.getDiagnosticMessage()));
+    }
+  }
+
+
+
+  /**
    * Ensures that the provided LDAP result has one or more referral URLs.
    *
    * @param  result  The LDAP result to examine.
