@@ -24,6 +24,8 @@ package com.unboundid.ldap.sdk;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.util.ssl.SSLUtil;
@@ -1548,6 +1550,81 @@ public class ReferralTestCase
       conn.delete(deleteRequest);
 
       conn.close();
+    }
+  }
+
+
+
+  /**
+   * Tests to ensure that the LDAP SDK returns an appropriate result code for
+   * the case in which it is configured to automatically follow referrals and
+   * it encounters referrals that it cannot follow.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSearchResultCodeWithUnfollowableSearchResultReference()
+         throws Exception
+  {
+    final LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+    connectionOptions.setFollowReferrals(true);
+
+    final InMemoryDirectoryServerConfig config =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
+    ds.startListening();
+
+    try (final LDAPConnection conn = ds.getConnection(connectionOptions))
+    {
+      conn.add(
+           "dn: dc=example,dc=com",
+           "objectClass: top",
+           "objectClass: domain",
+           "dc: example");
+
+      conn.add(
+           "dn: ou=BadRef,dc=example,dc=com",
+           "objectClass: top",
+           "objectClass: referral",
+           "objectClass: extensibleObject",
+           "ou: BadRef",
+           "ref: The LDAP SDK cannot automatically follow this referral");
+
+      // Test the behavior for a base-level search at the naming context.  The
+      // search should succeed with one entry returned (the base entry) and no
+      // references.
+      SearchResult searchResult = (SearchResult) assertResultCodeEquals(conn,
+           new SearchRequest("dc=example,dc=com", SearchScope.BASE,
+                Filter.createPresenceFilter("objectClass")),
+           ResultCode.SUCCESS);
+      assertEntriesReturnedEquals(searchResult, 1);
+      assertReferencesReturnedEquals(searchResult, 0);
+
+
+      // Test the behavior for a subtree search at the naming context.  The
+      // search should succeed with one entry (the base entry) and one reference
+      // (the bad referral) returned.
+      searchResult = (SearchResult) assertResultCodeEquals(conn,
+           new SearchRequest("dc=example,dc=com", SearchScope.SUB,
+                Filter.createPresenceFilter("objectClass")),
+           ResultCode.SUCCESS);
+      assertEntriesReturnedEquals(searchResult, 1);
+      assertReferencesReturnedEquals(searchResult, 1);
+
+
+      // Test the behavior for a base-level search at the bad referral entry.
+      // The search should fail with a "referral" result code with no entries or
+      // references returned.
+      searchResult = (SearchResult) assertResultCodeEquals(conn,
+           new SearchRequest("ou=BadRef,dc=example,dc=com",
+                SearchScope.BASE, Filter.createPresenceFilter("objectClass")),
+           ResultCode.REFERRAL);
+      assertEntriesReturnedEquals(searchResult, 0);
+      assertReferencesReturnedEquals(searchResult, 0);
+    }
+    finally
+    {
+      ds.shutDown(true);
     }
   }
 }

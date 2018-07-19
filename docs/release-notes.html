@@ -32,6 +32,28 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue with the behavior that the LDAP SDK exhibited when configured to
+                  automatically follow referrals.  If the server returned a search result
+                  reference that the LDAP SDK could not follow (for example, because none of the
+                  URLs were valid, none of the servers could be reached, none of the searches
+                  succeeded, in those servers, etc.), the LDAP SDK would assign a result code of
+                  "referral" to the search operation, which would cause it to throw an exception
+                  when the search completed (as is the case for most non-success result codes).
+                  The LDAP SDK will no longer override the result code for the search operation,
+                  but will instead use whatever result code the server returned in its search
+                  result done message.  Any search result references that the LDAP SDK could not
+                  automatically follow will be made available to the caller through the same
+                  mechanism that would have been used if the SDK had not been configured to
+                  automatically follow referrals (that is, either hand them off to a search result
+                  listener or collect them in a list to include in the search result object).
+                  The LDAP SDK was already making the unfollowable search result references
+                  available in this manner, but the client probably wouldn't have gotten to the
+                  point of looking for them because of the exception resulting from the overridden
+                  operation result code.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the modrate tool to add a new "--valuePattern" argument that can be used
                   to specify the pattern to use to generate new values.  This argument is an
                   alternative to the "--valueLength" and "--characterSet" arguments and allows for

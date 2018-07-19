@@ -1271,7 +1271,8 @@ public final class SearchRequest
                 searchResultListener.searchReferenceReturned(searchReference);
               }
 
-              if (intermediateResultCode.equals(ResultCode.SUCCESS))
+              if (intermediateResultCode.equals(ResultCode.SUCCESS) &&
+                 (result.getResultCode() != ResultCode.REFERRAL))
               {
                 intermediateResultCode = result.getResultCode();
               }
@@ -1623,7 +1624,8 @@ public final class SearchRequest
               searchResultListener.searchReferenceReturned(searchReference);
             }
 
-            if (intermediateResultCode.equals(ResultCode.SUCCESS))
+            if (intermediateResultCode.equals(ResultCode.SUCCESS) &&
+               (result.getResultCode() != ResultCode.REFERRAL))
             {
               intermediateResultCode = result.getResultCode();
             }
