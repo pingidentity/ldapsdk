@@ -3365,12 +3365,12 @@ public class EntryTestCase
                    "description"),
               new Modification(ModificationType.ADD, "displayName",
                    "displayName"),
-              new Modification(ModificationType.ADD, "givenName", "john"),
               new Modification(ModificationType.DELETE, "givenName", "John"),
-              new Modification(ModificationType.ADD, "sn", "doe"),
+              new Modification(ModificationType.ADD, "givenName", "john"),
               new Modification(ModificationType.DELETE, "sn", "Doe"),
-              new Modification(ModificationType.ADD, "cn", "john doe"),
-              new Modification(ModificationType.DELETE, "cn", "John Doe")));
+              new Modification(ModificationType.ADD, "sn", "doe"),
+              new Modification(ModificationType.DELETE, "cn", "John Doe"),
+              new Modification(ModificationType.ADD, "cn", "john doe")));
 
     mods = Entry.diff(e1, e2, false, false, true);
     assertFalse(mods.isEmpty());

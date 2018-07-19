@@ -2183,25 +2183,24 @@ public class Entry
           }
         }
 
-        final ArrayList<ASN1OctetString> addValues =
-             new ArrayList<>(targetValues.values());
         final ArrayList<ASN1OctetString> delValues =
              new ArrayList<>(sourceValues.values());
-
-        if (! addValues.isEmpty())
-        {
-          final ASN1OctetString[] addArray =
-               new ASN1OctetString[addValues.size()];
-          mods.add(new Modification(ModificationType.ADD, targetAttr.getName(),
-               addValues.toArray(addArray)));
-        }
-
         if (! delValues.isEmpty())
         {
           final ASN1OctetString[] delArray =
                new ASN1OctetString[delValues.size()];
           mods.add(new Modification(ModificationType.DELETE,
                sourceAttr.getName(), delValues.toArray(delArray)));
+        }
+
+        final ArrayList<ASN1OctetString> addValues =
+             new ArrayList<>(targetValues.values());
+        if (! addValues.isEmpty())
+        {
+          final ASN1OctetString[] addArray =
+               new ASN1OctetString[addValues.size()];
+          mods.add(new Modification(ModificationType.ADD, targetAttr.getName(),
+               addValues.toArray(addArray)));
         }
       }
       else

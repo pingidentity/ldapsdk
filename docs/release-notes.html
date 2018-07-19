@@ -54,6 +54,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the Entry.diff method when operating in reversible mode so that when
+                  altering the values of an existing attribute, the delete modifications will be
+                  ordered before the add modifications.  Previously, the adds came before the
+                  deletes, but this could cause problems in some directory servers, especially
+                  when the modifications are intended to change the case of a value in a
+                  case-insensitive attribute (for example, the add could be ignored or rejected
+                  because the value already exists in the entry, or the delete could end up
+                  removing the value entirely).  Ordering the deletes before the adds should
+                  provide much more reliable results.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the modrate tool to add a new "--valuePattern" argument that can be used
                   to specify the pattern to use to generate new values.  This argument is an
                   alternative to the "--valueLength" and "--characterSet" arguments and allows for
