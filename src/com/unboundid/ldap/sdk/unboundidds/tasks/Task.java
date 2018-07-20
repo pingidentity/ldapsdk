@@ -971,6 +971,7 @@ public class Task
          new EnterLockdownModeTask(),
          new ExecTask(),
          new ExportTask(),
+         new FileRetentionTask(),
          new GroovyScriptedTask(),
          new ImportTask(),
          new LeaveLockdownModeTask(),
@@ -2010,6 +2011,10 @@ public class Task
       else if (taskClass.equals(ExportTask.EXPORT_TASK_CLASS))
       {
         return new ExportTask(entry);
+      }
+      else if (taskClass.equals(FileRetentionTask.FILE_RETENTION_TASK_CLASS))
+      {
+        return new FileRetentionTask(entry);
       }
       else if (taskClass.equals(GroovyScriptedTask.GROOVY_SCRIPTED_TASK_CLASS))
       {
