@@ -54,6 +54,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added <tt>createSubInitialFilter</tt>, <tt>createSubAnyFilter</tt>, and
+                  <tt>createSubFinalFilter</tt> methods to the <tt>Filter</tt> class that are more
+                  convenient to use than the existing <tt>createSubstringFilter</tt> methods for
+                  substring filters that only have one type of component.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the Entry.diff method when operating in reversible mode so that when
                   altering the values of an existing attribute, the delete modifications will be
                   ordered before the add modifications.  Previously, the adds came before the

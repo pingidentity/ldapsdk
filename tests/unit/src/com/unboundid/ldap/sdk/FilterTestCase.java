@@ -1523,6 +1523,81 @@ public class FilterTestCase
 
 
   /**
+   * Tests the {@code createSubInitialFilter} method with a string value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSubInitialFilterString()
+         throws Exception
+  {
+    Filter f = Filter.createSubInitialFilter("foo", "bar");
+
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
+
+    assertNotNull(f.getAttributeName());
+    assertEquals(f.getAttributeName(), "foo");
+
+    assertNotNull(f.getSubInitialString());
+    assertEquals(f.getSubInitialString(), "bar");
+
+    assertNotNull(f.getSubInitialBytes());
+    assertEquals(new String(f.getSubInitialBytes()), "bar");
+
+    assertNotNull(f.getRawSubInitialValue());
+    assertEquals(f.getRawSubInitialValue().stringValue(), "bar");
+
+    assertNotNull(f.getComponents());
+    assertEquals(f.getComponents().length, 0);
+
+    assertNull(f.getNOTComponent());
+    assertNull(f.getAssertionValue());
+    assertNull(f.getAssertionValueBytes());
+    assertNull(f.getRawAssertionValue());
+    assertNull(f.getSubFinalString());
+    assertNull(f.getSubFinalBytes());
+    assertNull(f.getRawSubFinalValue());
+    assertNull(f.getMatchingRuleID());
+
+    assertNotNull(f.getSubAnyStrings());
+    assertEquals(f.getSubAnyStrings().length, 0);
+
+    assertNotNull(f.getSubAnyBytes());
+    assertEquals(f.getSubAnyBytes().length, 0);
+
+    assertNotNull(f.getRawSubAnyValues());
+    assertEquals(f.getRawSubAnyValues().length, 0);
+
+    String filterString = f.toString();
+    assertEquals(filterString, "(foo=bar*)");
+
+    Filter decodedFromString = Filter.create(filterString);
+    assertEquals(decodedFromString.toString(), filterString);
+    assertEquals(decodedFromString.hashCode(), f.hashCode());
+    assertEquals(decodedFromString, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromString.toNormalizedString());
+
+    ASN1Element filterElement = f.encode();
+    Filter decodedFromElement = Filter.decode(filterElement);
+    assertEquals(decodedFromElement.toString(), filterString);
+    assertEquals(decodedFromElement.hashCode(), f.hashCode());
+    assertEquals(decodedFromElement, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromElement.toNormalizedString());
+
+    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    f.toCode(toCodeLines, 0, null, null);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
+    assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
    * Tests the {@code createSubstringFilter} method variant that takes string
    * arguments by providing only a single subAny element.
    *
@@ -1535,6 +1610,76 @@ public class FilterTestCase
     String[] subAny = { "bar" };
 
     Filter f = Filter.createSubstringFilter("foo", null, subAny, null);
+
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
+
+    assertNotNull(f.getAttributeName());
+    assertEquals(f.getAttributeName(), "foo");
+
+    assertNotNull(f.getComponents());
+    assertEquals(f.getComponents().length, 0);
+
+    assertNull(f.getNOTComponent());
+    assertNull(f.getAssertionValue());
+    assertNull(f.getAssertionValueBytes());
+    assertNull(f.getRawAssertionValue());
+    assertNull(f.getSubInitialString());
+    assertNull(f.getSubInitialBytes());
+    assertNull(f.getRawSubInitialValue());
+    assertNull(f.getSubFinalString());
+    assertNull(f.getSubFinalBytes());
+    assertNull(f.getRawSubFinalValue());
+    assertNull(f.getMatchingRuleID());
+
+    assertNotNull(f.getSubAnyStrings());
+    assertEquals(f.getSubAnyStrings().length, 1);
+
+    assertNotNull(f.getSubAnyBytes());
+    assertEquals(f.getSubAnyBytes().length, 1);
+
+    assertNotNull(f.getRawSubAnyValues());
+    assertEquals(f.getRawSubAnyValues().length, 1);
+
+    String filterString = f.toString();
+    assertEquals(filterString, "(foo=*bar*)");
+
+    Filter decodedFromString = Filter.create(filterString);
+    assertEquals(decodedFromString.toString(), filterString);
+    assertEquals(decodedFromString.hashCode(), f.hashCode());
+    assertEquals(decodedFromString, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromString.toNormalizedString());
+
+    ASN1Element filterElement = f.encode();
+    Filter decodedFromElement = Filter.decode(filterElement);
+    assertEquals(decodedFromElement.toString(), filterString);
+    assertEquals(decodedFromElement.hashCode(), f.hashCode());
+    assertEquals(decodedFromElement, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromElement.toNormalizedString());
+
+    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    f.toCode(toCodeLines, 0, null, null);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
+    assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
+   * Tests the {@code createSubAnyFilter} method variant with a single string
+   * value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSubAnyFilterSingleStringValue()
+         throws Exception
+  {
+    Filter f = Filter.createSubAnyFilter("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -1667,6 +1812,76 @@ public class FilterTestCase
 
 
   /**
+   * Tests the {@code createSubAnyFilter} method variant that takes multiple
+   * string values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSubAnyFilterMultipleStringValues()
+         throws Exception
+  {
+    Filter f = Filter.createSubAnyFilter("foo", "bar", "baz", "bat");
+
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
+
+    assertNotNull(f.getAttributeName());
+    assertEquals(f.getAttributeName(), "foo");
+
+    assertNotNull(f.getComponents());
+    assertEquals(f.getComponents().length, 0);
+
+    assertNull(f.getNOTComponent());
+    assertNull(f.getAssertionValue());
+    assertNull(f.getAssertionValueBytes());
+    assertNull(f.getRawAssertionValue());
+    assertNull(f.getSubInitialString());
+    assertNull(f.getSubInitialBytes());
+    assertNull(f.getRawSubInitialValue());
+    assertNull(f.getSubFinalString());
+    assertNull(f.getSubFinalBytes());
+    assertNull(f.getRawSubFinalValue());
+    assertNull(f.getMatchingRuleID());
+
+    assertNotNull(f.getSubAnyStrings());
+    assertEquals(f.getSubAnyStrings().length, 3);
+
+    assertNotNull(f.getSubAnyBytes());
+    assertEquals(f.getSubAnyBytes().length, 3);
+
+    assertNotNull(f.getRawSubAnyValues());
+    assertEquals(f.getRawSubAnyValues().length, 3);
+
+    String filterString = f.toString();
+    assertEquals(filterString, "(foo=*bar*baz*bat*)");
+
+    Filter decodedFromString = Filter.create(filterString);
+    assertEquals(decodedFromString.toString(), filterString);
+    assertEquals(decodedFromString.hashCode(), f.hashCode());
+    assertEquals(decodedFromString, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromString.toNormalizedString());
+
+    ASN1Element filterElement = f.encode();
+    Filter decodedFromElement = Filter.decode(filterElement);
+    assertEquals(decodedFromElement.toString(), filterString);
+    assertEquals(decodedFromElement.hashCode(), f.hashCode());
+    assertEquals(decodedFromElement, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromElement.toNormalizedString());
+
+    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    f.toCode(toCodeLines, 0, null, null);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
+    assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
    * Tests the {@code createSubstringFilter} method variant that takes string
    * arguments by providing only a subFinal element.
    *
@@ -1677,6 +1892,81 @@ public class FilterTestCase
          throws Exception
   {
     Filter f = Filter.createSubstringFilter("foo", null, null, "bar");
+
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
+
+    assertNotNull(f.getAttributeName());
+    assertEquals(f.getAttributeName(), "foo");
+
+    assertNotNull(f.getSubFinalString());
+    assertEquals(f.getSubFinalString(), "bar");
+
+    assertNotNull(f.getSubFinalBytes());
+    assertEquals(new String(f.getSubFinalBytes()), "bar");
+
+    assertNotNull(f.getRawSubFinalValue());
+    assertEquals(f.getRawSubFinalValue().stringValue(), "bar");
+
+    assertNotNull(f.getComponents());
+    assertEquals(f.getComponents().length, 0);
+
+    assertNull(f.getNOTComponent());
+    assertNull(f.getAssertionValue());
+    assertNull(f.getAssertionValueBytes());
+    assertNull(f.getRawAssertionValue());
+    assertNull(f.getSubInitialString());
+    assertNull(f.getSubInitialBytes());
+    assertNull(f.getRawSubInitialValue());
+    assertNull(f.getMatchingRuleID());
+
+    assertNotNull(f.getSubAnyStrings());
+    assertEquals(f.getSubAnyStrings().length, 0);
+
+    assertNotNull(f.getSubAnyBytes());
+    assertEquals(f.getSubAnyBytes().length, 0);
+
+    assertNotNull(f.getRawSubAnyValues());
+    assertEquals(f.getRawSubAnyValues().length, 0);
+
+    String filterString = f.toString();
+    assertEquals(filterString, "(foo=*bar)");
+
+    Filter decodedFromString = Filter.create(filterString);
+    assertEquals(decodedFromString.toString(), filterString);
+    assertEquals(decodedFromString.hashCode(), f.hashCode());
+    assertEquals(decodedFromString, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromString.toNormalizedString());
+
+    ASN1Element filterElement = f.encode();
+    Filter decodedFromElement = Filter.decode(filterElement);
+    assertEquals(decodedFromElement.toString(), filterString);
+    assertEquals(decodedFromElement.hashCode(), f.hashCode());
+    assertEquals(decodedFromElement, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromElement.toNormalizedString());
+
+    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    f.toCode(toCodeLines, 0, null, null);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
+    assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
+   * Tests the {@code createSubFinalFilter} method with a string value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSubFinalFilterString()
+         throws Exception
+  {
+    Filter f = Filter.createSubFinalFilter("foo", "bar");
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2033,6 +2323,82 @@ public class FilterTestCase
 
 
   /**
+   * Tests the {@code createSubInitialFilter} method variant that takes a byte
+   * array value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSubInitialFilterByteArray()
+         throws Exception
+  {
+    Filter f = Filter.createSubInitialFilter("foo", "bar".getBytes("UTF-8"));
+
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
+
+    assertNotNull(f.getAttributeName());
+    assertEquals(f.getAttributeName(), "foo");
+
+    assertNotNull(f.getSubInitialString());
+    assertEquals(f.getSubInitialString(), "bar");
+
+    assertNotNull(f.getSubInitialBytes());
+    assertEquals(new String(f.getSubInitialBytes()), "bar");
+
+    assertNotNull(f.getRawSubInitialValue());
+    assertEquals(f.getRawSubInitialValue().stringValue(), "bar");
+
+    assertNotNull(f.getComponents());
+    assertEquals(f.getComponents().length, 0);
+
+    assertNull(f.getNOTComponent());
+    assertNull(f.getAssertionValue());
+    assertNull(f.getAssertionValueBytes());
+    assertNull(f.getRawAssertionValue());
+    assertNull(f.getSubFinalString());
+    assertNull(f.getSubFinalBytes());
+    assertNull(f.getRawSubFinalValue());
+    assertNull(f.getMatchingRuleID());
+
+    assertNotNull(f.getSubAnyStrings());
+    assertEquals(f.getSubAnyStrings().length, 0);
+
+    assertNotNull(f.getSubAnyBytes());
+    assertEquals(f.getSubAnyBytes().length, 0);
+
+    assertNotNull(f.getRawSubAnyValues());
+    assertEquals(f.getRawSubAnyValues().length, 0);
+
+    String filterString = f.toString();
+    assertEquals(filterString, "(foo=bar*)");
+
+    Filter decodedFromString = Filter.create(filterString);
+    assertEquals(decodedFromString.toString(), filterString);
+    assertEquals(decodedFromString.hashCode(), f.hashCode());
+    assertEquals(decodedFromString, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromString.toNormalizedString());
+
+    ASN1Element filterElement = f.encode();
+    Filter decodedFromElement = Filter.decode(filterElement);
+    assertEquals(decodedFromElement.toString(), filterString);
+    assertEquals(decodedFromElement.hashCode(), f.hashCode());
+    assertEquals(decodedFromElement, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromElement.toNormalizedString());
+
+    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    f.toCode(toCodeLines, 0, null, null);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
+    assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
    * Tests the {@code createSubstringFilter} method variant that takes byte
    * array arguments by providing only a single subAny element.
    *
@@ -2045,6 +2411,75 @@ public class FilterTestCase
     byte[][] subAny = { "bar".getBytes("UTF-8") };
 
     Filter f = Filter.createSubstringFilter("foo", null, subAny, null);
+
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
+
+    assertNotNull(f.getAttributeName());
+    assertEquals(f.getAttributeName(), "foo");
+
+    assertNotNull(f.getComponents());
+    assertEquals(f.getComponents().length, 0);
+
+    assertNull(f.getNOTComponent());
+    assertNull(f.getAssertionValue());
+    assertNull(f.getAssertionValueBytes());
+    assertNull(f.getRawAssertionValue());
+    assertNull(f.getSubInitialString());
+    assertNull(f.getSubInitialBytes());
+    assertNull(f.getRawSubInitialValue());
+    assertNull(f.getSubFinalString());
+    assertNull(f.getSubFinalBytes());
+    assertNull(f.getRawSubFinalValue());
+    assertNull(f.getMatchingRuleID());
+
+    assertNotNull(f.getSubAnyStrings());
+    assertEquals(f.getSubAnyStrings().length, 1);
+
+    assertNotNull(f.getSubAnyBytes());
+    assertEquals(f.getSubAnyBytes().length, 1);
+
+    assertNotNull(f.getRawSubAnyValues());
+    assertEquals(f.getRawSubAnyValues().length, 1);
+
+    String filterString = f.toString();
+    assertEquals(filterString, "(foo=*bar*)");
+
+    Filter decodedFromString = Filter.create(filterString);
+    assertEquals(decodedFromString.toString(), filterString);
+    assertEquals(decodedFromString.hashCode(), f.hashCode());
+    assertEquals(decodedFromString, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromString.toNormalizedString());
+
+    ASN1Element filterElement = f.encode();
+    Filter decodedFromElement = Filter.decode(filterElement);
+    assertEquals(decodedFromElement.toString(), filterString);
+    assertEquals(decodedFromElement.hashCode(), f.hashCode());
+    assertEquals(decodedFromElement, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromElement.toNormalizedString());
+
+    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    f.toCode(toCodeLines, 0, null, null);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
+    assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
+   * Tests the {@code createSubAnyFilter} method with a single byte array value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSubAnyFilterSingleByteArrayValue()
+         throws Exception
+  {
+    Filter f = Filter.createSubAnyFilter("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 
@@ -2178,6 +2613,77 @@ public class FilterTestCase
 
 
   /**
+   * Tests the {@code createSubAnyFilter} method with multiple byte array
+   * values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSubAnyFilterMultipleByteArrayValues()
+         throws Exception
+  {
+    Filter f = Filter.createSubAnyFilter("foo", "bar".getBytes("UTF-8"),
+         "baz".getBytes("UTF-8"), "bat".getBytes("UTF-8"));
+
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
+
+    assertNotNull(f.getAttributeName());
+    assertEquals(f.getAttributeName(), "foo");
+
+    assertNotNull(f.getComponents());
+    assertEquals(f.getComponents().length, 0);
+
+    assertNull(f.getNOTComponent());
+    assertNull(f.getAssertionValue());
+    assertNull(f.getAssertionValueBytes());
+    assertNull(f.getRawAssertionValue());
+    assertNull(f.getSubInitialString());
+    assertNull(f.getSubInitialBytes());
+    assertNull(f.getRawSubInitialValue());
+    assertNull(f.getSubFinalString());
+    assertNull(f.getSubFinalBytes());
+    assertNull(f.getRawSubFinalValue());
+    assertNull(f.getMatchingRuleID());
+
+    assertNotNull(f.getSubAnyStrings());
+    assertEquals(f.getSubAnyStrings().length, 3);
+
+    assertNotNull(f.getSubAnyBytes());
+    assertEquals(f.getSubAnyBytes().length, 3);
+
+    assertNotNull(f.getRawSubAnyValues());
+    assertEquals(f.getRawSubAnyValues().length, 3);
+
+    String filterString = f.toString();
+    assertEquals(filterString, "(foo=*bar*baz*bat*)");
+
+    Filter decodedFromString = Filter.create(filterString);
+    assertEquals(decodedFromString.toString(), filterString);
+    assertEquals(decodedFromString.hashCode(), f.hashCode());
+    assertEquals(decodedFromString, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromString.toNormalizedString());
+
+    ASN1Element filterElement = f.encode();
+    Filter decodedFromElement = Filter.decode(filterElement);
+    assertEquals(decodedFromElement.toString(), filterString);
+    assertEquals(decodedFromElement.hashCode(), f.hashCode());
+    assertEquals(decodedFromElement, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromElement.toNormalizedString());
+
+    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    f.toCode(toCodeLines, 0, null, null);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
+    assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
    * Tests the {@code createSubstringFilter} method variant that takes byte
    * array arguments by providing only a subFinal element.
    *
@@ -2189,6 +2695,82 @@ public class FilterTestCase
   {
     Filter f = Filter.createSubstringFilter("foo", null, null,
                                             "bar".getBytes("UTF-8"));
+
+    assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
+
+    assertNotNull(f.getAttributeName());
+    assertEquals(f.getAttributeName(), "foo");
+
+    assertNotNull(f.getSubFinalString());
+    assertEquals(f.getSubFinalString(), "bar");
+
+    assertNotNull(f.getSubFinalBytes());
+    assertEquals(new String(f.getSubFinalBytes()), "bar");
+
+    assertNotNull(f.getRawSubFinalValue());
+    assertEquals(f.getRawSubFinalValue().stringValue(), "bar");
+
+    assertNotNull(f.getComponents());
+    assertEquals(f.getComponents().length, 0);
+
+    assertNull(f.getNOTComponent());
+    assertNull(f.getAssertionValue());
+    assertNull(f.getAssertionValueBytes());
+    assertNull(f.getRawAssertionValue());
+    assertNull(f.getSubInitialString());
+    assertNull(f.getSubInitialBytes());
+    assertNull(f.getRawSubInitialValue());
+    assertNull(f.getMatchingRuleID());
+
+    assertNotNull(f.getSubAnyStrings());
+    assertEquals(f.getSubAnyStrings().length, 0);
+
+    assertNotNull(f.getSubAnyBytes());
+    assertEquals(f.getSubAnyBytes().length, 0);
+
+    assertNotNull(f.getRawSubAnyValues());
+    assertEquals(f.getRawSubAnyValues().length, 0);
+
+    String filterString = f.toString();
+    assertEquals(filterString, "(foo=*bar)");
+
+    Filter decodedFromString = Filter.create(filterString);
+    assertEquals(decodedFromString.toString(), filterString);
+    assertEquals(decodedFromString.hashCode(), f.hashCode());
+    assertEquals(decodedFromString, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromString.toNormalizedString());
+
+    ASN1Element filterElement = f.encode();
+    Filter decodedFromElement = Filter.decode(filterElement);
+    assertEquals(decodedFromElement.toString(), filterString);
+    assertEquals(decodedFromElement.hashCode(), f.hashCode());
+    assertEquals(decodedFromElement, f);
+    assertEquals(f.toNormalizedString(),
+                 decodedFromElement.toNormalizedString());
+
+    final ArrayList<String> toCodeLines = new ArrayList<String>(10);
+    f.toCode(toCodeLines, 0, null, null);
+    assertFalse(toCodeLines.isEmpty());
+
+    toCodeLines.clear();
+    f.toCode(toCodeLines, 4, "FirstLinePrefix-", "-LastLineSuffix");
+    assertFalse(toCodeLines.isEmpty());
+  }
+
+
+
+  /**
+   * Tests the {@code createSubFinalFilter} method variant that takes a byte
+   * array value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSubFinalFilterByteArray()
+         throws Exception
+  {
+    Filter f = Filter.createSubFinalFilter("foo", "bar".getBytes("UTF-8"));
 
     assertEquals(f.getFilterType(), Filter.FILTER_TYPE_SUBSTRING);
 

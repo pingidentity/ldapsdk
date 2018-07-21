@@ -782,6 +782,120 @@ public final class Filter
 
 
   /**
+   * Creates a new substring search filter with only a subInitial (starts with)
+   * component.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subInitial     The subInitial component for this substring filter.
+   *                        It must not be {@code null}.
+   *
+   * @return  The created substring search filter.
+   */
+  public static Filter createSubInitialFilter(final String attributeName,
+                                              final String subInitial)
+  {
+    return createSubstringFilter(attributeName, subInitial, null, null);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subInitial (starts with)
+   * component.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subInitial     The subInitial component for this substring filter.
+   *                        It must not be {@code null}.
+   *
+   * @return  The created substring search filter.
+   */
+  public static Filter createSubInitialFilter(final String attributeName,
+                                              final byte[] subInitial)
+  {
+    return createSubstringFilter(attributeName, subInitial, null, null);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subAny (contains)
+   * component.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subAny         The subAny values for this substring filter.  It
+   *                        must not be {@code null} or empty.
+   *
+   * @return  The created substring search filter.
+   */
+  public static Filter createSubAnyFilter(final String attributeName,
+                                          final String... subAny)
+  {
+    return createSubstringFilter(attributeName, null, subAny, null);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subAny (contains)
+   * component.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subAny         The subAny values for this substring filter.  It
+   *                        must not be {@code null} or empty.
+   *
+   * @return  The created substring search filter.
+   */
+  public static Filter createSubAnyFilter(final String attributeName,
+                                          final byte[]... subAny)
+  {
+    return createSubstringFilter(attributeName, null, subAny, null);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subFinal (ends with)
+   * component.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subFinal       The subFinal component for this substring filter.
+   *                        It must not be {@code null}.
+   *
+   * @return  The created substring search filter.
+   */
+  public static Filter createSubFinalFilter(final String attributeName,
+                                            final String subFinal)
+  {
+    return createSubstringFilter(attributeName, null, null, subFinal);
+  }
+
+
+
+  /**
+   * Creates a new substring search filter with only a subFinal (ends with)
+   * component.
+   *
+   * @param  attributeName  The attribute name for this substring filter.  It
+   *                        must not be {@code null}.
+   * @param  subFinal       The subFinal component for this substring filter.
+   *                        It must not be {@code null}.
+   *
+   * @return  The created substring search filter.
+   */
+  public static Filter createSubFinalFilter(final String attributeName,
+                                            final byte[] subFinal)
+  {
+    return createSubstringFilter(attributeName, null, null, subFinal);
+  }
+
+
+
+  /**
    * Creates a new greater-or-equal search filter with the provided information.
    *
    * @param  attributeName   The attribute name for this greater-or-equal
