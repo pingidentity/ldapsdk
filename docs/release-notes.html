@@ -54,6 +54,25 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new <tt>LDAPConnectionPoolHealthCheck.performPoolMaintenance</tt> method
+                  that can be used to perform processing on the pool itself (rather than on any
+                  individual connection) at regular intervals as specified by the connection
+                  pool's health check interval.  This method will be invoked by the health check
+                  thread after all other periodic health checking is performed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>PruneUnneededConnectionsLDAPConnectionPoolHealthCheck</tt> class
+                  that can be used to monitor the size of a connection pool over time, and if the
+                  number of available (that is, not currently in use) connections is consistently
+                  greater than a specified minimum for a given length of time, then the number of
+                  connections in the pool can be reduced to that minimum.  This can be used to
+                  automatically shrink the size of the pool during periods of reduced activity.
+                  <br><br>
+                </li>
+
+                <li>
                   Added <tt>createSubInitialFilter</tt>, <tt>createSubAnyFilter</tt>, and
                   <tt>createSubFinalFilter</tt> methods to the <tt>Filter</tt> class that are more
                   convenient to use than the existing <tt>createSubstringFilter</tt> methods for

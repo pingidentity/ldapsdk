@@ -168,6 +168,20 @@ public final class AggregateLDAPConnectionPoolHealthCheck
    * {@inheritDoc}
    */
   @Override()
+  public void performPoolMaintenance(final AbstractConnectionPool pool)
+  {
+    for (final LDAPConnectionPoolHealthCheck hc : healthChecks)
+    {
+      hc.performPoolMaintenance(pool);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void ensureConnectionValidAfterException(
                    final LDAPConnection connection,
                    final LDAPException exception)

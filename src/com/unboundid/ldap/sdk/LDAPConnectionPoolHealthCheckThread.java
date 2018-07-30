@@ -97,6 +97,16 @@ class LDAPConnectionPoolHealthCheckThread
         {
           Debug.debugException(e);
         }
+
+        try
+        {
+          pool.getHealthCheck().performPoolMaintenance(pool);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+
         lastCheckTime = System.currentTimeMillis();
       }
       else

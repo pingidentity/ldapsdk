@@ -254,6 +254,26 @@ public class LDAPConnectionPoolHealthCheck
 
 
   /**
+   * Performs any processing that may be appropriate on an ongoing basis for the
+   * connection pool that is not related to the pool itself rather than any
+   * individual connection.  This method will be invoked by the pool's
+   * {@link LDAPConnectionPoolHealthCheckThread} at an interval specified by the
+   * pool's {@link AbstractConnectionPool#getHealthCheckIntervalMillis()}
+   * method.  This method will be invoked after all other periodic processing
+   * (for example, after calling {@link #ensureConnectionValidForContinuedUse}
+   * on each available connection, if appropriate for the pool implementation)
+   * has been performed during the interval.
+   *
+   * @param  pool  The connection pool on which to perform maintenance.
+   */
+  public void performPoolMaintenance(final AbstractConnectionPool pool)
+  {
+    // No processing is performed in this default implementation.
+  }
+
+
+
+  /**
    * Indicates whether the provided connection may still be considered valid
    * after an attempt to process an operation yielded the given exception.  This
    * method will be invoked by the

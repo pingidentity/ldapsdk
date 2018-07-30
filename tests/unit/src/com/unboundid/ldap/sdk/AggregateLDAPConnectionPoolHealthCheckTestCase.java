@@ -72,7 +72,9 @@ public final class AggregateLDAPConnectionPoolHealthCheckTestCase
          new LDAPException(ResultCode.UNWILLING_TO_PERFORM, "Not gonna do it");
     hc.ensureConnectionValidAfterException(conn, exception);
 
-    conn.close();
+    final LDAPConnectionPool pool = new LDAPConnectionPool(conn, 1);
+    hc.performPoolMaintenance(pool);
+    pool.close();
   }
 
 
@@ -111,7 +113,9 @@ public final class AggregateLDAPConnectionPoolHealthCheckTestCase
          new LDAPException(ResultCode.UNWILLING_TO_PERFORM, "Not gonna do it");
     hc.ensureConnectionValidAfterException(conn, exception);
 
-    conn.close();
+    final LDAPConnectionPool pool = new LDAPConnectionPool(conn, 1);
+    hc.performPoolMaintenance(pool);
+    pool.close();
   }
 
 
@@ -151,7 +155,9 @@ public final class AggregateLDAPConnectionPoolHealthCheckTestCase
          new LDAPException(ResultCode.UNWILLING_TO_PERFORM, "Not gonna do it");
     hc.ensureConnectionValidAfterException(conn, exception);
 
-    conn.close();
+    final LDAPConnectionPool pool = new LDAPConnectionPool(conn, 1);
+    hc.performPoolMaintenance(pool);
+    pool.close();
   }
 
 
@@ -242,7 +248,9 @@ public final class AggregateLDAPConnectionPoolHealthCheckTestCase
       // This was expected.
     }
 
-    conn.close();
+    final LDAPConnectionPool pool = new LDAPConnectionPool(conn, 1);
+    hc.performPoolMaintenance(pool);
+    pool.close();
   }
 
 
@@ -284,7 +292,9 @@ public final class AggregateLDAPConnectionPoolHealthCheckTestCase
          new LDAPException(ResultCode.UNWILLING_TO_PERFORM, "Not gonna do it");
     hc.ensureConnectionValidAfterException(conn, exception);
 
-    conn.close();
+    final LDAPConnectionPool pool = new LDAPConnectionPool(conn, 1);
+    hc.performPoolMaintenance(pool);
+    pool.close();
   }
 
 
@@ -377,7 +387,9 @@ public final class AggregateLDAPConnectionPoolHealthCheckTestCase
       // This was expected.
     }
 
-    conn.close();
+    final LDAPConnectionPool pool = new LDAPConnectionPool(conn, 1);
+    hc.performPoolMaintenance(pool);
+    pool.close();
   }
 
 
@@ -470,7 +482,9 @@ public final class AggregateLDAPConnectionPoolHealthCheckTestCase
       // This was expected.
     }
 
-    conn.close();
+    final LDAPConnectionPool pool = new LDAPConnectionPool(conn, 1);
+    hc.performPoolMaintenance(pool);
+    pool.close();
   }
 
 
@@ -567,6 +581,8 @@ public final class AggregateLDAPConnectionPoolHealthCheckTestCase
       // This was expected.
     }
 
-    conn.close();
+    final LDAPConnectionPool pool = new LDAPConnectionPool(conn, 1);
+    hc.performPoolMaintenance(pool);
+    pool.close();
   }
 }
