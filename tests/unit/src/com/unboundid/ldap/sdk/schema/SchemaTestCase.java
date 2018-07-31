@@ -26,6 +26,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -33,8 +35,10 @@ import org.testng.annotations.Test;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.persist.PersistUtils;
+import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.StaticUtils;
@@ -245,24 +249,312 @@ public class SchemaTestCase
 
 
   /**
-   * Tests the {@code getSchema} method that doesn't take any arguments.
-   * <BR><BR>
-   * Access to a Directory Server instance is required for complete processing.
+   * Tests the constructor with an empty entry and a bunch of maps.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testGetSchema1()
+  public void testConstructorEmptyEntryAndMaps()
          throws Exception
   {
-    if (! isDirectoryInstanceAvailable())
-    {
-      return;
-    }
+    final LinkedHashMap<String,LDAPException> unparsableAttributeSyntaxes =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableMatchingRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableAttributeTypes =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableObjectClasses =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableDITContentRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableDITStructureRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableNameForms =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableMatchingRuleUses =
+         new LinkedHashMap<>(10);
 
-    LDAPConnection connection = getAdminConnection();
-    Schema schema = Schema.getSchema(connection);
-    connection.close();
+    Schema schema = new Schema(new Entry("cn=schema"),
+         unparsableAttributeSyntaxes, unparsableMatchingRules,
+         unparsableAttributeTypes, unparsableObjectClasses,
+         unparsableDITContentRules, unparsableDITStructureRules,
+         unparsableNameForms, unparsableMatchingRuleUses);
+
+    assertNotNull(schema);
+
+    assertTrue(unparsableAttributeSyntaxes.isEmpty());
+    assertTrue(unparsableMatchingRules.isEmpty());
+    assertTrue(unparsableAttributeTypes.isEmpty());
+    assertTrue(unparsableObjectClasses.isEmpty());
+    assertTrue(unparsableDITContentRules.isEmpty());
+    assertTrue(unparsableDITStructureRules.isEmpty());
+    assertTrue(unparsableNameForms.isEmpty());
+    assertTrue(unparsableMatchingRuleUses.isEmpty());
+
+    assertNotNull(schema.getAttributeSyntaxes());
+    assertNull(schema.getAttributeSyntax("1.2.3.4"));
+    assertNull(schema.getAttributeSyntax("1.2.3.4{123}"));
+
+    assertNotNull(schema.getAttributeTypes());
+    assertNotNull(schema.getOperationalAttributeTypes());
+    assertNotNull(schema.getUserAttributeTypes());
+    assertNull(schema.getAttributeType("1.2.3.4"));
+
+    assertNotNull(schema.getDITContentRules());
+    assertNull(schema.getDITContentRule("1.2.3.4"));
+
+    assertNotNull(schema.getDITStructureRules());
+    assertNull(schema.getDITStructureRuleByID(12345));
+    assertNull(schema.getDITStructureRuleByName("foo"));
+    assertNull(schema.getDITStructureRuleByNameForm("foo"));
+
+    assertNotNull(schema.getMatchingRules());
+    assertNull(schema.getMatchingRule("1.2.3.4"));
+
+    assertNotNull(schema.getMatchingRuleUses());
+    assertNull(schema.getMatchingRuleUse("1.2.3.4"));
+
+    assertNotNull(schema.getNameForms());
+    assertNull(schema.getNameFormByName("1.2.3.4"));
+    assertNull(schema.getNameFormByObjectClass("1.2.3.4"));
+
+    assertNotNull(schema.getObjectClasses());
+    assertNotNull(schema.getAbstractObjectClasses());
+    assertNotNull(schema.getAuxiliaryObjectClasses());
+    assertNotNull(schema.getStructuralObjectClasses());
+    assertNull(schema.getObjectClass("1.2.3.4"));
+
+    schema.hashCode();
+    assertTrue(schema.equals(schema));
+    assertFalse(schema.equals(null));
+    assertFalse(schema.equals("foo"));
+    assertFalse(schema.equals(Schema.getDefaultStandardSchema()));
+    assertFalse(Schema.getDefaultStandardSchema().equals(schema));
+    assertNotNull(schema.toString());
+  }
+
+
+
+  /**
+   * Tests the constructor with an entry that contains all types of elements
+   * and a bunch of maps.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructorTestEntryAndMaps()
+         throws Exception
+  {
+    Entry e = new Entry(
+         "dn: cn=schema",
+         "objectClass: top",
+         "objectClass: ldapSubentry",
+         "objectClass: subschemaSubentry",
+         "ldapSyntaxes: ( 1.2.3.5 )",
+         "matchingRules: ( 1.2.3.6 SYNTAX 1.2.3.5 )",
+         "attributeTypes: ( 1.2.3.7 NAME 'testAttr' )",
+         "objectClasses: (1.2.3.8 NAME 'testOC' MUST testATTR )",
+         "dITContentRules: ( 1.2.3.8 )",
+         "dITStructureRules: ( 1 FORM testForm )",
+         "nameForms: ( 1.2.3.9 OC testOC MUST testATTR )",
+         "matchingRuleUse: ( 1.2.3.6 APPLIES cn )");
+
+    final LinkedHashMap<String,LDAPException> unparsableAttributeSyntaxes =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableMatchingRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableAttributeTypes =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableObjectClasses =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableDITContentRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableDITStructureRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableNameForms =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableMatchingRuleUses =
+         new LinkedHashMap<>(10);
+
+    Schema schema = new Schema(e, unparsableAttributeSyntaxes,
+         unparsableMatchingRules, unparsableAttributeTypes,
+         unparsableObjectClasses, unparsableDITContentRules,
+         unparsableDITStructureRules, unparsableNameForms,
+         unparsableMatchingRuleUses);
+
+    assertNotNull(schema);
+
+    assertTrue(unparsableAttributeSyntaxes.isEmpty());
+    assertTrue(unparsableMatchingRules.isEmpty());
+    assertTrue(unparsableAttributeTypes.isEmpty());
+    assertTrue(unparsableObjectClasses.isEmpty());
+    assertTrue(unparsableDITContentRules.isEmpty());
+    assertTrue(unparsableDITStructureRules.isEmpty());
+    assertTrue(unparsableNameForms.isEmpty());
+    assertTrue(unparsableMatchingRuleUses.isEmpty());
+
+    assertNotNull(schema.getAttributeSyntaxes());
+    assertNull(schema.getAttributeSyntax("1.2.3.4"));
+    assertNull(schema.getAttributeSyntax("1.2.3.4{123}"));
+
+    assertNotNull(schema.getAttributeTypes());
+    assertNotNull(schema.getOperationalAttributeTypes());
+    assertNotNull(schema.getUserAttributeTypes());
+    assertNull(schema.getAttributeType("1.2.3.4"));
+
+    assertNotNull(schema.getDITContentRules());
+    assertNull(schema.getDITContentRule("1.2.3.4"));
+
+    assertNotNull(schema.getDITStructureRules());
+    assertNull(schema.getDITStructureRuleByID(12345));
+    assertNull(schema.getDITStructureRuleByName("foo"));
+    assertNull(schema.getDITStructureRuleByNameForm("foo"));
+
+    assertNotNull(schema.getMatchingRules());
+    assertNull(schema.getMatchingRule("1.2.3.4"));
+
+    assertNotNull(schema.getMatchingRuleUses());
+    assertNull(schema.getMatchingRuleUse("1.2.3.4"));
+
+    assertNotNull(schema.getNameForms());
+    assertNull(schema.getNameFormByName("1.2.3.4"));
+    assertNull(schema.getNameFormByObjectClass("1.2.3.4"));
+
+    assertNotNull(schema.getObjectClasses());
+    assertNotNull(schema.getAbstractObjectClasses());
+    assertNotNull(schema.getAuxiliaryObjectClasses());
+    assertNotNull(schema.getStructuralObjectClasses());
+    assertNull(schema.getObjectClass("1.2.3.4"));
+
+    schema.hashCode();
+    assertTrue(schema.equals(schema));
+    assertFalse(schema.equals(null));
+    assertFalse(schema.equals("foo"));
+    assertFalse(schema.equals(Schema.getDefaultStandardSchema()));
+    assertFalse(Schema.getDefaultStandardSchema().equals(schema));
+    assertNotNull(schema.toString());
+  }
+
+
+
+  /**
+   * Tests the constructor with an entry that contains all types of elements
+   * but with invalid definitions and a bunch of maps.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructorTestEntryInvalidAndMaps()
+         throws Exception
+  {
+    Entry e = new Entry(
+         "dn: cn=schema",
+         "ldapSyntaxes: invalid1",
+         "ldapSyntaxes: invalid2",
+         "matchingRules: invalid3",
+         "matchingRules: invalid4",
+         "attributeTypes: invalid5",
+         "attributeTypes: invalid6",
+         "objectClasses: invalid7",
+         "objectClasses: invalid8",
+         "dITContentRules: invalid9",
+         "dITContentRules: invalid10",
+         "dITStructureRules: invalid11",
+         "dITStructureRules: invalid12",
+         "nameForms: invalid13",
+         "nameForms: invalid14",
+         "matchingRuleUse: invalid15",
+         "matchingRuleUse: invalid16");
+
+    final LinkedHashMap<String,LDAPException> unparsableAttributeSyntaxes =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableMatchingRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableAttributeTypes =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableObjectClasses =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableDITContentRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableDITStructureRules =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableNameForms =
+         new LinkedHashMap<>(10);
+    final LinkedHashMap<String,LDAPException> unparsableMatchingRuleUses =
+         new LinkedHashMap<>(10);
+
+    Schema schema = new Schema(e, unparsableAttributeSyntaxes,
+         unparsableMatchingRules, unparsableAttributeTypes,
+         unparsableObjectClasses, unparsableDITContentRules,
+         unparsableDITStructureRules, unparsableNameForms,
+         unparsableMatchingRuleUses);
+
+    assertNotNull(schema);
+
+    assertFalse(unparsableAttributeSyntaxes.isEmpty());
+    assertFalse(unparsableMatchingRules.isEmpty());
+    assertFalse(unparsableAttributeTypes.isEmpty());
+    assertFalse(unparsableObjectClasses.isEmpty());
+    assertFalse(unparsableDITContentRules.isEmpty());
+    assertFalse(unparsableDITStructureRules.isEmpty());
+    assertFalse(unparsableNameForms.isEmpty());
+    assertFalse(unparsableMatchingRuleUses.isEmpty());
+
+
+    assertNotNull(schema.getAttributeSyntaxes());
+    assertNull(schema.getAttributeSyntax("1.2.3.4"));
+    assertNull(schema.getAttributeSyntax("1.2.3.4{123}"));
+
+    assertNotNull(schema.getAttributeTypes());
+    assertNotNull(schema.getOperationalAttributeTypes());
+    assertNotNull(schema.getUserAttributeTypes());
+    assertNull(schema.getAttributeType("1.2.3.4"));
+
+    assertNotNull(schema.getDITContentRules());
+    assertNull(schema.getDITContentRule("1.2.3.4"));
+
+    assertNotNull(schema.getDITStructureRules());
+    assertNull(schema.getDITStructureRuleByID(12345));
+    assertNull(schema.getDITStructureRuleByName("foo"));
+    assertNull(schema.getDITStructureRuleByNameForm("foo"));
+
+    assertNotNull(schema.getMatchingRules());
+    assertNull(schema.getMatchingRule("1.2.3.4"));
+
+    assertNotNull(schema.getMatchingRuleUses());
+    assertNull(schema.getMatchingRuleUse("1.2.3.4"));
+
+    assertNotNull(schema.getNameForms());
+    assertNull(schema.getNameFormByName("1.2.3.4"));
+    assertNull(schema.getNameFormByObjectClass("1.2.3.4"));
+
+    assertNotNull(schema.getObjectClasses());
+    assertNotNull(schema.getAbstractObjectClasses());
+    assertNotNull(schema.getAuxiliaryObjectClasses());
+    assertNotNull(schema.getStructuralObjectClasses());
+    assertNull(schema.getObjectClass("1.2.3.4"));
+
+    schema.hashCode();
+    assertTrue(schema.equals(schema));
+    assertFalse(schema.equals(null));
+    assertFalse(schema.equals("foo"));
+    assertFalse(schema.equals(Schema.getDefaultStandardSchema()));
+    assertFalse(Schema.getDefaultStandardSchema().equals(schema));
+    assertNotNull(schema.toString());
+  }
+
+
+
+  /**
+   * Tests the {@code parseSchemaEntry} method with an empty entry.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testParseSchemaEntryEmptyEntry()
+         throws Exception
+  {
+    Schema schema = Schema.parseSchemaEntry(new Entry("cn=schema"));
 
     assertNotNull(schema);
 
@@ -311,9 +603,170 @@ public class SchemaTestCase
 
 
   /**
+   * Tests the {@code parseSchemaEntry} method with an entry that contains all
+   * types of elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testParseSchemaEntryTestEntry()
+         throws Exception
+  {
+    Entry e = new Entry(
+         "dn: cn=schema",
+         "objectClass: top",
+         "objectClass: ldapSubentry",
+         "objectClass: subschemaSubentry",
+         "ldapSyntaxes: ( 1.2.3.5 )",
+         "matchingRules: ( 1.2.3.6 SYNTAX 1.2.3.5 )",
+         "attributeTypes: ( 1.2.3.7 NAME 'testAttr' )",
+         "objectClasses: (1.2.3.8 NAME 'testOC' MUST testATTR )",
+         "dITContentRules: ( 1.2.3.8 )",
+         "dITStructureRules: ( 1 FORM testForm )",
+         "nameForms: ( 1.2.3.9 OC testOC MUST testATTR )",
+         "matchingRuleUse: ( 1.2.3.6 APPLIES cn )");
+
+    Schema schema = Schema.parseSchemaEntry(e);
+
+    assertNotNull(schema);
+
+    assertNotNull(schema.getAttributeSyntaxes());
+    assertNull(schema.getAttributeSyntax("1.2.3.4"));
+    assertNull(schema.getAttributeSyntax("1.2.3.4{123}"));
+
+    assertNotNull(schema.getAttributeTypes());
+    assertNotNull(schema.getOperationalAttributeTypes());
+    assertNotNull(schema.getUserAttributeTypes());
+    assertNull(schema.getAttributeType("1.2.3.4"));
+
+    assertNotNull(schema.getDITContentRules());
+    assertNull(schema.getDITContentRule("1.2.3.4"));
+
+    assertNotNull(schema.getDITStructureRules());
+    assertNull(schema.getDITStructureRuleByID(12345));
+    assertNull(schema.getDITStructureRuleByName("foo"));
+    assertNull(schema.getDITStructureRuleByNameForm("foo"));
+
+    assertNotNull(schema.getMatchingRules());
+    assertNull(schema.getMatchingRule("1.2.3.4"));
+
+    assertNotNull(schema.getMatchingRuleUses());
+    assertNull(schema.getMatchingRuleUse("1.2.3.4"));
+
+    assertNotNull(schema.getNameForms());
+    assertNull(schema.getNameFormByName("1.2.3.4"));
+    assertNull(schema.getNameFormByObjectClass("1.2.3.4"));
+
+    assertNotNull(schema.getObjectClasses());
+    assertNotNull(schema.getAbstractObjectClasses());
+    assertNotNull(schema.getAuxiliaryObjectClasses());
+    assertNotNull(schema.getStructuralObjectClasses());
+    assertNull(schema.getObjectClass("1.2.3.4"));
+
+    schema.hashCode();
+    assertTrue(schema.equals(schema));
+    assertFalse(schema.equals(null));
+    assertFalse(schema.equals("foo"));
+    assertFalse(schema.equals(Schema.getDefaultStandardSchema()));
+    assertFalse(Schema.getDefaultStandardSchema().equals(schema));
+    assertNotNull(schema.toString());
+  }
+
+
+
+  /**
+   * Tests the {@code parseSchemaEntry} method with an entry that contains all
+   * types of elements but with invalid definitions.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = LDAPException.class)
+  public void testParseSchemaEntryTestEntryInvalid()
+         throws Exception
+  {
+    Entry e = new Entry(
+         "dn: cn=schema",
+         "ldapSyntaxes: invalid1",
+         "ldapSyntaxes: invalid2",
+         "matchingRules: invalid3",
+         "matchingRules: invalid4",
+         "attributeTypes: invalid5",
+         "attributeTypes: invalid6",
+         "objectClasses: invalid7",
+         "objectClasses: invalid8",
+         "dITContentRules: invalid9",
+         "dITContentRules: invalid10",
+         "dITStructureRules: invalid11",
+         "dITStructureRules: invalid12",
+         "nameForms: invalid13",
+         "nameForms: invalid14",
+         "matchingRuleUse: invalid15",
+         "matchingRuleUse: invalid16");
+
+    Schema.parseSchemaEntry(e);
+  }
+
+
+
+  /**
+   * Tests the {@code getSchema} method that doesn't take any arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetSchema1()
+         throws Exception
+  {
+    LDAPConnection connection = getTestDS().getConnection();
+    Schema schema = Schema.getSchema(connection);
+    connection.close();
+
+    assertNotNull(schema);
+
+    assertNotNull(schema.getAttributeSyntaxes());
+    assertNull(schema.getAttributeSyntax("1.2.3.4"));
+    assertNull(schema.getAttributeSyntax("1.2.3.4{123}"));
+
+    assertNotNull(schema.getAttributeTypes());
+    assertNotNull(schema.getOperationalAttributeTypes());
+    assertNotNull(schema.getUserAttributeTypes());
+    assertNull(schema.getAttributeType("1.2.3.4"));
+
+    assertNotNull(schema.getDITContentRules());
+    assertNull(schema.getDITContentRule("1.2.3.4"));
+
+    assertNotNull(schema.getDITStructureRules());
+    assertNull(schema.getDITStructureRuleByID(12345));
+    assertNull(schema.getDITStructureRuleByName("foo"));
+    assertNull(schema.getDITStructureRuleByNameForm("foo"));
+
+    assertNotNull(schema.getMatchingRules());
+    assertNull(schema.getMatchingRule("1.2.3.4"));
+
+    assertNotNull(schema.getMatchingRuleUses());
+    assertNull(schema.getMatchingRuleUse("1.2.3.4"));
+
+    assertNotNull(schema.getNameForms());
+    assertNull(schema.getNameFormByName("1.2.3.4"));
+    assertNull(schema.getNameFormByObjectClass("1.2.3.4"));
+
+    assertNotNull(schema.getObjectClasses());
+    assertNotNull(schema.getAbstractObjectClasses());
+    assertNotNull(schema.getAuxiliaryObjectClasses());
+    assertNotNull(schema.getStructuralObjectClasses());
+    assertNull(schema.getObjectClass("1.2.3.4"));
+
+    schema.hashCode();
+    assertTrue(schema.equals(schema));
+    assertFalse(schema.equals(null));
+    assertFalse(schema.equals("foo"));
+    assertNotNull(schema.toString());
+  }
+
+
+
+  /**
    * Tests the {@code getSchema} method that takes a DN argument.
-   * <BR><BR>
-   * Access to a Directory Server instance is required for complete processing.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -321,12 +774,7 @@ public class SchemaTestCase
   public void testGetSchema2()
          throws Exception
   {
-    if (! isDirectoryInstanceAvailable())
-    {
-      return;
-    }
-
-    LDAPConnection connection = getAdminConnection();
+    LDAPConnection connection = getTestDS().getConnection();
 
     try
     {
@@ -371,8 +819,6 @@ public class SchemaTestCase
       assertTrue(schema.equals(schema));
       assertFalse(schema.equals(null));
       assertFalse(schema.equals("foo"));
-      assertFalse(schema.equals(Schema.getDefaultStandardSchema()));
-      assertFalse(Schema.getDefaultStandardSchema().equals(schema));
       assertNotNull(schema.toString());
     }
     finally
@@ -385,7 +831,7 @@ public class SchemaTestCase
 
   /**
    * Tests the {@code getSchema} method that takes a DN argument, using a
-   * {@code null} value..
+   * {@code null} value.
    * <BR><BR>
    * Access to a Directory Server instance is required for complete processing.
    *
@@ -395,12 +841,7 @@ public class SchemaTestCase
   public void testGetSchema2Null()
          throws Exception
   {
-    if (! isDirectoryInstanceAvailable())
-    {
-      return;
-    }
-
-    LDAPConnection connection = getAdminConnection();
+    LDAPConnection connection = getTestDS().getConnection();
     Schema schema = Schema.getSchema(connection, null);
     connection.close();
 
@@ -442,9 +883,73 @@ public class SchemaTestCase
     assertTrue(schema.equals(schema));
     assertFalse(schema.equals(null));
     assertFalse(schema.equals("foo"));
-    assertFalse(schema.equals(Schema.getDefaultStandardSchema()));
-    assertFalse(Schema.getDefaultStandardSchema().equals(schema));
     assertNotNull(schema.toString());
+  }
+
+
+
+  /**
+   * Tests the {@code getSchema} method that retrieves the schema from a server,
+   * throwing an exception if the schema contains any unparsable elements.  This
+   * method is not expected to throw an exception.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetSchemaThrowingOnInvalidWithValidSchema()
+         throws Exception
+  {
+    LDAPConnection connection = getTestDS().getConnection();
+
+    try
+    {
+      Schema schema = Schema.getSchema(connection, "", true);
+
+      assertNotNull(schema);
+
+      assertNotNull(schema.getAttributeSyntaxes());
+      assertNull(schema.getAttributeSyntax("1.2.3.4"));
+      assertNull(schema.getAttributeSyntax("1.2.3.4{123}"));
+
+      assertNotNull(schema.getAttributeTypes());
+      assertNotNull(schema.getOperationalAttributeTypes());
+      assertNotNull(schema.getUserAttributeTypes());
+      assertNull(schema.getAttributeType("1.2.3.4"));
+
+      assertNotNull(schema.getDITContentRules());
+      assertNull(schema.getDITContentRule("1.2.3.4"));
+
+      assertNotNull(schema.getDITStructureRules());
+      assertNull(schema.getDITStructureRuleByID(12345));
+      assertNull(schema.getDITStructureRuleByName("foo"));
+      assertNull(schema.getDITStructureRuleByNameForm("foo"));
+
+      assertNotNull(schema.getMatchingRules());
+      assertNull(schema.getMatchingRule("1.2.3.4"));
+
+      assertNotNull(schema.getMatchingRuleUses());
+      assertNull(schema.getMatchingRuleUse("1.2.3.4"));
+
+      assertNotNull(schema.getNameForms());
+      assertNull(schema.getNameFormByName("1.2.3.4"));
+      assertNull(schema.getNameFormByObjectClass("1.2.3.4"));
+
+      assertNotNull(schema.getObjectClasses());
+      assertNotNull(schema.getAbstractObjectClasses());
+      assertNotNull(schema.getAuxiliaryObjectClasses());
+      assertNotNull(schema.getStructuralObjectClasses());
+      assertNull(schema.getObjectClass("1.2.3.4"));
+
+      schema.hashCode();
+      assertTrue(schema.equals(schema));
+      assertFalse(schema.equals(null));
+      assertFalse(schema.equals("foo"));
+      assertNotNull(schema.toString());
+    }
+    finally
+    {
+      connection.close();
+    }
   }
 
 
@@ -627,8 +1132,6 @@ public class SchemaTestCase
 
   /**
    * Tests the ability to read schema information from a single file.
-   * <BR><BR>
-   * Access to a Directory Server instance is required for complete processing.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -636,12 +1139,7 @@ public class SchemaTestCase
   public void testReadSchemaFromSingleFile()
          throws Exception
   {
-    if (! isDirectoryInstanceAvailable())
-    {
-      return;
-    }
-
-    LDAPConnection conn = getAdminConnection();
+    LDAPConnection conn = getTestDS().getConnection();
     Entry e = conn.getEntry("cn=schema", "attributeTypes", "objectClasses");
     conn.close();
 
@@ -677,21 +1175,14 @@ public class SchemaTestCase
 
   /**
    * Tests the ability to read schema information from multiple files.
-   * <BR><BR>
-   * Access to a Directory Server instance is required for complete processing.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testReadSchemaFromMultipleFiles()
+  public void testReadSchemaFromMultipleFilesThrowOnUnparsableElement()
          throws Exception
   {
-    if (! isDirectoryInstanceAvailable())
-    {
-      return;
-    }
-
-    LDAPConnection conn = getAdminConnection();
+    LDAPConnection conn = getTestDS().getConnection();
     Entry e = conn.getEntry("cn=schema", "attributeTypes", "objectClasses");
     conn.close();
 
@@ -745,6 +1236,56 @@ public class SchemaTestCase
     assertNotNull(schema);
     assertFalse(schema.getAttributeTypes().isEmpty());
     assertFalse(schema.getObjectClasses().isEmpty());
+  }
+
+
+
+  /**
+   * Tests the ability to read schema information from files when throwing an
+   * exception if any of the files contains unparsable elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReadSchemaFromFilesThrowOnUnparsable()
+         throws Exception
+  {
+    final File validSchemaFile = createTempFile(
+         Schema.getDefaultStandardSchema().getSchemaEntry().toLDIF());
+    final File invalidSchemaFile = createTempFile(
+         "dn: cn=schema",
+         "ldapSyntaxes: invalid",
+         "matchingRules: invalid",
+         "attributeTypes: invalid",
+         "objectClasses: invalid",
+         "dITContentRules: invalid",
+         "dITStructureRules: invalid",
+         "nameForms: invalid",
+         "matchingRuleUse: invalid");
+
+    Schema.getSchema(Collections.singletonList(validSchemaFile), true);
+
+    try
+    {
+      Schema.getSchema(Collections.singletonList(invalidSchemaFile), true);
+      fail("Expected an exception when trying to read schema from a file " +
+           "with invalid elements.");
+    }
+    catch (final LDIFException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      Schema.getSchema(Arrays.asList(validSchemaFile, invalidSchemaFile), true);
+      fail("Expected an exception when trying to read schema from a file " +
+           "with invalid elements.");
+    }
+    catch (final LDIFException e)
+    {
+      // This was expected
+    }
   }
 
 
@@ -1037,5 +1578,46 @@ public class SchemaTestCase
     assertNotNull(s);
     assertNotNull(s.getAttributeType("cn"));
     assertNotNull(s.getAttributeType("1.2.3.3"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the equals method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEquals()
+         throws Exception
+  {
+    final Schema emptySchemaEntry = new Schema(new Entry("cn=schema"));
+    final Schema emptySchemaEntryWithDifferentDN =
+         new Schema(new Entry("cn=subschema"));
+    final Schema emptySchemaEntryWithMalformedDN =
+         new Schema(new Entry("Malformed DN"));
+    final Schema emptySchemaEntryWithDifferentMalformedDN =
+         new Schema(new Entry("Different Malformed DN"));
+    final Schema copyOfDefaultSchema = new Schema(
+         Schema.getDefaultStandardSchema().getSchemaEntry());
+
+    assertFalse(Schema.getDefaultStandardSchema().equals(null));
+    assertFalse(Schema.getDefaultStandardSchema().equals("not schema"));
+    assertTrue(Schema.getDefaultStandardSchema().equals(
+         Schema.getDefaultStandardSchema()));
+    assertTrue(Schema.getDefaultStandardSchema().equals(copyOfDefaultSchema));
+    assertFalse(Schema.getDefaultStandardSchema().equals(emptySchemaEntry));
+    assertFalse(Schema.getDefaultStandardSchema().equals(
+         emptySchemaEntryWithDifferentDN));
+    assertTrue(emptySchemaEntryWithMalformedDN.equals(
+         new Schema(emptySchemaEntryWithMalformedDN.getSchemaEntry())));
+    assertFalse(emptySchemaEntryWithMalformedDN.equals(
+         emptySchemaEntryWithDifferentMalformedDN));
+
+    Schema.getDefaultStandardSchema().hashCode();
+    emptySchemaEntry.hashCode();
+    emptySchemaEntryWithDifferentDN.hashCode();
+    emptySchemaEntryWithMalformedDN.hashCode();
+    emptySchemaEntryWithDifferentMalformedDN.hashCode();
   }
 }

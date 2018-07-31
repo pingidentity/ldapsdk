@@ -73,6 +73,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the <tt>Schema</tt> class to provide additional constructors and methods
+                  that can be used to attempt to retrieve the schema without silently ignoring
+                  errors about unparsable elements.  Previously, if a schema entry contained one
+                  or more unparsable elements, they would be silently ignored.  It is now possible
+                  to more easily obtain information about unparsable elements, or to have the LDAP
+                  SDK throw an exception if it encounters any unparsable elements.
+                  <br><br>
+                </li>
+
+                <li>
                   Added <tt>createSubInitialFilter</tt>, <tt>createSubAnyFilter</tt>, and
                   <tt>createSubFinalFilter</tt> methods to the <tt>Filter</tt> class that are more
                   convenient to use than the existing <tt>createSubstringFilter</tt> methods for

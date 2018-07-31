@@ -272,11 +272,84 @@ public final class Schema
 
   /**
    * Creates a new schema object by decoding the information in the provided
-   * entry.
+   * entry.  Any schema elements that cannot be parsed will be silently ignored.
    *
-   * @param  schemaEntry  The schema entry to decode.
+   * @param  schemaEntry  The schema entry to decode.  It must not be
+   *                      {@code null}.
    */
   public Schema(final Entry schemaEntry)
+  {
+    this(schemaEntry, null, null, null, null, null, null, null, null);
+  }
+
+
+
+  /**
+   * Creates a new schema object by decoding the information in the provided
+   * entry, optionally capturing any information about unparsable values in the
+   * provided maps.
+   *
+   * @param  schemaEntry                  The schema entry to decode.  It must
+   *                                      not be {@code null}.
+   * @param  unparsableAttributeSyntaxes  A map that will be updated with with
+   *                                      information about any attribute syntax
+   *                                      definitions that cannot be parsed.  It
+   *                                      may be {@code null} if unparsable
+   *                                      attribute syntax definitions should be
+   *                                      silently ignored.
+   * @param  unparsableMatchingRules      A map that will be updated with with
+   *                                      information about any matching rule
+   *                                      definitions that cannot be parsed.  It
+   *                                      may be {@code null} if unparsable
+   *                                      attribute syntax definitions should be
+   *                                      silently ignored.
+   * @param  unparsableAttributeTypes     A map that will be updated with with
+   *                                      information about any attribute type
+   *                                      definitions that cannot be parsed.  It
+   *                                      may be {@code null} if unparsable
+   *                                      attribute syntax definitions should be
+   *                                      silently ignored.
+   * @param  unparsableObjectClasses      A map that will be updated with with
+   *                                      information about any object class
+   *                                      definitions that cannot be parsed.  It
+   *                                      may be {@code null} if unparsable
+   *                                      attribute syntax definitions should be
+   *                                      silently ignored.
+   * @param  unparsableDITContentRules    A map that will be updated with with
+   *                                      information about any DIT content rule
+   *                                      definitions that cannot be parsed.  It
+   *                                      may be {@code null} if unparsable
+   *                                      attribute syntax definitions should be
+   *                                      silently ignored.
+   * @param  unparsableDITStructureRules  A map that will be updated with with
+   *                                      information about any DIT structure
+   *                                      rule definitions that cannot be
+   *                                      parsed.  It may be {@code null} if
+   *                                      unparsable attribute syntax
+   *                                      definitions should be silently
+   *                                      ignored.
+   * @param  unparsableNameForms          A map that will be updated with with
+   *                                      information about any name form
+   *                                      definitions that cannot be parsed.  It
+   *                                      may be {@code null} if unparsable
+   *                                      attribute syntax definitions should be
+   *                                      silently ignored.
+   * @param  unparsableMatchingRuleUses   A map that will be updated with with
+   *                                      information about any matching rule
+   *                                      use definitions that cannot be parsed.
+   *                                      It may be {@code null} if unparsable
+   *                                      attribute syntax definitions should be
+   *                                      silently ignored.
+   */
+  public Schema(final Entry schemaEntry,
+                final Map<String,LDAPException> unparsableAttributeSyntaxes,
+                final Map<String,LDAPException> unparsableMatchingRules,
+                final Map<String,LDAPException> unparsableAttributeTypes,
+                final Map<String,LDAPException> unparsableObjectClasses,
+                final Map<String,LDAPException> unparsableDITContentRules,
+                final Map<String,LDAPException> unparsableDITStructureRules,
+                final Map<String,LDAPException> unparsableNameForms,
+                final Map<String,LDAPException> unparsableMatchingRuleUses)
   {
     this.schemaEntry = new ReadOnlyEntry(schemaEntry);
 
@@ -306,6 +379,10 @@ public final class Schema
         catch (final LDAPException le)
         {
           Debug.debugException(le);
+          if (unparsableAttributeSyntaxes != null)
+          {
+            unparsableAttributeSyntaxes.put(def, le);
+          }
         }
       }
 
@@ -358,6 +435,10 @@ public final class Schema
         catch (final LDAPException le)
         {
           Debug.debugException(le);
+          if (unparsableAttributeTypes != null)
+          {
+            unparsableAttributeTypes.put(def, le);
+          }
         }
       }
 
@@ -398,6 +479,10 @@ public final class Schema
         catch (final LDAPException le)
         {
           Debug.debugException(le);
+          if (unparsableDITContentRules != null)
+          {
+            unparsableDITContentRules.put(def, le);
+          }
         }
       }
 
@@ -443,6 +528,10 @@ public final class Schema
         catch (final LDAPException le)
         {
           Debug.debugException(le);
+          if (unparsableDITStructureRules != null)
+          {
+            unparsableDITStructureRules.put(def, le);
+          }
         }
       }
 
@@ -482,6 +571,10 @@ public final class Schema
         catch (final LDAPException le)
         {
           Debug.debugException(le);
+          if (unparsableMatchingRules != null)
+          {
+            unparsableMatchingRules.put(def, le);
+          }
         }
       }
 
@@ -520,6 +613,10 @@ public final class Schema
         catch (final LDAPException le)
         {
           Debug.debugException(le);
+          if (unparsableMatchingRuleUses != null)
+          {
+            unparsableMatchingRuleUses.put(def, le);
+          }
         }
       }
 
@@ -561,6 +658,10 @@ public final class Schema
         catch (final LDAPException le)
         {
           Debug.debugException(le);
+          if(unparsableNameForms != null)
+          {
+            unparsableNameForms.put(def, le);
+          }
         }
       }
 
@@ -621,6 +722,10 @@ public final class Schema
         catch (final LDAPException le)
         {
           Debug.debugException(le);
+          if (unparsableObjectClasses != null)
+          {
+            unparsableObjectClasses.put(def, le);
+          }
         }
       }
 
@@ -657,13 +762,165 @@ public final class Schema
 
 
   /**
+   * Parses all schema elements contained in the provided entry.  This method
+   * differs from the {@link #Schema(Entry)} constructor in that this method
+   * will throw an exception if it encounters any unparsable schema elements,
+   * while the constructor will silently ignore them.  Alternately, the
+   * 'constructor that takes a bunch of maps can be used to
+   *
+   * @param  schemaEntry  The schema entry to parse.  It must not be
+   *                      {@code null}.
+   *
+   * @return  The schema entry that was parsed.
+   *
+   * @throws  LDAPException  If the provided entry contains any schema element
+   *                         definitions that cannot be parsed.
+   */
+  public static Schema parseSchemaEntry(final Entry schemaEntry)
+         throws LDAPException
+  {
+    final Map<String,LDAPException> unparsableAttributeSyntaxes =
+         new LinkedHashMap<>(10);
+    final Map<String,LDAPException> unparsableMatchingRules =
+         new LinkedHashMap<>(10);
+    final Map<String,LDAPException> unparsableAttributeTypes =
+         new LinkedHashMap<>(10);
+    final Map<String,LDAPException> unparsableObjectClasses =
+         new LinkedHashMap<>(10);
+    final Map<String,LDAPException> unparsableDITContentRules =
+         new LinkedHashMap<>(10);
+    final Map<String,LDAPException> unparsableDITStructureRules =
+         new LinkedHashMap<>(10);
+    final Map<String,LDAPException> unparsableNameForms =
+         new LinkedHashMap<>(10);
+    final Map<String,LDAPException> unparsableMatchingRuleUses =
+         new LinkedHashMap<>(10);
+
+    final Schema schema = new Schema(schemaEntry, unparsableAttributeSyntaxes,
+         unparsableMatchingRules, unparsableAttributeTypes,
+         unparsableObjectClasses, unparsableDITContentRules,
+         unparsableDITStructureRules, unparsableNameForms,
+         unparsableMatchingRuleUses);
+    if (unparsableAttributeSyntaxes.isEmpty() &&
+         unparsableMatchingRules.isEmpty() &&
+         unparsableAttributeTypes.isEmpty() &&
+         unparsableObjectClasses.isEmpty() &&
+         unparsableDITContentRules.isEmpty() &&
+         unparsableDITStructureRules.isEmpty() &&
+         unparsableNameForms.isEmpty() &&
+         unparsableMatchingRuleUses.isEmpty())
+    {
+      return schema;
+    }
+
+    final StringBuilder messageBuffer = new StringBuilder();
+    for (final Map.Entry<String,LDAPException> e :
+         unparsableAttributeSyntaxes.entrySet())
+    {
+      appendErrorMessage(messageBuffer,
+           ERR_SCHEMA_UNPARSABLE_AS.get(ATTR_ATTRIBUTE_SYNTAX, e.getKey(),
+                StaticUtils.getExceptionMessage(e.getValue())));
+    }
+
+    for (final Map.Entry<String,LDAPException> e :
+         unparsableMatchingRules.entrySet())
+    {
+      appendErrorMessage(messageBuffer,
+           ERR_SCHEMA_UNPARSABLE_MR.get(ATTR_MATCHING_RULE, e.getKey(),
+                StaticUtils.getExceptionMessage(e.getValue())));
+    }
+
+    for (final Map.Entry<String,LDAPException> e :
+         unparsableAttributeTypes.entrySet())
+    {
+      appendErrorMessage(messageBuffer,
+           ERR_SCHEMA_UNPARSABLE_AT.get(ATTR_ATTRIBUTE_TYPE, e.getKey(),
+                StaticUtils.getExceptionMessage(e.getValue())));
+    }
+
+    for (final Map.Entry<String,LDAPException> e :
+         unparsableObjectClasses.entrySet())
+    {
+      appendErrorMessage(messageBuffer,
+           ERR_SCHEMA_UNPARSABLE_OC.get(ATTR_OBJECT_CLASS, e.getKey(),
+                StaticUtils.getExceptionMessage(e.getValue())));
+    }
+
+    for (final Map.Entry<String,LDAPException> e :
+         unparsableDITContentRules.entrySet())
+    {
+      appendErrorMessage(messageBuffer,
+           ERR_SCHEMA_UNPARSABLE_DCR.get(ATTR_DIT_CONTENT_RULE, e.getKey(),
+                StaticUtils.getExceptionMessage(e.getValue())));
+    }
+
+    for (final Map.Entry<String,LDAPException> e :
+         unparsableDITStructureRules.entrySet())
+    {
+      appendErrorMessage(messageBuffer,
+           ERR_SCHEMA_UNPARSABLE_DSR.get(ATTR_DIT_STRUCTURE_RULE, e.getKey(),
+                StaticUtils.getExceptionMessage(e.getValue())));
+    }
+
+    for (final Map.Entry<String,LDAPException> e :
+         unparsableNameForms.entrySet())
+    {
+      appendErrorMessage(messageBuffer,
+           ERR_SCHEMA_UNPARSABLE_NF.get(ATTR_NAME_FORM, e.getKey(),
+                StaticUtils.getExceptionMessage(e.getValue())));
+    }
+
+    for (final Map.Entry<String,LDAPException> e :
+         unparsableMatchingRuleUses.entrySet())
+    {
+      appendErrorMessage(messageBuffer,
+           ERR_SCHEMA_UNPARSABLE_MRU.get(ATTR_MATCHING_RULE_USE, e.getKey(),
+                StaticUtils.getExceptionMessage(e.getValue())));
+    }
+
+    throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
+         messageBuffer.toString());
+  }
+
+
+
+  /**
+   * Appends the provided message to the given buffer, adding spaces and
+   * punctuation if necessary.
+   *
+   * @param  buffer   The buffer to which the message should be appended.
+   * @param  message  The message to append to the buffer.
+   */
+  private static void appendErrorMessage(final StringBuilder buffer,
+                                         final String message)
+  {
+    final int length = buffer.length();
+    if (length > 0)
+    {
+      if (buffer.charAt(length - 1) == '.')
+      {
+        buffer.append("  ");
+      }
+      else
+      {
+        buffer.append(".  ");
+      }
+    }
+
+    buffer.append(message);
+  }
+
+
+
+  /**
    * Retrieves the directory server schema over the provided connection.  The
    * root DSE will first be retrieved in order to get its subschemaSubentry DN,
    * and then that entry will be retrieved from the server and its contents
    * decoded as schema elements.  This should be sufficient for directories that
    * only provide a single schema, but for directories with multiple schemas it
    * may be necessary to specify the DN of an entry for which to retrieve the
-   * subschema subentry.
+   * subschema subentry.  Any unparsable schema elements will be silently
+   * ignored.
    *
    * @param  connection  The connection to use in order to retrieve the server
    *                     schema.  It must not be {@code null}.
@@ -687,7 +944,8 @@ public final class Schema
    * schemas, and in such cases it will be necessary to provide the DN of the
    * target entry in order to ensure that the appropriate schema which governs
    * that entry is returned.  For servers that support only a single schema,
-   * any entry DN (including that of the root DSE) should be sufficient.
+   * any entry DN (including that of the root DSE) should be sufficient.  Any
+   * unparsable schema elements will be silently ignored.
    *
    * @param  connection  The connection to use in order to retrieve the server
    *                     schema.  It must not be {@code null}.
@@ -705,6 +963,47 @@ public final class Schema
    */
   public static Schema getSchema(final LDAPConnection connection,
                                  final String entryDN)
+         throws LDAPException
+  {
+    return getSchema(connection, entryDN, false);
+  }
+
+
+
+  /**
+   * Retrieves the directory server schema that governs the specified entry.
+   * In some servers, different portions of the DIT may be served by different
+   * schemas, and in such cases it will be necessary to provide the DN of the
+   * target entry in order to ensure that the appropriate schema which governs
+   * that entry is returned.  For servers that support only a single schema,
+   * any entry DN (including that of the root DSE) should be sufficient.  This
+   * method may optionally throw an exception if the retrieved schema contains
+   * one or more unparsable schema elements.
+   *
+   * @param  connection                The connection to use in order to
+   *                                   retrieve the server schema.  It must not
+   *                                   be {@code null}.
+   * @param  entryDN                   The DN of the entry for which to retrieve
+   *                                   the governing schema.  It may be
+   *                                   {@code null} or an empty string in order
+   *                                   to retrieve the schema that governs the
+   *                                   server's root DSE.
+   * @param  throwOnUnparsableElement  Indicates whether to throw an exception
+   *                                   if the schema entry that is retrieved has
+   *                                   one or more unparsable schema elements.
+   *
+   * @return  A decoded representation of the server schema, or {@code null} if
+   *          it is not available for some reason (e.g., the client does not
+   *          have permission to read the server schema).
+   *
+   * @throws  LDAPException  If a problem occurs while obtaining the server
+   *                         schema, or if the schema contains one or more
+   *                         unparsable elements and
+   *                         {@code throwOnUnparsableElement} is {@code true}.
+   */
+  public static Schema getSchema(final LDAPConnection connection,
+                                 final String entryDN,
+                                 final boolean throwOnUnparsableElement)
          throws LDAPException
   {
     Validator.ensureNotNull(connection);
@@ -733,7 +1032,14 @@ public final class Schema
       return null;
     }
 
-    return new Schema(schemaEntry);
+    if (throwOnUnparsableElement)
+    {
+      return parseSchemaEntry(schemaEntry);
+    }
+    else
+    {
+      return new Schema(schemaEntry);
+    }
   }
 
 
@@ -742,7 +1048,7 @@ public final class Schema
    * Reads schema information from one or more files containing the schema
    * represented in LDIF form, with the definitions represented in the form
    * described in section 4.1 of RFC 4512.  Each file should contain a single
-   * entry.
+   * entry.  Any unparsable schema elements will be silently ignored.
    *
    * @param  schemaFiles  The paths to the LDIF files containing the schema
    *                      information to be read.  At least one file must be
@@ -780,7 +1086,7 @@ public final class Schema
    * Reads schema information from one or more files containing the schema
    * represented in LDIF form, with the definitions represented in the form
    * described in section 4.1 of RFC 4512.  Each file should contain a single
-   * entry.
+   * entry.  Any unparsable schema elements will be silently ignored.
    *
    * @param  schemaFiles  The paths to the LDIF files containing the schema
    *                      information to be read.  At least one file must be
@@ -812,7 +1118,7 @@ public final class Schema
    * Reads schema information from one or more files containing the schema
    * represented in LDIF form, with the definitions represented in the form
    * described in section 4.1 of RFC 4512.  Each file should contain a single
-   * entry.
+   * entry.  Any unparsable schema elements will be silently ignored.
    *
    * @param  schemaFiles  The paths to the LDIF files containing the schema
    *                      information to be read.  At least one file must be
@@ -830,6 +1136,43 @@ public final class Schema
    *                         contents of any of the schema files.
    */
   public static Schema getSchema(final List<File> schemaFiles)
+         throws IOException, LDIFException
+  {
+    return getSchema(schemaFiles, false);
+  }
+
+
+
+  /**
+   * Reads schema information from one or more files containing the schema
+   * represented in LDIF form, with the definitions represented in the form
+   * described in section 4.1 of RFC 4512.  Each file should contain a single
+   * entry.
+   *
+   * @param  schemaFiles               The paths to the LDIF files containing
+   *                                   the schema information to be read.  At
+   *                                   least one file must be specified.  If
+   *                                   multiple files are specified, then they
+   *                                   will be processed in the order in which
+   *                                   they have been listed.
+   * @param  throwOnUnparsableElement  Indicates whether to throw an exception
+   *                                   if the schema entry that is retrieved has
+   *                                   one or more unparsable schema elements.
+   *
+   * @return  The schema read from the specified schema files, or {@code null}
+   *          if none of the files contains any LDIF data to be read.
+   *
+   * @throws  IOException  If a problem occurs while attempting to read from
+   *                       any of the specified files.
+   *
+   * @throws  LDIFException  If a problem occurs while attempting to parse the
+   *                         contents of any of the schema files.  If
+   *                         {@code throwOnUnparsableElement} is {@code true},
+   *                         then this may also be thrown if any of the schema
+   *                         files contains any unparsable schema elements.
+   */
+  public static Schema getSchema(final List<File> schemaFiles,
+                                 final boolean throwOnUnparsableElement)
          throws IOException, LDIFException
   {
     Validator.ensureNotNull(schemaFiles);
@@ -873,7 +1216,22 @@ public final class Schema
       return null;
     }
 
-    return new Schema(schemaEntry);
+    if (throwOnUnparsableElement)
+    {
+      try
+      {
+        return parseSchemaEntry(schemaEntry);
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        throw new LDIFException(e.getMessage(), 0, false, e);
+      }
+    }
+    else
+    {
+      return new Schema(schemaEntry);
+    }
   }
 
 
