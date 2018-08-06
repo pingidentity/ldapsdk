@@ -77,7 +77,7 @@ ${TARGET="offline"}                <br>
                   that can be used to attempt to retrieve the schema without silently ignoring
                   errors about unparsable elements.  Previously, if a schema entry contained one
                   or more unparsable elements, they would be silently ignored.  It is now possible
-                  to more easily obtain information about unparsable elements, or to have the LDAP
+                  to more easily obtain information about unparsable elements or to have the LDAP
                   SDK throw an exception if it encounters any unparsable elements.
                   <br><br>
                 </li>
@@ -152,7 +152,7 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Added a <tt>Validator.ensureNotNullOrEmpty</tt> methods that work for
+                  Added <tt>Validator.ensureNotNullOrEmpty</tt> methods that work for
                   collections, maps, arrays, and character sequences.
                   <br><br>
                 </li>
@@ -223,9 +223,9 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Updated the tool invocation logger to add a failsafe mechanism for preventing
-                  passwords from being included in the log.  Although it will already mark redact
-                  the values of any arguments that are declared sensitive, it will now also redact
-                  the values of any arguments whose name suggests that their value is a password.
+                  passwords from being included in the log.  Although it will already redact the
+                  values of any arguments that are declared sensitive, it will now also redact the
+                  values of any arguments whose name suggests that their value is a password.
                   <br><br>
                 </li>
               </ul>
