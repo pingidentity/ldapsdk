@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -2719,6 +2720,32 @@ public final class StaticUtils
     }
 
     return Collections.unmodifiableList(argList);
+  }
+
+
+
+  /**
+   * Retrieves an array containing the elements of the provided collection.
+   *
+   * @param  <T>         The type of element included in the provided
+   *                     collection.
+   * @param  collection  The collection to convert to an array.
+   * @param  type        The type of element contained in the collection.
+   *
+   * @return  An array containing the elements of the provided list.
+   */
+  public static <T> T[] toArray(final Collection<T> collection,
+                                final Class<T> type)
+  {
+    if (collection == null)
+    {
+      return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    final T[] array = (T[]) Array.newInstance(type, collection.size());
+
+    return collection.toArray(array);
   }
 
 

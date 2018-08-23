@@ -2521,4 +2521,34 @@ public class StaticUtilsTestCase
     assertFalse(messageWithTrace.contains("caused by"));
     assertTrue(messageWithTrace.contains("cause="));
   }
+
+
+
+  /**
+   * Tests the behavior of the {@code toArray} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToArray()
+          throws Exception
+  {
+    final List<String> nullStringList = null;
+    final String[] nullStringArray =
+         StaticUtils.toArray(nullStringList, String.class);
+    assertNull(nullStringArray);
+
+    final Set<Object> emptyObjectSet = Collections.emptySet();
+    final Object[] emptyObjectArray =
+         StaticUtils.toArray(emptyObjectSet, Object.class);
+    assertNotNull(emptyObjectArray);
+    assertEquals(emptyObjectArray.length, 0);
+
+    final List<Integer> nonEmptyIntegerList = Arrays.asList(1, 2, 3, 4, 5);
+    final Integer[] nonEmptyIntegerArray =
+         StaticUtils.toArray(nonEmptyIntegerList, Integer.class);
+    assertNotNull(nonEmptyIntegerArray);
+    assertEquals(nonEmptyIntegerArray.length, 5);
+    assertEquals(nonEmptyIntegerArray, new Integer[] { 1, 2, 3, 4, 5 });
+  }
 }

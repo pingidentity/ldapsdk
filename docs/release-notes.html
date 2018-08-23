@@ -6,6 +6,28 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.8</h3>
+
+              <p>
+                The following changes were made between the 4.0.7 and 4.0.8 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added a <tt>StaticUtils.toArray</tt> method that can be used to convert a
+                  collection to an array in a generic manner.  Although this is usually not any
+                  more convenient than calling <tt>Collection.toArray</tt>, it can be useful in
+                  certain contexts where it isn't feasible to make more than one call (for
+                  example, in a call to <tt>this</tt> or <tt>super</tt> in a constructor) or
+                  when the type of collection element is not known at compile time.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 4.0.7</h3>
 
               <p>
