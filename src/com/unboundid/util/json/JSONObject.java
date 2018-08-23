@@ -22,11 +22,13 @@ package com.unboundid.util.json;
 
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -893,6 +895,207 @@ public final class JSONObject
   public JSONValue getField(final String name)
   {
     return fields.get(name);
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified field as a string.
+   *
+   * @param  name  The name of the field for which to retrieve the string value.
+   *               It will be treated in a case-sensitive manner.
+   *
+   * @return  The value of the specified field as a string, or {@code null} if
+   *          this JSON object does not have a field with the specified name, or
+   *          if the value of that field is not a string.
+   */
+  public String getFieldAsString(final String name)
+  {
+    final JSONValue value = fields.get(name);
+    if ((value == null) || (! (value instanceof JSONString)))
+    {
+      return null;
+    }
+
+    return ((JSONString) value).stringValue();
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified field as a Boolean.
+   *
+   * @param  name  The name of the field for which to retrieve the Boolean
+   *               value.  It will be treated in a case-sensitive manner.
+   *
+   * @return  The value of the specified field as a Boolean, or {@code null} if
+   *          this JSON object does not have a field with the specified name, or
+   *          if the value of that field is not a Boolean.
+   */
+  public Boolean getFieldAsBoolean(final String name)
+  {
+    final JSONValue value = fields.get(name);
+    if ((value == null) || (! (value instanceof JSONBoolean)))
+    {
+      return null;
+    }
+
+    return ((JSONBoolean) value).booleanValue();
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified field as an integer.
+   *
+   * @param  name  The name of the field for which to retrieve the integer
+   *               value.  It will be treated in a case-sensitive manner.
+   *
+   * @return  The value of the specified field as an integer, or {@code null} if
+   *          this JSON object does not have a field with the specified name, or
+   *          if the value of that field is not a number that can be exactly
+   *          represented as an integer.
+   */
+  public Integer getFieldAsInteger(final String name)
+  {
+    final JSONValue value = fields.get(name);
+    if ((value == null) || (! (value instanceof JSONNumber)))
+    {
+      return null;
+    }
+
+    try
+    {
+      final JSONNumber number = (JSONNumber) value;
+      return number.getValue().intValueExact();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified field as a long.
+   *
+   * @param  name  The name of the field for which to retrieve the long value.
+   *               It will be treated in a case-sensitive manner.
+   *
+   * @return  The value of the specified field as a long, or {@code null} if
+   *          this JSON object does not have a field with the specified name, or
+   *          if the value of that field is not a number that can be exactly
+   *          represented as a long.
+   */
+  public Long getFieldAsLong(final String name)
+  {
+    final JSONValue value = fields.get(name);
+    if ((value == null) || (! (value instanceof JSONNumber)))
+    {
+      return null;
+    }
+
+    try
+    {
+      final JSONNumber number = (JSONNumber) value;
+      return number.getValue().longValueExact();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified field as a BigDecimal.
+   *
+   * @param  name  The name of the field for which to retrieve the BigDecimal
+   *               value.  It will be treated in a case-sensitive manner.
+   *
+   * @return  The value of the specified field as a BigDecimal, or {@code null}
+   *          if this JSON object does not have a field with the specified name,
+   *          or if the value of that field is not a number.
+   */
+  public BigDecimal getFieldAsBigDecimal(final String name)
+  {
+    final JSONValue value = fields.get(name);
+    if ((value == null) || (! (value instanceof JSONNumber)))
+    {
+      return null;
+    }
+
+    return ((JSONNumber) value).getValue();
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified field as a JSON object.
+   *
+   * @param  name  The name of the field for which to retrieve the value.  It
+   *               will be treated in a case-sensitive manner.
+   *
+   * @return  The value of the specified field as a JSON object, or {@code null}
+   *          if this JSON object does not have a field with the specified name,
+   *          or if the value of that field is not an object.
+   */
+  public JSONObject getFieldAsObject(final String name)
+  {
+    final JSONValue value = fields.get(name);
+    if ((value == null) || (! (value instanceof JSONObject)))
+    {
+      return null;
+    }
+
+    return (JSONObject) value;
+  }
+
+
+
+  /**
+   * Retrieves a list of the elements in the specified array field.
+   *
+   * @param  name  The name of the field for which to retrieve the array values.
+   *               It will be treated in a case-sensitive manner.
+   *
+   * @return  A list of the elements in the specified array field, or
+   *          {@code null} if this JSON object does not have a field with the
+   *          specified name, or if the value of that field is not an array.
+   */
+  public List<JSONValue> getFieldAsArray(final String name)
+  {
+    final JSONValue value = fields.get(name);
+    if ((value == null) || (! (value instanceof JSONArray)))
+    {
+      return null;
+    }
+
+    return ((JSONArray) value).getValues();
+  }
+
+
+
+  /**
+   * Indicates whether this JSON object has a null field with the specified
+   * name.
+   *
+   * @param  name  The name of the field for which to make the determination.
+   *               It will be treated in a case-sensitive manner.
+   *
+   * @return  {@code true} if this JSON object has a null field with the
+   *          specified name, or {@code false} if this JSON object does not have
+   *          a field with the specified name, or if the value of that field is
+   *          not a null.
+   */
+  public boolean hasNullField(final String name)
+  {
+    final JSONValue value = fields.get(name);
+    return ((value != null) && (value instanceof JSONNull));
   }
 
 

@@ -22,6 +22,7 @@ package com.unboundid.util.json;
 
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -547,6 +548,303 @@ public final class JSONObjectTestCase
 
     assertFalse(o1.equals(o2, true, true, true));
     assertFalse(o2.equals(o1, true, true, true));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getFieldAsString} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetFieldAsString()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("stringField", "foo"),
+         new JSONField("trueField", true),
+         new JSONField("falseField", false),
+         new JSONField("intField", 1234),
+         new JSONField("longField", Long.MAX_VALUE),
+         new JSONField("bigDecimalField", new JSONNumber(new BigDecimal(1.5d))),
+         new JSONField("nullField", JSONNull.NULL),
+         new JSONField("objectField", JSONObject.EMPTY_OBJECT),
+         new JSONField("arrayField", JSONArray.EMPTY_ARRAY));
+
+    assertNotNull(o.getFieldAsString("stringField"));
+    assertEquals(o.getFieldAsString("stringField"), "foo");
+
+    assertNull(o.getFieldAsString("missingField"));
+    assertNull(o.getFieldAsString("trueField"));
+    assertNull(o.getFieldAsString("falseField"));
+    assertNull(o.getFieldAsString("intField"));
+    assertNull(o.getFieldAsString("longField"));
+    assertNull(o.getFieldAsString("bigDecimalField"));
+    assertNull(o.getFieldAsString("nullField"));
+    assertNull(o.getFieldAsString("objectField"));
+    assertNull(o.getFieldAsString("arrayField"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getFieldAsBoolean} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetFieldAsBoolean()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("stringField", "foo"),
+         new JSONField("trueField", true),
+         new JSONField("falseField", false),
+         new JSONField("intField", 1234),
+         new JSONField("longField", Long.MAX_VALUE),
+         new JSONField("bigDecimalField", new JSONNumber(new BigDecimal(1.5d))),
+         new JSONField("nullField", JSONNull.NULL),
+         new JSONField("objectField", JSONObject.EMPTY_OBJECT),
+         new JSONField("arrayField", JSONArray.EMPTY_ARRAY));
+
+    assertNotNull(o.getFieldAsBoolean("trueField"));
+    assertEquals(o.getFieldAsBoolean("trueField"), Boolean.TRUE);
+
+    assertNotNull(o.getFieldAsBoolean("falseField"));
+    assertEquals(o.getFieldAsBoolean("falseField"), Boolean.FALSE);
+
+    assertNull(o.getFieldAsBoolean("missingField"));
+    assertNull(o.getFieldAsBoolean("stringField"));
+    assertNull(o.getFieldAsBoolean("intField"));
+    assertNull(o.getFieldAsBoolean("longField"));
+    assertNull(o.getFieldAsBoolean("bigDecimalField"));
+    assertNull(o.getFieldAsBoolean("nullField"));
+    assertNull(o.getFieldAsBoolean("objectField"));
+    assertNull(o.getFieldAsBoolean("arrayField"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getFieldAsInteger} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetFieldAsInteger()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("stringField", "foo"),
+         new JSONField("trueField", true),
+         new JSONField("falseField", false),
+         new JSONField("intField", 1234),
+         new JSONField("longField", Long.MAX_VALUE),
+         new JSONField("bigDecimalField", new JSONNumber(new BigDecimal(1.5d))),
+         new JSONField("nullField", JSONNull.NULL),
+         new JSONField("objectField", JSONObject.EMPTY_OBJECT),
+         new JSONField("arrayField", JSONArray.EMPTY_ARRAY));
+
+    assertNotNull(o.getFieldAsInteger("intField"));
+    assertEquals(o.getFieldAsInteger("intField"), Integer.valueOf(1234));
+
+    assertNull(o.getFieldAsInteger("missingField"));
+    assertNull(o.getFieldAsInteger("stringField"));
+    assertNull(o.getFieldAsInteger("trueField"));
+    assertNull(o.getFieldAsInteger("falseField"));
+    assertNull(o.getFieldAsInteger("longField"));
+    assertNull(o.getFieldAsInteger("bigDecimalField"));
+    assertNull(o.getFieldAsInteger("nullField"));
+    assertNull(o.getFieldAsInteger("objectField"));
+    assertNull(o.getFieldAsInteger("arrayField"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getFieldAsLong} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetFieldAsLong()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("stringField", "foo"),
+         new JSONField("trueField", true),
+         new JSONField("falseField", false),
+         new JSONField("intField", 1234),
+         new JSONField("longField", Long.MAX_VALUE),
+         new JSONField("bigDecimalField", new JSONNumber(new BigDecimal(1.5d))),
+         new JSONField("nullField", JSONNull.NULL),
+         new JSONField("objectField", JSONObject.EMPTY_OBJECT),
+         new JSONField("arrayField", JSONArray.EMPTY_ARRAY));
+
+    assertNotNull(o.getFieldAsLong("intField"));
+    assertEquals(o.getFieldAsLong("intField"), Long.valueOf(1234));
+
+    assertNotNull(o.getFieldAsLong("longField"));
+    assertEquals(o.getFieldAsLong("longField"), Long.valueOf(Long.MAX_VALUE));
+
+    assertNull(o.getFieldAsLong("missingField"));
+    assertNull(o.getFieldAsLong("stringField"));
+    assertNull(o.getFieldAsLong("trueField"));
+    assertNull(o.getFieldAsLong("falseField"));
+    assertNull(o.getFieldAsLong("bigDecimalField"));
+    assertNull(o.getFieldAsLong("nullField"));
+    assertNull(o.getFieldAsLong("objectField"));
+    assertNull(o.getFieldAsLong("arrayField"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getFieldAsBigDecimal} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetFieldAsBigDecimal()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("stringField", "foo"),
+         new JSONField("trueField", true),
+         new JSONField("falseField", false),
+         new JSONField("intField", 1234),
+         new JSONField("longField", Long.MAX_VALUE),
+         new JSONField("bigDecimalField", new JSONNumber(new BigDecimal(1.5d))),
+         new JSONField("nullField", JSONNull.NULL),
+         new JSONField("objectField", JSONObject.EMPTY_OBJECT),
+         new JSONField("arrayField", JSONArray.EMPTY_ARRAY));
+
+    assertNotNull(o.getFieldAsBigDecimal("intField"));
+    assertEquals(o.getFieldAsBigDecimal("intField"), new BigDecimal(1234));
+
+    assertNotNull(o.getFieldAsBigDecimal("longField"));
+    assertEquals(o.getFieldAsBigDecimal("longField"),
+         new BigDecimal(Long.MAX_VALUE));
+
+    assertNotNull(o.getFieldAsBigDecimal("bigDecimalField"));
+    assertEquals(o.getFieldAsBigDecimal("bigDecimalField"),
+         new BigDecimal(1.5d));
+
+    assertNull(o.getFieldAsBigDecimal("missingField"));
+    assertNull(o.getFieldAsBigDecimal("stringField"));
+    assertNull(o.getFieldAsBigDecimal("trueField"));
+    assertNull(o.getFieldAsBigDecimal("falseField"));
+    assertNull(o.getFieldAsBigDecimal("nullField"));
+    assertNull(o.getFieldAsBigDecimal("objectField"));
+    assertNull(o.getFieldAsBigDecimal("arrayField"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getFieldAsObject} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetFieldAsObject()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("stringField", "foo"),
+         new JSONField("trueField", true),
+         new JSONField("falseField", false),
+         new JSONField("intField", 1234),
+         new JSONField("longField", Long.MAX_VALUE),
+         new JSONField("bigDecimalField", new JSONNumber(new BigDecimal(1.5d))),
+         new JSONField("nullField", JSONNull.NULL),
+         new JSONField("objectField", JSONObject.EMPTY_OBJECT),
+         new JSONField("arrayField", JSONArray.EMPTY_ARRAY));
+
+    assertNotNull(o.getFieldAsObject("objectField"));
+    assertEquals(o.getFieldAsObject("objectField"), JSONObject.EMPTY_OBJECT);
+
+    assertNull(o.getFieldAsObject("missingField"));
+    assertNull(o.getFieldAsObject("stringField"));
+    assertNull(o.getFieldAsObject("trueField"));
+    assertNull(o.getFieldAsObject("falseField"));
+    assertNull(o.getFieldAsObject("intField"));
+    assertNull(o.getFieldAsObject("longField"));
+    assertNull(o.getFieldAsObject("bigDecimalField"));
+    assertNull(o.getFieldAsObject("nullField"));
+    assertNull(o.getFieldAsObject("arrayField"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getFieldAsArray} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetFieldAsArray()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("stringField", "foo"),
+         new JSONField("trueField", true),
+         new JSONField("falseField", false),
+         new JSONField("intField", 1234),
+         new JSONField("longField", Long.MAX_VALUE),
+         new JSONField("bigDecimalField", new JSONNumber(new BigDecimal(1.5d))),
+         new JSONField("nullField", JSONNull.NULL),
+         new JSONField("objectField", JSONObject.EMPTY_OBJECT),
+         new JSONField("arrayField", JSONArray.EMPTY_ARRAY));
+
+    assertNotNull(o.getFieldAsArray("arrayField"));
+    assertEquals(o.getFieldAsArray("arrayField"), Collections.emptyList());
+
+    assertNull(o.getFieldAsArray("missingField"));
+    assertNull(o.getFieldAsArray("stringField"));
+    assertNull(o.getFieldAsArray("trueField"));
+    assertNull(o.getFieldAsArray("falseField"));
+    assertNull(o.getFieldAsArray("intField"));
+    assertNull(o.getFieldAsArray("longField"));
+    assertNull(o.getFieldAsArray("bigDecimalField"));
+    assertNull(o.getFieldAsArray("nullField"));
+    assertNull(o.getFieldAsArray("objectField"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code hasNullField} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testHasNullField()
+         throws Exception
+  {
+    final JSONObject o = new JSONObject(
+         new JSONField("stringField", "foo"),
+         new JSONField("trueField", true),
+         new JSONField("falseField", false),
+         new JSONField("intField", 1234),
+         new JSONField("longField", Long.MAX_VALUE),
+         new JSONField("bigDecimalField", new JSONNumber(new BigDecimal(1.5d))),
+         new JSONField("nullField", JSONNull.NULL),
+         new JSONField("objectField", JSONObject.EMPTY_OBJECT),
+         new JSONField("arrayField", JSONArray.EMPTY_ARRAY));
+
+    assertTrue(o.hasNullField("nullField"));
+
+    assertFalse(o.hasNullField("missingField"));
+    assertFalse(o.hasNullField("stringField"));
+    assertFalse(o.hasNullField("trueField"));
+    assertFalse(o.hasNullField("falseField"));
+    assertFalse(o.hasNullField("intField"));
+    assertFalse(o.hasNullField("longField"));
+    assertFalse(o.hasNullField("bigDecimalField"));
+    assertFalse(o.hasNullField("objectField"));
+    assertFalse(o.hasNullField("arrayField"));
   }
 
 
