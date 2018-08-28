@@ -1230,14 +1230,14 @@ public final class LDAPObjectHandler<T>
     {
       o = constructor.newInstance();
     }
-    catch (final Throwable t)
+    catch (final Exception ex)
     {
-      Debug.debugException(t);
+      Debug.debugException(ex);
 
-      if (t instanceof InvocationTargetException)
+      if (ex instanceof InvocationTargetException)
       {
         final Throwable targetException =
-             ((InvocationTargetException) t).getTargetException();
+             ((InvocationTargetException) ex).getTargetException();
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_ERROR_INVOKING_CONSTRUCTOR.get(type.getName(),
                   StaticUtils.getExceptionMessage(targetException)),
@@ -1247,8 +1247,8 @@ public final class LDAPObjectHandler<T>
       {
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_ERROR_INVOKING_CONSTRUCTOR.get(type.getName(),
-                  StaticUtils.getExceptionMessage(t)),
-             t);
+                  StaticUtils.getExceptionMessage(ex)),
+             ex);
       }
     }
 
@@ -1299,24 +1299,25 @@ public final class LDAPObjectHandler<T>
       {
         postDecodeMethod.invoke(o);
       }
-      catch (final Throwable t)
+      catch (final Exception ex)
       {
-        Debug.debugException(t);
+        Debug.debugException(ex);
+        StaticUtils.rethrowIfError(ex);
 
-        if (t instanceof InvocationTargetException)
+        if (ex instanceof InvocationTargetException)
         {
-          cause = ((InvocationTargetException) t).getTargetException();
+          cause = ((InvocationTargetException) ex).getTargetException();
         }
         else
         {
-          cause = t;
+          cause = ex;
         }
 
         successful = false;
         failureReasons.add(
              ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_DECODE_METHOD.get(
                   postDecodeMethod.getName(), type.getName(),
-                  StaticUtils.getExceptionMessage(t)));
+                  StaticUtils.getExceptionMessage(ex)));
       }
     }
 
@@ -1398,14 +1399,14 @@ public final class LDAPObjectHandler<T>
       {
         postEncodeMethod.invoke(o, entry);
       }
-      catch (final Throwable t)
+      catch (final Exception ex)
       {
-        Debug.debugException(t);
+        Debug.debugException(ex);
 
-        if (t instanceof InvocationTargetException)
+        if (ex instanceof InvocationTargetException)
         {
           final Throwable targetException =
-               ((InvocationTargetException) t).getTargetException();
+               ((InvocationTargetException) ex).getTargetException();
           throw new LDAPPersistException(
                ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_ENCODE_METHOD.get(
                     postEncodeMethod.getName(), type.getName(),
@@ -1417,7 +1418,7 @@ public final class LDAPObjectHandler<T>
           throw new LDAPPersistException(
                ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_ENCODE_METHOD.get(
                     postEncodeMethod.getName(), type.getName(),
-                    StaticUtils.getExceptionMessage(t)), t);
+                    StaticUtils.getExceptionMessage(ex)), ex);
         }
       }
     }

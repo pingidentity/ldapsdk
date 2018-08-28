@@ -2551,4 +2551,138 @@ public class StaticUtilsTestCase
     assertEquals(nonEmptyIntegerArray.length, 5);
     assertEquals(nonEmptyIntegerArray, new Integer[] { 1, 2, 3, 4, 5 });
   }
+
+
+
+  /**
+   * Tests the behavior of the {@code isWithinUnitTest} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testisWithinUnitTest()
+         throws Exception
+  {
+    assertTrue(StaticUtils.isWithinUnitTest());
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code throwErrorOrRuntimeException} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testThrowErrorOrRuntimeException()
+         throws Exception
+  {
+    try
+    {
+      StaticUtils.throwErrorOrRuntimeException(null);
+      fail("Expected an exception from a null throwable");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      StaticUtils.throwErrorOrRuntimeException(new UnknownError("Testing"));
+      fail("Expected an UnknownError from an UnknownError throwable");
+    }
+    catch (final UnknownError e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      StaticUtils.throwErrorOrRuntimeException(
+           new NullPointerException("Testing"));
+      fail("Expected a NullPointerException from a NullPointerException " +
+           "throwable");
+    }
+    catch (final NullPointerException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      StaticUtils.throwErrorOrRuntimeException(new IOException("Testing"));
+      fail("Expected a RuntimeException from an IOException throwable");
+    }
+    catch (final RuntimeException e)
+    {
+      // This was expected.
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code rethrowIfErrorOrRuntimeException} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRethrowIfErrorOrRuntimeException()
+         throws Exception
+  {
+    StaticUtils.rethrowIfErrorOrRuntimeException(null);
+
+    try
+    {
+      StaticUtils.rethrowIfErrorOrRuntimeException(new UnknownError("Testing"));
+      fail("Expected an UnknownError from an UnknownError throwable");
+    }
+    catch (final UnknownError e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      StaticUtils.rethrowIfErrorOrRuntimeException(
+           new NullPointerException("Testing"));
+      fail("Expected a NullPointerException from a NullPointerException " +
+           "throwable");
+    }
+    catch (final NullPointerException e)
+    {
+      // This was expected.
+    }
+
+    StaticUtils.rethrowIfErrorOrRuntimeException(new IOException("Testing"));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code rethrowIfError} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRethrowIfError()
+         throws Exception
+  {
+    StaticUtils.rethrowIfError(null);
+
+    try
+    {
+      StaticUtils.rethrowIfError(new UnknownError("Testing"));
+      fail("Expected an UnknownError from an UnknownError throwable");
+    }
+    catch (final UnknownError e)
+    {
+      // This was expected.
+    }
+
+    StaticUtils.rethrowIfError(new NullPointerException("Testing"));
+
+    StaticUtils.rethrowIfError(new IOException("Testing"));
+  }
 }

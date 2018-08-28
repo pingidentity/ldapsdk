@@ -1669,6 +1669,7 @@ public final class LDAPConnectionPool
       else
       {
         releaseDefunctConnection(conn);
+        StaticUtils.rethrowIfError(t);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
       }
@@ -1709,6 +1710,7 @@ public final class LDAPConnectionPool
       else
       {
         releaseDefunctConnection(conn);
+        StaticUtils.rethrowIfError(t);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
       }

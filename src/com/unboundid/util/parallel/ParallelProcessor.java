@@ -345,7 +345,7 @@ public final class ParallelProcessor<I,O>
         outputs.set(next, process(input));
       }
     }
-    catch (final Throwable e)
+    catch (final Exception e)
     {
       Debug.debugException(e);
       // As with catching InterruptedException above, it's bad if this

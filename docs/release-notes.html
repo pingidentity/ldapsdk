@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated a number of locations in the code that caught <tt>Throwable</tt> to
+                  re-throw the original <tt>Throwable</tt> instance (after performing appropriate
+                  cleanup) if that <tt>Throwable</tt> instance was an <tt>Error</tt> or perhaps a
+                  <tt>RuntimeException</tt>.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a number of convenience methods to the <tt>JSONObject</tt> class that make
                   it easier to get the value of a specified field as a string, Boolean, number,
                   object, array, or null.

@@ -3245,4 +3245,99 @@ public final class StaticUtils
   {
     return IS_WITHIN_UNIT_TESTS;
   }
+
+
+
+  /**
+   * Throws an {@code Error} or a {@code RuntimeException} based on the provided
+   * {@code Throwable} object.  This method will always throw something,
+   * regardless of the provided {@code Throwable} object.
+   *
+   * @param  throwable  The {@code Throwable} object to use to create the
+   *                    exception to throw.
+   *
+   * @throws  Error  If the provided {@code Throwable} object is an
+   *                 {@code Error} instance, then that {@code Error} instance
+   *                 will be re-thrown.
+   *
+   * @throws  RuntimeException  If the provided {@code Throwable} object is a
+   *                            {@code RuntimeException} instance, then that
+   *                            {@code RuntimeException} instance will be
+   *                            re-thrown.  Otherwise, it must be a checked
+   *                            exception and that checked exception will be
+   *                            re-thrown as a {@code RuntimeException}.
+   */
+  public static void throwErrorOrRuntimeException(final Throwable throwable)
+         throws Error, RuntimeException
+  {
+    Validator.ensureNotNull(throwable);
+
+    if (throwable instanceof Error)
+    {
+      throw (Error) throwable;
+    }
+    else if (throwable instanceof RuntimeException)
+    {
+      throw (RuntimeException) throwable;
+    }
+    else
+    {
+      throw new RuntimeException(throwable);
+    }
+  }
+
+
+
+  /**
+   * Re-throws the provided {@code Throwable} instance only if it is an
+   * {@code Error} or a {@code RuntimeException} instance; otherwise, this
+   * method will return without taking any action.
+   *
+   * @param  throwable  The {@code Throwable} object to examine and potentially
+   *                    re-throw.
+   *
+   * @throws  Error  If the provided {@code Throwable} object is an
+   *                 {@code Error} instance, then that {@code Error} instance
+   *                 will be re-thrown.
+   *
+   * @throws  RuntimeException  If the provided {@code Throwable} object is a
+   *                            {@code RuntimeException} instance, then that
+   *                            {@code RuntimeException} instance will be
+   *                            re-thrown.
+   */
+  public static void rethrowIfErrorOrRuntimeException(final Throwable throwable)
+         throws Error, RuntimeException
+  {
+    if (throwable instanceof Error)
+    {
+      throw (Error) throwable;
+    }
+    else if (throwable instanceof RuntimeException)
+    {
+      throw (RuntimeException) throwable;
+    }
+  }
+
+
+
+  /**
+   * Re-throws the provided {@code Throwable} instance only if it is an
+   * {@code Error}; otherwise, this method will return without taking any
+   * action.
+   *
+   * @param  throwable  The {@code Throwable} object to examine and potentially
+   *                    re-throw.
+   *
+   * @throws  Error  If the provided {@code Throwable} object is an
+   *                 {@code Error} instance, then that {@code Error} instance
+   *                 will be re-thrown.
+   */
+  public static void rethrowIfError(final Throwable throwable)
+         throws Error
+  {
+    if (throwable instanceof Error)
+    {
+      throw (Error) throwable;
+    }
+  }
 }

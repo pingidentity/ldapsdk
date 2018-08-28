@@ -2996,6 +2996,7 @@ requestLoop:
     else
     {
       releaseDefunctConnection(conn);
+      StaticUtils.rethrowIfError(t);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
     }
@@ -3036,6 +3037,7 @@ requestLoop:
     else
     {
       releaseDefunctConnection(conn);
+      StaticUtils.rethrowIfError(t);
       throw new LDAPSearchException(ResultCode.LOCAL_ERROR,
            ERR_POOL_OP_EXCEPTION.get(StaticUtils.getExceptionMessage(t)), t);
     }

@@ -1248,20 +1248,20 @@ public final class DefaultObjectEncoder
       Debug.debugException(lpe);
       throw lpe;
     }
-    catch (final Throwable t)
+    catch (final Exception e)
     {
-      Debug.debugException(t);
+      Debug.debugException(e);
 
-      if (t instanceof InvocationTargetException)
+      if (e instanceof InvocationTargetException)
       {
         final Throwable targetException =
-             ((InvocationTargetException) t).getTargetException();
+             ((InvocationTargetException) e).getTargetException();
         throw new LDAPPersistException(
              StaticUtils.getExceptionMessage(targetException), targetException);
       }
       else
       {
-        throw new LDAPPersistException(StaticUtils.getExceptionMessage(t), t);
+        throw new LDAPPersistException(StaticUtils.getExceptionMessage(e), e);
       }
     }
   }

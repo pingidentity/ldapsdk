@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -169,7 +170,7 @@ public final class AsynchronousParallelProcessor<I,O>
     if (resultProcessingError != null)
     {
       shutdown();
-      throw new RuntimeException(resultProcessingError);
+      StaticUtils.throwErrorOrRuntimeException(resultProcessingError);
     }
 
     pendingQueue.put(input);

@@ -627,7 +627,7 @@ public final class LDAPListenerClientConnection
                ERR_CONN_EXCEPTION_IN_REQUEST_HANDLER.get(
                     String.valueOf(requestMessage),
                     StaticUtils.getExceptionMessage(t))));
-          return;
+          StaticUtils.throwErrorOrRuntimeException(t);
         }
       }
     }

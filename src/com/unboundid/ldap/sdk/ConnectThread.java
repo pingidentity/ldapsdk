@@ -248,6 +248,7 @@ final class ConnectThread
     }
     else
     {
+      StaticUtils.rethrowIfError(cause);
       throw new LDAPException(ResultCode.CONNECT_ERROR,
            ERR_CONNECT_THREAD_EXCEPTION.get(address, port,
                 StaticUtils.getExceptionMessage(cause)), cause);
