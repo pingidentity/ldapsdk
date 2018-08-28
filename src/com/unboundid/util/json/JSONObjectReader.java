@@ -69,7 +69,33 @@ public final class JSONObjectReader
    */
   public JSONObjectReader(final InputStream inputStream)
   {
-    this.inputStream = new BufferedInputStream(inputStream);
+    this(inputStream, true);
+  }
+
+
+
+  /**
+   * Creates a new JSON object reader that will read objects from the provided
+   * input stream.
+   *
+   * @param  inputStream        The input stream from which the data should be
+   *                            read.
+   * @param  bufferInputStream  Indicates whether to buffer the input stream.
+   *                            This should be {@code false} if the input stream
+   *                            could be used for any purpose other than reading
+   *                            JSON objects after one or more objects are read.
+   */
+  public JSONObjectReader(final InputStream inputStream,
+                          final boolean bufferInputStream)
+  {
+    if (bufferInputStream && (! (inputStream instanceof BufferedInputStream)))
+    {
+      this.inputStream = new BufferedInputStream(inputStream);
+    }
+    else
+    {
+      this.inputStream = inputStream;
+    }
 
     currentObjectBytes = new ByteStringBuffer();
     stringBuffer = new ByteStringBuffer();

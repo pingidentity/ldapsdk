@@ -36,7 +36,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * This class provides a mechanism for reading message from a Directory Server
+ * This class provides a mechanism for reading messages from a Directory Server
  * error log.
  * <BR>
  * <BLOCKQUOTE>

@@ -38,7 +38,7 @@ import static com.unboundid.ldap.sdk.unboundidds.logs.LogMessages.*;
 
 
 /**
- * This class provides a mechanism for reading message from a Directory Server
+ * This class provides a mechanism for reading messages from a Directory Server
  * access log.
  * <BR>
  * <BLOCKQUOTE>
