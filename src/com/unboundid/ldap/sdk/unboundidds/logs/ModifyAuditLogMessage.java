@@ -198,10 +198,9 @@ public final class ModifyAuditLogMessage
 
 
   /**
-   * Retrieves the DN of the entry that was modified.
-   *
-   * @return  The DN of the entry that was modified.
+   * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return modifyChangeRecord.getDN();

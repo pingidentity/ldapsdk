@@ -203,10 +203,9 @@ public final class AddAuditLogMessage
 
 
   /**
-   * Retrieves the DN of the entry that was added.
-   *
-   * @return  The DN of the entry that was added.
+   * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return addChangeRecord.getDN();

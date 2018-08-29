@@ -1460,6 +1460,15 @@ stringLoop:
 
 
   /**
+   * Retrieves the DN of the entry targeted by the associated operation.
+   *
+   * @return  The DN of the entry targeted by the associated operation.
+   */
+  public abstract String getDN();
+
+
+
+  /**
    * Retrieves the change type for this audit log message.
    *
    * @return  The change type for this audit log message.

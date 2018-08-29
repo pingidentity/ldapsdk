@@ -262,10 +262,9 @@ public final class DeleteAuditLogMessage
 
 
   /**
-   * Retrieves the DN of the entry that was deleted.
-   *
-   * @return  The DN of the entry that was deleted.
+   * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return deleteChangeRecord.getDN();

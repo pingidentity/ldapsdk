@@ -292,10 +292,9 @@ public final class ModifyDNAuditLogMessage
 
 
   /**
-   * Retrieves the original DN of the entry that was renamed.
-   *
-   * @return  The original DN of the entry that was renamed.
+   * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return modifyDNChangeRecord.getDN();
