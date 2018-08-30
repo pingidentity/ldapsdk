@@ -1124,7 +1124,7 @@ public final class ModRate
           charSet = "abcdefghijklmnopqrstuvwxyz";
         }
 
-        valuePatternString = "random:" + length + ':' + charSet;
+        valuePatternString = "[random:" + length + ':' + charSet + ']';
       }
 
       final ValuePattern parsedValuePattern;
