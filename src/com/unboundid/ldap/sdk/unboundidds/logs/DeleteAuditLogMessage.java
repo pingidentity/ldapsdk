@@ -65,7 +65,7 @@ public final class DeleteAuditLogMessage
   /**
    * Retrieves the serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 7868010614018419209L;
+  private static final long serialVersionUID = 2082830761413726711L;
 
 
 
@@ -107,11 +107,11 @@ public final class DeleteAuditLogMessage
    *                          lines (but possibly after other comment lines)
    *                          that serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   public DeleteAuditLogMessage(final String... logMessageLines)
-         throws LogException
+         throws AuditLogException
   {
     this(StaticUtils.toList(logMessageLines), logMessageLines);
   }
@@ -129,11 +129,11 @@ public final class DeleteAuditLogMessage
    *                          lines (but possibly after other comment lines)
    *                          that serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   public DeleteAuditLogMessage(final List<String> logMessageLines)
-         throws LogException
+         throws AuditLogException
   {
     this(logMessageLines, StaticUtils.toArray(logMessageLines, String.class));
   }
@@ -148,12 +148,12 @@ public final class DeleteAuditLogMessage
    * @param  logMessageLineArray  The lines that comprise the log message as an
    *                              array.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   private DeleteAuditLogMessage(final List<String> logMessageLineList,
                                 final String[] logMessageLineArray)
-          throws LogException
+          throws AuditLogException
   {
     super(logMessageLineList);
 
@@ -163,7 +163,7 @@ public final class DeleteAuditLogMessage
            LDIFReader.decodeChangeRecord(logMessageLineArray);
       if (! (changeRecord instanceof LDIFDeleteChangeRecord))
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(logMessageLineList,
              ERR_DELETE_AUDIT_LOG_MESSAGE_CHANGE_TYPE_NOT_DELETE.get(
                   changeRecord.getChangeType().getName(),
                   ChangeType.DELETE.getName()));
@@ -174,7 +174,7 @@ public final class DeleteAuditLogMessage
     catch (final LDIFException e)
     {
       Debug.debugException(e);
-      throw new LogException(getCommentedHeaderLine(),
+      throw new AuditLogException(logMessageLineList,
            ERR_DELETE_AUDIT_LOG_MESSAGE_LINES_NOT_CHANGE_RECORD.get(
                 StaticUtils.getExceptionMessage(e)),
            e);
@@ -222,12 +222,12 @@ public final class DeleteAuditLogMessage
    * @param  deleteChangeRecord  The LDIF delete change record that is described
    *                             by the provided log message lines.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   DeleteAuditLogMessage(final List<String> logMessageLines,
                         final LDIFDeleteChangeRecord deleteChangeRecord)
-         throws LogException
+         throws AuditLogException
   {
     super(logMessageLines);
 
@@ -443,19 +443,19 @@ public final class DeleteAuditLogMessage
    */
   @Override()
   public List<LDIFChangeRecord> getRevertChangeRecords()
-         throws LogException
+         throws AuditLogException
   {
     if ((isSubtreeDelete != null) && isSubtreeDelete)
     {
       if (deletedEntry == null)
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(getLogMessageLines(),
              ERR_DELETE_AUDIT_LOG_MESSAGE_SUBTREE_DELETE_WITHOUT_ENTRY.get(
                   deleteChangeRecord.getDN()));
       }
       else
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(getLogMessageLines(),
              ERR_DELETE_AUDIT_LOG_MESSAGE_SUBTREE_DELETE_WITH_ENTRY.get(
                   deleteChangeRecord.getDN()));
       }
@@ -472,7 +472,7 @@ public final class DeleteAuditLogMessage
       }
       else
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(getLogMessageLines(),
              ERR_DELETE_AUDIT_LOG_MESSAGE_NO_SOFT_DELETED_ENTRY_DN.get(
                   deleteChangeRecord.getDN()));
       }
@@ -486,7 +486,7 @@ public final class DeleteAuditLogMessage
       }
       else
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(getLogMessageLines(),
              ERR_DELETE_AUDIT_LOG_MESSAGE_DELETED_ENTRY.get(
                   deleteChangeRecord.getDN()));
       }

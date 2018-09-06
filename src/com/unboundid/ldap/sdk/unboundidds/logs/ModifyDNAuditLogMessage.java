@@ -72,7 +72,7 @@ public final class ModifyDNAuditLogMessage
   /**
    * Retrieves the serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -8695431402712761702L;
+  private static final long serialVersionUID = 3954476664207635518L;
 
 
 
@@ -96,11 +96,11 @@ public final class ModifyDNAuditLogMessage
    *                          lines (but possibly after other comment lines)
    *                          that serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   public ModifyDNAuditLogMessage(final String... logMessageLines)
-         throws LogException
+         throws AuditLogException
   {
     this(StaticUtils.toList(logMessageLines), logMessageLines);
   }
@@ -118,11 +118,11 @@ public final class ModifyDNAuditLogMessage
    *                          lines (but possibly after other comment lines)
    *                          that serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             audit provided list of log message lines.
    */
   public ModifyDNAuditLogMessage(final List<String> logMessageLines)
-         throws LogException
+         throws AuditLogException
   {
     this(logMessageLines, StaticUtils.toArray(logMessageLines, String.class));
   }
@@ -137,12 +137,12 @@ public final class ModifyDNAuditLogMessage
    * @param  logMessageLineArray  The lines that comprise the log message as an
    *                              array.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   private ModifyDNAuditLogMessage(final List<String> logMessageLineList,
                                   final String[] logMessageLineArray)
-          throws LogException
+          throws AuditLogException
   {
     super(logMessageLineList);
 
@@ -152,7 +152,7 @@ public final class ModifyDNAuditLogMessage
            LDIFReader.decodeChangeRecord(logMessageLineArray);
       if (! (changeRecord instanceof LDIFModifyDNChangeRecord))
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(logMessageLineList,
              ERR_MODIFY_DN_AUDIT_LOG_MESSAGE_CHANGE_TYPE_NOT_MODIFY_DN.get(
                   changeRecord.getChangeType().getName(),
                   ChangeType.MODIFY_DN.getName()));
@@ -163,7 +163,7 @@ public final class ModifyDNAuditLogMessage
     catch (final LDIFException e)
     {
       Debug.debugException(e);
-      throw new LogException(getCommentedHeaderLine(),
+      throw new AuditLogException(logMessageLineList,
            ERR_MODIFY_DN_AUDIT_LOG_MESSAGE_LINES_NOT_CHANGE_RECORD.get(
                 StaticUtils.getExceptionMessage(e)),
            e);
@@ -189,12 +189,12 @@ public final class ModifyDNAuditLogMessage
    * @param  modifyDNChangeRecord  The LDIF modify DN change record that is
    *                               described by the provided log message lines.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   ModifyDNAuditLogMessage(final List<String> logMessageLines,
                           final LDIFModifyDNChangeRecord modifyDNChangeRecord)
-         throws LogException
+         throws AuditLogException
   {
     super(logMessageLines);
 
@@ -465,13 +465,13 @@ public final class ModifyDNAuditLogMessage
    */
   @Override()
   public List<LDIFChangeRecord> getRevertChangeRecords()
-         throws LogException
+         throws AuditLogException
   {
     // We can't create a set of revertible changes if we don't have access to
     // attribute modifications.
     if (attributeModifications == null)
     {
-      throw new LogException(getCommentedHeaderLine(),
+      throw new AuditLogException(getLogMessageLines(),
            ERR_MODIFY_DN_NOT_REVERTIBLE.get(modifyDNChangeRecord.getDN()));
     }
 
@@ -496,7 +496,7 @@ public final class ModifyDNAuditLogMessage
 
       if (modifyDNChangeRecord.getNewSuperiorDN() == null)
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(getLogMessageLines(),
              ERR_MODIFY_DN_CANNOT_GET_NEW_DN_WITHOUT_NEW_SUPERIOR.get(
                   modifyDNChangeRecord.getDN(),
                   modifyDNChangeRecord.getNewRDN()),
@@ -504,7 +504,7 @@ public final class ModifyDNAuditLogMessage
       }
       else
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(getLogMessageLines(),
              ERR_MODIFY_DN_CANNOT_GET_NEW_DN_WITH_NEW_SUPERIOR.get(
                   modifyDNChangeRecord.getDN(),
                   modifyDNChangeRecord.getNewRDN(),
@@ -517,7 +517,7 @@ public final class ModifyDNAuditLogMessage
     // If the original DN is the null DN, then fail.
     if (originalDN.isNullDN())
     {
-      throw new LogException(getCommentedHeaderLine(),
+      throw new AuditLogException(getLogMessageLines(),
            ERR_MODIFY_DN_CANNOT_REVERT_NULL_DN.get());
     }
 
@@ -529,7 +529,7 @@ public final class ModifyDNAuditLogMessage
       if (modifyDNChangeRecord.deleteOldRDN() &&
            (! newRDN.equals(originalDN.getRDN())))
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(getLogMessageLines(),
              ERR_MODIFY_DN_CANNOT_REVERT_WITHOUT_NECESSARY_MODS.get(
                   modifyDNChangeRecord.getDN()));
       }
@@ -642,7 +642,7 @@ public final class ModifyDNAuditLogMessage
              ModifyAuditLogMessage.getRevertModification(m);
         if (revertModification == null)
         {
-          throw new LogException(getCommentedHeaderLine(),
+          throw new AuditLogException(getLogMessageLines(),
                ERR_MODIFY_DN_MOD_NOT_REVERTIBLE.get(
                     modifyDNChangeRecord.getDN(),
                     m.getModificationType().getName(), m.getAttributeName()));

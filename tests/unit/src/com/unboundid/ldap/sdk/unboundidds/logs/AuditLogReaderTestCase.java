@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -379,7 +380,7 @@ public final class AuditLogReaderTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "delete audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -659,7 +660,7 @@ public final class AuditLogReaderTestCase
       m = reader.read();
       fail("Expected an exception when trying to read message " + m);
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -708,6 +709,12 @@ public final class AuditLogReaderTestCase
         new AuditLogReader(new BufferedReader(new FileReader(
              testBasicAuditLogFile))),
         "Reader created from buffered reader",
+      },
+
+      new Object[]
+      {
+        new AuditLogReader(new FileInputStream(testBasicAuditLogFile)),
+        "Reader created from input stream",
       }
     };
   }

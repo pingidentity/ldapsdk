@@ -371,7 +371,7 @@ public final class ModifyAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -523,7 +523,7 @@ public final class ModifyAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -802,7 +802,7 @@ public final class ModifyAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -821,7 +821,7 @@ public final class ModifyAuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testCreateFromMessageWithNonModifyChangeType()
          throws Exception
   {
@@ -844,7 +844,7 @@ public final class ModifyAuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testCreateFromMessageWithInvalidChangeRecordLines()
          throws Exception
   {

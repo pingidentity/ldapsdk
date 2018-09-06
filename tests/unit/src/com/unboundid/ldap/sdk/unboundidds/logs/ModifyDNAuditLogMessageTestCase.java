@@ -809,7 +809,7 @@ public final class ModifyDNAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify DN audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -828,7 +828,7 @@ public final class ModifyDNAuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testCreateFromMessageWithNonModifyDNChangeType()
          throws Exception
   {
@@ -851,7 +851,7 @@ public final class ModifyDNAuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testCreateFromMessageWithInvalidChangeRecordLines()
          throws Exception
   {
@@ -970,7 +970,7 @@ public final class ModifyDNAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify DN audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1087,7 +1087,7 @@ public final class ModifyDNAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify DN audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1207,7 +1207,7 @@ public final class ModifyDNAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify DN audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1323,7 +1323,7 @@ public final class ModifyDNAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify DN audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1439,7 +1439,7 @@ public final class ModifyDNAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify DN audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1557,7 +1557,7 @@ public final class ModifyDNAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify DN audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1673,7 +1673,7 @@ public final class ModifyDNAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "modify DN audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }

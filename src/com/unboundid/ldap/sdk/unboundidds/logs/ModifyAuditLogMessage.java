@@ -63,7 +63,7 @@ public final class ModifyAuditLogMessage
   /**
    * Retrieves the serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 6850197449730862913L;
+  private static final long serialVersionUID = -5262466264778465574L;
 
 
 
@@ -87,11 +87,11 @@ public final class ModifyAuditLogMessage
    *                          lines (but possibly after other comment line) that
    *                          serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   public ModifyAuditLogMessage(final String... logMessageLines)
-         throws LogException
+         throws AuditLogException
   {
     this(StaticUtils.toList(logMessageLines), logMessageLines);
   }
@@ -109,11 +109,11 @@ public final class ModifyAuditLogMessage
    *                          lines (but possibly after other comment line) that
    *                          serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   public ModifyAuditLogMessage(final List<String> logMessageLines)
-         throws LogException
+         throws AuditLogException
   {
     this(logMessageLines, StaticUtils.toArray(logMessageLines, String.class));
   }
@@ -128,12 +128,12 @@ public final class ModifyAuditLogMessage
    * @param  logMessageLineArray  The lines that comprise the log message as an
    *                              array.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   private ModifyAuditLogMessage(final List<String> logMessageLineList,
                                 final String[] logMessageLineArray)
-          throws LogException
+          throws AuditLogException
   {
     super(logMessageLineList);
 
@@ -143,7 +143,7 @@ public final class ModifyAuditLogMessage
            LDIFReader.decodeChangeRecord(logMessageLineArray);
       if (! (changeRecord instanceof LDIFModifyChangeRecord))
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(logMessageLineList,
              ERR_MODIFY_AUDIT_LOG_MESSAGE_CHANGE_TYPE_NOT_MODIFY.get(
                   changeRecord.getChangeType().getName(),
                   ChangeType.MODIFY.getName()));
@@ -154,7 +154,7 @@ public final class ModifyAuditLogMessage
     catch (final LDIFException e)
     {
       Debug.debugException(e);
-      throw new LogException(getCommentedHeaderLine(),
+      throw new AuditLogException(logMessageLineList,
            ERR_MODIFY_AUDIT_LOG_MESSAGE_LINES_NOT_CHANGE_RECORD.get(
                 StaticUtils.getExceptionMessage(e)),
            e);
@@ -180,12 +180,12 @@ public final class ModifyAuditLogMessage
    * @param  modifyChangeRecord  The LDIF modify change record that is described
    *                             by the provided log message lines.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   ModifyAuditLogMessage(final List<String> logMessageLines,
                         final LDIFModifyChangeRecord modifyChangeRecord)
-         throws LogException
+         throws AuditLogException
   {
     super(logMessageLines);
 
@@ -374,7 +374,7 @@ public final class ModifyAuditLogMessage
    */
   @Override()
   public List<LDIFChangeRecord> getRevertChangeRecords()
-         throws LogException
+         throws AuditLogException
   {
     // Iterate through the modifications backwards and construct the
     // appropriate set of modifications to revert each of them.
@@ -385,7 +385,7 @@ public final class ModifyAuditLogMessage
       revertMods[j] = getRevertModification(mods[i]);
       if (revertMods[j] == null)
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(getLogMessageLines(),
              ERR_MODIFY_AUDIT_LOG_MESSAGE_MOD_NOT_REVERTIBLE.get(
                   modifyChangeRecord.getDN(), String.valueOf(mods[i])));
       }

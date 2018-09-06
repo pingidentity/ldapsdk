@@ -157,7 +157,7 @@ public final class DeleteAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "delete audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -493,7 +493,7 @@ public final class DeleteAuditLogMessageTestCase
       fail("Expected an exception because a subtree delete base entry is not " +
            "revertible.");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -638,7 +638,7 @@ public final class DeleteAuditLogMessageTestCase
       fail("Expected an exception because a subtree delete base entry is not " +
            "revertible.");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1173,7 +1173,7 @@ public final class DeleteAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "soft delete audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1480,7 +1480,7 @@ public final class DeleteAuditLogMessageTestCase
       fail("Expected an exception when trying to revert a non-revertible " +
            "delete audit log message");
     }
-    catch (final LogException e)
+    catch (final AuditLogException e)
     {
       // This was expected.
     }
@@ -1651,7 +1651,7 @@ public final class DeleteAuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testCreateFromMessageWithNonDeleteChangeType()
          throws Exception
   {
@@ -1674,7 +1674,7 @@ public final class DeleteAuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testCreateFromMessageWithInvalidChangeRecordLines()
          throws Exception
   {

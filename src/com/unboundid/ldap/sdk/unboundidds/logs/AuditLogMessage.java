@@ -138,7 +138,7 @@ public abstract class AuditLogMessage
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 7584892253407420092L;
+  private static final long serialVersionUID = 1817887018590767411L;
 
 
 
@@ -228,27 +228,29 @@ public abstract class AuditLogMessage
    *                          lines (but possibly after other comment lines)
    *                          that serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   protected AuditLogMessage(final List<String> logMessageLines)
-            throws LogException
+            throws AuditLogException
   {
     if (logMessageLines == null)
     {
-      throw new LogException("null", ERR_AUDIT_LOG_MESSAGE_LIST_NULL.get());
+      throw new AuditLogException(Collections.<String>emptyList(),
+           ERR_AUDIT_LOG_MESSAGE_LIST_NULL.get());
     }
 
     if (logMessageLines.isEmpty())
     {
-      throw new LogException("", ERR_AUDIT_LOG_MESSAGE_LIST_EMPTY.get());
+      throw new AuditLogException(Collections.<String>emptyList(),
+           ERR_AUDIT_LOG_MESSAGE_LIST_EMPTY.get());
     }
 
     for (final String line : logMessageLines)
     {
       if ((line == null) || line.isEmpty())
       {
-        throw new LogException(String.valueOf(line),
+        throw new AuditLogException(logMessageLines,
              ERR_AUDIT_LOG_MESSAGE_LIST_CONTAINS_EMPTY_LINE.get());
       }
     }
@@ -272,7 +274,7 @@ public abstract class AuditLogMessage
 
     if (headerLine == null)
     {
-      throw new LogException(logMessageLines.get(0),
+      throw new AuditLogException(logMessageLines,
            ERR_AUDIT_LOG_MESSAGE_LIST_DOES_NOT_START_WITH_COMMENT.get());
     }
 
@@ -280,7 +282,7 @@ public abstract class AuditLogMessage
     uncommentedHeaderLine = commentedHeaderLine.substring(2);
 
     final LinkedHashMap<String,String> nameValuePairs = new LinkedHashMap<>(10);
-    timestamp = parseHeaderLine(commentedHeaderLine, uncommentedHeaderLine,
+    timestamp = parseHeaderLine(logMessageLines, uncommentedHeaderLine,
          nameValuePairs);
     namedValues = Collections.unmodifiableMap(nameValuePairs);
 
@@ -328,8 +330,8 @@ public abstract class AuditLogMessage
   /**
    * Parses the provided header line for this audit log message.
    *
-   * @param  commentedHeaderLine    The commented representation of the header
-   *                                line.  It must not be {@code null}.
+   * @param  logMessageLines        The lines that comprise the log message.  It
+   *                                must not be {@code null} or empty.
    * @param  uncommentedHeaderLine  The uncommented representation of the header
    *                                line.  It must not be {@code null}.
    * @param  nameValuePairs         A map into which the parsed name-value pairs
@@ -340,12 +342,12 @@ public abstract class AuditLogMessage
    *          from the header line will be added to the {@code nameValuePairs}
    *          map.
    *
-   * @throws  LogException  If the line cannot be parsed as a valid header.
+   * @throws  AuditLogException  If the line cannot be parsed as a valid header.
    */
-  private static Date parseHeaderLine(final String commentedHeaderLine,
+  private static Date parseHeaderLine(final List<String> logMessageLines,
                                       final String uncommentedHeaderLine,
                                       final Map<String,String> nameValuePairs)
-          throws LogException
+          throws AuditLogException
   {
     final byte[] uncommentedHeaderBytes =
          StaticUtils.getBytes(uncommentedHeaderLine);
@@ -355,11 +357,10 @@ public abstract class AuditLogMessage
 
     final ByteArrayInputStream inputStream =
          new ByteArrayInputStream(uncommentedHeaderBytes);
-    final Date timestamp =
-         readTimestamp(commentedHeaderLine, inputStream, buffer);
+    final Date timestamp = readTimestamp(logMessageLines, inputStream, buffer);
     while (true)
     {
-      if (! readNameValuePair(commentedHeaderLine, inputStream, nameValuePairs,
+      if (! readNameValuePair(logMessageLines, inputStream, nameValuePairs,
                  buffer))
       {
         break;
@@ -375,23 +376,23 @@ public abstract class AuditLogMessage
    * Reads the timestamp from the provided input stream and parses it using one
    * of the expected formats.
    *
-   * @param  headerLine    The commented representation of the full header line.
-   *                       It must not be {@code null}.
-   * @param  inputStream  The input stream from which to read the timestamp.  It
-   *                      must not be {@code null}.
-   * @param  buffer       A buffer that may be used to hold temporary data for
-   *                      reading.  It must not be {@code null} and it must be
-   *                      empty.
+   * @param  logMessageLines  The lines that comprise the log message.  It must
+   *                          not be {@code null} or empty.
+   * @param  inputStream      The input stream from which to read the timestamp.
+   *                          It must not be {@code null}.
+   * @param  buffer           A buffer that may be used to hold temporary data
+   *                          for reading.  It must not be {@code null} and it
+   *                          must be empty.
    *
    * @return  The parsed timestamp.
    *
-   * @throws  LogException  If the provided timestamp string cannot be parsed as
-   *                        a timestamp.
+   * @throws  AuditLogException  If the provided string cannot be parsed as a
+   *                             timestamp.
    */
-  private static Date readTimestamp(final String headerLine,
+  private static Date readTimestamp(final List<String> logMessageLines,
                                     final ByteArrayInputStream inputStream,
                                     final ByteStringBuffer buffer)
-          throws LogException
+          throws AuditLogException
   {
     while (true)
     {
@@ -428,7 +429,7 @@ public abstract class AuditLogMessage
     }
     else
     {
-      throw new LogException(headerLine,
+      throw new AuditLogException(logMessageLines,
            ERR_AUDIT_LOG_MESSAGE_HEADER_MALFORMED_TIMESTAMP.get());
     }
 
@@ -439,7 +440,7 @@ public abstract class AuditLogMessage
     catch (final ParseException e)
     {
       Debug.debugException(e);
-      throw new LogException(headerLine,
+      throw new AuditLogException(logMessageLines,
            ERR_AUDIT_LOG_MESSAGE_HEADER_MALFORMED_TIMESTAMP.get(), e);
     }
   }
@@ -449,27 +450,28 @@ public abstract class AuditLogMessage
   /**
    * Reads a name-value pair from the provided buffer.
    *
-   * @param  headerLine    The commented representation of the full header line.
-   *                       It must not be {@code null}.
-   * @param  inputStream     The input stream from which to read the name-value
-   *                         pair.  It must not be {@code null}.
-   * @param  nameValuePairs  A map to which the name-value pair should be added.
-   * @param  buffer          A buffer that may be used to hold temporary data
-   *                         for reading.  It must not be {@code null}, but may
-   *                         not be empty and should be cleared before use.
+   * @param  logMessageLines  The lines that comprise the log message.  It must
+   *                          not be {@code null} or empty.
+   * @param  inputStream      The input stream from which to read the name-value
+   *                          pair.  It must not be {@code null}.
+   * @param  nameValuePairs   A map to which the name-value pair should be
+   *                          added.
+   * @param  buffer           A buffer that may be used to hold temporary data
+   *                          for reading.  It must not be {@code null}, but may
+   *                          not be empty and should be cleared before use.
    *
    * @return  {@code true} if a name-value pair was read, or {@code false} if
    *          the end of the input stream was read without reading any more
    *          data.
    *
-   * @throws  LogException  If a problem is encountered while trying to read the
-   *                        name-value pair.
+   * @throws  AuditLogException  If a problem is encountered while trying to
+   *                             read the name-value pair.
    */
-  private static boolean readNameValuePair(final String headerLine,
+  private static boolean readNameValuePair(final List<String> logMessageLines,
                               final ByteArrayInputStream inputStream,
                               final Map<String,String> nameValuePairs,
                               final ByteStringBuffer buffer)
-          throws LogException
+          throws AuditLogException
   {
     // Read the property name.  It will be followed by an equal sign to separate
     // the name from the value.
@@ -487,7 +489,7 @@ public abstract class AuditLogMessage
         }
         else
         {
-          throw new LogException(headerLine,
+          throw new AuditLogException(logMessageLines,
                ERR_AUDIT_LOG_MESSAGE_HEADER_ENDS_WITH_PROPERTY_NAME.get(
                     buffer.toString()));
         }
@@ -505,7 +507,7 @@ public abstract class AuditLogMessage
     final String name = buffer.toString();
     if (name.isEmpty())
     {
-      throw new LogException(headerLine,
+      throw new AuditLogException(logMessageLines,
            ERR_AUDIT_LOG_MESSAGE_HEADER_EMPTY_PROPERTY_NAME.get());
     }
 
@@ -536,13 +538,14 @@ public abstract class AuditLogMessage
       {
         inputStream.reset();
         final JSONObject jsonObject =
-             readJSONObject(headerLine, name, inputStream);
+             readJSONObject(logMessageLines, name, inputStream);
         valueString = jsonObject.toString();
         break;
       }
       else if (intRead == '"')
       {
-        valueString = readString(headerLine, name, true, inputStream, buffer);
+        valueString =
+             readString(logMessageLines, name, true, inputStream, buffer);
         break;
       }
       else if (intRead == ';')
@@ -553,7 +556,8 @@ public abstract class AuditLogMessage
       else
       {
         inputStream.reset();
-        valueString = readString(headerLine, name, false, inputStream, buffer);
+        valueString =
+             readString(logMessageLines, name, false, inputStream, buffer);
         break;
       }
     }
@@ -567,22 +571,22 @@ public abstract class AuditLogMessage
   /**
    * Reads a JSON object from the provided input stream.
    *
-   * @param  headerLine    The commented representation of the full header line.
-   *                       It must not be {@code null}.
-   * @param  propertyName  The name of the property whose value is expected to
-   *                       be a JSON object.  It must not be {@code null}.
-   * @param  inputStream   The input stream from which to read the JSON object.
-   *                       It must not be {@code null}.
+   * @param  logMessageLines  The lines that comprise the log message.  It must
+   *                          not be {@code null} or empty.
+   * @param  propertyName     The name of the property whose value is expected
+   *                          to be a JSON object.  It must not be {@code null}.
+   * @param  inputStream      The input stream from which to read the JSON
+   *                          object.  It must not be {@code null}.
    *
    * @return  The JSON object that was read.
    *
-   * @throws  LogException  If a problem is encountered while trying to read the
-   *                        JSON object.
+   * @throws  AuditLogException  If a problem is encountered while trying to
+   *                             read the JSON object.
    */
-  private static JSONObject readJSONObject(final String headerLine,
+  private static JSONObject readJSONObject(final List<String> logMessageLines,
                                  final String propertyName,
                                  final ByteArrayInputStream inputStream)
-          throws LogException
+          throws AuditLogException
   {
     final JSONObject jsonObject;
     try
@@ -593,13 +597,13 @@ public abstract class AuditLogMessage
     catch (final Exception e)
     {
       Debug.debugException(e);
-      throw new LogException(headerLine,
+      throw new AuditLogException(logMessageLines,
            ERR_AUDIT_LOG_MESSAGE_ERROR_READING_JSON_OBJECT.get(propertyName,
                 StaticUtils.getExceptionMessage(e)),
            e);
     }
 
-    readSpacesAndSemicolon(headerLine, propertyName, inputStream);
+    readSpacesAndSemicolon(logMessageLines, propertyName, inputStream);
     return jsonObject;
   }
 
@@ -616,30 +620,31 @@ public abstract class AuditLogMessage
    * the quoted string).  Any octothorpe (#) character must be followed by two
    * hexadecimal digits that signify a single raw byte to add to the value.
    *
-   * @param  headerLine    The commented representation of the full header line.
-   *                       It must not be {@code null}.
-   * @param  propertyName  The name of the property with which the string value
-   *                       is associated.  It must not be {@code null}.
-   * @param  isQuoted      Indicates whether to read a quoted string or an
-   *                       unquoted string.  In the case of a a quoted string,
-   *                       the opening quote must have already been read.
-   * @param  inputStream   The input stream from which to read the string value.
-   *                       It must not be {@code null}.
-   * @param  buffer        A buffer that may be used while reading the string.
-   *                       It must not be {@code null}, but may not be empty and
-   *                       should be cleared before use.
+   * @param  logMessageLines  The lines that comprise the log message.  It must
+   *                          not be {@code null} or empty.
+   * @param  propertyName     The name of the property with which the string
+   *                          value is associated.  It must not be {@code null}.
+   * @param  isQuoted         Indicates whether to read a quoted string or an
+   *                          unquoted string.  In the case of a a quoted
+   *                          string, the opening quote must have already been
+   *                          read.
+   * @param  inputStream      The input stream from which to read the string
+   *                          value.  It must not be {@code null}.
+   * @param  buffer           A buffer that may be used while reading the
+   *                          string.  It must not be {@code null}, but may not
+   *                          be empty and should be cleared before use.
    *
    * @return  The string that was read.
    *
-   * @throws  LogException  If a problem is encountered while trying to read the
-   *                        string.
+   * @throws  AuditLogException  If a problem is encountered while trying to
+   *                             read the string.
    */
-  private static String readString(final String headerLine,
+  private static String readString(final List<String> logMessageLines,
                                    final String propertyName,
                                    final boolean isQuoted,
                                    final ByteArrayInputStream inputStream,
                                    final ByteStringBuffer buffer)
-       throws LogException
+       throws AuditLogException
   {
     buffer.clear();
 
@@ -652,7 +657,7 @@ stringLoop:
       {
         if (isQuoted)
         {
-          throw new LogException(headerLine,
+          throw new AuditLogException(logMessageLines,
                ERR_AUDIT_LOG_MESSAGE_END_BEFORE_CLOSING_QUOTE.get(
                     propertyName));
         }
@@ -668,7 +673,7 @@ stringLoop:
           final int literalCharacter = inputStream.read();
           if (literalCharacter < 0)
           {
-            throw new LogException(headerLine,
+            throw new AuditLogException(logMessageLines,
                  ERR_AUDIT_LOG_MESSAGE_END_BEFORE_ESCAPED.get(propertyName));
           }
           else
@@ -678,9 +683,10 @@ stringLoop:
           break;
 
         case '#':
-          int hexByte = readHexDigit(headerLine, propertyName, inputStream);
+          int hexByte =
+               readHexDigit(logMessageLines, propertyName, inputStream);
           hexByte = (hexByte << 4) |
-               readHexDigit(headerLine, propertyName, inputStream);
+               readHexDigit(logMessageLines, propertyName, inputStream);
           buffer.append((byte) (hexByte & 0xFF));
           break;
 
@@ -718,7 +724,7 @@ stringLoop:
       }
     }
 
-    readSpacesAndSemicolon(headerLine, propertyName, inputStream);
+    readSpacesAndSemicolon(logMessageLines, propertyName, inputStream);
     return buffer.toString();
   }
 
@@ -728,28 +734,29 @@ stringLoop:
    * Reads a single hexadecimal digit from the provided input stream and returns
    * its integer value.
    *
-   * @param  headerLine    The commented representation of the full header line.
-   *                       It must not be {@code null}.
-   * @param  propertyName  The name of the property with which the string value
-   *                       is associated.  It must not be {@code null}.
-   * @param  inputStream   The input stream from which to read the string value.
-   *                       It must not be {@code null}.
+   * @param  logMessageLines  The lines that comprise the log message.  It must
+   *                          not be {@code null} or empty.
+   * @param  propertyName     The name of the property with which the string
+   *                          value is associated.  It must not be {@code null}.
+   * @param  inputStream      The input stream from which to read the string
+   *                          value.  It must not be {@code null}.
    *
    * @return  The integer value of the hexadecimal digit that was read.
    *
-   * @throws  LogException  If the end of the input stream was reached before
-   *                        the byte could be read, or if the byte that was
-   *                        read did not represent a hexadecimal digit.
+   * @throws  AuditLogException  If the end of the input stream was reached
+   *                             before the byte could be read, or if the byte
+   *                             that was read did not represent a hexadecimal
+   *                             digit.
    */
-  private static int readHexDigit(final String headerLine,
-                                   final String propertyName,
-                                   final ByteArrayInputStream inputStream)
-          throws LogException
+  private static int readHexDigit(final List<String> logMessageLines,
+                                  final String propertyName,
+                                  final ByteArrayInputStream inputStream)
+          throws AuditLogException
   {
     final int byteRead = inputStream.read();
     if (byteRead < 0)
     {
-      throw new LogException(headerLine,
+      throw new AuditLogException(logMessageLines,
            ERR_AUDIT_LOG_MESSAGE_END_BEFORE_HEX.get(propertyName));
     }
 
@@ -794,7 +801,7 @@ stringLoop:
       case 'F':
         return 15;
       default:
-        throw new LogException(headerLine,
+        throw new AuditLogException(logMessageLines,
              ERR_AUDIT_LOG_MESSAGE_INVALID_HEX_DIGIT.get(propertyName));
     }
   }
@@ -805,20 +812,20 @@ stringLoop:
    * Reads zero or more spaces and the following semicolon from the provided
    * input stream.  It is also acceptable to encounter the end of the stream.
    *
-   * @param  headerLine    The commented representation of the full header line.
-   *                       It must not be {@code null}.
-   * @param  propertyName  The name of the property that was just read.  It must
-   *                       not be {@code null}.
-   * @param  inputStream   The input stream from which to read the spaces and
-   *                       semicolon.  It must not be {@code null}.
+   * @param  logMessageLines  The lines that comprise the log message.  It must
+   *                          not be {@code null} or empty.
+   * @param  propertyName     The name of the property that was just read.  It
+   *                          must not be {@code null}.
+   * @param  inputStream      The input stream from which to read the spaces and
+   *                          semicolon.  It must not be {@code null}.
    *
-   * @throws  LogException  If any byte is encountered that is not a space or a
-   *                        semicolon.
+   * @throws  AuditLogException  If any byte is encountered that is not a space
+   *                             or a semicolon.
    */
-  private static void readSpacesAndSemicolon(final String headerLine,
+  private static void readSpacesAndSemicolon(final List<String> logMessageLines,
                            final String propertyName,
                            final ByteArrayInputStream inputStream)
-          throws LogException
+          throws AuditLogException
   {
     while (true)
     {
@@ -829,7 +836,7 @@ stringLoop:
       }
       else if (intRead != ' ')
       {
-        throw new LogException(headerLine,
+        throw new AuditLogException(logMessageLines,
              ERR_AUDIT_LOG_MESSAGE_UNEXPECTED_CHAR_AFTER_PROPERTY.get(
                   String.valueOf((char) intRead), propertyName));
       }
@@ -1510,10 +1517,10 @@ stringLoop:
    * @return  A list of the change records that can be used to revert the
    *          changes described by this audit log message.
    *
-   * @throws  LogException  If this audit log message cannot be reverted.
+   * @throws  AuditLogException  If this audit log message cannot be reverted.
    */
   public abstract List<LDIFChangeRecord> getRevertChangeRecords()
-         throws LogException;
+         throws AuditLogException;
 
 
 

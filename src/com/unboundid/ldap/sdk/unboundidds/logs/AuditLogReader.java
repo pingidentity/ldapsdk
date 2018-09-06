@@ -26,7 +26,9 @@ import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +128,19 @@ public final class AuditLogReader
 
 
   /**
+   * Creates a new audit log reader that will read messages from the provided
+   * input stream.
+   *
+   * @param  inputStream  The input stream from which to read log messages.
+   */
+  public AuditLogReader(final InputStream inputStream)
+  {
+    reader = new BufferedReader(new InputStreamReader(inputStream));
+  }
+
+
+
+  /**
    * Reads the next audit log message from the log file.
    *
    * @return  The audit log message read from the log file, or {@code null} if
@@ -134,11 +149,11 @@ public final class AuditLogReader
    * @throws  IOException  If an error occurs while trying to read from the
    *                       file.
    *
-   * @throws  LogException  If an error occurs while trying to parse the log
-   *                        message.
+   * @throws  AuditLogException  If an error occurs while trying to parse the
+   *                             log message.
    */
   public AuditLogMessage read()
-         throws IOException, LogException
+         throws IOException, AuditLogException
   {
     // Read a list of lines until we find the end of the file or a blank line
     // after a series of non-blank lines.
@@ -211,7 +226,7 @@ public final class AuditLogReader
 
       final String concatenatedLogLines = StaticUtils.concatenateStrings(
            "[ ", "\"", ", ", "\"", " ]", fullMessageLines);
-      throw new LogException(concatenatedLogLines,
+      throw new AuditLogException(fullMessageLines,
            ERR_AUDIT_LOG_READER_CANNOT_PARSE_CHANGE_RECORD.get(
                 concatenatedLogLines, StaticUtils.getExceptionMessage(e)),
            e);
@@ -245,7 +260,7 @@ public final class AuditLogReader
       // This should never happen.
       final String concatenatedLogLines = StaticUtils.concatenateStrings(
            "[ ", "\"", ", ", "\"", " ]", fullMessageLines);
-      throw new LogException(concatenatedLogLines,
+      throw new AuditLogException(fullMessageLines,
            ERR_AUDIT_LOG_READER_UNSUPPORTED_CHANGE_RECORD.get(
                 concatenatedLogLines, changeRecord.getChangeType().getName()));
     }

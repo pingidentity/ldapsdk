@@ -582,7 +582,7 @@ public final class AddAuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testNotAddChangeRecord()
          throws Exception
   {
@@ -601,7 +601,7 @@ public final class AddAuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testNotValidChangeRecord()
          throws Exception
   {

@@ -63,7 +63,7 @@ public final class AddAuditLogMessage
   /**
    * Retrieves the serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -8771742187370055650L;
+  private static final long serialVersionUID = -4103749134439291911L;
 
 
 
@@ -91,11 +91,11 @@ public final class AddAuditLogMessage
    *                          lines (but possibly after other comment lines)
    *                          that serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   public AddAuditLogMessage(final String... logMessageLines)
-         throws LogException
+         throws AuditLogException
   {
     this(StaticUtils.toList(logMessageLines), logMessageLines);
   }
@@ -113,11 +113,11 @@ public final class AddAuditLogMessage
    *                          lines (but possibly after other comment lines)
    *                          that serves as the message header.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   public AddAuditLogMessage(final List<String> logMessageLines)
-         throws LogException
+         throws AuditLogException
   {
     this(logMessageLines, StaticUtils.toArray(logMessageLines, String.class));
   }
@@ -132,12 +132,12 @@ public final class AddAuditLogMessage
    * @param  logMessageLineArray  The lines that comprise the log message as an
    *                              array.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   private AddAuditLogMessage(final List<String> logMessageLineList,
                              final String[] logMessageLineArray)
-          throws LogException
+          throws AuditLogException
   {
     super(logMessageLineList);
 
@@ -147,7 +147,7 @@ public final class AddAuditLogMessage
            LDIFReader.decodeChangeRecord(logMessageLineArray);
       if (!(changeRecord instanceof LDIFAddChangeRecord))
       {
-        throw new LogException(getCommentedHeaderLine(),
+        throw new AuditLogException(logMessageLineList,
              ERR_ADD_AUDIT_LOG_MESSAGE_CHANGE_TYPE_NOT_ADD.get(
                   changeRecord.getChangeType().getName(),
                   ChangeType.ADD.getName()));
@@ -158,7 +158,7 @@ public final class AddAuditLogMessage
     catch (final LDIFException e)
     {
       Debug.debugException(e);
-      throw new LogException(getCommentedHeaderLine(),
+      throw new AuditLogException(logMessageLineList,
            ERR_ADD_AUDIT_LOG_MESSAGE_LINES_NOT_CHANGE_RECORD.get(
                 StaticUtils.getExceptionMessage(e)),
            e);
@@ -184,12 +184,12 @@ public final class AddAuditLogMessage
    * @param  addChangeRecord  The LDIF add change record that is described by
    *                          the provided log message lines.
    *
-   * @throws  LogException  If a problem is encountered while processing the
-   *                        provided list of log message lines.
+   * @throws  AuditLogException  If a problem is encountered while processing
+   *                             the provided list of log message lines.
    */
   AddAuditLogMessage(final List<String> logMessageLines,
                      final LDIFAddChangeRecord addChangeRecord)
-       throws LogException
+       throws AuditLogException
   {
     super(logMessageLines);
 
@@ -292,7 +292,6 @@ public final class AddAuditLogMessage
    */
   @Override()
   public List<LDIFChangeRecord> getRevertChangeRecords()
-         throws LogException
   {
     if ((isUndelete != null) && isUndelete)
     {

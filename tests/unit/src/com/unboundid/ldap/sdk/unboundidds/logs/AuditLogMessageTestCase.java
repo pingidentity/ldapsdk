@@ -368,7 +368,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageFromNullLines()
          throws Exception
   {
@@ -384,7 +384,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageFromEmptyLines()
          throws Exception
   {
@@ -399,7 +399,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageFromLinesWithZeroLengthLine()
          throws Exception
   {
@@ -421,7 +421,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageFromLinesWithoutComments()
          throws Exception
   {
@@ -441,7 +441,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageFromLinesWithCommentsButWithoutHeader()
          throws Exception
   {
@@ -464,7 +464,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageFromLinesWithBadHeaderInvalidTimestampLength()
          throws Exception
   {
@@ -486,7 +486,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageFromLinesWithBadHeaderNonParseableTimestamp()
          throws Exception
   {
@@ -508,7 +508,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderHasPropertyNameWithoutEqual()
          throws Exception
   {
@@ -530,7 +530,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderHasPropertyWithEmptyName()
          throws Exception
   {
@@ -552,7 +552,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderHasPropertyWithUnclosedQuotedValue()
          throws Exception
   {
@@ -574,7 +574,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderHasPropertyWithMalformedJSONValue()
          throws Exception
   {
@@ -597,7 +597,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderHasUnquotedValueWithTrailingBackslash()
          throws Exception
   {
@@ -620,7 +620,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderHasQuotedValueWithTrailingBackslash()
          throws Exception
   {
@@ -643,7 +643,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderValueWithTrailingOctothorpe()
          throws Exception
   {
@@ -666,7 +666,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderValueWithOctothorpeFollowedByOneHexDigit()
          throws Exception
   {
@@ -689,7 +689,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderValueWithOctothorpeFollowedByNonHex()
          throws Exception
   {
@@ -711,7 +711,7 @@ public final class AuditLogMessageTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test(expectedExceptions = { LogException.class })
+  @Test(expectedExceptions = { AuditLogException.class })
   public void testLogMessageHeaderUnquotedValueWithUnescapedSpace()
          throws Exception
   {
