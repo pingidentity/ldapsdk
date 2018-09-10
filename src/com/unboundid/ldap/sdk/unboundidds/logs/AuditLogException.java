@@ -69,7 +69,7 @@ public final class AuditLogException
    * Creates a new audit log exception with the provided information.
    *
    * @param  logMessageLines  A list of the lines that comprise the audit log
-   *                          message.  It may be {@code null} but must not be
+   *                          message.  It must not be {@code null} but may be
    *                          empty.
    * @param  explanation      A message explaining the problem that occurred.
    *                          It must not be {@code null}.
@@ -86,7 +86,7 @@ public final class AuditLogException
    * Creates a new audit log exception with the provided information.
    *
    * @param  logMessageLines  A list of the lines that comprise the audit log
-   *                          message.  It may be {@code null} but must not be
+   *                          message.  It must not be {@code null} but may be
    *                          empty.
    * @param  explanation      A message explaining the problem that occurred.
    *                          It must not be {@code null}.
