@@ -747,7 +747,7 @@ public final class RoundRobinDNSServerSet
          resolvedAddressesWithTimeout.get();
     if (pair != null)
     {
-      if (pair.getSecond() <= System.currentTimeMillis())
+      if (pair.getSecond() >= System.currentTimeMillis())
       {
         return pair.getFirst();
       }

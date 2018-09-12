@@ -22,6 +22,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an address caching bug in <tt>RoundRobinDNSServerSet</tt> in which an
+                  inverted comparison caused the cache to be used for expired addresses instead of
+                  non-expired addresses.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated a number of locations in the code that caught <tt>Throwable</tt> to
                   re-throw the original <tt>Throwable</tt> instance (after performing appropriate
                   cleanup) if that <tt>Throwable</tt> instance was an <tt>Error</tt> or perhaps a
