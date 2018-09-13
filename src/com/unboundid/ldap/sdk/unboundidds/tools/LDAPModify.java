@@ -1185,11 +1185,6 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(useTransaction, followReferrals);
     parser.addExclusiveArgumentSet(useTransaction, nameWithEntryUUID);
     parser.addExclusiveArgumentSet(useTransaction, noOperation);
-    parser.addExclusiveArgumentSet(useTransaction, operationControl);
-    parser.addExclusiveArgumentSet(useTransaction, addControl);
-    parser.addExclusiveArgumentSet(useTransaction, deleteControl);
-    parser.addExclusiveArgumentSet(useTransaction, modifyControl);
-    parser.addExclusiveArgumentSet(useTransaction, modifyDNControl);
     parser.addExclusiveArgumentSet(useTransaction, modifyEntriesMatchingFilter);
     parser.addExclusiveArgumentSet(useTransaction,
          modifyEntriesMatchingFiltersFromFile);
@@ -1207,11 +1202,6 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, followReferrals);
     parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, nameWithEntryUUID);
     parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, noOperation);
-    parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, operationControl);
-    parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, addControl);
-    parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, deleteControl);
-    parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, modifyControl);
-    parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, modifyDNControl);
     parser.addExclusiveArgumentSet(multiUpdateErrorBehavior,
          modifyEntriesMatchingFilter);
     parser.addExclusiveArgumentSet(multiUpdateErrorBehavior,

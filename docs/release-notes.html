@@ -29,6 +29,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the <tt>ldapmodify</tt> tool to remove the restriction preventing the
+                  use of arbitrary controls with an LDAP transaction or the multi-update
+                  operation.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated a number of locations in the code that caught <tt>Throwable</tt> to
                   re-throw the original <tt>Throwable</tt> instance (after performing appropriate
                   cleanup) if that <tt>Throwable</tt> instance was an <tt>Error</tt> or perhaps a
