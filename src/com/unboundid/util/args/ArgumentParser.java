@@ -3620,7 +3620,7 @@ exclusiveArgumentLoop:
       buffer.append('\'');
     }
 
-    buffer.append("namedArgs={");
+    buffer.append(", namedArgs={");
 
     final Iterator<Argument> iterator = namedArgs.iterator();
     while (iterator.hasNext())
