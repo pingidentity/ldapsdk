@@ -22,6 +22,8 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
+
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.util.Debug;
@@ -43,7 +45,15 @@ import static com.unboundid.util.args.ArgsMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class LDAPURLArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -8867023666922488786L;
+
+
+
   // Indicates whether the attributes element is required to be present in the
   // URL with at least one value.
   private final boolean requireAttributes;

@@ -22,6 +22,7 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import com.unboundid.util.Debug;
@@ -44,7 +45,15 @@ import static com.unboundid.util.args.ArgsMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class RegularExpressionArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -6676584334684453380L;
+
+
+
   /**
    * Creates a new instance of this regular expression argument value validator.
    */

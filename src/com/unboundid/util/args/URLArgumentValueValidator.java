@@ -22,6 +22,7 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +50,15 @@ import static com.unboundid.util.args.ArgsMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class URLArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -4431100566624433212L;
+
+
+
   // The set of schemes allowed to be used in URLs.
   private final Set<String> allowedSchemes;
 

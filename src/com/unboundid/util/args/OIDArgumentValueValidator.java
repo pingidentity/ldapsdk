@@ -22,6 +22,7 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.unboundid.util.NotMutable;
@@ -41,7 +42,15 @@ import static com.unboundid.util.args.ArgsMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class OIDArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = 2195078137238476902L;
+
+
+
   // Indicates whether to perform strict validation.
   private final boolean isStrict;
 

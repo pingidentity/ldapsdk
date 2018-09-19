@@ -22,13 +22,25 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
+
+
+
 /**
  * This class provides an implementation of an argument value validator that
  * will only accept a provided string value.
  */
 public final class TestArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = 1804863882674404765L;
+
+
+
   // The only string that will be acceptable to this argument value validator.
   private final String acceptableString;
 

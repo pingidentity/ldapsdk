@@ -22,6 +22,7 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +51,15 @@ import static com.unboundid.util.args.ArgsMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class RequireDNInSubtreeArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -4517307608327628921L;
+
+
+
   // The set of permitted base DNs for values of the associated argument.
   private final List<DN> baseDNs;
 

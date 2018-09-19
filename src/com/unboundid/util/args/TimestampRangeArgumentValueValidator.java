@@ -22,6 +22,7 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.unboundid.util.NotMutable;
@@ -42,7 +43,15 @@ import static com.unboundid.util.args.ArgsMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class TimestampRangeArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = 7248120077176469324L;
+
+
+
   // The most recent timestamp value that will be accepted.
   private final Date mostRecentAllowedDate;
 

@@ -22,6 +22,7 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
 import java.net.InetAddress;
 
 import com.unboundid.util.Debug;
@@ -42,7 +43,15 @@ import static com.unboundid.util.args.ArgsMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class IPAddressArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -3923873375428600467L;
+
+
+
   // Indicates whether to accept IPv4 addresses.
   private final boolean acceptIPv4Addresses;
 

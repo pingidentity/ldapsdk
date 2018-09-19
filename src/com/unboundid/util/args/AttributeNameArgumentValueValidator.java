@@ -22,6 +22,8 @@ package com.unboundid.util.args;
 
 
 
+import java.io.Serializable;
+
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.persist.PersistUtils;
 import com.unboundid.ldap.sdk.schema.Schema;
@@ -44,7 +46,15 @@ import static com.unboundid.util.args.ArgsMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class AttributeNameArgumentValueValidator
        extends ArgumentValueValidator
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = 1781129993679474323L;
+
+
+
   // Indicates whether to allow values to include attribute options.
   private final boolean allowOptions;
 
