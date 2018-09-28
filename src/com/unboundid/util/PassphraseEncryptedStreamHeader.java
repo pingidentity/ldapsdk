@@ -30,6 +30,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -322,14 +323,9 @@ public final class PassphraseEncryptedStreamHeader
     this.keyIdentifier = keyIdentifier;
     this.macAlgorithm = macAlgorithm;
 
-    final SecretKeyFactory keyFactory =
-         SecretKeyFactory.getInstance(keyFactoryAlgorithm);
-    final String cipherAlgorithm = cipherTransformation.substring(0,
-         cipherTransformation.indexOf('/'));
-    final PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, keyFactorySalt,
-         keyFactoryIterationCount, keyFactoryKeyLengthBits);
-    secretKey = new SecretKeySpec(
-         keyFactory.generateSecret(pbeKeySpec).getEncoded(), cipherAlgorithm);
+    secretKey = generateKeyReliably(keyFactoryAlgorithm, cipherTransformation,
+         passphrase, keyFactorySalt, keyFactoryIterationCount,
+         keyFactoryKeyLengthBits);
 
     final ObjectPair<byte[],byte[]> headerPair = encode(keyFactoryAlgorithm,
          keyFactoryIterationCount, this.keyFactorySalt, keyFactoryKeyLengthBits,
@@ -748,15 +744,9 @@ public final class PassphraseEncryptedStreamHeader
       }
       else
       {
-        final SecretKeyFactory keyFactory =
-             SecretKeyFactory.getInstance(keyFactoryAlgorithm);
-        final String cipherAlgorithm = cipherTransformation.substring(0,
-             cipherTransformation.indexOf('/'));
-        final PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, keyFactorySalt,
+        secretKey = generateKeyReliably(keyFactoryAlgorithm,
+             cipherTransformation, passphrase, keyFactorySalt,
              keyFactoryIterationCount, keyFactoryKeyLengthBits);
-        secretKey = new SecretKeySpec(
-             keyFactory.generateSecret(pbeKeySpec).getEncoded(),
-             cipherAlgorithm);
 
         final ByteStringBuffer macBuffer = new ByteStringBuffer();
         for (int i=0; i < headerElements.length; i++)
@@ -795,6 +785,92 @@ public final class PassphraseEncryptedStreamHeader
                 StaticUtils.getExceptionMessage(e)),
            e);
     }
+  }
+
+
+
+  /**
+   * We have seen situations where SecretKeyFactory#generateSecret returns
+   * inconsistent results for the same parameters. This can lead to data being
+   * encrypted or decrypted incorrectly. To avoid this, this method computes the
+   * key multiple times, and only returns the key once an identical key has been
+   * generated three times in a row.
+   *
+   * @param  keyFactoryAlgorithm       The key factory algorithm to use to
+   *                                   generate the encryption key from the
+   *                                   passphrase.  It must not be {@code null}.
+   * @param  cipherTransformation      The cipher transformation used for the
+   *                                   encryption key.  It must not be {@code
+   *                                   null}.
+   * @param  passphrase                The passphrase to use to generate the
+   *                                   encryption key.  It must not be
+   *                                   {@code null}.
+   * @param  keyFactorySalt            The salt to use to generate the
+   *                                   encryption key from the passphrase.
+   *                                   It must not be {@code null}.
+   * @param  keyFactoryIterationCount  The iteration count to use to generate
+   *                                   the encryption key from the passphrase.
+   * @param  keyFactoryKeyLengthBits   The length (in bits) of the encryption
+   *                                   key generated from the passphrase.
+   *
+   * @return  A SecretKey that has been consistently generated from the provided
+   *          parameters.
+   *
+   * @throws  GeneralSecurityException  If a problem is encountered while
+   *                                    generating the encryption key including
+   *                                    not being able to generate a consistent
+   *                                    key.
+   */
+  private static SecretKey generateKeyReliably(
+                      final String keyFactoryAlgorithm,
+                      final String cipherTransformation,
+                      final char[] passphrase,
+                      final byte[] keyFactorySalt,
+                      final int keyFactoryIterationCount,
+                      final int keyFactoryKeyLengthBits)
+          throws GeneralSecurityException
+  {
+    byte[] prev = null;
+    byte[] prev2 = null;
+
+    final int iterations = 10;
+    for (int i = 0; i < iterations; i++)
+    {
+      final SecretKeyFactory keyFactory =
+           SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+      final String cipherAlgorithm = cipherTransformation.substring(0,
+           cipherTransformation.indexOf('/'));
+      final PBEKeySpec pbeKeySpec = new PBEKeySpec(passphrase, keyFactorySalt,
+           keyFactoryIterationCount, keyFactoryKeyLengthBits);
+      final SecretKey secretKey = new SecretKeySpec(
+           keyFactory.generateSecret(pbeKeySpec).getEncoded(),
+           cipherAlgorithm);
+      final byte[] encoded = secretKey.getEncoded();
+
+      // If this encoded key is the same as the previous one, and the one before
+      // that, then it was likely computed correctly, so return it.
+      if (Arrays.equals(encoded, prev) && Arrays.equals(encoded, prev2))
+      {
+        if (i > 2)
+        {
+          Debug.debug(Level.WARNING, DebugType.OTHER,
+               "The secret key was generated inconsistently initially, but " +
+               "after " + i + " iterations, we were able to generate a " +
+               "consistent value.");
+        }
+        return secretKey;
+      }
+
+      prev2 = prev;
+      prev = encoded;
+    }
+
+    Debug.debug(Level.SEVERE, DebugType.OTHER,
+         "Even after " + iterations + " iterations, the secret key could not " +
+         "be reliably generated.");
+
+    throw new InvalidKeyException(
+         ERR_PW_ENCRYPTED_STREAM_HEADER_CANNOT_GENERATE_KEY.get());
   }
 
 
