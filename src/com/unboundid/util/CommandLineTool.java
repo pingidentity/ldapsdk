@@ -77,7 +77,7 @@ import static com.unboundid.util.UtilityMessages.*;
  *       {
  *         System.exit(resultCode.intValue());
  *       }
- *     |
+ *     }
  *
  *     public ExampleCommandLineTool()
  *     {
