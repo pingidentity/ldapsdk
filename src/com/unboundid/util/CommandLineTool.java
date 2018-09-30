@@ -809,11 +809,36 @@ public abstract class CommandLineTool
 
 
   /**
-   * Retrieves a human-readable description for this tool.
+   * Retrieves a human-readable description for this tool.  If the description
+   * should include multiple paragraphs, then this method should return the text
+   * for the first paragraph, and the
+   * {@link #getAdditionalDescriptionParagraphs()} method should be used to
+   * return the text for the subsequent paragraphs.
    *
    * @return  A human-readable description for this tool.
    */
   public abstract String getToolDescription();
+
+
+
+  /**
+   * Retrieves additional paragraphs that should be included in the description
+   * for this tool.  If the tool description should include multiple paragraphs,
+   * then the {@link #getToolDescription()} method should return the text of the
+   * first paragraph, and each item in the list returned by this method should
+   * be the text for each subsequent paragraph.  If the tool description should
+   * only have a single paragraph, then this method may return {@code null} or
+   * an empty list.
+   *
+   * @return  Additional paragraphs that should be included in the description
+   *          for this tool, or {@code null} or an empty list if only a single
+   *          description paragraph (whose text is returned by the
+   *          {@code getToolDescription} method) is needed.
+   */
+  public List<String> getAdditionalDescriptionParagraphs()
+  {
+    return Collections.emptyList();
+  }
 
 
 
@@ -1011,8 +1036,9 @@ public abstract class CommandLineTool
          throws ArgumentException
   {
     final ArgumentParser parser = new ArgumentParser(getToolName(),
-         getToolDescription(), getMinTrailingArguments(),
-         getMaxTrailingArguments(), getTrailingArgumentsPlaceholder());
+         getToolDescription(), getAdditionalDescriptionParagraphs(),
+         getMinTrailingArguments(), getMaxTrailingArguments(),
+         getTrailingArgumentsPlaceholder());
 
     addToolArguments(parser);
 

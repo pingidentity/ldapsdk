@@ -23,7 +23,9 @@ package com.unboundid.util;
 
 
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.args.ArgumentException;
@@ -131,6 +133,17 @@ public final class TestLDAPCommandLineTool
   public String getToolDescription()
   {
     return "Tool Description";
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public List<String> getAdditionalDescriptionParagraphs()
+  {
+    return Arrays.asList("Second Paragraph", "Third Paragraph");
   }
 
 

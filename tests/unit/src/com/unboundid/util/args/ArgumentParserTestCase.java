@@ -57,6 +57,9 @@ public class ArgumentParserTestCase
     assertNotNull(p.getCommandDescription());
     assertEquals(p.getCommandDescription(), "bar");
 
+    assertNotNull(p.getAdditionalCommandDescriptionParagraphs());
+    assertTrue(p.getAdditionalCommandDescriptionParagraphs().isEmpty());
+
     assertFalse(p.allowsTrailingArguments());
     assertFalse(p.requiresTrailingArguments());
 

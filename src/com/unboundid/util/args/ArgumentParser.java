@@ -190,6 +190,10 @@ public final class ArgumentParser
   // The full list of subcommands associated with this argument parser.
   private final List<SubCommand> subCommands;
 
+  // A list of additional paragraphs that make up the complete description for
+  // the associated command.
+  private final List<String> additionalCommandDescriptionParagraphs;
+
   // The description for the associated command.
   private final String commandDescription;
 
@@ -317,6 +321,58 @@ public final class ArgumentParser
                         final String trailingArgsPlaceholder)
          throws ArgumentException
   {
+    this(commandName, commandDescription, null, minTrailingArgs,
+         maxTrailingArgs, trailingArgsPlaceholder);
+  }
+
+
+
+  /**
+   * Creates a new instance of this argument parser with the provided
+   * information.
+   *
+   * @param  commandName
+   *              The name of the application or utility with which this
+   *              argument parser is associated.  It must not be {@code null}.
+   * @param  commandDescription
+   *              A description of the application or utility with which this
+   *              argument parser is associated.  It will be included in
+   *              generated usage information.  It must not be {@code null}.
+   * @param  additionalCommandDescriptionParagraphs
+   *              A list of additional paragraphs that should be included in the
+   *              tool description (with {@code commandDescription} providing
+   *              the text for the first paragraph).  This may be {@code null}
+   *              or empty if the tool description should only include a
+   *              single paragraph.
+   * @param  minTrailingArgs
+   *              The minimum number of trailing arguments that must be provided
+   *              for this command.  A value of zero indicates that the command
+   *              may be invoked without any trailing arguments.
+   * @param  maxTrailingArgs
+   *              The maximum number of trailing arguments that may be provided
+   *              to this command.  A value of zero indicates that no trailing
+   *              arguments will be allowed.  A value less than zero will
+   *              indicate that there is no limit on the number of trailing
+   *              arguments allowed.
+   * @param  trailingArgsPlaceholder
+   *              A placeholder string that will be included in usage output to
+   *              indicate what trailing arguments may be provided.  It must not
+   *              be {@code null} if {@code maxTrailingArgs} is anything other
+   *              than zero.
+   *
+   * @throws  ArgumentException  If either the command name or command
+   *                             description is {@code null}, or if the maximum
+   *                             number of trailing arguments is non-zero and
+   *                             the trailing arguments placeholder is
+   *                             {@code null}.
+   */
+  public ArgumentParser(final String commandName,
+              final String commandDescription,
+              final List<String> additionalCommandDescriptionParagraphs,
+              final int minTrailingArgs, final int maxTrailingArgs,
+              final String trailingArgsPlaceholder)
+         throws ArgumentException
+  {
     if (commandName == null)
     {
       throw new ArgumentException(ERR_PARSER_COMMAND_NAME_NULL.get());
@@ -336,6 +392,17 @@ public final class ArgumentParser
     this.commandName             = commandName;
     this.commandDescription      = commandDescription;
     this.trailingArgsPlaceholder = trailingArgsPlaceholder;
+
+    if (additionalCommandDescriptionParagraphs == null)
+    {
+      this.additionalCommandDescriptionParagraphs = Collections.emptyList();
+    }
+    else
+    {
+      this.additionalCommandDescriptionParagraphs =
+           Collections.unmodifiableList(
+                new ArrayList<>(additionalCommandDescriptionParagraphs));
+    }
 
     if (minTrailingArgs >= 0)
     {
@@ -395,6 +462,9 @@ public final class ArgumentParser
     minTrailingArgs         = source.minTrailingArgs;
     maxTrailingArgs         = source.maxTrailingArgs;
     trailingArgsPlaceholder = source.trailingArgsPlaceholder;
+
+    additionalCommandDescriptionParagraphs =
+         source.additionalCommandDescriptionParagraphs;
 
     propertiesFileUsed = null;
     argumentsSetFromPropertiesFile = new ArrayList<>(20);
@@ -515,7 +585,11 @@ public final class ArgumentParser
 
   /**
    * Retrieves a description of the application or utility with which this
-   * command line argument parser is associated.
+   * command line argument parser is associated.  If the description should
+   * include multiple paragraphs, then this method will return the text for the
+   * first paragraph, and the
+   * {@link #getAdditionalCommandDescriptionParagraphs()} method should return a
+   * list with the text for all subsequent paragraphs.
    *
    * @return  A description of the application or utility with which this
    *          command line argument parser is associated.
@@ -523,6 +597,29 @@ public final class ArgumentParser
   public String getCommandDescription()
   {
     return commandDescription;
+  }
+
+
+
+  /**
+   * Retrieves a list containing the the text for all subsequent paragraphs to
+   * include in the description for the application or utility with which this
+   * command line argument parser is associated.  If the description should have
+   * multiple paragraphs, then the {@link #getCommandDescription()} method will
+   * provide the text for the first paragraph and this method will provide the
+   * text for the subsequent paragraphs.  If the description should only have a
+   * single paragraph, then the text of that paragraph should be returned by the
+   * {@code getCommandDescription} method, and this method will return an empty
+   * list.
+   *
+   * @return  A list containing the text for all subsequent paragraphs to
+   *          include in the description for the application or utility with
+   *          which this command line argument parser is associated, or an empty
+   *          list if the description should only include a single paragraph.
+   */
+  public List<String> getAdditionalCommandDescriptionParagraphs()
+  {
+    return additionalCommandDescriptionParagraphs;
   }
 
 
@@ -3055,6 +3152,14 @@ exclusiveArgumentLoop:
     lines.add("");
 
 
+    for (final String additionalDescriptionParagraph :
+         additionalCommandDescriptionParagraphs)
+    {
+      lines.addAll(StaticUtils.wrapLine(additionalDescriptionParagraph,
+           maxWidth));
+      lines.add("");
+    }
+
     // If the tool supports subcommands, and if there are fewer than 10
     // subcommands, then display them inline.
     if ((! subCommands.isEmpty()) && (subCommands.size() < 10))
@@ -3612,9 +3717,20 @@ exclusiveArgumentLoop:
   {
     buffer.append("ArgumentParser(commandName='");
     buffer.append(commandName);
-    buffer.append("', commandDescription='");
+    buffer.append("', commandDescription={");
+    buffer.append('\'');
     buffer.append(commandDescription);
-    buffer.append("', minTrailingArgs=");
+    buffer.append('\'');
+
+    for (final String additionalParagraph :
+         additionalCommandDescriptionParagraphs)
+    {
+      buffer.append(", '");
+      buffer.append(additionalParagraph);
+      buffer.append('\'');
+    }
+
+    buffer.append("}, minTrailingArgs=");
     buffer.append(minTrailingArgs);
     buffer.append("', maxTrailingArgs=");
     buffer.append(maxTrailingArgs);

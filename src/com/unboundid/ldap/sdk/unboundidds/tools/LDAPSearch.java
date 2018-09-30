@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -359,6 +360,19 @@ public final class LDAPSearch
   public String getToolDescription()
   {
     return INFO_LDAPSEARCH_TOOL_DESCRIPTION.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public List<String> getAdditionalDescriptionParagraphs()
+  {
+    return Arrays.asList(
+         INFO_LDAPSEARCH_ADDITIONAL_DESCRIPTION_PARAGRAPH_1.get(),
+         INFO_LDAPSEARCH_ADDITIONAL_DESCRIPTION_PARAGRAPH_2.get());
   }
 
 
