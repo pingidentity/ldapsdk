@@ -148,18 +148,19 @@ public final class AttributeTypeDefinition
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
     final ArrayList<String> nameList = new ArrayList<>(1);
-    AttributeUsage       attrUsage   = null;
-    Boolean              collective  = null;
-    Boolean              noUserMod   = null;
-    Boolean              obsolete    = null;
-    Boolean              singleValue = null;
-    final Map<String,String[]> exts  = new LinkedHashMap<>(5);
-    String               descr       = null;
-    String               eqRule      = null;
-    String               ordRule     = null;
-    String               subRule     = null;
-    String               supType     = null;
-    String               synOID      = null;
+    AttributeUsage attrUsage = null;
+    Boolean collective = null;
+    Boolean noUserMod = null;
+    Boolean obsolete = null;
+    Boolean singleValue = null;
+    final Map<String,String[]> exts  =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
+    String descr = null;
+    String eqRule = null;
+    String ordRule = null;
+    String subRule = null;
+    String supType = null;
+    String synOID = null;
 
     while (true)
     {

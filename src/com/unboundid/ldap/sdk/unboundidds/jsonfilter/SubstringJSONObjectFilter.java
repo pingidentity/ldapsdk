@@ -751,7 +751,8 @@ public final class SubstringJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(6);
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(6));
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 

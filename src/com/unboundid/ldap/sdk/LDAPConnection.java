@@ -5111,7 +5111,7 @@ public final class LDAPConnection
   {
     if (attachments == null)
     {
-      attachments = new HashMap<>(10);
+      attachments = new HashMap<>(StaticUtils.computeMapCapacity(10));
     }
 
     if (value == null)

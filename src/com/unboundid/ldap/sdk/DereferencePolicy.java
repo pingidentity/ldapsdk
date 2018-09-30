@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -105,7 +106,7 @@ public final class DereferencePolicy
    * The set of dereference policy objects created with undefined int values.
    */
   private static final HashMap<Integer,DereferencePolicy> UNDEFINED_POLICIES =
-       new HashMap<>(10);
+       new HashMap<>(StaticUtils.computeMapCapacity(10));
 
 
 

@@ -293,7 +293,8 @@ public final class ANDJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(2);
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 

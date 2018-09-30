@@ -2625,7 +2625,8 @@ processingBlock:
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(1);
+    final LinkedHashMap<String[],String> exampleMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
 
     final String[] args =
     {

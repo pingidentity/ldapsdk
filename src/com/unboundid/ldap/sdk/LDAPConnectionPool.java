@@ -1891,7 +1891,7 @@ public final class LDAPConnectionPool
     }
 
     final HashSet<LDAPConnection> examinedConnections =
-         new HashSet<>(numConnections);
+         new HashSet<>(StaticUtils.computeMapCapacity(numConnections));
     while (true)
     {
       final LDAPConnection conn = availableConnections.poll();
@@ -2861,7 +2861,7 @@ public final class LDAPConnectionPool
     // encounter the same connection twice, then we know that we don't need to
     // do any more work.
     final HashSet<LDAPConnection> examinedConnections =
-         new HashSet<>(numConnections);
+         new HashSet<>(StaticUtils.computeMapCapacity(numConnections));
     int numExamined = 0;
     int numDefunct = 0;
     int numExpired = 0;

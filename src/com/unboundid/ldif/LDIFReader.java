@@ -3046,7 +3046,7 @@ public final class LDIFReader
           throws LDIFException
   {
     final LinkedHashMap<String,Object> attributes =
-         new LinkedHashMap<>(ldifLines.size());
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(ldifLines.size()));
     while (iterator.hasNext())
     {
       final StringBuilder line = iterator.next();
@@ -3606,8 +3606,8 @@ public final class LDIFReader
           // Check to see if the attribute options are equivalent.
           final Set<String> expectedOptions =
                Attribute.getOptions(attributeName);
-          final Set<String> lowerExpectedOptions =
-               new HashSet<>(expectedOptions.size());
+          final Set<String> lowerExpectedOptions = new HashSet<>(
+               StaticUtils.computeMapCapacity(expectedOptions.size()));
           for (final String s : expectedOptions)
           {
             lowerExpectedOptions.add(StaticUtils.toLowerCase(s));
@@ -3615,8 +3615,8 @@ public final class LDIFReader
 
           final Set<String> alternateOptions =
                Attribute.getOptions(alternateName);
-          final Set<String> lowerAlternateOptions =
-               new HashSet<>(alternateOptions.size());
+          final Set<String> lowerAlternateOptions = new HashSet<>(
+               StaticUtils.computeMapCapacity(alternateOptions.size()));
           for (final String s : alternateOptions)
           {
             lowerAlternateOptions.add(StaticUtils.toLowerCase(s));

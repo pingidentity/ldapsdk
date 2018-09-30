@@ -913,7 +913,8 @@ public final class LDAPConnectionOptions
     Long allOpsTimeout = null;
     final EnumMap<OperationType,Long> timeoutsByOpType =
          new EnumMap<>(OperationType.class);
-    final HashMap<String,Long> timeoutsByExtOpType = new HashMap<>(10);
+    final HashMap<String,Long> timeoutsByExtOpType =
+         new HashMap<>(StaticUtils.computeMapCapacity(10));
 
     final String allOpsPropertyValue =
          System.getProperty(PROPERTY_DEFAULT_RESPONSE_TIMEOUT_MILLIS);

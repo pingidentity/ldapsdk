@@ -118,7 +118,7 @@ public final class InMemoryOperationInterceptorRequestHandler
     interceptors.toArray(this.interceptors);
 
     connection       = null;
-    activeOperations = new HashMap<>(5);
+    activeOperations = new HashMap<>(StaticUtils.computeMapCapacity(5));
   }
 
 
@@ -146,7 +146,7 @@ public final class InMemoryOperationInterceptorRequestHandler
     this.wrappedHandler = wrappedHandler;
     this.connection     = connection;
 
-    activeOperations = new HashMap<>(5);
+    activeOperations = new HashMap<>(StaticUtils.computeMapCapacity(5));
   }
 
 

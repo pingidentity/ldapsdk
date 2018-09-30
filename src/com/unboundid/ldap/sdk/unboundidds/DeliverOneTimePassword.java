@@ -581,7 +581,8 @@ public final class DeliverOneTimePassword
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(2);
+    final LinkedHashMap<String[],String> exampleMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     String[] args =
     {

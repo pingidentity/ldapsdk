@@ -95,8 +95,8 @@ public final class DraftChuLDAPLogSchema00DeleteEntry
       return;
     }
 
-    final LinkedHashMap<String,List<Attribute>> attrMap =
-         new LinkedHashMap<>(deletedAttrBytes.length);
+    final LinkedHashMap<String,List<Attribute>> attrMap = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(deletedAttrBytes.length));
     for (final byte[] attrBytes : deletedAttrBytes)
     {
       int colonPos = -1;

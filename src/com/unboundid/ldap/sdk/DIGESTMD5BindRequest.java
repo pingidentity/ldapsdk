@@ -435,7 +435,8 @@ public final class DIGESTMD5BindRequest
     unhandledCallbackMessages.clear();
 
 
-    final HashMap<String,Object> saslProperties = new HashMap<>(20);
+    final HashMap<String,Object> saslProperties =
+         new HashMap<>(StaticUtils.computeMapCapacity(20));
     saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
     saslProperties.put(Sasl.SERVER_AUTH, "false");
 

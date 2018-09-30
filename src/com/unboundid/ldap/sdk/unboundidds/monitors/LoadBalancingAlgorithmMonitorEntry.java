@@ -31,6 +31,7 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -431,7 +432,8 @@ public final class LoadBalancingAlgorithmMonitorEntry
   @Override()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
-    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(9);
+    final LinkedHashMap<String,MonitorAttribute> attrs =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(9));
 
     if (algorithmName != null)
     {

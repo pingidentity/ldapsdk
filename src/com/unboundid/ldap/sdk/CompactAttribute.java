@@ -52,7 +52,8 @@ final class CompactAttribute
    * A set of cached attribute names to conserve space.
    */
   private static final ConcurrentHashMap<String,String> cachedNames =
-       new ConcurrentHashMap<>(MAX_CACHED_NAMES);
+       new ConcurrentHashMap<>(
+            StaticUtils.computeMapCapacity(MAX_CACHED_NAMES));
 
 
 

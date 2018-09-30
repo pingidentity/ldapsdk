@@ -507,11 +507,11 @@ public final class JEEnvironmentMonitorEntry
          getLong(ATTR_TOTAL_CHECKPOINT_DURATION_MILLIS);
 
     final LinkedHashMap<String,String> tmpEnvStats =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
     final LinkedHashMap<String,String> tmpLockStats =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
     final LinkedHashMap<String,String> tmpTxnStats =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
     for (final Attribute a : entry.getAttributes())
     {
       final String name = StaticUtils.toLowerCase(a.getName());
@@ -1046,7 +1046,7 @@ public final class JEEnvironmentMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
 
     if (backendID != null)
     {

@@ -281,7 +281,8 @@ public abstract class AuditLogMessage
     commentedHeaderLine = headerLine;
     uncommentedHeaderLine = commentedHeaderLine.substring(2);
 
-    final LinkedHashMap<String,String> nameValuePairs = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,String> nameValuePairs =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     timestamp = parseHeaderLine(logMessageLines, uncommentedHeaderLine,
          nameValuePairs);
     namedValues = Collections.unmodifiableMap(nameValuePairs);

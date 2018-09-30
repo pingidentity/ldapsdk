@@ -412,7 +412,7 @@ public final class Base64Tool
          encodeDataFileArgument);
 
     final LinkedHashMap<String[],String> encodeExamples =
-         new LinkedHashMap<>(3);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(3));
     encodeExamples.put(
          new String[]
          {
@@ -497,7 +497,7 @@ public final class Base64Tool
          decodeDataFileArgument);
 
     final LinkedHashMap<String[],String> decodeExamples =
-         new LinkedHashMap<>(3);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(3));
     decodeExamples.put(
          new String[]
          {
@@ -866,7 +866,8 @@ stripEOLLoop:
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     examples.put(
          new String[]

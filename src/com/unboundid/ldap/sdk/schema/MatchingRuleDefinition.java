@@ -123,10 +123,11 @@ public final class MatchingRuleDefinition
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
     final ArrayList<String> nameList = new ArrayList<>(1);
-    String               descr       = null;
-    Boolean              obsolete    = null;
-    String               synOID      = null;
-    final Map<String,String[]> exts  = new LinkedHashMap<>(5);
+    String descr = null;
+    Boolean obsolete = null;
+    String synOID = null;
+    final Map<String,String[]> exts =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
 
     while (true)
     {

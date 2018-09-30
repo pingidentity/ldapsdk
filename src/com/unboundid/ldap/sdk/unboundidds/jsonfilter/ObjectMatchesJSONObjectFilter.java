@@ -379,7 +379,7 @@ public final class ObjectMatchesJSONObjectFilter
   public JSONObject toJSONObject()
   {
     final LinkedHashMap<String,JSONValue> fields =
-         new LinkedHashMap<>(3);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(3));
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 

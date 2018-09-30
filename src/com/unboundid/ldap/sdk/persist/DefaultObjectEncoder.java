@@ -384,11 +384,11 @@ public final class DefaultObjectEncoder
   {
     if (t.equals(Set.class) || t.equals(LinkedHashSet.class))
     {
-      return new LinkedHashSet(size);
+      return new LinkedHashSet(StaticUtils.computeMapCapacity(size));
     }
     else if (t.equals(HashSet.class))
     {
-      return new HashSet(size);
+      return new HashSet(StaticUtils.computeMapCapacity(size));
     }
     else if (t.equals(TreeSet.class))
     {

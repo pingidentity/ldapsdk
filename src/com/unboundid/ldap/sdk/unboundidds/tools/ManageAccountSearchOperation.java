@@ -132,7 +132,7 @@ final class ManageAccountSearchOperation
          SearchRequest.NO_ATTRIBUTES);
     searchRequest.setResponseTimeoutMillis(3_600_000L);
 
-    dnsProcessed = new ConcurrentHashMap<>(10);
+    dnsProcessed = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
     entryCounter = new AtomicInteger(0);
     referenceCounter = new AtomicInteger(0);
   }

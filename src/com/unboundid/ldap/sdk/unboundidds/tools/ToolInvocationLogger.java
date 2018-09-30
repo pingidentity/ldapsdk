@@ -238,7 +238,7 @@ public final class ToolInvocationLogger
 
 
     // See if there is a tool-specific property that specifies a log file path.
-    final Set<File> logFiles = new HashSet<>(2);
+    final Set<File> logFiles = new HashSet<>(StaticUtils.computeMapCapacity(2));
     final String toolSpecificLogFilePathPropertyName =
          commandName + ".log-file-path";
     final File toolSpecificLogFile = getLogFileProperty(

@@ -952,7 +952,8 @@ public final class Attribute
     int semicolonPos = name.indexOf(';');
     if (semicolonPos > 0)
     {
-      final LinkedHashSet<String> options = new LinkedHashSet<>(5);
+      final LinkedHashSet<String> options =
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(5));
       while (true)
       {
         final int nextSemicolonPos = name.indexOf(';', semicolonPos+1);
@@ -1732,8 +1733,7 @@ public final class Attribute
       // First, create a hash set containing the un-normalized values of the
       // first attribute.
       final HashSet<ASN1OctetString> unNormalizedValues =
-           new HashSet<>(values.length);
-      Collections.addAll(unNormalizedValues, values);
+           StaticUtils.hashSetOf(values);
 
       // Next, iterate through the values of the second attribute.  For any
       // values that exist in the un-normalized set, remove them from that
@@ -1746,7 +1746,8 @@ public final class Attribute
         {
           if (normalizedMissingValues == null)
           {
-            normalizedMissingValues = new HashSet<>(values.length);
+            normalizedMissingValues =
+                 new HashSet<>(StaticUtils.computeMapCapacity(values.length));
           }
 
           try

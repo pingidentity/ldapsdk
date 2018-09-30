@@ -346,7 +346,8 @@ public final class UnboundIDExternallyProcessedAuthenticationBindRequest
     String mechanism = null;
     String authID = null;
 
-    final LinkedHashMap<String,String> logProperties = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,String> logProperties =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
 
     try
     {

@@ -222,7 +222,7 @@ public final class LDAPThreadLocalConnectionPool
                                     connection.getConnectionOptions(), null,
                                     postConnectProcessor);
 
-    connections = new ConcurrentHashMap<>(20);
+    connections = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
     connections.put(Thread.currentThread(), connection);
 
     lastExpiredDisconnectTime = 0L;
@@ -353,7 +353,7 @@ public final class LDAPThreadLocalConnectionPool
     retryOperationTypes       = new AtomicReference<>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
 
-    connections = new ConcurrentHashMap<>(20);
+    connections = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
 
     lastExpiredDisconnectTime = 0L;
     maxConnectionAge          = 0L;

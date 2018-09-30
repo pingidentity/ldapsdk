@@ -127,7 +127,8 @@ public final class ExtendedKeyUsageExtension
     {
       final ASN1Element[] elements =
            ASN1Sequence.decodeAsSequence(extension.getValue()).elements();
-      final LinkedHashSet<OID> ids = new LinkedHashSet<>(elements.length);
+      final LinkedHashSet<OID> ids =
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(elements.length));
       for (final ASN1Element e : elements)
       {
         ids.add(e.decodeAsObjectIdentifier().getOID());

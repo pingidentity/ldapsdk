@@ -461,8 +461,8 @@ public final class RouteToBackendSetRequestControl
       {
         final ASN1Element[] arElements =
              ASN1Set.decodeAsSet(elements[1]).elements();
-        final LinkedHashSet<String> arSet =
-             new LinkedHashSet<>(arElements.length);
+        final LinkedHashSet<String> arSet = new LinkedHashSet<>(
+             StaticUtils.computeMapCapacity(arElements.length));
         for (final ASN1Element e : arElements)
         {
           arSet.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -484,8 +484,8 @@ public final class RouteToBackendSetRequestControl
 
         final ASN1Element[] firstGuessElements =
              ASN1Set.decodeAsSet(hintElements[0]).elements();
-        final LinkedHashSet<String> firstGuessSet =
-             new LinkedHashSet<>(firstGuessElements.length);
+        final LinkedHashSet<String> firstGuessSet = new LinkedHashSet<>(
+             StaticUtils.computeMapCapacity(firstGuessElements.length));
         for (final ASN1Element e : firstGuessElements)
         {
           firstGuessSet.add(
@@ -507,8 +507,8 @@ public final class RouteToBackendSetRequestControl
         {
           final ASN1Element[] fallbackElements =
                ASN1Set.decodeAsSet(hintElements[1]).elements();
-          final LinkedHashSet<String> fallbackSet =
-               new LinkedHashSet<>(fallbackElements.length);
+          final LinkedHashSet<String> fallbackSet = new LinkedHashSet<>(
+               StaticUtils.computeMapCapacity(fallbackElements.length));
           for (final ASN1Element e : fallbackElements)
           {
             fallbackSet.add(

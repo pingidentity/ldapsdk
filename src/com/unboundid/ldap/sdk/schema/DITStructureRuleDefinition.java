@@ -147,12 +147,13 @@ public final class DITStructureRuleDefinition
     // Technically, DIT structure elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<Integer>   supList  = new ArrayList<>(1);
-    final ArrayList<String>    nameList = new ArrayList<>(1);
-    final Map<String,String[]> exts     = new LinkedHashMap<>(5);
-    Boolean                    obsolete = null;
-    String                     descr    = null;
-    String                     nfID     = null;
+    final ArrayList<Integer> supList = new ArrayList<>(1);
+    final ArrayList<String> nameList = new ArrayList<>(1);
+    final Map<String,String[]> exts =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
+    Boolean obsolete = null;
+    String descr = null;
+    String nfID = null;
 
     while (true)
     {
@@ -715,8 +716,10 @@ public final class DITStructureRuleDefinition
         return false;
       }
 
-      final HashSet<Integer> s1 = new HashSet<>(superiorRuleIDs.length);
-      final HashSet<Integer> s2 = new HashSet<>(superiorRuleIDs.length);
+      final HashSet<Integer> s1 = new HashSet<>(
+           StaticUtils.computeMapCapacity(superiorRuleIDs.length));
+      final HashSet<Integer> s2 = new HashSet<>(
+           StaticUtils.computeMapCapacity(superiorRuleIDs.length));
       for (final int i : superiorRuleIDs)
       {
         s1.add(i);

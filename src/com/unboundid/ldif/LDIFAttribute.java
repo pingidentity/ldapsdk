@@ -30,6 +30,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -108,7 +109,8 @@ class LDIFAttribute
   {
     if (normalizedValues == null)
     {
-      normalizedValues = new LinkedHashSet<>(values.size() + 1);
+      normalizedValues = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(values.size() + 1));
       for (final ASN1OctetString s : values)
       {
         normalizedValues.add(matchingRule.normalize(s));

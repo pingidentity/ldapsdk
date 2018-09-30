@@ -34,6 +34,7 @@ import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509KeyManager;
 
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -131,7 +132,8 @@ public abstract class WrapperKeyManager
   public final synchronized String[] getClientAliases(final String keyType,
                                           final Principal[] issuers)
   {
-    final LinkedHashSet<String> clientAliases = new LinkedHashSet<>(10);
+    final LinkedHashSet<String> clientAliases =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
 
     for (final X509KeyManager m : keyManagers)
     {
@@ -299,7 +301,8 @@ public abstract class WrapperKeyManager
   public final synchronized String[] getServerAliases(final String keyType,
                                           final Principal[] issuers)
   {
-    final LinkedHashSet<String> serverAliases = new LinkedHashSet<>(10);
+    final LinkedHashSet<String> serverAliases =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
 
     for (final X509KeyManager m : keyManagers)
     {

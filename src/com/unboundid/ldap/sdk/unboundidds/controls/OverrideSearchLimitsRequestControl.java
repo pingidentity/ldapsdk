@@ -161,7 +161,8 @@ public final class OverrideSearchLimitsRequestControl
            ERR_OVERRIDE_SEARCH_LIMITS_REQUEST_NO_VALUE.get());
     }
 
-    final LinkedHashMap<String,String> propertyMap = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,String> propertyMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     try
     {
       for (final ASN1Element valueElement :

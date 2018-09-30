@@ -182,7 +182,7 @@ public final class JVMDefaultTrustManager
     // Iterate through the certificates in the keystore and load them into a
     // map for faster and more reliable access.
     final LinkedHashMap<ASN1OctetString,X509Certificate> certificateMap =
-         new LinkedHashMap<>(50);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(50));
     try
     {
       final Enumeration<String> aliasEnumeration = keystore.aliases();
@@ -427,7 +427,7 @@ public final class JVMDefaultTrustManager
     // If we didn't find it with known paths, then try to find it with a
     // recursive filesystem search below the Java home directory.
     final LinkedHashMap<File,CertificateException> exceptions =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     final ObjectPair<KeyStore,File> keystorePair =
          searchForKeyStore(javaHomeDirectory, exceptions);
     if (keystorePair != null)

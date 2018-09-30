@@ -157,21 +157,9 @@ public final class StaticUtils
    * A set containing the names of attributes that will be considered sensitive
    * by the {@code toCode} methods of various request and data structure types.
    */
-  private static volatile Set<String> TO_CODE_SENSITIVE_ATTRIBUTE_NAMES;
-  static
-  {
-    final LinkedHashSet<String> nameSet = new LinkedHashSet<>(4);
-
-    // Add userPassword by name and OID.
-    nameSet.add("userpassword");
-    nameSet.add("2.5.4.35");
-
-    // add authPassword by name and OID.
-    nameSet.add("authpassword");
-    nameSet.add("1.3.6.1.4.1.4203.1.3.4");
-
-    TO_CODE_SENSITIVE_ATTRIBUTE_NAMES = Collections.unmodifiableSet(nameSet);
-  }
+  private static volatile Set<String> TO_CODE_SENSITIVE_ATTRIBUTE_NAMES =
+       setOf("userpassword", "2.5.4.35",
+            "authpassword", "1.3.6.1.4.1.4203.1.3.4");
 
 
 
@@ -2895,13 +2883,13 @@ public final class StaticUtils
       return (a1[0].equalsIgnoreCase(a2[0]));
     }
 
-    final HashSet<String> s1 = new HashSet<>(a1.length);
+    final HashSet<String> s1 = new HashSet<>(computeMapCapacity(a1.length));
     for (final String s : a1)
     {
       s1.add(toLowerCase(s));
     }
 
-    final HashSet<String> s2 = new HashSet<>(a2.length);
+    final HashSet<String> s2 = new HashSet<>(computeMapCapacity(a2.length));
     for (final String s : a2)
     {
       s2.add(toLowerCase(s));
@@ -3339,5 +3327,160 @@ public final class StaticUtils
     {
       throw (Error) throwable;
     }
+  }
+
+
+
+  /**
+   * Computes the capacity that should be used for a map or a set with the
+   * expected number of elements, which can help avoid the need to re-hash or
+   * re-balance the map if too many items are added.  This method bases its
+   * computation on the default map load factor of 0.75.
+   *
+   * @param  expectedItemCount  The expected maximum number of items that will
+   *                            be placed in the map or set.  It must be greater
+   *                            than or equal to zero.
+   *
+   * @return  The capacity that should be used for a map or a set with the
+   *          expected number of elements
+   */
+  public static int computeMapCapacity(final int expectedItemCount)
+  {
+    switch (expectedItemCount)
+    {
+      case 0:
+        return 0;
+      case 1:
+        return 2;
+      case 2:
+        return 3;
+      case 3:
+        return 5;
+      case 4:
+        return 6;
+      case 5:
+        return 7;
+      case 6:
+        return 9;
+      case 7:
+        return 10;
+      case 8:
+        return 11;
+      case 9:
+        return 13;
+      case 10:
+        return 14;
+      case 11:
+        return 15;
+      case 12:
+        return 17;
+      case 13:
+        return 18;
+      case 14:
+        return 19;
+      case 15:
+        return 21;
+      case 16:
+        return 22;
+      case 17:
+        return 23;
+      case 18:
+        return 25;
+      case 19:
+        return 26;
+      case 20:
+        return 27;
+      case 30:
+        return 41;
+      case 40:
+        return 54;
+      case 50:
+        return 67;
+      case 60:
+        return 81;
+      case 70:
+        return 94;
+      case 80:
+        return 107;
+      case 90:
+        return 121;
+      case 100:
+        return 134;
+      case 110:
+        return 147;
+      case 120:
+        return 161;
+      case 130:
+        return 174;
+      case 140:
+        return 187;
+      case 150:
+        return 201;
+      case 160:
+        return 214;
+      case 170:
+        return 227;
+      case 180:
+        return 241;
+      case 190:
+        return 254;
+      case 200:
+        return 267;
+      default:
+        Validator.ensureTrue((expectedItemCount >= 0),
+             "StaticUtils.computeMapOrSetCapacity.expectedItemCount must be " +
+                  "greater than or equal to zero.");
+      return ((expectedItemCount * 4) / 3) + 1;
+    }
+  }
+
+
+
+  /**
+   * Creates an unmodifiable set containing the provided items.  The iteration
+   * order of the provided items will be preserved.
+   *
+   * @param  <T>    The type of item to include in the set.
+   * @param  items  The items to include in the set.  It must not be
+   *                {@code null}, but may be empty.
+   *
+   * @return  An unmodifiable set containing the provided items.
+   */
+  public static <T> Set<T> setOf(final T... items)
+  {
+    return Collections.unmodifiableSet(
+         new LinkedHashSet<>(Arrays.asList(items)));
+  }
+
+
+
+  /**
+   * Creates a {@code HashSet} containing the provided items.
+   *
+   * @param  <T>    The type of item to include in the set.
+   * @param  items  The items to include in the set.  It must not be
+   *                {@code null}, but may be empty.
+   *
+   * @return  A {@code HashSet} containing the provided items.
+   */
+  public static <T> HashSet<T> hashSetOf(final T... items)
+  {
+    return new HashSet<>(Arrays.asList(items));
+  }
+
+
+
+  /**
+   * Creates a {@code LinkedHashSet} containing the provided items.
+   *
+   * @param  <T>    The type of item to include in the set.
+   * @param  items  The items to include in the set.  It must not be
+   *                {@code null}, but may be empty.
+   *
+   * @return  A {@code LinkedHashSet} containing the provided items.
+   */
+  public static <T> LinkedHashSet<T> linkedHashSetOf(final T... items)
+  {
+    return new LinkedHashSet<>(Arrays.asList(items));
   }
 }

@@ -104,9 +104,7 @@ public final class EffectiveRightsEntry
   {
     super(entry);
 
-    final HashSet<String> options = new HashSet<>(1);
-    options.add("entryLevel");
-
+    final HashSet<String> options = StaticUtils.hashSetOf("entryLevel");
     List<Attribute> attrList =
          getAttributesWithOptions(ATTR_ACL_RIGHTS, options);
     if ((attrList == null) || attrList.isEmpty())
@@ -142,7 +140,7 @@ public final class EffectiveRightsEntry
     else
     {
       final HashMap<String,Set<AttributeRight>> attrRightsMap =
-           new HashMap<>(attrList.size());
+           new HashMap<>(StaticUtils.computeMapCapacity(attrList.size()));
       for (final Attribute a : attrList)
       {
         final Set<String> attrOptions = a.getOptions();

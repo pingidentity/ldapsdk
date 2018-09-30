@@ -135,18 +135,20 @@ final class SplitLDIFAttributeHashTranslator
     }
     else
     {
-      rdnCache = new ConcurrentHashMap<>(100);
+      rdnCache = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(100));
     }
 
-    outsideSplitBaseSetNames = new LinkedHashSet<>(numSets+1);
-    splitBaseEntrySetNames = new LinkedHashSet<>(numSets);
+    outsideSplitBaseSetNames =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(numSets+1));
+    splitBaseEntrySetNames =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(numSets));
 
     if (addEntriesOutsideSplitToDedicatedSet)
     {
       outsideSplitBaseSetNames.add(SplitLDIFEntry.SET_NAME_OUTSIDE_SPLIT);
     }
 
-    setNames = new LinkedHashMap<>(numSets);
+    setNames = new LinkedHashMap<>(StaticUtils.computeMapCapacity(numSets));
     for (int i=0; i < numSets; i++)
     {
       final String setName = ".set" + (i+1);

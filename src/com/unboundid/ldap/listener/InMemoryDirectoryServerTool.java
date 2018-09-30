@@ -1070,7 +1070,8 @@ public final class InMemoryDirectoryServerTool
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleUsages = new LinkedHashMap<>(2);
+    final LinkedHashMap<String[],String> exampleUsages =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     final String[] example1Args =
     {

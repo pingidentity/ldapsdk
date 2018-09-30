@@ -574,7 +574,7 @@ public final class ModifyDNAuditLogMessage
     // attribute values.
     final int numNewRDNs = newRDN.getAttributeNames().length;
     final Set<ObjectPair<String,byte[]>> addedNewRDNValues =
-         new HashSet<>(numNewRDNs);
+         new HashSet<>(StaticUtils.computeMapCapacity(numNewRDNs));
     final RDN originalRDN = originalDN.getRDN();
     final List<Modification> additionalModifications =
          new ArrayList<>(attributeModifications.size());

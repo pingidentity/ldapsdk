@@ -539,7 +539,8 @@ public final class EqualsAnyJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(4);
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(4));
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 

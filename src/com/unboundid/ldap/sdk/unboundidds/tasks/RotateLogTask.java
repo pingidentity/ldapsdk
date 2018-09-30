@@ -457,7 +457,7 @@ public final class RotateLogTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
 
 
     if (! paths.isEmpty())

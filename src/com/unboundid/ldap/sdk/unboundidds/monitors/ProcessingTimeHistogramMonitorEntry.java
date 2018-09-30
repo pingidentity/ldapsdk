@@ -31,6 +31,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -734,7 +735,8 @@ public class ProcessingTimeHistogramMonitorEntry
 
     try
     {
-      final LinkedHashMap<Long,Long> map = new LinkedHashMap<>(50);
+      final LinkedHashMap<Long,Long> map =
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(50));
 
       // FIXME -- Do we need to figure out how to make this
       // internationalizeable?
@@ -798,7 +800,8 @@ public class ProcessingTimeHistogramMonitorEntry
 
     try
     {
-      final LinkedHashMap<Long,Double> map = new LinkedHashMap<>(50);
+      final LinkedHashMap<Long,Double> map =
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(50));
 
       // FIXME -- Do we need to figure out how to make this
       // internationalizeable?
@@ -1639,7 +1642,7 @@ public class ProcessingTimeHistogramMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(50);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(50));
 
     if (allOpsTotalCount != null)
     {

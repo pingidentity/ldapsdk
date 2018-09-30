@@ -262,13 +262,20 @@ public final class EntryValidator
     noObjectClasses           = new AtomicLong(0L);
     noStructuralClass         = new AtomicLong(0L);
 
-    attributesViolatingSyntax = new ConcurrentHashMap<>(20);
-    missingAttributes         = new ConcurrentHashMap<>(20);
-    prohibitedAttributes      = new ConcurrentHashMap<>(20);
-    prohibitedObjectClasses   = new ConcurrentHashMap<>(20);
-    singleValueViolations     = new ConcurrentHashMap<>(20);
-    undefinedAttributes       = new ConcurrentHashMap<>(20);
-    undefinedObjectClasses    = new ConcurrentHashMap<>(20);
+    attributesViolatingSyntax =
+         new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
+    missingAttributes =
+         new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
+    prohibitedAttributes =
+         new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
+    prohibitedObjectClasses =
+         new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
+    singleValueViolations =
+         new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
+    undefinedAttributes =
+         new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
+    undefinedObjectClasses =
+         new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
   }
 
 
@@ -683,7 +690,7 @@ public final class EntryValidator
     }
 
     final HashSet<AttributeTypeDefinition> atSet =
-         new HashSet<>(attributeTypes.size());
+         new HashSet<>(StaticUtils.computeMapCapacity(attributeTypes.size()));
     for (final String s : attributeTypes)
     {
       final AttributeTypeDefinition d = schema.getAttributeType(s);
@@ -806,7 +813,8 @@ public final class EntryValidator
     }
 
     // Get the object class descriptions for the object classes in the entry.
-    final HashSet<ObjectClassDefinition> ocSet = new HashSet<>(10);
+    final HashSet<ObjectClassDefinition> ocSet =
+         new HashSet<>(StaticUtils.computeMapCapacity(10));
     final boolean missingOC =
          (! getObjectClasses(entry, ocSet, invalidReasons));
     if (missingOC)
@@ -919,7 +927,8 @@ public final class EntryValidator
     }
 
     boolean entryValid = true;
-    final HashSet<String> missingOCs = new HashSet<>(ocValues.length);
+    final HashSet<String> missingOCs =
+         new HashSet<>(StaticUtils.computeMapCapacity(ocValues.length));
     for (final String ocName : entry.getObjectClassValues())
     {
       final ObjectClassDefinition d = schema.getObjectClass(ocName);
@@ -1142,7 +1151,8 @@ public final class EntryValidator
                final HashSet<ObjectClassDefinition> ocSet,
                final DITContentRuleDefinition ditContentRule)
   {
-    final HashSet<AttributeTypeDefinition> attrSet = new HashSet<>(20);
+    final HashSet<AttributeTypeDefinition> attrSet =
+         new HashSet<>(StaticUtils.computeMapCapacity(20));
     for (final ObjectClassDefinition oc : ocSet)
     {
       attrSet.addAll(oc.getRequiredAttributes(schema, false));
@@ -1181,7 +1191,8 @@ public final class EntryValidator
                final DITContentRuleDefinition ditContentRule,
                final HashSet<AttributeTypeDefinition> requiredAttrSet)
   {
-    final HashSet<AttributeTypeDefinition> attrSet = new HashSet<>(20);
+    final HashSet<AttributeTypeDefinition> attrSet =
+         new HashSet<>(StaticUtils.computeMapCapacity(20));
     for (final ObjectClassDefinition oc : ocSet)
     {
       if (oc.hasNameOrOID("extensibleObject") ||
@@ -1693,7 +1704,8 @@ public final class EntryValidator
                        final DITContentRuleDefinition ditContentRule,
                        final List<String> invalidReasons)
   {
-    final HashSet<ObjectClassDefinition> auxSet = new HashSet<>(20);
+    final HashSet<ObjectClassDefinition> auxSet =
+         new HashSet<>(StaticUtils.computeMapCapacity(20));
     for (final String s : ditContentRule.getAuxiliaryClasses())
     {
       final ObjectClassDefinition d = schema.getObjectClass(s);
@@ -1750,8 +1762,10 @@ public final class EntryValidator
                            final NameFormDefinition nameForm,
                            final List<String> invalidReasons)
   {
-    final HashSet<AttributeTypeDefinition> nfReqAttrs = new HashSet<>(5);
-    final HashSet<AttributeTypeDefinition> nfAllowedAttrs = new HashSet<>(5);
+    final HashSet<AttributeTypeDefinition> nfReqAttrs =
+         new HashSet<>(StaticUtils.computeMapCapacity(5));
+    final HashSet<AttributeTypeDefinition> nfAllowedAttrs =
+         new HashSet<>(StaticUtils.computeMapCapacity(5));
     if (nameForm != null)
     {
       for (final String s : nameForm.getRequiredAttributes())

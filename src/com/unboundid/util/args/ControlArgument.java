@@ -93,7 +93,8 @@ public final class ControlArgument
   private static final Map<String,String> OIDS_BY_NAME;
   static
   {
-    final HashMap<String,String> oidsByName = new HashMap<>(100);
+    final HashMap<String,String> oidsByName =
+         new HashMap<>(StaticUtils.computeMapCapacity(100));
 
     // The authorization identity request control.
     oidsByName.put("authzid",

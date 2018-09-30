@@ -1834,7 +1834,7 @@ public final class ImportTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
 
     if (backendID == null)
     {

@@ -135,14 +135,15 @@ public final class ObjectClassDefinition
     // Technically, object class elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<String>    nameList = new ArrayList<>(1);
-    final ArrayList<String>    supList  = new ArrayList<>(1);
-    final ArrayList<String>    reqAttrs = new ArrayList<>(20);
-    final ArrayList<String>    optAttrs = new ArrayList<>(20);
-    final Map<String,String[]> exts     = new LinkedHashMap<>(5);
-    Boolean                    obsolete = null;
-    ObjectClassType            ocType   = null;
-    String                     descr    = null;
+    final ArrayList<String> nameList = new ArrayList<>(1);
+    final ArrayList<String> supList = new ArrayList<>(1);
+    final ArrayList<String> reqAttrs = new ArrayList<>(20);
+    final ArrayList<String> optAttrs = new ArrayList<>(20);
+    final Map<String,String[]> exts =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
+    Boolean obsolete = null;
+    ObjectClassType ocType = null;
+    String descr = null;
 
     while (true)
     {
@@ -805,7 +806,7 @@ public final class ObjectClassDefinition
                                                        final boolean recursive)
   {
     final LinkedHashSet<ObjectClassDefinition> ocSet =
-         new LinkedHashSet<>(10);
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
     for (final String s : superiorClasses)
     {
       final ObjectClassDefinition d = schema.getObjectClass(s);
@@ -938,7 +939,8 @@ public final class ObjectClassDefinition
   public Set<AttributeTypeDefinition> getRequiredAttributes(final Schema schema,
                                            final boolean includeSuperiorClasses)
   {
-    final HashSet<AttributeTypeDefinition> attrSet = new HashSet<>(20);
+    final HashSet<AttributeTypeDefinition> attrSet =
+         new HashSet<>(StaticUtils.computeMapCapacity(20));
     for (final String s : requiredAttributes)
     {
       final AttributeTypeDefinition d = schema.getAttributeType(s);
@@ -1033,7 +1035,8 @@ public final class ObjectClassDefinition
   public Set<AttributeTypeDefinition> getOptionalAttributes(final Schema schema,
                                            final boolean includeSuperiorClasses)
   {
-    final HashSet<AttributeTypeDefinition> attrSet = new HashSet<>(20);
+    final HashSet<AttributeTypeDefinition> attrSet =
+         new HashSet<>(StaticUtils.computeMapCapacity(20));
     for (final String s : optionalAttributes)
     {
       final AttributeTypeDefinition d = schema.getAttributeType(s);

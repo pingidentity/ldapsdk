@@ -142,7 +142,7 @@ public final class JSONObject
     else
     {
       final LinkedHashMap<String,JSONValue> m =
-           new LinkedHashMap<>(fields.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(fields.length));
       for (final JSONField f : fields)
       {
         m.put(f.getName(), f.getValue());
@@ -213,7 +213,8 @@ public final class JSONObject
            stringRepresentation));
     }
 
-    final LinkedHashMap<String,JSONValue> m = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,JSONValue> m =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     readObject(chars, m);
     fields = Collections.unmodifiableMap(m);
 
@@ -729,7 +730,7 @@ public final class JSONObject
       else if (token.equals('{'))
       {
         final LinkedHashMap<String,JSONValue> fieldMap =
-             new LinkedHashMap<>(10);
+             new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
         values.add(readObject(chars, fieldMap));
       }
       else if (token.equals(']') && firstToken)
@@ -842,7 +843,8 @@ public final class JSONObject
       }
       else if (token.equals('{'))
       {
-        final LinkedHashMap<String,JSONValue> m = new LinkedHashMap<>(10);
+        final LinkedHashMap<String,JSONValue> m =
+             new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
         final JSONObject o = readObject(chars, m);
         fields.put(fieldName, o);
       }

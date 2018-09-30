@@ -268,8 +268,8 @@ public final class PasswordModifyExtendedOperationHandler
     }
     else
     {
-      final HashSet<String> usedPWAttrs =
-           new HashSet<>(existingPasswords.size());
+      final HashSet<String> usedPWAttrs = new HashSet<>(
+           StaticUtils.computeMapCapacity(existingPasswords.size()));
       for (final InMemoryDirectoryServerPassword p : existingPasswords)
       {
         final String attr = StaticUtils.toLowerCase(p.getAttributeName());

@@ -221,7 +221,8 @@ public final class LDAPObjectHandler<T>
            ERR_OBJECT_HANDLER_OBJECT_NOT_ANNOTATED.get(type.getName()));
     }
 
-    final LinkedHashMap<String,String> objectClasses = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,String> objectClasses =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
 
     final String oc = ldapObject.structuralClass();
     if (oc.isEmpty())
@@ -1049,7 +1050,8 @@ public final class LDAPObjectHandler<T>
          throws LDAPPersistException
   {
     final LinkedHashMap<String,ObjectClassDefinition> ocMap =
-         new LinkedHashMap<>(1 + auxiliaryClasses.length);
+         new LinkedHashMap<>(
+              StaticUtils.computeMapCapacity(1 + auxiliaryClasses.length));
 
     if (superclassHandler != null)
     {
@@ -1355,7 +1357,8 @@ public final class LDAPObjectHandler<T>
         throws LDAPPersistException
   {
     // Get the attributes that should be included in the entry.
-    final LinkedHashMap<String,Attribute> attrMap = new LinkedHashMap<>(20);
+    final LinkedHashMap<String,Attribute> attrMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
     attrMap.put("objectClass", objectClassAttribute);
 
     for (final Map.Entry<String,FieldInfo> e : fieldMap.entrySet())
@@ -1539,7 +1542,7 @@ public final class LDAPObjectHandler<T>
     }
 
     final LinkedHashMap<String,Attribute> attrMap =
-         new LinkedHashMap<>(numRDNs);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(numRDNs));
 
     for (final FieldInfo i : rdnFields)
     {
@@ -1765,7 +1768,7 @@ public final class LDAPObjectHandler<T>
           {
             if (stripAttrs == null)
             {
-              stripAttrs = new HashSet<>(10);
+              stripAttrs = new HashSet<>(StaticUtils.computeMapCapacity(10));
             }
             stripAttrs.add(StaticUtils.toLowerCase(i.getAttributeName()));
           }
@@ -1777,7 +1780,7 @@ public final class LDAPObjectHandler<T>
           {
             if (stripAttrs == null)
             {
-              stripAttrs = new HashSet<>(10);
+              stripAttrs = new HashSet<>(StaticUtils.computeMapCapacity(10));
             }
             stripAttrs.add(StaticUtils.toLowerCase(i.getAttributeName()));
           }
@@ -1816,7 +1819,8 @@ public final class LDAPObjectHandler<T>
     }
     else
     {
-      attrSet = new HashSet<>(attributes.length);
+      attrSet =
+           new HashSet<>(StaticUtils.computeMapCapacity(attributes.length));
       for (final String s : attributes)
       {
         attrSet.add(StaticUtils.toLowerCase(s));

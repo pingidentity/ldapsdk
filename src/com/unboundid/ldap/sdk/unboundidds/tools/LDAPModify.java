@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -706,11 +706,8 @@ public final class LDAPModify
     parser.addArgument(useTransaction);
 
 
-    final LinkedHashSet<String> multiUpdateErrorBehaviorAllowedValues =
-         new LinkedHashSet<>(3);
-    multiUpdateErrorBehaviorAllowedValues.add("atomic");
-    multiUpdateErrorBehaviorAllowedValues.add("abort-on-error");
-    multiUpdateErrorBehaviorAllowedValues.add("continue-on-error");
+    final Set<String> multiUpdateErrorBehaviorAllowedValues =
+         StaticUtils.setOf("atomic", "abort-on-error", "continue-on-error");
     multiUpdateErrorBehavior = new StringArgument(null,
          "multiUpdateErrorBehavior", false, 1,
          "{atomic|abort-on-error|continue-on-error}",
@@ -808,11 +805,9 @@ public final class LDAPModify
     parser.addArgument(assuredReplication);
 
 
-    final LinkedHashSet<String> assuredReplicationLocalLevelAllowedValues =
-         new LinkedHashSet<>(3);
-    assuredReplicationLocalLevelAllowedValues.add("none");
-    assuredReplicationLocalLevelAllowedValues.add("received-any-server");
-    assuredReplicationLocalLevelAllowedValues.add("processed-all-servers");
+    final Set<String> assuredReplicationLocalLevelAllowedValues =
+         StaticUtils.setOf("none", "received-any-server",
+              "processed-all-servers");
     assuredReplicationLocalLevel = new StringArgument(null,
          ARG_ASSURED_REPLICATION_LOCAL_LEVEL, false, 1,
          INFO_PLACEHOLDER_LEVEL.get(),
@@ -826,15 +821,9 @@ public final class LDAPModify
     parser.addArgument(assuredReplicationLocalLevel);
 
 
-    final LinkedHashSet<String> assuredReplicationRemoteLevelAllowedValues =
-         new LinkedHashSet<>(4);
-    assuredReplicationRemoteLevelAllowedValues.add("none");
-    assuredReplicationRemoteLevelAllowedValues.add(
-         "received-any-remote-location");
-    assuredReplicationRemoteLevelAllowedValues.add(
-         "received-all-remote-locations");
-    assuredReplicationRemoteLevelAllowedValues.add(
-         "processed-all-remote-servers");
+    final Set<String> assuredReplicationRemoteLevelAllowedValues =
+         StaticUtils.setOf("none", "received-any-remote-location",
+              "received-all-remote-locations", "processed-all-remote-servers");
     assuredReplicationRemoteLevel = new StringArgument(null,
          ARG_ASSURED_REPLICATION_REMOTE_LEVEL, false, 1,
          INFO_PLACEHOLDER_LEVEL.get(),
@@ -967,13 +956,9 @@ public final class LDAPModify
     parser.addArgument(purgeCurrentPassword);
 
 
-    final LinkedHashSet<String>
-         suppressOperationalAttributeUpdatesAllowedValues =
-              new LinkedHashSet<>(4);
-    suppressOperationalAttributeUpdatesAllowedValues.add("last-access-time");
-    suppressOperationalAttributeUpdatesAllowedValues.add("last-login-time");
-    suppressOperationalAttributeUpdatesAllowedValues.add("last-login-ip");
-    suppressOperationalAttributeUpdatesAllowedValues.add("lastmod");
+    final Set<String> suppressOperationalAttributeUpdatesAllowedValues =
+         StaticUtils.setOf("last-access-time", "last-login-time",
+              "last-login-ip", "lastmod");
     suppressOperationalAttributeUpdates = new StringArgument(null,
          "suppressOperationalAttributeUpdates", false, -1,
          INFO_PLACEHOLDER_ATTR.get(),
@@ -1039,11 +1024,11 @@ public final class LDAPModify
          uniquenessFilter);
 
 
-    final LinkedHashSet<String> mabValues = new LinkedHashSet<>(4);
-    mabValues.add("unique-within-each-attribute");
-    mabValues.add("unique-across-all-attributes-including-in-same-entry");
-    mabValues.add("unique-across-all-attributes-except-in-same-entry");
-    mabValues.add("unique-in-combination");
+    final Set<String> mabValues = StaticUtils.setOf(
+         "unique-within-each-attribute",
+         "unique-across-all-attributes-including-in-same-entry",
+         "unique-across-all-attributes-except-in-same-entry",
+         "unique-in-combination");
     uniquenessMultipleAttributeBehavior = new StringArgument(null,
          "uniquenessMultipleAttributeBehavior", false, 1,
          INFO_LDAPMODIFY_PLACEHOLDER_BEHAVIOR.get(),
@@ -1059,11 +1044,8 @@ public final class LDAPModify
          uniquenessAttribute);
 
 
-    final LinkedHashSet<String> vlValues = new LinkedHashSet<>(4);
-    vlValues.add("none");
-    vlValues.add("all-subtree-views");
-    vlValues.add("all-backend-sets");
-    vlValues.add("all-available-backend-servers");
+    final Set<String> vlValues = StaticUtils.setOf("none", "all-subtree-views",
+         "all-backend-sets", "all-available-backend-servers");
     uniquenessPreCommitValidationLevel = new StringArgument(null,
          "uniquenessPreCommitValidationLevel", false, 1,
          INFO_LDAPMODIFY_PLACEHOLDER_LEVEL.get(),
@@ -2240,7 +2222,8 @@ readChangeRecordLoop:
 
     final LDIFModifyChangeRecord modifyChangeRecord =
          (LDIFModifyChangeRecord) changeRecord;
-    final HashSet<DN> processedDNs = new HashSet<>(100);
+    final HashSet<DN> processedDNs =
+         new HashSet<>(StaticUtils.computeMapCapacity(100));
 
 
     // If we need to use the simple paged results control, then we may have to
@@ -3908,7 +3891,8 @@ readChangeRecordLoop:
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     final String[] args1 =
     {

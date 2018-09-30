@@ -66,7 +66,7 @@ public final class ResultCodeCounter
   {
     rcMap = new AtomicReference<>();
     rcMap.set(new ConcurrentHashMap<ResultCode,AtomicLong>(
-         ResultCode.values().length));
+         StaticUtils.computeMapCapacity(ResultCode.values().length)));
   }
 
 
@@ -116,7 +116,7 @@ public final class ResultCodeCounter
   public void reset()
   {
     rcMap.set(new ConcurrentHashMap<ResultCode,AtomicLong>(
-         ResultCode.values().length));
+         StaticUtils.computeMapCapacity(ResultCode.values().length)));
   }
 
 
@@ -138,7 +138,7 @@ public final class ResultCodeCounter
     if (reset)
     {
       m = rcMap.getAndSet(new ConcurrentHashMap<ResultCode,AtomicLong>(
-           ResultCode.values().length));
+           StaticUtils.computeMapCapacity(ResultCode.values().length)));
     }
     else
     {

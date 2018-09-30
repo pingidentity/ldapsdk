@@ -116,7 +116,8 @@ public final class RenameAttributeTransformation
     this.schema = s;
 
 
-    final HashSet<String> sourceNames = new HashSet<>(5);
+    final HashSet<String> sourceNames =
+         new HashSet<>(StaticUtils.computeMapCapacity(5));
     final String baseSourceName =
          StaticUtils.toLowerCase(Attribute.getBaseName(sourceAttribute));
     sourceNames.add(baseSourceName);

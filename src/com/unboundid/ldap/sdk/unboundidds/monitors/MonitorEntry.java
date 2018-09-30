@@ -217,7 +217,7 @@ public class MonitorEntry
   {
     // Retrieve a map of all attributes in the entry except cn and objectClass.
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
 
     for (final Attribute a : entry.getAttributes())
     {

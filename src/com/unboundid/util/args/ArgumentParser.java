@@ -361,18 +361,19 @@ public final class ArgumentParser
            this.minTrailingArgs, this.maxTrailingArgs));
     }
 
-    namedArgsByShortID    = new LinkedHashMap<>(20);
-    namedArgsByLongID     = new LinkedHashMap<>(20);
-    namedArgs             = new ArrayList<>(20);
-    trailingArgs          = new ArrayList<>(20);
+    namedArgsByShortID =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
+    namedArgsByLongID = new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
+    namedArgs = new ArrayList<>(20);
+    trailingArgs = new ArrayList<>(20);
     dependentArgumentSets = new ArrayList<>(20);
     exclusiveArgumentSets = new ArrayList<>(20);
-    requiredArgumentSets  = new ArrayList<>(20);
-    parentSubCommand      = null;
-    selectedSubCommand    = null;
-    subCommands           = new ArrayList<>(20);
-    subCommandsByName     = new LinkedHashMap<>(20);
-    propertiesFileUsed    = null;
+    requiredArgumentSets = new ArrayList<>(20);
+    parentSubCommand = null;
+    selectedSubCommand = null;
+    subCommands = new ArrayList<>(20);
+    subCommandsByName = new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
+    propertiesFileUsed = null;
     argumentsSetFromPropertiesFile = new ArrayList<>(20);
   }
 
@@ -400,12 +401,13 @@ public final class ArgumentParser
     trailingArgs = new ArrayList<>(20);
 
     namedArgs = new ArrayList<>(source.namedArgs.size());
-    namedArgsByLongID =
-         new LinkedHashMap<>(source.namedArgsByLongID.size());
-    namedArgsByShortID = new LinkedHashMap<>(source.namedArgsByShortID.size());
+    namedArgsByLongID = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(source.namedArgsByLongID.size()));
+    namedArgsByShortID = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(source.namedArgsByShortID.size()));
 
-    final LinkedHashMap<String,Argument> argsByID =
-         new LinkedHashMap<>(source.namedArgs.size());
+    final LinkedHashMap<String,Argument> argsByID = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(source.namedArgs.size()));
     for (final Argument sourceArg : source.namedArgs)
     {
       final Argument a = sourceArg.getCleanCopy();
@@ -440,8 +442,8 @@ public final class ArgumentParser
          source.dependentArgumentSets)
     {
       final Set<Argument> sourceSet = p.getSecond();
-      final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<>(sourceSet.size());
+      final LinkedHashSet<Argument> newSet = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(sourceSet.size()));
       for (final Argument a : sourceSet)
       {
         newSet.add(argsByID.get(a.getIdentifierString()));
@@ -457,8 +459,8 @@ public final class ArgumentParser
          new ArrayList<>(source.exclusiveArgumentSets.size());
     for (final Set<Argument> sourceSet : source.exclusiveArgumentSets)
     {
-      final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<>(sourceSet.size());
+      final LinkedHashSet<Argument> newSet = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(sourceSet.size()));
       for (final Argument a : sourceSet)
       {
         newSet.add(argsByID.get(a.getIdentifierString()));
@@ -471,8 +473,8 @@ public final class ArgumentParser
          new ArrayList<>(source.requiredArgumentSets.size());
     for (final Set<Argument> sourceSet : source.requiredArgumentSets)
     {
-      final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<>(sourceSet.size());
+      final LinkedHashSet<Argument> newSet = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(sourceSet.size()));
       for (final Argument a : sourceSet)
       {
         newSet.add(argsByID.get(a.getIdentifierString()));
@@ -483,7 +485,8 @@ public final class ArgumentParser
     parentSubCommand = subCommand;
     selectedSubCommand = null;
     subCommands = new ArrayList<>(source.subCommands.size());
-    subCommandsByName = new LinkedHashMap<>(source.subCommandsByName.size());
+    subCommandsByName = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(source.subCommandsByName.size()));
     for (final SubCommand sc : source.subCommands)
     {
       subCommands.add(sc.getCleanCopy());
@@ -1290,7 +1293,8 @@ public final class ArgumentParser
       }
     }
 
-    final LinkedHashSet<Argument> argSet = new LinkedHashSet<>(10);
+    final LinkedHashSet<Argument> argSet =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
     argSet.add(dependentArg1);
     if (remaining != null)
     {
@@ -1406,7 +1410,8 @@ public final class ArgumentParser
       }
     }
 
-    final LinkedHashSet<Argument> argSet = new LinkedHashSet<>(10);
+    final LinkedHashSet<Argument> argSet =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
     argSet.add(arg1);
     argSet.add(arg2);
 
@@ -1522,7 +1527,8 @@ public final class ArgumentParser
       }
     }
 
-    final LinkedHashSet<Argument> argSet = new LinkedHashSet<>(10);
+    final LinkedHashSet<Argument> argSet =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
     argSet.add(arg1);
     argSet.add(arg2);
 
@@ -2691,7 +2697,7 @@ public final class ArgumentParser
       }
 
       final HashMap<String,ArrayList<String>> propertyMap =
-           new HashMap<>(propertyLines.size());
+           new HashMap<>(StaticUtils.computeMapCapacity(propertyLines.size()));
       for (final ObjectPair<Integer,StringBuilder> p : propertyLines)
       {
         lineNumber = p.getFirst();
@@ -3126,7 +3132,7 @@ exclusiveArgumentLoop:
       // groups.
       boolean hasRequired = false;
       final LinkedHashMap<String,List<Argument>> argumentsByGroup =
-           new LinkedHashMap<>(10);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
       final ArrayList<Argument> argumentsWithoutGroup =
            new ArrayList<>(namedArgs.size());
       final ArrayList<Argument> usageArguments =
@@ -3280,7 +3286,7 @@ exclusiveArgumentLoop:
       // groups.
       boolean hasRequired = false;
       final LinkedHashMap<String,List<Argument>> argumentsByGroup =
-           new LinkedHashMap<>(10);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
       final ArrayList<Argument> argumentsWithoutGroup =
            new ArrayList<>(parser.namedArgs.size());
       final ArrayList<Argument> usageArguments =

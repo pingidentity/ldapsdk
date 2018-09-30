@@ -37,6 +37,7 @@ import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
@@ -528,7 +529,8 @@ public final class LDAPModify
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     String[] args =
     {

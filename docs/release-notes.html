@@ -14,11 +14,32 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the support for passphrase-based encryption to work around and apparent
+                  but in the JVM support for some implementations of MAC algorithms.  It seems
+                  that under certain rare circumstances, some versions of the JVM can compute an
+                  incorrect MAC, which could lead to a failure in the passphrase-based encryption
+                  code.  To account for this, the LDAP SDK now generates the MAC multiple times
+                  and only uses the value if it is able to reliably produce a consistent result.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated all existing <tt>ArgumentValueValidator</tt> instances to implement the
                   <tt>Serializable</tt> interface to avoid errors when trying to serialize an
                   argument configured with one of those validators (or when trying to serialize an
                   argument parser with any such arguments).  The <tt>ArgumentValueValidator</tt>
                   abstract class itself has not been altered to maintain backward compatibility.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated code used to create <tt>HashSet</tt>, <tt>LinkedHashSet</tt>,
+                  <tt>HashMap</tt>, <tt>LinkedHashMap</tt>, and <tt>ConcurrentHashMap</tt>
+                  instances with an initial capacity to use a better algorithm for computing the
+                  correct initial capacity based on the expected number of elements that the set
+                  or map is expected to have.  The new algorithm takes the load factor into
+                  account so that it is less likely that there will be a need to re-hash or
+                  re-balance the set or map.  This should improve performance in such cases.
                   <br><br>
                 </li>
               </ul>

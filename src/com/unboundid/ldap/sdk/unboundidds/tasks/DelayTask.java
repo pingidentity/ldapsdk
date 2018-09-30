@@ -1008,7 +1008,7 @@ public final class DelayTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty, List<Object>> props =
-         new LinkedHashMap<>(7);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(7));
 
     if (sleepDurationMillis != null)
     {

@@ -30,6 +30,7 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -363,7 +364,7 @@ public final class SystemInfoMonitorEntry
 
     final List<String> envValues = getStrings(ATTR_ENVIRONMENT_VARIABLE);
     final LinkedHashMap<String,String> envMap =
-         new LinkedHashMap<>(envValues.size());
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(envValues.size()));
     for (final String s : envValues)
     {
       final int eqPos = s.indexOf("='");
@@ -380,7 +381,7 @@ public final class SystemInfoMonitorEntry
 
     final List<String> propValues = getStrings(ATTR_SYSTEM_PROPERTY);
     final LinkedHashMap<String,String> propMap =
-         new LinkedHashMap<>(propValues.size());
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(propValues.size()));
     for (final String s : propValues)
     {
       final int eqPos = s.indexOf("='");
@@ -717,7 +718,7 @@ public final class SystemInfoMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(30);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(30));
 
     if (hostname != null)
     {

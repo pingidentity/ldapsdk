@@ -440,7 +440,7 @@ public abstract class CommandLineTool
     if (logDetails.logInvocation())
     {
       final HashSet<Argument> argumentsSetFromPropertiesFile =
-           new HashSet<>(10);
+           new HashSet<>(StaticUtils.computeMapCapacity(10));
       final ArrayList<ObjectPair<String,String>> propertiesFileArgList =
            new ArrayList<>(10);
       getToolInvocationPropertiesFileArguments(parser,
@@ -1127,7 +1127,8 @@ public abstract class CommandLineTool
    */
   static Set<String> getUsageArgumentIdentifiers(final CommandLineTool tool)
   {
-    final LinkedHashSet<String> ids = new LinkedHashSet<>(9);
+    final LinkedHashSet<String> ids =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(9));
 
     ids.add("help");
     ids.add("version");

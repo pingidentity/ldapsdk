@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -1622,7 +1623,8 @@ public final class ResultCode
    * values.
    */
   private static final ConcurrentHashMap<Integer,ResultCode>
-       UNDEFINED_RESULT_CODES = new ConcurrentHashMap<>(10);
+       UNDEFINED_RESULT_CODES =
+            new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
 
 
 

@@ -1367,7 +1367,8 @@ public final class SASLUtils
       return new HashMap<>(0);
     }
 
-    final HashMap<String,String> m = new HashMap<>(options.size());
+    final HashMap<String,String> m =
+         new HashMap<>(StaticUtils.computeMapCapacity(options.size()));
     for (final String s : options)
     {
       final int equalPos = s.indexOf('=');

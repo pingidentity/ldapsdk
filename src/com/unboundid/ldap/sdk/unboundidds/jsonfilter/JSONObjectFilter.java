@@ -351,7 +351,7 @@ public abstract class JSONObjectFilter
    * objects to filters of that type.
    */
   private static final ConcurrentHashMap<String,JSONObjectFilter> FILTER_TYPES =
-       new ConcurrentHashMap<>(10);
+       new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
   static
   {
     registerFilterType(

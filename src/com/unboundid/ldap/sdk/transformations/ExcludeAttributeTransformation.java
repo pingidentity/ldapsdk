@@ -116,7 +116,8 @@ public final class ExcludeAttributeTransformation
 
     // Identify all of the names that may be used to reference the attributes
     // to suppress.
-    final HashSet<String> attrNames = new HashSet<>(3*attributes.size());
+    final HashSet<String> attrNames =
+         new HashSet<>(StaticUtils.computeMapCapacity(3*attributes.size()));
     for (final String attrName : attributes)
     {
       final String baseName =

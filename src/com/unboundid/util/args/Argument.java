@@ -34,6 +34,7 @@ import java.util.Map;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -145,13 +146,13 @@ public abstract class Argument
       throw new ArgumentException(ERR_ARG_NO_IDENTIFIERS.get());
     }
 
-    shortIdentifiers = new LinkedHashMap<>(5);
+    shortIdentifiers = new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
     if (shortIdentifier != null)
     {
       shortIdentifiers.put(shortIdentifier, false);
     }
 
-    longIdentifiers = new LinkedHashMap<>(5);
+    longIdentifiers = new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
     if (longIdentifier != null)
     {
       longIdentifiers.put(longIdentifier, false);

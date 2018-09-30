@@ -247,7 +247,8 @@ public class InMemoryDirectoryServerConfig
     listenerConfigs = new ArrayList<>(1);
     listenerConfigs.add(InMemoryListenerConfig.createLDAPConfig("default"));
 
-    additionalBindCredentials            = new LinkedHashMap<>(1);
+    additionalBindCredentials            =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     accessLogHandler                     = null;
     ldapDebugLogHandler                  = null;
     enforceAttributeSyntaxCompliance     = true;
@@ -278,7 +279,7 @@ public class InMemoryDirectoryServerConfig
     saslBindHandlers = new ArrayList<>(1);
     saslBindHandlers.add(new PLAINBindHandler());
 
-    passwordAttributes = new LinkedHashSet<>(5);
+    passwordAttributes = new LinkedHashSet<>(StaticUtils.computeMapCapacity(5));
     passwordAttributes.add("userPassword");
 
     primaryPasswordEncoder = null;
@@ -457,7 +458,8 @@ public class InMemoryDirectoryServerConfig
            ERR_MEM_DS_CFG_NO_LISTENERS.get());
     }
 
-    final HashSet<String> listenerNames = new HashSet<>(listenerConfigs.size());
+    final HashSet<String> listenerNames =
+         new HashSet<>(StaticUtils.computeMapCapacity(listenerConfigs.size()));
     for (final InMemoryListenerConfig c : listenerConfigs)
     {
       final String name = StaticUtils.toLowerCase(c.getListenerName());
@@ -1590,7 +1592,7 @@ public class InMemoryDirectoryServerConfig
     // Before applying the change, make sure that there aren't any conflicts in
     // their prefixes.
     final LinkedHashMap<String,InMemoryPasswordEncoder> newEncoderMap =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     if (primaryEncoder != null)
     {
       newEncoderMap.put(primaryEncoder.getPrefix(), primaryEncoder);

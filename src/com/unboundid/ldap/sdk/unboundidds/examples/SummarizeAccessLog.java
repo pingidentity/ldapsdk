@@ -324,30 +324,39 @@ public final class SummarizeAccessLog
     numUncachedModifyDNs = 0L;
     numUncachedSearches  = 0L;
 
-    searchEntryCounts        = new HashMap<>(10);
-    addResultCodes           = new HashMap<>(10);
-    bindResultCodes          = new HashMap<>(10);
-    compareResultCodes       = new HashMap<>(10);
-    deleteResultCodes        = new HashMap<>(10);
-    extendedResultCodes      = new HashMap<>(10);
-    modifyResultCodes        = new HashMap<>(10);
-    modifyDNResultCodes      = new HashMap<>(10);
-    searchResultCodes        = new HashMap<>(10);
-    searchScopes             = new HashMap<>(4);
-    clientAddresses          = new HashMap<>(100);
-    clientConnectionPolicies = new HashMap<>(100);
-    disconnectReasons        = new HashMap<>(100);
-    extendedOperations       = new HashMap<>(10);
-    filterTypes              = new HashMap<>(100);
-    processedRequests        = new HashSet<>(100);
-    addProcessingTimes       = new LinkedHashMap<>(11);
-    bindProcessingTimes      = new LinkedHashMap<>(11);
-    compareProcessingTimes   = new LinkedHashMap<>(11);
-    deleteProcessingTimes    = new LinkedHashMap<>(11);
-    extendedProcessingTimes  = new LinkedHashMap<>(11);
-    modifyProcessingTimes    = new LinkedHashMap<>(11);
-    modifyDNProcessingTimes  = new LinkedHashMap<>(11);
-    searchProcessingTimes    = new LinkedHashMap<>(11);
+    searchEntryCounts = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    addResultCodes = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    bindResultCodes = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    compareResultCodes = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    deleteResultCodes = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    extendedResultCodes = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    modifyResultCodes = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    modifyDNResultCodes = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    searchResultCodes = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    searchScopes = new HashMap<>(StaticUtils.computeMapCapacity(4));
+    clientAddresses = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    clientConnectionPolicies =
+         new HashMap<>(StaticUtils.computeMapCapacity(100));
+    disconnectReasons = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    extendedOperations = new HashMap<>(StaticUtils.computeMapCapacity(10));
+    filterTypes = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    processedRequests = new HashSet<>(StaticUtils.computeMapCapacity(100));
+    addProcessingTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
+    bindProcessingTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
+    compareProcessingTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
+    deleteProcessingTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
+    extendedProcessingTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
+    modifyProcessingTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
+    modifyDNProcessingTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
+    searchProcessingTimes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(11));
 
     populateProcessingTimeMap(addProcessingTimes);
     populateProcessingTimeMap(bindProcessingTimes);
@@ -1262,7 +1271,8 @@ public final class SummarizeAccessLog
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(1);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
 
     final String[] args =
     {

@@ -1046,8 +1046,10 @@ public enum ManageAccountSubCommandType
     {
       final ManageAccountSubCommandType[] values =
            ManageAccountSubCommandType.values();
-      typesByName = new HashMap<>(2*values.length);
-      typesByOpType = new HashMap<>(values.length);
+      typesByName =
+           new HashMap<>(StaticUtils.computeMapCapacity(2*values.length));
+      typesByOpType =
+           new HashMap<>(StaticUtils.computeMapCapacity(values.length));
 
       for (final ManageAccountSubCommandType t :  values)
       {

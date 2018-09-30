@@ -33,6 +33,7 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -74,7 +75,7 @@ abstract class InterceptedOperation
     this.clientConnection = clientConnection;
     this.messageID        = messageID;
 
-    propertyMap = new HashMap<>(10);
+    propertyMap = new HashMap<>(StaticUtils.computeMapCapacity(10));
   }
 
 

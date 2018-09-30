@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -512,11 +511,8 @@ public final class LDAPSearch
     timeLimitSeconds.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(timeLimitSeconds);
 
-    final LinkedHashSet<String> derefAllowedValues = new LinkedHashSet<>(4);
-    derefAllowedValues.add("never");
-    derefAllowedValues.add("always");
-    derefAllowedValues.add("search");
-    derefAllowedValues.add("find");
+    final Set<String> derefAllowedValues =
+         StaticUtils.setOf("never", "always", "search", "find");
     dereferencePolicy = new StringArgument('a', "dereferencePolicy", false, 1,
          "{never|always|search|find}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_DEREFERENCE_POLICY.get(),
@@ -686,12 +682,8 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(teeResultsToStandardOut);
 
-    final LinkedHashSet<String> outputFormatAllowedValues =
-         new LinkedHashSet<>(4);
-    outputFormatAllowedValues.add("ldif");
-    outputFormatAllowedValues.add("json");
-    outputFormatAllowedValues.add("csv");
-    outputFormatAllowedValues.add("tab-delimited");
+    final Set<String> outputFormatAllowedValues =
+         StaticUtils.setOf("ldif", "json", "csv", "tab-delimited");
     outputFormat = new StringArgument(null, "outputFormat", false, 1,
          "{ldif|json|csv|tab-delimited}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_OUTPUT_FORMAT.get(
@@ -805,11 +797,9 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(includeReplicationConflictEntries);
 
-    final LinkedHashSet<String> softDeleteAllowedValues =
-         new LinkedHashSet<>(3);
-    softDeleteAllowedValues.add("with-non-deleted-entries");
-    softDeleteAllowedValues.add("without-non-deleted-entries");
-    softDeleteAllowedValues.add("deleted-entries-in-undeleted-form");
+    final Set<String> softDeleteAllowedValues = StaticUtils.setOf(
+         "with-non-deleted-entries", "without-non-deleted-entries",
+         "deleted-entries-in-undeleted-form");
     includeSoftDeletedEntries = new StringArgument(null,
          "includeSoftDeletedEntries", false, 1,
          "{with-non-deleted-entries|without-non-deleted-entries|" +
@@ -951,13 +941,9 @@ public final class LDAPSearch
     proxyV1As.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(proxyV1As);
 
-    final LinkedHashSet<String>
-         suppressOperationalAttributeUpdatesAllowedValues =
-         new LinkedHashSet<>(4);
-    suppressOperationalAttributeUpdatesAllowedValues.add("last-access-time");
-    suppressOperationalAttributeUpdatesAllowedValues.add("last-login-time");
-    suppressOperationalAttributeUpdatesAllowedValues.add("last-login-ip");
-    suppressOperationalAttributeUpdatesAllowedValues.add("lastmod");
+    final Set<String> suppressOperationalAttributeUpdatesAllowedValues =
+         StaticUtils.setOf("last-access-time", "last-login-time",
+              "last-login-ip", "lastmod");
     suppressOperationalAttributeUpdates = new StringArgument(null,
          "suppressOperationalAttributeUpdates", false, -1,
          INFO_PLACEHOLDER_ATTR.get(),
@@ -1555,7 +1541,8 @@ public final class LDAPSearch
     // validate the provided values.
     if (overrideSearchLimit.isPresent())
     {
-      final LinkedHashMap<String,String> properties = new LinkedHashMap<>(10);
+      final LinkedHashMap<String,String> properties =
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
       for (final String value : overrideSearchLimit.getValues())
       {
         final int equalPos = value.indexOf('=');
@@ -3224,7 +3211,8 @@ public final class LDAPSearch
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(5);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
 
     String[] args =
     {

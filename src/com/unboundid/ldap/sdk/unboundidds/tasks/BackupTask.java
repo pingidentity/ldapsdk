@@ -1409,7 +1409,7 @@ public final class BackupTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
 
     props.put(PROPERTY_BACKUP_DIRECTORY,
          Collections.<Object>singletonList(backupDirectory));

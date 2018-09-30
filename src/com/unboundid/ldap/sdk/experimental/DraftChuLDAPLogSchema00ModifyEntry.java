@@ -246,8 +246,8 @@ public final class DraftChuLDAPLogSchema00ModifyEntry
       return;
     }
 
-    final LinkedHashMap<String,List<Attribute>> attrMap =
-         new LinkedHashMap<>(formerAttrBytes.length);
+    final LinkedHashMap<String,List<Attribute>> attrMap = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(formerAttrBytes.length));
     for (final byte[] attrBytes : formerAttrBytes)
     {
       int colonPos = -1;

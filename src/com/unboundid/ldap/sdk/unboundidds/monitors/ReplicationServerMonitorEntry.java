@@ -32,6 +32,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -161,7 +162,8 @@ public final class ReplicationServerMonitorEntry
     sslEncryptionAvailable = getBoolean(ATTR_SSL_AVAILABLE);
 
     final List<String> baseDNsAndIDs = getStrings(ATTR_BASE_DN_GENERATION_ID);
-    final Map<DN,String> idMap = new LinkedHashMap<>(baseDNsAndIDs.size());
+    final Map<DN,String> idMap = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(baseDNsAndIDs.size()));
     for (final String s : baseDNsAndIDs)
     {
       try
@@ -317,7 +319,7 @@ public final class ReplicationServerMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
 
     if (! baseDNs.isEmpty())
     {

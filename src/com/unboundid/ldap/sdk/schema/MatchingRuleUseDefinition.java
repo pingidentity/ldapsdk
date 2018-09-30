@@ -125,9 +125,10 @@ public final class MatchingRuleUseDefinition
     // in any order.
     final ArrayList<String> nameList = new ArrayList<>(1);
     final ArrayList<String> typeList = new ArrayList<>(1);
-    String               descr       = null;
-    Boolean              obsolete    = null;
-    final Map<String,String[]> exts  = new LinkedHashMap<>(5);
+    String descr = null;
+    Boolean obsolete = null;
+    final Map<String,String[]> exts =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
 
     while (true)
     {

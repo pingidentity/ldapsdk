@@ -28,8 +28,8 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
@@ -564,11 +564,8 @@ public final class SearchRate
     parser.addArgument(timeLimitSeconds);
 
 
-    final LinkedHashSet<String> derefAllowedValues = new LinkedHashSet<>(4);
-    derefAllowedValues.add("never");
-    derefAllowedValues.add("always");
-    derefAllowedValues.add("search");
-    derefAllowedValues.add("find");
+    final Set<String> derefAllowedValues =
+         StaticUtils.setOf("never", "always", "search", "find");
     description = "The alias dereferencing policy to use for search " +
                   "requests.  The value should be one of 'never', 'always', " +
                   "'search', or 'find'.  If this is not provided, then a " +
@@ -765,10 +762,8 @@ public final class SearchRate
                   "indicates that both the date and the time should be " +
                   "included.  A value of 'without-date' indicates that only " +
                   "the time should be included.";
-    final LinkedHashSet<String> allowedFormats = new LinkedHashSet<>(3);
-    allowedFormats.add("none");
-    allowedFormats.add("with-date");
-    allowedFormats.add("without-date");
+    final Set<String> allowedFormats =
+         StaticUtils.setOf("none", "with-date", "without-date");
     timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
          "{format}", description, allowedFormats, "none");
     timestampFormat.addLongIdentifier("timestamp-format", true);
@@ -1471,7 +1466,8 @@ public final class SearchRate
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     String[] args =
     {

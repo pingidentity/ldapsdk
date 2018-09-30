@@ -1217,8 +1217,8 @@ public final class DeliverOneTimePasswordExtendedRequest
     }
     else
     {
-      final LinkedHashSet<String> s =
-           new LinkedHashSet<>(preferredDeliveryMechanisms.size());
+      final LinkedHashSet<String> s = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(preferredDeliveryMechanisms.size()));
       for (final ObjectPair<String,String> p : preferredDeliveryMechanisms)
       {
         s.add(p.getFirst());

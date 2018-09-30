@@ -334,9 +334,12 @@ public final class InMemoryDirectoryServer
     final List<InMemoryListenerConfig> listenerConfigs =
          config.getListenerConfigs();
 
-    listeners = new LinkedHashMap<>(listenerConfigs.size());
-    ldapListenerConfigs = new LinkedHashMap<>(listenerConfigs.size());
-    clientSocketFactories = new LinkedHashMap<>(listenerConfigs.size());
+    listeners = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(listenerConfigs.size()));
+    ldapListenerConfigs = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(listenerConfigs.size()));
+    clientSocketFactories = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(listenerConfigs.size()));
 
     for (final InMemoryListenerConfig c : listenerConfigs)
     {

@@ -103,7 +103,7 @@ public final class LDAPPersister<T>
    * The map of instances created so far.
    */
   private static final ConcurrentHashMap<Class<?>,LDAPPersister<?>> INSTANCES =
-       new ConcurrentHashMap<>(10);
+       new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
 
 
 
@@ -391,7 +391,8 @@ public final class LDAPPersister<T>
 
         if (! newOptionalNames.isEmpty())
         {
-          final LinkedHashSet<String> newOptionalSet = new LinkedHashSet<>(20);
+          final LinkedHashSet<String> newOptionalSet =
+               new LinkedHashSet<>(StaticUtils.computeMapCapacity(20));
           newOptionalSet.addAll(
                Arrays.asList(existing.getOptionalAttributes()));
           newOptionalSet.addAll(newOptionalNames);

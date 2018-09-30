@@ -48,6 +48,7 @@ import com.unboundid.ldap.sdk.extensions.StartTransactionExtendedResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -363,8 +364,8 @@ public final class TransactionExtendedOperationHandler
       // Create a map to hold information about response controls from
       // operations processed as part of the transaction.
       final List<?> requestMessages = (List<?>) txnInfo.getSecond();
-      final Map<Integer,Control[]> opResponseControls =
-           new LinkedHashMap<>(requestMessages.size());
+      final Map<Integer,Control[]> opResponseControls = new LinkedHashMap<>(
+           StaticUtils.computeMapCapacity(requestMessages.size()));
 
       // Iterate through the requests that have been submitted as part of the
       // transaction and attempt to process them.

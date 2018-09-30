@@ -398,7 +398,7 @@ public final class SplitLDIF
     splitUsingHashOnRDNParser.addArgument(splitUsingHashOnRDNNumSets);
 
     final LinkedHashMap<String[],String> splitUsingHashOnRDNExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     splitUsingHashOnRDNExamples.put(
          new String[]
          {
@@ -458,7 +458,7 @@ public final class SplitLDIF
          splitUsingHashOnAttributeAssumeFlatDIT);
 
     final LinkedHashMap<String[],String> splitUsingHashOnAttributeExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     splitUsingHashOnAttributeExamples.put(
          new String[]
          {
@@ -503,7 +503,7 @@ public final class SplitLDIF
          splitUsingFewestEntriesAssumeFlatDIT);
 
     final LinkedHashMap<String[],String> splitUsingFewestEntriesExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     splitUsingFewestEntriesExamples.put(
          new String[]
          {
@@ -540,7 +540,7 @@ public final class SplitLDIF
     splitUsingFilterParser.addArgument(splitUsingFilterAssumeFlatDIT);
 
     final LinkedHashMap<String[],String> splitUsingFilterExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     splitUsingFilterExamples.put(
          new String[]
          {
@@ -594,8 +594,8 @@ public final class SplitLDIF
     if (splitUsingFilter.isPresent())
     {
       final List<Filter> filterList = splitUsingFilterFilter.getValues();
-      final Set<Filter> filterSet =
-           new LinkedHashSet<>(filterList.size());
+      final Set<Filter> filterSet = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(filterList.size()));
       for (final Filter f : filterList)
       {
         if (filterSet.contains(f))
@@ -689,8 +689,8 @@ public final class SplitLDIF
     else if (splitUsingFilter.isPresent())
     {
       final List<Filter> filterList = splitUsingFilterFilter.getValues();
-      final LinkedHashSet<Filter> filterSet =
-           new LinkedHashSet<>(filterList.size());
+      final LinkedHashSet<Filter> filterSet = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(filterList.size()));
       for (final Filter f : filterList)
       {
         filterSet.add(f);
@@ -755,7 +755,7 @@ public final class SplitLDIF
     // Iterate through and process all of the entries.
     ResultCode resultCode = ResultCode.SUCCESS;
     final LinkedHashMap<String,OutputStream> outputStreams =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     try
     {
       final AtomicLong entriesRead = new AtomicLong(0L);
@@ -1227,7 +1227,7 @@ readLoop:
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<>(4);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(4));
 
     for (final Map.Entry<String[],String> e :
          splitUsingHashOnRDN.getExampleUsages().entrySet())

@@ -137,12 +137,12 @@ final class LDAPConnectionReader
     asn1StreamReader = new ASN1StreamReader(inputStream,
          connection.getConnectionOptions().getMaxMessageSize());
 
-    acceptorMap          = new ConcurrentHashMap<>(10);
-    closeRequested       = false;
-    sslSocketFactory     = null;
-    startTLSException    = null;
+    acceptorMap = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(10));
+    closeRequested = false;
+    sslSocketFactory = null;
+    startTLSException = null;
     startTLSOutputStream = null;
-    startTLSSleeper      = new WakeableSleeper();
+    startTLSSleeper = new WakeableSleeper();
   }
 
 

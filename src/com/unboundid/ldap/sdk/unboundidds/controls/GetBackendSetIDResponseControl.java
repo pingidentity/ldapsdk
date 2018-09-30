@@ -220,8 +220,8 @@ public final class GetBackendSetIDResponseControl
 
       final ASN1Element[] backendSetIDElements =
            ASN1Set.decodeAsSet(elements[1]).elements();
-      final LinkedHashSet<String> setIDs =
-           new LinkedHashSet<>(backendSetIDElements.length);
+      final LinkedHashSet<String> setIDs = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(backendSetIDElements.length));
       for (final ASN1Element e : backendSetIDElements)
       {
         setIDs.add(ASN1OctetString.decodeAsOctetString(e).stringValue());

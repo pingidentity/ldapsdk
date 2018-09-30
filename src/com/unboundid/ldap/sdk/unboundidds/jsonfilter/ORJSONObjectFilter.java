@@ -371,7 +371,8 @@ public final class ORJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(3);
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(3));
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
 

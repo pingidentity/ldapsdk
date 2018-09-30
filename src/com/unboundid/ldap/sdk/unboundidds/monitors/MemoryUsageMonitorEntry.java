@@ -928,7 +928,7 @@ public final class MemoryUsageMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(50);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(50));
 
     if (maxReservableMemoryMB != null)
     {

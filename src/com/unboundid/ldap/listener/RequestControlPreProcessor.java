@@ -49,6 +49,7 @@ import com.unboundid.ldap.sdk.experimental.
             DraftZeilengaLDAPNoOp12RequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IgnoreNoUserModificationRequestControl;
+import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
 
@@ -93,7 +94,8 @@ final class RequestControlPreProcessor
                                              final List<Control> controls)
          throws LDAPException
   {
-    final Map<String,Control> m = new LinkedHashMap<>(controls.size());
+    final Map<String,Control> m =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(controls.size()));
 
     for (final Control control : controls)
     {

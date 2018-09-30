@@ -272,7 +272,8 @@ public abstract class LDAPCommandLineTool
   static Set<String> getLongLDAPArgumentIdentifiers(
                           final LDAPCommandLineTool tool)
   {
-    final LinkedHashSet<String> ids = new LinkedHashSet<>(21);
+    final LinkedHashSet<String> ids =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(21));
 
     ids.add("hostname");
     ids.add("port");

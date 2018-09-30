@@ -154,7 +154,8 @@ public final class ReplaceAttributeTransformation
 
     // Identify all of the names that may be used to reference the attributes
     // to replace.
-    final HashMap<String,Attribute> attrMap = new HashMap<>(10);
+    final HashMap<String,Attribute> attrMap =
+         new HashMap<>(StaticUtils.computeMapCapacity(10));
     for (final Attribute a : attributes)
     {
       final String baseName = StaticUtils.toLowerCase(a.getBaseName());

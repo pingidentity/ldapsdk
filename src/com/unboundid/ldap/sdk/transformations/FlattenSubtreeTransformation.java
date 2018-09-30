@@ -36,6 +36,7 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -239,7 +240,8 @@ public final class FlattenSubtreeTransformation
         // If appropriate allocate a set to hold omitted RDN values.
         if (addOmittedRDNAttributesToEntry || addOmittedRDNAttributesToRDN)
         {
-          omittedRDNValues = new LinkedHashSet<>(5);
+          omittedRDNValues =
+               new LinkedHashSet<>(StaticUtils.computeMapCapacity(5));
         }
 
 
@@ -265,7 +267,8 @@ public final class FlattenSubtreeTransformation
     final LinkedHashSet<ObjectPair<String,String>> tempOmittedRDNValues;
     if (addOmittedRDNAttributesToRDN)
     {
-      tempOmittedRDNValues = new LinkedHashSet<>(5);
+      tempOmittedRDNValues =
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(5));
     }
     else
     {

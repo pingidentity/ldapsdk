@@ -39,6 +39,7 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -101,7 +102,7 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
     matchingRule = MatchingRule.selectEqualityMatchingRule(attributeType,
          schema);
 
-    indexMap = new HashMap<>(100);
+    indexMap = new HashMap<>(StaticUtils.computeMapCapacity(100));
   }
 
 
@@ -138,7 +139,7 @@ final class InMemoryDirectoryServerEqualityAttributeIndex
   synchronized Map<ASN1OctetString,TreeSet<DN>> copyMap()
   {
     final HashMap<ASN1OctetString,TreeSet<DN>> m =
-         new HashMap<>(indexMap.size());
+         new HashMap<>(StaticUtils.computeMapCapacity(indexMap.size()));
     for (final Map.Entry<ASN1OctetString,TreeSet<DN>> e : indexMap.entrySet())
     {
       m.put(e.getKey(), new TreeSet<>(e.getValue()));

@@ -40,6 +40,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -139,7 +140,7 @@ public final class PasswordPolicyStateExtendedResult
     userDN = ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
 
     final LinkedHashMap<Integer,PasswordPolicyStateOperation> ops =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
     if (elements.length == 2)
     {
       try
@@ -204,7 +205,8 @@ public final class PasswordPolicyStateExtendedResult
     else
     {
       final LinkedHashMap<Integer,PasswordPolicyStateOperation> ops =
-           new LinkedHashMap<>(operations.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(
+                operations.length));
       for (final PasswordPolicyStateOperation o : operations)
       {
         ops.put(o.getOperationType(), o);

@@ -194,8 +194,10 @@ public class LogMessage
 
 
     // The remainder of the message should consist of named and unnamed values.
-    final LinkedHashMap<String,String> named = new LinkedHashMap<>(10);
-    final LinkedHashSet<String> unnamed = new LinkedHashSet<>(10);
+    final LinkedHashMap<String,String> named =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
+    final LinkedHashSet<String> unnamed =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
     parseTokens(s, bracketPos+1, named, unnamed);
 
     namedValues   = Collections.unmodifiableMap(named);

@@ -31,6 +31,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -204,8 +205,8 @@ public final class BackendMonitorEntry
     writabilityMode = getString(ATTR_WRITABILITY_MODE);
 
     final List<String> entriesPerBase = getStrings(ATTR_ENTRIES_PER_BASE_DN);
-    final LinkedHashMap<String,Long> countMap =
-         new LinkedHashMap<>(entriesPerBase.size());
+    final LinkedHashMap<String,Long> countMap = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(entriesPerBase.size()));
     for (final String s : entriesPerBase)
     {
       try
@@ -373,7 +374,7 @@ public final class BackendMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
 
     if (backendID != null)
     {

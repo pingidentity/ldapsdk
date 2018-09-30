@@ -3499,7 +3499,8 @@ attrNameLoop:
     // Simplify each of them to the extent possible, un-embed any ANDs
     // contained inside an AND or ORs contained inside an OR, and eliminate any
     // duplicate components in the resulting top-level filter.
-    final LinkedHashSet<Filter> componentSet = new LinkedHashSet<>(10);
+    final LinkedHashSet<Filter> componentSet =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
     for (final Filter f : components)
     {
       final Filter simplifiedFilter = simplifyFilter(f, reOrderElements);
@@ -3667,7 +3668,7 @@ attrNameLoop:
         LinkedHashSet<Filter> filterSet = m.get(slot-1);
         if (filterSet == null)
         {
-          filterSet = new LinkedHashSet<>(10);
+          filterSet = new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
           m.put(slot-1, filterSet);
         }
         filterSet.add(f);
@@ -3820,7 +3821,8 @@ attrNameLoop:
           return false;
         }
 
-        final HashSet<Filter> compSet = new HashSet<>(10);
+        final HashSet<Filter> compSet =
+             new HashSet<>(StaticUtils.computeMapCapacity(10));
         compSet.addAll(Arrays.asList(filterComps));
 
         for (final Filter filterComp : f.filterComps)

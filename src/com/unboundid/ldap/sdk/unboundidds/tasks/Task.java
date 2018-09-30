@@ -2165,7 +2165,7 @@ public class Task
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
 
     props.put(PROPERTY_TASK_ID,
               Collections.<Object>singletonList(taskID));

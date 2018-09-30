@@ -58,6 +58,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -108,7 +109,7 @@ public final class AccessLogRequestHandler
   // A map used to correlate the number of search result entries returned for a
   // particular message ID.
   private final ConcurrentHashMap<Integer,AtomicLong> entryCounts =
-       new ConcurrentHashMap<>(50);
+       new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(50));
 
   // The log handler that will be used to log the messages.
   private final Handler logHandler;

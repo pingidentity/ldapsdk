@@ -98,7 +98,8 @@ public class Control
   // class implementing the DecodeableControl interface that should be used to
   // decode controls with that OID.
   private static final ConcurrentHashMap<String,DecodeableControl>
-       decodeableControlMap = new ConcurrentHashMap<>(50);
+       decodeableControlMap =
+            new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(50));
 
 
 

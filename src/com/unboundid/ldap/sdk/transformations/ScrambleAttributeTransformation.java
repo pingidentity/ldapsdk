@@ -277,7 +277,8 @@ public final class ScrambleAttributeTransformation
     // Iterate through the set of provided attribute names.  Identify all of the
     // alternate names (including the OID) that may be used to reference the
     // attribute, and identify the associated matching rule.
-    final HashMap<String,MatchingRule> m = new HashMap<>(10);
+    final HashMap<String,MatchingRule> m =
+         new HashMap<>(StaticUtils.computeMapCapacity(10));
     for (final String a : attributes)
     {
       final String baseName = StaticUtils.toLowerCase(Attribute.getBaseName(a));
@@ -313,7 +314,8 @@ public final class ScrambleAttributeTransformation
     }
     else
     {
-      final HashSet<String> fieldNames = new HashSet<>(jsonFields.size());
+      final HashSet<String> fieldNames =
+           new HashSet<>(StaticUtils.computeMapCapacity(jsonFields.size()));
       for (final String fieldName : jsonFields)
       {
         fieldNames.add(StaticUtils.toLowerCase(fieldName));
@@ -1107,8 +1109,8 @@ public final class ScrambleAttributeTransformation
 
     final boolean scrambleAllFields = jsonFields.isEmpty();
     final Map<String,JSONValue> originalFields = o.getFields();
-    final LinkedHashMap<String,JSONValue> scrambledFields =
-         new LinkedHashMap<>(originalFields.size());
+    final LinkedHashMap<String,JSONValue> scrambledFields = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(originalFields.size()));
     for (final Map.Entry<String,JSONValue> e : originalFields.entrySet())
     {
       final JSONValue scrambledValue;
@@ -1186,7 +1188,8 @@ public final class ScrambleAttributeTransformation
       final JSONObject o = (JSONObject) v;
       final Map<String,JSONValue> originalFields = o.getFields();
       final LinkedHashMap<String,JSONValue> scrambledFields =
-           new LinkedHashMap<>(originalFields.size());
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(
+                originalFields.size()));
       for (final Map.Entry<String,JSONValue> e : originalFields.entrySet())
       {
         final JSONValue scrambledValue;

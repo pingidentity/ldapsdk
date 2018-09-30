@@ -737,7 +737,7 @@ public final class AuditDataSecurityTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(5);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
 
     if (! includeAuditors.isEmpty())
     {

@@ -387,8 +387,8 @@ public final class PasswordQualityRequirement
                 case TYPE_CLIENT_SIDE_VALIDATION_PROPERTIES:
                   final ASN1Element[] csvPropElements =
                        ASN1Sequence.decodeAsSequence(csvInfoElement).elements();
-                  clientSideValidationProperties =
-                       new LinkedHashMap<>(csvPropElements.length);
+                  clientSideValidationProperties = new LinkedHashMap<>(
+                       StaticUtils.computeMapCapacity(csvPropElements.length));
                   for (final ASN1Element csvPropElement : csvPropElements)
                   {
                     final ASN1Element[] propElements =

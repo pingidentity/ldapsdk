@@ -1583,7 +1583,7 @@ public final class ExportTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(30);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(30));
 
     props.put(PROPERTY_BACKEND_ID,
               Collections.<Object>singletonList(backendID));

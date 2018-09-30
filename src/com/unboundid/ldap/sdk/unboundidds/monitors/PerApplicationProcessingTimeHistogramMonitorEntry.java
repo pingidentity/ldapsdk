@@ -28,6 +28,7 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -155,8 +156,8 @@ public final class PerApplicationProcessingTimeHistogramMonitorEntry
     final Map<String,MonitorAttribute> superAttrs =
          super.getMonitorAttributes();
 
-    final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(superAttrs.size()+1);
+    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(superAttrs.size()+1));
     attrs.putAll(superAttrs);
 
     if (applicationName != null)

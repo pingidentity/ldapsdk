@@ -1315,7 +1315,8 @@ public final class GSSAPIBindRequest
     final LDAPConnection connection = conn.get();
 
 
-    final HashMap<String,Object> saslProperties = new HashMap<>(2);
+    final HashMap<String,Object> saslProperties =
+         new HashMap<>(StaticUtils.computeMapCapacity(2));
     saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
     saslProperties.put(Sasl.SERVER_AUTH, "true");
 

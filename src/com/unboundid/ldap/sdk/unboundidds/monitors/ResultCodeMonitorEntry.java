@@ -270,7 +270,7 @@ public final class ResultCodeMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(100);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(100));
 
     addAttrs(attrs, allOperationsResultCodeInfo, "all-ops-");
     addAttrs(attrs, addOperationResultCodeInfo, "add-op-");

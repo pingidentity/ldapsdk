@@ -130,7 +130,7 @@ public final class SubCommand
                     final LinkedHashMap<String[],String> exampleUsages)
          throws ArgumentException
   {
-    names = new LinkedHashMap<>(5);
+    names = new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
     addName(name);
 
     this.description = description;
@@ -157,7 +157,8 @@ public final class SubCommand
 
     if (exampleUsages == null)
     {
-      this.exampleUsages = new LinkedHashMap<>(10);
+      this.exampleUsages =
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     }
     else
     {

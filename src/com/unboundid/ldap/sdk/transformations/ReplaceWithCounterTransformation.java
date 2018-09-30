@@ -151,7 +151,8 @@ public final class ReplaceWithCounterTransformation
 
 
     // Get all names that can be used to reference the target attribute.
-    final HashSet<String> nameSet = new HashSet<>(5);
+    final HashSet<String> nameSet =
+         new HashSet<>(StaticUtils.computeMapCapacity(5));
     final String baseName =
          StaticUtils.toLowerCase(Attribute.getBaseName(attributeName));
     nameSet.add(baseName);

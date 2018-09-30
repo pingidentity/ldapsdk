@@ -451,8 +451,8 @@ public final class UniquenessRequestControl
             break;
           case TYPE_ATTRIBUTE_TYPES:
             final ASN1Element[] atElements = ASN1Set.decodeAsSet(e).elements();
-            final LinkedHashSet<String> atNames =
-                 new LinkedHashSet<>(atElements.length);
+            final LinkedHashSet<String> atNames = new LinkedHashSet<>(
+                 StaticUtils.computeMapCapacity(atElements.length));
             for (final ASN1Element atElement : atElements)
             {
               atNames.add(ASN1OctetString.decodeAsOctetString(

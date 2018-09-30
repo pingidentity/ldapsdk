@@ -137,7 +137,8 @@ public final class AddAttributeTransformation
 
     // Identify all of the names that can be used to reference the specified
     // attribute.
-    final HashSet<String> attrNames = new HashSet<>(5);
+    final HashSet<String> attrNames =
+         new HashSet<>(StaticUtils.computeMapCapacity(5));
     final String baseName =
          StaticUtils.toLowerCase(attributeToAdd.getBaseName());
     attrNames.add(baseName);

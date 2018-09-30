@@ -113,8 +113,9 @@ public final class AttributeSyntaxDefinition
     // Technically, attribute syntax elements are supposed to appear in a
     // specific order, but we'll be lenient and allow remaining elements to come
     // in any order.
-    String               descr = null;
-    final Map<String,String[]> exts  = new LinkedHashMap<>(5);
+    String descr = null;
+    final Map<String,String[]> exts  =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
 
     while (true)
     {

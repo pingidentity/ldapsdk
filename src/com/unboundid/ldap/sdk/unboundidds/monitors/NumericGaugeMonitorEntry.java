@@ -32,6 +32,7 @@ import java.util.StringTokenizer;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -229,8 +230,8 @@ public final class NumericGaugeMonitorEntry
     final Map<String,MonitorAttribute> superAttributes =
          super.getMonitorAttributes();
 
-    final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(superAttributes.size() + 5);
+    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(
+         StaticUtils.computeMapCapacity(superAttributes.size() + 5));
     attrs.putAll(superAttributes);
 
     if (currentValue != null)

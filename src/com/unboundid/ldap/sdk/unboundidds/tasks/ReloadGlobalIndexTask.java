@@ -33,6 +33,7 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -711,7 +712,7 @@ public final class ReloadGlobalIndexTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(15);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(15));
 
     props.put(PROPERTY_BASE_DN,
          Collections.<Object>singletonList(baseDN));

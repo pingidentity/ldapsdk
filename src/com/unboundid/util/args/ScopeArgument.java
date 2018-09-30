@@ -63,7 +63,8 @@ public final class ScopeArgument
 
   static
   {
-    final HashMap<String,SearchScope> scopeMap = new HashMap<>(21);
+    final HashMap<String,SearchScope> scopeMap =
+         new HashMap<>(StaticUtils.computeMapCapacity(21));
 
     scopeMap.put("base", SearchScope.BASE);
     scopeMap.put("baseobject", SearchScope.BASE);

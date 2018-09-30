@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -490,11 +491,11 @@ public final class IdentifyUniqueAttributeConflicts
          BEHAVIOR_UNIQUE_IN_COMBINATION + "' (indicates that every " +
          "combination of the values of the specified attributes must be " +
          "unique across each entry).";
-    final LinkedHashSet<String> allowedValues = new LinkedHashSet<>(4);
-    allowedValues.add(BEHAVIOR_UNIQUE_WITHIN_ATTR);
-    allowedValues.add(BEHAVIOR_UNIQUE_ACROSS_ATTRS_INCLUDING_SAME);
-    allowedValues.add(BEHAVIOR_UNIQUE_ACROSS_ATTRS_EXCEPT_SAME);
-    allowedValues.add(BEHAVIOR_UNIQUE_IN_COMBINATION);
+    final Set<String> allowedValues = StaticUtils.setOf(
+         BEHAVIOR_UNIQUE_WITHIN_ATTR,
+         BEHAVIOR_UNIQUE_ACROSS_ATTRS_INCLUDING_SAME,
+         BEHAVIOR_UNIQUE_ACROSS_ATTRS_EXCEPT_SAME,
+         BEHAVIOR_UNIQUE_IN_COMBINATION);
     multipleAttributeBehaviorArgument = new StringArgument('m',
          "multipleAttributeBehavior", false, 1, "{behavior}", description,
          allowedValues, BEHAVIOR_UNIQUE_WITHIN_ATTR);
@@ -864,7 +865,8 @@ public final class IdentifyUniqueAttributeConflicts
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(1);
+    final LinkedHashMap<String[],String> exampleMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
 
     final String[] args =
     {
@@ -1116,7 +1118,8 @@ baseDNLoop:
          new ArrayList<>(attributes.length + 1);
     for (final String attrName : attributes)
     {
-      final LinkedHashSet<Filter> values = new LinkedHashSet<>(5);
+      final LinkedHashSet<Filter> values =
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(5));
       for (final Attribute a : entry.getAttributesWithOptions(attrName, null))
       {
         for (final byte[] value : a.getValueByteArrays())

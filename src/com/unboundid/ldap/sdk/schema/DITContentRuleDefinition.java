@@ -133,14 +133,15 @@ public final class DITContentRuleDefinition
     // Technically, DIT content elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<String>    nameList = new ArrayList<>(5);
-    final ArrayList<String>    reqAttrs = new ArrayList<>(10);
-    final ArrayList<String>    optAttrs = new ArrayList<>(10);
-    final ArrayList<String>    notAttrs = new ArrayList<>(10);
-    final ArrayList<String>    auxOCs   = new ArrayList<>(10);
-    final Map<String,String[]> exts     = new LinkedHashMap<>(5);
+    final ArrayList<String> nameList = new ArrayList<>(5);
+    final ArrayList<String> reqAttrs = new ArrayList<>(10);
+    final ArrayList<String> optAttrs = new ArrayList<>(10);
+    final ArrayList<String> notAttrs = new ArrayList<>(10);
+    final ArrayList<String> auxOCs = new ArrayList<>(10);
+    final Map<String,String[]> exts =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
     Boolean obsolete = null;
-    String  descr    = null;
+    String descr = null;
 
     while (true)
     {

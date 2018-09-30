@@ -31,6 +31,7 @@ import java.util.Map;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.unboundidds.AlarmSeverity;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -915,7 +916,7 @@ public class GaugeMonitorEntry
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
     final LinkedHashMap<String,MonitorAttribute> attrs =
-         new LinkedHashMap<>(43);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(43));
 
     if (gaugeName != null)
     {

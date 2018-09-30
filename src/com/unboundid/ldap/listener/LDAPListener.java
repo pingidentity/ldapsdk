@@ -40,6 +40,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -136,7 +137,8 @@ public final class LDAPListener
     serverSocket = new AtomicReference<>(null);
     thread = new AtomicReference<>(null);
     startLatch = new CountDownLatch(1);
-    establishedConnections = new ConcurrentHashMap<>(20);
+    establishedConnections =
+         new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
     setName("LDAP Listener Thread (not listening");
   }
 

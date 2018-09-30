@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -124,7 +125,7 @@ public final class SearchScope
    * The set of search scope objects created with undefined int values.
    */
   private static final HashMap<Integer,SearchScope> UNDEFINED_SCOPES =
-       new HashMap<>(5);
+       new HashMap<>(StaticUtils.computeMapCapacity(5));
 
 
 

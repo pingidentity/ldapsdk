@@ -28,8 +28,8 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -542,11 +542,8 @@ public final class AuthRate
                   "are:  SIMPLE, CRAM-MD5, DIGEST-MD5, and PLAIN.  If no "+
                   "value is provided, then SIMPLE authentication will be " +
                   "performed.";
-    final LinkedHashSet<String> allowedAuthTypes = new LinkedHashSet<>(4);
-    allowedAuthTypes.add("simple");
-    allowedAuthTypes.add("cram-md5");
-    allowedAuthTypes.add("digest-md5");
-    allowedAuthTypes.add("plain");
+    final Set<String> allowedAuthTypes =
+         StaticUtils.setOf("simple", "cram-md5", "digest-md5", "plain");
     authType = new StringArgument('a', "authType", true, 1, "{authType}",
                                   description, allowedAuthTypes, "simple");
     authType.setArgumentGroupName("Search and Authentication Arguments");
@@ -680,10 +677,8 @@ public final class AuthRate
                   "indicates that both the date and the time should be " +
                   "included.  A value of 'without-date' indicates that only " +
                   "the time should be included.";
-    final LinkedHashSet<String> allowedFormats = new LinkedHashSet<>(3);
-    allowedFormats.add("none");
-    allowedFormats.add("with-date");
-    allowedFormats.add("without-date");
+    final Set<String> allowedFormats =
+         StaticUtils.setOf("none", "with-date", "without-date");
     timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
          "{format}", description, allowedFormats, "none");
     timestampFormat.addLongIdentifier("timestamp-format", true);
@@ -1220,7 +1215,8 @@ public final class AuthRate
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(2);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     String[] args =
     {

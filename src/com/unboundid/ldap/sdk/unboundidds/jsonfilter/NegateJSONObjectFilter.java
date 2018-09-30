@@ -29,6 +29,7 @@ import java.util.Set;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -235,7 +236,8 @@ public final class NegateJSONObjectFilter
   @Override()
   public JSONObject toJSONObject()
   {
-    final LinkedHashMap<String,JSONValue> fields = new LinkedHashMap<>(2);
+    final LinkedHashMap<String,JSONValue> fields =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     fields.put(FIELD_FILTER_TYPE, new JSONString(FILTER_TYPE));
     fields.put(FIELD_NEGATE_FILTER, negateFilter.toJSONObject());

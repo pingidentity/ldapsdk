@@ -370,7 +370,8 @@ public final class InMemoryRequestHandler
          config.getAdditionalBindCredentials());
 
     final List<String> eqIndexAttrs = config.getEqualityIndexAttributes();
-    equalityIndexes = new HashMap<>(eqIndexAttrs.size());
+    equalityIndexes = new HashMap<>(
+         StaticUtils.computeMapCapacity(eqIndexAttrs.size()));
     for (final String s : eqIndexAttrs)
     {
       final InMemoryDirectoryServerEqualityAttributeIndex i =
@@ -380,9 +381,9 @@ public final class InMemoryRequestHandler
 
     final Set<String> pwAttrSet = config.getPasswordAttributes();
     final LinkedHashSet<String> basePWAttrSet =
-         new LinkedHashSet<>(pwAttrSet.size());
-    final LinkedHashSet<String> extendedPWAttrSet =
-         new LinkedHashSet<>(pwAttrSet.size()*2);
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(pwAttrSet.size()));
+    final LinkedHashSet<String> extendedPWAttrSet = new LinkedHashSet<>(
+         StaticUtils.computeMapCapacity(pwAttrSet.size()*2));
     for (final String attr : pwAttrSet)
     {
       basePWAttrSet.add(attr);
@@ -976,8 +977,8 @@ public final class InMemoryRequestHandler
         final String[] objectClasses = entry.getObjectClassValues();
         if (objectClasses != null)
         {
-          final LinkedHashMap<String,String> ocMap =
-               new LinkedHashMap<>(objectClasses.length);
+          final LinkedHashMap<String,String> ocMap = new LinkedHashMap<>(
+               StaticUtils.computeMapCapacity(objectClasses.length));
           for (final String ocName : objectClasses)
           {
             final ObjectClassDefinition oc = schema.getObjectClass(ocName);
@@ -5034,7 +5035,7 @@ findEntriesAndRefs:
 
     final Schema schema = schemaRef.get();
     final HashMap<String,List<List<String>>> m =
-         new HashMap<>(attrList.size() * 2);
+         new HashMap<>(StaticUtils.computeMapCapacity(attrList.size() * 2));
     for (final String s : attrList)
     {
       if (s.equals("*"))

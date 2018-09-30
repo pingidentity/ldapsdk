@@ -31,7 +31,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
@@ -2684,5 +2686,85 @@ public class StaticUtilsTestCase
     StaticUtils.rethrowIfError(new NullPointerException("Testing"));
 
     StaticUtils.rethrowIfError(new IOException("Testing"));
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code computeMapCapacity} method.
+   *
+   * @throws  Exception  If an unexpected error occurs.
+   */
+  @Test()
+  public void testComputeMapCapacity()
+         throws Exception
+  {
+    assertEquals(StaticUtils.computeMapCapacity(0), 0);
+
+    for (int i=1; i <= 1000; i++)
+    {
+      assertEquals(StaticUtils.computeMapCapacity(i),
+           (((i * 4 )/ 3) + 1));
+    }
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code setOf} method.
+   *
+   * @throws  Exception  If an unexpected error occurs.
+   */
+  @Test()
+  public void testSetOf()
+         throws Exception
+  {
+    assertEquals(StaticUtils.setOf(), Collections.emptySet());
+
+    assertEquals(StaticUtils.setOf("foo"), Collections.singleton("foo"));
+
+    assertEquals(StaticUtils.setOf("foo", "bar"),
+         Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(
+              "foo", "bar"))));
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code hashSetOf} method.
+   *
+   * @throws  Exception  If an unexpected error occurs.
+   */
+  @Test()
+  public void testHashSetOf()
+         throws Exception
+  {
+    assertEquals(StaticUtils.hashSetOf(), new HashSet<>(0));
+
+    assertEquals(StaticUtils.hashSetOf("foo"),
+         new HashSet<>(Collections.singleton("foo")));
+
+    assertEquals(StaticUtils.hashSetOf("foo", "bar"),
+         new HashSet<>(Arrays.asList("foo", "bar")));
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code linkedHashSetOf} method.
+   *
+   * @throws  Exception  If an unexpected error occurs.
+   */
+  @Test()
+  public void testLinkedHashSetOf()
+         throws Exception
+  {
+    assertEquals(StaticUtils.linkedHashSetOf(), new LinkedHashSet<>(0));
+
+    assertEquals(StaticUtils.linkedHashSetOf("foo"),
+         new LinkedHashSet<>(Collections.singleton("foo")));
+
+    assertEquals(StaticUtils.linkedHashSetOf("foo", "bar"),
+         new LinkedHashSet<>(Arrays.asList("foo", "bar")));
   }
 }

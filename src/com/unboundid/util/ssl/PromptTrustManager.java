@@ -266,7 +266,7 @@ public final class PromptTrustManager
       this.out = out;
     }
 
-    acceptedCerts = new ConcurrentHashMap<>(20);
+    acceptedCerts = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(20));
 
     if (acceptedCertsFile != null)
     {

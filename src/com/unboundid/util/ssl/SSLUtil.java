@@ -783,7 +783,8 @@ public final class SSLUtil
                                final String[] supportedProtocols)
          throws IOException
   {
-    final Set<String> lowerProtocols = new HashSet<>(desiredProtocols.size());
+    final Set<String> lowerProtocols =
+         new HashSet<>(StaticUtils.computeMapCapacity(desiredProtocols.size()));
     for (final String s : desiredProtocols)
     {
       lowerProtocols.add(StaticUtils.toLowerCase(s));
@@ -895,7 +896,8 @@ public final class SSLUtil
     // enabled protocols will not include SSLv3 even if the JVM might otherwise
     // include it as a default enabled protocol because of known security
     // problems with SSLv3.
-    final HashSet<String> enabledProtocols = new HashSet<>(10);
+    final HashSet<String> enabledProtocols =
+         new HashSet<>(StaticUtils.computeMapCapacity(10));
     enabledProtocols.add("TLSv1");
     if (DEFAULT_SSL_PROTOCOL.get().equals("TLSv1.2"))
     {

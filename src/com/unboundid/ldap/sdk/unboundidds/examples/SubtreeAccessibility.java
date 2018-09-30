@@ -24,9 +24,7 @@ package com.unboundid.ldap.sdk.unboundidds.examples;
 
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -86,20 +84,12 @@ public final class SubtreeAccessibility
   /**
    * The set of allowed subtree accessibility state values.
    */
-  private static final Set<String> ALLOWED_ACCESSIBILITY_STATES;
-  static
-  {
-    final LinkedHashSet<String> stateValues = new LinkedHashSet<>(4);
-
-    stateValues.add(SubtreeAccessibilityState.ACCESSIBLE.getStateName());
-    stateValues.add(
-         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.getStateName());
-    stateValues.add(
-         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.getStateName());
-    stateValues.add(SubtreeAccessibilityState.HIDDEN.getStateName());
-
-    ALLOWED_ACCESSIBILITY_STATES = Collections.unmodifiableSet(stateValues);
-  }
+  private static final Set<String> ALLOWED_ACCESSIBILITY_STATES =
+       StaticUtils.setOf(
+            SubtreeAccessibilityState.ACCESSIBLE.getStateName(),
+            SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.getStateName(),
+            SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.getStateName(),
+            SubtreeAccessibilityState.HIDDEN.getStateName());
 
 
 
@@ -619,7 +609,8 @@ public final class SubtreeAccessibility
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(2);
+    final LinkedHashMap<String[],String> exampleMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
 
     final String[] getArgs =
     {

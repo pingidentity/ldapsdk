@@ -129,13 +129,14 @@ public final class NameFormDefinition
     // Technically, name form elements are supposed to appear in a specific
     // order, but we'll be lenient and allow remaining elements to come in any
     // order.
-    final ArrayList<String>    nameList = new ArrayList<>(1);
-    final ArrayList<String>    reqAttrs = new ArrayList<>(10);
-    final ArrayList<String>    optAttrs = new ArrayList<>(10);
-    final Map<String,String[]> exts     = new LinkedHashMap<>(5);
-    Boolean                    obsolete = null;
-    String                     descr    = null;
-    String                     oc       = null;
+    final ArrayList<String> nameList = new ArrayList<>(1);
+    final ArrayList<String> reqAttrs = new ArrayList<>(10);
+    final ArrayList<String> optAttrs = new ArrayList<>(10);
+    final Map<String,String[]> exts =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
+    Boolean obsolete = null;
+    String descr = null;
+    String oc = null;
 
     while (true)
     {

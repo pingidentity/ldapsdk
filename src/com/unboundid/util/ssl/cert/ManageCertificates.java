@@ -497,7 +497,7 @@ public final class ManageCertificates
          listCertsKeystorePasswordFile, listCertsPromptForKeystorePassword);
 
     final LinkedHashMap<String[],String> listCertsExamples =
-         new LinkedHashMap<>(3);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(3));
     listCertsExamples.put(
          new String[]
          {
@@ -616,15 +616,8 @@ public final class ManageCertificates
     exportCertChain.addLongIdentifier("chain", true);
     exportCertParser.addArgument(exportCertChain);
 
-    final LinkedHashSet<String> exportCertOutputFormatAllowedValues =
-         new LinkedHashSet<>(7);
-    exportCertOutputFormatAllowedValues.add("PEM");
-    exportCertOutputFormatAllowedValues.add("text");
-    exportCertOutputFormatAllowedValues.add("txt");
-    exportCertOutputFormatAllowedValues.add("RFC");
-    exportCertOutputFormatAllowedValues.add("DER");
-    exportCertOutputFormatAllowedValues.add("binary");
-    exportCertOutputFormatAllowedValues.add("bin");
+    final Set<String> exportCertOutputFormatAllowedValues = StaticUtils.setOf(
+         "PEM", "text", "txt", "RFC", "DER", "binary", "bin");
     final StringArgument exportCertOutputFormat = new StringArgument(null,
          "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
          INFO_MANAGE_CERTS_SC_EXPORT_CERT_ARG_FORMAT_DESC.get(),
@@ -670,7 +663,7 @@ public final class ManageCertificates
          exportCertOutputFile);
 
     final LinkedHashMap<String[],String> exportCertExamples =
-         new LinkedHashMap<>(2);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
     exportCertExamples.put(
          new String[]
          {
@@ -834,15 +827,8 @@ public final class ManageCertificates
     exportKeyAlias.addLongIdentifier("nickname", true);
     exportKeyParser.addArgument(exportKeyAlias);
 
-    final LinkedHashSet<String> exportKeyOutputFormatAllowedValues =
-         new LinkedHashSet<>(7);
-    exportKeyOutputFormatAllowedValues.add("PEM");
-    exportKeyOutputFormatAllowedValues.add("text");
-    exportKeyOutputFormatAllowedValues.add("txt");
-    exportKeyOutputFormatAllowedValues.add("RFC");
-    exportKeyOutputFormatAllowedValues.add("DER");
-    exportKeyOutputFormatAllowedValues.add("binary");
-    exportKeyOutputFormatAllowedValues.add("bin");
+    final Set<String> exportKeyOutputFormatAllowedValues = StaticUtils.setOf(
+         "PEM", "text", "txt", "RFC", "DER", "binary", "bin");
     final StringArgument exportKeyOutputFormat = new StringArgument(null,
          "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
          INFO_MANAGE_CERTS_SC_EXPORT_KEY_ARG_FORMAT_DESC.get(),
@@ -873,7 +859,7 @@ public final class ManageCertificates
          exportKeyPKPasswordFile, exportKeyPromptForPKPassword);
 
     final LinkedHashMap<String[],String> exportKeyExamples =
-         new LinkedHashMap<>(2);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
     exportKeyExamples.put(
          new String[]
          {
@@ -965,13 +951,8 @@ public final class ManageCertificates
          "promptForKeystorePIN", true);
     importCertParser.addArgument(importCertPromptForKeystorePassword);
 
-    final LinkedHashSet<String> importCertKeystoreTypeAllowedValues =
-         new LinkedHashSet<>(2);
-    importCertKeystoreTypeAllowedValues.add("jks");
-    importCertKeystoreTypeAllowedValues.add("pkcs12");
-    importCertKeystoreTypeAllowedValues.add("pkcs 12");
-    importCertKeystoreTypeAllowedValues.add("pkcs#12");
-    importCertKeystoreTypeAllowedValues.add("pkcs #12");
+    final Set<String> importCertKeystoreTypeAllowedValues = StaticUtils.setOf(
+         "jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12");
     final StringArgument importCertKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_KS_TYPE_DESC.get(),
@@ -1099,7 +1080,7 @@ public final class ManageCertificates
          importCertPKPasswordFile, importCertPromptForPKPassword);
 
     final LinkedHashMap<String[],String> importCertExamples =
-         new LinkedHashMap<>(2);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
     importCertExamples.put(
          new String[]
          {
@@ -1227,7 +1208,7 @@ public final class ManageCertificates
          deleteCertKeystorePasswordFile, deleteCertPromptForKeystorePassword);
 
     final LinkedHashMap<String[],String> deleteCertExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     deleteCertExamples.put(
          new String[]
          {
@@ -1375,13 +1356,8 @@ public final class ManageCertificates
     genCertPromptForPKPassword.addLongIdentifier("promptForKeyPIN", true);
     genCertParser.addArgument(genCertPromptForPKPassword);
 
-    final LinkedHashSet<String> genCertKeystoreTypeAllowedValues =
-         new LinkedHashSet<>(2);
-    genCertKeystoreTypeAllowedValues.add("jks");
-    genCertKeystoreTypeAllowedValues.add("pkcs12");
-    genCertKeystoreTypeAllowedValues.add("pkcs 12");
-    genCertKeystoreTypeAllowedValues.add("pkcs#12");
-    genCertKeystoreTypeAllowedValues.add("pkcs #12");
+    final Set<String> genCertKeystoreTypeAllowedValues = StaticUtils.setOf(
+         "jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12");
     final StringArgument genCertKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_GEN_CERT_ARG_KS_TYPE_DESC.get(),
@@ -1655,7 +1631,7 @@ public final class ManageCertificates
          genCertBasicConstraintsIsCA);
 
     final LinkedHashMap<String[],String> genCertExamples =
-         new LinkedHashMap<>(4);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(4));
     genCertExamples.put(
          new String[]
          {
@@ -1744,15 +1720,8 @@ public final class ManageCertificates
          "generate-certificate-signing-request",
          INFO_MANAGE_CERTS_SC_GEN_CSR_DESC.get());
 
-    final LinkedHashSet<String> genCSROutputFormatAllowedValues =
-         new LinkedHashSet<>(7);
-    genCSROutputFormatAllowedValues.add("PEM");
-    genCSROutputFormatAllowedValues.add("text");
-    genCSROutputFormatAllowedValues.add("txt");
-    genCSROutputFormatAllowedValues.add("RFC");
-    genCSROutputFormatAllowedValues.add("DER");
-    genCSROutputFormatAllowedValues.add("binary");
-    genCSROutputFormatAllowedValues.add("bin");
+    final Set<String> genCSROutputFormatAllowedValues = StaticUtils.setOf(
+         "PEM", "text", "txt", "RFC", "DER", "binary", "bin");
     final StringArgument genCSROutputFormat = new StringArgument(null,
          "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
          INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_FORMAT_DESC.get(),
@@ -1888,13 +1857,8 @@ public final class ManageCertificates
     genCSRPromptForPKPassword.addLongIdentifier("promptForKeyPIN", true);
     genCSRParser.addArgument(genCSRPromptForPKPassword);
 
-    final LinkedHashSet<String> genCSRKeystoreTypeAllowedValues =
-         new LinkedHashSet<>(2);
-    genCSRKeystoreTypeAllowedValues.add("jks");
-    genCSRKeystoreTypeAllowedValues.add("pkcs12");
-    genCSRKeystoreTypeAllowedValues.add("pkcs 12");
-    genCSRKeystoreTypeAllowedValues.add("pkcs#12");
-    genCSRKeystoreTypeAllowedValues.add("pkcs #12");
+    final Set<String> genCSRKeystoreTypeAllowedValues = StaticUtils.setOf(
+         "jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12");
     final StringArgument genCSRKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_KS_TYPE_DESC.get(),
@@ -2150,7 +2114,7 @@ public final class ManageCertificates
          genCSRBasicConstraintsIsCA);
 
     final LinkedHashMap<String[],String> genCSRExamples =
-         new LinkedHashMap<>(3);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(3));
     genCSRExamples.put(
          new String[]
          {
@@ -2244,15 +2208,8 @@ public final class ManageCertificates
     signCSROutputFile.addLongIdentifier("certificateFile", true);
     signCSRParser.addArgument(signCSROutputFile);
 
-    final LinkedHashSet<String> signCSROutputFormatAllowedValues =
-         new LinkedHashSet<>(7);
-    signCSROutputFormatAllowedValues.add("PEM");
-    signCSROutputFormatAllowedValues.add("text");
-    signCSROutputFormatAllowedValues.add("txt");
-    signCSROutputFormatAllowedValues.add("RFC");
-    signCSROutputFormatAllowedValues.add("DER");
-    signCSROutputFormatAllowedValues.add("binary");
-    signCSROutputFormatAllowedValues.add("bin");
+    final Set<String> signCSROutputFormatAllowedValues = StaticUtils.setOf(
+         "PEM", "text", "txt", "RFC", "DER", "binary", "bin");
     final StringArgument signCSROutputFormat = new StringArgument(null,
          "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
          INFO_MANAGE_CERTS_SC_SIGN_CSR_ARG_FORMAT_DESC.get(),
@@ -2724,7 +2681,7 @@ public final class ManageCertificates
          signCSRBasicConstraintsIsCA);
 
     final LinkedHashMap<String[],String> signCSRExamples =
-         new LinkedHashMap<>(2);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
     signCSRExamples.put(
          new String[]
          {
@@ -2948,7 +2905,7 @@ public final class ManageCertificates
          changeAliasPKPasswordFile, changeAliasPromptForPKPassword);
 
     final LinkedHashMap<String[],String> changeAliasExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     changeAliasExamples.put(
          new String[]
          {
@@ -3101,7 +3058,7 @@ public final class ManageCertificates
          changeKSPWNewPasswordFile, changeKSPWPromptForNewPassword);
 
     final LinkedHashMap<String[],String> changeKSPWExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     changeKSPWExamples.put(
          new String[]
          {
@@ -3310,7 +3267,7 @@ public final class ManageCertificates
          changePKPWNewPasswordFile, changePKPWPromptForNewPassword);
 
     final LinkedHashMap<String[],String> changePKPWExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     changePKPWExamples.put(
          new String[]
          {
@@ -3433,13 +3390,8 @@ public final class ManageCertificates
          "promptForKeystorePIN", true);
     trustServerParser.addArgument(trustServerPromptForKeystorePassword);
 
-    final LinkedHashSet<String> trustServerKeystoreTypeAllowedValues =
-         new LinkedHashSet<>(2);
-    trustServerKeystoreTypeAllowedValues.add("jks");
-    trustServerKeystoreTypeAllowedValues.add("pkcs12");
-    trustServerKeystoreTypeAllowedValues.add("pkcs 12");
-    trustServerKeystoreTypeAllowedValues.add("pkcs#12");
-    trustServerKeystoreTypeAllowedValues.add("pkcs #12");
+    final Set<String> trustServerKeystoreTypeAllowedValues = StaticUtils.setOf(
+         "jks", "pkcs12", "pkcs 12", "pkcs#12", "pkcs #12");
     final StringArgument trustServerKeystoreType = new StringArgument(null,
          "keystore-type", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_TYPE.get(),
          INFO_MANAGE_CERTS_SC_TRUST_SERVER_ARG_KS_TYPE_DESC.get(),
@@ -3483,7 +3435,7 @@ public final class ManageCertificates
          trustServerKeystorePasswordFile, trustServerPromptForKeystorePassword);
 
     final LinkedHashMap<String[],String> trustServerExamples =
-         new LinkedHashMap<>(2);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
     trustServerExamples.put(
          new String[]
          {
@@ -3612,7 +3564,7 @@ public final class ManageCertificates
          checkUsabilityPromptForKeystorePassword);
 
     final LinkedHashMap<String[],String> checkUsabilityExamples =
-         new LinkedHashMap<>(2);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
     checkUsabilityExamples.put(
          new String[]
          {
@@ -3667,7 +3619,7 @@ public final class ManageCertificates
     displayCertParser.addArgument(displayCertDisplayCommand);
 
     final LinkedHashMap<String[],String> displayCertExamples =
-         new LinkedHashMap<>(2);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(2));
     displayCertExamples.put(
          new String[]
          {
@@ -3744,7 +3696,7 @@ public final class ManageCertificates
     displayCSRParser.addArgument(displayCSRDisplayCommand);
 
     final LinkedHashMap<String[],String> displayCSRExamples =
-         new LinkedHashMap<>(1);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     displayCSRExamples.put(
          new String[]
          {
@@ -3950,8 +3902,10 @@ public final class ManageCertificates
     else
     {
       final List<String> values = aliasArgument.getValues();
-      aliases = new LinkedHashSet<>(values.size());
-      missingAliases = new LinkedHashMap<>(values.size());
+      aliases = new LinkedHashSet<>(StaticUtils.computeMapCapacity(
+           values.size()));
+      missingAliases =
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(values.size()));
       for (final String alias : values)
       {
         final String lowerAlias = StaticUtils.toLowerCase(alias);
@@ -5351,7 +5305,7 @@ public final class ManageCertificates
     // and add them to the keystore under the appropriate aliases, first making
     // sure that the alias isn't already in use.
     final LinkedHashMap<String,X509Certificate> certMap =
-         new LinkedHashMap<>(certList.size());
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(certList.size()));
     for (int i=0; i < certList.size(); i++)
     {
       final X509Certificate x509Certificate = certList.get(i);
@@ -5903,7 +5857,8 @@ public final class ManageCertificates
     final ArrayList<X509CertificateExtension> extensionList =
          new ArrayList<>(10);
     final GeneralNamesBuilder sanBuilder = new GeneralNamesBuilder();
-    final LinkedHashSet<String> sanValues = new LinkedHashSet<>(10);
+    final LinkedHashSet<String> sanValues =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
     final StringArgument sanDNSArgument =
          subCommandParser.getStringArgument("subject-alternative-name-dns");
     if ((sanDNSArgument != null) && sanDNSArgument.isPresent())
@@ -5985,7 +5940,8 @@ public final class ManageCertificates
 
     // Build a set of issuer alternative name extension values.
     final GeneralNamesBuilder ianBuilder = new GeneralNamesBuilder();
-    final LinkedHashSet<String> ianValues = new LinkedHashSet<>(10);
+    final LinkedHashSet<String> ianValues =
+         new LinkedHashSet<>(StaticUtils.computeMapCapacity(10));
     final StringArgument ianDNSArgument =
          subCommandParser.getStringArgument("issuer-alternative-name-dns");
     if ((ianDNSArgument != null) && ianDNSArgument.isPresent())
@@ -8064,7 +8020,7 @@ public final class ManageCertificates
 
     // Add the certificates to the keystore.
     final LinkedHashMap<String,X509Certificate> certsByAlias =
-         new LinkedHashMap<>(chain.length);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(chain.length));
     for (int i=0; i < chain.length; i++)
     {
       if (i == 0)
@@ -11920,7 +11876,8 @@ public final class ManageCertificates
          getPlatformSpecificPath("server-cert.private-key");
     final String genCSROutputFile = getPlatformSpecificPath("server-cert.csr");
 
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(20);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
 
     examples.put(
          new String[]

@@ -33,6 +33,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -245,7 +246,8 @@ public final class StackTraceMonitorEntry
   @Override()
   public Map<String,MonitorAttribute> getMonitorAttributes()
   {
-    final LinkedHashMap<String,MonitorAttribute> attrs = new LinkedHashMap<>(1);
+    final LinkedHashMap<String,MonitorAttribute> attrs =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
 
     final Attribute traceAttr = getEntry().getAttribute(ATTR_JVM_STACK_TRACE);
     if (traceAttr != null)

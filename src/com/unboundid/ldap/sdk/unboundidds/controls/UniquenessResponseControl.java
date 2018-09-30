@@ -370,7 +370,8 @@ public final class UniquenessResponseControl
     }
 
     final LinkedHashMap<String,UniquenessResponseControl> controlMap =
-         new LinkedHashMap<>(responseControls.length);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(
+              responseControls.length));
     for (final Control c : responseControls)
     {
       if (! c.getOID().equals(UNIQUENESS_RESPONSE_OID))

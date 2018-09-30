@@ -135,7 +135,8 @@ public final class JSONObjectReader
            String.valueOf(firstToken)));
     }
 
-    final LinkedHashMap<String,JSONValue> m = new LinkedHashMap<>(10);
+    final LinkedHashMap<String,JSONValue> m =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     readObject(m);
 
     return new JSONObject(m, currentObjectBytes.toString());
@@ -746,7 +747,7 @@ public final class JSONObjectReader
       else if (token.equals('{'))
       {
         final LinkedHashMap<String,JSONValue> fieldMap =
-             new LinkedHashMap<>(10);
+             new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
         values.add(readObject(fieldMap));
       }
       else if (token.equals(']') && firstToken)
@@ -854,7 +855,8 @@ public final class JSONObjectReader
       }
       else if (valueToken.equals('{'))
       {
-        final LinkedHashMap<String,JSONValue> m = new LinkedHashMap<>(10);
+        final LinkedHashMap<String,JSONValue> m =
+             new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
         final JSONObject o = readObject(m);
         fields.put(fieldName, o);
       }

@@ -163,7 +163,7 @@ public class Entry
     this.dn     = dn;
     this.schema = schema;
 
-    attributes = new LinkedHashMap<>(20);
+    attributes = new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
   }
 
 
@@ -195,7 +195,7 @@ public class Entry
     this.dn     = parsedDN.toString();
     this.schema = schema;
 
-    attributes = new LinkedHashMap<>(20);
+    attributes = new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
   }
 
 
@@ -231,7 +231,8 @@ public class Entry
     this.dn     = dn;
     this.schema = schema;
 
-    this.attributes = new LinkedHashMap<>(attributes.length);
+    this.attributes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(attributes.length));
     for (final Attribute a : attributes)
     {
       final String name = StaticUtils.toLowerCase(a.getName());
@@ -280,7 +281,8 @@ public class Entry
     this.dn     = parsedDN.toString();
     this.schema = schema;
 
-    this.attributes = new LinkedHashMap<>(attributes.length);
+    this.attributes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(attributes.length));
     for (final Attribute a : attributes)
     {
       final String name = StaticUtils.toLowerCase(a.getName());
@@ -329,7 +331,8 @@ public class Entry
     this.dn     = dn;
     this.schema = schema;
 
-    this.attributes = new LinkedHashMap<>(attributes.size());
+    this.attributes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(attributes.size()));
     for (final Attribute a : attributes)
     {
       final String name = StaticUtils.toLowerCase(a.getName());
@@ -379,7 +382,8 @@ public class Entry
     this.dn     = parsedDN.toString();
     this.schema = schema;
 
-    this.attributes = new LinkedHashMap<>(attributes.size());
+    this.attributes =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(attributes.size()));
     for (final Attribute a : attributes)
     {
       final String name = StaticUtils.toLowerCase(a.getName());
@@ -1928,7 +1932,8 @@ public class Entry
     HashSet<String> compareAttrs = null;
     if ((attributes != null) && (attributes.length > 0))
     {
-      compareAttrs = new HashSet<>(attributes.length);
+      compareAttrs =
+           new HashSet<>(StaticUtils.computeMapCapacity(attributes.length));
       for (final String s : attributes)
       {
         compareAttrs.add(StaticUtils.toLowerCase(Attribute.getBaseName(s)));
@@ -1936,10 +1941,11 @@ public class Entry
     }
 
     final LinkedHashMap<String,Attribute> sourceOnlyAttrs =
-         new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
     final LinkedHashMap<String,Attribute> targetOnlyAttrs =
-         new LinkedHashMap<>(20);
-    final LinkedHashMap<String,Attribute> commonAttrs = new LinkedHashMap<>(20);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
+    final LinkedHashMap<String,Attribute> commonAttrs =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
 
     for (final Map.Entry<String,Attribute> e :
          sourceEntry.attributes.entrySet())
@@ -2121,7 +2127,8 @@ public class Entry
       {
         final ASN1OctetString[] sourceValueArray = sourceAttr.getRawValues();
         final LinkedHashMap<ASN1OctetString,ASN1OctetString> sourceValues =
-             new LinkedHashMap<>(sourceValueArray.length);
+             new LinkedHashMap<>(StaticUtils.computeMapCapacity(
+                  sourceValueArray.length));
         for (final ASN1OctetString s : sourceValueArray)
         {
           try
@@ -2137,7 +2144,8 @@ public class Entry
 
         final ASN1OctetString[] targetValueArray = targetAttr.getRawValues();
         final LinkedHashMap<ASN1OctetString,ASN1OctetString> targetValues =
-             new LinkedHashMap<>(targetValueArray.length);
+             new LinkedHashMap<>(StaticUtils.computeMapCapacity(
+                  targetValueArray.length));
         for (final ASN1OctetString s : targetValueArray)
         {
           try

@@ -193,8 +193,8 @@ public final class ListNotificationSubscriptionsExtendedRequest
         final ASN1Element[] destIDElements =
              ASN1Sequence.decodeAsSequence(elements[1]).elements();
 
-        final LinkedHashSet<String> destIDs =
-             new LinkedHashSet<>(destIDElements.length);
+        final LinkedHashSet<String> destIDs = new LinkedHashSet<>(
+             StaticUtils.computeMapCapacity(destIDElements.length));
         for (final ASN1Element e : destIDElements)
         {
           destIDs.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
@@ -242,8 +242,8 @@ public final class ListNotificationSubscriptionsExtendedRequest
 
     if ((destinationIDs != null) && (! destinationIDs.isEmpty()))
     {
-      final LinkedHashSet<ASN1Element> destIDElements =
-           new LinkedHashSet<>(destinationIDs.size());
+      final LinkedHashSet<ASN1Element> destIDElements = new LinkedHashSet<>(
+           StaticUtils.computeMapCapacity(destinationIDs.size()));
       for (final String destinationID : destinationIDs)
       {
         destIDElements.add(new ASN1OctetString(destinationID));

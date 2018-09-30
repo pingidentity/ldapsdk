@@ -940,7 +940,7 @@ public final class FileRetentionTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty, List<Object>> props =
-         new LinkedHashMap<>(6);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(6));
 
     props.put(PROPERTY_TARGET_DIRECTORY,
          Collections.<Object>singletonList(targetDirectory));

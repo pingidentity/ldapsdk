@@ -370,7 +370,8 @@ public final class StringArgument
     }
     else
     {
-      final HashSet<String> lowerValues = new HashSet<>(allowedValues.size());
+      final HashSet<String> lowerValues =
+           new HashSet<>(StaticUtils.computeMapCapacity(allowedValues.size()));
       for (final String s : allowedValues)
       {
         lowerValues.add(StaticUtils.toLowerCase(s));

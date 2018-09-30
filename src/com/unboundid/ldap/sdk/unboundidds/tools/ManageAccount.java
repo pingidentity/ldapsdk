@@ -1653,7 +1653,8 @@ public final class ManageAccount
                       final ManageAccountSubCommandType t,
                       final String description, final String... args)
   {
-    final LinkedHashMap<String[], String> examples = new LinkedHashMap<>(1);
+    final LinkedHashMap<String[], String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     createSubCommandExample(examples, t, description, args);
     return examples;
   }
@@ -2331,7 +2332,8 @@ public final class ManageAccount
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> examples = new LinkedHashMap<>(4);
+    final LinkedHashMap<String[],String> examples =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(4));
 
     createSubCommandExample(examples,
          ManageAccountSubCommandType.GET_ALL,

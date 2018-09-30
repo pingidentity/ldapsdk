@@ -1482,7 +1482,8 @@ public final class RateAdjustor extends Thread
     // key2 = value2
     // END HEADER
     boolean endHeaderFound = false;
-    final Map<String,String> headerMap = new LinkedHashMap<>(3);
+    final Map<String,String> headerMap = new
+         LinkedHashMap<>(StaticUtils.computeMapCapacity(3));
     final Iterator<String> lineIter = lines.iterator();
     while (lineIter.hasNext())
     {

@@ -363,9 +363,9 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,AttributeSyntaxDefinition> m =
-           new LinkedHashMap<>(defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashSet<AttributeSyntaxDefinition> s =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
 
       for (final String def : defs)
       {
@@ -403,13 +403,13 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,AttributeTypeDefinition> m =
-           new LinkedHashMap<>(2*defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(2*defs.length));
       final LinkedHashSet<AttributeTypeDefinition> s =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashSet<AttributeTypeDefinition> sUser =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashSet<AttributeTypeDefinition> sOperational =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
 
       for (final String def : defs)
       {
@@ -461,7 +461,7 @@ public final class Schema
       final LinkedHashMap<String,DITContentRuleDefinition> m =
            new LinkedHashMap<>(2*defs.length);
       final LinkedHashSet<DITContentRuleDefinition> s =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
 
       for (final String def : defs)
       {
@@ -503,13 +503,13 @@ public final class Schema
     else
     {
       final LinkedHashMap<Integer,DITStructureRuleDefinition> mID =
-           new LinkedHashMap<>(defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashMap<String,DITStructureRuleDefinition> mN =
-           new LinkedHashMap<>(defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashMap<String,DITStructureRuleDefinition> mNF =
-           new LinkedHashMap<>(defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashSet<DITStructureRuleDefinition> s =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
 
       for (final String def : defs)
       {
@@ -552,9 +552,9 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,MatchingRuleDefinition> m =
-           new LinkedHashMap<>(2*defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(2*defs.length));
       final LinkedHashSet<MatchingRuleDefinition> s =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
 
       for (final String def : defs)
       {
@@ -593,9 +593,9 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,MatchingRuleUseDefinition> m =
-           new LinkedHashMap<>(2*defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(2*defs.length));
       final LinkedHashSet<MatchingRuleUseDefinition> s =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
 
       for (final String def : defs)
       {
@@ -636,11 +636,11 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,NameFormDefinition> mN =
-           new LinkedHashMap<>(2*defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(2*defs.length));
       final LinkedHashMap<String,NameFormDefinition> mOC =
-           new LinkedHashMap<>(defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashSet<NameFormDefinition> s =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
 
       for (final String def : defs)
       {
@@ -684,15 +684,15 @@ public final class Schema
     else
     {
       final LinkedHashMap<String,ObjectClassDefinition> m =
-           new LinkedHashMap<>(2*defs.length);
+           new LinkedHashMap<>(StaticUtils.computeMapCapacity(2*defs.length));
       final LinkedHashSet<ObjectClassDefinition> s =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashSet<ObjectClassDefinition> sAbstract =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashSet<ObjectClassDefinition> sAuxiliary =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
       final LinkedHashSet<ObjectClassDefinition> sStructural =
-           new LinkedHashSet<>(defs.length);
+           new LinkedHashSet<>(StaticUtils.computeMapCapacity(defs.length));
 
       for (final String def : defs)
       {
@@ -739,7 +739,8 @@ public final class Schema
 
     // Populate the map of subordinate attribute types.
     final LinkedHashMap<AttributeTypeDefinition,List<AttributeTypeDefinition>>
-         subAttrTypes = new LinkedHashMap<>(atSet.size());
+         subAttrTypes = new LinkedHashMap<>(
+              StaticUtils.computeMapCapacity(atSet.size()));
     for (final AttributeTypeDefinition d : atSet)
     {
       AttributeTypeDefinition sup = d.getSuperiorType(this);
@@ -780,21 +781,21 @@ public final class Schema
          throws LDAPException
   {
     final Map<String,LDAPException> unparsableAttributeSyntaxes =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     final Map<String,LDAPException> unparsableMatchingRules =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     final Map<String,LDAPException> unparsableAttributeTypes =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     final Map<String,LDAPException> unparsableObjectClasses =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     final Map<String,LDAPException> unparsableDITContentRules =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     final Map<String,LDAPException> unparsableDITStructureRules =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     final Map<String,LDAPException> unparsableNameForms =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
     final Map<String,LDAPException> unparsableMatchingRuleUses =
-         new LinkedHashMap<>(10);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
 
     final Schema schema = new Schema(schemaEntry, unparsableAttributeSyntaxes,
          unparsableMatchingRules, unparsableAttributeTypes,
@@ -1351,14 +1352,22 @@ public final class Schema
       return schemas[0];
     }
 
-    final LinkedHashMap<String,String> asMap = new LinkedHashMap<>(100);
-    final LinkedHashMap<String,String> atMap = new LinkedHashMap<>(100);
-    final LinkedHashMap<String,String> dcrMap = new LinkedHashMap<>(10);
-    final LinkedHashMap<Integer,String> dsrMap = new LinkedHashMap<>(10);
-    final LinkedHashMap<String,String> mrMap = new LinkedHashMap<>(100);
-    final LinkedHashMap<String,String> mruMap = new LinkedHashMap<>(10);
-    final LinkedHashMap<String,String> nfMap = new LinkedHashMap<>(10);
-    final LinkedHashMap<String,String> ocMap = new LinkedHashMap<>(100);
+    final LinkedHashMap<String,String> asMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(100));
+    final LinkedHashMap<String,String> atMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(100));
+    final LinkedHashMap<String,String> dcrMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
+    final LinkedHashMap<Integer,String> dsrMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
+    final LinkedHashMap<String,String> mrMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(100));
+    final LinkedHashMap<String,String> mruMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
+    final LinkedHashMap<String,String> nfMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
+    final LinkedHashMap<String,String> ocMap =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(100));
 
     for (final Schema s : schemas)
     {

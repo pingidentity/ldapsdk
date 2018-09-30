@@ -813,7 +813,7 @@ public final class AlertTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(6);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(6));
 
     if (alertType != null)
     {

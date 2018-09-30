@@ -871,7 +871,7 @@ public final class SearchTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty,List<Object>> props =
-         new LinkedHashMap<>(6);
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(6));
 
     props.put(PROPERTY_BASE_DN,
          Collections.<Object>singletonList(baseDN));
