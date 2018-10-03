@@ -1441,44 +1441,100 @@ public final class JSONObject
   @Override()
   public void toNormalizedString(final StringBuilder buffer)
   {
+    toNormalizedString(buffer, false, true, false);
+  }
+
+
+
+  /**
+   * Retrieves a normalized string representation of this JSON object.  The
+   * normalized representation of the JSON object will have the following
+   * characteristics:
+   * <UL>
+   *   <LI>It will not include any line breaks.</LI>
+   *   <LI>It will not include any spaces around the enclosing braces.</LI>
+   *   <LI>It will not include any spaces around the commas used to separate
+   *       fields.</LI>
+   *   <LI>Case sensitivity of field names and values will be controlled by
+   *       argument values.
+   *   <LI>Fields will be listed in lexicographic order by field name.</LI>
+   * </UL>
+   *
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   *
+   * @return  A normalized string representation of this JSON object.
+   */
+  @Override()
+  public String toNormalizedString(final boolean ignoreFieldNameCase,
+                                   final boolean ignoreValueCase,
+                                   final boolean ignoreArrayOrder)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toNormalizedString(buffer, ignoreFieldNameCase, ignoreValueCase,
+         ignoreArrayOrder);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a normalized string representation of this JSON object to the
+   * provided buffer.  The normalized representation of the JSON object will
+   * have the following characteristics:
+   * <UL>
+   *   <LI>It will not include any line breaks.</LI>
+   *   <LI>It will not include any spaces around the enclosing braces.</LI>
+   *   <LI>It will not include any spaces around the commas used to separate
+   *       fields.</LI>
+   *   <LI>Field names will be treated in a case-sensitive manner and will not
+   *       be altered.</LI>
+   *   <LI>Field values will be normalized.</LI>
+   *   <LI>Fields will be listed in lexicographic order by field name.</LI>
+   * </UL>
+   *
+   * @param  buffer               The buffer to which the information should be
+   *                              appended.
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   */
+  @Override()
+  public void toNormalizedString(final StringBuilder buffer,
+                                 final boolean ignoreFieldNameCase,
+                                 final boolean ignoreValueCase,
+                                 final boolean ignoreArrayOrder)
+  {
     // The normalized representation needs to have the fields in a predictable
     // order, which we will accomplish using the lexicographic ordering that a
-    // TreeMap will provide.  Field names will be case sensitive, but we still
-    // need to construct a normalized way of escaping non-printable characters
-    // in each field.
-    final StringBuilder tempBuffer;
-    if (decodeBuffer == null)
-    {
-      tempBuffer = new StringBuilder(20);
-    }
-    else
-    {
-      tempBuffer = decodeBuffer;
-    }
-
+    // TreeMap will provide.  Field names may or may not be treated in a
+    // case-sensitive manner, but we still need to construct a normalized way of
+    // escaping non-printable characters in each field.
     final TreeMap<String,String> m = new TreeMap<>();
     for (final Map.Entry<String,JSONValue> e : fields.entrySet())
     {
-      tempBuffer.setLength(0);
-      tempBuffer.append('"');
-      for (final char c : e.getKey().toCharArray())
-      {
-        if (StaticUtils.isPrintable(c))
-        {
-          tempBuffer.append(c);
-        }
-        else
-        {
-          tempBuffer.append("\\u");
-          tempBuffer.append(String.format("%04X", (int) c));
-        }
-      }
-      tempBuffer.append('"');
-      final String normalizedKey = tempBuffer.toString();
-
-      tempBuffer.setLength(0);
-      e.getValue().toNormalizedString(tempBuffer);
-      m.put(normalizedKey, tempBuffer.toString());
+      m.put(
+           new JSONString(e.getKey()).toNormalizedString(false,
+                ignoreFieldNameCase, false),
+           e.getValue().toNormalizedString(ignoreFieldNameCase, ignoreValueCase,
+                ignoreArrayOrder));
     }
 
     buffer.append('{');

@@ -71,6 +71,20 @@ public final class JSONNumberTestCase
     n.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "0");
 
+    assertNotNull(n.toNormalizedString(true, true, true));
+    assertEquals(n.toNormalizedString(true, true, true), "0");
+
+    assertNotNull(n.toNormalizedString(false, false, false));
+    assertEquals(n.toNormalizedString(false, false, false), "0");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "0");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(), "0");
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     n.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "0");
@@ -114,6 +128,20 @@ public final class JSONNumberTestCase
 
     final StringBuilder toNormalizedStringBuffer = new StringBuilder();
     n.toNormalizedString(toNormalizedStringBuffer);
+    assertEquals(toNormalizedStringBuffer.toString(), "12345");
+
+    assertNotNull(n.toNormalizedString(true, true, true));
+    assertEquals(n.toNormalizedString(true, true, true), "12345");
+
+    assertNotNull(n.toNormalizedString(false, false, false));
+    assertEquals(n.toNormalizedString(false, false, false), "12345");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "12345");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, false, false, false);
     assertEquals(toNormalizedStringBuffer.toString(), "12345");
 
     final JSONBuffer jsonBuffer = new JSONBuffer();
@@ -161,6 +189,20 @@ public final class JSONNumberTestCase
     n.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "-54321");
 
+    assertNotNull(n.toNormalizedString(true, true, true));
+    assertEquals(n.toNormalizedString(true, true, true), "-54321");
+
+    assertNotNull(n.toNormalizedString(false, false, false));
+    assertEquals(n.toNormalizedString(false, false, false), "-54321");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "-54321");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(), "-54321");
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     n.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "-54321");
@@ -204,6 +246,20 @@ public final class JSONNumberTestCase
 
     final StringBuilder toNormalizedStringBuffer = new StringBuilder();
     n.toNormalizedString(toNormalizedStringBuffer);
+    assertEquals(toNormalizedStringBuffer.toString(), "0");
+
+    assertNotNull(n.toNormalizedString(true, true, true));
+    assertEquals(n.toNormalizedString(true, true, true), "0");
+
+    assertNotNull(n.toNormalizedString(false, false, false));
+    assertEquals(n.toNormalizedString(false, false, false), "0");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "0");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, false, false, false);
     assertEquals(toNormalizedStringBuffer.toString(), "0");
 
     final JSONBuffer jsonBuffer = new JSONBuffer();
@@ -251,6 +307,20 @@ public final class JSONNumberTestCase
     n.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "1234.5");
 
+    assertNotNull(n.toNormalizedString(true, true, true));
+    assertEquals(n.toNormalizedString(true, true, true), "1234.5");
+
+    assertNotNull(n.toNormalizedString(false, false, false));
+    assertEquals(n.toNormalizedString(false, false, false), "1234.5");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "1234.5");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(), "1234.5");
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     n.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "1234.5");
@@ -294,6 +364,20 @@ public final class JSONNumberTestCase
 
     final StringBuilder toNormalizedStringBuffer = new StringBuilder();
     n.toNormalizedString(toNormalizedStringBuffer);
+    assertEquals(toNormalizedStringBuffer.toString(), "-9876.5");
+
+    assertNotNull(n.toNormalizedString(true, true, true));
+    assertEquals(n.toNormalizedString(), "-9876.5");
+
+    assertNotNull(n.toNormalizedString(false, false, false));
+    assertEquals(n.toNormalizedString(), "-9876.5");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "-9876.5");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, false, false, false);
     assertEquals(toNormalizedStringBuffer.toString(), "-9876.5");
 
     final JSONBuffer jsonBuffer = new JSONBuffer();
@@ -799,5 +883,30 @@ public final class JSONNumberTestCase
         "1e-a23"
       }
     };
+  }
+
+
+
+  /**
+   * Tests the {@code equals} method that takes an extended set of arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEqualsExtended()
+         throws Exception
+  {
+    final JSONNumber n1 = new JSONNumber(0);
+    final JSONNumber n2 = new JSONNumber(0);
+    final JSONNumber n3 = new JSONNumber(1);
+
+    assertTrue(n1.equals(n1, true, true, true));
+    assertTrue(n1.equals(n1, false, false, false));
+
+    assertTrue(n1.equals(n2, true, true, true));
+    assertTrue(n1.equals(n2, false, false, false));
+
+    assertFalse(n1.equals(n3, true, true, true));
+    assertFalse(n1.equals(n3, false, false, false));
   }
 }

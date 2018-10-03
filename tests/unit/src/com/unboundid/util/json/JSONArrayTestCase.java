@@ -78,6 +78,12 @@ public final class JSONArrayTestCase
     a1.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "[]");
 
+    assertNotNull(a1.toNormalizedString(true, true, true));
+    assertEquals(a1.toNormalizedString(true, true, true), "[]");
+
+    assertNotNull(a1.toNormalizedString(false, false, false));
+    assertEquals(a1.toNormalizedString(false, false, false), "[]");
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     a1.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "[ ]");
@@ -93,9 +99,9 @@ public final class JSONArrayTestCase
     assertNotNull(a2.getValues());
     assertTrue(a2.getValues().isEmpty());
 
-    assertTrue(a1.isEmpty());
+    assertTrue(a2.isEmpty());
 
-    assertEquals(a1.size(), 0);
+    assertEquals(a2.size(), 0);
 
     assertFalse(a2.contains(JSONNull.NULL, false, false, false, false));
     assertFalse(a2.contains(JSONNull.NULL, true, true, true, true));
@@ -121,6 +127,12 @@ public final class JSONArrayTestCase
     a2.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "[]");
 
+    assertNotNull(a2.toNormalizedString(true, true, true));
+    assertEquals(a2.toNormalizedString(true, true, true), "[]");
+
+    assertNotNull(a2.toNormalizedString(false, false, false));
+    assertEquals(a2.toNormalizedString(false, false, false), "[]");
+
     assertTrue(a1.equals(a2));
     assertTrue(a2.equals(a1));
     assertEquals(a1.hashCode(), a2.hashCode());
@@ -141,9 +153,9 @@ public final class JSONArrayTestCase
     assertNotNull(a3.getValues());
     assertTrue(a3.getValues().isEmpty());
 
-    assertTrue(a1.isEmpty());
+    assertTrue(a3.isEmpty());
 
-    assertEquals(a1.size(), 0);
+    assertEquals(a3.size(), 0);
 
     assertFalse(a3.contains(JSONNull.NULL, false, false, false, false));
     assertFalse(a3.contains(JSONNull.NULL, true, true, true, true));
@@ -168,6 +180,12 @@ public final class JSONArrayTestCase
     toNormalizedStringBuffer = new StringBuilder();
     a3.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "[]");
+
+    assertNotNull(a3.toNormalizedString(true, true, true));
+    assertEquals(a3.toNormalizedString(true, true, true), "[]");
+
+    assertNotNull(a3.toNormalizedString(false, false, false));
+    assertEquals(a3.toNormalizedString(false, false, false), "[]");
 
     assertTrue(a1.equals(a3));
     assertTrue(a3.equals(a1));
@@ -238,6 +256,12 @@ public final class JSONArrayTestCase
     a1.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "[\"foo\"]");
 
+    assertNotNull(a1.toNormalizedString(true, true, true));
+    assertEquals(a1.toNormalizedString(true, true, true), "[\"foo\"]");
+
+    assertNotNull(a1.toNormalizedString(false, false, false));
+    assertEquals(a1.toNormalizedString(false, false, false), "[\"foo\"]");
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     a1.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "[ \"foo\" ]");
@@ -253,9 +277,9 @@ public final class JSONArrayTestCase
     assertEquals(a2.getValues().size(), 1);
     assertEquals(a2.getValues().get(0), new JSONString("bar"));
 
-    assertFalse(a1.isEmpty());
+    assertFalse(a2.isEmpty());
 
-    assertEquals(a1.size(), 1);
+    assertEquals(a2.size(), 1);
 
     assertTrue(a2.contains(new JSONString("bar"), false, false, false, false));
     assertTrue(a2.contains(new JSONString("bar"), true, true, true, true));
@@ -290,6 +314,12 @@ public final class JSONArrayTestCase
     a2.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "[\"bar\"]");
 
+    assertNotNull(a2.toNormalizedString(true, true, true));
+    assertEquals(a2.toNormalizedString(true, true, true), "[\"bar\"]");
+
+    assertNotNull(a2.toNormalizedString(false, false, false));
+    assertEquals(a2.toNormalizedString(false, false, false), "[\"bar\"]");
+
     assertFalse(a1.equals(a2));
     assertFalse(a2.equals(a1));
 
@@ -303,9 +333,9 @@ public final class JSONArrayTestCase
     assertEquals(a3.getValues().size(), 1);
     assertEquals(a3.getValues().get(0), new JSONString("FOO"));
 
-    assertFalse(a1.isEmpty());
+    assertFalse(a3.isEmpty());
 
-    assertEquals(a1.size(), 1);
+    assertEquals(a3.size(), 1);
 
     assertTrue(a3.contains(new JSONString("FOO"), false, false, false, false));
     assertTrue(a3.contains(new JSONString("FOO"), true, true, true, true));
@@ -340,6 +370,12 @@ public final class JSONArrayTestCase
     a3.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "[\"foo\"]");
 
+    assertNotNull(a3.toNormalizedString(true, true, true));
+    assertEquals(a3.toNormalizedString(true, true, true), "[\"foo\"]");
+
+    assertNotNull(a3.toNormalizedString(false, false, false));
+    assertEquals(a3.toNormalizedString(false, false, false), "[\"FOO\"]");
+
     assertFalse(a1.equals(a3));
     assertFalse(a3.equals(a1));
 
@@ -353,6 +389,95 @@ public final class JSONArrayTestCase
     assertFalse(a3.equals(a1, false, false, false));
     assertTrue(a3.equals(a1, false, true, false));
     assertTrue(a3.equals(a1, true, true, true));
+  }
+
+
+
+  /**
+   * Provides test coverage for a multi-element array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMultiElementArray()
+         throws Exception
+  {
+    final JSONArray a1 = new JSONArray(new JSONString("Foo"),
+         new JSONString("Bar"), new JSONString("Baz"));
+
+    assertNotNull(a1.getValues());
+    assertEquals(a1.getValues().size(), 3);
+    assertEquals(a1.getValues().get(0), new JSONString("Foo"));
+    assertEquals(a1.getValues().get(1), new JSONString("Bar"));
+    assertEquals(a1.getValues().get(2), new JSONString("Baz"));
+
+    assertFalse(a1.isEmpty());
+
+    assertEquals(a1.size(), 3);
+
+    assertTrue(a1.contains(new JSONString("Foo"), false, false, false, false));
+    assertTrue(a1.contains(new JSONString("Foo"), true, true, true, true));
+
+    assertFalse(a1.contains(new JSONString("foo"), false, false, false, false));
+    assertTrue(a1.contains(new JSONString("foo"), true, true, true, true));
+
+    assertTrue(a1.contains(new JSONString("Bar"), false, false, false, false));
+    assertTrue(a1.contains(new JSONString("Bar"), true, true, true, true));
+
+    assertFalse(a1.contains(new JSONString("bar"), false, false, false, false));
+    assertTrue(a1.contains(new JSONString("bar"), true, true, true, true));
+
+    assertTrue(a1.contains(new JSONString("Baz"), false, false, false, false));
+    assertTrue(a1.contains(new JSONString("Baz"), true, true, true, true));
+
+    assertFalse(a1.contains(new JSONString("baz"), false, false, false, false));
+    assertTrue(a1.contains(new JSONString("baz"), true, true, true, true));
+
+    assertTrue(a1.equals(a1));
+    assertEquals(a1.hashCode(), a1.hashCode());
+    assertEquals(a1.toNormalizedString(), a1.toNormalizedString());
+    assertTrue(a1.equals(a1, false, false, false));
+    assertTrue(a1.equals(a1, true, true, true));
+
+    assertNotNull(a1.toString());
+    assertEquals(a1.toString(), "[ \"Foo\", \"Bar\", \"Baz\" ]");
+
+    assertNotNull(a1.toSingleLineString());
+    assertEquals(a1.toSingleLineString(), "[ \"Foo\", \"Bar\", \"Baz\" ]");
+
+    StringBuilder toStringBuffer = new StringBuilder();
+    a1.toString(toStringBuffer);
+    assertEquals(toStringBuffer.toString(), "[ \"Foo\", \"Bar\", \"Baz\" ]");
+
+    StringBuilder toSingleLineStringBuffer = new StringBuilder();
+    a1.toSingleLineString(toSingleLineStringBuffer);
+    assertEquals(toSingleLineStringBuffer.toString(),
+         "[ \"Foo\", \"Bar\", \"Baz\" ]");
+
+    assertNotNull(a1.toNormalizedString());
+    assertEquals(a1.toNormalizedString(), "[\"foo\",\"bar\",\"baz\"]");
+
+    StringBuilder toNormalizedStringBuffer = new StringBuilder();
+    a1.toNormalizedString(toNormalizedStringBuffer);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         "[\"foo\",\"bar\",\"baz\"]");
+
+    assertNotNull(a1.toNormalizedString(true, true, true));
+    assertEquals(a1.toNormalizedString(true, true, true),
+         "[\"bar\",\"baz\",\"foo\"]");
+
+    assertNotNull(a1.toNormalizedString(false, false, false));
+    assertEquals(a1.toNormalizedString(false, false, false),
+         "[\"Foo\",\"Bar\",\"Baz\"]");
+
+    final JSONBuffer jsonBuffer = new JSONBuffer();
+    a1.appendToJSONBuffer(jsonBuffer);
+    assertEquals(jsonBuffer.toString(), "[ \"Foo\", \"Bar\", \"Baz\" ]");
+
+    jsonBuffer.clear();
+    a1.appendToJSONBuffer("fieldName", jsonBuffer);
+    assertEquals(jsonBuffer.toString(),
+         "\"fieldName\":[ \"Foo\", \"Bar\", \"Baz\" ]");
   }
 
 

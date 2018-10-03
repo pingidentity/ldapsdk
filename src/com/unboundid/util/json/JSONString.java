@@ -543,9 +543,131 @@ public final class JSONString
   @Override()
   public void toNormalizedString(final StringBuilder buffer)
   {
+    toNormalizedString(buffer, false, true, false);
+  }
+
+
+
+  /**
+   * Retrieves a normalized representation of this JSON string as it should
+   * appear in a JSON object, including the surrounding quotes and any
+   * appropriate escaping.  The normalized representation will use the unescaped
+   * ASCII representation of all of the following characters:
+   * <UL>
+   *   <LI>The letters a through z (ASCII character codes 0x61 through
+   *       0x7A).</LI>
+   *   <LI>The letters A through Z (ASCII character codes 0x41 through 0x5A).
+   *       These characters will only be used if {@code ignoreValueCase} is
+   *       {@code false}.</LI>
+   *   <LI>The digits 0 through 9 (ASCII character codes 0x30 through
+   *       0x39).</LI>
+   *   <LI>The space (ASCII character code 0x20).</LI>
+   *   <LI>The single quote (ASCII character code 0x27).</LI>
+   *   <LI>The left parenthesis (ASCII character code 0x28).</LI>
+   *   <LI>The right parenthesis (ASCII character code 0x29).</LI>
+   *   <LI>The plus sign (ASCII character code 0x2B).</LI>
+   *   <LI>The comma (ASCII character code 0x2C).</LI>
+   *   <LI>The hyphen (ASCII character code 0x2D).</LI>
+   *   <LI>The period (ASCII character code 0x2E).</LI>
+   *   <LI>The forward slash (ASCII character code 0x2F).</LI>
+   *   <LI>The colon (ASCII character code 0x3A).</LI>
+   *   <LI>The equal sign (ASCII character code 0x3D).</LI>
+   *   <LI>The question mark (ASCII character code 0x3F).</LI>
+   * </UL>
+   * All characters except those listed above will be escaped using their
+   * Unicode representation.
+   *
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   *
+   * @return  A normalized representation of this JSON string as it should
+   *          appear in a JSON object, including
+   */
+  @Override()
+  public String toNormalizedString(final boolean ignoreFieldNameCase,
+                                   final boolean ignoreValueCase,
+                                   final boolean ignoreArrayOrder)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toNormalizedString(buffer, ignoreFieldNameCase, ignoreValueCase,
+         ignoreArrayOrder);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a normalized representation of this JSON string as it should
+   * appear in a JSON object, including the surrounding quotes and any
+   * appropriate escaping, to the provided buffer.  The normalized
+   * representation will use the unescaped ASCII representation of all of the
+   * following characters:
+   * <UL>
+   *   <LI>The letters a through z (ASCII character codes 0x61 through
+   *       0x7A).</LI>
+   *   <LI>The letters A through Z (ASCII character codes 0x41 through 0x5A).
+   *       These characters will only be used if {@code ignoreValueCase} is
+   *       {@code false}.</LI>
+   *   <LI>The digits 0 through 9 (ASCII character codes 0x30 through
+   *       0x39).</LI>
+   *   <LI>The space (ASCII character code 0x20).</LI>
+   *   <LI>The single quote (ASCII character code 0x27).</LI>
+   *   <LI>The left parenthesis (ASCII character code 0x28).</LI>
+   *   <LI>The right parenthesis (ASCII character code 0x29).</LI>
+   *   <LI>The plus sign (ASCII character code 0x2B).</LI>
+   *   <LI>The comma (ASCII character code 0x2C).</LI>
+   *   <LI>The hyphen (ASCII character code 0x2D).</LI>
+   *   <LI>The period (ASCII character code 0x2E).</LI>
+   *   <LI>The forward slash (ASCII character code 0x2F).</LI>
+   *   <LI>The colon (ASCII character code 0x3A).</LI>
+   *   <LI>The equal sign (ASCII character code 0x3D).</LI>
+   *   <LI>The question mark (ASCII character code 0x3F).</LI>
+   * </UL>
+   * All characters except those listed above will be escaped using their
+   * Unicode representation.
+   *
+   * @param  buffer               The buffer to which the information should be
+   *                              appended.
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   */
+  @Override()
+  public void toNormalizedString(final StringBuilder buffer,
+                                 final boolean ignoreFieldNameCase,
+                                 final boolean ignoreValueCase,
+                                 final boolean ignoreArrayOrder)
+  {
     buffer.append('"');
 
-    for (final char c : value.toLowerCase().toCharArray())
+    final char[] charArray;
+    if (ignoreValueCase)
+    {
+      charArray = StaticUtils.toLowerCase(value).toCharArray();
+    }
+    else
+    {
+      charArray = value.toCharArray();
+    }
+
+    for (final char c : charArray)
     {
       if (StaticUtils.isPrintable(c))
       {

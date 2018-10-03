@@ -188,6 +188,55 @@ public abstract class JSONValue
 
 
   /**
+   * Retrieves a normalized string representation of this value using the
+   * provided settings.
+   *
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   *
+   * @return  A normalized string representation of this value.
+   */
+  public abstract String toNormalizedString(boolean ignoreFieldNameCase,
+                                            boolean ignoreValueCase,
+                                            boolean ignoreArrayOrder);
+
+
+
+  /**
+   * Appends a normalized string representation of this value to the provided
+   * buffer using the provided settings.
+   *
+   * @param  buffer               The buffer to which the information should be
+   *                              appended.
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   */
+  public abstract void toNormalizedString(StringBuilder buffer,
+                                          boolean ignoreFieldNameCase,
+                                          boolean ignoreValueCase,
+                                          boolean ignoreArrayOrder);
+
+
+
+  /**
    * Appends this value to the provided JSON buffer.  This will not include a
    * field name, so it should only be used for Boolean value elements in an
    * array.

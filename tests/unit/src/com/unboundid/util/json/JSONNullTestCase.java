@@ -70,6 +70,20 @@ public final class JSONNullTestCase
     n.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "null");
 
+    assertNotNull(n.toNormalizedString(true, true, true));
+    assertEquals(n.toNormalizedString(true, true, true), "null");
+
+    assertNotNull(n.toNormalizedString(false, false, false));
+    assertEquals(n.toNormalizedString(false, false, false), "null");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "null");
+
+    toNormalizedStringBuffer.setLength(0);
+    n.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(), "null");
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     n.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "null");
@@ -163,5 +177,25 @@ public final class JSONNullTestCase
     assertFalse(n.equals("null"));
 
     assertFalse(n.equals(JSONBoolean.TRUE));
+  }
+
+
+
+  /**
+   * Tests the {@code equals} method that takes an extended set of arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEqualsExtended()
+         throws Exception
+  {
+    final JSONNull n1 = new JSONNull();
+    final JSONNull n2 = new JSONNull();
+
+    assertTrue(n1.equals(n1, true, true, true));
+    assertTrue(n1.equals(n1, false, false, false));
+    assertTrue(n1.equals(n2, true, true, true));
+    assertTrue(n1.equals(n2, false, false, false));
   }
 }

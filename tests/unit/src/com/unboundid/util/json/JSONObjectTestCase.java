@@ -105,6 +105,25 @@ public final class JSONObjectTestCase
     final StringBuilder toNormalizedStringBuffer = new StringBuilder();
     o.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), o.toNormalizedString());
+
+    assertNotNull(o.toNormalizedString(true, true, true));
+
+    assertNotNull(o.toNormalizedString(false, false, false));
+
+    toNormalizedStringBuffer.setLength(0);
+    o.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         o.toNormalizedString(true, true, true));
+
+    toNormalizedStringBuffer.setLength(0);
+    o.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         o.toNormalizedString(false, false, false));
+
+    toNormalizedStringBuffer.setLength(0);
+    o.toNormalizedString(toNormalizedStringBuffer, false, true, false);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         o.toNormalizedString());
   }
 
 
@@ -149,6 +168,25 @@ public final class JSONObjectTestCase
     final StringBuilder toNormalizedStringBuffer = new StringBuilder();
     o1.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "{}");
+
+    assertNotNull(o1.toNormalizedString(true, true, true));
+
+    assertNotNull(o1.toNormalizedString(false, false, false));
+
+    toNormalizedStringBuffer.setLength(0);
+    o1.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         o1.toNormalizedString(true, true, true));
+
+    toNormalizedStringBuffer.setLength(0);
+    o1.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         o1.toNormalizedString(false, false, false));
+
+    toNormalizedStringBuffer.setLength(0);
+    o1.toNormalizedString(toNormalizedStringBuffer, false, true, false);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         o1.toNormalizedString());
 
     final JSONObject o2 = new JSONObject(o1.toString());
     assertTrue(o1.equals(o2));

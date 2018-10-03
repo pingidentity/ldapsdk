@@ -512,12 +512,93 @@ public final class JSONArray
   @Override()
   public void toNormalizedString(final StringBuilder buffer)
   {
+    toNormalizedString(buffer, false, true, false);
+  }
+
+
+
+  /**
+   * Retrieves a normalized string representation of this array.  The normalized
+   * representation will not contain any line breaks, will not include any
+   * spaces around the enclosing brackets or around commas used to separate the
+   * elements, and it will use the normalized representations of those elements.
+   * The order of elements in an array is considered significant, and will not
+   * be affected by the normalization process.
+   *
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   *
+   * @return  A normalized string representation of this array.
+   */
+  @Override()
+  public String toNormalizedString(final boolean ignoreFieldNameCase,
+                                   final boolean ignoreValueCase,
+                                   final boolean ignoreArrayOrder)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toNormalizedString(buffer, ignoreFieldNameCase, ignoreValueCase,
+         ignoreArrayOrder);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a normalized string representation of this array to the provided
+   * buffer.  The normalized representation will not contain any line breaks,
+   * will not include any spaces around the enclosing brackets or around commas
+   * used to separate the elements, and it will use the normalized
+   * representations of those elements. The order of elements in an array is
+   * considered significant, and will not be affected by the normalization
+   * process.
+   *
+   * @param  buffer               The buffer to which the information should be
+   *                              appended.
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   */
+  @Override()
+  public void toNormalizedString(final StringBuilder buffer,
+                                 final boolean ignoreFieldNameCase,
+                                 final boolean ignoreValueCase,
+                                 final boolean ignoreArrayOrder)
+  {
+    final List<String> normalizedValues = new ArrayList<>(values.size());
+    for (final JSONValue v : values)
+    {
+      normalizedValues.add(v.toNormalizedString(ignoreFieldNameCase,
+           ignoreValueCase, ignoreArrayOrder));
+    }
+
+    if (ignoreArrayOrder)
+    {
+      Collections.sort(normalizedValues);
+    }
+
     buffer.append('[');
 
-    final Iterator<JSONValue> iterator = values.iterator();
+    final Iterator<String> iterator = normalizedValues.iterator();
     while (iterator.hasNext())
     {
-      iterator.next().toNormalizedString(buffer);
+      buffer.append(iterator.next());
       if (iterator.hasNext())
       {
         buffer.append(',');

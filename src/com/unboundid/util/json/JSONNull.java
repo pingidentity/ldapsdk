@@ -192,6 +192,67 @@ public final class JSONNull
 
 
   /**
+   * Retrieves a normalized string representation of this null value as it
+   * should appear in a JSON object.  Null values will always have a string
+   * representation of "{@code null}" (without the surrounding quotes).
+   *
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   *
+   * @return  A normalized string representation of this null value as it
+   *          should appear in a JSON object.
+   */
+  @Override()
+  public String toNormalizedString(final boolean ignoreFieldNameCase,
+                                   final boolean ignoreValueCase,
+                                   final boolean ignoreArrayOrder)
+  {
+    return "null";
+  }
+
+
+
+  /**
+   * Appends a normalized string representation of this null value as it should
+   * appear in a JSON object to the provided buffer.  Null values will always
+   * have a string representation of "{@code null}" (without the surrounding
+   * quotes).
+   *
+   * @param  buffer               The buffer to which the information should be
+   *                              appended.
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   */
+  @Override()
+  public void toNormalizedString(final StringBuilder buffer,
+                                 final boolean ignoreFieldNameCase,
+                                 final boolean ignoreValueCase,
+                                 final boolean ignoreArrayOrder)
+  {
+    buffer.append("null");
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

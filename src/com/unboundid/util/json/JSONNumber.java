@@ -537,9 +537,7 @@ public final class JSONNumber
   @Override()
   public String toNormalizedString()
   {
-    final StringBuilder buffer = new StringBuilder();
-    toNormalizedString(buffer);
-    return buffer.toString();
+    return normalizedValue.toPlainString();
   }
 
 
@@ -556,6 +554,71 @@ public final class JSONNumber
    */
   @Override()
   public void toNormalizedString(final StringBuilder buffer)
+  {
+    buffer.append(normalizedValue.toPlainString());
+  }
+
+
+
+  /**
+   * Retrieves a normalized string representation of this number as it should
+   * appear in a JSON object.  The normalized representation will not use
+   * exponentiation, will not include a decimal point if the value can be
+   * represented as an integer, and will not include any unnecessary trailing
+   * zeroes if it can only be represented as a floating-point value.
+   *
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   *
+   * @return  A normalized string representation of this number as it should
+   *          appear in a JSON object.
+   */
+  @Override()
+  public String toNormalizedString(final boolean ignoreFieldNameCase,
+                                   final boolean ignoreValueCase,
+                                   final boolean ignoreArrayOrder)
+  {
+    return normalizedValue.toPlainString();
+  }
+
+
+
+  /**
+   * Appends a normalized string representation of this number as it should
+   * appear in a JSON object to the provided buffer.  The normalized
+   * representation will not use exponentiation, will not include a decimal
+   * point if the value can be represented as an integer, and will not include
+   * any unnecessary trailing zeroes if it can only be represented as a
+   * floating-point value.
+   *
+   * @param  buffer               The buffer to which the information should be
+   *                              appended.
+   * @param  ignoreFieldNameCase  Indicates whether field names should be
+   *                              treated in a case-sensitive (if {@code false})
+   *                              or case-insensitive (if {@code true}) manner.
+   * @param  ignoreValueCase      Indicates whether string field values should
+   *                              be treated in a case-sensitive (if
+   *                              {@code false}) or case-insensitive (if
+   *                              {@code true}) manner.
+   * @param  ignoreArrayOrder     Indicates whether the order of elements in an
+   *                              array should be considered significant (if
+   *                              {@code false}) or insignificant (if
+   *                              {@code true}).
+   */
+  @Override()
+  public void toNormalizedString(final StringBuilder buffer,
+                                 final boolean ignoreFieldNameCase,
+                                 final boolean ignoreValueCase,
+                                 final boolean ignoreArrayOrder)
   {
     buffer.append(normalizedValue.toPlainString());
   }

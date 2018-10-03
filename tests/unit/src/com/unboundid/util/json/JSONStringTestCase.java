@@ -77,6 +77,20 @@ public final class JSONStringTestCase
     s.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "\"\"");
 
+    assertNotNull(s.toNormalizedString(true, true, true));
+    assertEquals(s.toNormalizedString(true, true, true), "\"\"");
+
+    assertNotNull(s.toNormalizedString(false, false, false));
+    assertEquals(s.toNormalizedString(false, false, false), "\"\"");
+
+    toNormalizedStringBuffer.setLength(0);
+    s.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "\"\"");
+
+    toNormalizedStringBuffer.setLength(0);
+    s.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(), "\"\"");
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     s.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(), "\"\"");
@@ -132,6 +146,21 @@ public final class JSONStringTestCase
     final StringBuilder toNormalizedStringBuffer = new StringBuilder();
     s.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(), "\"this is a test.\"");
+
+    assertNotNull(s.toNormalizedString(true, true, true));
+    assertEquals(s.toNormalizedString(true, true, true), "\"this is a test.\"");
+
+    assertNotNull(s.toNormalizedString(false, false, false));
+    assertEquals(s.toNormalizedString(false, false, false),
+         "\"This is a test.\"");
+
+    toNormalizedStringBuffer.setLength(0);
+    s.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(), "\"this is a test.\"");
+
+    toNormalizedStringBuffer.setLength(0);
+    s.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(), "\"This is a test.\"");
 
     final JSONBuffer jsonBuffer = new JSONBuffer();
     s.appendToJSONBuffer(jsonBuffer);
@@ -225,6 +254,28 @@ public final class JSONStringTestCase
          "\"this \\u0022 string \\u005C has \\u0000 characters \\u0008 that " +
               "\\u000C need \\u000A to \\u000D be \\u0009 escaped.\"");
 
+    assertNotNull(s.toNormalizedString(true, true, true));
+    assertEquals(s.toNormalizedString(true, true, true),
+         "\"this \\u0022 string \\u005C has \\u0000 characters \\u0008 that " +
+              "\\u000C need \\u000A to \\u000D be \\u0009 escaped.\"");
+
+    assertNotNull(s.toNormalizedString(false, false, false));
+    assertEquals(s.toNormalizedString(false, false, false),
+         "\"This \\u0022 string \\u005C has \\u0000 characters \\u0008 that " +
+              "\\u000C need \\u000A to \\u000D be \\u0009 escaped.\"");
+
+    toNormalizedStringBuffer.setLength(0);
+    s.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         "\"this \\u0022 string \\u005C has \\u0000 characters \\u0008 that " +
+              "\\u000C need \\u000A to \\u000D be \\u0009 escaped.\"");
+
+    toNormalizedStringBuffer.setLength(0);
+    s.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         "\"This \\u0022 string \\u005C has \\u0000 characters \\u0008 that " +
+              "\\u000C need \\u000A to \\u000D be \\u0009 escaped.\"");
+
     final JSONBuffer jsonBuffer = new JSONBuffer();
     s.appendToJSONBuffer(jsonBuffer);
     assertEquals(jsonBuffer.toString(),
@@ -286,6 +337,24 @@ public final class JSONStringTestCase
     s.toNormalizedString(toNormalizedStringBuffer);
     assertEquals(toNormalizedStringBuffer.toString(),
          "\"jos\\u00E9 jalape\\u00F1o\"");
+
+    assertNotNull(s.toNormalizedString(true, true, true));
+    assertEquals(s.toNormalizedString(true, true, true),
+         "\"jos\\u00E9 jalape\\u00F1o\"");
+
+    assertNotNull(s.toNormalizedString(false, false, false));
+    assertEquals(s.toNormalizedString(false, false, false),
+         "\"Jos\\u00E9 Jalape\\u00F1o\"");
+
+    toNormalizedStringBuffer.setLength(0);
+    s.toNormalizedString(toNormalizedStringBuffer, true, true, true);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         "\"jos\\u00E9 jalape\\u00F1o\"");
+
+    toNormalizedStringBuffer.setLength(0);
+    s.toNormalizedString(toNormalizedStringBuffer, false, false, false);
+    assertEquals(toNormalizedStringBuffer.toString(),
+         "\"Jos\\u00E9 Jalape\\u00F1o\"");
 
     final JSONBuffer jsonBuffer = new JSONBuffer();
     s.appendToJSONBuffer(jsonBuffer);
@@ -507,5 +576,30 @@ public final class JSONStringTestCase
              "tab\\tnull\\u0000\"",
       }
     };
+  }
+
+
+
+  /**
+   * Tests the {@code equals} method that takes an extended set of arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEqualsExtended()
+         throws Exception
+  {
+    final JSONString s1 = new JSONString("foo");
+    final JSONString s2 = new JSONString("Foo");
+    final JSONString s3 = new JSONString("bar");
+
+    assertTrue(s1.equals(s1, true, true, true));
+    assertTrue(s1.equals(s1, false, false, false));
+
+    assertTrue(s1.equals(s2, true, true, true));
+    assertFalse(s1.equals(s2, false, false, false));
+
+    assertFalse(s1.equals(s3, true, true, true));
+    assertFalse(s1.equals(s3, false, false, false));
   }
 }
