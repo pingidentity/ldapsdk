@@ -985,7 +985,7 @@ public final class LDAPConnectionOptions
       final String extendedOperationTypePrefix =
            PROPERTY_DEFAULT_EXTENDED_RESPONSE_TIMEOUT_MILLIS + '.';
       for (final String propertyName :
-           System.getProperties().stringPropertyNames())
+           StaticUtils.getSystemProperties().stringPropertyNames())
       {
         if (propertyName.startsWith(extendedOperationTypePrefix))
         {

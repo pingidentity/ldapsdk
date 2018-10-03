@@ -55,6 +55,15 @@ ${TARGET="offline"}                <br>
                   field names and string values, and also over array order.
                   <br><br>
                 </li>
+
+                <li>
+                  Improved support for running in an environment in which a security manager
+                  prevents calls to setting system properties (which also prevents access to the
+                  <tt>System.getProperties</tt> method because its return value is mutable).  It
+                  is expected that <tt>System.getProperty</tt> can still be used to retrieve
+                  individual property values.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

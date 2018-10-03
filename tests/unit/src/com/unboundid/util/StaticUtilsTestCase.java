@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.Set;
 import java.util.UUID;
@@ -2766,5 +2767,51 @@ public class StaticUtilsTestCase
 
     assertEquals(StaticUtils.linkedHashSetOf("foo", "bar"),
          new LinkedHashSet<>(Arrays.asList("foo", "bar")));
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code getSystemProperties} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetSystemProperties()
+         throws Exception
+  {
+    assertNotNull(StaticUtils.getSystemProperties());
+    assertEquals(StaticUtils.getSystemProperties(), System.getProperties());
+
+    assertNotNull(StaticUtils.getSystemProperties("foo", "bar"));
+    assertEquals(StaticUtils.getSystemProperties("foo", "bar"),
+         System.getProperties());
+
+    System.setProperty(
+         StaticUtils.class.getName() + ".forceGetSystemPropertiesToThrow",
+         "true");
+    assertNotNull(StaticUtils.getSystemProperties());
+    assertEquals(StaticUtils.getSystemProperties(), new Properties());
+
+    final String javaHome = System.getProperty("java.home");
+    assertNotNull(javaHome);
+
+    final Properties gotProperties =
+         StaticUtils.getSystemProperties("java.home");
+    assertNotNull(gotProperties);
+
+    final Properties expectedProperties = new Properties();
+    expectedProperties.setProperty("java.home", javaHome);
+    assertEquals(gotProperties, expectedProperties);
+
+    System.clearProperty(
+         StaticUtils.class.getName() + ".forceGetSystemPropertiesToThrow");
+
+    assertNotNull(StaticUtils.getSystemProperties());
+    assertEquals(StaticUtils.getSystemProperties(), System.getProperties());
+
+    assertNotNull(StaticUtils.getSystemProperties("foo", "bar"));
+    assertEquals(StaticUtils.getSystemProperties("foo", "bar"),
+         System.getProperties());
   }
 }

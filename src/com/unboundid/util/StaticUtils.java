@@ -40,6 +40,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -3482,5 +3483,76 @@ public final class StaticUtils
   public static <T> LinkedHashSet<T> linkedHashSetOf(final T... items)
   {
     return new LinkedHashSet<>(Arrays.asList(items));
+  }
+
+
+
+  /**
+   * Retrieves the set of currently defined system properties.  If possible,
+   * this will simply return the result of a call to
+   * {@code System.getProperties}.  However, the LDAP SDK is known to be used in
+   * environments where a security manager prevents setting system properties,
+   * and in that case, calls to {@code System.getProperties} will be rejected
+   * with a {@code SecurityException} because the returned structure is mutable
+   * and could be used to alter system property values.  In such cases, a new
+   * empty {@code Properties} object will be created, and may optionally be
+   * populated with the values of a specific set of named properties.
+   *
+   * @param  propertyNames  An optional set of property names whose values (if
+   *                        defined) should be included in the
+   *                        {@code Properties} object that will be returned if a
+   *                        security manager prevents retrieving the full set of
+   *                        system properties.  This may be {@code null} or
+   *                        empty if no specific properties should be retrieved.
+   *
+   * @return  The value returned by a call to {@code System.getProperties} if
+   *          possible, or a newly-created properties map (possibly including
+   *          the values of a specified set of system properties) if it is not
+   *          possible to get a mutable set of the system properties.
+   */
+  public static Properties getSystemProperties(final String... propertyNames)
+  {
+    try
+    {
+      final Properties properties = System.getProperties();
+
+      final String forceThrowPropertyName =
+           StaticUtils.class.getName() + ".forceGetSystemPropertiesToThrow";
+
+      // To ensure that we can get coverage for the code below in which there is
+      // a restrictive security manager in place, look for a system property
+      // that will cause us to throw an exception.
+      final Object forceThrowPropertyValue =
+           properties.getProperty(forceThrowPropertyName);
+      if (forceThrowPropertyValue != null)
+      {
+        throw new SecurityException(forceThrowPropertyName + '=' +
+             forceThrowPropertyValue);
+      }
+
+      return System.getProperties();
+    }
+    catch (final SecurityException e)
+    {
+      Debug.debugException(e);
+    }
+
+
+    // If we have gotten here, then we can assume that a security manager
+    // prevents us from accessing all system properties.  Create a new proper
+    final Properties properties = new Properties();
+    if (propertyNames != null)
+    {
+      for (final String propertyName : propertyNames)
+      {
+        final Object propertyValue = System.getProperty(propertyName);
+        if (propertyValue != null)
+        {
+          properties.put(propertyName, propertyValue);
+        }
+      }
+    }
+
+    return properties;
   }
 }

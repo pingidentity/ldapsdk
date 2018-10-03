@@ -187,7 +187,9 @@ public final class Debug
 
   static
   {
-    initialize(System.getProperties());
+    initialize(StaticUtils.getSystemProperties(PROPERTY_DEBUG_ENABLED,
+         PROPERTY_DEBUG_LEVEL, PROPERTY_DEBUG_TYPE,
+         PROPERTY_INCLUDE_STACK_TRACE));
   }
 
 
