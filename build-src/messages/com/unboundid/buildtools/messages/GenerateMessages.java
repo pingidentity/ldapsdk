@@ -517,7 +517,7 @@ public class GenerateMessages
         w();
         w("    if (IS_WITHIN_UNIT_TESTS &&");
         w("        (formattedMessage.contains(\"{0}\") ||");
-        w("         formattedMessage.contains(\"{0,number,01}\") ||");
+        w("         formattedMessage.contains(\"{0,number,0}\") ||");
         w("         formattedMessage.contains(\"{1}\") ||");
         w("         formattedMessage.contains(\"{1,number,0}\") ||");
         w("         formattedMessage.contains(\"{2}\") ||");
