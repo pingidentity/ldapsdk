@@ -248,8 +248,14 @@ public class RepositoryInfo
         {
           System.err.println("ERROR:  Unable to obtain repository details " +
                "from the git workspace in directory " + f.getAbsolutePath() +
-               ":  " + String.valueOf(e) +
-               ".  Using fallback repository info.");
+               ":  " + e + ".  Using generic fallback repository info.");
+        }
+        catch (final UnsupportedClassVersionError e)
+        {
+          System.err.println("ERROR:  Unable to obtain repository details " +
+               "from the git workspace in directory " + f.getAbsolutePath() +
+               ":  " + e + ".  The jgit library is only supported on Java " +
+               "version 8 or higher.  Using generic fallback repository info.");
         }
       }
 
