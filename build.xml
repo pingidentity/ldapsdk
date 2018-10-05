@@ -93,12 +93,12 @@
 
 
   <!-- Define properties used for code coverage. -->
-  <property name="emma.dir"               location="ext/emma" />
-  <property name="coverage.dir"           location="${build.dir}/coverage" />
-  <property name="coverage.collected.dir" location="${build.dir}/collected" />
-  <property name="coverage.instrumented.dir"
-            location="${coverage.dir}/instrumented" />
-  <property name="coverage.report.dir"    location="${coverage.dir}/report" />
+  <property name="jacoco.dir" location="ext/jacoco" />
+  <property name="coverage.dir" location="${build.dir}/coverage" />
+  <property name="coverage.report.dir" location="${coverage.dir}/report" />
+  <property name="coverage.out.file" location="${coverage.dir}/jacoco.exec" />
+  <property name="coverage.merged.file"
+            location="${coverage.dir}/merged.exec" />
 
 
   <!-- Define the amount of memory to use for forked VMs -->
@@ -681,17 +681,6 @@
         <isset property="coverage.enabled" />
       </not>
     </condition>
-    <path id="emma.lib">
-      <pathelement location="${emma.dir}/emma.jar" />
-      <pathelement location="${emma.dir}/emma_ant.jar" />
-    </path>
-    <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
-    <emma enabled="${coverage.enabled}">
-      <instr instrpathref="instrument.classes"
-             destdir="${coverage.instrumented.dir}"
-             metadatafile="${coverage.collected.dir}/collected.emma"
-             merge="true" />
-    </emma>
 
     <!-- Set default values for the properties used to set information
          about the Directory Server instance to use for testing. -->
@@ -807,66 +796,84 @@
         </fileset>
       </classpath>
     </taskdef>
-    <testng outputdir="${unit.report.dir}" haltOnFailure="true"
-            listeners="com.unboundid.test.LDAPSDKTestListener"
-            enableAssert="true">
-      <classpath>
-        <pathelement location="${coverage.instrumented.dir}" />
-        <pathelement location="${classes.dir}" />
-        <pathelement location="${unit.classes.dir}" />
-        <path refid="instrument.classes" />
-        <path refid="emma.lib" />
-        <fileset dir="${testng.dir}">
-          <include name="*.jar" />
-        </fileset>
-      </classpath>
-      <xmlfileset dir="${testng.fileset.dir}" includes="ldapsdk-fileset.xml" />
-      <jvmarg value="-server" />
-      <jvmarg value="-noverify" />
-      <jvmarg value="-Xms${MEM}" />
-      <jvmarg value="-Xmx${MEM}" />
-      <jvmarg value="-XX:+UseBiasedLocking" />
-      <jvmarg value="-XX:+UseMembar" />
-      <jvmarg value="-Demma.coverage.out.file=${coverage.collected.dir}/unit.emma" />
-      <jvmarg value="-Demma.coverage.out.merge=false" />
-      <jvmarg value="-Dcom.unboundid.ldap.sdk.RunningUnitTests=true" />
-      <jvmarg value="-Dbasedir=${basedir}" />
-      <jvmarg value="-Dunit.resource.dir=${unit.resource.dir}" />
-      <jvmarg value="-Djava.io.tmpdir=${unit.temp.dir}" />
-      <jvmarg value="-Dds.host=${ds.host}" />
-      <jvmarg value="-Dds.port=${ds.port}" />
-      <jvmarg value="-Dds.ssl.port=${ds.ssl.port}" />
-      <jvmarg value="-Dds2.host=${ds2.host}" />
-      <jvmarg value="-Dds2.port=${ds2.port}" />
-      <jvmarg value="-Dds2.ssl.port=${ds2.ssl.port}" />
-      <jvmarg value="-Ddsee.host=${dsee.host}" />
-      <jvmarg value="-Ddsee.port=${dsee.port}" />
-      <jvmarg value="-Ddsee.ssl.port=${dsee.ssl.port}" />
-      <jvmarg value="-Dds.basedn=${ds.basedn}" />
-      <jvmarg value="-Dds.binddn=${ds.binddn}" />
-      <jvmarg value="-Dds.bindpw=${ds.bindpw}" />
-    </testng>
+
+    <taskdef uri="antlib:org.jacoco.ant"
+             resource="org/jacoco/ant/antlib.xml">
+      <classpath path="${jacoco.dir}/jacocoant.jar" />
+    </taskdef>
+
+    <delete file="${coverage.out.file}" failonerror="false" />
+
+    <jacoco:coverage enabled="${coverage.enabled}"
+                     xmlns:jacoco="antlib:org.jacoco.ant"
+                     destfile="${coverage.out.file}"
+                     append="false">
+      <testng outputdir="${unit.report.dir}" haltOnFailure="true"
+              listeners="com.unboundid.test.LDAPSDKTestListener"
+              enableAssert="true">
+        <classpath>
+          <pathelement location="${coverage.instrumented.dir}" />
+          <pathelement location="${classes.dir}" />
+          <pathelement location="${unit.classes.dir}" />
+          <path refid="instrument.classes" />
+          <fileset dir="${testng.dir}">
+            <include name="*.jar" />
+          </fileset>
+          <fileset dir="${jacoco.dir}">
+            <include name="*.jar" />
+          </fileset>
+        </classpath>
+        <xmlfileset dir="${testng.fileset.dir}" includes="ldapsdk-fileset.xml" />
+        <jvmarg value="-server" />
+        <jvmarg value="-noverify" />
+        <jvmarg value="-Xms${MEM}" />
+        <jvmarg value="-Xmx${MEM}" />
+        <jvmarg value="-XX:+UseBiasedLocking" />
+        <jvmarg value="-XX:+UseMembar" />
+        <jvmarg value="-Dcom.unboundid.ldap.sdk.RunningUnitTests=true" />
+        <jvmarg value="-Dbasedir=${basedir}" />
+        <jvmarg value="-Dunit.resource.dir=${unit.resource.dir}" />
+        <jvmarg value="-Djava.io.tmpdir=${unit.temp.dir}" />
+        <jvmarg value="-Dds.host=${ds.host}" />
+        <jvmarg value="-Dds.port=${ds.port}" />
+        <jvmarg value="-Dds.ssl.port=${ds.ssl.port}" />
+        <jvmarg value="-Dds2.host=${ds2.host}" />
+        <jvmarg value="-Dds2.port=${ds2.port}" />
+        <jvmarg value="-Dds2.ssl.port=${ds2.ssl.port}" />
+        <jvmarg value="-Ddsee.host=${dsee.host}" />
+        <jvmarg value="-Ddsee.port=${dsee.port}" />
+        <jvmarg value="-Ddsee.ssl.port=${dsee.ssl.port}" />
+        <jvmarg value="-Dds.basedn=${ds.basedn}" />
+        <jvmarg value="-Dds.binddn=${ds.binddn}" />
+        <jvmarg value="-Dds.bindpw=${ds.bindpw}" />
+      </testng>
+    </jacoco:coverage>
 
     <!-- Generate the code coverage report -->
-    <emma enabled="${coverage.enabled}">
-      <report sourcepath="${src.dir}" columns="name,class,method,line"
-              metrics="class:90,method:90,line:70"
-              sort="+name,+line">
-        <fileset dir="${coverage.collected.dir}">
-          <include name="unit.emma" />
-          <include name="collected.emma" />
-        </fileset>
-        <txt outfile="${coverage.report.dir}/coverage.txt" />
-        <html outfile="${coverage.report.dir}/index.html" />
-      </report>
+    <jacoco:merge destfile="${coverage.merged.file}"
+                  xmlns:jacoco="antlib:org.jacoco.ant">
+      <fileset dir="${coverage.dir}" includes="**/*.exec" />
+    </jacoco:merge>
 
-      <!-- Merge the coverage data files into a single "session" file. -->
-      <merge outfile="${coverage.collected.dir}/coverage.es">
-        <fileset dir="${coverage.collected.dir}">
-          <include name="*.emma" />
-        </fileset>
-      </merge>
-    </emma>
+    <jacoco:report xmlns:jacoco="antlib:org.jacoco.ant">
+      <executiondata>
+        <file file="${coverage.merged.file}" />
+      </executiondata>
+
+      <structure name="LDAP SDK">
+        <classfiles>
+          <fileset dir="${classes.dir}" />
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <fileset dir="${src.dir}" />
+          <fileset dir="${messages.gensrc.dir}" />
+        </sourcefiles>
+      </structure>
+
+      <html destdir="${coverage.report.dir}" />
+      <csv  destfile="${coverage.report.dir}/report.csv" />
+      <xml  destfile="${coverage.report.dir}/report.xml" />
+    </jacoco:report>
   </target>
 
 
@@ -883,8 +890,6 @@
     <property name="coverage.enabled" value="true" />
 
     <mkdir dir="${coverage.dir}" />
-    <mkdir dir="${coverage.collected.dir}" />
-    <mkdir dir="${coverage.instrumented.dir}" />
     <mkdir dir="${coverage.report.dir}" />
 
     <path id="instrument.classes">
@@ -912,8 +917,6 @@
     <property name="sonar.projectVersion" value="${MMPQ}" />
     <property name="sonar.projectName" value="${PRODUCT_NAME}" />
     <property name="sonar.sources" value="${src.dir},${build-src.dir},${gen-src.dir}" />
-    <property name="sonar.java.coveragePlugin" value="emma" />
-    <property name="sonar.emma.reportPath" value="${coverage.dir}" />
     <property name="sonar.binaries" value="build/classes" />
     <property name="sonar.tests" value="${unit.src.dir}" />
 
