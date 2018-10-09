@@ -22,12 +22,18 @@ package com.unboundid.ldif;
 
 
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.ChangeType;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
+import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.LDAPSDKUsageException;
 
@@ -84,6 +90,220 @@ public class LDIFDeleteChangeRecordTestCase
     assertNotNull(r.toLDIFString());
     assertNotNull(r.toLDIFString(10));
     assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertTrue(r.getControls().isEmpty());
+
+
+    r = r.duplicate();
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("dc=example,dc=com"));
+
+    deleteRequest = r.toDeleteRequest();
+    assertEquals(deleteRequest.getDN(), "dc=example,dc=com");
+
+    assertEquals(r.getChangeType(), ChangeType.DELETE);
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 2);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertTrue(r.getControls().isEmpty());
+
+
+    r = r.duplicate((Control[]) null);
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("dc=example,dc=com"));
+
+    deleteRequest = r.toDeleteRequest();
+    assertEquals(deleteRequest.getDN(), "dc=example,dc=com");
+
+    assertEquals(r.getChangeType(), ChangeType.DELETE);
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 2);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertTrue(r.getControls().isEmpty());
+
+
+    r = r.duplicate(new Control[0]);
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("dc=example,dc=com"));
+
+    deleteRequest = r.toDeleteRequest();
+    assertEquals(deleteRequest.getDN(), "dc=example,dc=com");
+
+    assertEquals(r.getChangeType(), ChangeType.DELETE);
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 2);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertTrue(r.getControls().isEmpty());
+
+
+    r = r.duplicate(new ManageDsaITRequestControl(false));
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("dc=example,dc=com"));
+
+    deleteRequest = r.toDeleteRequest();
+    assertEquals(deleteRequest.getDN(), "dc=example,dc=com");
+
+    assertEquals(r.getChangeType(), ChangeType.DELETE);
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 3);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertFalse(r.getControls().isEmpty());
+    assertEquals(r.getControls(),
+         Collections.singletonList(new ManageDsaITRequestControl(false)));
+
+
+    r = r.duplicate(new ManageDsaITRequestControl(false),
+         new SubtreeDeleteRequestControl(false));
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("dc=example,dc=com"));
+
+    deleteRequest = r.toDeleteRequest();
+    assertEquals(deleteRequest.getDN(), "dc=example,dc=com");
+
+    assertEquals(r.getChangeType(), ChangeType.DELETE);
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 4);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertFalse(r.getControls().isEmpty());
+    assertEquals(r.getControls(),
+         Arrays.asList(new ManageDsaITRequestControl(false),
+              new SubtreeDeleteRequestControl(false)));
   }
 
 

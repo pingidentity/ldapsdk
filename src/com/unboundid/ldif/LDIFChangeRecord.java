@@ -223,6 +223,21 @@ public abstract class LDIFChangeRecord
 
 
   /**
+   * Creates a duplicate of this LDIF change record with the provided set of
+   * controls.
+   *
+   * @param  controls  The set of controls to include in the duplicate change
+   *                   record.  It may be {@code null} or empty if no controls
+   *                   should be included.
+   *
+   * @return  A duplicate of this LDIF change record with the provided set of
+   *          controls.
+   */
+  public abstract LDIFChangeRecord duplicate(final Control... controls);
+
+
+
+  /**
    * Apply the change represented by this LDIF change record to a directory
    * server using the provided connection.  Any controls included in the
    * change record will be included in the request.

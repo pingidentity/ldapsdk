@@ -151,6 +151,17 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  public LDIFDeleteChangeRecord duplicate(final Control... controls)
+  {
+    return new LDIFDeleteChangeRecord(getDN(), StaticUtils.toList(controls));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public LDAPResult processChange(final LDAPInterface connection,
                                   final boolean includeControls)
          throws LDAPException

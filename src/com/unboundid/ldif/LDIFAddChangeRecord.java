@@ -284,6 +284,18 @@ public final class LDIFAddChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  public LDIFAddChangeRecord duplicate(final Control... controls)
+  {
+    return new LDIFAddChangeRecord(getDN(), attributes,
+         StaticUtils.toList(controls));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public LDAPResult processChange(final LDAPInterface connection,
                                   final boolean includeControls)
          throws LDAPException

@@ -22,12 +22,18 @@ package com.unboundid.ldif;
 
 
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.ChangeType;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.RDN;
+import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
+import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.LDAPSDKUsageException;
 
@@ -99,6 +105,280 @@ public class LDIFModifyDNChangeRecordTestCase
     assertNotNull(r.toLDIFString());
     assertNotNull(r.toLDIFString(10));
     assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertTrue(r.getControls().isEmpty());
+
+
+    r = r.duplicate();
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "ou=People,dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("ou=People,dc=example,dc=com"));
+
+    assertNotNull(r.getNewRDN());
+    assertEquals(r.getNewRDN(), "ou=Users");
+    assertEquals(r.getParsedNewRDN(), new RDN("ou=Users"));
+
+    assertTrue(r.deleteOldRDN());
+
+    assertNotNull(r.getNewSuperiorDN());
+    assertEquals(r.getNewSuperiorDN(), "o=example.com");
+    assertEquals(r.getParsedNewSuperiorDN(), new DN("o=example.com"));
+
+    assertEquals(r.getNewDN(), new DN("ou=Users,o=example.com"));
+
+    modifyDNRequest = r.toModifyDNRequest();
+    assertEquals(modifyDNRequest.getDN(), "ou=People,dc=example,dc=com");
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 5);
+
+    assertEquals(r.getChangeType(), ChangeType.MODIFY_DN);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertTrue(r.getControls().isEmpty());
+
+
+    r = r.duplicate((Control[]) null);
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "ou=People,dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("ou=People,dc=example,dc=com"));
+
+    assertNotNull(r.getNewRDN());
+    assertEquals(r.getNewRDN(), "ou=Users");
+    assertEquals(r.getParsedNewRDN(), new RDN("ou=Users"));
+
+    assertTrue(r.deleteOldRDN());
+
+    assertNotNull(r.getNewSuperiorDN());
+    assertEquals(r.getNewSuperiorDN(), "o=example.com");
+    assertEquals(r.getParsedNewSuperiorDN(), new DN("o=example.com"));
+
+    assertEquals(r.getNewDN(), new DN("ou=Users,o=example.com"));
+
+    modifyDNRequest = r.toModifyDNRequest();
+    assertEquals(modifyDNRequest.getDN(), "ou=People,dc=example,dc=com");
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 5);
+
+    assertEquals(r.getChangeType(), ChangeType.MODIFY_DN);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertTrue(r.getControls().isEmpty());
+
+
+    r = r.duplicate(new Control[0]);
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "ou=People,dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("ou=People,dc=example,dc=com"));
+
+    assertNotNull(r.getNewRDN());
+    assertEquals(r.getNewRDN(), "ou=Users");
+    assertEquals(r.getParsedNewRDN(), new RDN("ou=Users"));
+
+    assertTrue(r.deleteOldRDN());
+
+    assertNotNull(r.getNewSuperiorDN());
+    assertEquals(r.getNewSuperiorDN(), "o=example.com");
+    assertEquals(r.getParsedNewSuperiorDN(), new DN("o=example.com"));
+
+    assertEquals(r.getNewDN(), new DN("ou=Users,o=example.com"));
+
+    modifyDNRequest = r.toModifyDNRequest();
+    assertEquals(modifyDNRequest.getDN(), "ou=People,dc=example,dc=com");
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 5);
+
+    assertEquals(r.getChangeType(), ChangeType.MODIFY_DN);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertTrue(r.getControls().isEmpty());
+
+
+    r = r.duplicate(new ManageDsaITRequestControl(false));
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "ou=People,dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("ou=People,dc=example,dc=com"));
+
+    assertNotNull(r.getNewRDN());
+    assertEquals(r.getNewRDN(), "ou=Users");
+    assertEquals(r.getParsedNewRDN(), new RDN("ou=Users"));
+
+    assertTrue(r.deleteOldRDN());
+
+    assertNotNull(r.getNewSuperiorDN());
+    assertEquals(r.getNewSuperiorDN(), "o=example.com");
+    assertEquals(r.getParsedNewSuperiorDN(), new DN("o=example.com"));
+
+    assertEquals(r.getNewDN(), new DN("ou=Users,o=example.com"));
+
+    modifyDNRequest = r.toModifyDNRequest();
+    assertEquals(modifyDNRequest.getDN(), "ou=People,dc=example,dc=com");
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 6);
+
+    assertEquals(r.getChangeType(), ChangeType.MODIFY_DN);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertFalse(r.getControls().isEmpty());
+    assertEquals(r.getControls(),
+         Collections.singletonList(new ManageDsaITRequestControl(false)));
+
+
+    r = r.duplicate(new ManageDsaITRequestControl(false),
+         new ProxiedAuthorizationV2RequestControl("u:test.user"));
+
+    assertNotNull(r.getDN());
+    assertEquals(r.getDN(), "ou=People,dc=example,dc=com");
+    assertEquals(r.getParsedDN(), new DN("ou=People,dc=example,dc=com"));
+
+    assertNotNull(r.getNewRDN());
+    assertEquals(r.getNewRDN(), "ou=Users");
+    assertEquals(r.getParsedNewRDN(), new RDN("ou=Users"));
+
+    assertTrue(r.deleteOldRDN());
+
+    assertNotNull(r.getNewSuperiorDN());
+    assertEquals(r.getNewSuperiorDN(), "o=example.com");
+    assertEquals(r.getParsedNewSuperiorDN(), new DN("o=example.com"));
+
+    assertEquals(r.getNewDN(), new DN("ou=Users,o=example.com"));
+
+    modifyDNRequest = r.toModifyDNRequest();
+    assertEquals(modifyDNRequest.getDN(), "ou=People,dc=example,dc=com");
+
+    ldifLines = r.toLDIF();
+    assertNotNull(ldifLines);
+    assertEquals(ldifLines.length, 7);
+
+    assertEquals(r.getChangeType(), ChangeType.MODIFY_DN);
+
+    r.hashCode();
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer);
+    assertNotNull(byteBuffer.toString());
+
+    byteBuffer = new ByteStringBuffer();
+    r.toLDIF(byteBuffer, 10);
+    assertNotNull(byteBuffer.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer);
+    assertNotNull(r.toString());
+
+    stringBuffer = new StringBuilder();
+    r.toLDIFString(stringBuffer, 10);
+    assertNotNull(r.toString());
+
+    assertNotNull(r.toLDIFString());
+    assertNotNull(r.toLDIFString(10));
+    assertNotNull(r.toString());
+
+    assertNotNull(r.getControls());
+    assertFalse(r.getControls().isEmpty());
+    assertEquals(r.getControls(),
+         Arrays.asList(new ManageDsaITRequestControl(false),
+              new ProxiedAuthorizationV2RequestControl("u:test.user")));
   }
 
 

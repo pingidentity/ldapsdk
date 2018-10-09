@@ -327,6 +327,18 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
+  public LDIFModifyDNChangeRecord duplicate(final Control... controls)
+  {
+    return new LDIFModifyDNChangeRecord(getDN(), newRDN, deleteOldRDN,
+         newSuperiorDN, StaticUtils.toList(controls));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public LDAPResult processChange(final LDAPInterface connection,
                                   final boolean includeControls)
          throws LDAPException
