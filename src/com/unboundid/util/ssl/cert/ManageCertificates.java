@@ -3442,13 +3442,13 @@ public final class ManageCertificates
            "trust-server-certificate",
            "--hostname", "ds.example.com",
            "--port", "636",
-           "--keystore", getPlatformSpecificPath("config", "keystore"),
+           "--keystore", getPlatformSpecificPath("config", "truststore"),
            "--keystore-password-file",
-                getPlatformSpecificPath("config", "keystore.pin"),
+                getPlatformSpecificPath("config", "truststore.pin"),
            "--verbose"
          },
          INFO_MANAGE_CERTS_SC_TRUST_SERVER_EXAMPLE_1.get(
-              getPlatformSpecificPath("config", "keystore")));
+              getPlatformSpecificPath("config", "truststore")));
     trustServerExamples.put(
          new String[]
          {
@@ -3456,15 +3456,15 @@ public final class ManageCertificates
            "--hostname", "ds.example.com",
            "--port", "389",
            "--use-ldap-start-tls",
-           "--keystore", getPlatformSpecificPath("config", "keystore"),
+           "--keystore", getPlatformSpecificPath("config", "truststore"),
            "--keystore-password-file",
-                getPlatformSpecificPath("config", "keystore.pin"),
+                getPlatformSpecificPath("config", "truststore.pin"),
            "--issuers-only",
            "--alias", "ds-start-tls-cert",
            "--no-prompt"
          },
          INFO_MANAGE_CERTS_SC_TRUST_SERVER_EXAMPLE_2.get(
-              getPlatformSpecificPath("config", "keystore")));
+              getPlatformSpecificPath("config", "truststore")));
 
     final SubCommand trustServerSubCommand = new SubCommand(
          "trust-server-certificate",
@@ -11875,6 +11875,10 @@ public final class ManageCertificates
     final String exportKeyOutputFile =
          getPlatformSpecificPath("server-cert.private-key");
     final String genCSROutputFile = getPlatformSpecificPath("server-cert.csr");
+    final String truststorePath =
+         getPlatformSpecificPath("config", "truststore");
+    final String truststorePWPath =
+         getPlatformSpecificPath("config", "truststore.pin");
 
     final LinkedHashMap<String[],String> examples =
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
@@ -12053,11 +12057,11 @@ public final class ManageCertificates
            "trust-server-certificate",
            "--hostname", "ldap.example.com",
            "--port", "636",
-           "--keystore", keystorePath,
-           "--keystore-password-file", keystorePWPath,
+           "--keystore", truststorePath,
+           "--keystore-password-file", truststorePWPath,
            "--alias", "ldap.example.com:636"
          },
-         INFO_MANAGE_CERTS_EXAMPLE_TRUST_SERVER_1.get(keystorePath));
+         INFO_MANAGE_CERTS_EXAMPLE_TRUST_SERVER_1.get(truststorePath));
 
     examples.put(
          new String[]
