@@ -3431,7 +3431,31 @@ public final class StaticUtils
         Validator.ensureTrue((expectedItemCount >= 0),
              "StaticUtils.computeMapOrSetCapacity.expectedItemCount must be " +
                   "greater than or equal to zero.");
-      return ((expectedItemCount * 4) / 3) + 1;
+
+        // NOTE:  536,870,911 is Integer.MAX_VALUE/4.  If the value is larger
+        // than that, then we'll fall back to using floating-point arithmetic
+        //
+        if (expectedItemCount > 536_870_911)
+        {
+          final int computedCapacity = ((int) (expectedItemCount / 0.75)) + 1;
+          if (computedCapacity <= expectedItemCount)
+          {
+            // This suggests that the expected number of items is so big that
+            // the computed capacity can't be adequately represented by an
+            // integer.  In that case, we'll just return the expected item
+            // count and let the map or set get re-hashed/re-balanced if it
+            // actually gets anywhere near that size.
+            return expectedItemCount;
+          }
+          else
+          {
+            return computedCapacity;
+          }
+        }
+        else
+        {
+          return ((expectedItemCount * 4) / 3) + 1;
+        }
     }
   }
 

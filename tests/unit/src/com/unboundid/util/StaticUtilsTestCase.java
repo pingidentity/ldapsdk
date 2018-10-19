@@ -2705,8 +2705,23 @@ public class StaticUtilsTestCase
     for (int i=1; i <= 1000; i++)
     {
       assertEquals(StaticUtils.computeMapCapacity(i),
-           (((i * 4 )/ 3) + 1));
+           (((i * 4 ) / 3) + 1));
     }
+
+    final int biggestIntegerArithmeticValue = Integer.MAX_VALUE / 4;
+    assertEquals(StaticUtils.computeMapCapacity(biggestIntegerArithmeticValue),
+         (((biggestIntegerArithmeticValue * 4) / 3) + 1));
+
+    final int smallestFloatingPointArithmeticValue =
+         biggestIntegerArithmeticValue + 1;
+    assertEquals(
+         StaticUtils.computeMapCapacity(smallestFloatingPointArithmeticValue),
+         (((int) (smallestFloatingPointArithmeticValue / 0.75)) + 1));
+
+    final int tooBigForAllPracticalPurposesValue = Integer.MAX_VALUE;
+    assertEquals(
+         StaticUtils.computeMapCapacity(tooBigForAllPracticalPurposesValue),
+         tooBigForAllPracticalPurposesValue);
   }
 
 
