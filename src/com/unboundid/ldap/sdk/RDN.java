@@ -25,9 +25,11 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
@@ -71,6 +73,9 @@ public final class RDN
   // The schema to use to generate the normalized string representation of this
   // RDN, if any.
   private final Schema schema;
+
+  // The name-value pairs that comprise this RDN.
+  private volatile SortedSet<RDNNameValuePair> nameValuePairs;
 
   // The normalized string representation for this RDN.
   private volatile String normalizedString;
@@ -119,6 +124,10 @@ public final class RDN
     attributeNames  = new String[] { attributeName };
     attributeValues =
          new ASN1OctetString[] { new ASN1OctetString(attributeValue) };
+
+    nameValuePairs = null;
+    normalizedString = null;
+    rdnString = null;
   }
 
 
@@ -159,6 +168,10 @@ public final class RDN
     attributeNames  = new String[] { attributeName };
     attributeValues =
          new ASN1OctetString[] { new ASN1OctetString(attributeValue) };
+
+    nameValuePairs = null;
+    normalizedString = null;
+    rdnString = null;
   }
 
 
@@ -210,6 +223,10 @@ public final class RDN
     {
       this.attributeValues[i] = new ASN1OctetString(attributeValues[i]);
     }
+
+    nameValuePairs = null;
+    normalizedString = null;
+    rdnString = null;
   }
 
 
@@ -261,6 +278,10 @@ public final class RDN
     {
       this.attributeValues[i] = new ASN1OctetString(attributeValues[i]);
     }
+
+    nameValuePairs = null;
+    normalizedString = null;
+    rdnString = null;
   }
 
 
@@ -283,6 +304,9 @@ public final class RDN
 
     attributeNames  = new String[] { attributeName };
     attributeValues = new ASN1OctetString[] { attributeValue };
+
+    nameValuePairs = null;
+    normalizedString = null;
   }
 
 
@@ -305,6 +329,9 @@ public final class RDN
 
     this.attributeNames  = attributeNames;
     this.attributeValues = attributeValues;
+
+    nameValuePairs = null;
+    normalizedString = null;
   }
 
 
@@ -345,6 +372,9 @@ public final class RDN
 
     this.rdnString = rdnString;
     this.schema    = schema;
+
+    nameValuePairs = null;
+    normalizedString = null;
 
     int pos = 0;
     final int length = rdnString.length();
@@ -618,10 +648,10 @@ public final class RDN
    * is encountered.  After returning, the caller should increment its position
    * by two times the length of the value array.
    *
-   * @param  rdnString  The string to be parsed.  It should be the position
-   *                    immediately after the octothorpe at the start of the
-   *                    hex-encoded value.
-   * @param  startPos   The position at which to start reading the value.
+   * @param  rdnString  The string to be parsed.  It must not be {@code null}.
+   * @param  startPos   The position at which to start reading the value.  It
+   *                    should be the position immediately after the octothorpe
+   *                    at the start of the hex-encoded value.
    *
    * @return  A byte array containing the parsed value.
    *
@@ -1152,14 +1182,26 @@ valueLoop:
 
 
   /**
-   * Indicates whether this RDN contains multiple components.
+   * Indicates whether this RDN contains multiple values.
    *
-   * @return  {@code true} if this RDN contains multiple components, or
+   * @return  {@code true} if this RDN contains multiple values, or
    *          {@code false} if not.
    */
   public boolean isMultiValued()
   {
     return (attributeNames.length != 1);
+  }
+
+
+
+  /**
+   * Retrieves the number of values for this RDN.
+   *
+   * @return  The number of values for this RDN.
+   */
+  public int getValueCount()
+  {
+    return attributeNames.length;
   }
 
 
@@ -1227,6 +1269,30 @@ valueLoop:
     }
 
     return byteValues;
+  }
+
+
+
+  /**
+   * Retrieves a sorted set of the name-value pairs that comprise this RDN.
+   *
+   * @return  A sorted set of the name-value pairs that comprise this RDN.
+   */
+  SortedSet<RDNNameValuePair> getNameValuePairs()
+  {
+    if (nameValuePairs == null)
+    {
+      final SortedSet<RDNNameValuePair> s = new TreeSet<>();
+      for (int i=0; i < attributeNames.length; i++)
+      {
+        s.add(new RDNNameValuePair(attributeNames[i], attributeValues[i],
+             schema));
+      }
+
+      nameValuePairs = Collections.unmodifiableSortedSet(s);
+    }
+
+    return nameValuePairs;
   }
 
 
@@ -1420,69 +1486,92 @@ valueLoop:
 
       buffer.append(attributeNames[i]);
       buffer.append('=');
+      appendValue(buffer, attributeValues[i], minimizeEncoding);
+    }
+  }
 
-      // Iterate through the value character-by-character and do any escaping
-      // that may be necessary.
-      final String valueString = attributeValues[i].stringValue();
-      final int length = valueString.length();
-      for (int j=0; j < length; j++)
+
+
+  /**
+   * Appends an appropriately escaped version of the provided value to the given
+   * buffer.
+   *
+   * @param  buffer            The buffer to which the value should be appended.
+   *                           It must not be {@code null}.
+   * @param  value             The value to be appended in an appropriately
+   *                           escaped form.  It must not be {@code null}.
+   * @param  minimizeEncoding  Indicates whether to restrict the encoding of
+   *                           special characters to the bare minimum required
+   *                           by LDAP (as per RFC 4514 section 2.4).  If this
+   *                           is {@code true}, then only leading and trailing
+   *                           spaces, double quotes, plus signs, commas,
+   *                           semicolons, greater-than, less-than, and
+   *                           backslash characters will be encoded.
+   */
+  static void appendValue(final StringBuilder buffer,
+                          final ASN1OctetString value,
+                          final boolean minimizeEncoding)
+  {
+    final String valueString = value.stringValue();
+    final int length = valueString.length();
+    for (int j=0; j < length; j++)
+    {
+      final char c = valueString.charAt(j);
+      switch (c)
       {
-        final char c = valueString.charAt(j);
-        switch (c)
-        {
-          case '\\':
-          case '=':
-          case '"':
-          case '+':
-          case ',':
-          case ';':
-          case '<':
-          case '>':
-            buffer.append('\\');
+        case '\\':
+        case '=':
+        case '"':
+        case '+':
+        case ',':
+        case ';':
+        case '<':
+        case '>':
+          // These characters will always be escaped.
+          buffer.append('\\');
+          buffer.append(c);
+          break;
+
+        case '#':
+          // Escape the octothorpe only if it's the first character.
+          if (j == 0)
+          {
+            buffer.append("\\#");
+          }
+          else
+          {
+            buffer.append('#');
+          }
+          break;
+
+        case ' ':
+          // Escape this space only if it's the first or last character.
+          if ((j == 0) || ((j+1) == length))
+          {
+            buffer.append("\\ ");
+          }
+          else
+          {
+            buffer.append(' ');
+          }
+          break;
+
+        case '\u0000':
+          buffer.append("\\00");
+          break;
+
+        default:
+          // If it's not a printable ASCII character, then hex-encode it
+          // unless we're using minimized encoding.
+          if ((! minimizeEncoding) && ((c < ' ') || (c > '~')))
+          {
+            StaticUtils.hexEncode(c, buffer);
+          }
+          else
+          {
             buffer.append(c);
-            break;
-
-          case '#':
-            // Escape the octothorpe only if it's the first character.
-            if (j == 0)
-            {
-              buffer.append("\\#");
-            }
-            else
-            {
-              buffer.append('#');
-            }
-            break;
-
-          case ' ':
-            // Escape this space only if it's the first or last character.
-            if ((j == 0) || ((j+1) == length))
-            {
-              buffer.append("\\ ");
-            }
-            else
-            {
-              buffer.append(' ');
-            }
-            break;
-
-          case '\u0000':
-            buffer.append("\\00");
-            break;
-
-          default:
-            // If it's not a printable ASCII character, then hex-encode it
-            // unless we're using minimized encoding.
-            if ((! minimizeEncoding) && ((c < ' ') || (c > '~')))
-            {
-              StaticUtils.hexEncode(c, buffer);
-            }
-            else
-            {
-              buffer.append(c);
-            }
-            break;
-        }
+          }
+          break;
       }
     }
   }
@@ -1523,29 +1612,20 @@ valueLoop:
       final String name = normalizeAttrName(attributeNames[0]);
       buffer.append(name);
       buffer.append('=');
-      buffer.append(normalizeValue(name, attributeValues[0]));
+      appendNormalizedValue(buffer, name, attributeValues[0], schema);
     }
     else
     {
       // It's a multivalued RDN, so we need to sort the components.
-      final TreeMap<String,ASN1OctetString> valueMap = new TreeMap<>();
-      for (int i=0; i < attributeNames.length; i++)
+      final Iterator<RDNNameValuePair> iterator =
+           getNameValuePairs().iterator();
+      while (iterator.hasNext())
       {
-        final String name = normalizeAttrName(attributeNames[i]);
-        valueMap.put(name, attributeValues[i]);
-      }
-
-      int i=0;
-      for (final Map.Entry<String,ASN1OctetString> entry : valueMap.entrySet())
-      {
-        if (i++ > 0)
+        buffer.append(iterator.next().toNormalizedString());
+        if (iterator.hasNext())
         {
           buffer.append('+');
         }
-
-        buffer.append(entry.getKey());
-        buffer.append('=');
-        buffer.append(normalizeValue(entry.getKey(), entry.getValue()));
       }
     }
   }
@@ -1620,17 +1700,23 @@ valueLoop:
 
 
   /**
-   * Normalizes the provided attribute value for use in an RDN.
+   * Appends a normalized string representation of the provided attribute value
+   * to the given buffer.
    *
-   * @param  attributeName  The name of the attribute with which the value is
-   *                        associated.
-   * @param  value           The value to be normalized.
-   *
-   * @return  A string builder containing a normalized representation of the
-   *          value in a suitable form for inclusion in an RDN.
+   * @param  buffer         The buffer to which the value should be appended.
+   *                        It must not be {@code null}.
+   * @param  attributeName  The name of the attribute whose value is to be
+   *                        normalized.  It must not be {@code null}.
+   * @param  value          The value to be normalized.  It must not be
+   *                        {@code null}.
+   * @param  schema         The schema to use to generate the normalized
+   *                        representation of the value.  It may be {@code null}
+   *                        if no schema is available.
    */
-  private StringBuilder normalizeValue(final String attributeName,
-                                       final ASN1OctetString value)
+  static void appendNormalizedValue(final StringBuilder buffer,
+                                    final String attributeName,
+                                    final ASN1OctetString value,
+                                    final Schema schema)
   {
     final MatchingRule matchingRule =
          MatchingRule.selectEqualityMatchingRule(attributeName, schema);
@@ -1649,8 +1735,6 @@ valueLoop:
 
     final String valueString = rawNormValue.stringValue();
     final int length = valueString.length();
-    final StringBuilder buffer = new StringBuilder(length);
-
     for (int i=0; i < length; i++)
     {
       final char c = valueString.charAt(i);
@@ -1725,8 +1809,6 @@ valueLoop:
           break;
       }
     }
-
-    return buffer;
   }
 
 
@@ -1861,7 +1943,37 @@ valueLoop:
   {
     Validator.ensureNotNull(rdn1, rdn2);
 
-    return(rdn1.toNormalizedString().compareTo(rdn2.toNormalizedString()));
+    final Iterator<RDNNameValuePair> iterator1 =
+         rdn1.getNameValuePairs().iterator();
+    final Iterator<RDNNameValuePair> iterator2 =
+         rdn2.getNameValuePairs().iterator();
+
+    while (iterator1.hasNext())
+    {
+      if (iterator2.hasNext())
+      {
+        final RDNNameValuePair p1 = iterator1.next();
+        final RDNNameValuePair p2 = iterator2.next();
+        final int compareValue = p1.compareTo(p2);
+        if (compareValue != 0)
+        {
+          return compareValue;
+        }
+      }
+      else
+      {
+        return 1;
+      }
+    }
+
+    if (iterator2.hasNext())
+    {
+      return -1;
+    }
+    else
+    {
+      return 0;
+    }
   }
 
 

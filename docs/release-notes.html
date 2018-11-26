@@ -6,6 +6,29 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.10</h3>
+
+              <p>
+                The following changes were made between the 4.0.9 and 4.0.10 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fixed a bug in generating the normalized representation of an RDN with multiple
+                  values that have the same attribute type (for example, "cn=foo+cn=bar").  In
+                  such cases, the normalized representation of that RDN would have incorrectly had
+                  only one value with that attribute type, and any other values with that same
+                  attribute type would have been omitted.  Further, because the normalized string
+                  representation of an RDN is used for other purposes (like determining equality
+                  and comparator ordering), this may fix other related issues as well.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 4.0.9</h3>
 
               <p>
@@ -21,7 +44,7 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Updated the support for passphrase-based encryption to work around and apparent
-                  but in the JVM support for some implementations of MAC algorithms.  It seems
+                  bug in the JVM support for some implementations of MAC algorithms.  It seems
                   that under certain rare circumstances, some versions of the JVM can compute an
                   incorrect MAC, which could lead to a failure in the passphrase-based encryption
                   code.  To account for this, the LDAP SDK now generates the MAC multiple times

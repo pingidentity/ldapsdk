@@ -23,13 +23,16 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -71,6 +74,18 @@ public class RDNTestCase
 
     assertFalse(rdn.isMultiValued());
 
+    assertEquals(rdn.getValueCount(), 1);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 1);
+    assertEquals(rdn.getNameValuePairs().iterator().next(),
+         new RDNNameValuePair("uid", new ASN1OctetString("test.user"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 1);
+    assertEquals(attributes[0], new Attribute("uid", "test.user"));
+
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
     assertEquals(attrNames.length, 1);
@@ -114,6 +129,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNull(rdn.getSchema());
   }
 
 
@@ -130,6 +147,18 @@ public class RDNTestCase
     RDN rdn = new RDN("uid", "test.user", schema);
 
     assertFalse(rdn.isMultiValued());
+
+    assertEquals(rdn.getValueCount(), 1);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 1);
+    assertEquals(rdn.getNameValuePairs().iterator().next(),
+         new RDNNameValuePair("uid", new ASN1OctetString("test.user"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 1);
+    assertEquals(attributes[0], new Attribute("uid", "test.user"));
 
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
@@ -174,6 +203,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNotNull(rdn.getSchema());
   }
 
 
@@ -214,6 +245,18 @@ public class RDNTestCase
 
     assertFalse(rdn.isMultiValued());
 
+    assertEquals(rdn.getValueCount(), 1);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 1);
+    assertEquals(rdn.getNameValuePairs().iterator().next(),
+         new RDNNameValuePair("uid", new ASN1OctetString("test.user"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 1);
+    assertEquals(attributes[0], new Attribute("uid", "test.user"));
+
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
     assertEquals(attrNames.length, 1);
@@ -257,6 +300,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNull(rdn.getSchema());
   }
 
 
@@ -274,6 +319,18 @@ public class RDNTestCase
     RDN rdn = new RDN("uid", "test.user".getBytes("UTF-8"), schema);
 
     assertFalse(rdn.isMultiValued());
+
+    assertEquals(rdn.getValueCount(), 1);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 1);
+    assertEquals(rdn.getNameValuePairs().iterator().next(),
+         new RDNNameValuePair("uid", new ASN1OctetString("test.user"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 1);
+    assertEquals(attributes[0], new Attribute("uid", "test.user"));
 
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
@@ -318,6 +375,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNotNull(rdn.getSchema());
   }
 
 
@@ -361,6 +420,18 @@ public class RDNTestCase
 
     assertFalse(rdn.isMultiValued());
 
+    assertEquals(rdn.getValueCount(), 1);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 1);
+    assertEquals(rdn.getNameValuePairs().iterator().next(),
+         new RDNNameValuePair("uid", new ASN1OctetString("test.user"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 1);
+    assertEquals(attributes[0], new Attribute("uid", "test.user"));
+
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
     assertEquals(attrNames.length, 1);
@@ -404,6 +475,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNull(rdn.getSchema());
   }
 
 
@@ -422,6 +495,18 @@ public class RDNTestCase
          schema);
 
     assertFalse(rdn.isMultiValued());
+
+    assertEquals(rdn.getValueCount(), 1);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 1);
+    assertEquals(rdn.getNameValuePairs().iterator().next(),
+         new RDNNameValuePair("uid", new ASN1OctetString("test.user"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 1);
+    assertEquals(attributes[0], new Attribute("uid", "test.user"));
 
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
@@ -466,6 +551,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNotNull(rdn.getSchema());
   }
 
 
@@ -484,6 +571,24 @@ public class RDNTestCase
                       new String[] { "Test", "User" });
 
     assertTrue(rdn.isMultiValued());
+
+    assertEquals(rdn.getValueCount(), 2);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 2);
+
+    final Iterator<RDNNameValuePair> iterator =
+         rdn.getNameValuePairs().iterator();
+    assertEquals(iterator.next(),
+         new RDNNameValuePair("givenName", new ASN1OctetString("Test"), null));
+    assertEquals(iterator.next(),
+         new RDNNameValuePair("sn", new ASN1OctetString("User"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 2);
+    assertEquals(attributes[0], new Attribute("givenName", "Test"));
+    assertEquals(attributes[1], new Attribute("sn", "User"));
 
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
@@ -536,6 +641,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNull(rdn.getSchema());
   }
 
 
@@ -556,6 +663,24 @@ public class RDNTestCase
 
     assertTrue(rdn.isMultiValued());
 
+    assertEquals(rdn.getValueCount(), 2);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 2);
+
+    final Iterator<RDNNameValuePair> iterator =
+         rdn.getNameValuePairs().iterator();
+    assertEquals(iterator.next(),
+         new RDNNameValuePair("givenName", new ASN1OctetString("Test"), null));
+    assertEquals(iterator.next(),
+         new RDNNameValuePair("sn", new ASN1OctetString("User"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 2);
+    assertEquals(attributes[0], new Attribute("givenName", "Test"));
+    assertEquals(attributes[1], new Attribute("sn", "User"));
+
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
     assertEquals(attrNames.length, 2);
@@ -607,6 +732,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNotNull(rdn.getSchema());
   }
 
 
@@ -671,6 +798,18 @@ public class RDNTestCase
 
     assertFalse(rdn.isMultiValued());
 
+    assertEquals(rdn.getValueCount(), 1);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 1);
+    assertEquals(rdn.getNameValuePairs().iterator().next(),
+         new RDNNameValuePair("uid", new ASN1OctetString("test.user"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 1);
+    assertEquals(attributes[0], new Attribute("uid", "test.user"));
+
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
     assertEquals(attrNames.length, 1);
@@ -714,6 +853,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNull(rdn.getSchema());
   }
 
 
@@ -733,6 +874,18 @@ public class RDNTestCase
                       schema);
 
     assertFalse(rdn.isMultiValued());
+
+    assertEquals(rdn.getValueCount(), 1);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 1);
+    assertEquals(rdn.getNameValuePairs().iterator().next(),
+         new RDNNameValuePair("uid", new ASN1OctetString("test.user"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 1);
+    assertEquals(attributes[0], new Attribute("uid", "test.user"));
 
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
@@ -777,6 +930,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNotNull(rdn.getSchema());
   }
 
 
@@ -796,6 +951,24 @@ public class RDNTestCase
                                      "User".getBytes("UTF-8") });
 
     assertTrue(rdn.isMultiValued());
+
+    assertEquals(rdn.getValueCount(), 2);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 2);
+
+    final Iterator<RDNNameValuePair> iterator =
+         rdn.getNameValuePairs().iterator();
+    assertEquals(iterator.next(),
+         new RDNNameValuePair("givenName", new ASN1OctetString("Test"), null));
+    assertEquals(iterator.next(),
+         new RDNNameValuePair("sn", new ASN1OctetString("User"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 2);
+    assertEquals(attributes[0], new Attribute("givenName", "Test"));
+    assertEquals(attributes[1], new Attribute("sn", "User"));
 
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
@@ -848,6 +1021,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNull(rdn.getSchema());
   }
 
 
@@ -869,6 +1044,24 @@ public class RDNTestCase
 
     assertTrue(rdn.isMultiValued());
 
+    assertEquals(rdn.getValueCount(), 2);
+
+    assertNotNull(rdn.getNameValuePairs());
+    assertEquals(rdn.getNameValuePairs().size(), 2);
+
+    final Iterator<RDNNameValuePair> iterator =
+         rdn.getNameValuePairs().iterator();
+    assertEquals(iterator.next(),
+         new RDNNameValuePair("givenName", new ASN1OctetString("Test"), null));
+    assertEquals(iterator.next(),
+         new RDNNameValuePair("sn", new ASN1OctetString("User"), null));
+
+    Attribute[] attributes = rdn.getAttributes();
+    assertNotNull(attributes);
+    assertEquals(attributes.length, 2);
+    assertEquals(attributes[0], new Attribute("givenName", "Test"));
+    assertEquals(attributes[1], new Attribute("sn", "User"));
+
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
     assertEquals(attrNames.length, 2);
@@ -920,6 +1113,8 @@ public class RDNTestCase
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
+
+    assertNotNull(rdn.getSchema());
   }
 
 
@@ -1368,6 +1563,24 @@ public class RDNTestCase
       {
         " sn = User + givenName = Test ",
         "givenname=test+sn=user"
+      },
+
+      new Object[]
+      {
+        "cn=foo+cn=bar",
+        "cn=bar+cn=foo"
+      },
+
+      new Object[]
+      {
+        "cn=bar+cn=foo",
+        "cn=bar+cn=foo"
+      },
+
+      new Object[]
+      {
+        "cn=foo +cn = bar",
+        "cn=bar+cn=foo"
       },
 
       new Object[]
@@ -1850,5 +2063,24 @@ public class RDNTestCase
          "octet-string-attr=\\ This  Is  A  Test\\ ");
     assertEquals(rdn.toNormalizedString(),
          "octet-string-attr=\\ This  Is  A  Test\\ ");
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code readHexString} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReadHexString()
+         throws Exception
+  {
+    final byte[] b = RDN.readHexString(
+         "00112233445566778899aabbccddeeffAABBCCDDEEFF", 0);
+    assertEquals(b,
+         StaticUtils.byteArray(0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+              0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xaa, 0xbb, 0xcc,
+              0xdd, 0xee, 0xff));
   }
 }
