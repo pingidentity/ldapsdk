@@ -3722,17 +3722,20 @@ exclusiveArgumentLoop:
     buffer.append(commandDescription);
     buffer.append('\'');
 
-    for (final String additionalParagraph :
-         additionalCommandDescriptionParagraphs)
+    if (additionalCommandDescriptionParagraphs != null)
     {
-      buffer.append(", '");
-      buffer.append(additionalParagraph);
-      buffer.append('\'');
+      for (final String additionalParagraph :
+           additionalCommandDescriptionParagraphs)
+      {
+        buffer.append(", '");
+        buffer.append(additionalParagraph);
+        buffer.append('\'');
+      }
     }
 
     buffer.append("}, minTrailingArgs=");
     buffer.append(minTrailingArgs);
-    buffer.append("', maxTrailingArgs=");
+    buffer.append(", maxTrailingArgs=");
     buffer.append(maxTrailingArgs);
 
     if (trailingArgsPlaceholder != null)

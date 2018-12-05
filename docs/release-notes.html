@@ -23,6 +23,14 @@ ${TARGET="offline"}                <br>
                   and comparator ordering), this may fix other related issues as well.
                   <br><br>
                 </li>
+
+                <li>
+                  Fixed a potential null pointer exception in <tt>ArgumentParser.toString</tt>
+                  that could arise if the parser was created through serialization and there were
+                  not any additional description paragraphs.  Also, eliminated an unnecessary
+                  quotation mark in the generated string representation.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
