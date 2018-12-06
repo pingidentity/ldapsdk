@@ -22,7 +22,11 @@ package com.unboundid.buildtools.repositoryinfo;
 
 
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -49,6 +53,10 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 public class RepositoryInfo
        extends Task
 {
+  // Indicates whether the task should exit with an error if the repository
+  // information cannot be obtained.
+  private Boolean failOnError;
+
   // The base directory for the workspace with the LDAP SDK source tree.
   private File baseDir;
 
@@ -75,6 +83,7 @@ public class RepositoryInfo
   public RepositoryInfo()
   {
     baseDir                              = null;
+    failOnError                          = Boolean.FALSE;
     repositoryPathPropertyName           = null;
     repositoryRevisionNumberPropertyName = null;
     repositoryRevisionPropertyName       = null;
@@ -92,6 +101,37 @@ public class RepositoryInfo
   public void setBaseDir(final File baseDir)
   {
     this.baseDir = baseDir;
+  }
+
+
+
+  /**
+   * Specifies whether this task should exit with an error if the repository
+   * information cannot be obtained.
+   *
+   * @param  failOnError  If this is {@code Boolean.TRUE} and the repository
+   *                      information cannot be obtained, then the
+   *                      {@link #execute()} method will throw a
+   *                      {@code BuildException}, causing the task to fail.  If
+   *                      this is {@code Boolean.FALSE} and the repository
+   *                      information cannot be obtained, then the task will use
+   *                      generic repository information and the {@code execute}
+   *                      method will return normally.
+   */
+  public void setFailOnError(final Boolean failOnError)
+  {
+    if (failOnError == null)
+    {
+      throw new BuildException("failOnError must not be null");
+    }
+    else if (failOnError.equals(Boolean.TRUE))
+    {
+      this.failOnError = Boolean.TRUE;
+    }
+    else if (failOnError.equals(Boolean.TRUE))
+    {
+      this.failOnError = Boolean.FALSE;
+    }
   }
 
 
@@ -241,21 +281,57 @@ public class RepositoryInfo
       {
         try
         {
-          getGitInfo();
+          getGitInfoViaJGit();
           return;
         }
         catch (final Exception e)
         {
-          System.err.println("ERROR:  Unable to obtain repository details " +
-               "from the git workspace in directory " + f.getAbsolutePath() +
-               ":  " + e + ".  Using generic fallback repository info.");
+          if (failOnError == Boolean.TRUE)
+          {
+            throw new BuildException(
+                 "ERROR:  Unable to obtain repository details from the git " +
+                      "workspace in directory " + f.getAbsolutePath() + ":  " +
+                      e,
+                 e);
+          }
+          else
+          {
+            System.err.println("ERROR:  Unable to obtain repository details " +
+                 "from the git workspace in directory " + f.getAbsolutePath() +
+                 ":  " + e + ".  Using generic fallback repository info.");
+          }
         }
         catch (final UnsupportedClassVersionError e)
         {
-          System.err.println("ERROR:  Unable to obtain repository details " +
-               "from the git workspace in directory " + f.getAbsolutePath() +
-               ":  " + e + ".  The jgit library is only supported on Java " +
-               "version 8 or higher.  Using generic fallback repository info.");
+          try
+          {
+            getGitInfoViaCommandLine();
+            return;
+          }
+          catch (final Exception e2)
+          {
+            if (failOnError == Boolean.TRUE)
+            {
+              throw new BuildException(
+                   "ERROR:  Unable to obtain repository details from the git " +
+                        "workspace in directory " + f.getAbsolutePath() +
+                        " using either jgit (which is only supported on Java " +
+                        "version 8 or higher) or from the git command-line " +
+                        "utility.  The jgit failure was:  " + e +
+                        ".  The command-line failure was:  " + e2,
+                   e2);
+            }
+            else
+            {
+              System.err.println("ERROR:  Unable to obtain repository " +
+                   "details from the git workspace in directory " +
+                   f.getAbsolutePath() + " using either jgit (which is only " +
+                   "supported on Java version 8 or higher) or from the git " +
+                   "command-line utility.  The jgit failure was:  " + e +
+                   ".  The command-line failure was:  " + e2 +
+                   ".  Using generic repository fallback info.");
+            }
+          }
         }
       }
 
@@ -268,14 +344,33 @@ public class RepositoryInfo
         }
         catch (final Exception e)
         {
-          System.err.println("ERROR:  Unable to obtain repository details " +
-               "from the subversion workspace in directory " +
-               f.getAbsolutePath() + ":  " + String.valueOf(e) +
-               ".  Using fallback repository info.");
+          if (failOnError == Boolean.TRUE)
+          {
+            throw new BuildException(
+                 "ERROR:  Unable to obtain repository details from the " +
+                      "subversion workspace in directory " +
+                      f.getAbsolutePath() + ":  " + e,
+                 e);
+          }
+          else
+          {
+            System.err.println("ERROR:  Unable to obtain repository details " +
+                 "from the subversion workspace in directory " +
+                 f.getAbsolutePath() + ":  " + e +
+                 ".  Using fallback repository info.");
+          }
         }
       }
 
       f = f.getAbsoluteFile().getParentFile();
+    }
+
+    if (failOnError == Boolean.TRUE)
+    {
+      throw new BuildException("ERROR:  Unable to obtain any repository " +
+           "information for the data in " + baseDir.getAbsolutePath() +
+           " because it could not be identified as coming from either a git " +
+           "or a subversion repository.");
     }
 
 
@@ -292,13 +387,13 @@ public class RepositoryInfo
 
 
   /**
-   * Obtains information about the git repository from which the LDAP SDK source
-   * was obtained.
+   * Attempts to use the jgit library to obtain information about the git
+   * repository from which the LDAP SDK source was obtained.
    *
    * @throws  Exception  If a problem is encountered while attempting to obtain
    *                     information about the git repository.
    */
-  private void getGitInfo()
+  private void getGitInfoViaJGit()
           throws Exception
   {
     final Repository r = new FileRepositoryBuilder().readEnvironment().
@@ -323,6 +418,138 @@ public class RepositoryInfo
     getProject().setProperty(repositoryPathPropertyName, repoPath);
     getProject().setProperty(repositoryRevisionPropertyName, repoRevision);
     getProject().setProperty(repositoryRevisionNumberPropertyName, "-1");
+  }
+
+
+
+  /**
+   * Attempts to use the git command-line tool to obtain information about the
+   * git repository from which the LDAP SDK source was obtained.
+   *
+   * @throws  Exception  If a problem is encountered while attempting to obtain
+   *                     information about the git repository.
+   */
+  private void getGitInfoViaCommandLine()
+          throws Exception
+  {
+    // Invoke the command "git remote get-url origin" to get the repository URL.
+    final String repoURL = invokeGitCommand("remote", "get-url", "origin");
+
+    // Invoke the command "git log --max-count=1 --pretty=format:%H" to get the
+    // repository revision.
+    final String repoRevision = invokeGitCommand("log", "--max-count=1",
+         "--pretty=format:%H");
+
+    getProject().setProperty(repositoryTypePropertyName, "git");
+    getProject().setProperty(repositoryURLPropertyName, repoURL);
+    getProject().setProperty(repositoryPathPropertyName, "/");
+    getProject().setProperty(repositoryRevisionPropertyName, repoRevision);
+    getProject().setProperty(repositoryRevisionNumberPropertyName, "-1");
+  }
+
+
+
+  /**
+   * Invokes the git command, if the command succeeds and produces a single line
+   * of output, returns that line.
+   *
+   * @param  args  The command-line arguments to provide to the git command.
+   *
+   * @return  The single line of output (without any line breaks) produced by
+   *          the git command.
+   *
+   * @throws  Exception  If a problem is encountered while trying to run the
+   *                     git command, if the git command does not exit cleanly,
+   *                     or if it does not produce exactly one line of output.
+   */
+  private String invokeGitCommand(final String... args)
+          throws Exception
+  {
+    final ArrayList<String> commandPlusArguments =
+         new ArrayList<>(args.length + 1);
+    final String osName = System.getProperty("os.name");
+    if ((osName != null) && osName.toLowerCase().contains("windows"))
+    {
+      commandPlusArguments.add("git.exe");
+    }
+    else
+    {
+      commandPlusArguments.add("git");
+    }
+
+    commandPlusArguments.addAll(Arrays.asList(args));
+
+    final ProcessBuilder processBuilder =
+         new ProcessBuilder(commandPlusArguments);
+    processBuilder.directory(baseDir);
+    processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+    processBuilder.redirectErrorStream(true);
+
+    final Process gitProcess = processBuilder.start();
+    try
+    {
+      final BufferedReader outputReader = new BufferedReader(
+           new InputStreamReader(gitProcess.getInputStream()));
+      final ArrayList<String> outputLines = new ArrayList<>(10);
+
+      final long stopWaitingTime = System.currentTimeMillis() + 30_000L;
+      while (true)
+      {
+        if (System.currentTimeMillis() > stopWaitingTime)
+        {
+          throw new BuildException("ERROR:  Command " + commandPlusArguments +
+               " did not complete after 30 seconds.");
+        }
+
+        while (outputReader.ready() &&
+             (System.currentTimeMillis() <= stopWaitingTime))
+        {
+          final String line = outputReader.readLine();
+          if (line == null)
+          {
+            break;
+          }
+
+          outputLines.add(line);
+        }
+
+        final int exitCode;
+        try
+        {
+          exitCode = gitProcess.exitValue();
+        }
+        catch (final Exception e)
+        {
+          Thread.sleep(10L);
+          continue;
+        }
+
+        if (exitCode == 0)
+        {
+          switch (outputLines.size())
+          {
+            case 0:
+              throw new BuildException("ERROR:  Running command " +
+                   commandPlusArguments + " completed with exit code zero " +
+                   "but no output.  Exactly one line of output was expected.");
+
+            case 1:
+              return outputLines.get(0);
+
+            default:
+              throw new BuildException("ERROR:  Running command " +
+                   commandPlusArguments + " completed with exit code zero " +
+                   "but multiple lines of output when exactly one output " +
+                   "line was expected.  The output lines were:  " +
+                   outputLines);
+          }
+        }
+      }
+    }
+    finally
+    {
+      gitProcess.destroy();
+    }
   }
 
 

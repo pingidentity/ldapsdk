@@ -70,6 +70,7 @@
             location="${build-src.dir}/repositoryinfo" />
   <property name="repository-info.classes.dir"
             location="${build.dir}/repositoryinfo" />
+  <property name="repository-info.fail-on-error" value="true" />
   <property name="svnkit.dir" location="ext/svnkit" />
   <property name="jgit.dir" location="ext/jgit" />
   <property name="slf4j.dir" location="ext/slf4j" />
@@ -607,6 +608,7 @@
       </classpath>
     </taskdef>
     <repositoryInfoTask baseDir="${basedir}"
+         failOnError="${repository-info.fail-on-error}"
          repositoryTypePropertyName="repository-info.type"
          repositoryURLPropertyName="repository-info.url"
          repositoryPathPropertyName="repository-info.path"
