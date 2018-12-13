@@ -48,7 +48,7 @@ public abstract class PasswordEncoderOutputFormatter
    * @throws  LDAPException  If a problem is encountered while formatting the
    *                         provided data.
    */
-  public abstract byte[] format(final byte[] unformattedData)
+  public abstract byte[] format(byte[] unformattedData)
          throws LDAPException;
 
 
@@ -65,7 +65,7 @@ public abstract class PasswordEncoderOutputFormatter
    *                         encoding, or if a problem is encountered while
    *                         un-formatting the provided data.
    */
-  public abstract byte[] unFormat(final byte[] formattedData)
+  public abstract byte[] unFormat(byte[] formattedData)
          throws LDAPException;
 
 
@@ -92,5 +92,5 @@ public abstract class PasswordEncoderOutputFormatter
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(StringBuilder buffer);
 }

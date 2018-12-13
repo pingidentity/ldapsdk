@@ -1469,7 +1469,7 @@ public class ValuePatternTestCase
          throws Exception
   {
     final File f = createTempFile();
-    try (final PrintWriter w = new PrintWriter(f))
+    try (PrintWriter w = new PrintWriter(f))
     {
       for (int i=0; i < 100; i++)
       {
@@ -1504,7 +1504,7 @@ public class ValuePatternTestCase
          throws Exception
   {
     final File f = createTempFile();
-    try (final PrintWriter w = new PrintWriter(f))
+    try (PrintWriter w = new PrintWriter(f))
     {
       for (int i=0; i < 10_000; i++)
       {

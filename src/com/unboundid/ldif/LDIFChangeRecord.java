@@ -233,7 +233,7 @@ public abstract class LDIFChangeRecord
    * @return  A duplicate of this LDIF change record with the provided set of
    *          controls.
    */
-  public abstract LDIFChangeRecord duplicate(final Control... controls);
+  public abstract LDIFChangeRecord duplicate(Control... controls);
 
 
 

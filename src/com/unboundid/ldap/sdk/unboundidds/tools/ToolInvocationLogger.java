@@ -187,7 +187,7 @@ public final class ToolInvocationLogger
     // Load the properties file.  If this fails, then report an error and do not
     // attempt any additional logging.
     final Properties loggingProperties = new Properties();
-    try (final FileInputStream inputStream =
+    try (FileInputStream inputStream =
               new FileInputStream(invocationLoggingPropertiesFile))
     {
       loggingProperties.load(inputStream);
@@ -746,11 +746,11 @@ public final class ToolInvocationLogger
       fileAttributes = new FileAttribute<?>[] { filePermissionsAttribute };
     }
 
-    try (final FileChannel fileChannel =
+    try (FileChannel fileChannel =
               FileChannel.open(logFile.toPath(), openOptionsSet,
                    fileAttributes))
     {
-      try (final FileLock fileLock =
+      try (FileLock fileLock =
                 acquireFileLock(fileChannel, logFile, toolErrorStream))
       {
         if (fileLock != null)

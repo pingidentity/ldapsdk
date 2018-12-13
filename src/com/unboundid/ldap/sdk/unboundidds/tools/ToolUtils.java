@@ -155,8 +155,8 @@ public final class ToolUtils
            ERR_TOOL_UTILS_ENCRYPTION_PW_FILE_NOT_FILE.get(f.getAbsolutePath()));
     }
 
-    try (final FileReader fileReader = new FileReader(f);
-         final BufferedReader bufferedReader = new BufferedReader(fileReader))
+    try (FileReader fileReader = new FileReader(f);
+         BufferedReader bufferedReader = new BufferedReader(fileReader))
     {
       final String encryptionPassphrase = bufferedReader.readLine();
       if (encryptionPassphrase == null)

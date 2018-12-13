@@ -144,7 +144,7 @@ public final class RetainConnectExceptionReferralConnectorTestCase
     final RetainConnectExceptionReferralConnector referralConnector =
          new RetainConnectExceptionReferralConnector();
 
-    try (final LDAPConnection conn = ds1.getConnection())
+    try (LDAPConnection conn = ds1.getConnection())
     {
       // Make sure that we can bind as a user that should exist in both servers.
       assertResultCodeEquals(conn,
@@ -274,7 +274,7 @@ public final class RetainConnectExceptionReferralConnectorTestCase
          new RetainConnectExceptionReferralConnector(testReferralConnector);
 
 
-    try (final LDAPConnection conn = ds1.getConnection())
+    try (LDAPConnection conn = ds1.getConnection())
     {
       // Create a search request that should trigger a referral, and configure
       // it to use a custom referral handler.

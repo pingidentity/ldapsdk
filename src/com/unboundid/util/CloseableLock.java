@@ -44,7 +44,7 @@ import static com.unboundid.util.UtilityMessages.*;
  * try-with-resources facility:
  * <PRE>
  * // Wait for up to 5 seconds to acquire the lock.
- * try (final CloseableLock.Lock lock =
+ * try (CloseableLock.Lock lock =
  *           closeableLock.tryLock(5L, TimeUnit.SECONDS))
  * {
  *   // NOTE:  If you don't reference the lock object inside the try block, the

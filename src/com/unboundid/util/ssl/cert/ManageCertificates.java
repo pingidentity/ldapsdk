@@ -9779,7 +9779,7 @@ public final class ManageCertificates
         keystorePasswordFileArgument.isPresent())
     {
       final File f = keystorePasswordFileArgument.getValue();
-      try (final BufferedReader r = new BufferedReader(new FileReader(f)))
+      try (BufferedReader r = new BufferedReader(new FileReader(f)))
       {
         final String line = r.readLine();
         if (line == null)
@@ -10145,7 +10145,7 @@ public final class ManageCertificates
         privateKeyPasswordFileArgument.isPresent())
     {
       final File f = privateKeyPasswordFileArgument.getValue();
-      try (final BufferedReader r = new BufferedReader(new FileReader(f)))
+      try (BufferedReader r = new BufferedReader(new FileReader(f)))
       {
         final String line = r.readLine();
         if (line == null)
@@ -10323,7 +10323,7 @@ public final class ManageCertificates
     }
 
 
-    try (final FileInputStream inputStream = new FileInputStream(keystorePath))
+    try (FileInputStream inputStream = new FileInputStream(keystorePath))
     {
       final int firstByte = inputStream.read();
       if (firstByte < 0)
@@ -10523,7 +10523,7 @@ public final class ManageCertificates
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
     // which we can determine by seeing if the first byte is 0x30.
-    try (final BufferedInputStream inputStream =
+    try (BufferedInputStream inputStream =
               new BufferedInputStream(new FileInputStream(f)))
     {
       inputStream.mark(1);
@@ -10582,7 +10582,7 @@ public final class ManageCertificates
       }
       else
       {
-        try (final BufferedReader reader =
+        try (BufferedReader reader =
                   new BufferedReader(new InputStreamReader(inputStream)))
         {
           boolean inCert = false;
@@ -10709,7 +10709,7 @@ public final class ManageCertificates
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
     // which we can determine by seeing if the first byte is 0x30.
-    try (final BufferedInputStream inputStream =
+    try (BufferedInputStream inputStream =
               new BufferedInputStream(new FileInputStream(f)))
     {
       inputStream.mark(1);
@@ -10787,7 +10787,7 @@ public final class ManageCertificates
       }
       else
       {
-        try (final BufferedReader reader =
+        try (BufferedReader reader =
                   new BufferedReader(new InputStreamReader(inputStream)))
         {
           boolean inKey = false;
@@ -10943,7 +10943,7 @@ public final class ManageCertificates
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
     // which we can determine by seeing if the first byte is 0x30.
-    try (final BufferedInputStream inputStream =
+    try (BufferedInputStream inputStream =
               new BufferedInputStream(new FileInputStream(f)))
     {
       inputStream.mark(1);
@@ -11021,7 +11021,7 @@ public final class ManageCertificates
       }
       else
       {
-        try (final BufferedReader reader =
+        try (BufferedReader reader =
                   new BufferedReader(new InputStreamReader(inputStream)))
         {
           boolean inCSR = false;
@@ -11377,7 +11377,7 @@ public final class ManageCertificates
       for (final String keystoreType : new String[] { "JKS", "PKCS12" })
       {
         final KeyStore ks = KeyStore.getInstance(keystoreType);
-        try (final FileInputStream inputStream =
+        try (FileInputStream inputStream =
                   new FileInputStream(JVM_DEFAULT_CACERTS_FILE))
         {
           ks.load(inputStream, null);
@@ -11539,8 +11539,7 @@ public final class ManageCertificates
       }
     }
 
-    try (final FileOutputStream outputStream =
-              new FileOutputStream(keystorePath))
+    try (FileOutputStream outputStream = new FileOutputStream(keystorePath))
     {
       keystore.store(outputStream, keystorePassword);
     }

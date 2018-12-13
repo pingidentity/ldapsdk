@@ -434,11 +434,11 @@ public class SummarizeAccessLogTestCase
     longFilterFile = createTempFile(longFilterLines);
 
     compressedFile = createTempFile();
-    try (final FileOutputStream fileOutputStream =
+    try (FileOutputStream fileOutputStream =
               new FileOutputStream(compressedFile);
-         final GZIPOutputStream gzipOutputStream =
+         GZIPOutputStream gzipOutputStream =
               new GZIPOutputStream(fileOutputStream);
-         final PrintStream printStream = new PrintStream(gzipOutputStream))
+         PrintStream printStream = new PrintStream(gzipOutputStream))
     {
       for (final String s : lines)
       {
@@ -447,13 +447,13 @@ public class SummarizeAccessLogTestCase
     }
 
     encryptedFile = createTempFile();
-    try (final FileOutputStream fileOutputStream =
+    try (FileOutputStream fileOutputStream =
               new FileOutputStream(encryptedFile);
-         final PassphraseEncryptedOutputStream encryptedOutputStream =
+         PassphraseEncryptedOutputStream encryptedOutputStream =
               new PassphraseEncryptedOutputStream("password", fileOutputStream);
-         final GZIPOutputStream gzipOutputStream =
+         GZIPOutputStream gzipOutputStream =
               new GZIPOutputStream(encryptedOutputStream);
-         final PrintStream printStream = new PrintStream(gzipOutputStream))
+         PrintStream printStream = new PrintStream(gzipOutputStream))
     {
       for (final String s : lines)
       {

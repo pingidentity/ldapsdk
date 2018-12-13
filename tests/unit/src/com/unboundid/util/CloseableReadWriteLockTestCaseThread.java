@@ -97,7 +97,7 @@ final class CloseableReadWriteLockTestCaseThread
 
     if (acquireWriteLock)
     {
-      try (final CloseableReadWriteLock.WriteLock l = lock.lockWrite())
+      try (CloseableReadWriteLock.WriteLock l = lock.lockWrite())
       {
         l.avoidCompilerWarning();
         isLocked.set(true);
@@ -117,7 +117,7 @@ final class CloseableReadWriteLockTestCaseThread
     }
     else
     {
-      try (final CloseableReadWriteLock.ReadLock l = lock.lockRead())
+      try (CloseableReadWriteLock.ReadLock l = lock.lockRead())
       {
         l.avoidCompilerWarning();
         isLocked.set(true);

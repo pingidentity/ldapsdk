@@ -394,10 +394,12 @@ public class SanityCheck
     {
       if (f.isDirectory())
       {
-        if (! f.getName().equals("resources"))
+        if (f.getName().equals("resources") || f.getName().equals("jquery"))
         {
-          examineJavadocPackage(f, f.getName());
+          continue;
         }
+
+        examineJavadocPackage(f, f.getName());
       }
     }
   }

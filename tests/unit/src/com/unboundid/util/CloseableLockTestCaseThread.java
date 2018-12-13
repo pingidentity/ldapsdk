@@ -84,7 +84,7 @@ final class CloseableLockTestCaseThread
     Validator.ensureFalse(isLocked.get());
     Validator.ensureFalse(tryLockFailed.get());
 
-    try (final CloseableLock.Lock l = lock.lock())
+    try (CloseableLock.Lock l = lock.lock())
     {
       l.avoidCompilerWarning();
       isLocked.set(true);

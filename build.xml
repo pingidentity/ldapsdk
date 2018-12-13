@@ -253,6 +253,14 @@
   </target>
 
   <target name="do-checkstyle" depends="checkstyle-setup">
+    <echo message="NOTE:  The version of Checkstyle used by the LDAP SDK" />
+    <echo message="       (which is needed to support building on Java 7)" />
+    <echo message="       depends on a JDK component that was removed in" />
+    <echo message="       Java 9.  If the build fails on Java 9 or later" />
+    <echo message="       with a message like 'Unable to create a" />
+    <echo message="       Checker', you will need to add" />
+    <echo message="       '-Dcheckstyle.enabled=false' to the command used" />
+    <echo message="       to build the LDAP SDK." />
 
     <checkstyle config="${checkstyle.dir}/ldapsdk-checkstyle.xml"
                 classpath="${classes.dir}" failOnViolation="true">

@@ -1574,7 +1574,7 @@ public class ReferralTestCase
     final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
     ds.startListening();
 
-    try (final LDAPConnection conn = ds.getConnection(connectionOptions))
+    try (LDAPConnection conn = ds.getConnection(connectionOptions))
     {
       conn.add(
            "dn: dc=example,dc=com",

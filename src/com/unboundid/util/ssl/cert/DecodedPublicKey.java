@@ -67,5 +67,5 @@ public abstract class DecodedPublicKey
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(StringBuilder buffer);
 }

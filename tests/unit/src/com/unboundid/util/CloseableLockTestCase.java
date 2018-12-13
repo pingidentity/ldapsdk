@@ -58,7 +58,7 @@ public final class CloseableLockTestCase
     assertEquals(lock.getQueueLength(), 0);
     assertNotNull(lock.toString());
 
-    try (final CloseableLock.Lock l1 = lock.lock())
+    try (CloseableLock.Lock l1 = lock.lock())
     {
       l1.avoidCompilerWarning();
 
@@ -71,7 +71,7 @@ public final class CloseableLockTestCase
       assertEquals(lock.getQueueLength(), 0);
       assertNotNull(lock.toString());
 
-      try (final CloseableLock.Lock l2 = lock.lockInterruptibly())
+      try (CloseableLock.Lock l2 = lock.lockInterruptibly())
       {
         l2.avoidCompilerWarning();
 
@@ -84,7 +84,7 @@ public final class CloseableLockTestCase
         assertEquals(lock.getQueueLength(), 0);
         assertNotNull(lock.toString());
 
-        try (final CloseableLock.Lock l3 = lock.tryLock(1L, TimeUnit.SECONDS))
+        try (CloseableLock.Lock l3 = lock.tryLock(1L, TimeUnit.SECONDS))
         {
           l3.avoidCompilerWarning();
 
@@ -97,7 +97,7 @@ public final class CloseableLockTestCase
           assertEquals(lock.getQueueLength(), 0);
           assertNotNull(lock.toString());
 
-          try (final CloseableLock.Lock l4 = lock.tryLock(0L, TimeUnit.SECONDS))
+          try (CloseableLock.Lock l4 = lock.tryLock(0L, TimeUnit.SECONDS))
           {
             fail("Expected an exception when trying to acquire the lock with " +
                  "a timeout of zero seconds.  Instead, got lock " + l4);

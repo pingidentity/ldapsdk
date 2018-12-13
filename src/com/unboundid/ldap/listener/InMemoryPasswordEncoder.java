@@ -216,9 +216,9 @@ public abstract class InMemoryPasswordEncoder
    * @throws  LDAPException  If a problem is encountered while trying to encode
    *                         the provided clear-text password.
    */
-  protected abstract byte[] encodePassword(final byte[] clearPassword,
-                                 final ReadOnlyEntry userEntry,
-                                 final List<Modification> modifications)
+  protected abstract byte[] encodePassword(byte[] clearPassword,
+                                           ReadOnlyEntry userEntry,
+                                           List<Modification> modifications)
             throws LDAPException;
 
 
@@ -339,9 +339,9 @@ public abstract class InMemoryPasswordEncoder
    *                         making the determination.
    */
   protected abstract void ensurePreEncodedPasswordAppearsValid(
-                 final byte[] unPrefixedUnFormattedEncodedPasswordBytes,
-                 final ReadOnlyEntry userEntry,
-                 final List<Modification> modifications)
+                               byte[] unPrefixedUnFormattedEncodedPasswordBytes,
+                               ReadOnlyEntry userEntry,
+                               List<Modification> modifications)
             throws LDAPException;
 
 
@@ -457,9 +457,9 @@ public abstract class InMemoryPasswordEncoder
    *                         make the determination.
    */
   protected abstract boolean passwordMatches(
-                 final byte[] clearPasswordBytes,
-                 final byte[] unPrefixedUnFormattedEncodedPasswordBytes,
-                 final ReadOnlyEntry userEntry)
+                          byte[] clearPasswordBytes,
+                          byte[] unPrefixedUnFormattedEncodedPasswordBytes,
+                          ReadOnlyEntry userEntry)
             throws LDAPException;
 
 
@@ -554,8 +554,8 @@ public abstract class InMemoryPasswordEncoder
    *                         password.
    */
   protected abstract byte[] extractClearPassword(
-                 final byte[] unPrefixedUnFormattedEncodedPasswordBytes,
-                 final ReadOnlyEntry userEntry)
+                 byte[] unPrefixedUnFormattedEncodedPasswordBytes,
+                 ReadOnlyEntry userEntry)
             throws LDAPException;
 
 
@@ -626,5 +626,5 @@ public abstract class InMemoryPasswordEncoder
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(StringBuilder buffer);
 }

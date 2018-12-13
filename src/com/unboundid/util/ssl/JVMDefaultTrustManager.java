@@ -584,7 +584,7 @@ filesInDirectoryLoop:
         continue;
       }
 
-      try (final FileInputStream inputStream = new FileInputStream(f))
+      try (FileInputStream inputStream = new FileInputStream(f))
       {
         keyStore.load(inputStream, null);
       }

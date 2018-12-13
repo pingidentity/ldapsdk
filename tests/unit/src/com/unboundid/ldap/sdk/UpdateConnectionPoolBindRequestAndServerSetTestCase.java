@@ -63,7 +63,7 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
     // Create a connection pool with connections authenticated using the first
     // set of credentials.
-    try (final LDAPConnectionPool pool =
+    try (LDAPConnectionPool pool =
               new LDAPConnectionPool(
                    new SingleServerSet("127.0.0.1", ds.getListenPort()),
                    new SimpleBindRequest("cn=User 1", "password1"), 1, 1))
@@ -152,11 +152,10 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
     // Create a connection pool with connections authenticated using the first
     // set of credentials.
-    try (final LDAPConnection connection =
+    try (LDAPConnection connection =
               new LDAPConnection("127.0.0.1", ds.getListenPort(),
                    "cn=User 1", "password1");
-         final LDAPConnectionPool pool =
-              new LDAPConnectionPool(connection, 1, 1))
+         LDAPConnectionPool pool = new LDAPConnectionPool(connection, 1, 1))
     {
       // Ensure that the connection is initially authenticated as User 1.
       LDAPConnection conn = pool.getConnection();
@@ -241,7 +240,7 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
     // Create a connection pool with connections authenticated using the first
     // set of credentials.
-    try (final LDAPThreadLocalConnectionPool pool =
+    try (LDAPThreadLocalConnectionPool pool =
               new LDAPThreadLocalConnectionPool(
                    new SingleServerSet("127.0.0.1", ds.getListenPort()),
                    new SimpleBindRequest("cn=User 1", "password1")))
@@ -331,10 +330,10 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
 
     // Create a connection pool with connections authenticated using the first
     // set of credentials.
-    try (final LDAPConnection connection =
+    try (LDAPConnection connection =
               new LDAPConnection("127.0.0.1", ds.getListenPort(),
                    "cn=User 1", "password1");
-         final LDAPThreadLocalConnectionPool pool =
+         LDAPThreadLocalConnectionPool pool =
               new LDAPThreadLocalConnectionPool(connection))
     {
       // Ensure that the connection is initially authenticated as User 1.
@@ -424,7 +423,7 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
     ds3.startListening();
 
 
-    try (final LDAPConnectionPool pool =
+    try (LDAPConnectionPool pool =
               new LDAPConnectionPool(
                    new SingleServerSet("127.0.0.1", ds1.getListenPort()),
                    new SimpleBindRequest("cn=Directory Manager", "password"),
@@ -521,11 +520,10 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
     ds3.startListening();
 
 
-    try (final LDAPConnection connection =
+    try (LDAPConnection connection =
               new LDAPConnection("127.0.0.1", ds1.getListenPort(),
                    "cn=Directory Manager", "password");
-         final LDAPConnectionPool pool =
-              new LDAPConnectionPool(connection, 1, 1))
+         LDAPConnectionPool pool = new LDAPConnectionPool(connection, 1, 1))
     {
       // Make sure that the connection is initially established to ds1.
       LDAPConnection conn = pool.getConnection();
@@ -617,7 +615,7 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
     ds3.startListening();
 
 
-    try (final LDAPThreadLocalConnectionPool pool =
+    try (LDAPThreadLocalConnectionPool pool =
               new LDAPThreadLocalConnectionPool(
                    new SingleServerSet("127.0.0.1", ds1.getListenPort()),
                    new SimpleBindRequest("cn=Directory Manager", "password")))
@@ -714,11 +712,10 @@ public final class UpdateConnectionPoolBindRequestAndServerSetTestCase
     ds3.startListening();
 
 
-    try (final LDAPConnection connection =
+    try (LDAPConnection connection =
               new LDAPConnection("127.0.0.1", ds1.getListenPort(),
                    "cn=Directory Manager", "password");
-         final LDAPConnectionPool pool =
-              new LDAPConnectionPool(connection, 1, 1))
+         LDAPConnectionPool pool = new LDAPConnectionPool(connection, 1, 1))
     {
       // Make sure that the connection is initially established to ds1.
       LDAPConnection conn = pool.getConnection();

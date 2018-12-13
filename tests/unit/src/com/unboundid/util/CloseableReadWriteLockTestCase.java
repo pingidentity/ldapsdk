@@ -61,7 +61,7 @@ public final class CloseableReadWriteLockTestCase
     assertEquals(rwLock.getQueueLength(), 0);
     assertNotNull(rwLock.toString());
 
-    try (final CloseableReadWriteLock.WriteLock l1 = rwLock.lockWrite())
+    try (CloseableReadWriteLock.WriteLock l1 = rwLock.lockWrite())
     {
       l1.avoidCompilerWarning();
 
@@ -76,7 +76,7 @@ public final class CloseableReadWriteLockTestCase
       assertEquals(rwLock.getQueueLength(), 0);
       assertNotNull(rwLock.toString());
 
-      try (final CloseableReadWriteLock.WriteLock l2 =
+      try (CloseableReadWriteLock.WriteLock l2 =
                 rwLock.lockWriteInterruptibly())
       {
         l2.avoidCompilerWarning();
@@ -92,7 +92,7 @@ public final class CloseableReadWriteLockTestCase
         assertEquals(rwLock.getQueueLength(), 0);
         assertNotNull(rwLock.toString());
 
-        try (final CloseableReadWriteLock.WriteLock l3 =
+        try (CloseableReadWriteLock.WriteLock l3 =
                   rwLock.tryLockWrite(1L, TimeUnit.SECONDS))
         {
           l3.avoidCompilerWarning();
@@ -108,7 +108,7 @@ public final class CloseableReadWriteLockTestCase
           assertEquals(rwLock.getQueueLength(), 0);
           assertNotNull(rwLock.toString());
 
-          try (final CloseableReadWriteLock.WriteLock l4 =
+          try (CloseableReadWriteLock.WriteLock l4 =
                     rwLock.tryLockWrite(0L, TimeUnit.SECONDS))
           {
             fail("Expected an exception when trying to acquire the write " +
@@ -192,7 +192,7 @@ public final class CloseableReadWriteLockTestCase
     assertEquals(rwLock.getQueueLength(), 0);
     assertNotNull(rwLock.toString());
 
-    try (final CloseableReadWriteLock.ReadLock l1 = rwLock.lockRead())
+    try (CloseableReadWriteLock.ReadLock l1 = rwLock.lockRead())
     {
       l1.avoidCompilerWarning();
 
@@ -207,7 +207,7 @@ public final class CloseableReadWriteLockTestCase
       assertEquals(rwLock.getQueueLength(), 0);
       assertNotNull(rwLock.toString());
 
-      try (final CloseableReadWriteLock.ReadLock l2 =
+      try (CloseableReadWriteLock.ReadLock l2 =
                 rwLock.lockReadInterruptibly())
       {
         l2.avoidCompilerWarning();
@@ -223,7 +223,7 @@ public final class CloseableReadWriteLockTestCase
         assertEquals(rwLock.getQueueLength(), 0);
         assertNotNull(rwLock.toString());
 
-        try (final CloseableReadWriteLock.ReadLock l3 =
+        try (CloseableReadWriteLock.ReadLock l3 =
                   rwLock.tryLockRead(1L, TimeUnit.SECONDS))
         {
           l3.avoidCompilerWarning();
@@ -239,7 +239,7 @@ public final class CloseableReadWriteLockTestCase
           assertEquals(rwLock.getQueueLength(), 0);
           assertNotNull(rwLock.toString());
 
-          try (final CloseableReadWriteLock.ReadLock l4 =
+          try (CloseableReadWriteLock.ReadLock l4 =
                     rwLock.tryLockRead(0L, TimeUnit.SECONDS))
           {
             fail("Expected an exception when trying to acquire the read lock " +
@@ -311,11 +311,11 @@ public final class CloseableReadWriteLockTestCase
   {
     final CloseableReadWriteLock rwLock = new CloseableReadWriteLock(false);
 
-    try (final CloseableReadWriteLock.WriteLock writeLock = rwLock.lockWrite())
+    try (CloseableReadWriteLock.WriteLock writeLock = rwLock.lockWrite())
     {
       writeLock.avoidCompilerWarning();
 
-      try (final CloseableReadWriteLock.ReadLock readLock =
+      try (CloseableReadWriteLock.ReadLock readLock =
                 rwLock.tryLockRead(1L, TimeUnit.SECONDS))
       {
         readLock.avoidCompilerWarning();
@@ -336,11 +336,11 @@ public final class CloseableReadWriteLockTestCase
   {
     final CloseableReadWriteLock rwLock = new CloseableReadWriteLock(true);
 
-    try (final CloseableReadWriteLock.ReadLock readLock = rwLock.lockRead())
+    try (CloseableReadWriteLock.ReadLock readLock = rwLock.lockRead())
     {
       readLock.avoidCompilerWarning();
 
-      try (final CloseableReadWriteLock.WriteLock writeLock =
+      try (CloseableReadWriteLock.WriteLock writeLock =
                 rwLock.tryLockWrite(10L, TimeUnit.MILLISECONDS))
       {
         fail("Expected an exception when trying to upgrade a read lock to " +

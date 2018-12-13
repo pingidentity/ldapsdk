@@ -1453,7 +1453,7 @@ public final class ManageCertificatesTestCase
     assertFalse(ksFile.exists());
 
     final StringBuilder pkcs8Base64Buffer = new StringBuilder();
-    try (final BufferedReader reader =
+    try (BufferedReader reader =
               new BufferedReader(new FileReader(rootCAKeyPath)))
     {
       while (true)
@@ -1489,7 +1489,7 @@ public final class ManageCertificatesTestCase
          pkcs8PrivateKeySequence.elements()[2].getValue();
     final File rsaPrivateKeyFile = createTempFile();
     assertTrue(rsaPrivateKeyFile.delete());
-    try (final PrintWriter writer = new PrintWriter(rsaPrivateKeyFile))
+    try (PrintWriter writer = new PrintWriter(rsaPrivateKeyFile))
     {
       writer.println("-----BEGIN RSA PRIVATE KEY-----");
       writer.println(Base64.encode(rsaPrivateKey));
@@ -8445,7 +8445,7 @@ public final class ManageCertificatesTestCase
     final File n = createTempFile();
     assertTrue(n.delete());
 
-    try (final FileInputStream inputStream = new FileInputStream(f))
+    try (FileInputStream inputStream = new FileInputStream(f))
     {
       try (FileOutputStream outputStream = new FileOutputStream(n))
       {
