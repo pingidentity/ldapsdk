@@ -61,8 +61,8 @@ import static com.unboundid.util.ssl.SSLMessages.*;
  * This class provides a simple interface for creating {@code SSLContext} and
  * {@code SSLSocketFactory} instances, which may be used to create SSL-based
  * connections, or secure existing connections with StartTLS.  Support for the
- * TLSv1, TLSv1.1, and TLSv1.2 protocols will be enabled by default (if the JVM
- * supports them), with TLSv1.2 being the preferred protocol.
+ * TLSv1, TLSv1.1, TLSv1.2, and TLSv1.3 protocols will be enabled by default (if
+ * the JVM supports them), with TLSv1.3 being the preferred protocol.
  * <BR><BR>
  * <H2>Example 1</H2>
  * The following example demonstrates the use of the SSL helper to create an
@@ -147,11 +147,53 @@ public final class SSLUtil
 
 
   /**
+   * The name of the SSL protocol that can be used to request TLSv1.3.
+   */
+  public static final String SSL_PROTOCOL_TLS_1_3 = "TLSv1.3";
+
+
+
+  /**
+   * The name of the SSL protocol that can be used to request TLSv1.2.
+   */
+  public static final String SSL_PROTOCOL_TLS_1_2 = "TLSv1.2";
+
+
+
+  /**
+   * The name of the SSL protocol that can be used to request TLSv1.1.
+   */
+  public static final String SSL_PROTOCOL_TLS_1_1 = "TLSv1.1";
+
+
+
+  /**
+   * The name of the SSL protocol that can be used to request TLSv1.
+   */
+  public static final String SSL_PROTOCOL_TLS_1 = "TLSv1";
+
+
+
+  /**
+   * The name of the SSL protocol that can be used to request SSLv3.
+   */
+  public static final String SSL_PROTOCOL_SSL_3 = "SSLv3";
+
+
+
+  /**
+   * The name of the SSL protocol that can be used to request SSLv2Hello.
+   */
+  public static final String SSL_PROTOCOL_SSL_2_HELLO = "SSLv2Hello";
+
+
+
+  /**
    * The default protocol string that will be used to create SSL contexts when
    * no explicit protocol is specified.
    */
   private static final AtomicReference<String> DEFAULT_SSL_PROTOCOL =
-       new AtomicReference<>("TLSv1");
+       new AtomicReference<>(SSL_PROTOCOL_TLS_1);
 
 
 
@@ -376,8 +418,8 @@ public final class SSLUtil
    * @param  protocol  The SSL protocol to use.  The Java Secure Socket
    *                   Extension (JSSE) Reference Guide provides a list of the
    *                   supported protocols, but commonly used values are
-   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
-   *                   {@code null}.
+   *                   "TLSv1.3", "TLSv1.2", "TLSv1.1", and "TLSv1".  This must
+   *                   not be {@code null}.
    *
    *
    * @return  The created SSL context.
@@ -404,8 +446,8 @@ public final class SSLUtil
    * @param  protocol  The SSL protocol to use.  The Java Secure Socket
    *                   Extension (JSSE) Reference Guide provides a list of the
    *                   supported protocols, but commonly used values are
-   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
-   *                   {@code null}.
+   *                   "TLSv1.3", "TLSv1.2", "TLSv1.1", and "TLSv1".  This must
+   *                   not be {@code null}.
    * @param  provider  The name of the provider to use for cryptographic
    *                   operations.  It must not be {@code null}.
    *
@@ -454,8 +496,8 @@ public final class SSLUtil
    * @param  protocol  The SSL protocol to use.  The Java Secure Socket
    *                   Extension (JSSE) Reference Guide provides a list of the
    *                   supported protocols, but commonly used values are
-   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
-   *                   {@code null}.
+   *                   "TLSv1.3", "TLSv1.2", "TLSv1.1", and "TLSv1".  This must
+   *                   not be {@code null}.
    *
    * @return  The created SSL socket factory.
    *
@@ -477,8 +519,8 @@ public final class SSLUtil
    * @param  protocol  The SSL protocol to use.  The Java Secure Socket
    *                   Extension (JSSE) Reference Guide provides a list of the
    *                   supported protocols, but commonly used values are
-   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
-   *                   {@code null}.
+   *                   "TLSv1.3", "TLSv1.2", "TLSv1.1", and "TLSv1".  This must
+   *                   not be {@code null}.
    * @param  provider  The name of the provider to use for cryptographic
    *                   operations.  It must not be {@code null}.
    *
@@ -524,8 +566,8 @@ public final class SSLUtil
    * @param  protocol  The SSL protocol to use.  The Java Secure Socket
    *                   Extension (JSSE) Reference Guide provides a list of the
    *                   supported protocols, but commonly used values are
-   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
-   *                   {@code null}.
+   *                   "TLSv1.3", "TLSv1.2", "TLSv1.1", and "TLSv1".  This must
+   *                   not be {@code null}.
    *
    * @return  The created SSL server socket factory.
    *
@@ -550,8 +592,8 @@ public final class SSLUtil
    * @param  protocol  The SSL protocol to use.  The Java Secure Socket
    *                   Extension (JSSE) Reference Guide provides a list of the
    *                   supported protocols, but commonly used values are
-   *                   "TLSv1.2", "TLSv1.1", and "TLSv1".  This must not be
-   *                   {@code null}.
+   *                   "TLSv1.3", "TLSv1.2", "TLSv1.1", and "TLSv1".  This must
+   *                   not be {@code null}.
    * @param  provider  The name of the provider to use for cryptographic
    *                   operations.  It must not be {@code null}.
    *
@@ -860,9 +902,9 @@ public final class SSLUtil
     else
     {
       // We should be able to discover the SSL protocol that offers the best mix
-      // of security and compatibility.  If we see that TLSv1.1 and/or TLSv1.2
-      // are available, then we'll add those to the set of default enabled
-      // protocols.
+      // of security and compatibility.  If we see that TLSv1.1, TLSv1.2, and/or
+      // TLSv1.3 are available, then we'll add those to the set of default
+      // enabled protocols.
       try
       {
         final SSLContext defaultContext = SSLContext.getDefault();
@@ -871,17 +913,21 @@ public final class SSLUtil
 
         final HashSet<String> protocolMap =
              new HashSet<>(Arrays.asList(supportedProtocols));
-        if (protocolMap.contains("TLSv1.2"))
+        if (protocolMap.contains(SSL_PROTOCOL_TLS_1_3))
         {
-          DEFAULT_SSL_PROTOCOL.set("TLSv1.2");
+          DEFAULT_SSL_PROTOCOL.set(SSL_PROTOCOL_TLS_1_3);
         }
-        else if (protocolMap.contains("TLSv1.1"))
+        else if (protocolMap.contains(SSL_PROTOCOL_TLS_1_2))
         {
-          DEFAULT_SSL_PROTOCOL.set("TLSv1.1");
+          DEFAULT_SSL_PROTOCOL.set(SSL_PROTOCOL_TLS_1_2);
         }
-        else if (protocolMap.contains("TLSv1"))
+        else if (protocolMap.contains(SSL_PROTOCOL_TLS_1_1))
         {
-          DEFAULT_SSL_PROTOCOL.set("TLSv1");
+          DEFAULT_SSL_PROTOCOL.set(SSL_PROTOCOL_TLS_1_1);
+        }
+        else if (protocolMap.contains(SSL_PROTOCOL_TLS_1))
+        {
+          DEFAULT_SSL_PROTOCOL.set(SSL_PROTOCOL_TLS_1);
         }
       }
       catch (final Exception e)
@@ -898,15 +944,21 @@ public final class SSLUtil
     // problems with SSLv3.
     final HashSet<String> enabledProtocols =
          new HashSet<>(StaticUtils.computeMapCapacity(10));
-    enabledProtocols.add("TLSv1");
-    if (DEFAULT_SSL_PROTOCOL.get().equals("TLSv1.2"))
+    enabledProtocols.add(SSL_PROTOCOL_TLS_1);
+    if (DEFAULT_SSL_PROTOCOL.get().equals(SSL_PROTOCOL_TLS_1_3))
     {
-      enabledProtocols.add("TLSv1.1");
-      enabledProtocols.add("TLSv1.2");
+      enabledProtocols.add(SSL_PROTOCOL_TLS_1_1);
+      enabledProtocols.add(SSL_PROTOCOL_TLS_1_2);
+      enabledProtocols.add(SSL_PROTOCOL_TLS_1_3);
     }
-    else if (DEFAULT_SSL_PROTOCOL.get().equals("TLSv1.1"))
+    else if (DEFAULT_SSL_PROTOCOL.get().equals(SSL_PROTOCOL_TLS_1_2))
     {
-      enabledProtocols.add("TLSv1.1");
+      enabledProtocols.add(SSL_PROTOCOL_TLS_1_1);
+      enabledProtocols.add(SSL_PROTOCOL_TLS_1_2);
+    }
+    else if (DEFAULT_SSL_PROTOCOL.get().equals(SSL_PROTOCOL_TLS_1_1))
+    {
+      enabledProtocols.add(SSL_PROTOCOL_TLS_1_1);
     }
 
     // If there is a system property that specifies which enabled SSL protocols

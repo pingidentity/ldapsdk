@@ -163,6 +163,22 @@ public class SSLUtilTestCase
 
       assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.2", p));
     }
+
+    if (originalEnabledSSLProtocols.contains("TLSv1.3"))
+    {
+      assertNotNull(sslUtil.createSSLContext("TLSv1.3"));
+
+      c = SSLContext.getInstance("TLSv1.3");
+      p = c.getProvider().getName();
+
+      assertNotNull(sslUtil.createSSLContext("TLSv1.3", p));
+
+      assertNotNull(sslUtil.createSSLSocketFactory());
+
+      assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.3"));
+
+      assertNotNull(sslUtil.createSSLSocketFactory("TLSv1.3", p));
+    }
   }
 
 
@@ -668,7 +684,13 @@ public class SSLUtilTestCase
     assertNotNull(SSLUtil.getEnabledSSLProtocols());
     assertFalse(SSLUtil.getEnabledSSLProtocols().isEmpty());
 
-    if (SSLUtil.getDefaultSSLProtocol().equals("TLSv1.2"))
+    if (SSLUtil.getDefaultSSLProtocol().equals("TLSv1.3"))
+    {
+      assertEquals(SSLUtil.getEnabledSSLProtocols(),
+           new HashSet<String>(
+                Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3")));
+    }
+    else if (SSLUtil.getDefaultSSLProtocol().equals("TLSv1.2"))
     {
       assertEquals(SSLUtil.getEnabledSSLProtocols(),
            new HashSet<String>(Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2")));
@@ -817,6 +839,34 @@ public class SSLUtilTestCase
     assertFalse(SSLUtil.getEnabledSSLProtocols().isEmpty());
     assertEquals(SSLUtil.getEnabledSSLProtocols(),
          new HashSet<String>(Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2")));
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code configureSSLDefault} method when the
+   * default protocol is set via property to TLSv1.3 and the enabled protocols
+   * are not set with a property.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConfigureSSLDefaultsTLS13()
+         throws Exception
+  {
+    System.setProperty(SSLUtil.PROPERTY_DEFAULT_SSL_PROTOCOL, "TLSv1.3");
+    System.clearProperty(SSLUtil.PROPERTY_ENABLED_SSL_PROTOCOLS);
+
+    SSLUtil.configureSSLDefaults();
+
+    assertNotNull(SSLUtil.getDefaultSSLProtocol());
+    assertEquals(SSLUtil.getDefaultSSLProtocol(), "TLSv1.3");
+
+    assertNotNull(SSLUtil.getEnabledSSLProtocols());
+    assertFalse(SSLUtil.getEnabledSSLProtocols().isEmpty());
+    assertEquals(SSLUtil.getEnabledSSLProtocols(),
+         new HashSet<String>(
+              Arrays.asList("TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3")));
   }
 
 
@@ -1026,6 +1076,42 @@ public class SSLUtilTestCase
 
 
   /**
+   * Tests the {@code applyEnabledSSLProtocols} method with an SSL socket and
+   * only "TLSv1.3" in the set of enabled protocols.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testApplyEnabledSSLProtocolsEnabledOnlyTLSv13()
+         throws Exception
+  {
+    if (originalEnabledSSLProtocols.contains("TLSv1.3"))
+    {
+      final InMemoryDirectoryServer ds = getTestDSWithSSL();
+
+      final SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+      final Socket s = sslUtil.createSSLSocketFactory().createSocket(
+           "localhost", ds.getListenPort("LDAPS"));
+      assertTrue(s instanceof SSLSocket);
+
+      SSLUtil.setEnabledSSLProtocols(Arrays.asList("TLSv1.3"));
+      SSLUtil.applyEnabledSSLProtocols(s);
+
+      final SSLSocket sslSocket = (SSLSocket) s;
+      assertNotNull(sslSocket.getEnabledProtocols());
+      assertEquals(sslSocket.getEnabledProtocols().length, 1);
+      assertEquals(sslSocket.getEnabledProtocols()[0], "TLSv1.3");
+
+      s.getOutputStream().write(new byte[]
+           { 0x30, 0x05, 0x02, 0x01, 0x01, 0x42, 0x00 });
+      s.getOutputStream().flush();
+      s.close();
+    }
+  }
+
+
+
+  /**
    * Tests the {@code applyEnabledSSLProtocols} method with an SSL socket and a
    * full set of enabled protocols.
    *
@@ -1043,7 +1129,7 @@ public class SSLUtilTestCase
     assertTrue(s instanceof SSLSocket);
 
     SSLUtil.setEnabledSSLProtocols(Arrays.asList("SSLv3", "TLSv1", "TLSv1.1",
-         "TLSv1.2"));
+         "TLSv1.2", "TLSv1.3"));
     SSLUtil.applyEnabledSSLProtocols(s);
 
     final SSLSocket sslSocket = (SSLSocket) s;
@@ -1054,6 +1140,7 @@ public class SSLUtilTestCase
     boolean tlsV1Enabled = false;
     boolean tlsV11Enabled = false;
     boolean tlsV12Enabled = false;
+    boolean tlsV13Enabled = false;
     for (final String p : sslSocket.getEnabledProtocols())
     {
       if (p.equals("SSLv3"))
@@ -1072,6 +1159,10 @@ public class SSLUtilTestCase
       {
         tlsV12Enabled = true;
       }
+      else if (p.equals("TLSv1.3"))
+      {
+        tlsV13Enabled = true;
+      }
       else
       {
         fail("Unexpected enabled protocol '" + p + '\'');
@@ -1081,7 +1172,13 @@ public class SSLUtilTestCase
     assertTrue(sslV3Enabled);
     assertTrue(tlsV1Enabled);
 
-    if (originalDefaultSSLProtocol.equals("TLSv1.2"))
+    if (originalDefaultSSLProtocol.equals("TLSv1.3"))
+    {
+      assertTrue(tlsV11Enabled);
+      assertTrue(tlsV12Enabled);
+      assertTrue(tlsV13Enabled);
+    }
+    else if (originalDefaultSSLProtocol.equals("TLSv1.2"))
     {
       assertTrue(tlsV11Enabled);
       assertTrue(tlsV12Enabled);

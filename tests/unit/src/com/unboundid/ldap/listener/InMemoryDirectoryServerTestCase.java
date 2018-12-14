@@ -4715,8 +4715,20 @@ public final class InMemoryDirectoryServerTestCase
     assertNotNull(ds.getClientSocketFactory());
 
     // Verify that we can use the server's getConnection method.
-    final LDAPConnection dsProvidedConn = ds.getConnection();
+    LDAPConnection dsProvidedConn = ds.getConnection();
     assertNotNull(dsProvidedConn.getSSLSession());
+
+    // Work around a bug in the TLSv3 implementation in some versions of Java 11
+    // that interfere with the ability to get peer certificates when resuming
+    // a TLS session.  To prevent that from happening here, invalidate the
+    // TLS session and create a new connection so that it gets a new session.
+    assertNotNull(dsProvidedConn.getRootDSE());
+    dsProvidedConn.getSSLSession().invalidate();
+    dsProvidedConn.close();
+    dsProvidedConn = ds.getConnection();
+    assertNotNull(dsProvidedConn.getSSLSession());
+    // End the workaround.
+
     assertNotNull(dsProvidedConn.getSSLSession().getPeerCertificateChain());
     assertTrue(dsProvidedConn.getSSLSession().
          getPeerCertificateChain().length > 0);
@@ -4749,8 +4761,20 @@ public final class InMemoryDirectoryServerTestCase
     assertNotNull(ds.getClientSocketFactory());
 
     // Verify that we can use the server's getConnection method.
-    final LDAPConnection dsProvidedConn = ds.getConnection();
+    LDAPConnection dsProvidedConn = ds.getConnection();
     assertNotNull(dsProvidedConn.getSSLSession());
+
+    // Work around a bug in the TLSv3 implementation in some versions of Java 11
+    // that interfere with the ability to get peer certificates when resuming
+    // a TLS session.  To prevent that from happening here, invalidate the
+    // TLS session and create a new connection so that it gets a new session.
+    assertNotNull(dsProvidedConn.getRootDSE());
+    dsProvidedConn.getSSLSession().invalidate();
+    dsProvidedConn.close();
+    dsProvidedConn = ds.getConnection();
+    assertNotNull(dsProvidedConn.getSSLSession());
+    // End the workaround.
+
     assertNotNull(dsProvidedConn.getSSLSession().getPeerCertificateChain());
     assertTrue(dsProvidedConn.getSSLSession().
          getPeerCertificateChain().length > 0);

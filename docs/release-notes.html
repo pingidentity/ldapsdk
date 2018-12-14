@@ -25,6 +25,21 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Improved support for TLSv1.3 in JVMs that support it (Java 11 and later).  The
+                  LDAP SDK will now automatically enable support for TLSv1.3 if it is available,
+                  and will prefer that protocol if the server also supports it, but can still
+                  transparently fall back to an earlier protocol version (TLSv1.2, TLSv1.1, or
+                  TLSv1, whichever is the highest version that the server supports) if the server
+                  does not support it.  As before, the default and enabled set of TLS protocols
+                  can be overridden programmatically by calling methods in the
+                  <tt>com.unboundid.util.ssl.SSLUtil</tt> class, or by setting the
+                  <tt>com.unboundid.util.SSLUtil.defaultSSLProtocol</tt> and
+                  <tt>com.unboundid.util.SSLUtil.enabledSSLProtocols</tt> system properties when
+                  launching the JVM.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a potential null pointer exception in <tt>ArgumentParser.toString</tt>
                   that could arise if the parser was created through serialization and there were
                   not any additional description paragraphs.  Also, eliminated an unnecessary
