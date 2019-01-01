@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Ping Identity Corporation
+ * Copyright 2017-2019 Ping Identity Corporation
  * All Rights Reserved.
  */
 package com.unboundid.asn1;

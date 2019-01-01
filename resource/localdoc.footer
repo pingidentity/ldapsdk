@@ -1,4 +1,4 @@
 
-    <div class="copyright-footer">Copyright &copy; 2010-${YEAR}&ndash; Ping Identity Corporation &ndash; All rights reserved.</div>
+    <div class="copyright-footer">Copyright &copy; 2010-${YEAR} &ndash; Ping Identity Corporation &ndash; All rights reserved.</div>
   </body>
 </html>

@@ -1,5 +1,5 @@
 UnboundID LDAP SDK for Java
-Copyright 2007-2018 Ping Identity Corporation
+Copyright 2007-2019 Ping Identity Corporation
 
 
 The UnboundID LDAP SDK for Java is available under three licenses:  the GNU
