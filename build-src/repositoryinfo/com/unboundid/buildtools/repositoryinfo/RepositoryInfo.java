@@ -24,9 +24,11 @@ package com.unboundid.buildtools.repositoryinfo;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -277,7 +279,8 @@ public class RepositoryInfo
     File f = baseDir;
     while ((f != null) && f.exists())
     {
-      if (new File(f, ".git").exists())
+      final File dotGitDir = new File(f, ".git");
+      if (dotGitDir.exists())
       {
         try
         {
@@ -310,26 +313,38 @@ public class RepositoryInfo
           }
           catch (final Exception e2)
           {
-            if (failOnError == Boolean.TRUE)
+            try
             {
-              throw new BuildException(
-                   "ERROR:  Unable to obtain repository details from the git " +
-                        "workspace in directory " + f.getAbsolutePath() +
-                        " using either jgit (which is only supported on Java " +
-                        "version 8 or higher) or from the git command-line " +
-                        "utility.  The jgit failure was:  " + e +
-                        ".  The command-line failure was:  " + e2,
-                   e2);
+              getGitInfoFromDotGitDirectory(dotGitDir);
+              return;
             }
-            else
+            catch (final Exception e3)
             {
-              System.err.println("ERROR:  Unable to obtain repository " +
-                   "details from the git workspace in directory " +
-                   f.getAbsolutePath() + " using either jgit (which is only " +
-                   "supported on Java version 8 or higher) or from the git " +
-                   "command-line utility.  The jgit failure was:  " + e +
-                   ".  The command-line failure was:  " + e2 +
-                   ".  Using generic repository fallback info.");
+              if (failOnError == Boolean.TRUE)
+              {
+                throw new BuildException(
+                     "ERROR:  Unable to obtain repository details from the " +
+                          "git workspace in directory " + f.getAbsolutePath() +
+                          " using jgit (which is only supported on Java " +
+                          "version 8 or higher), from the git command-line " +
+                          "utility, or by examining files in the .git " +
+                          "directory tree.  The jgit failure was:  " + e +
+                          ".  The command-line failure was:  " + e2 +
+                          ".  The filesystem failure was:  " + e3,
+                     e3);
+              }
+              else
+              {
+                System.err.println("ERROR:  Unable to obtain repository " +
+                     "details from the git workspace in directory " +
+                     f.getAbsolutePath() + " using jgit (which is only " +
+                     "supported on Java version 8 or higher), from the git " +
+                     "command-line utility, or by examining files in the " +
+                     ".git directory tree.  The jgit failure was:  " + e +
+                     ".  The command-line failure was:  " + e2 +
+                     ".  The filesystem failure was:  " + e3 +
+                     ".  Using generic repository fallback info.");
+              }
             }
           }
         }
@@ -439,6 +454,115 @@ public class RepositoryInfo
     // repository revision.
     final String repoRevision = invokeGitCommand("log", "--max-count=1",
          "--pretty=format:%H");
+
+    getProject().setProperty(repositoryTypePropertyName, "git");
+    getProject().setProperty(repositoryURLPropertyName, repoURL);
+    getProject().setProperty(repositoryPathPropertyName, "/");
+    getProject().setProperty(repositoryRevisionPropertyName, repoRevision);
+    getProject().setProperty(repositoryRevisionNumberPropertyName, "-1");
+  }
+
+
+
+  /**
+   * Attempts to examine files in the .git directory on the filesystem to obtain
+   * information about the git repository from which the LDAP SDK source was
+   * obtained.
+   *
+   * @param  dotGitDir  The path to the ".git" directory for the workspace.
+   *
+   * @throws  Exception  If a problem is encountered while attempting to obtain
+   *                     information about the git repository.
+   */
+  private void getGitInfoFromDotGitDirectory(final File dotGitDir)
+          throws Exception
+  {
+    final File refsDir = new File(dotGitDir, "refs");
+    final File headsDir = new File(refsDir, "heads");
+    final File masterFile = new File(headsDir, "master");
+
+    if (! (masterFile.exists() && masterFile.isFile()))
+    {
+      throw new BuildException("ERROR:  Expected master revision file '" +
+           masterFile.getAbsolutePath() + "' does not exist or is not a file.");
+    }
+
+    final String repoRevision;
+    try (FileReader fileReader = new FileReader(masterFile);
+         BufferedReader bufferedReader = new BufferedReader(fileReader))
+    {
+      repoRevision = bufferedReader.readLine();
+      if ((repoRevision == null) || repoRevision.isEmpty())
+      {
+        throw new BuildException("ERROR:  Expected master revision file '" +
+             masterFile.getAbsolutePath() +
+             "' is empty or has an empty first line.");
+      }
+    }
+
+    final File configFile = new File(dotGitDir, "config");
+    if (! (configFile.exists() && configFile.isFile()))
+    {
+      throw new BuildException("ERROR:  Expected config file '" +
+           configFile.getAbsolutePath() + "' does not exist or is not a file.");
+    }
+
+    String repoURL = null;
+    try (FileReader fileReader = new FileReader(configFile);
+         BufferedReader bufferedReader = new BufferedReader(fileReader))
+    {
+      while (true)
+      {
+        final String line = bufferedReader.readLine();
+        if (line == null)
+        {
+          if (repoURL == null)
+          {
+            throw new BuildException("ERROR:  End of config file '" +
+                 configFile.getAbsolutePath() +
+                 "' reached without finding the repository URL.");
+          }
+          else
+          {
+            break;
+          }
+        }
+
+        if (line.indexOf("url") < 0)
+        {
+          continue;
+        }
+
+        final StringTokenizer tokenizer = new StringTokenizer(line, " \t=");
+        final String firstToken = tokenizer.nextToken();
+        if (firstToken.equalsIgnoreCase("url"))
+        {
+          if (tokenizer.hasMoreTokens())
+          {
+            if (repoURL != null)
+            {
+              throw new BuildException("ERROR:  Config file '" +
+                   configFile.getAbsolutePath() +
+                   "' unexpectedly has multiple 'url' elements.");
+            }
+
+            repoURL = tokenizer.nextToken();
+            if ((repoURL == null) || repoURL.isEmpty())
+            {
+              throw new BuildException("ERROR:  Config file '" +
+                   configFile.getAbsolutePath() +
+                   "' contains line '" + line +  "' without a URL value.");
+            }
+            else if (tokenizer.hasMoreTokens())
+            {
+              throw new BuildException("ERROR:  Config file '" +
+                   configFile.getAbsolutePath() +
+                   "' contains line '" + line +  "' with multiple URL values.");
+            }
+          }
+        }
+      }
+    }
 
     getProject().setProperty(repositoryTypePropertyName, "git");
     getProject().setProperty(repositoryURLPropertyName, repoURL);
