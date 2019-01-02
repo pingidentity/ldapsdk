@@ -474,7 +474,22 @@ public class RepositoryInfo
     }
     else
     {
-      commandPlusArguments.add("git");
+      if (new File("/usr/bin/git").exists())
+      {
+        commandPlusArguments.add("/usr/bin/git");
+      }
+      else if (new File("/bin/git").exists())
+      {
+        commandPlusArguments.add("/bin/git");
+      }
+      else if (new File("/usr/local/bin/git").exists())
+      {
+        commandPlusArguments.add("/usr/local/bin/git");
+      }
+      else
+      {
+        commandPlusArguments.add("git");
+      }
     }
 
     commandPlusArguments.addAll(Arrays.asList(args));
@@ -484,6 +499,8 @@ public class RepositoryInfo
     processBuilder.directory(baseDir);
     processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
     processBuilder.redirectErrorStream(true);
+
+    System.out.println("Invoking command " + commandPlusArguments);
 
     final Process gitProcess = processBuilder.start();
     try
