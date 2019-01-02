@@ -479,12 +479,30 @@ public class RepositoryInfo
   {
     final File refsDir = new File(dotGitDir, "refs");
     final File headsDir = new File(refsDir, "heads");
-    final File masterFile = new File(headsDir, "master");
+    final File refsHeadsMasterFile = new File(headsDir, "master");
 
-    if (! (masterFile.exists() && masterFile.isFile()))
+    final File masterFile;
+    if (refsHeadsMasterFile.exists() && refsHeadsMasterFile.isFile())
     {
-      throw new BuildException("ERROR:  Expected master revision file '" +
-           masterFile.getAbsolutePath() + "' does not exist or is not a file.");
+      masterFile = refsHeadsMasterFile;
+    }
+    else
+    {
+      final File remotesDir = new File(refsDir, "remotes");
+      final File originDir = new File(remotesDir, "origin");
+      final File refsRemotesOriginMasterFile = new File(originDir, "master");
+      if (refsRemotesOriginMasterFile.exists() &&
+           refsRemotesOriginMasterFile.isFile())
+      {
+        masterFile = refsRemotesOriginMasterFile;
+      }
+      else
+      {
+        throw new BuildException("ERROR:  Unable to obtain the repository " +
+             "revision from the .git directory tree because neither '" +
+             refsHeadsMasterFile.getAbsolutePath() + "' nor '" +
+             refsRemotesOriginMasterFile.getAbsolutePath() + "' exists.");
+      }
     }
 
     final String repoRevision;
