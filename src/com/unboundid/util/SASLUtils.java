@@ -43,6 +43,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLBindRequest;
 import com.unboundid.ldap.sdk.SASLQualityOfProtection;
 import com.unboundid.ldap.sdk.unboundidds.SingleUseTOTPBindRequest;
+import com.unboundid.ldap.sdk.unboundidds.
+            UnboundIDCertificatePlusPasswordBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.UnboundIDDeliveredOTPBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.UnboundIDTOTPBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.UnboundIDYubiKeyOTPBindRequest;
@@ -281,6 +283,15 @@ public final class SASLUtils
                    INFO_SASL_PLAIN_OPTION_AUTH_ID.get(), true, false),
               new SASLOption(SASL_OPTION_AUTHZ_ID,
                    INFO_SASL_PLAIN_OPTION_AUTHZ_ID.get(), false, false)));
+
+    m.put(StaticUtils.toLowerCase(
+         UnboundIDCertificatePlusPasswordBindRequest.
+              UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME),
+         new SASLMechanismInfo(
+              UnboundIDCertificatePlusPasswordBindRequest.
+                   UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME,
+              INFO_SASL_UNBOUNDID_CERT_PLUS_PASSWORD_DESCRIPTION.get(), true,
+              true));
 
     m.put(
          StaticUtils.toLowerCase(
@@ -654,6 +665,12 @@ public final class SASLUtils
     else if (mech.equalsIgnoreCase(PLAINBindRequest.PLAIN_MECHANISM_NAME))
     {
       return createPLAINBindRequest(password, promptForPassword, tool,
+           optionsMap, controls);
+    }
+    else if (mech.equalsIgnoreCase(UnboundIDCertificatePlusPasswordBindRequest.
+             UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME))
+    {
+      return createUnboundIDCertificatePlusPasswordBindRequest(password, tool,
            optionsMap, controls);
     }
     else if (mech.equalsIgnoreCase(UnboundIDDeliveredOTPBindRequest.
@@ -1107,6 +1124,53 @@ public final class SASLUtils
          PLAINBindRequest.PLAIN_MECHANISM_NAME);
 
     return new PLAINBindRequest(authID, authzID, pw, controls);
+  }
+
+
+
+  /**
+   * Creates a SASL UNBOUNDID-CERTIFICATE-PLUS-PASSWORD bind request using the
+   * provided set of options.
+   *
+   * @param  password  The password to use for the bind request.
+   * @param  tool      The command-line tool whose input and output streams
+   *                   should be used when prompting for the bind password.  It
+   *                   may be {@code null} if {@code promptForPassword} is
+   *                   {@code false}.
+   * @param  options   The set of SASL options for the bind request.
+   * @param  controls  The set of controls to include in the request.
+   *
+   * @return  The SASL UNBOUNDID-CERTIFICATE-PLUS-PASSWORD bind request that was
+   *          created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  private static UnboundIDCertificatePlusPasswordBindRequest
+                      createUnboundIDCertificatePlusPasswordBindRequest(
+                           final byte[] password, final CommandLineTool tool,
+                           final Map<String,String> options,
+                           final Control[] controls)
+          throws LDAPException
+  {
+    final byte[] pw;
+    if (password == null)
+    {
+      tool.getOriginalOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+      pw = PasswordReader.readPassword();
+      tool.getOriginalOut().println();
+    }
+    else
+    {
+      pw = password;
+    }
+
+    // Ensure no unsupported options were provided.
+    ensureNoUnsupportedOptions(options,
+         UnboundIDCertificatePlusPasswordBindRequest.
+              UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME);
+
+    return new UnboundIDCertificatePlusPasswordBindRequest(pw, controls);
   }
 
 

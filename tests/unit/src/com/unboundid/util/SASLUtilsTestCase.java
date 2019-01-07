@@ -44,6 +44,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLQualityOfProtection;
 import com.unboundid.ldap.sdk.examples.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.SingleUseTOTPBindRequest;
+import com.unboundid.ldap.sdk.unboundidds.
+            UnboundIDCertificatePlusPasswordBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.UnboundIDDeliveredOTPBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.UnboundIDTOTPBindRequest;
 import com.unboundid.ldap.sdk.unboundidds.UnboundIDYubiKeyOTPBindRequest;
@@ -125,6 +127,8 @@ public final class SASLUtilsTestCase
       EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME,
       GSSAPIBindRequest.GSSAPI_MECHANISM_NAME,
       PLAINBindRequest.PLAIN_MECHANISM_NAME,
+      UnboundIDCertificatePlusPasswordBindRequest.
+           UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME,
       UnboundIDDeliveredOTPBindRequest.UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME,
       UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME,
       UnboundIDYubiKeyOTPBindRequest.UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME
@@ -898,6 +902,92 @@ public final class SASLUtilsTestCase
   {
     SASLUtils.createBindRequest(null, "password", null, "mech=PLAIN",
          "authID=u:test.user", "unsupported=foo");
+  }
+
+
+
+
+  /**
+   * Tests the ability to create a valid UNBOUNDID-CERTIFICATE-PLUS-PASSWORD
+   * bind request when a password was provided.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidCertificatePlusPasswordBindPWProvided()
+         throws Exception
+  {
+    final BindRequest bindRequest = SASLUtils.createBindRequest(null,
+         "password", null, "mech=UNBOUNDID-CERTIFICATE-PLUS-PASSWORD");
+
+    assertNotNull(bindRequest);
+
+    assertTrue(bindRequest instanceof
+         UnboundIDCertificatePlusPasswordBindRequest);
+
+    final UnboundIDCertificatePlusPasswordBindRequest certPlusPWBind =
+         (UnboundIDCertificatePlusPasswordBindRequest) bindRequest;
+
+    assertNotNull(certPlusPWBind.getPassword());
+    assertEquals(certPlusPWBind.getPassword().stringValue(), "password");
+  }
+
+
+
+
+  /**
+   * Tests the ability to create a valid UNBOUNDID-CERTIFICATE-PLUS-PASSWORD
+   * bind request when a password must be obtained via prompt.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidCertificatePlusPasswordBindPWPrompted()
+         throws Exception
+  {
+    final LDAPSearch tool = new LDAPSearch(null, null);
+
+    final BindRequest bindRequest;
+    try
+    {
+      PasswordReader.setTestReader(new BufferedReader(new InputStreamReader(
+           new ByteArrayInputStream("password\n".getBytes("UTF-8")))));
+      bindRequest = SASLUtils.createBindRequest(null, (byte[]) null, false,
+           tool, null,
+           Arrays.asList("mech=UNBOUNDID-CERTIFICATE-PLUS-PASSWORD"));
+    }
+    finally
+    {
+      PasswordReader.setTestReader(null);
+    }
+
+    assertNotNull(bindRequest);
+
+    assertTrue(bindRequest instanceof
+         UnboundIDCertificatePlusPasswordBindRequest);
+
+    final UnboundIDCertificatePlusPasswordBindRequest certPlusPWBind =
+         (UnboundIDCertificatePlusPasswordBindRequest) bindRequest;
+
+    assertNotNull(certPlusPWBind.getPassword());
+    assertEquals(certPlusPWBind.getPassword().stringValue(), "password");
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create an EXTERNAL bind request with a
+   * password.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testCertificatePlusPasswordBindWithUnsupportedOption()
+         throws Exception
+  {
+    final BindRequest bindRequest = SASLUtils.createBindRequest(null,
+         "password", null, "mech=UNBOUNDID-CERTIFICATE-PLUS-PASSWORD",
+         "unsupported=foo");
   }
 
 
