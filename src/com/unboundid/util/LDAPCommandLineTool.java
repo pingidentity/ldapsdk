@@ -1223,8 +1223,8 @@ public abstract class LDAPCommandLineTool
         {
           try
           {
-            pw = keyStorePasswordFile.getNonBlankFileLines().get(0).
-                      toCharArray();
+            pw = getPasswordFileReader().readPassword(
+                 keyStorePasswordFile.getValue());
           }
           catch (final Exception e)
           {
@@ -1274,8 +1274,8 @@ public abstract class LDAPCommandLineTool
         {
           try
           {
-            pw = trustStorePasswordFile.getNonBlankFileLines().get(0).
-                      toCharArray();
+            pw = getPasswordFileReader().readPassword(
+                 trustStorePasswordFile.getValue());
           }
           catch (final Exception e)
           {
@@ -1370,8 +1370,9 @@ public abstract class LDAPCommandLineTool
     {
       try
       {
-        pw = StaticUtils.getBytes(
-             bindPasswordFile.getNonBlankFileLines().get(0));
+        final char[] pwChars = getPasswordFileReader().readPassword(
+             bindPasswordFile.getValue());
+        pw = StaticUtils.getBytes(new String(pwChars));
       }
       catch (final Exception e)
       {

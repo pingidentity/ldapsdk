@@ -28,7 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -9779,40 +9778,20 @@ public final class ManageCertificates
         keystorePasswordFileArgument.isPresent())
     {
       final File f = keystorePasswordFileArgument.getValue();
-      try (BufferedReader r = new BufferedReader(new FileReader(f)))
+      try
       {
-        final String line = r.readLine();
-        if (line == null)
+        final char[] passwordChars = getPasswordFileReader().readPassword(f);
+        if (passwordChars.length < 6)
         {
           throw new LDAPException(ResultCode.PARAM_ERROR,
-               ERR_MANAGE_CERTS_GET_KS_PW_EMPTY_FILE.get(f.getAbsolutePath()));
+               ERR_MANAGE_CERTS_GET_KS_PW_TOO_SHORT.get());
         }
-        else if (r.readLine() != null)
-        {
-          throw new LDAPException(ResultCode.PARAM_ERROR,
-               ERR_MANAGE_CERTS_GET_KS_PW_MULTI_LINE_FILE.get(
-                    f.getAbsolutePath()));
-        }
-        else if (line.isEmpty())
-        {
-          throw new LDAPException(ResultCode.PARAM_ERROR,
-               ERR_MANAGE_CERTS_GET_KS_PW_EMPTY_FILE.get(f.getAbsolutePath()));
-        }
-        else
-        {
-          if ((! keystoreFile.exists()) && (line.length() < 6))
-          {
-            throw new LDAPException(ResultCode.PARAM_ERROR,
-                 ERR_MANAGE_CERTS_GET_KS_PW_TOO_SHORT.get());
-          }
-
-          return line.toCharArray();
-        }
+        return passwordChars;
       }
-      catch(final LDAPException le)
+      catch (final LDAPException e)
       {
-        Debug.debugException(le);
-        throw le;
+        Debug.debugException(e);
+        throw e;
       }
       catch (final Exception e)
       {
@@ -10145,42 +10124,21 @@ public final class ManageCertificates
         privateKeyPasswordFileArgument.isPresent())
     {
       final File f = privateKeyPasswordFileArgument.getValue();
-      try (BufferedReader r = new BufferedReader(new FileReader(f)))
+      try
       {
-        final String line = r.readLine();
-        if (line == null)
+        final char[] passwordChars = getPasswordFileReader().readPassword(f);
+        if (passwordChars.length < 6)
         {
           throw new LDAPException(ResultCode.PARAM_ERROR,
                ERR_MANAGE_CERTS_GET_PK_PW_EMPTY_FILE.get(f.getAbsolutePath()));
         }
-        else if (r.readLine() != null)
-        {
-          throw new LDAPException(ResultCode.PARAM_ERROR,
-               ERR_MANAGE_CERTS_GET_PK_PW_MULTI_LINE_FILE.get(
-                    f.getAbsolutePath()));
-        }
-        else if (line.isEmpty())
-        {
-          throw new LDAPException(ResultCode.PARAM_ERROR,
-               ERR_MANAGE_CERTS_GET_PK_PW_EMPTY_FILE.get(f.getAbsolutePath()));
-        }
-        else
-        {
-          if ((line.length() < 6) &&
-              (! (hasCertificateAlias(keystore, alias) ||
-                  hasKeyAlias(keystore, alias))))
-          {
-            throw new LDAPException(ResultCode.PARAM_ERROR,
-                 ERR_MANAGE_CERTS_GET_PK_PW_TOO_SHORT.get());
-          }
 
-          return line.toCharArray();
-        }
+        return passwordChars;
       }
-      catch(final LDAPException le)
+      catch (final LDAPException e)
       {
-        Debug.debugException(le);
-        throw le;
+        Debug.debugException(e);
+        throw e;
       }
       catch (final Exception e)
       {

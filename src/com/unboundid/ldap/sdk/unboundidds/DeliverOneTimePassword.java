@@ -450,7 +450,8 @@ public final class DeliverOneTimePassword
     {
       try
       {
-        pw = bindPasswordFile.getNonBlankFileLines().get(0);
+        pw = new String(getPasswordFileReader().readPassword(
+             bindPasswordFile.getValue()));
       }
       catch (final Exception e)
       {

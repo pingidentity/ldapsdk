@@ -22,8 +22,6 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.OutputStream;
 import java.util.LinkedHashMap;
 
@@ -397,12 +395,11 @@ public final class GenerateTOTPSharedSecret
       }
       else if (userPasswordFile.isPresent())
       {
-        BufferedReader reader = null;
         try
         {
-          reader =
-               new BufferedReader(new FileReader(userPasswordFile.getValue()));
-          staticPassword = StaticUtils.getBytes(reader.readLine());
+          final char[] pwChars = getPasswordFileReader().readPassword(
+               userPasswordFile.getValue());
+          staticPassword = StaticUtils.getBytes(new String(pwChars));
         }
         catch (final Exception e)
         {
@@ -412,20 +409,6 @@ public final class GenerateTOTPSharedSecret
                     userPasswordFile.getValue().getAbsolutePath(),
                     StaticUtils.getExceptionMessage(e)));
           return ResultCode.LOCAL_ERROR;
-        }
-        finally
-        {
-          if (reader != null)
-          {
-            try
-            {
-              reader.close();
-            }
-            catch (final Exception e)
-            {
-              Debug.debugException(e);
-            }
-          }
         }
       }
       else if (promptForUserPassword.isPresent())

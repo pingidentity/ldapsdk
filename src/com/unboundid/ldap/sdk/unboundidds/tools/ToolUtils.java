@@ -36,6 +36,8 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -640,14 +642,17 @@ public final class ToolUtils
    * @param  inputStream                  The input stream from which the data
    *                                      is to be read.  It must not be
    *                                      {@code null}.
-   * @param  passphrase                   The passphrase to use to generate the
-   *                                      encryption key.  It may be
-   *                                      {@code null} if the passphrase should
-   *                                      only be obtained via interactive
-   *                                      prompting.  If the passphrase is not
-   *                                      {@code null} but is incorrect, then
-   *                                      the user may be interactively prompted
-   *                                      for the correct passphrase.
+   * @param  potentialPassphrase          A potential passphrase that may have
+   *                                      been used to encrypt the data.  It
+   *                                      may be {@code null} if the passphrase
+   *                                      should only be obtained via
+   *                                      interactive prompting, or if the
+   *                                      data was encrypted with a server-side
+   *                                      encryption settings definition.  If
+   *                                      the passphrase is not {@code null} but
+   *                                      is incorrect, then the user may be
+   *                                      interactively prompted for the correct
+   *                                      passphrase.
    * @param  promptOnIncorrectPassphrase  Indicates whether the user should be
    *                                      interactively prompted for the correct
    *                                      passphrase if the provided passphrase
@@ -699,7 +704,7 @@ public final class ToolUtils
   public static ObjectPair<InputStream,String>
                      getPossiblyPassphraseEncryptedInputStream(
                           final InputStream inputStream,
-                          final String passphrase,
+                          final String potentialPassphrase,
                           final boolean promptOnIncorrectPassphrase,
                           final CharSequence passphrasePrompt,
                           final CharSequence incorrectPassphraseError,
@@ -707,13 +712,22 @@ public final class ToolUtils
                           final PrintStream standardError)
          throws IOException, InvalidKeyException, GeneralSecurityException
   {
+    final Collection<char[]> potentialPassphrases;
+    if (potentialPassphrase == null)
+    {
+      potentialPassphrases = Collections.emptySet();
+    }
+    else
+    {
+      potentialPassphrases =
+           Collections.singleton(potentialPassphrase.toCharArray());
+    }
+
     final ObjectPair<InputStream, char[]> p =
          getPossiblyPassphraseEncryptedInputStream(inputStream,
-              (passphrase == null)
-                   ? null
-                   : passphrase.toCharArray(),
-              promptOnIncorrectPassphrase, passphrasePrompt,
-              incorrectPassphraseError, standardOutput, standardError);
+              potentialPassphrases, promptOnIncorrectPassphrase,
+              passphrasePrompt, incorrectPassphraseError, standardOutput,
+              standardError);
 
     if (p.getSecond() == null)
     {
@@ -749,14 +763,17 @@ public final class ToolUtils
    * @param  inputStream                  The input stream from which the data
    *                                      is to be read.  It must not be
    *                                      {@code null}.
-   * @param  passphrase                   The passphrase to use to generate the
-   *                                      encryption key.  It may be
-   *                                      {@code null} if the passphrase should
-   *                                      only be obtained via interactive
-   *                                      prompting.  If the passphrase is not
-   *                                      {@code null} but is incorrect, then
-   *                                      the user may be interactively prompted
-   *                                      for the correct passphrase.
+   * @param  potentialPassphrase          A potential passphrase that may have
+   *                                      been used to encrypt the data.  It
+   *                                      may be {@code null} if the passphrase
+   *                                      should only be obtained via
+   *                                      interactive prompting, or if the
+   *                                      data was encrypted with a server-side
+   *                                      encryption settings definition.  If
+   *                                      the passphrase is not {@code null} but
+   *                                      is incorrect, then the user may be
+   *                                      interactively prompted for the correct
+   *                                      passphrase.
    * @param  promptOnIncorrectPassphrase  Indicates whether the user should be
    *                                      interactively prompted for the correct
    *                                      passphrase if the provided passphrase
@@ -772,12 +789,12 @@ public final class ToolUtils
    *                                      presented to the user if the entered
    *                                      passphrase is not correct.  It must
    *                                      not be {@code null} or empty.
-   * @param  out                          The {@code PrintStream} to use to
+   * @param  standardOutput               The {@code PrintStream} to use to
    *                                      write to standard output while
    *                                      interactively prompting for the
    *                                      passphrase.  It must not be
    *                                      {@code null}.
-   * @param  err                          The {@code PrintStream} to use to
+   * @param  standardError                The {@code PrintStream} to use to
    *                                      write to standard error while
    *                                      interactively prompting for the
    *                                      passphrase.  It must not be
@@ -808,11 +825,133 @@ public final class ToolUtils
   public static ObjectPair<InputStream,char[]>
                      getPossiblyPassphraseEncryptedInputStream(
                           final InputStream inputStream,
-                          final char[] passphrase,
+                          final char[] potentialPassphrase,
                           final boolean promptOnIncorrectPassphrase,
                           final CharSequence passphrasePrompt,
                           final CharSequence incorrectPassphraseError,
-                          final PrintStream out, final PrintStream err)
+                          final PrintStream standardOutput,
+                          final PrintStream standardError)
+         throws IOException, InvalidKeyException, GeneralSecurityException
+  {
+    final Collection<char[]> potentialPassphrases;
+    if (potentialPassphrase == null)
+    {
+      potentialPassphrases = Collections.emptySet();
+    }
+    else
+    {
+      potentialPassphrases =
+           Collections.singleton(potentialPassphrase);
+    }
+
+    final ObjectPair<InputStream, char[]> p =
+         getPossiblyPassphraseEncryptedInputStream(inputStream,
+              potentialPassphrases, promptOnIncorrectPassphrase,
+              passphrasePrompt, incorrectPassphraseError, standardOutput,
+              standardError);
+
+    if (p.getSecond() == null)
+    {
+      return new ObjectPair<>(p.getFirst(), null);
+    }
+    else
+    {
+      return new ObjectPair<>(p.getFirst(), p.getSecond());
+    }
+  }
+
+
+
+  /**
+   * Retrieves an {@code InputStream} that can be used to read data from the
+   * provided input stream that may have potentially been encrypted with a
+   * {@link PassphraseEncryptedOutputStream}.  If the provided input stream does
+   * not appear to contain passphrase-encrypted data, then the returned stream
+   * will permit reading the data from the provided stream without any
+   * alteration.
+   * <BR><BR>
+   * The determination will be made by looking to see if the input stream starts
+   * with a valid {@link PassphraseEncryptedStreamHeader}.  Because of the
+   * complex nature of that header, it is highly unlikely that the input stream
+   * will just happen to start with a valid header if the stream does not
+   * actually contain encrypted data.
+   * <BR><BR>
+   * The input stream's {@code mark} and {@code reset} methods will be used to
+   * permit peeking at the data at the head of the input stream.  If the
+   * provided stream does not support the use of those methods, then it will be
+   * wrapped in a {@code BufferedInputStream}, which does support them.
+   *
+   * @param  inputStream                  The input stream from which the data
+   *                                      is to be read.  It must not be
+   *                                      {@code null}.
+   * @param  potentialPassphrases         A collection of potential passphrases
+   *                                      that may have been used to encrypt the
+   *                                      data.  It may be {@code null} or empty
+   *                                      if the passphrase should only be
+   *                                      obtained via interactive prompting, or
+   *                                      if the data was encrypted with a
+   *                                      server-side encryption settings
+   *                                      definition.  If none of the provided
+   *                                      passphrases are correct, then the user
+   *                                      may still be interactively prompted
+   *                                      for the correct passphrase.
+   * @param  promptOnIncorrectPassphrase  Indicates whether the user should be
+   *                                      interactively prompted for the correct
+   *                                      passphrase if the provided passphrase
+   *                                      is non-{@code null} and is also
+   *                                      incorrect.
+   * @param  passphrasePrompt             The prompt that will be presented to
+   *                                      the user if the input stream does
+   *                                      contain encrypted data and the
+   *                                      passphrase needs to be interactively
+   *                                      requested from the user.  It must not
+   *                                      be {@code null} or empty.
+   * @param  incorrectPassphraseError     The error message that will be
+   *                                      presented to the user if the entered
+   *                                      passphrase is not correct.  It must
+   *                                      not be {@code null} or empty.
+   * @param  standardOutput               The {@code PrintStream} to use to
+   *                                      write to standard output while
+   *                                      interactively prompting for the
+   *                                      passphrase.  It must not be
+   *                                      {@code null}.
+   * @param  standardError                The {@code PrintStream} to use to
+   *                                      write to standard error while
+   *                                      interactively prompting for the
+   *                                      passphrase.  It must not be
+   *                                      {@code null}.
+   *
+   * @return  An {@code ObjectPair} that combines the resulting input stream
+   *          with the associated encryption passphrase.  If the provided input
+   *          stream is encrypted, then the returned input stream element will
+   *          be a {@code PassphraseEncryptedInputStream} and the returned
+   *          passphrase element will be non-{@code null}.  If the provided
+   *          input stream is not encrypted, then the returned input stream
+   *          element will be the provided input stream (potentially wrapped in
+   *          a {@code BufferedInputStream}), and the returned passphrase
+   *          element will be {@code null}.
+   *
+   * @throws  IOException  If a problem is encountered while attempting to
+   *                       determine whether the stream contains
+   *                       passphrase-encrypted data.
+   *
+   * @throws  InvalidKeyException  If the provided passphrase is incorrect and
+   *                               the user should not be interactively prompted
+   *                               for the correct passphrase.
+   *
+   * @throws  GeneralSecurityException  If a problem is encountered while
+   *                                    attempting to prepare to decrypt data
+   *                                    read from the input stream.
+   */
+  public static ObjectPair<InputStream,char[]>
+                     getPossiblyPassphraseEncryptedInputStream(
+                          final InputStream inputStream,
+                          final Collection<char[]> potentialPassphrases,
+                          final boolean promptOnIncorrectPassphrase,
+                          final CharSequence passphrasePrompt,
+                          final CharSequence incorrectPassphraseError,
+                          final PrintStream standardOutput,
+                          final PrintStream standardError)
          throws IOException, InvalidKeyException, GeneralSecurityException
   {
     Validator.ensureTrue((inputStream != null),
@@ -827,10 +966,10 @@ public final class ToolUtils
               (incorrectPassphraseError.length() > 0)),
          "StaticUtils.getPossiblyPassphraseEncryptedInputStream." +
               "incorrectPassphraseError must not be null or empty.");
-    Validator.ensureTrue((out != null),
+    Validator.ensureTrue((standardOutput!= null),
          "StaticUtils.getPossiblyPassphraseEncryptedInputStream." +
               "standardOutput must not be null.");
-    Validator.ensureTrue((err != null),
+    Validator.ensureTrue((standardError!= null),
          "StaticUtils.getPossiblyPassphraseEncryptedInputStream." +
               "standardError must not be null.");
 
@@ -870,45 +1009,6 @@ public final class ToolUtils
     }
 
 
-    // If a passphrase was provided, then see if it is correct.
-    if (passphrase != null)
-    {
-      try
-      {
-        final PassphraseEncryptedStreamHeader validStreamHeader =
-             PassphraseEncryptedStreamHeader.decode(
-                  streamHeaderShell.getEncodedHeader(),
-                  passphrase);
-        return new ObjectPair<InputStream,char[]>(
-             new PassphraseEncryptedInputStream(markableInputStream,
-                  validStreamHeader),
-             passphrase);
-      }
-      catch (final InvalidKeyException e)
-      {
-        // The provided passphrase is not correct.  That's fine.  We'll just
-        // prompt for the correct one.
-        Debug.debugException(e);
-        if (! promptOnIncorrectPassphrase)
-        {
-          throw e;
-        }
-      }
-      catch (final GeneralSecurityException e)
-      {
-        Debug.debugException(e);
-        throw e;
-      }
-      catch (final LDAPException e)
-      {
-        // This should never happen, since we were previously able to decode the
-        // header.  Just treat it like a GeneralSecurityException.
-        Debug.debugException(e);
-        throw new GeneralSecurityException(e.getMessage(), e);
-      }
-    }
-
-
     // If the header includes a key identifier, and if the server code is
     // available, then see if we can get a passphrase for the corresponding
     // encryption settings definition ID.
@@ -919,7 +1019,8 @@ public final class ToolUtils
       {
         final Object passphraseObject =
              GET_PASSPHRASE_FOR_ENCRYPTION_SETTINGS_ID_METHOD.invoke(null,
-                  streamHeaderShell.getKeyIdentifier(), out, err);
+                  streamHeaderShell.getKeyIdentifier(), standardOutput,
+                  standardError);
         if ((passphraseObject != null) && (passphraseObject instanceof String))
         {
           final char[] passphraseChars =
@@ -944,6 +1045,59 @@ public final class ToolUtils
     }
 
 
+    // If any potential passphrases were provided, then see if any of them is
+    // correct.
+    if (potentialPassphrases != null)
+    {
+      final Iterator<char[]> passphraseIterator =
+           potentialPassphrases.iterator();
+      while (passphraseIterator.hasNext())
+      {
+        try
+        {
+          final char[] passphraseChars = passphraseIterator.next();
+          final PassphraseEncryptedStreamHeader validStreamHeader =
+               PassphraseEncryptedStreamHeader.decode(
+                    streamHeaderShell.getEncodedHeader(),
+                    passphraseChars);
+          return new ObjectPair<InputStream,char[]>(
+               new PassphraseEncryptedInputStream(markableInputStream,
+                    validStreamHeader),
+               passphraseChars);
+        }
+        catch (final InvalidKeyException e)
+        {
+          // The provided passphrase is not correct.  That's fine.  We'll just
+          // prompt for the correct one.
+          Debug.debugException(e);
+          if ((! promptOnIncorrectPassphrase) &&
+               (! passphraseIterator.hasNext()))
+          {
+            throw e;
+          }
+        }
+        catch (final GeneralSecurityException e)
+        {
+          Debug.debugException(e);
+          if (! passphraseIterator.hasNext())
+          {
+            throw e;
+          }
+        }
+        catch (final LDAPException e)
+        {
+          // This should never happen, since we were previously able to decode
+          // the header.  Just treat it like a GeneralSecurityException.
+          Debug.debugException(e);
+          if (! passphraseIterator.hasNext())
+          {
+            throw new GeneralSecurityException(e.getMessage(), e);
+          }
+        }
+      }
+    }
+
+
     // If we've gotten here, then we need to interactively prompt for the
     // passphrase.
     while (true)
@@ -954,7 +1108,7 @@ public final class ToolUtils
       {
         promptedPassphrase =
              promptForEncryptionPassphrase(false, false, passphrasePrompt, null,
-                  out, err);
+                  standardOutput, standardError);
       }
       catch (final LDAPException e)
       {
@@ -982,8 +1136,8 @@ public final class ToolUtils
 
         // The passphrase was incorrect.  Display a wrapped error message and
         // re-prompt.
-        wrap(incorrectPassphraseError, err);
-        err.println();
+        wrap(incorrectPassphraseError, standardError);
+        standardError.println();
       }
       catch (final GeneralSecurityException e)
       {

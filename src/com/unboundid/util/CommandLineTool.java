@@ -97,21 +97,6 @@ import static com.unboundid.util.UtilityMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)
 public abstract class CommandLineTool
 {
-  // The print stream that was originally used for standard output.  It may not
-  // be the current standard output stream if an output file has been
-  // configured.
-  private final PrintStream originalOut;
-
-  // The print stream that was originally used for standard error.  It may not
-  // be the current standard error stream if an output file has been configured.
-  private final PrintStream originalErr;
-
-  // The print stream to use for messages written to standard output.
-  private volatile PrintStream out;
-
-  // The print stream to use for messages written to standard error.
-  private volatile PrintStream err;
-
   // The argument used to indicate that the tool should append to the output
   // file rather than overwrite it.
   private BooleanArgument appendToOutputFileArgument = null;
@@ -138,6 +123,24 @@ public abstract class CommandLineTool
   // The argument used to specify the output file for standard output and
   // standard error.
   private FileArgument outputFileArgument = null;
+
+  // The password file reader for this tool.
+  private final PasswordFileReader passwordFileReader;
+
+  // The print stream that was originally used for standard output.  It may not
+  // be the current standard output stream if an output file has been
+  // configured.
+  private final PrintStream originalOut;
+
+  // The print stream that was originally used for standard error.  It may not
+  // be the current standard error stream if an output file has been configured.
+  private final PrintStream originalErr;
+
+  // The print stream to use for messages written to standard output.
+  private volatile PrintStream out;
+
+  // The print stream to use for messages written to standard error.
+  private volatile PrintStream err;
 
 
 
@@ -179,6 +182,8 @@ public abstract class CommandLineTool
 
     originalOut = out;
     originalErr = err;
+
+    passwordFileReader = new PasswordFileReader(out, err);
   }
 
 
@@ -1301,6 +1306,19 @@ public abstract class CommandLineTool
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the password file reader for this tool, which may be used to
+   * read passwords from (optionally compressed and encrypted) files.
+   *
+   * @return  The password file reader for this tool.
+   */
+  public final PasswordFileReader getPasswordFileReader()
+  {
+    return passwordFileReader;
   }
 
 

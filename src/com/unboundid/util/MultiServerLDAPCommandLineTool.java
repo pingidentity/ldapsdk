@@ -756,8 +756,8 @@ public abstract class MultiServerLDAPCommandLineTool
         {
           try
           {
-            pw = keyStorePasswordFile[serverIndex].getNonBlankFileLines().
-                 get(0).toCharArray();
+            pw = getPasswordFileReader().readPassword(
+                 keyStorePasswordFile[serverIndex].getValue());
           }
           catch (final Exception e)
           {
@@ -800,8 +800,8 @@ public abstract class MultiServerLDAPCommandLineTool
         {
           try
           {
-            pw = trustStorePasswordFile[serverIndex].getNonBlankFileLines().
-                 get(0).toCharArray();
+            pw = getPasswordFileReader().readPassword(
+                 trustStorePasswordFile[serverIndex].getValue());
           }
           catch (final Exception e)
           {
@@ -869,7 +869,8 @@ public abstract class MultiServerLDAPCommandLineTool
     {
       try
       {
-        pw = bindPasswordFile[serverIndex].getNonBlankFileLines().get(0);
+        pw = new String(getPasswordFileReader().readPassword(
+             bindPasswordFile[serverIndex].getValue()));
       }
       catch (final Exception e)
       {
