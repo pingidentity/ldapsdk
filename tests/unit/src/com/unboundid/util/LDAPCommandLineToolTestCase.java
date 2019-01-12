@@ -24,7 +24,10 @@ package com.unboundid.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.testng.annotations.Test;
 
@@ -674,8 +677,18 @@ public class LDAPCommandLineToolTestCase
     final InMemoryDirectoryServer ds = getTestDS();
 
     final File propertiesFile = createTempFile();
+    assertTrue(propertiesFile.delete());
+
+    OutputStream outputStream = new FileOutputStream(propertiesFile);
+    outputStream = new PassphraseEncryptedOutputStream("encryption-password",
+         outputStream);
+    outputStream = new GZIPOutputStream(outputStream);
+    outputStream.flush();
+    outputStream.close();
 
     final LDAPSearch ldapSearch = new LDAPSearch(null, null);
+    ldapSearch.getPasswordFileReader().addToEncryptionPasswordCache(
+         "encryption-password");
 
     final ResultCode rc = ldapSearch.runTool(
          "--propertiesFilePath", propertiesFile.getAbsolutePath(),

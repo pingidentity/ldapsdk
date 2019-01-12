@@ -27,9 +27,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
+import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
@@ -144,6 +148,10 @@ public final class ArgumentParser
   private static final long serialVersionUID = 3053102992180360269L;
 
 
+
+  // The command-line tool with which this argument parser is associated, if
+  // any.
+  private volatile CommandLineTool commandLineTool;
 
   // The properties file used to obtain arguments for this tool.
   private volatile File propertiesFileUsed;
@@ -442,6 +450,7 @@ public final class ArgumentParser
     subCommandsByName = new LinkedHashMap<>(StaticUtils.computeMapCapacity(20));
     propertiesFileUsed = null;
     argumentsSetFromPropertiesFile = new ArrayList<>(20);
+    commandLineTool = null;
   }
 
 
@@ -2189,6 +2198,20 @@ public final class ArgumentParser
 
 
   /**
+   * Sets the command-line tool with which this argument parser is associated.
+   *
+   * @param  commandLineTool  The command-line tool with which this argument
+   *                          parser is associated.  It may be {@code null} if
+   *                          there is no associated command-line tool.
+   */
+  public void setCommandLineTool(final CommandLineTool commandLineTool)
+  {
+    this.commandLineTool = commandLineTool;
+  }
+
+
+
+  /**
    * Performs the final validation for the provided argument parser.
    *
    * @param  parser  The argument parser for which to perform the final
@@ -2670,9 +2693,53 @@ public final class ArgumentParser
   {
     final String propertiesFilePath = propertiesFile.getAbsolutePath();
 
+    InputStream inputStream = null;
     final BufferedReader reader;
     try
     {
+      inputStream = new FileInputStream(propertiesFile);
+
+
+      // Handle the case in which the properties file may be encrypted.
+      final List<char[]> cachedPasswords;
+      final PrintStream err;
+      final PrintStream out;
+      final CommandLineTool tool = commandLineTool;
+      if (tool == null)
+      {
+        cachedPasswords = Collections.emptyList();
+        out = System.out;
+        err = System.err;
+      }
+      else
+      {
+        cachedPasswords =
+             tool.getPasswordFileReader().getCachedEncryptionPasswords();
+        out = tool.getOut();
+        err = tool.getErr();
+      }
+
+      final ObjectPair<InputStream,char[]> encryptionData =
+           ToolUtils.getPossiblyPassphraseEncryptedInputStream(inputStream,
+                cachedPasswords, true,
+                INFO_PARSER_PROMPT_FOR_PROP_FILE_ENC_PW.get(
+                     propertiesFile.getAbsolutePath()),
+                ERR_PARSER_WRONG_PROP_FILE_ENC_PW.get(
+                     propertiesFile.getAbsolutePath()),
+                out, err);
+
+      inputStream = encryptionData.getFirst();
+      if ((tool != null) && (encryptionData.getSecond() != null))
+      {
+        tool.getPasswordFileReader().addToEncryptionPasswordCache(
+             encryptionData.getSecond());
+      }
+
+
+      // Handle the case in which the properties file may be compressed.
+      inputStream = ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
+
+
       // The java.util.Properties specification states that properties files
       // should be read using the ISO 8859-1 character set, and that characters
       // that cannot be encoded in that format should be represented using
@@ -2681,11 +2748,23 @@ public final class ArgumentParser
       // Properties file format (except we also support the same property
       // appearing multiple times), we will also use that encoding and will
       // support Unicode escape sequences.
-      reader = new BufferedReader(new InputStreamReader(
-           new FileInputStream(propertiesFile), StandardCharsets.ISO_8859_1));
+      reader = new BufferedReader(new InputStreamReader(inputStream,
+           StandardCharsets.ISO_8859_1));
     }
     catch (final Exception e)
     {
+      if (inputStream != null)
+      {
+        try
+        {
+          inputStream.close();
+        }
+        catch (final Exception e2)
+        {
+          Debug.debugException(e2);
+        }
+      }
+
       Debug.debugException(e);
       throw new ArgumentException(
            ERR_PARSER_CANNOT_OPEN_PROP_FILE.get(propertiesFilePath,

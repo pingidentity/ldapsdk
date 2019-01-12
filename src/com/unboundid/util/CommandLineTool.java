@@ -1044,6 +1044,7 @@ public abstract class CommandLineTool
          getToolDescription(), getAdditionalDescriptionParagraphs(),
          getMinTrailingArguments(), getMaxTrailingArguments(),
          getTrailingArgumentsPlaceholder());
+    parser.setCommandLineTool(this);
 
     addToolArguments(parser);
 

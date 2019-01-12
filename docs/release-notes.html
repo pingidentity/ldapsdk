@@ -50,6 +50,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the command-line tool framework so that tools that support reading
+                  argument values from properties files now handle files that are optionally
+                  gzip-compressed and/or passphrase-encrypted.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a potential null pointer exception in <tt>ArgumentParser.toString</tt>
                   that could arise if the parser was created through serialization and there were
                   not any additional description paragraphs.  Also, eliminated an unnecessary

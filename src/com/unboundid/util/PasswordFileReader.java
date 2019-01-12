@@ -30,7 +30,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.unboundid.ldap.sdk.LDAPException;
@@ -267,6 +270,29 @@ public final class PasswordFileReader
         Debug.debugException(e);
       }
     }
+  }
+
+
+
+  /**
+   * Retrieves a list of the encryption passwords currently held in the cache.
+   *
+   * @return  A list of the encryption passwords currently held in the cache, or
+   *          an empty list if there are no cached passwords.
+   */
+  public List<char[]> getCachedEncryptionPasswords()
+  {
+    final ArrayList<char[]> cacheCopy;
+    synchronized (encryptionPasswordCache)
+    {
+      cacheCopy = new ArrayList<>(encryptionPasswordCache.size());
+      for (final char[] cachedPassword : encryptionPasswordCache)
+      {
+        cacheCopy.add(Arrays.copyOf(cachedPassword, cachedPassword.length));
+      }
+    }
+
+    return Collections.unmodifiableList(cacheCopy);
   }
 
 
