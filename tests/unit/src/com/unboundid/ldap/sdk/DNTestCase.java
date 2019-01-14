@@ -728,6 +728,8 @@ public class DNTestCase
          throws Exception
   {
     assertTrue(DN.isValidDN(s));
+    assertTrue(DN.isValidDN(s, false));
+    assertTrue(DN.isValidDN(s, true));
   }
 
 
@@ -744,6 +746,40 @@ public class DNTestCase
          throws Exception
   {
     assertFalse(DN.isValidDN(s));
+    assertFalse(DN.isValidDN(s, false));
+    assertFalse(DN.isValidDN(s, true));
+  }
+
+
+
+  /**
+   * Tests the {@code isValidDN} method with DNs that are invalid when it comes
+   * to having malformed attribute names or OIDs.
+   *
+   * @param  s  The string to test.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "testInvalidDNAttributes")
+  public void testIsValidDNWithInvalidAttributeNames(String s)
+         throws Exception
+  {
+    new DN(s);
+    new DN(s, null, false);
+
+    try
+    {
+      new DN(s, null, true);
+      fail("Expected an exception because of an invalid attribute name.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected.
+    }
+
+    assertTrue(DN.isValidDN(s));
+    assertTrue(DN.isValidDN(s, false));
+    assertFalse(DN.isValidDN(s, true));
   }
 
 
@@ -1564,6 +1600,9 @@ public class DNTestCase
     dnStringList.add("dc=example+o=example corp.+description=foo+a=,dc=com");
     normStringList.add("a=+dc=example+description=foo+o=example corp.,dc=com");
 
+    dnStringList.add("1.2.3.4=foo,5.6.7.8=bar");
+    normStringList.add("1.2.3.4=foo,5.6.7.8=bar");
+
     Object[][] returnArray = new Object[dnStringList.size()][2];
     for (int i=0; i < returnArray.length; i++)
     {
@@ -1625,6 +1664,30 @@ public class DNTestCase
     }
 
     return returnArray;
+  }
+
+
+
+  /**
+   * Retrieves a set of strings that can be used to create valid DNs only if
+   * strict name checking is enforced.
+   *
+   * @return  A set of strings that cannot be used to create valid DNs.
+   */
+  @DataProvider(name = "testInvalidDNAttributes")
+  public Object[][] getTestInvalidDNAttributes()
+  {
+    return new Object[][]
+    {
+      new Object[] { "attribute_with_underscore=foo" },
+      new Object[] { "_starts_with_underscore=foo" },
+      new Object[] { "-starts-with-hyphen=foo" },
+      new Object[] { "0-starts-with-number=foo" },
+      new Object[] { "1.2..3.4=foo" },
+      new Object[] { "valid=foo+_invalid=bar" },
+      new Object[] { "valid=foo,_invalid=bar" },
+      new Object[] { "<GUID=f3ddad46-4332-4871-ae1a-92aa29b0887f>" }
+    };
   }
 
 

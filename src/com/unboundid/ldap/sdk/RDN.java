@@ -348,7 +348,7 @@ public final class RDN
   public RDN(final String rdnString)
          throws LDAPException
   {
-    this(rdnString, (Schema) null);
+    this(rdnString, (Schema) null, false);
   }
 
 
@@ -368,6 +368,33 @@ public final class RDN
   public RDN(final String rdnString, final Schema schema)
          throws LDAPException
   {
+    this(rdnString, schema, false);
+  }
+
+
+
+  /**
+   * Creates a new RDN from the provided string representation.
+   *
+   * @param  rdnString           The string representation to use for this RDN.
+   *                             It must not be empty or {@code null}.
+   * @param  schema              The schema to use to generate the normalized
+   *                             string representation of this RDN.  It may be
+   *                             {@code null} if no schema is available.
+   * @param  strictNameChecking  Indicates whether to verify that all attribute
+   *                             type names are valid as per RFC 4514.  If this
+   *                             is {@code false}, then some technically invalid
+   *                             characters may be accepted in attribute type
+   *                             names.  If this is {@code true}, then names
+   *                             must be strictly compliant.
+   *
+   * @throws  LDAPException  If the provided string cannot be parsed as a valid
+   *                         RDN.
+   */
+  public RDN(final String rdnString, final Schema schema,
+             final boolean strictNameChecking)
+         throws LDAPException
+  {
     Validator.ensureNotNull(rdnString);
 
     this.rdnString = rdnString;
@@ -385,11 +412,7 @@ public final class RDN
       pos++;
     }
 
-    // Read until we find a space or an equal sign.  Technically, we should
-    // ensure that all characters before that point are ASCII letters, numeric
-    // digits, or dashes, or that it is a valid numeric OID, but since some
-    // directories allow technically invalid characters in attribute names,
-    // we'll just blindly take whatever is provided.
+    // Read until we find a space or an equal sign.
     int attrStartPos = pos;
     while (pos < length)
     {
@@ -402,8 +425,7 @@ public final class RDN
       pos++;
     }
 
-    // Extract the attribute name, then skip over any spaces between the
-    // attribute name and the equal sign.
+    // Extract the attribute name, and optionally verify that it is valid.
     String attrName = rdnString.substring(attrStartPos, pos);
     if (attrName.isEmpty())
     {
@@ -411,6 +433,18 @@ public final class RDN
            ERR_RDN_NO_ATTR_NAME.get(rdnString));
     }
 
+    if (strictNameChecking)
+    {
+      if (! (Attribute.nameIsValid(attrName) ||
+           StaticUtils.isNumericOID(attrName)))
+      {
+        throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+             ERR_RDN_INVALID_ATTR_NAME.get(rdnString, attrName));
+      }
+    }
+
+
+    // Skip over any spaces between the attribute name and the equal sign.
     while ((pos < length) && (rdnString.charAt(pos) == ' '))
     {
       pos++;
@@ -529,7 +563,7 @@ public final class RDN
         pos++;
       }
 
-      // Skip over any spaces between the attribute name and the equal sign.
+      // Extract and validate the attribute type name.
       attrName = rdnString.substring(attrStartPos, pos);
       if (attrName.isEmpty())
       {
@@ -537,6 +571,17 @@ public final class RDN
              ERR_RDN_NO_ATTR_NAME.get(rdnString));
       }
 
+      if (strictNameChecking)
+      {
+        if (! (Attribute.nameIsValid(attrName) ||
+             StaticUtils.isNumericOID(attrName)))
+        {
+          throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+               ERR_RDN_INVALID_ATTR_NAME.get(rdnString, attrName));
+        }
+      }
+
+      // Skip over any spaces between the attribute name and the equal sign.
       while ((pos < length) && (rdnString.charAt(pos) == ' '))
       {
         pos++;
@@ -1168,13 +1213,37 @@ valueLoop:
    */
   public static boolean isValidRDN(final String s)
   {
+    return isValidRDN(s, false);
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid RDN.
+   *
+   * @param  s                   The string for which to make the determination.
+   *                             It must not be {@code null}.
+   * @param  strictNameChecking  Indicates whether to verify that all attribute
+   *                             type names are valid as per RFC 4514.  If this
+   *                             is {@code false}, then some technically invalid
+   *                             characters may be accepted in attribute type
+   *                             names.  If this is {@code true}, then names
+   *                             must be strictly compliant.
+   *
+   * @return  {@code true} if the provided string represents a valid RDN, or
+   *          {@code false} if not.
+   */
+  public static boolean isValidRDN(final String s,
+                                   final boolean strictNameChecking)
+  {
     try
     {
-      new RDN(s);
+      new RDN(s, null, strictNameChecking);
       return true;
     }
     catch (final LDAPException le)
     {
+      Debug.debugException(le);
       return false;
     }
   }

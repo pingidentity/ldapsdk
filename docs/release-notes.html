@@ -25,6 +25,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added additional methods for improved DN and RDN validation that make it
+                  possible to require attribute names to strictly comply with the specification.
+                  Previously, the methods for creating and validating DNs and RDNs from strings
+                  were always lenient with what they would allow in attribute names because some
+                  servers are lenient.  That leniency is still the default for the sake of
+                  backward compatibility, but there is now an option to require strict compliance
+                  with the specification.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved support for TLSv1.3 in JVMs that support it (Java 11 and later).  The
                   LDAP SDK will now automatically enable support for TLSv1.3 if it is available,
                   and will prefer that protocol if the server also supports it, but can still

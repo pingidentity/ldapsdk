@@ -1251,6 +1251,8 @@ public class RDNTestCase
          throws Exception
   {
     assertTrue(RDN.isValidRDN(s));
+    assertTrue(RDN.isValidRDN(s, false));
+    assertTrue(RDN.isValidRDN(s, true));
   }
 
 
@@ -1267,6 +1269,40 @@ public class RDNTestCase
          throws Exception
   {
     assertFalse(RDN.isValidRDN(s));
+    assertFalse(RDN.isValidRDN(s, false));
+    assertFalse(RDN.isValidRDN(s, true));
+  }
+
+
+
+  /**
+   * Tests the {@code isValidRDN} method with RDNs that are invalid when it
+   * comes to having malformed attribute names or OIDs.
+   *
+   * @param  s  The string to test.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "testInvalidRDNAttributes")
+  public void testIsValidRDNWithInvalidAttributeNames(String s)
+         throws Exception
+  {
+    new RDN(s);
+    new RDN(s, null, false);
+
+    try
+    {
+      new RDN(s, null, true);
+      fail("Expected an exception from an invalid attribute name.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected.
+    }
+
+    assertTrue(RDN.isValidRDN(s));
+    assertTrue(RDN.isValidRDN(s, false));
+    assertFalse(RDN.isValidRDN(s, true));
   }
 
 
@@ -1819,6 +1855,12 @@ public class RDNTestCase
       {
         "cn=United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8",
         "cn=united states flag emoji \\f0\\9f\\87\\ba\\f0\\9f\\87\\b8"
+      },
+
+      new Object[]
+      {
+        "1.2.3.4=foo",
+        "1.2.3.4=foo"
       }
     };
   }
@@ -1856,6 +1898,29 @@ public class RDNTestCase
       new Object[] { "cn=quote in \" the middle" },
       new Object[] { "cn=\"value outside the \" quotes" },
       new Object[] { "not a valid RDN" },
+    };
+  }
+
+
+
+  /**
+   * Retrieves a set of strings that can be used to create valid RDNs only if
+   * strict name checking is enforced.
+   *
+   * @return  A set of strings that cannot be used to create valid DNs.
+   */
+  @DataProvider(name = "testInvalidRDNAttributes")
+  public Object[][] getTestInvalidDNAttributes()
+  {
+    return new Object[][]
+    {
+      new Object[] { "attribute_with_underscore=foo" },
+      new Object[] { "_starts_with_underscore=foo" },
+      new Object[] { "-starts-with-hyphen=foo" },
+      new Object[] { "0-starts-with-number=foo" },
+      new Object[] { "1.2..3.4=foo" },
+      new Object[] { "valid=foo+_invalid=bar" },
+      new Object[] { "<GUID=f3ddad46-4332-4871-ae1a-92aa29b0887f>" }
     };
   }
 

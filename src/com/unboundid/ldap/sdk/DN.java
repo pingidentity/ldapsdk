@@ -31,6 +31,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -281,7 +282,7 @@ public final class DN
   public DN(final String dnString)
          throws LDAPException
   {
-    this(dnString, null);
+    this(dnString, null, false);
   }
 
 
@@ -299,6 +300,33 @@ public final class DN
    *                         DN.
    */
   public DN(final String dnString, final Schema schema)
+         throws LDAPException
+  {
+    this(dnString, schema, false);
+  }
+
+
+
+  /**
+   * Creates a new DN from the provided string representation.
+   *
+   * @param  dnString            The string representation to use to create this
+   *                             DN.  It must not be {@code null}.
+   * @param  schema              The schema to use to generate the normalized
+   *                             string representation of this DN.  It may be
+   *                             {@code null} if no schema is available.
+   * @param  strictNameChecking  Indicates whether to verify that all attribute
+   *                             type names are valid as per RFC 4514.  If this
+   *                             is {@code false}, then some technically invalid
+   *                             characters may be accepted in attribute type
+   *                             names.  If this is {@code true}, then names
+   *                             must be strictly compliant.
+   *
+   * @throws  LDAPException  If the provided string cannot be parsed as a valid
+   *                         DN.
+   */
+  public DN(final String dnString, final Schema schema,
+            final boolean strictNameChecking)
          throws LDAPException
   {
     Validator.ensureNotNull(dnString);
@@ -366,6 +394,16 @@ rdnLoop:
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
              ERR_DN_NO_ATTR_IN_RDN.get(dnString));
+      }
+
+      if (strictNameChecking)
+      {
+        if (! (Attribute.nameIsValid(attrName) ||
+             StaticUtils.isNumericOID(attrName)))
+        {
+          throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+               ERR_DN_INVALID_ATTR_NAME.get(dnString, attrName));
+        }
       }
 
 
@@ -522,6 +560,16 @@ rdnLoop:
         {
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
                ERR_DN_NO_ATTR_IN_RDN.get(dnString));
+        }
+
+        if (strictNameChecking)
+        {
+          if (! (Attribute.nameIsValid(attrName) ||
+               StaticUtils.isNumericOID(attrName)))
+          {
+            throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+                 ERR_DN_INVALID_ATTR_NAME.get(dnString, attrName));
+          }
         }
 
 
@@ -704,13 +752,37 @@ rdnLoop:
    */
   public static boolean isValidDN(final String s)
   {
+    return isValidDN(s, false);
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid DN.
+   *
+   * @param  s                   The string for which to make the determination.
+   *                             It must not be {@code null}.
+   * @param  strictNameChecking  Indicates whether to verify that all attribute
+   *                             type names are valid as per RFC 4514.  If this
+   *                             is {@code false}, then some technically invalid
+   *                             characters may be accepted in attribute type
+   *                             names.  If this is {@code true}, then names
+   *                             must be strictly compliant.
+   *
+   * @return  {@code true} if the provided string represents a valid DN, or
+   *          {@code false} if not.
+   */
+  public static boolean isValidDN(final String s,
+                                  final boolean strictNameChecking)
+  {
     try
     {
-      new DN(s);
+      new DN(s, null, strictNameChecking);
       return true;
     }
     catch (final LDAPException le)
     {
+      Debug.debugException(le);
       return false;
     }
   }
