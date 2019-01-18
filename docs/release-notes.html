@@ -51,6 +51,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the in-memory directory server to reject search requests that include
+                  filters with approximate-match or extensible-match components.  The LDAP SDK
+                  does not support client-side evaluation for these filter types, but the
+                  in-memory directory server would previously just not return any matching entries
+                  in response to a search request using either of these filter types.  The new
+                  behavior is more correct and makes it easier to troubleshoot unexpected behavior
+                  for searches involving these filter types.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new <tt>PasswordFileReader</tt> class that makes it easier to read a
                   password from a file.  The password files may optionally be gzip-compressed
                   and/or passphrase-encrypted, and the reader validates that the file contains

@@ -44,6 +44,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
@@ -3402,6 +3403,258 @@ public final class InMemoryDirectoryServerTestCase
       new Control("1.2.3.5", false, new ASN1OctetString("foo")),
     };
     conn.close(unbindControls);
+  }
+
+
+
+  /**
+   * Tests to ensure that the server will return an error response when trying
+   * to perform a search with an unsupported filter type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSupportedFilterTypes()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+    try (LDAPConnection conn = ds.getConnection())
+    {
+      // Presence filters should always be supported on their own.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createPresenceFilter("objectClass")),
+           ResultCode.SUCCESS);
+
+      // Presence filters should always be supported inside an AND.
+      assertResultCodeEquals(conn,
+           new SearchRequest("dc=example,dc=com", SearchScope.BASE,
+                Filter.createANDFilter(
+                     Filter.createPresenceFilter("objectClass"),
+                     Filter.createPresenceFilter("uid"))),
+           ResultCode.SUCCESS);
+
+      // Presence filters should always be supported inside an OR.
+      assertResultCodeEquals(conn,
+           new SearchRequest("dc=example,dc=com", SearchScope.BASE,
+                Filter.createORFilter(
+                     Filter.createPresenceFilter("objectClass"),
+                     Filter.createPresenceFilter("uid"))),
+           ResultCode.SUCCESS);
+
+      // Presence filters should always be supported inside a NOT.
+      assertResultCodeEquals(conn,
+           new SearchRequest("dc=example,dc=com", SearchScope.BASE,
+                Filter.createNOTFilter(
+                     Filter.createPresenceFilter("objectClass"))),
+           ResultCode.SUCCESS);
+
+      // Equality filters should always be supported on their own.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createEqualityFilter("uid", "test.user")),
+           ResultCode.SUCCESS);
+
+      // Equality filters should always be supported inside an AND.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createANDFilter(
+                     Filter.createEqualityFilter("givenName", "Test"),
+                     Filter.createEqualityFilter("sn", "User"))),
+           ResultCode.SUCCESS);
+
+      // Equality filters should always be supported inside an OR.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createORFilter(
+                     Filter.createEqualityFilter("givenName", "Test"),
+                     Filter.createEqualityFilter("sn", "User"))),
+           ResultCode.SUCCESS);
+
+      // Equality filters should always be supported inside a NOT.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createNOTFilter(
+                     Filter.createEqualityFilter("uid", "test.user"))),
+           ResultCode.SUCCESS);
+
+      // Substring filters should always be supported on their own.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createSubstringFilter("givenName", "T", null, null)),
+           ResultCode.SUCCESS);
+
+      // Substring filters should always be supported inside an AND.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createANDFilter(
+                     Filter.createSubstringFilter("givenName", "T", null, null),
+                     Filter.createSubstringFilter("sn", "U", null, null))),
+           ResultCode.SUCCESS);
+
+      // Substring filters should always be supported inside an OR.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createORFilter(
+                     Filter.createSubstringFilter("givenName", "T", null, null),
+                     Filter.createSubstringFilter("sn", "U", null, null))),
+           ResultCode.SUCCESS);
+
+      // Substring filters should always be supported inside a NOT.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createNOTFilter(
+                     Filter.createSubstringFilter("givenName", "T", null,
+                          null))),
+           ResultCode.SUCCESS);
+
+      // Greater-or-equal filters should always be supported on their own.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createGreaterOrEqualFilter("givenName", "T")),
+           ResultCode.SUCCESS);
+
+      // Greater-or-equal filters should always be supported inside an AND.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createANDFilter(
+                     Filter.createGreaterOrEqualFilter("givenName", "T"),
+                     Filter.createGreaterOrEqualFilter("sn", "U"))),
+           ResultCode.SUCCESS);
+
+      // Greater-or-equal filters should always be supported inside an OR.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createORFilter(
+                     Filter.createGreaterOrEqualFilter("givenName", "T"),
+                     Filter.createGreaterOrEqualFilter("sn", "U"))),
+           ResultCode.SUCCESS);
+
+      // Greater-or-equal filters should always be supported inside a NOT.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createNOTFilter(
+                     Filter.createGreaterOrEqualFilter("givenName", "T"))),
+           ResultCode.SUCCESS);
+
+      // Less-or-equal filters should always be supported on their own.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createLessOrEqualFilter("givenName", "T")),
+           ResultCode.SUCCESS);
+
+      // Less-or-equal filters should always be supported inside an AND.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createANDFilter(
+                     Filter.createLessOrEqualFilter("givenName", "T"),
+                     Filter.createLessOrEqualFilter("sn", "U"))),
+           ResultCode.SUCCESS);
+
+      // Less-or-equal filters should always be supported inside an OR.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createORFilter(
+                     Filter.createLessOrEqualFilter("givenName", "T"),
+                     Filter.createLessOrEqualFilter("sn", "U"))),
+           ResultCode.SUCCESS);
+
+      // Less-or-equal filters should always be supported inside a NOT.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createNOTFilter(
+                     Filter.createLessOrEqualFilter("givenName", "T"))),
+           ResultCode.SUCCESS);
+
+      // Approximate-match filters should never be supported on their own.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createApproximateMatchFilter("givenName", "Test")),
+           ResultCode.INAPPROPRIATE_MATCHING);
+
+      // Approximate-match filters should never be supported inside an AND.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createANDFilter(
+                     Filter.createApproximateMatchFilter("givenName", "Test"),
+                     Filter.createApproximateMatchFilter("sn", "User"))),
+           ResultCode.INAPPROPRIATE_MATCHING);
+
+      // Approximate-match filters should never be supported inside an OR.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createORFilter(
+                     Filter.createApproximateMatchFilter("givenName", "Test"),
+                     Filter.createApproximateMatchFilter("sn", "User"))),
+           ResultCode.INAPPROPRIATE_MATCHING);
+
+      // Approximate-match filters should never be supported inside a NOT.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createNOTFilter(
+                     Filter.createApproximateMatchFilter("uid", "test.user"))),
+           ResultCode.INAPPROPRIATE_MATCHING);
+
+      // Extensible-match filters should never be supported on their own.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createExtensibleMatchFilter("givenName", null, false,
+                     "Test")),
+           ResultCode.INAPPROPRIATE_MATCHING);
+
+      // Extensible-match filters should never be supported inside an AND.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createANDFilter(
+                     Filter.createExtensibleMatchFilter("givenName", null,
+                          false, "Test"),
+                     Filter.createExtensibleMatchFilter("sn", null, false,
+                          "User"))),
+           ResultCode.INAPPROPRIATE_MATCHING);
+
+      // Extensible-match filters should never be supported inside an OR.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createORFilter(
+                     Filter.createExtensibleMatchFilter("givenName", null,
+                          false, "Test"),
+                     Filter.createExtensibleMatchFilter("sn", null, false,
+                          "User"))),
+           ResultCode.INAPPROPRIATE_MATCHING);
+
+      // Extensible-match filters should never be supported inside a NOT.
+      assertResultCodeEquals(conn,
+           new SearchRequest("uid=test.user,ou=People,dc=example,dc=com",
+                SearchScope.BASE,
+                Filter.createNOTFilter(
+                     Filter.createExtensibleMatchFilter("uid", null, false,
+                          "test.user"))),
+           ResultCode.INAPPROPRIATE_MATCHING);
+    }
   }
 
 

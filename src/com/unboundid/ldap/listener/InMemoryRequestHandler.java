@@ -3324,6 +3324,18 @@ public final class InMemoryRequestHandler
       final long processingStartTime = System.currentTimeMillis();
       sleepBeforeProcessing();
 
+      // Look at the filter and see if it contains any unsupported elements.
+      try
+      {
+        ensureFilterSupported(request.getFilter());
+      }
+      catch (final LDAPException le)
+      {
+        Debug.debugException(le);
+        return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+             le.getResultCode().intValue(), null, le.getMessage(), null));
+      }
+
       // Look at the time limit for the search request and see if sleeping
       // would have caused us to exceed that time limit.  It's extremely
       // unlikely that any search in the in-memory directory server would take
@@ -3824,6 +3836,61 @@ findEntriesAndRefs:
            new SearchResultDoneProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
                 null, null),
            responseControls);
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided filter is supported in the in-memory directory
+   * server.
+   *
+   * @param  filter  The filter being validated.
+   *
+   * @throws  LDAPException  If the provided filter is not acceptable.
+   */
+  private static void ensureFilterSupported(final Filter filter)
+          throws LDAPException
+  {
+    switch (filter.getFilterType())
+    {
+      case Filter.FILTER_TYPE_AND:
+      case Filter.FILTER_TYPE_OR:
+        // Make sure that all of the embedded components are supported.
+        for (final Filter component : filter.getComponents())
+        {
+          ensureFilterSupported(component);
+        }
+        return;
+
+      case Filter.FILTER_TYPE_NOT:
+        // Make sure that the embedded component is supported.
+        ensureFilterSupported(filter.getNOTComponent());
+        return;
+
+      case Filter.FILTER_TYPE_EQUALITY:
+      case Filter.FILTER_TYPE_SUBSTRING:
+      case Filter.FILTER_TYPE_GREATER_OR_EQUAL:
+      case Filter.FILTER_TYPE_LESS_OR_EQUAL:
+      case Filter.FILTER_TYPE_PRESENCE:
+        // These are always acceptable.
+        return;
+
+      case Filter.FILTER_TYPE_APPROXIMATE_MATCH:
+        // Approximate match filters are never supported.
+        throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
+             ERR_MEM_HANDLER_FILTER_UNSUPPORTED_APPROXIMATE_MATCH_FILTER.get());
+
+      case Filter.FILTER_TYPE_EXTENSIBLE_MATCH:
+        // Extensible match filters are never supported.
+        throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
+             ERR_MEM_HANDLER_FILTER_UNSUPPORTED_EXTENSIBLE_MATCH_FILTER.get());
+
+      default:
+        // Unrecognized filter types are never supported.
+        throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
+             ERR_MEM_HANDLER_FILTER_UNRECOGNIZED_FILTER_TYPE.get(
+                  StaticUtils.toHex(filter.getFilterType())));
     }
   }
 
