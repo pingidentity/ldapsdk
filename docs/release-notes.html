@@ -62,6 +62,20 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the <tt>ResultCode.isConnectionUsable</tt> methods so that
+                  <tt>UNWILLING_TO_PERFORM</tt> is no longer included in the set of result codes
+                  that will cause the LDAP SDK to suspect that the connection may no longer be
+                  usable.  Although it's possible that the connection may have become invalid,
+                  there are plenty of reasons that an LDAP server may return an
+                  <tt>UNWILLING_TO_PERFORM</tt> response for a connection that remains completely
+                  usable.  Since <tt>isConnectionUsable</tt> is often used to decide whether to
+                  keep the existing connection or to throw it away and replace it with a new one,
+                  being too prone to indicate that a connection is no longer usable can adversely
+                  impact application performance and increase load on the directory server.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new <tt>PasswordFileReader</tt> class that makes it easier to read a
                   password from a file.  The password files may optionally be gzip-compressed
                   and/or passphrase-encrypted, and the reader validates that the file contains

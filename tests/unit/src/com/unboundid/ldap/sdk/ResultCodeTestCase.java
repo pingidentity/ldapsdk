@@ -228,7 +228,7 @@ public class ResultCodeTestCase
       new Object[] { ResultCode.INSUFFICIENT_ACCESS_RIGHTS, false, true },
       new Object[] { ResultCode.BUSY, false, false },
       new Object[] { ResultCode.UNAVAILABLE, false, false },
-      new Object[] { ResultCode.UNWILLING_TO_PERFORM, false, false },
+      new Object[] { ResultCode.UNWILLING_TO_PERFORM, false, true },
       new Object[] { ResultCode.LOOP_DETECT, false, true },
       new Object[] { ResultCode.SORT_CONTROL_MISSING, false, true },
       new Object[] { ResultCode.OFFSET_RANGE_ERROR, false, true },

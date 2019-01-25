@@ -2143,7 +2143,6 @@ public final class ResultCode
       case PROTOCOL_ERROR_INT_VALUE:
       case BUSY_INT_VALUE:
       case UNAVAILABLE_INT_VALUE:
-      case UNWILLING_TO_PERFORM_INT_VALUE:
       case OTHER_INT_VALUE:
       case SERVER_DOWN_INT_VALUE:
       case LOCAL_ERROR_INT_VALUE:
