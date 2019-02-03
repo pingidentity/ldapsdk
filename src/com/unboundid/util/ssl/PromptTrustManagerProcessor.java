@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.Debug;
 import com.unboundid.util.ObjectPair;
@@ -543,14 +544,15 @@ final class PromptTrustManagerProcessor
       final InetAddress ip;
       try
       {
-        ip = InetAddress.getByName(s);
+        ip = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(s);
 
         for (final String expectedAddress : expectedAddresses)
         {
           if (IPAddressArgumentValueValidator.isValidNumericIPAddress(
                expectedAddress))
           {
-            if (ip.equals(InetAddress.getByName(expectedAddress)))
+            if (ip.equals(LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+                 getByName(expectedAddress)))
             {
               return true;
             }
@@ -611,7 +613,8 @@ final class PromptTrustManagerProcessor
       {
         if (IPAddressArgumentValueValidator.isValidNumericIPAddress(s))
         {
-          if (a.equals(InetAddress.getByName(s)))
+          if (a.equals(LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+               getByName(s)))
           {
             return true;
           }

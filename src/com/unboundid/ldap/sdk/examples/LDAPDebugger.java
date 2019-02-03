@@ -25,7 +25,6 @@ package com.unboundid.ldap.sdk.examples;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.util.LinkedHashMap;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -38,6 +37,7 @@ import com.unboundid.ldap.listener.LDAPListener;
 import com.unboundid.ldap.listener.LDAPListenerConfig;
 import com.unboundid.ldap.listener.ProxyRequestHandler;
 import com.unboundid.ldap.listener.ToCodeRequestHandler;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
@@ -477,8 +477,8 @@ public final class LDAPDebugger
     {
       try
       {
-        config.setListenAddress(
-             InetAddress.getByName(listenAddress.getValue()));
+        config.setListenAddress(LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+             getByName(listenAddress.getValue()));
       }
       catch (final Exception e)
       {

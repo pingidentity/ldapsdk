@@ -50,6 +50,7 @@ import com.unboundid.ldap.protocol.SearchResultReferenceProtocolOp;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -1032,7 +1033,8 @@ public final class LDAPListenerClientConnection
     final OutputStream clearOutputStream = outputStream;
 
     final Socket origSocket = socket;
-    final String hostname   = origSocket.getInetAddress().getHostName();
+    final String hostname   = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+         getHostName(origSocket.getInetAddress());
     final int port          = origSocket.getPort();
 
     try

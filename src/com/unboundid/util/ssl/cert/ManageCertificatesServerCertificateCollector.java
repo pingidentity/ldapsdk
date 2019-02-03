@@ -22,6 +22,7 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.cert.CertificateException;
@@ -36,6 +37,7 @@ import com.unboundid.ldap.protocol.ExtendedResponseProtocolOp;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.tools.ResultUtils;
@@ -171,7 +173,10 @@ final class ManageCertificatesServerCertificateCollector
     try
     {
       nonSecureSocket = new Socket();
-      nonSecureSocket.connect(new InetSocketAddress(hostname, port), 60);
+
+      final InetAddress address =
+           LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(hostname);
+      nonSecureSocket.connect(new InetSocketAddress(address, port), 60);
       if (verbose)
       {
         manageCertificates.wrapOut(0, WRAP_COLUMN,

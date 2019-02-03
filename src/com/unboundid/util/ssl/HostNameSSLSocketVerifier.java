@@ -33,6 +33,7 @@ import javax.net.ssl.SSLSocket;
 import javax.security.auth.x500.X500Principal;
 
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -288,7 +289,8 @@ public final class HostNameSSLSocketVerifier
               certInfo.append('\'');
 
               final InetAddress inetAddress =
-                   InetAddress.getByName(ipAddressString);
+                   LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+                        getByName(ipAddressString);
               if (Character.isDigit(host.charAt(0)) || (host.indexOf(':') >= 0))
               {
                 final InetAddress a = InetAddress.getByName(host);

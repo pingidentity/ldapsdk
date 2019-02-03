@@ -747,7 +747,7 @@ public final class LDAPConnection
     final InetAddress inetAddress;
     try
     {
-      inetAddress = InetAddress.getByName(host);
+      inetAddress = connectionOptions.getNameResolver().getByName(host);
     }
     catch (final Exception e)
     {
@@ -793,7 +793,8 @@ public final class LDAPConnection
                       final int timeout)
          throws LDAPException
   {
-    connect(inetAddress.getHostName(), inetAddress, port, timeout);
+    connect(connectionOptions.getNameResolver().getHostName(inetAddress),
+         inetAddress, port, timeout);
   }
 
 

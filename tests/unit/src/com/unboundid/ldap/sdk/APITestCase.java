@@ -465,6 +465,11 @@ public class APITestCase
       return;
     }
 
+    if (Modifier.isAbstract(c.getModifiers()))
+    {
+      return;
+    }
+
     if (Serializable.class.isAssignableFrom(c))
     {
       return;

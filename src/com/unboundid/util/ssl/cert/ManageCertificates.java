@@ -61,6 +61,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.unboundid.asn1.ASN1BitString;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
@@ -5877,7 +5878,8 @@ public final class ManageCertificates
       {
         try
         {
-          sanBuilder.addIPAddress(InetAddress.getByName(value));
+          sanBuilder.addIPAddress(LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+               getByName(value));
           sanValues.add("IP:" + value);
         }
         catch (final Exception e)
@@ -5960,7 +5962,8 @@ public final class ManageCertificates
       {
         try
         {
-          ianBuilder.addIPAddress(InetAddress.getByName(value));
+          ianBuilder.addIPAddress(LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+               getByName(value));
           ianValues.add("IP:" + value);
         }
         catch (final Exception e)

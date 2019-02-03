@@ -23,8 +23,8 @@ package com.unboundid.util.args;
 
 
 import java.io.Serializable;
-import java.net.InetAddress;
 
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -185,7 +185,7 @@ public final class IPAddressArgumentValueValidator
     // validation.
     try
     {
-      InetAddress.getByName(valueString);
+      LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(valueString);
     }
     catch (final Exception e)
     {
@@ -260,7 +260,7 @@ public final class IPAddressArgumentValueValidator
 
     try
     {
-      InetAddress.getByName(s);
+      LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(s);
       return true;
     }
     catch (final Exception e)
@@ -311,7 +311,7 @@ public final class IPAddressArgumentValueValidator
     {
       try
       {
-        InetAddress.getByName(s);
+        LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(s);
         return true;
       }
       catch (final Exception e)

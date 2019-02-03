@@ -76,6 +76,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new API that can be used to change the way that the LDAP SDK resolves
+                  names to IP addresses, and IP addresses to names.  The default implementation
+                  simply uses the JVM's standard name resolution methods, but a caching name
+                  resolver is also provided that can offer better performance and better
+                  resilience against name service outages.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new <tt>PasswordFileReader</tt> class that makes it easier to read a
                   password from a file.  The password files may optionally be gzip-compressed
                   and/or passphrase-encrypted, and the reader validates that the file contains

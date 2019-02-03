@@ -171,6 +171,8 @@ public class LDAPConnectionOptionsTestCase
     assertNotNull(opts.getSSLSocketVerifier());
     assertTrue(
          opts.getSSLSocketVerifier() instanceof TrustAllSSLSocketVerifier);
+
+    assertNotNull(opts.getNameResolver());
   }
 
 
@@ -239,6 +241,8 @@ public class LDAPConnectionOptionsTestCase
     assertEquals(dup.allowConcurrentSocketFactoryUse(),
          opts.allowConcurrentSocketFactoryUse());
     assertTrue(dup.getSSLSocketVerifier() instanceof HostNameSSLSocketVerifier);
+
+    assertNotNull(opts.getNameResolver());
   }
 
 
@@ -1209,6 +1213,38 @@ public class LDAPConnectionOptionsTestCase
     conn.close();
 
     ds.shutDown(true);
+  }
+
+
+
+  /**
+   * Tests the methods for interacting with the configured name resolver.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNameResolver()
+  {
+    final LDAPConnectionOptions opts = new LDAPConnectionOptions();
+
+    assertNotNull(opts.getNameResolver());
+    assertTrue(opts.getNameResolver() instanceof DefaultNameResolver);
+
+    assertNotNull(opts.toString());
+
+    opts.setNameResolver(new CachingNameResolver());
+
+    assertNotNull(opts.getNameResolver());
+    assertTrue(opts.getNameResolver() instanceof CachingNameResolver);
+
+    assertNotNull(opts.toString());
+
+    opts.setNameResolver(null);
+
+    assertNotNull(opts.getNameResolver());
+    assertTrue(opts.getNameResolver() instanceof DefaultNameResolver);
+
+    assertNotNull(opts.toString());
   }
 
 

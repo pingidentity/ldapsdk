@@ -908,6 +908,15 @@ public final class LDAPConnectionOptions
 
 
 
+  /**
+   * The default name resolver that will be used to resolve host names to IP
+   * addresses.
+   */
+  public static final NameResolver DEFAULT_NAME_RESOLVER =
+       DefaultNameResolver.getInstance();
+
+
+
   static
   {
     Long allOpsTimeout = null;
@@ -1157,6 +1166,9 @@ public final class LDAPConnectionOptions
 
   private Map<String,Long> responseTimeoutMillisByExtendedOperationType;
 
+  // The name resolver that will be used to resolve host names to IP addresses.
+  private NameResolver nameResolver;
+
   // Tne default referral connector that should be used for associated
   // connections.
   private ReferralConnector referralConnector;
@@ -1180,6 +1192,7 @@ public final class LDAPConnectionOptions
     bindWithDNRequiresPassword     = DEFAULT_BIND_WITH_DN_REQUIRES_PASSWORD;
     captureConnectStackTrace       = DEFAULT_CAPTURE_CONNECT_STACK_TRACE;
     followReferrals                = DEFAULT_FOLLOW_REFERRALS;
+    nameResolver                   = DEFAULT_NAME_RESOLVER;
     useKeepAlive                   = DEFAULT_USE_KEEPALIVE;
     useLinger                      = DEFAULT_USE_LINGER;
     useReuseAddress                = DEFAULT_USE_REUSE_ADDRESS;
@@ -1227,6 +1240,7 @@ public final class LDAPConnectionOptions
     o.bindWithDNRequiresPassword      = bindWithDNRequiresPassword;
     o.captureConnectStackTrace        = captureConnectStackTrace;
     o.followReferrals                 = followReferrals;
+    o.nameResolver                    = nameResolver;
     o.useKeepAlive                    = useKeepAlive;
     o.useLinger                       = useLinger;
     o.useReuseAddress                 = useReuseAddress;
@@ -1238,7 +1252,7 @@ public final class LDAPConnectionOptions
     o.lingerTimeoutSeconds            = lingerTimeoutSeconds;
     o.maxMessageSizeBytes             = maxMessageSizeBytes;
     o.pooledSchemaTimeoutMillis       = pooledSchemaTimeoutMillis;
-    o.responseTimeoutMillis            = responseTimeoutMillis;
+    o.responseTimeoutMillis           = responseTimeoutMillis;
     o.referralConnector               = referralConnector;
     o.referralHopLimit                = referralHopLimit;
     o.disconnectHandler               = disconnectHandler;
@@ -1320,6 +1334,41 @@ public final class LDAPConnectionOptions
   public void setAutoReconnect(final boolean autoReconnect)
   {
     this.autoReconnect = autoReconnect;
+  }
+
+
+
+  /**
+   * Retrieves the name resolver that should be used to resolve host names to IP
+   * addresses.
+   *
+   * @return  The name resolver that should be used to resolve host names to IP
+   *          addresses.
+   */
+  public NameResolver getNameResolver()
+  {
+    return nameResolver;
+  }
+
+
+
+  /**
+   * Sets the name resolver that should be used to resolve host names to IP
+   * addresses.
+   *
+   * @param  nameResolver  The name resolver that should be used to resolve host
+   *                       names to IP addresses.
+   */
+  public void setNameResolver(final NameResolver nameResolver)
+  {
+    if (nameResolver == null)
+    {
+      this.nameResolver = DEFAULT_NAME_RESOLVER;
+    }
+    else
+    {
+      this.nameResolver = nameResolver;
+    }
   }
 
 
@@ -2471,6 +2520,8 @@ public final class LDAPConnectionOptions
   {
     buffer.append("LDAPConnectionOptions(autoReconnect=");
     buffer.append(autoReconnect);
+    buffer.append(", nameResolver=");
+    nameResolver.toString(buffer);
     buffer.append(", bindWithDNRequiresPassword=");
     buffer.append(bindWithDNRequiresPassword);
     buffer.append(", followReferrals=");

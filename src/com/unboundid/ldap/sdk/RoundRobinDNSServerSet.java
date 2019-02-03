@@ -760,7 +760,7 @@ public final class RoundRobinDNSServerSet
     {
       if (jndiProperties == null)
       {
-        addresses = InetAddress.getAllByName(hostname);
+        addresses = connectionOptions.getNameResolver().getAllByName(hostname);
       }
       else
       {
@@ -940,7 +940,8 @@ public final class RoundRobinDNSServerSet
     // InetAddress.getByAddress.  But that requires the IP address to be
     // specified as a byte array, and the easiest way to convert an IP address
     // string to a byte array is to use InetAddress.getByName.
-    final InetAddress byName = InetAddress.getByName(String.valueOf(ipAddress));
+    final InetAddress byName = connectionOptions.getNameResolver().
+         getByName(String.valueOf(ipAddress));
     return InetAddress.getByAddress(hostname, byName.getAddress());
   }
 

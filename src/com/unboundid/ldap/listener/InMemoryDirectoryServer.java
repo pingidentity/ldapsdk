@@ -805,7 +805,8 @@ public final class InMemoryDirectoryServer
     {
       try
       {
-        hostAddress = InetAddress.getLocalHost().getHostAddress();
+        hostAddress = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+             getLocalHost().getHostAddress();
       }
       catch (final Exception e)
       {
