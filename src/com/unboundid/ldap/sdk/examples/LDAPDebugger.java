@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -36,6 +37,7 @@ import com.unboundid.ldap.listener.LDAPListenerRequestHandler;
 import com.unboundid.ldap.listener.LDAPListener;
 import com.unboundid.ldap.listener.LDAPListenerConfig;
 import com.unboundid.ldap.listener.ProxyRequestHandler;
+import com.unboundid.ldap.listener.SelfSignedCertificateGenerator;
 import com.unboundid.ldap.listener.ToCodeRequestHandler;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -44,6 +46,7 @@ import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -54,6 +57,9 @@ import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.ssl.KeyStoreKeyManager;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustAllTrustManager;
 
 
 
@@ -105,8 +111,15 @@ public final class LDAPDebugger
 
 
 
+  // The argument parser for this tool.
+  private ArgumentParser parser;
+
   // The argument used to specify the output file for the decoded content.
   private BooleanArgument listenUsingSSL;
+
+  // The argument used to indicate that the listener should generate a
+  // self-signed certificate instead of using an existing keystore.
+  private BooleanArgument generateSelfSignedCertificate;
 
   // The argument used to specify the code log file to use, if any.
   private FileArgument codeLogFile;
@@ -329,6 +342,8 @@ public final class LDAPDebugger
   public void addNonLDAPArguments(final ArgumentParser parser)
          throws ArgumentException
   {
+    this.parser = parser;
+
     String description = "The address on which to listen for client " +
          "connections.  If this is not provided, then it will listen on " +
          "all interfaces.";
@@ -349,11 +364,23 @@ public final class LDAPDebugger
 
     description = "Use SSL when accepting client connections.  This is " +
          "independent of the '--useSSL' option, which applies only to " +
-         "communication between the LDAP debugger and the backend server.";
+         "communication between the LDAP debugger and the backend server.  " +
+         "If this argument is provided, then either the --keyStorePath or " +
+         "the --generateSelfSignedCertificate argument must also be provided.";
     listenUsingSSL = new BooleanArgument('S', "listenUsingSSL", 1,
          description);
     listenUsingSSL.addLongIdentifier("listen-using-ssl", true);
     parser.addArgument(listenUsingSSL);
+
+
+    description = "Generate a self-signed certificate to present to clients " +
+         "when the --listenUsingSSL argument is provided.  This argument " +
+         "cannot be used in conjunction with the --keyStorePath argument.";
+    generateSelfSignedCertificate = new BooleanArgument(null,
+         "generateSelfSignedCertificate", 1, description);
+    generateSelfSignedCertificate.addLongIdentifier(
+         "generate-self-signed-certificate", true);
+    parser.addArgument(generateSelfSignedCertificate);
 
 
     description = "The path to the output file to be written.  If no value " +
@@ -374,24 +401,30 @@ public final class LDAPDebugger
     parser.addArgument(codeLogFile);
 
 
-    // If --listenUsingSSL is provided, then the --keyStorePath argument must
-    // also be provided.
+    // If --listenUsingSSL is provided, then either the --keyStorePath argument
+    // or the --generateSelfSignedCertificate argument must also be provided.
     final Argument keyStorePathArgument =
          parser.getNamedArgument("keyStorePath");
-    parser.addDependentArgumentSet(listenUsingSSL, keyStorePathArgument);
+    parser.addDependentArgumentSet(listenUsingSSL, keyStorePathArgument,
+         generateSelfSignedCertificate);
 
 
-    // If the listenUsingSSL argument is provided, then one of the
-    // --keyStorePassword, --keyStorePasswordFile, or
-    // --promptForKeyStorePassword arguments.
+    // The --generateSelfSignedCertificate argument cannot be used with any of
+    // the arguments pertaining to a key store path.
     final Argument keyStorePasswordArgument =
          parser.getNamedArgument("keyStorePassword");
     final Argument keyStorePasswordFileArgument =
          parser.getNamedArgument("keyStorePasswordFile");
     final Argument promptForKeyStorePasswordArgument =
          parser.getNamedArgument("promptForKeyStorePassword");
-    parser.addDependentArgumentSet(listenUsingSSL, keyStorePasswordArgument,
-         keyStorePasswordFileArgument, promptForKeyStorePasswordArgument);
+    parser.addExclusiveArgumentSet(generateSelfSignedCertificate,
+         keyStorePathArgument);
+    parser.addExclusiveArgumentSet(generateSelfSignedCertificate,
+         keyStorePasswordArgument);
+    parser.addExclusiveArgumentSet(generateSelfSignedCertificate,
+         keyStorePasswordFileArgument);
+    parser.addExclusiveArgumentSet(generateSelfSignedCertificate,
+         promptForKeyStorePasswordArgument);
   }
 
 
@@ -492,8 +525,25 @@ public final class LDAPDebugger
     {
       try
       {
-        config.setServerSocketFactory(
-             createSSLUtil(true).createSSLServerSocketFactory());
+        final SSLUtil sslUtil;
+        if (generateSelfSignedCertificate.isPresent())
+        {
+          final ObjectPair<File,char[]> keyStoreInfo =
+               SelfSignedCertificateGenerator.
+                    generateTemporarySelfSignedCertificate(getToolName(),
+                         "JKS");
+
+          sslUtil = new SSLUtil(
+               new KeyStoreKeyManager(keyStoreInfo.getFirst(),
+                    keyStoreInfo.getSecond(), "JKS", null),
+               new TrustAllTrustManager(false));
+        }
+        else
+        {
+          sslUtil = createSSLUtil(true);
+        }
+
+        config.setServerSocketFactory(sslUtil.createSSLServerSocketFactory());
       }
       catch (final Exception e)
       {

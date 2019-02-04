@@ -72,6 +72,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the <tt>ldap-debugger</tt> tool to add a
+                  <tt>--generateSelfSignedCertificate</tt> argument.  If the tool is configured
+                  to listen using SSL, then this argument can be given as an alternative to the
+                  <tt>--keyStorePath</tt> argument to indicate that the <tt>ldap-debugger</tt>
+                  should generate its own self-signed certificate instead of using one provided
+                  by the user.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>ResultCode.isConnectionUsable</tt> methods so that
                   <tt>UNWILLING_TO_PERFORM</tt> is no longer included in the set of result codes
                   that will cause the LDAP SDK to suspect that the connection may no longer be

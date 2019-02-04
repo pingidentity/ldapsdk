@@ -56,7 +56,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * use by a listener that supports SSL or StartTLS.
  */
 @ThreadSafety(level= ThreadSafetyLevel.NOT_THREADSAFE)
-final class SelfSignedCertificateGenerator
+public final class SelfSignedCertificateGenerator
 {
   /**
    * Prevent this utility class from being instantiated.
@@ -84,9 +84,9 @@ final class SelfSignedCertificateGenerator
    *                         temporary keystore containing the self-signed
    *                         certificate.
    */
-  static ObjectPair<File,char[]> generateTemporarySelfSignedCertificate(
-                                      final String toolName,
-                                      final String keyStoreType)
+  public static ObjectPair<File,char[]> generateTemporarySelfSignedCertificate(
+                                             final String toolName,
+                                             final String keyStoreType)
          throws CertException
   {
     final File keyStoreFile;
@@ -138,11 +138,11 @@ final class SelfSignedCertificateGenerator
    * @throws  CertException  If a problem occurs while trying to generate
    *                         self-signed certificate.
    */
-  static void generateSelfSignedCertificate(final String toolName,
-                                            final File keyStoreFile,
-                                            final String keyStorePIN,
-                                            final String keyStoreType,
-                                            final String alias)
+  public static void generateSelfSignedCertificate(final String toolName,
+                                                   final File keyStoreFile,
+                                                   final String keyStorePIN,
+                                                   final String keyStoreType,
+                                                   final String alias)
          throws CertException
   {
     // Try to get a list of all addresses associated with the system, and all of
