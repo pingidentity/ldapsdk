@@ -26,10 +26,14 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.StreamHandler;
@@ -38,6 +42,7 @@ import javax.net.ssl.TrustManager;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
@@ -45,6 +50,7 @@ import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -59,6 +65,7 @@ import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 import com.unboundid.util.ssl.TrustStoreTrustManager;
+import com.unboundid.util.ssl.cert.CertException;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
 
@@ -156,6 +163,10 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       along with exactly one of the "--useSSL" or "--useStartTLS" arguments.
  *       If this argument is not provided, then a default key store type of
  *       "JKS" will be assumed.</LI>
+ *   <LI>"--generateSelfSignedCertificate" -- indicates that the server should
+ *       generate a self-signed certificate to use for SSL or StartTLS
+ *       communication.  If this argument is provided, then exactly one of the
+ *       "--useSSL" or "--useStartTLS" arguments must also be specified.</LI>
  *   <LI>"-P {path}" or "--trustStorePath {path}" -- specifies the path to the
  *       JKS trust store file that should be used to determine whether to trust
  *       any SSL certificates that may be presented by the client.  If this
@@ -176,6 +187,23 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       be provided, along with exactly one of the "--useSSL" or
  *       "--useStartTLS" arguments.  If this argument is not provided, then a
  *       default trust store type of "JKS" will be assumed.</LI>
+ *   <LI>"--maxConcurrentConnections {num}" -- specifies the maximum number of
+ *       concurrent connections that the server will allow.</LI>
+ *   <LI>"--sizeLimit {num}" -- specifies the maximum number of entries that
+ *       the server will reeturn for a single search operation.</LI>
+ *   <LI>"--passwordAttribute {attr}" -- specifies an attribute that will hold
+ *       user passwords.</LI>
+ *   <LI>"--defaultPasswordEncoding {scheme}" -- specifies the name of the
+ *       default scheme that the server will use to encode clear-text
+ *       passwords.  Allowed values include MD5, SMD5, SHA, SSHA, SHA256,
+ *       SSHA256, SHA384, SSHA384, SHA512, SSHA512, CLEAR, BASE64, and HEX.</LI>
+ *   <LI>"--allowedOperationType {type}" -- specifies a type of operation that
+ *       the server will allow.  Allowed values include add, bind, compare,
+ *       delete, extended, modify, modify-dn, and search.</LI>
+ *   <LI>"--authenticationRequiredOperationType {type}" -- specifies a type of
+ *       operation that the server will only allow for authenticated clients.
+ *       Allowed values include add, compare, delete, extended, modify,
+ *       modify-dn, and search.</LI>
  *   <LI>"--vendorName {name}" -- specifies the vendor name value to appear in
  *       the server root DSE.</LI>
  *   <LI>"--vendorVersion {version}" -- specifies the vendor version value to
@@ -202,6 +230,10 @@ public final class InMemoryDirectoryServerTool
   // The argument used to prevent the in-memory server from starting.  This is
   // only intended to be used for internal testing purposes.
   private BooleanArgument dontStartArgument;
+
+  // The argument used to indicate that the server should generate a self-signed
+  // certificate for use in SSL or StartTLS negotiation.
+  private BooleanArgument generateSelfSignedCertificateArgument;
 
   // The argument used to indicate that LDAP debug log information should be
   // written to standard output.
@@ -257,11 +289,28 @@ public final class InMemoryDirectoryServerTool
   // the server should maintain.
   private IntegerArgument maxChangeLogEntriesArgument;
 
+  // The argument used to specify the maximum number of concurrent connections.
+  private IntegerArgument maxConcurrentConnectionsArgument;
+
   // The argument used to specify the port on which the server should listen.
   private IntegerArgument portArgument;
 
+  // The argument used to specify the maximum search size limit.
+  private IntegerArgument sizeLimitArgument;
+
   // The argument used to specify the password for the additional bind DN.
   private StringArgument additionalBindPasswordArgument;
+
+  // The argument used to specify the types of allowed operations.
+  private StringArgument allowedOperationTypeArgument;
+
+  // The argument used to specify the types of operations for which
+  // authentication is required.
+  private StringArgument authenticationRequiredOperationTypeArgument;
+
+  // The argument used to specify the name of the default encoding scheme to use
+  // use for clear-text passwords.
+  private StringArgument defaultPasswordEncodingArgument;
 
   // The argument used to specify the attributes for which to maintain equality
   // indexes.
@@ -273,6 +322,9 @@ public final class InMemoryDirectoryServerTool
 
   // The argument used to specify the key store type.
   private StringArgument keyStoreTypeArgument;
+
+  // The argument used to specify the password attribute types.
+  private StringArgument passwordAttributeArgument;
 
   // The argument used to specify the password to use to access the contents of
   // the SSL trust store
@@ -351,31 +403,38 @@ public final class InMemoryDirectoryServerTool
   {
     super(outStream, errStream);
 
-    directoryServer                   = null;
-    dontStartArgument                 = null;
-    useDefaultSchemaArgument          = null;
-    useSSLArgument                    = null;
-    useStartTLSArgument               = null;
-    additionalBindDNArgument          = null;
-    baseDNArgument                    = null;
-    accessLogToStandardOutArgument    = null;
-    accessLogFileArgument             = null;
-    keyStorePathArgument              = null;
+    directoryServer = null;
+    dontStartArgument = null;
+    generateSelfSignedCertificateArgument = null;
+    useDefaultSchemaArgument = null;
+    useSSLArgument = null;
+    useStartTLSArgument = null;
+    additionalBindDNArgument = null;
+    baseDNArgument = null;
+    accessLogToStandardOutArgument = null;
+    accessLogFileArgument = null;
+    keyStorePathArgument = null;
     ldapDebugLogToStandardOutArgument = null;
-    ldapDebugLogFileArgument          = null;
-    ldifFileArgument                  = null;
-    trustStorePathArgument            = null;
-    useSchemaFileArgument             = null;
-    maxChangeLogEntriesArgument       = null;
-    portArgument                      = null;
-    additionalBindPasswordArgument    = null;
-    equalityIndexArgument             = null;
-    keyStorePasswordArgument          = null;
-    keyStoreTypeArgument              = null;
-    trustStorePasswordArgument        = null;
-    trustStoreTypeArgument            = null;
-    vendorNameArgument                = null;
-    vendorVersionArgument             = null;
+    ldapDebugLogFileArgument = null;
+    ldifFileArgument = null;
+    trustStorePathArgument = null;
+    useSchemaFileArgument = null;
+    maxChangeLogEntriesArgument = null;
+    maxConcurrentConnectionsArgument = null;
+    portArgument = null;
+    sizeLimitArgument = null;
+    additionalBindPasswordArgument = null;
+    allowedOperationTypeArgument = null;
+    authenticationRequiredOperationTypeArgument = null;
+    defaultPasswordEncodingArgument = null;
+    equalityIndexArgument = null;
+    keyStorePasswordArgument = null;
+    keyStoreTypeArgument = null;
+    passwordAttributeArgument = null;
+    trustStorePasswordArgument = null;
+    trustStoreTypeArgument = null;
+    vendorNameArgument = null;
+    vendorVersionArgument = null;
   }
 
 
@@ -465,13 +524,31 @@ public final class InMemoryDirectoryServerTool
     parser.addArgument(keyStorePasswordArgument);
 
     keyStoreTypeArgument = new StringArgument(null, "keyStoreType",
-         false, 1, "{type}", "The keystore type.", "JKS");
+         false, 1, "{type}", INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_TYPE.get(),
+         "JKS");
     keyStoreTypeArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     keyStoreTypeArgument.addLongIdentifier("keyStoreFormat", true);
     keyStoreTypeArgument.addLongIdentifier("key-store-type", true);
     keyStoreTypeArgument.addLongIdentifier("key-store-format", true);
     parser.addArgument(keyStoreTypeArgument);
+
+    generateSelfSignedCertificateArgument = new BooleanArgument(null,
+         "generateSelfSignedCertificate", 1,
+         INFO_MEM_DS_TOOL_ARG_DESC_SELF_SIGNED_CERT.get());
+    generateSelfSignedCertificateArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
+    generateSelfSignedCertificateArgument.addLongIdentifier(
+         "useSelfSignedCertificate", true);
+    generateSelfSignedCertificateArgument.addLongIdentifier(
+         "selfSignedCertificate", true);
+    generateSelfSignedCertificateArgument.addLongIdentifier(
+         "generate-self-signed-certificate", true);
+    generateSelfSignedCertificateArgument.addLongIdentifier(
+         "use-self-signed-certificate", true);
+    generateSelfSignedCertificateArgument.addLongIdentifier(
+         "self-signed-certificate", true);
+    parser.addArgument(generateSelfSignedCertificateArgument);
 
     trustStorePathArgument = new FileArgument('P', "trustStorePath", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
@@ -494,13 +571,36 @@ public final class InMemoryDirectoryServerTool
     parser.addArgument(trustStorePasswordArgument);
 
     trustStoreTypeArgument = new StringArgument(null, "trustStoreType",
-         false, 1, "{type}", "The trust store type.", "JKS");
+         false, 1, "{type}", INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_TYPE.get(),
+         "JKS");
     trustStoreTypeArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     trustStoreTypeArgument.addLongIdentifier("trustStoreFormat", true);
     trustStoreTypeArgument.addLongIdentifier("trust-store-type", true);
     trustStoreTypeArgument.addLongIdentifier("trust-store-format", true);
     parser.addArgument(trustStoreTypeArgument);
+
+    maxConcurrentConnectionsArgument = new IntegerArgument(null,
+         "maxConcurrentConnections", false, 1, null,
+         INFO_MEM_DS_TOOL_ARG_DESC_MAX_CONNECTIONS.get(), 1,
+         Integer.MAX_VALUE, Integer.MAX_VALUE);
+    maxConcurrentConnectionsArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
+    maxConcurrentConnectionsArgument.addLongIdentifier(
+         "maximumConcurrentConnections", true);
+    maxConcurrentConnectionsArgument.addLongIdentifier(
+         "maxConnections", true);
+    maxConcurrentConnectionsArgument.addLongIdentifier(
+         "maximumConnections", true);
+    maxConcurrentConnectionsArgument.addLongIdentifier(
+         "max-concurrent-connections", true);
+    maxConcurrentConnectionsArgument.addLongIdentifier(
+         "maximum-concurrent-connections", true);
+    maxConcurrentConnectionsArgument.addLongIdentifier(
+         "max-connections", true);
+    maxConcurrentConnectionsArgument.addLongIdentifier(
+         "maximum-connections", true);
+    parser.addArgument(maxConcurrentConnectionsArgument);
 
     dontStartArgument = new BooleanArgument(null, "dontStart",
          INFO_MEM_DS_TOOL_ARG_DESC_DONT_START.get());
@@ -582,6 +682,87 @@ public final class InMemoryDirectoryServerTool
          true);
     parser.addArgument(maxChangeLogEntriesArgument);
 
+    sizeLimitArgument = new IntegerArgument(null, "sizeLimit", false, 1, null,
+         INFO_MEM_DS_TOOL_ARG_DESC_SIZE_LIMIT.get(), 1, Integer.MAX_VALUE,
+         Integer.MAX_VALUE);
+    sizeLimitArgument.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    sizeLimitArgument.addLongIdentifier("searchSizeLimit", true);
+    sizeLimitArgument.addLongIdentifier("size-limit", true);
+    sizeLimitArgument.addLongIdentifier("search-size-limit", true);
+    parser.addArgument(sizeLimitArgument);
+
+    passwordAttributeArgument = new StringArgument(null, "passwordAttribute",
+         false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_ATTR.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_PASSWORD_ATTRIBUTE.get(), "userPassword");
+    passwordAttributeArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    passwordAttributeArgument.addLongIdentifier("passwordAttributeType", true);
+    passwordAttributeArgument.addLongIdentifier("password-attribute", true);
+    passwordAttributeArgument.addLongIdentifier("password-attribute-type",
+         true);
+    parser.addArgument(passwordAttributeArgument);
+
+    final Set<String> allowedSchemes = StaticUtils.setOf("md5", "smd5", "sha",
+         "ssha", "sha256", "ssha256", "sha384", "ssha384", "sha512", "ssha512",
+         "clear", "base64", "hex");
+    defaultPasswordEncodingArgument = new StringArgument(null,
+         "defaultPasswordEncoding", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_SCHEME.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_DEFAULT_PASSWORD_ENCODING.get(),
+         allowedSchemes);
+    defaultPasswordEncodingArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    defaultPasswordEncodingArgument.addLongIdentifier(
+         "defaultPasswordEncodingScheme", true);
+    defaultPasswordEncodingArgument.addLongIdentifier(
+         "defaultPasswordStorageScheme", true);
+    defaultPasswordEncodingArgument.addLongIdentifier(
+         "defaultPasswordScheme", true);
+    defaultPasswordEncodingArgument.addLongIdentifier(
+         "default-password-encoding", true);
+    defaultPasswordEncodingArgument.addLongIdentifier(
+         "default-password-encoding-scheme", true);
+    defaultPasswordEncodingArgument.addLongIdentifier(
+         "default-password-storage-scheme", true);
+    defaultPasswordEncodingArgument.addLongIdentifier(
+         "default-password-scheme", true);
+    parser.addArgument(defaultPasswordEncodingArgument);
+
+    final Set<String> allowedOperationTypeAllowedValues = StaticUtils.setOf(
+         "add", "bind", "compare", "delete", "extended", "modify", "modify-dn",
+         "search");
+    allowedOperationTypeArgument = new StringArgument(null,
+         "allowedOperationType", false, 0,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_TYPE.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_ALLOWED_OP_TYPE.get(),
+         allowedOperationTypeAllowedValues);
+    allowedOperationTypeArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    allowedOperationTypeArgument.addLongIdentifier("allowed-operation-type",
+         true);
+    parser.addArgument(allowedOperationTypeArgument);
+
+    final Set<String> authRequiredTypeAllowedValues = StaticUtils.setOf("add",
+         "compare", "delete", "extended", "modify", "modify-dn", "search");
+    authenticationRequiredOperationTypeArgument = new StringArgument(null,
+         "authenticationRequiredOperationType", false, 0,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_TYPE.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_AUTH_REQUIRED_OP_TYPE.get(),
+         authRequiredTypeAllowedValues);
+    authenticationRequiredOperationTypeArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    authenticationRequiredOperationTypeArgument.addLongIdentifier(
+         "requiredAuthenticationOperationType", true);
+    authenticationRequiredOperationTypeArgument.addLongIdentifier(
+         "requireAuthenticationOperationType", true);
+    authenticationRequiredOperationTypeArgument.addLongIdentifier(
+         "authentication-required-operation-type", true);
+    authenticationRequiredOperationTypeArgument.addLongIdentifier(
+         "required-authentication-operation-type", true);
+    authenticationRequiredOperationTypeArgument.addLongIdentifier(
+         "require-authentication-operation-type", true);
+    parser.addArgument(authenticationRequiredOperationTypeArgument);
+
     vendorNameArgument = new StringArgument(null, "vendorName", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_NAME.get());
@@ -642,30 +823,52 @@ public final class InMemoryDirectoryServerTool
 
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,
          useSchemaFileArgument);
+
     parser.addExclusiveArgumentSet(useSSLArgument, useStartTLSArgument);
+
+    parser.addExclusiveArgumentSet(keyStorePathArgument,
+         generateSelfSignedCertificateArgument);
 
     parser.addExclusiveArgumentSet(accessLogToStandardOutArgument,
          accessLogFileArgument);
+
     parser.addExclusiveArgumentSet(ldapDebugLogToStandardOutArgument,
          ldapDebugLogFileArgument);
 
     parser.addDependentArgumentSet(additionalBindDNArgument,
          additionalBindPasswordArgument);
+
     parser.addDependentArgumentSet(additionalBindPasswordArgument,
          additionalBindDNArgument);
 
-    parser.addDependentArgumentSet(useSSLArgument, keyStorePathArgument);
-    parser.addDependentArgumentSet(useSSLArgument, keyStorePasswordArgument);
-    parser.addDependentArgumentSet(useStartTLSArgument, keyStorePathArgument);
-    parser.addDependentArgumentSet(useStartTLSArgument,
+    parser.addDependentArgumentSet(useSSLArgument, keyStorePathArgument,
+         generateSelfSignedCertificateArgument);
+
+    parser.addDependentArgumentSet(keyStorePathArgument,
          keyStorePasswordArgument);
+
+    parser.addDependentArgumentSet(keyStorePasswordArgument,
+         keyStorePathArgument);
+
+    parser.addDependentArgumentSet(keyStoreTypeArgument,
+         keyStorePathArgument);
+
+    parser.addDependentArgumentSet(useStartTLSArgument, keyStorePathArgument,
+         generateSelfSignedCertificateArgument);
+
     parser.addDependentArgumentSet(keyStorePathArgument, useSSLArgument,
          useStartTLSArgument);
-    parser.addDependentArgumentSet(keyStorePasswordArgument, useSSLArgument,
-         useStartTLSArgument);
+
+    parser.addDependentArgumentSet(generateSelfSignedCertificateArgument,
+         useSSLArgument, useStartTLSArgument);
+
     parser.addDependentArgumentSet(trustStorePathArgument, useSSLArgument,
          useStartTLSArgument);
+
     parser.addDependentArgumentSet(trustStorePasswordArgument,
+         trustStorePathArgument);
+
+    parser.addDependentArgumentSet(trustStoreTypeArgument,
          trustStorePathArgument);
   }
 
@@ -899,6 +1102,162 @@ public final class InMemoryDirectoryServerTool
     }
 
 
+    // If a maximum number of concurrent connections was specified, then update
+    // the configuration with that.
+    if (maxConcurrentConnectionsArgument.isPresent())
+    {
+      serverConfig.setMaxConnections(
+           maxConcurrentConnectionsArgument.getValue());
+    }
+
+
+    // If a size limit was specified, then update the configuration with that.
+    if (sizeLimitArgument.isPresent())
+    {
+      serverConfig.setMaxSizeLimit(sizeLimitArgument.getValue());
+    }
+
+
+    // If the password argument was specified, then set the password arguments.
+    if (passwordAttributeArgument.isPresent())
+    {
+      serverConfig.setPasswordAttributes(passwordAttributeArgument.getValues());
+    }
+
+
+    // Configure password encodings for the server.
+    final LinkedHashMap<String,InMemoryPasswordEncoder> passwordEncoders =
+         new LinkedHashMap<>(10);
+    addUnsaltedEncoder("MD5", "MD5", passwordEncoders);
+    addUnsaltedEncoder("SHA", "SHA-1", passwordEncoders);
+    addUnsaltedEncoder("SHA1", "SHA-1", passwordEncoders);
+    addUnsaltedEncoder("SHA-1", "SHA-1", passwordEncoders);
+    addUnsaltedEncoder("SHA256", "SHA-256", passwordEncoders);
+    addUnsaltedEncoder("SHA-256", "SHA-256", passwordEncoders);
+    addUnsaltedEncoder("SHA384", "SHA-384", passwordEncoders);
+    addUnsaltedEncoder("SHA-384", "SHA-384", passwordEncoders);
+    addUnsaltedEncoder("SHA512", "SHA-512", passwordEncoders);
+    addUnsaltedEncoder("SHA-512", "SHA-512", passwordEncoders);
+    addSaltedEncoder("SMD5", "MD5", passwordEncoders);
+    addSaltedEncoder("SSHA", "SHA-1", passwordEncoders);
+    addSaltedEncoder("SSHA1", "SHA-1", passwordEncoders);
+    addSaltedEncoder("SSHA-1", "SHA-1", passwordEncoders);
+    addSaltedEncoder("SSHA256", "SHA-256", passwordEncoders);
+    addSaltedEncoder("SSHA-256", "SHA-256", passwordEncoders);
+    addSaltedEncoder("SSHA384", "SHA-384", passwordEncoders);
+    addSaltedEncoder("SSHA-384", "SHA-384", passwordEncoders);
+    addSaltedEncoder("SSHA512", "SHA-512", passwordEncoders);
+    addSaltedEncoder("SSHA-512", "SHA-512", passwordEncoders);
+    addClearEncoder("CLEAR", null, passwordEncoders);
+    addClearEncoder("BASE64",
+         Base64PasswordEncoderOutputFormatter.getInstance(), passwordEncoders);
+    addClearEncoder("HEX",
+         HexPasswordEncoderOutputFormatter.getLowercaseInstance(),
+         passwordEncoders);
+
+    final InMemoryPasswordEncoder primaryEncoder;
+    if (defaultPasswordEncodingArgument.isPresent())
+    {
+      primaryEncoder = passwordEncoders.remove(
+           StaticUtils.toLowerCase(defaultPasswordEncodingArgument.getValue()));
+      if (primaryEncoder == null)
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_MEM_DS_TOOL_UNAVAILABLE_PW_ENCODING.get(
+                  defaultPasswordEncodingArgument.getValue(),
+                  String.valueOf(passwordEncoders.keySet())));
+      }
+    }
+    else
+    {
+      primaryEncoder = null;
+    }
+
+    serverConfig.setPasswordEncoders(primaryEncoder,
+         passwordEncoders.values());
+
+
+    // Configure the allowed operation types.
+    if (allowedOperationTypeArgument.isPresent())
+    {
+      final EnumSet<OperationType> operationTypes =
+           EnumSet.noneOf(OperationType.class);
+      for (final String operationTypeName :
+           allowedOperationTypeArgument.getValues())
+      {
+        final OperationType name = OperationType.forName(operationTypeName);
+        if (name == null)
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_MEM_DS_TOOL_UNSUPPORTED_ALLOWED_OP_TYPE.get(name));
+        }
+        else
+        {
+          switch (name)
+          {
+            case ADD:
+            case BIND:
+            case COMPARE:
+            case DELETE:
+            case EXTENDED:
+            case MODIFY:
+            case MODIFY_DN:
+            case SEARCH:
+              operationTypes.add(name);
+              break;
+            case ABANDON:
+            case UNBIND:
+            default:
+              throw new LDAPException(ResultCode.PARAM_ERROR,
+                   ERR_MEM_DS_TOOL_UNSUPPORTED_ALLOWED_OP_TYPE.get(name));
+          }
+        }
+      }
+
+      serverConfig.setAllowedOperationTypes(operationTypes);
+    }
+
+
+    // Configure the authentication required operation types.
+    if (authenticationRequiredOperationTypeArgument.isPresent())
+    {
+      final EnumSet<OperationType> operationTypes =
+           EnumSet.noneOf(OperationType.class);
+      for (final String operationTypeName :
+           authenticationRequiredOperationTypeArgument.getValues())
+      {
+        final OperationType name = OperationType.forName(operationTypeName);
+        if (name == null)
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_MEM_DS_TOOL_UNSUPPORTED_AUTH_REQUIRED_OP_TYPE.get(name));
+        }
+        else
+        {
+          switch (name)
+          {
+            case ADD:
+            case COMPARE:
+            case DELETE:
+            case EXTENDED:
+            case MODIFY:
+            case MODIFY_DN:
+            case SEARCH:
+              operationTypes.add(name);
+              break;
+            case ABANDON:
+            case UNBIND:
+            default:
+              throw new LDAPException(ResultCode.PARAM_ERROR,
+                   ERR_MEM_DS_TOOL_UNSUPPORTED_AUTH_REQUIRED_OP_TYPE.get(name));
+          }
+        }
+      }
+
+      serverConfig.setAuthenticationRequiredOperationTypes(operationTypes);
+    }
+
+
     // If an access log file was specified, then create the appropriate log
     // handler.
     if (accessLogToStandardOutArgument.isPresent())
@@ -977,12 +1336,39 @@ public final class InMemoryDirectoryServerTool
     // If SSL is to be used, then create the corresponding socket factories.
     if (useSSLArgument.isPresent() || useStartTLSArgument.isPresent())
     {
+      final File keyStorePath;
+      final char[] keyStorePIN;
+      final String keyStoreType;
+      if (keyStorePathArgument.isPresent())
+      {
+        keyStorePath = keyStorePathArgument.getValue();
+        keyStorePIN = keyStorePasswordArgument.getValue().toCharArray();
+        keyStoreType = keyStoreTypeArgument.getValue();
+      }
+      else
+      {
+        try
+        {
+          keyStoreType = "JKS";
+          final ObjectPair<File,char[]> keyStoreInfo =
+               SelfSignedCertificateGenerator.
+                    generateTemporarySelfSignedCertificate(
+                         getToolName(), keyStoreType);
+          keyStorePath = keyStoreInfo.getFirst();
+          keyStorePIN = keyStoreInfo.getSecond();
+        }
+        catch (final CertException e)
+        {
+          Debug.debugException(e);
+          throw new LDAPException(ResultCode.LOCAL_ERROR, e.getMessage(), e);
+        }
+      }
+
+
       try
       {
-        final KeyManager keyManager = new KeyStoreKeyManager(
-             keyStorePathArgument.getValue(),
-             keyStorePasswordArgument.getValue().toCharArray(),
-             keyStoreTypeArgument.getValue(), null);
+        final KeyManager keyManager = new KeyStoreKeyManager(keyStorePath,
+             keyStorePIN, keyStoreType, null);
 
         final TrustManager trustManager;
         if (trustStorePathArgument.isPresent())
@@ -1060,6 +1446,91 @@ public final class InMemoryDirectoryServerTool
     }
 
     return serverConfig;
+  }
+
+
+
+  /**
+   * Updates the map with an unsalted password encoder with the provided
+   * information.
+   *
+   * @param  schemeName       The name to use to identify the scheme, without
+   *                          the curly braces.
+   * @param  digestAlgorithm  The name of the message digest algorithm to use
+   *                          for the password encoder.
+   * @param  encoderMap       The map to which the encoder will bea added.
+   */
+  private static void addUnsaltedEncoder(final String schemeName,
+                           final String digestAlgorithm,
+                           final Map<String,InMemoryPasswordEncoder> encoderMap)
+  {
+    try
+    {
+      final UnsaltedMessageDigestInMemoryPasswordEncoder encoder =
+           new UnsaltedMessageDigestInMemoryPasswordEncoder(
+                '{' + schemeName + '}',
+                Base64PasswordEncoderOutputFormatter.getInstance(),
+                MessageDigest.getInstance(digestAlgorithm));
+      encoderMap.put(StaticUtils.toLowerCase(schemeName), encoder);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+  }
+
+
+
+  /**
+   * Updates the map with a salted password encoder with the provided
+   * information.
+   *
+   * @param  schemeName       The name to use to identify the scheme, without
+   *                          the curly braces.
+   * @param  digestAlgorithm  The name of the message digest algorithm to use
+   *                          for the password encoder.
+   * @param  encoderMap       The map to which the encoder will bea added.
+   */
+  private static void addSaltedEncoder(final String schemeName,
+                           final String digestAlgorithm,
+                           final Map<String,InMemoryPasswordEncoder> encoderMap)
+  {
+    try
+    {
+      final SaltedMessageDigestInMemoryPasswordEncoder encoder =
+           new SaltedMessageDigestInMemoryPasswordEncoder(
+                '{' + schemeName + '}',
+                Base64PasswordEncoderOutputFormatter.getInstance(),
+                MessageDigest.getInstance(digestAlgorithm), 8, true, true);
+      encoderMap.put(StaticUtils.toLowerCase(schemeName), encoder);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+  }
+
+
+
+  /**
+   * Updates the map with a clear-text password encoder with the provided
+   * information.
+   *
+   * @param  schemeName       The name to use to identify the scheme, without
+   *                          the curly braces.
+   * @param  outputFormatter  The output formatter to use.  It may be
+   *                          {@code null} if the output should remain in the
+   *                          clear.
+   * @param  encoderMap       The map to which the encoder will bea added.
+   */
+  private static void addClearEncoder(final String schemeName,
+                           final PasswordEncoderOutputFormatter outputFormatter,
+                           final Map<String,InMemoryPasswordEncoder> encoderMap)
+  {
+    final ClearInMemoryPasswordEncoder encoder =
+         new ClearInMemoryPasswordEncoder('{' + schemeName + '}',
+              outputFormatter);
+    encoderMap.put(StaticUtils.toLowerCase(schemeName), encoder);
   }
 
 

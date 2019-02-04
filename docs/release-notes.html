@@ -62,6 +62,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the <tt>in-memory-directory-server</tt> command-line tool to add
+                  support for a number of new arguments, including
+                  <tt>--generateSelfSignedCertificate</tt>, <tt>--maxConcurrentConnections</tt>,
+                  <tt>--sizeLimit</tt>, <tt>--passwordAttribute</tt>,
+                  <tt>--defaultPasswordEncoding</tt>, <tt>--allowedOperationType</tt>, and
+                  <tt>--authenticationRequiredOperationType</tt>.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>ResultCode.isConnectionUsable</tt> methods so that
                   <tt>UNWILLING_TO_PERFORM</tt> is no longer included in the set of result codes
                   that will cause the LDAP SDK to suspect that the connection may no longer be
