@@ -29,6 +29,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocket;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.StaticUtils;
@@ -147,6 +148,11 @@ final class ConnectThread
         s.connect(new InetSocketAddress(address, port), connectTimeoutMillis);
       }
       connected.set(true);
+
+      if (s instanceof SSLSocket)
+      {
+        ((SSLSocket) s).startHandshake();
+      }
     }
     catch (final Throwable t)
     {

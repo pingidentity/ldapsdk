@@ -51,6 +51,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the process for establishing a secure connection to immediately start
+                  the TLS handshake on the socket, rather than waiting for it to happen on the
+                  first attempt to communicate over the connection.  This can help ensure that the
+                  connection is ready to use more quickly, and can help avoid timing issues in
+                  certain cases where the prompt trust manager is used in other interactive
+                  applications that prompt for user input.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the in-memory directory server to reject search requests that include
                   filters with approximate-match or extensible-match components.  The LDAP SDK
                   does not support client-side evaluation for these filter types, but the
