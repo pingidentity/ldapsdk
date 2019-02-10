@@ -88,7 +88,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *                  ... },
  *             controls       [0] Controls OPTIONAL,
  *             ... },
- *        }
+ *        ... }
  * </PRE>
  *
  * @see MultiUpdateChangesApplied
