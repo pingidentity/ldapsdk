@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -912,13 +913,13 @@ public final class LDAPConnectionOptions
    * The default name resolver that will be used to resolve host names to IP
    * addresses.
    */
-  public static final NameResolver DEFAULT_NAME_RESOLVER =
-       DefaultNameResolver.getInstance();
+  public static final NameResolver DEFAULT_NAME_RESOLVER;
 
 
 
   static
   {
+    // Get the default response timeout for all types of operations.
     Long allOpsTimeout = null;
     final EnumMap<OperationType,Long> timeoutsByOpType =
          new EnumMap<>(OperationType.class);
@@ -959,6 +960,8 @@ public final class LDAPConnectionOptions
       }
     }
 
+
+    // Get the default response timeout for each type of operation.
     if (allOpsTimeout == null)
     {
       allOpsTimeout = 300_000L;
@@ -1008,6 +1011,9 @@ public final class LDAPConnectionOptions
         }
       }
 
+
+      // Get the default response timeout for different types of extended
+      // operations.
       final Long extendedOpTimeout = getSystemProperty(
            PROPERTY_DEFAULT_EXTENDED_RESPONSE_TIMEOUT_MILLIS, null);
       if (extendedOpTimeout == null)
@@ -1051,11 +1057,33 @@ public final class LDAPConnectionOptions
       }
     }
 
+
+    // Get the default name resolver to use.  If the LDAP SDK is running with
+    // access to the Ping Identity Directory Server's codebase, then we'll use
+    // the server's default name resolver instead of the LDAP SDK's.
+    NameResolver defaultNameResolver = DefaultNameResolver.getInstance();
+    try
+    {
+      final Class<?> nrClass = Class.forName(
+           "com.unboundid.directory.server.util.OutageSafeDnsCache");
+      final Method getNameResolverMethod = nrClass.getMethod("getNameResolver");
+      defaultNameResolver = (NameResolver) getNameResolverMethod.invoke(null);
+    }
+    catch (final Exception e)
+    {
+      // This is fine.  It just means that we're not running with access to the
+      // server codebase (or a version of the server codebase that supports the
+      // LDAP SDK's name resolver API).
+      Debug.debugException(Level.FINEST, e);
+    }
+
+
     DEFAULT_RESPONSE_TIMEOUT_MILLIS = allOpsTimeout;
     DEFAULT_RESPONSE_TIMEOUT_MILLIS_BY_OPERATION_TYPE =
          Collections.unmodifiableMap(timeoutsByOpType);
     DEFAULT_RESPONSE_TIMEOUT_MILLIS_BY_EXTENDED_OPERATION_TYPE =
          Collections.unmodifiableMap(timeoutsByExtOpType);
+    DEFAULT_NAME_RESOLVER = defaultNameResolver;
   }
 
 
