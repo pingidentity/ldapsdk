@@ -36,9 +36,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.testng.annotations.DataProvider;
@@ -2782,6 +2784,231 @@ public class StaticUtilsTestCase
 
     assertEquals(StaticUtils.linkedHashSetOf("foo", "bar"),
          new LinkedHashSet<>(Arrays.asList("foo", "bar")));
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code treeSetOf} method.
+   *
+   * @throws  Exception  If an unexpected error occurs.
+   */
+  @Test()
+  public void testTreeSetOf()
+         throws Exception
+  {
+    assertEquals(StaticUtils.treeSetOf(), new TreeSet<>());
+
+    assertEquals(StaticUtils.treeSetOf("foo"),
+         new TreeSet<>(Collections.singleton("foo")));
+
+    assertEquals(StaticUtils.treeSetOf("foo", "bar"),
+         new TreeSet<>(Arrays.asList("foo", "bar")));
+  }
+
+
+
+  /**
+   * Tests the {@code mapOf} methods that take varying numbers of key-value
+   * pairs.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMapOfVariousSizes()
+         throws Exception
+  {
+    final Map<String,Integer> m1 = StaticUtils.mapOf("k1", 1);
+    assertNotNull(m1);
+    assertEquals(m1.size(), 1);
+    assertEquals(m1.get("k1"), Integer.valueOf(1));
+
+    final Map<String,Integer> m2 = StaticUtils.mapOf("k1", 1, "k2", 2);
+    assertNotNull(m2);
+    assertEquals(m2.size(), 2);
+    assertEquals(m2.get("k1"), Integer.valueOf(1));
+    assertEquals(m2.get("k2"), Integer.valueOf(2));
+
+    final Map<String,Integer> m3 = StaticUtils.mapOf("k1", 1, "k2", 2, "k3", 3);
+    assertNotNull(m3);
+    assertEquals(m3.size(), 3);
+    assertEquals(m3.get("k1"), Integer.valueOf(1));
+    assertEquals(m3.get("k2"), Integer.valueOf(2));
+    assertEquals(m3.get("k3"), Integer.valueOf(3));
+
+    final Map<String,Integer> m4 = StaticUtils.mapOf("k1", 1, "k2", 2, "k3", 3,
+         "k4", 4);
+    assertNotNull(m4);
+    assertEquals(m4.size(), 4);
+    assertEquals(m4.get("k1"), Integer.valueOf(1));
+    assertEquals(m4.get("k2"), Integer.valueOf(2));
+    assertEquals(m4.get("k3"), Integer.valueOf(3));
+    assertEquals(m4.get("k4"), Integer.valueOf(4));
+
+    final Map<String,Integer> m5 = StaticUtils.mapOf("k1", 1, "k2", 2, "k3", 3,
+         "k4", 4, "k5", 5);
+    assertNotNull(m5);
+    assertEquals(m5.size(), 5);
+    assertEquals(m5.get("k1"), Integer.valueOf(1));
+    assertEquals(m5.get("k2"), Integer.valueOf(2));
+    assertEquals(m5.get("k3"), Integer.valueOf(3));
+    assertEquals(m5.get("k4"), Integer.valueOf(4));
+    assertEquals(m5.get("k5"), Integer.valueOf(5));
+
+    final Map<String,Integer> m6 = StaticUtils.mapOf("k1", 1, "k2", 2, "k3", 3,
+         "k4", 4, "k5", 5, "k6", 6);
+    assertNotNull(m6);
+    assertEquals(m6.size(), 6);
+    assertEquals(m6.get("k1"), Integer.valueOf(1));
+    assertEquals(m6.get("k2"), Integer.valueOf(2));
+    assertEquals(m6.get("k3"), Integer.valueOf(3));
+    assertEquals(m6.get("k4"), Integer.valueOf(4));
+    assertEquals(m6.get("k5"), Integer.valueOf(5));
+    assertEquals(m6.get("k6"), Integer.valueOf(6));
+
+    final Map<String,Integer> m7 = StaticUtils.mapOf("k1", 1, "k2", 2, "k3", 3,
+         "k4", 4, "k5", 5, "k6", 6, "k7", 7);
+    assertNotNull(m7);
+    assertEquals(m7.size(), 7);
+    assertEquals(m7.get("k1"), Integer.valueOf(1));
+    assertEquals(m7.get("k2"), Integer.valueOf(2));
+    assertEquals(m7.get("k3"), Integer.valueOf(3));
+    assertEquals(m7.get("k4"), Integer.valueOf(4));
+    assertEquals(m7.get("k5"), Integer.valueOf(5));
+    assertEquals(m7.get("k6"), Integer.valueOf(6));
+    assertEquals(m7.get("k7"), Integer.valueOf(7));
+
+    final Map<String,Integer> m8 = StaticUtils.mapOf("k1", 1, "k2", 2, "k3", 3,
+         "k4", 4, "k5", 5, "k6", 6, "k7", 7, "k8", 8);
+    assertNotNull(m8);
+    assertEquals(m8.size(), 8);
+    assertEquals(m8.get("k1"), Integer.valueOf(1));
+    assertEquals(m8.get("k2"), Integer.valueOf(2));
+    assertEquals(m8.get("k3"), Integer.valueOf(3));
+    assertEquals(m8.get("k4"), Integer.valueOf(4));
+    assertEquals(m8.get("k5"), Integer.valueOf(5));
+    assertEquals(m8.get("k6"), Integer.valueOf(6));
+    assertEquals(m8.get("k7"), Integer.valueOf(7));
+    assertEquals(m8.get("k8"), Integer.valueOf(8));
+
+    final Map<String,Integer> m9 = StaticUtils.mapOf("k1", 1, "k2", 2, "k3", 3,
+         "k4", 4, "k5", 5, "k6", 6, "k7", 7, "k8", 8, "k9", 9);
+    assertNotNull(m9);
+    assertEquals(m9.size(), 9);
+    assertEquals(m9.get("k1"), Integer.valueOf(1));
+    assertEquals(m9.get("k2"), Integer.valueOf(2));
+    assertEquals(m9.get("k3"), Integer.valueOf(3));
+    assertEquals(m9.get("k4"), Integer.valueOf(4));
+    assertEquals(m9.get("k5"), Integer.valueOf(5));
+    assertEquals(m9.get("k6"), Integer.valueOf(6));
+    assertEquals(m9.get("k7"), Integer.valueOf(7));
+    assertEquals(m9.get("k8"), Integer.valueOf(8));
+    assertEquals(m9.get("k9"), Integer.valueOf(9));
+
+    final Map<String,Integer> m10 = StaticUtils.mapOf("k1", 1, "k2", 2, "k3", 3,
+         "k4", 4, "k5", 5, "k6", 6, "k7", 7, "k8", 8, "k9", 9, "k10", 10);
+    assertNotNull(m10);
+    assertEquals(m10.size(), 10);
+    assertEquals(m10.get("k1"), Integer.valueOf(1));
+    assertEquals(m10.get("k2"), Integer.valueOf(2));
+    assertEquals(m10.get("k3"), Integer.valueOf(3));
+    assertEquals(m10.get("k4"), Integer.valueOf(4));
+    assertEquals(m10.get("k5"), Integer.valueOf(5));
+    assertEquals(m10.get("k6"), Integer.valueOf(6));
+    assertEquals(m10.get("k7"), Integer.valueOf(7));
+    assertEquals(m10.get("k8"), Integer.valueOf(8));
+    assertEquals(m10.get("k9"), Integer.valueOf(9));
+    assertEquals(m10.get("k10"), Integer.valueOf(10));
+  }
+
+
+
+  /**
+   * Tests the {@code mapOf} method that takes keys and values of the same type
+   * provided as varargs with keys in even-numbered indexes and values in
+   * odd-numbered indexes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMapOfArray()
+         throws Exception
+  {
+    final Map<String,String> m1 = StaticUtils.mapOf();
+    assertNotNull(m1);
+    assertTrue(m1.isEmpty());
+
+    final Map<String,String> m2 = StaticUtils.mapOf((String[]) null);
+    assertNotNull(m2);
+    assertTrue(m2.isEmpty());
+
+    try
+    {
+      StaticUtils.mapOf("foo");
+    }
+    catch (final LDAPSDKUsageException e)
+    {
+      // This was expected.
+    }
+
+    final Map<String,String> m3 = StaticUtils.mapOf("key1", "value1",
+         "key2", "value2", "key3", "value3", "key4", "value4", "key5", "value5",
+         "key6", "value6", "key7", "value7", "key8", "value8", "key9", "value9",
+         "key10", "value10", "key11", "value11", "key12", "value12");
+    assertNotNull(m3);
+    assertEquals(m3.size(), 12);
+    assertEquals(m3.get("key1"), "value1");
+    assertEquals(m3.get("key2"), "value2");
+    assertEquals(m3.get("key3"), "value3");
+    assertEquals(m3.get("key4"), "value4");
+    assertEquals(m3.get("key5"), "value5");
+    assertEquals(m3.get("key6"), "value6");
+    assertEquals(m3.get("key7"), "value7");
+    assertEquals(m3.get("key8"), "value8");
+    assertEquals(m3.get("key9"), "value9");
+    assertEquals(m3.get("key10"), "value10");
+    assertEquals(m3.get("key11"), "value11");
+    assertEquals(m3.get("key12"), "value12");
+  }
+
+
+
+  /**
+   * Tests the {@code mapOfObjectPairs} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMapOfObjecttPairs()
+         throws Exception
+  {
+    final Map<String,Integer> m1 = StaticUtils.mapOfObjectPairs();
+    assertNotNull(m1);
+    assertTrue(m1.isEmpty());
+
+    final Map<String,Integer> m2 = StaticUtils.mapOfObjectPairs(null);
+    assertNotNull(m2);
+    assertTrue(m2.isEmpty());
+
+    final Map<String,Integer> m3 = StaticUtils.mapOfObjectPairs(
+         new ObjectPair<>("k1", 1));
+    assertNotNull(m3);
+    assertEquals(m3.size(), 1);
+    assertEquals(m3.get("k1"), Integer.valueOf(1));
+
+    final Map<String,Integer> m4 = StaticUtils.mapOfObjectPairs(
+         new ObjectPair<>("k1", 1),
+         new ObjectPair<>("k2", 2),
+         new ObjectPair<>("k3", 3),
+         new ObjectPair<>("k4", 4),
+         new ObjectPair<>("k5", 5));
+    assertNotNull(m4);
+    assertEquals(m4.size(), 5);
+    assertEquals(m4.get("k1"), Integer.valueOf(1));
+    assertEquals(m4.get("k2"), Integer.valueOf(2));
+    assertEquals(m4.get("k3"), Integer.valueOf(3));
+    assertEquals(m4.get("k4"), Integer.valueOf(4));
+    assertEquals(m4.get("k5"), Integer.valueOf(5));
   }
 
 

@@ -38,12 +38,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import com.unboundid.ldap.sdk.Attribute;
@@ -3507,6 +3510,473 @@ public final class StaticUtils
   public static <T> LinkedHashSet<T> linkedHashSetOf(final T... items)
   {
     return new LinkedHashSet<>(Arrays.asList(items));
+  }
+
+
+
+  /**
+   * Creates a {@code TreeSet} containing the provided items.
+   *
+   * @param  <T>    The type of item to include in the set.
+   * @param  items  The items to include in the set.  It must not be
+   *                {@code null}, but may be empty.
+   *
+   * @return  A {@code LinkedHashSet} containing the provided items.
+   */
+  public static <T> TreeSet<T> treeSetOf(final T... items)
+  {
+    return new TreeSet<>(Arrays.asList(items));
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>    The type for the map keys.
+   * @param  <V>    The type for the map values.
+   * @param  key    The only key to include in the map.
+   * @param  value  The only value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key, final V value)
+  {
+    return Collections.singletonMap(key, value);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>     The type for the map keys.
+   * @param  <V>     The type for the map values.
+   * @param  key1    The first key to include in the map.
+   * @param  value1  The first value to include in the map.
+   * @param  key2    The second key to include in the map.
+   * @param  value2  The second value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(2));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>     The type for the map keys.
+   * @param  <V>     The type for the map values.
+   * @param  key1    The first key to include in the map.
+   * @param  value1  The first value to include in the map.
+   * @param  key2    The second key to include in the map.
+   * @param  value2  The second value to include in the map.
+   * @param  key3    The third key to include in the map.
+   * @param  value3  The third value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2,
+                                     final K key3, final V value3)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(3));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+    map.put(key3, value3);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>     The type for the map keys.
+   * @param  <V>     The type for the map values.
+   * @param  key1    The first key to include in the map.
+   * @param  value1  The first value to include in the map.
+   * @param  key2    The second key to include in the map.
+   * @param  value2  The second value to include in the map.
+   * @param  key3    The third key to include in the map.
+   * @param  value3  The third value to include in the map.
+   * @param  key4    The fourth key to include in the map.
+   * @param  value4  The fourth value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2,
+                                     final K key3, final V value3,
+                                     final K key4, final V value4)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(4));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+    map.put(key3, value3);
+    map.put(key4, value4);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>     The type for the map keys.
+   * @param  <V>     The type for the map values.
+   * @param  key1    The first key to include in the map.
+   * @param  value1  The first value to include in the map.
+   * @param  key2    The second key to include in the map.
+   * @param  value2  The second value to include in the map.
+   * @param  key3    The third key to include in the map.
+   * @param  value3  The third value to include in the map.
+   * @param  key4    The fourth key to include in the map.
+   * @param  value4  The fourth value to include in the map.
+   * @param  key5    The fifth key to include in the map.
+   * @param  value5  The fifth value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2,
+                                     final K key3, final V value3,
+                                     final K key4, final V value4,
+                                     final K key5, final V value5)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(5));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+    map.put(key3, value3);
+    map.put(key4, value4);
+    map.put(key5, value5);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>     The type for the map keys.
+   * @param  <V>     The type for the map values.
+   * @param  key1    The first key to include in the map.
+   * @param  value1  The first value to include in the map.
+   * @param  key2    The second key to include in the map.
+   * @param  value2  The second value to include in the map.
+   * @param  key3    The third key to include in the map.
+   * @param  value3  The third value to include in the map.
+   * @param  key4    The fourth key to include in the map.
+   * @param  value4  The fourth value to include in the map.
+   * @param  key5    The fifth key to include in the map.
+   * @param  value5  The fifth value to include in the map.
+   * @param  key6    The sixth key to include in the map.
+   * @param  value6  The sixth value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2,
+                                     final K key3, final V value3,
+                                     final K key4, final V value4,
+                                     final K key5, final V value5,
+                                     final K key6, final V value6)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(6));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+    map.put(key3, value3);
+    map.put(key4, value4);
+    map.put(key5, value5);
+    map.put(key6, value6);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>     The type for the map keys.
+   * @param  <V>     The type for the map values.
+   * @param  key1    The first key to include in the map.
+   * @param  value1  The first value to include in the map.
+   * @param  key2    The second key to include in the map.
+   * @param  value2  The second value to include in the map.
+   * @param  key3    The third key to include in the map.
+   * @param  value3  The third value to include in the map.
+   * @param  key4    The fourth key to include in the map.
+   * @param  value4  The fourth value to include in the map.
+   * @param  key5    The fifth key to include in the map.
+   * @param  value5  The fifth value to include in the map.
+   * @param  key6    The sixth key to include in the map.
+   * @param  value6  The sixth value to include in the map.
+   * @param  key7    The seventh key to include in the map.
+   * @param  value7  The seventh value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2,
+                                     final K key3, final V value3,
+                                     final K key4, final V value4,
+                                     final K key5, final V value5,
+                                     final K key6, final V value6,
+                                     final K key7, final V value7)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(7));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+    map.put(key3, value3);
+    map.put(key4, value4);
+    map.put(key5, value5);
+    map.put(key6, value6);
+    map.put(key7, value7);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>     The type for the map keys.
+   * @param  <V>     The type for the map values.
+   * @param  key1    The first key to include in the map.
+   * @param  value1  The first value to include in the map.
+   * @param  key2    The second key to include in the map.
+   * @param  value2  The second value to include in the map.
+   * @param  key3    The third key to include in the map.
+   * @param  value3  The third value to include in the map.
+   * @param  key4    The fourth key to include in the map.
+   * @param  value4  The fourth value to include in the map.
+   * @param  key5    The fifth key to include in the map.
+   * @param  value5  The fifth value to include in the map.
+   * @param  key6    The sixth key to include in the map.
+   * @param  value6  The sixth value to include in the map.
+   * @param  key7    The seventh key to include in the map.
+   * @param  value7  The seventh value to include in the map.
+   * @param  key8    The eighth key to include in the map.
+   * @param  value8  The eighth value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2,
+                                     final K key3, final V value3,
+                                     final K key4, final V value4,
+                                     final K key5, final V value5,
+                                     final K key6, final V value6,
+                                     final K key7, final V value7,
+                                     final K key8, final V value8)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(8));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+    map.put(key3, value3);
+    map.put(key4, value4);
+    map.put(key5, value5);
+    map.put(key6, value6);
+    map.put(key7, value7);
+    map.put(key8, value8);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>     The type for the map keys.
+   * @param  <V>     The type for the map values.
+   * @param  key1    The first key to include in the map.
+   * @param  value1  The first value to include in the map.
+   * @param  key2    The second key to include in the map.
+   * @param  value2  The second value to include in the map.
+   * @param  key3    The third key to include in the map.
+   * @param  value3  The third value to include in the map.
+   * @param  key4    The fourth key to include in the map.
+   * @param  value4  The fourth value to include in the map.
+   * @param  key5    The fifth key to include in the map.
+   * @param  value5  The fifth value to include in the map.
+   * @param  key6    The sixth key to include in the map.
+   * @param  value6  The sixth value to include in the map.
+   * @param  key7    The seventh key to include in the map.
+   * @param  value7  The seventh value to include in the map.
+   * @param  key8    The eighth key to include in the map.
+   * @param  value8  The eighth value to include in the map.
+   * @param  key9    The ninth key to include in the map.
+   * @param  value9  The ninth value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2,
+                                     final K key3, final V value3,
+                                     final K key4, final V value4,
+                                     final K key5, final V value5,
+                                     final K key6, final V value6,
+                                     final K key7, final V value7,
+                                     final K key8, final V value8,
+                                     final K key9, final V value9)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(9));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+    map.put(key3, value3);
+    map.put(key4, value4);
+    map.put(key5, value5);
+    map.put(key6, value6);
+    map.put(key7, value7);
+    map.put(key8, value8);
+    map.put(key9, value9);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>      The type for the map keys.
+   * @param  <V>      The type for the map values.
+   * @param  key1     The first key to include in the map.
+   * @param  value1   The first value to include in the map.
+   * @param  key2     The second key to include in the map.
+   * @param  value2   The second value to include in the map.
+   * @param  key3     The third key to include in the map.
+   * @param  value3   The third value to include in the map.
+   * @param  key4     The fourth key to include in the map.
+   * @param  value4   The fourth value to include in the map.
+   * @param  key5     The fifth key to include in the map.
+   * @param  value5   The fifth value to include in the map.
+   * @param  key6     The sixth key to include in the map.
+   * @param  value6   The sixth value to include in the map.
+   * @param  key7     The seventh key to include in the map.
+   * @param  value7   The seventh value to include in the map.
+   * @param  key8     The eighth key to include in the map.
+   * @param  value8   The eighth value to include in the map.
+   * @param  key9     The ninth key to include in the map.
+   * @param  value9   The ninth value to include in the map.
+   * @param  key10    The tenth key to include in the map.
+   * @param  value10  The tenth value to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOf(final K key1, final V value1,
+                                     final K key2, final V value2,
+                                     final K key3, final V value3,
+                                     final K key4, final V value4,
+                                     final K key5, final V value5,
+                                     final K key6, final V value6,
+                                     final K key7, final V value7,
+                                     final K key8, final V value8,
+                                     final K key9, final V value9,
+                                     final K key10, final V value10)
+  {
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(computeMapCapacity(10));
+
+    map.put(key1, value1);
+    map.put(key2, value2);
+    map.put(key3, value3);
+    map.put(key4, value4);
+    map.put(key5, value5);
+    map.put(key6, value6);
+    map.put(key7, value7);
+    map.put(key8, value8);
+    map.put(key9, value9);
+    map.put(key10, value10);
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.  The map entries
+   * must have the same data type for keys and values.
+   *
+   * @param  <T>    The type for the map keys and values.
+   * @param  items  The items to include in the map.  If it is null or empty,
+   *                the map will be empty.  If it is non-empty, then the number
+   *                of elements in the array must be a multiple of two.
+   *                Elements in even-numbered indexes will be the keys for the
+   *                map entries, while elements in odd-numbered indexes will be
+   *                the map values.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <T> Map<T,T> mapOf(final T... items)
+  {
+    if ((items == null) || (items.length == 0))
+    {
+      return Collections.emptyMap();
+    }
+
+    Validator.ensureTrue(((items.length % 2) == 0),
+         "StaticUtils.mapOf.items must have an even number of elements");
+
+    final int numEntries = items.length / 2;
+    final LinkedHashMap<T,T> map =
+         new LinkedHashMap<>(computeMapCapacity(numEntries));
+    for (int i=0; i < items.length; )
+    {
+      map.put(items[i++], items[i++]);
+    }
+
+    return Collections.unmodifiableMap(map);
+  }
+
+
+
+  /**
+   * Creates an unmodifiable map containing the provided items.
+   *
+   * @param  <K>    The type for the map keys.
+   * @param  <V>    The type for the map values.
+   * @param  items  The items to include in the map.
+   *
+   * @return  The unmodifiable map that was created.
+   */
+  public static <K,V> Map<K,V> mapOfObjectPairs(final ObjectPair<K,V>... items)
+  {
+    if ((items == null) || (items.length == 0))
+    {
+      return Collections.emptyMap();
+    }
+
+    final LinkedHashMap<K,V> map = new LinkedHashMap<>(
+         computeMapCapacity(items.length));
+    for (final ObjectPair<K,V> item : items)
+    {
+      map.put(item.getFirst(), item.getSecond());
+    }
+
+    return Collections.unmodifiableMap(map);
   }
 
 
