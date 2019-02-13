@@ -1981,4 +1981,44 @@ public final class LDAPSearchTestCase
 
     ldifReader.close();
   }
+
+
+
+  /**
+   * Provides test coverage for the controls used to get and request routing
+   * information.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRoutingControls()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds =
+         new InMemoryDirectoryServer("dc=example,dc=com");
+    ds.startListening();
+    final int dsPort = ds.getListenPort();
+    ds.shutDown(true);
+
+    LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+         "--hostname", "localhost",
+         "--port", String.valueOf(dsPort),
+         "--getBackendSetID",
+         "--getServerID",
+         "--routeToBackendSet", "rp1:bs1",
+         "--routeToBackendSet", "rp1:bs2",
+         "--routeToBackendSet", "rp2:bs3",
+         "--routeToServer", "server-id",
+         "--baseDN", "dc=example,dc=com",
+         "--scope", "base",
+         "(objectClass=*)");
+
+    LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+         "--hostname", "localhost",
+         "--port", String.valueOf(dsPort),
+         "--routeToBackendSet", "malformed",
+         "--baseDN", "dc=example,dc=com",
+         "--scope", "base",
+         "(objectClass=*)");
+  }
 }

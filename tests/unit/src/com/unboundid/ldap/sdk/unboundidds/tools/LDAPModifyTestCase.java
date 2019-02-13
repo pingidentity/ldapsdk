@@ -2947,4 +2947,46 @@ public final class LDAPModifyTestCase
       assertResultCodeEquals(le, ResultCode.PARAM_ERROR);
     }
   }
+
+
+
+  /**
+   * Provides test coverage for the controls used to get and request routing
+   * information.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRoutingControls()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds =
+         new InMemoryDirectoryServer("dc=example,dc=com");
+    ds.startListening();
+    final int dsPort = ds.getListenPort();
+    ds.shutDown(true);
+
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+
+    LDAPModify.main(new ByteArrayInputStream(StaticUtils.NO_BYTES), null, null,
+         "--hostname", "localhost",
+         "--port", String.valueOf(dsPort),
+         "--getBackendSetID",
+         "--getServerID",
+         "--routeToBackendSet", "rp1:bs1",
+         "--routeToBackendSet", "rp1:bs2",
+         "--routeToBackendSet", "rp2:bs3",
+         "--routeToServer", "server-id",
+         "--ldifFile", ldifFile.getAbsolutePath());
+
+    LDAPModify.main(new ByteArrayInputStream(StaticUtils.NO_BYTES), null, null,
+         "--hostname", "localhost",
+         "--port", String.valueOf(dsPort),
+         "--routeToBackendSet", "malformed",
+         "--ldifFile", ldifFile.getAbsolutePath());
+  }
 }

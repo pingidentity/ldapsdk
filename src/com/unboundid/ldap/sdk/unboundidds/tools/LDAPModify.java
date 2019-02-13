@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
@@ -83,7 +84,10 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetAuthorizationEntryRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetBackendSetIDRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GetUserResourceLimitsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.HardDeleteRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IgnoreNoUserModificationRequestControl;
@@ -103,6 +107,9 @@ import com.unboundid.ldap.sdk.unboundidds.controls.PurgePasswordRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             ReplicationRepairRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.RetirePasswordRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            RouteToBackendSetRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.RouteToServerRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.SoftDeleteRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             SuppressOperationalAttributeUpdateRequestControl;
@@ -259,6 +266,8 @@ public final class LDAPModify
   private BooleanArgument defaultAdd = null;
   private BooleanArgument dryRun = null;
   private BooleanArgument followReferrals = null;
+  private BooleanArgument getBackendSetID = null;
+  private BooleanArgument getServerID = null;
   private BooleanArgument getUserResourceLimits = null;
   private BooleanArgument hardDelete = null;
   private BooleanArgument ignoreNoUserModification = null;
@@ -309,6 +318,8 @@ public final class LDAPModify
   private StringArgument postReadAttribute = null;
   private StringArgument preReadAttribute = null;
   private StringArgument proxyAs = null;
+  private StringArgument routeToBackendSet = null;
+  private StringArgument routeToServer = null;
   private StringArgument suppressOperationalAttributeUpdates = null;
   private StringArgument uniquenessAttribute = null;
   private StringArgument uniquenessMultipleAttributeBehavior = null;
@@ -320,6 +331,10 @@ public final class LDAPModify
 
   // The input stream from to use for standard input.
   private final InputStream in;
+
+  // The route to backend set request controls to include in write requests.
+  private final List<RouteToBackendSetRequestControl>
+       routeToBackendSetRequestControls = new ArrayList<>(10);
 
 
 
@@ -752,6 +767,23 @@ public final class LDAPModify
     parser.addArgument(getAuthorizationEntryAttribute);
 
 
+
+    getBackendSetID = new BooleanArgument(null, "getBackendSetID",
+         1, INFO_LDAPMODIFY_ARG_DESCRIPTION_GET_BACKEND_SET_ID.get());
+    getBackendSetID.addLongIdentifier("get-backend-set-id", true);
+    getBackendSetID.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(getBackendSetID);
+
+
+    getServerID = new BooleanArgument(null, "getServerID",
+         1, INFO_LDAPMODIFY_ARG_DESCRIPTION_GET_SERVER_ID.get());
+    getServerID.addLongIdentifier("get-server-id", true);
+    getServerID.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(getServerID);
+
+
     getUserResourceLimits = new BooleanArgument(null, "getUserResourceLimits",
          1, INFO_LDAPMODIFY_ARG_DESCRIPTION_GET_USER_RESOURCE_LIMITS.get());
     getUserResourceLimits.addLongIdentifier("get-user-resource-limits", true);
@@ -790,6 +822,25 @@ public final class LDAPModify
     postReadAttribute.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(postReadAttribute);
+
+
+    routeToBackendSet = new StringArgument(null, "routeToBackendSet",
+         false, 0,
+         INFO_LDAPMODIFY_ARG_PLACEHOLDER_ROUTE_TO_BACKEND_SET.get(),
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_ROUTE_TO_BACKEND_SET.get());
+    routeToBackendSet.addLongIdentifier("route-to-backend-set", true);
+    routeToBackendSet.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(routeToBackendSet);
+
+
+    routeToServer = new StringArgument(null, "routeToServer", false, 1,
+         INFO_LDAPMODIFY_ARG_PLACEHOLDER_ROUTE_TO_SERVER.get(),
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_ROUTE_TO_SERVER.get());
+    routeToServer.addLongIdentifier("route-to-server", true);
+    routeToServer.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(routeToServer);
 
 
     assuredReplication = new BooleanArgument(null, "useAssuredReplication", 1,
@@ -1286,6 +1337,55 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile, deleteControl);
     parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile,
          modifyDNControl);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void doExtendedNonLDAPArgumentValidation()
+         throws ArgumentException
+  {
+    // If we should use the route to backend set request control, then validate
+    // and pre-create those controls.
+    if (routeToBackendSet.isPresent())
+    {
+      final List<String> values = routeToBackendSet.getValues();
+      final Map<String,List<String>> idsByRP = new LinkedHashMap<>(
+           StaticUtils.computeMapCapacity(values.size()));
+      for (final String value : values)
+      {
+        final int colonPos = value.indexOf(':');
+        if (colonPos <= 0)
+        {
+          throw new ArgumentException(
+               ERR_LDAPMODIFY_ROUTE_TO_BACKEND_SET_INVALID_FORMAT.get(value,
+                    routeToBackendSet.getIdentifierString()));
+        }
+
+        final String rpID = value.substring(0, colonPos);
+        final String bsID = value.substring(colonPos+1);
+
+        List<String> idsForRP = idsByRP.get(rpID);
+        if (idsForRP == null)
+        {
+          idsForRP = new ArrayList<>(values.size());
+          idsByRP.put(rpID, idsForRP);
+        }
+        idsForRP.add(bsID);
+      }
+
+      for (final Map.Entry<String,List<String>> e : idsByRP.entrySet())
+      {
+        final String rpID = e.getKey();
+        final List<String> bsIDs = e.getValue();
+        routeToBackendSetRequestControls.add(
+             RouteToBackendSetRequestControl.createAbsoluteRoutingRequest(true,
+                  rpID, bsIDs));
+      }
+    }
   }
 
 
@@ -2578,9 +2678,34 @@ readChangeRecordLoop:
       modifyDNControls.addAll(operationControl.getValues());
     }
 
+    addControls.addAll(routeToBackendSetRequestControls);
+    deleteControls.addAll(routeToBackendSetRequestControls);
+    modifyControls.addAll(routeToBackendSetRequestControls);
+    modifyDNControls.addAll(routeToBackendSetRequestControls);
+
     if (noOperation.isPresent())
     {
       final NoOpRequestControl c = new NoOpRequestControl();
+      addControls.add(c);
+      deleteControls.add(c);
+      modifyControls.add(c);
+      modifyDNControls.add(c);
+    }
+
+    if (getBackendSetID.isPresent())
+    {
+      final GetBackendSetIDRequestControl c =
+           new GetBackendSetIDRequestControl(false);
+      addControls.add(c);
+      deleteControls.add(c);
+      modifyControls.add(c);
+      modifyDNControls.add(c);
+    }
+
+    if (getServerID.isPresent())
+    {
+      final GetServerIDRequestControl c =
+           new GetServerIDRequestControl(false);
       addControls.add(c);
       deleteControls.add(c);
       modifyControls.add(c);
@@ -2601,6 +2726,17 @@ readChangeRecordLoop:
     if (permissiveModify.isPresent())
     {
       modifyControls.add(new PermissiveModifyRequestControl(false));
+    }
+
+    if (routeToServer.isPresent())
+    {
+      final RouteToServerRequestControl c =
+           new RouteToServerRequestControl(false,
+           routeToServer.getValue(), false, false, false);
+      addControls.add(c);
+      deleteControls.add(c);
+      modifyControls.add(c);
+      modifyDNControls.add(c);
     }
 
     if (suppressReferentialIntegrityUpdates.isPresent())

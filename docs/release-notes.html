@@ -140,6 +140,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapsearch and ldapmodify tools to add support for the get backend
+                  set ID and get server ID request controls (which can be used to obtain
+                  information from a Ping Identity Directory Server or Directory Proxy Server
+                  about which entry-balancing backend sets or which server instances were used in
+                  processing the request), and for the route to backend set and route to server
+                  request controls (which can be used to request that the Ping Identity Directory
+                  Proxy Server route the request to a specific group of entry-balancing backend
+                  sets or to a specific backend server).
+                  <br><br>
+
+                <li>
                   Updated LDAP command line tools to support authentication with the
                   UNBOUNDID-CERTIFICATE-PLUS-PASSWORD SASL mechanism.
                   <br><br>

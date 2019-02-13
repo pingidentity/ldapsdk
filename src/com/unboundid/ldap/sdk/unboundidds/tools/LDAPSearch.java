@@ -36,6 +36,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
@@ -86,7 +87,10 @@ import com.unboundid.ldap.sdk.unboundidds.controls.ExcludeBranchRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetAuthorizationEntryRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetBackendSetIDRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GetEffectiveRightsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetUserResourceLimitsRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.JoinBaseDN;
@@ -97,7 +101,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             MatchingEntryCountRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
-import com.unboundid.ldap.sdk.unboundidds.controls.OverrideSearchLimitsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            OverrideSearchLimitsRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.PasswordPolicyRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             PermitUnindexedSearchRequestControl;
@@ -107,6 +112,9 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             RejectUnindexedSearchRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             ReturnConflictEntriesRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            RouteToBackendSetRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.RouteToServerRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             SoftDeletedEntryAccessRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -186,6 +194,8 @@ public final class LDAPSearch
   private BooleanArgument encryptOutput = null;
   private BooleanArgument followReferrals = null;
   private BooleanArgument hideRedactedValueCount = null;
+  private BooleanArgument getBackendSetID = null;
+  private BooleanArgument getServerID = null;
   private BooleanArgument getUserResourceLimits = null;
   private BooleanArgument includeReplicationConflictEntries = null;
   private BooleanArgument includeSubentries = null;
@@ -247,6 +257,8 @@ public final class LDAPSearch
   private StringArgument renameAttributeFrom = null;
   private StringArgument renameAttributeTo = null;
   private StringArgument requestedAttribute = null;
+  private StringArgument routeToBackendSet = null;
+  private StringArgument routeToServer = null;
   private StringArgument scrambleAttribute = null;
   private StringArgument scrambleJSONField = null;
   private StringArgument sortOrder = null;
@@ -258,6 +270,8 @@ public final class LDAPSearch
 
   // Controls that should be sent to the server but need special validation.
   private volatile JoinRequestControl joinRequestControl = null;
+  private final List<RouteToBackendSetRequestControl>
+       routeToBackendSetRequestControls = new ArrayList<>(10);
   private volatile MatchedValuesRequestControl
        matchedValuesRequestControl = null;
   private volatile MatchingEntryCountRequestControl
@@ -760,6 +774,20 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getAuthorizationEntryAttribute);
 
+    getBackendSetID = new BooleanArgument(null, "getBackendSetID",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_BACKEND_SET_ID.get());
+    getBackendSetID.addLongIdentifier("get-backend-set-id", true);
+    getBackendSetID.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(getBackendSetID);
+
+    getServerID = new BooleanArgument(null, "getServerID",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_SERVER_ID.get());
+    getServerID.addLongIdentifier("get-server-id", true);
+    getServerID.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(getServerID);
+
     getUserResourceLimits = new BooleanArgument(null, "getUserResourceLimits",
          1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_USER_RESOURCE_LIMITS.get());
     getUserResourceLimits.addLongIdentifier("get-user-resource-limits", true);
@@ -955,6 +983,23 @@ public final class LDAPSearch
     proxyV1As.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(proxyV1As);
 
+    routeToBackendSet = new StringArgument(null, "routeToBackendSet",
+         false, 0,
+         INFO_LDAPSEARCH_ARG_PLACEHOLDER_ROUTE_TO_BACKEND_SET.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_ROUTE_TO_BACKEND_SET.get());
+    routeToBackendSet.addLongIdentifier("route-to-backend-set", true);
+    routeToBackendSet.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(routeToBackendSet);
+
+    routeToServer = new StringArgument(null, "routeToServer", false, 1,
+         INFO_LDAPSEARCH_ARG_PLACEHOLDER_ROUTE_TO_SERVER.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_ROUTE_TO_SERVER.get());
+    routeToServer.addLongIdentifier("route-to-server", true);
+    routeToServer.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(routeToServer);
+
     final Set<String> suppressOperationalAttributeUpdatesAllowedValues =
          StaticUtils.setOf("last-access-time", "last-login-time",
               "last-login-ip", "lastmod");
@@ -966,7 +1011,7 @@ public final class LDAPSearch
     suppressOperationalAttributeUpdates.addLongIdentifier(
          "suppress-operational-attribute-updates", true);
     suppressOperationalAttributeUpdates.setArgumentGroupName(
-         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(suppressOperationalAttributeUpdates);
 
     usePasswordPolicyControl = new BooleanArgument(null,
@@ -1831,6 +1876,8 @@ public final class LDAPSearch
     }
 
 
+    // If we should use the LDAP join request control, then validate and
+    // pre-create that control.
     if (joinRule.isPresent())
     {
       final JoinRule rule;
@@ -1925,6 +1972,46 @@ public final class LDAPSearch
            joinBase, joinScope.getValue(), DereferencePolicy.NEVER,
            joinSizeLimit.getValue(), joinFilter.getValue(), joinAttrs,
            joinRequireMatch.isPresent(), null));
+    }
+
+
+    // If we should use the route to backend set request control, then validate
+    // and pre-create those controls.
+    if (routeToBackendSet.isPresent())
+    {
+      final List<String> values = routeToBackendSet.getValues();
+      final Map<String,List<String>> idsByRP = new LinkedHashMap<>(
+           StaticUtils.computeMapCapacity(values.size()));
+      for (final String value : values)
+      {
+        final int colonPos = value.indexOf(':');
+        if (colonPos <= 0)
+        {
+          throw new ArgumentException(
+               ERR_LDAPSEARCH_ROUTE_TO_BACKEND_SET_INVALID_FORMAT.get(value,
+                    routeToBackendSet.getIdentifierString()));
+        }
+
+        final String rpID = value.substring(0, colonPos);
+        final String bsID = value.substring(colonPos+1);
+
+        List<String> idsForRP = idsByRP.get(rpID);
+        if (idsForRP == null)
+        {
+          idsForRP = new ArrayList<>(values.size());
+          idsByRP.put(rpID, idsForRP);
+        }
+        idsForRP.add(bsID);
+      }
+
+      for (final Map.Entry<String,List<String>> e : idsByRP.entrySet())
+      {
+        final String rpID = e.getKey();
+        final List<String> bsIDs = e.getValue();
+        routeToBackendSetRequestControls.add(
+             RouteToBackendSetRequestControl.createAbsoluteRoutingRequest(true,
+                  rpID, bsIDs));
+      }
     }
 
 
@@ -2915,6 +3002,9 @@ public final class LDAPSearch
    *
    * @return  A list of the controls that should be used when processing search
    *          operations.
+   *
+   * @throws  LDAPException  If a problem is encountered while generating the
+   *                         controls for a search request.
    */
   private List<Control> getSearchControls()
   {
@@ -2960,9 +3050,21 @@ public final class LDAPSearch
       controls.add(vlvRequestControl);
     }
 
+    controls.addAll(routeToBackendSetRequestControls);
+
     if (accountUsable.isPresent())
     {
       controls.add(new AccountUsableRequestControl(true));
+    }
+
+    if (getBackendSetID.isPresent())
+    {
+      controls.add(new GetBackendSetIDRequestControl(false));
+    }
+
+    if (getServerID.isPresent())
+    {
+      controls.add(new GetServerIDRequestControl(false));
     }
 
     if (includeReplicationConflictEntries.isPresent())
@@ -3004,6 +3106,12 @@ public final class LDAPSearch
     if (realAttributesOnly.isPresent())
     {
       controls.add(new RealAttributesOnlyRequestControl(true));
+    }
+
+    if (routeToServer.isPresent())
+    {
+      controls.add(new RouteToServerRequestControl(false,
+           routeToServer.getValue(), false, false, false));
     }
 
     if (virtualAttributesOnly.isPresent())
