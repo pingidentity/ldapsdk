@@ -408,6 +408,21 @@ public final class UniquenessResponseControl
 
 
   /**
+   * Indicates whether a uniqueness conflict was found during processing.
+   *
+   * @return  {@code true} if a uniqueness conflict was found during processing,
+   *          or {@code false} if no conflict was found or if no validation was
+   *          attempted.
+   */
+  public boolean uniquenessConflictFound()
+  {
+    return ((preCommitValidationPassed == Boolean.FALSE) ||
+         (postCommitValidationPassed == Boolean.FALSE));
+  }
+
+
+
+  /**
    * Retrieves the identifier that may be used to correlate this uniqueness
    * response control with the corresponding request control.  This is primarily
    * useful for requests that contain multiple uniqueness controls, as there may
@@ -424,8 +439,44 @@ public final class UniquenessResponseControl
 
 
   /**
+   * Retrieves the result of the server's pre-commit validation processing.
+   * The same information can be inferred from the
+   * {@link #getPreCommitValidationPassed()} method, but this method may provide
+   * a more intuitive result and does not have the possibility of a {@code null}
+   * return value.
+   *
+   * @return  {@link UniquenessValidationResult#VALIDATION_PASSED} if the
+   *          server did not find any conflicting entries during the pre-commit
+   *          check, {@link UniquenessValidationResult#VALIDATION_FAILED} if
+   *          the server found at least one conflicting entry during the
+   *          pre-commit check, or
+   *          {@link UniquenessValidationResult#VALIDATION_NOT_ATTEMPTED} if
+   *          the server did not attempt any pre-commit validation.
+   */
+  public UniquenessValidationResult getPreCommitValidationResult()
+  {
+    if (preCommitValidationPassed == null)
+    {
+      return UniquenessValidationResult.VALIDATION_NOT_ATTEMPTED;
+    }
+    else if (preCommitValidationPassed)
+    {
+      return UniquenessValidationResult.VALIDATION_PASSED;
+    }
+    else
+    {
+      return UniquenessValidationResult.VALIDATION_FAILED;
+    }
+  }
+
+
+
+  /**
    * Retrieves a value that indicates whether pre-commit validation was
-   * attempted, and whether that validation passed.
+   * attempted, and whether that validation passed.  Note that this method is
+   * still supported and is not deprecated at this time, but the
+   * {@link #getPreCommitValidationResult()} is now the recommended way to get
+   * this information.
    *
    * @return  {@code Boolean.TRUE} if pre-commit validation was attempted and
    *          passed, {@code Boolean.FALSE} if pre-commit validation was
@@ -435,6 +486,39 @@ public final class UniquenessResponseControl
   public Boolean getPreCommitValidationPassed()
   {
     return preCommitValidationPassed;
+  }
+
+
+
+  /**
+   * Retrieves the result of the server's post-commit validation processing.
+   * The same information can be inferred from the
+   * {@link #getPostCommitValidationPassed()} method, but this method may
+   * provide a more intuitive result and does not have the possibility of a
+   * {@code null} return value.
+   *
+   * @return  {@link UniquenessValidationResult#VALIDATION_PASSED} if the
+   *          server did not find any conflicting entries during the post-commit
+   *          check, {@link UniquenessValidationResult#VALIDATION_FAILED} if
+   *          the server found at least one conflicting entry during the
+   *          post-commit check, or
+   *          {@link UniquenessValidationResult#VALIDATION_NOT_ATTEMPTED} if
+   *          the server did not attempt any post-commit validation.
+   */
+  public UniquenessValidationResult getPostCommitValidationResult()
+  {
+    if (postCommitValidationPassed == null)
+    {
+      return UniquenessValidationResult.VALIDATION_NOT_ATTEMPTED;
+    }
+    else if (postCommitValidationPassed)
+    {
+      return UniquenessValidationResult.VALIDATION_PASSED;
+    }
+    else
+    {
+      return UniquenessValidationResult.VALIDATION_FAILED;
+    }
   }
 
 
@@ -489,27 +573,11 @@ public final class UniquenessResponseControl
   {
     buffer.append("UniquenessResponseControl(uniquenessID='");
     buffer.append(uniquenessID);
+    buffer.append("', preCommitValidationResult='");
+    buffer.append(getPreCommitValidationResult().getName());
+    buffer.append("', preCommitValidationResult='");
+    buffer.append(getPostCommitValidationResult().getName());
     buffer.append('\'');
-
-    if (preCommitValidationPassed == null)
-    {
-      buffer.append(", preCommitValidationAttempted=false");
-    }
-    else
-    {
-      buffer.append(", preCommitValidationPassed=");
-      buffer.append(preCommitValidationPassed);
-    }
-
-    if (postCommitValidationPassed == null)
-    {
-      buffer.append(", postCommitValidationAttempted=false");
-    }
-    else
-    {
-      buffer.append(", postCommitValidationPassed=");
-      buffer.append(postCommitValidationPassed);
-    }
 
     if (validationMessage != null)
     {

@@ -136,6 +136,134 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *       ... } DEFAULT allSubtreeViews,
  *     ... }
  * </PRE>
+ * <BR><BR>
+ * <H2>Example</H2>
+ * The following example demonstrates how to use the uniqueness request control
+ * to only process an add operation if it does not result in multiple entries
+ * that have the same uid value:
+ * <BR><BR>
+ * <PRE>
+ * // Create the properties to build a uniqueness request control that
+ * // will try to prevent an add operation from creating a new entry
+ * // that has the same uid as an existing entry in the server.  During
+ * // pre-commit processing (which happens before the server actually
+ * // processes the add), the server will check at least one server in
+ * // each entry-balancing backend set (or just one server in a
+ * // non-entry-balanced deployment).  During post-commit processing
+ * // (which happens if the add succeeds), the server will double-check
+ * // that no conflicting entry was added on any available server in the
+ * // topology.  Also ensure that the server will not allow conflicts
+ * // with soft-deleted entries.
+ * final UniquenessRequestControlProperties uniquenessProperties =
+ *      new UniquenessRequestControlProperties("uid");
+ * uniquenessProperties.setPreCommitValidationLevel(
+ *      UniquenessValidationLevel.ALL_BACKEND_SETS);
+ * uniquenessProperties.setPostCommitValidationLevel(
+ *      UniquenessValidationLevel.ALL_AVAILABLE_BACKEND_SERVERS);
+ * uniquenessProperties.setPreventConflictsWithSoftDeletedEntries(true);
+ *
+ * // Create the request control.  It will be critical so that the
+ * // server will not attempt to process the add if it can't honor the
+ * // uniqueness request.
+ * final boolean isCritical = true;
+ * final String uniquenessID = "uid-uniqueness";
+ * final UniquenessRequestControl uniquenessRequestControl =
+ *      new UniquenessRequestControl(isCritical, uniquenessID,
+ *           uniquenessProperties);
+ *
+ * // Attach the control to an add request.
+ * addRequest.addControl(uniquenessRequestControl);
+ *
+ * // Send the add request to the server and read the result.
+ * try
+ * {
+ *   final LDAPResult addResult = connection.add(addRequest);
+ *
+ *   // The add operation succeeded, so the entry should have been
+ *   // created, but there is still the possibility that a post-commit
+ *   // conflict was discovered, indicating that another request
+ *   // processed at about the same time as our add introduced a
+ *   // conflicting entry.
+ *   final Map&lt;String,UniquenessResponseControl&gt; uniquenessResponses;
+ *   try
+ *   {
+ *     uniquenessResponses = UniquenessResponseControl.get(addResult);
+ *   }
+ *   catch (final LDAPException e)
+ *   {
+ *     throw new RuntimeException(
+ *          "The add succeeded, but an error occurred while trying " +
+ *               "to decode a uniqueness response control in add " +
+ *               "result " + addResult + ":  " +
+ *               StaticUtils.getExceptionMessage(e),
+ *          e);
+ *   }
+ *
+ *   final UniquenessResponseControl uniquenessResponseControl =
+ *        uniquenessResponses.get(uniquenessID);
+ *   if ((uniquenessResponseControl != null) &amp;&amp;
+ *        uniquenessResponseControl.uniquenessConflictFound())
+ *   {
+ *     throw new RuntimeException(
+ *          "The add succeeded, but a uniqueness conflict was found  " +
+ *               "Uniqueness validation message:  " +
+ *               uniquenessResponseControl.getValidationMessage());
+ *   }
+ * }
+ * catch (final LDAPException e)
+ * {
+ *   // The add attempt failed.  It might have been because of a
+ *   // uniqueness problem, or it could have been for some other reason.
+ *   // To figure out which it was, look to see if there is an
+ *   // appropriate uniqueness response control.
+ *   final Map&lt;String, UniquenessResponseControl&gt; uniquenessResponses;
+ *   try
+ *   {
+ *     uniquenessResponses =
+ *          UniquenessResponseControl.get(e.toLDAPResult());
+ *   }
+ *   catch (final LDAPException e2)
+ *   {
+ *     throw new LDAPException(e.getResultCode(),
+ *          "The add attempt failed with result " + e.toLDAPResult() +
+ *               ", and an error occurred while trying to decode a " +
+ *               "uniqueness response control in the result:  " +
+ *               StaticUtils.getExceptionMessage(e2),
+ *          e);
+ *   }
+ *
+ *   final UniquenessResponseControl uniquenessResponseControl =
+ *        uniquenessResponses.get(uniquenessID);
+ *   if (uniquenessResponseControl == null)
+ *   {
+ *     // The add result didn't include a uniqueness response control,
+ *     // indicating that the failure was not because of a uniqueness
+ *     // conflict.
+ *     throw e;
+ *   }
+ *
+ *   if (uniquenessResponseControl.uniquenessConflictFound())
+ *   {
+ *     // The add failed, and the uniqueness response control indicates
+ *     // that the failure was because of a uniqueness conflict.
+ *
+ *     final UniquenessValidationResult preCommitResult =
+ *          uniquenessResponseControl.getPreCommitValidationResult();
+ *     final UniquenessValidationResult postCommitResult =
+ *          uniquenessResponseControl.getPreCommitValidationResult();
+ *     final String validationMessage =
+ *          uniquenessResponseControl.getValidationMessage();
+ *
+ *     throw e;
+ *   }
+ *   else
+ *   {
+ *     // The add failed, but the uniqueness response control indicates
+ *     // that the failure was not because of a uniqueness conflict.
+ *     throw e;
+ *   }
+ * }
+ * </PRE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

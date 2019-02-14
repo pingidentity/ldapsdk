@@ -64,10 +64,20 @@ public final class UniquenessResponseControlTestCase
 
     assertNotNull(c.getValue());
 
+    assertFalse(c.uniquenessConflictFound());
+
     assertNotNull(c.getUniquenessID());
     assertEquals(c.getUniquenessID(), "uniqueness-id");
 
+    assertNotNull(c.getPreCommitValidationResult());
+    assertEquals(c.getPreCommitValidationResult(),
+         UniquenessValidationResult.VALIDATION_NOT_ATTEMPTED);
+
     assertNull(c.getPreCommitValidationPassed());
+
+    assertNotNull(c.getPostCommitValidationResult());
+    assertEquals(c.getPostCommitValidationResult(),
+         UniquenessValidationResult.VALIDATION_NOT_ATTEMPTED);
 
     assertNull(c.getPostCommitValidationPassed());
 
@@ -103,14 +113,77 @@ public final class UniquenessResponseControlTestCase
 
     assertNotNull(c.getValue());
 
+    assertTrue(c.uniquenessConflictFound());
+
     assertNotNull(c.getUniquenessID());
     assertEquals(c.getUniquenessID(), "another-uniqueness-id");
+
+    assertNotNull(c.getPreCommitValidationResult());
+    assertEquals(c.getPreCommitValidationResult(),
+         UniquenessValidationResult.VALIDATION_PASSED);
 
     assertNotNull(c.getPreCommitValidationPassed());
     assertEquals(c.getPreCommitValidationPassed(), Boolean.TRUE);
 
+    assertNotNull(c.getPostCommitValidationResult());
+    assertEquals(c.getPostCommitValidationResult(),
+         UniquenessValidationResult.VALIDATION_FAILED);
+
     assertNotNull(c.getPostCommitValidationPassed());
     assertEquals(c.getPostCommitValidationPassed(), Boolean.FALSE);
+
+    assertNotNull(c.getValidationMessage());
+    assertEquals(c.getValidationMessage(), "validation message");
+
+    assertNotNull(c.getControlName());
+
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior for a control created with all elements, but with the
+   * validation results flipped.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateWithAllElementsFlippedResult()
+         throws Exception
+  {
+    UniquenessResponseControl c = new UniquenessResponseControl(
+         "another-uniqueness-id", false, true, "validation message");
+
+    c = new UniquenessResponseControl().decodeControl(c.getOID(),
+         c.isCritical(), c.getValue());
+    assertNotNull(c);
+
+    assertNotNull(c.getOID());
+    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.2.5.53");
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getValue());
+
+    assertTrue(c.uniquenessConflictFound());
+
+    assertNotNull(c.getUniquenessID());
+    assertEquals(c.getUniquenessID(), "another-uniqueness-id");
+
+    assertNotNull(c.getPreCommitValidationResult());
+    assertEquals(c.getPreCommitValidationResult(),
+         UniquenessValidationResult.VALIDATION_FAILED);
+
+    assertNotNull(c.getPreCommitValidationPassed());
+    assertEquals(c.getPreCommitValidationPassed(), Boolean.FALSE);
+
+    assertNotNull(c.getPostCommitValidationResult());
+    assertEquals(c.getPostCommitValidationResult(),
+         UniquenessValidationResult.VALIDATION_PASSED);
+
+    assertNotNull(c.getPostCommitValidationPassed());
+    assertEquals(c.getPostCommitValidationPassed(), Boolean.TRUE);
 
     assertNotNull(c.getValidationMessage());
     assertEquals(c.getValidationMessage(), "validation message");
