@@ -8,11 +8,12 @@ commercial support is available.
 
 The UnboundID LDAP SDK for Java is free to use and redistribute in open source
 or proprietary applications under the terms of any of the open source GPLv2 or
-LGPLv2.1, or the not-open-source-but-still-free-to-use UnboundID Free Use
-License. It does not have any third-party dependencies, so a single jar file is
-all you need to add top-notch LDAP support to your Java application. It can
-also be used in conjunction with most other JVM-based languages, as well as on
-the Android mobile platform.
+LGPLv2.1 licenses, or the not-open-source-but-still-free-to-use UnboundID Free
+Use License. It does not have any third-party dependencies beyond a Java 7 or
+higher Java Runtime Environment, so a single jar file is all you need to add
+top-notch LDAP support to your Java application. It can also be used in
+conjunction with most other JVM-based languages, as well as on the Android
+mobile platform.
 
 The full documentation for the LDAP SDK is available online at
 https://docs.ldap.com/ldap-sdk/docs/index.html. The API documentation (aka
@@ -22,7 +23,7 @@ also has a lot of useful information about LDAP and directory services.
 
 
 
-Advantages of the UnboundID LDAP SDK
+Advantages of the UnboundID LDAP SDK for Java
 
 Some of the key advantages of the UnboundID LDAP SDK for Java include:
 
@@ -67,31 +68,31 @@ Some of the key advantages of the UnboundID LDAP SDK for Java include:
   content stored in an LDAP directory server.
 
 * The LDAP SDK is provided as a single self-contained jar file with no
-  dependencies on anything outside of Java SE.
+  dependencies on anything outside of Java SE version 7 or later.
 
 * Commercial Support is available from Ping Identity.
 
 
 
-Getting the UnboundID LDAP SDK
+How To Get the UnboundID LDAP SDK for Java
 
 Packaged releases of the UnboundID LDAP SDK for Java are available for download
 from GitHub at https://github.com/pingidentity/ldapsdk/releases and from
 SourceForge at https://sourceforge.net/projects/ldap-sdk/files/.
 
 If you prefer to use the Maven tool to manage your library dependencies, then
-you can get the UnboundID LDAP SDK for Java in the Maven Central Repository
+you can get the UnboundID LDAP SDK for Java in the Maven Central Repository at
+https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.unboundid%22%20AND%20a%3A%22unboundid-ldapsdk%22
 with a GroupId of "com.unboundid" and an ArtifactId of "unboundid-ldapsdk".
 
 If you want to check out and build the LDAP SDK from source, then you can do
 that with the following git command:
 
-     git clone https://github.com/pingidentity/ldapsdk.git
-
+    git clone https://github.com/pingidentity/ldapsdk.git
 
 If you prefer subversion, you can instead use the command:
 
-     svn checkout https://github.com/pingidentity/ldapsdk/trunk ldapsdk-svn
+    svn checkout https://github.com/pingidentity/ldapsdk/trunk ldapsdk-svn
 
 Once the code has been checked out, you can build the LDAP SDK by running the
 build.sh shell script on UNIX-based systems or build.bat batch file on Windows.
@@ -100,7 +101,7 @@ be found in the build/package directory.
 
 
 
-How to get Help with the UnboundID LDAP SDK for Java
+How To Get Help with the UnboundID LDAP SDK for Java
 
 If you run into a problem when using the LDAP SDK and you can't figure it out
 from the documentation, then there are a few ways that you can get help:
@@ -122,3 +123,11 @@ from the documentation, then there are a few ways that you can get help:
   with the LDAP SDK in the same way that you get support for other Ping
   Identity products. Contact ldapsdk-support@pingidentity.com for more
   information about obtaining a support contract for the LDAP SDK.
+
+
+
+Contributing to the UnboundID LDAP SDK for Java
+
+Ping Identity does not accept third-party code submissions. However, there are
+other ways that you can help, including submitting bug reports and feature
+requests. See the CONTRIBUTING.md file for additional information.
