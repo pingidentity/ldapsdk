@@ -162,6 +162,23 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDIF writer to make its user-friendly display of base64-encoded
+                  values more filter-friendly.  The LDIF writer has a feature that allows it to
+                  automatically include a comment below a base64-encoded value that tries to
+                  display a more human-readable version of that value.  In most cases, the value
+                  in that comment could simply be copied and pasted into a search filter intended
+                  to target that value, but some of the escaping wasn't very filter-friendly.  For
+                  example, if the base64-encoded value included an ASCII tab, carriage return or
+                  line feed character, it was previously escaped as "\t", "\r", or "\n",
+                  respectively, but those escapes aren't valid in the string representation of an
+                  LDAP filter.  Also, some characters that must be escaped in the string
+                  representation of filters (like the open parenthesis, close parenthesis, and
+                  asterisk) weren't being escaped.  The escaping has now been updated so that it
+                  should be more suitable for copying into a search filter.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>UniquenessResponseControl</tt> class to add convenience methods
                   to help make it easier to interpret the response, and updated the
                   <tt>UniquenessRequestControl</tt> class to add an example to the class-level

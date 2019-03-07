@@ -1384,21 +1384,8 @@ public final class LDIFWriter
       final byte b = valueBytes[i];
       switch (b)
       {
-        case '\n':
-          buffer.append("\\n");
-          break;
-        case '\r':
-          buffer.append("\\r");
-          break;
-        case '\t':
-          buffer.append("\\t");
-          break;
         case ' ':
-          if (i == 0)
-          {
-            buffer.append("\\ ");
-          }
-          else if ( i == (valueBytes.length - 1))
+          if ((i == 0) || (i == (valueBytes.length - 1)))
           {
             buffer.append("\\20");
           }
@@ -1407,19 +1394,37 @@ public final class LDIFWriter
             buffer.append(' ');
           }
           break;
-        case '<':
-          if (i == 0)
-          {
-            buffer.append('\\');
-          }
-          buffer.append('<');
+        case '(':
+          buffer.append("\\28");
+          break;
+        case ')':
+          buffer.append("\\29");
+          break;
+        case '*':
+          buffer.append("\\2a");
           break;
         case ':':
           if (i == 0)
           {
-            buffer.append('\\');
+            buffer.append("\\3a");
           }
-          buffer.append(':');
+          else
+          {
+            buffer.append(':');
+          }
+          break;
+        case '<':
+          if (i == 0)
+          {
+            buffer.append("\\3c");
+          }
+          else
+          {
+            buffer.append('<');
+          }
+          break;
+        case '\\':
+          buffer.append("\\5c");
           break;
         default:
           if ((b >= '!') && (b <= '~'))
