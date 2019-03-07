@@ -1794,6 +1794,19 @@ public final class LDAPConnectionOptions
    * Indicates whether to try to use schema information when reading data from
    * the server (e.g., to select the appropriate matching rules for the
    * attributes included in a search result entry).
+   * <BR><BR>
+   * If the LDAP SDK is configured to make use of schema, then it may be able
+   * to more accurately perform client-side matching, including methods like
+   * {@link Filter#matchesEntry(Entry)} or {@link Attribute#hasValue(String)}.
+   * If both {@code useSchema} and {@code useSPooledSchema} are {@code false},
+   * then all client-side matching for attribute values will treat them as
+   * directory string values with a caseIgnoreMatch equality matching rule.  If
+   * either {@code useSchema} or {@code usePooledSchema} is {@code true}, then
+   * the LDAP SDK may be able to use the attribute type definitions from that
+   * schema to determine the appropriate syntax and matching rules to use for
+   * client-side matching operations involving those attributes.  Any attribute
+   * types that are not defined in the schema will still be treated as
+   * case-insensitive directory string values.
    *
    * @return  {@code true} if schema should be used when reading data from the
    *          server, or {@code false} if not.
@@ -1809,6 +1822,19 @@ public final class LDAPConnectionOptions
    * Specifies whether to try to use schema information when reading data from
    * the server (e.g., to select the appropriate matching rules for the
    * attributes included in a search result entry).
+   * <BR><BR>
+   * If the LDAP SDK is configured to make use of schema, then it may be able
+   * to more accurately perform client-side matching, including methods like
+   * {@link Filter#matchesEntry(Entry)} or {@link Attribute#hasValue(String)}.
+   * If both {@code useSchema} and {@code useSPooledSchema} are {@code false},
+   * then all client-side matching for attribute values will treat them as
+   * directory string values with a caseIgnoreMatch equality matching rule.  If
+   * either {@code useSchema} or {@code usePooledSchema} is {@code true}, then
+   * the LDAP SDK may be able to use the attribute type definitions from that
+   * schema to determine the appropriate syntax and matching rules to use for
+   * client-side matching operations involving those attributes.  Any attribute
+   * types that are not defined in the schema will still be treated as
+   * case-insensitive directory string values.
    * <BR><BR>
    * Note that calling this method with a value of {@code true} will also cause
    * the {@code usePooledSchema} setting to be given a value of false, since
@@ -1838,6 +1864,19 @@ public final class LDAPConnectionOptions
    * avoiding the need for each connection to retrieve its own copy of the
    * schema).
    * <BR><BR>
+   * If the LDAP SDK is configured to make use of schema, then it may be able
+   * to more accurately perform client-side matching, including methods like
+   * {@link Filter#matchesEntry(Entry)} or {@link Attribute#hasValue(String)}.
+   * If both {@code useSchema} and {@code useSPooledSchema} are {@code false},
+   * then all client-side matching for attribute values will treat them as
+   * directory string values with a caseIgnoreMatch equality matching rule.  If
+   * either {@code useSchema} or {@code usePooledSchema} is {@code true}, then
+   * the LDAP SDK may be able to use the attribute type definitions from that
+   * schema to determine the appropriate syntax and matching rules to use for
+   * client-side matching operations involving those attributes.  Any attribute
+   * types that are not defined in the schema will still be treated as
+   * case-insensitive directory string values.
+   * <BR><BR>
    * If pooled schema is to be used, then it may be configured to expire so that
    * the schema may be periodically re-retrieved for new connections to allow
    * schema updates to be incorporated.  This behavior is controlled by the
@@ -1859,6 +1898,19 @@ public final class LDAPConnectionOptions
    * shared schema information when reading data from the server (e.g., to
    * select the appropriate matching rules for the attributes included in a
    * search result entry).
+   * <BR><BR>
+   * If the LDAP SDK is configured to make use of schema, then it may be able
+   * to more accurately perform client-side matching, including methods like
+   * {@link Filter#matchesEntry(Entry)} or {@link Attribute#hasValue(String)}.
+   * If both {@code useSchema} and {@code useSPooledSchema} are {@code false},
+   * then all client-side matching for attribute values will treat them as
+   * directory string values with a caseIgnoreMatch equality matching rule.  If
+   * either {@code useSchema} or {@code usePooledSchema} is {@code true}, then
+   * the LDAP SDK may be able to use the attribute type definitions from that
+   * schema to determine the appropriate syntax and matching rules to use for
+   * client-side matching operations involving those attributes.  Any attribute
+   * types that are not defined in the schema will still be treated as
+   * case-insensitive directory string values.
    * <BR><BR>
    * Note that calling this method with a value of {@code true} will also cause
    * the {@code useSchema} setting to be given a value of false, since the two
