@@ -215,7 +215,12 @@ public final class Debug
     debugEnabled      = false;
     debugTypes        = EnumSet.allOf(DebugType.class);
 
-    logger.setLevel(Level.ALL);
+    try {
+      logger.setLevel(Level.ALL);
+    }
+    catch (final Exception e) {
+      //
+    }
   }
 
 
@@ -309,7 +314,13 @@ public final class Debug
     final String levelProp = properties.getProperty(PROPERTY_DEBUG_LEVEL);
     if ((levelProp != null) && (! levelProp.isEmpty()))
     {
-      logger.setLevel(Level.parse(levelProp));
+    	try {
+          logger.setLevel(Level.parse(levelProp));
+    	}
+    	catch (final Exception e) {
+    	  logger.log(Level.WARNING, "Could not change log level to "+
+    	    levelProp, e);
+    	}
     }
   }
 
