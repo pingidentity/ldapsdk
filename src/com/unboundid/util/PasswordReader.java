@@ -109,6 +109,12 @@ public final class PasswordReader
       }
     }
 
+    if (System.console() == null)
+    {
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_PW_READER_CANNOT_READ_PW_WITH_NO_CONSOLE.get());
+    }
+
     return System.console().readPassword();
   }
 

@@ -19,6 +19,14 @@ ${TARGET="offline"}                <br>
                   properties, environment variables, or logger levels.
                   <br><br>
                 </li>
+
+                <li>
+                  Updated the password reader so that it will generate a more user-friendly error
+                  message if it is run in a context when no console is available.  A tool could
+                  encounter this error if its output has been redirected, or if it's not running
+                  in an interactive shell (for example, in a cron job or system startup script).
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
