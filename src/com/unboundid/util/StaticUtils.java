@@ -48,6 +48,9 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
@@ -94,7 +97,7 @@ public final class StaticUtils
   /**
    * The end-of-line marker for this platform.
    */
-  public static final String EOL = System.getProperty("line.separator");
+  public static final String EOL = getSystemProperty("line.separator", "\n");
 
 
 
@@ -123,7 +126,7 @@ public final class StaticUtils
     // Try to dynamically determine the size of the terminal window using the
     // COLUMNS environment variable.
     int terminalWidth = 80;
-    final String columnsEnvVar = System.getenv("COLUMNS");
+    final String columnsEnvVar = getEnvironmentVariable("COLUMNS");
     if (columnsEnvVar != null)
     {
       try
@@ -2621,7 +2624,7 @@ public final class StaticUtils
    */
   public static boolean isWindows()
   {
-    final String osName = toLowerCase(System.getProperty("os.name"));
+    final String osName = toLowerCase(getSystemProperty("os.name"));
     return ((osName != null) && osName.contains("windows"));
   }
 
@@ -4048,5 +4051,235 @@ public final class StaticUtils
     }
 
     return properties;
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified system property.
+   *
+   * @param  name  The name of the system property for which to retrieve the
+   *               value.
+   *
+   * @return  The value of the requested system property, or {@code null} if
+   *          that variable was not set or its value could not be retrieved
+   *          (for example, because a security manager prevents it).
+   */
+  public static String getSystemProperty(final String name)
+  {
+    try
+    {
+      return System.getProperty(name);
+    }
+    catch (final Throwable t)
+    {
+      // It is possible that the call to System.getProperty could fail under
+      // some security managers.  In that case, simply swallow the error and
+      // act as if that system property is not set.
+      Debug.debugException(t);
+      return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified system property.
+   *
+   * @param  name          The name of the system property for which to retrieve
+   *                       the value.
+   * @param  defaultValue  The default value to return if the specified
+   *                       system property is not set or could not be
+   *                       retrieved.
+   *
+   * @return  The value of the requested system property, or the provided
+   *          default value if that system property was not set or its value
+   *          could not be retrieved (for example, because a security manager
+   *          prevents it).
+   */
+  public static String getSystemProperty(final String name,
+                                         final String defaultValue)
+  {
+    try
+    {
+      return System.getProperty(name, defaultValue);
+    }
+    catch (final Throwable t)
+    {
+      // It is possible that the call to System.getProperty could fail under
+      // some security managers.  In that case, simply swallow the error and
+      // act as if that system property is not set.
+      Debug.debugException(t);
+      return defaultValue;
+    }
+  }
+
+
+
+  /**
+   * Attempts to set the value of the specified system property.  Note that this
+   * may not be permitted by some security managers, in which case the attempt
+   * will have no effect.
+   *
+   * @param  name   The name of the System property to set.  It must not be
+   *                {@code null}.
+   * @param  value  The value to use for the system property.  If it is
+   *                {@code null}, then the property will be cleared.
+   *
+   * @return  The former value of the system property, or {@code null} if it
+   *          did not have a value or if it could not be set (for example,
+   *          because a security manager prevents it).
+   */
+  public static String setSystemProperty(final String name, final String value)
+  {
+    try
+    {
+      if (value == null)
+      {
+        return System.clearProperty(name);
+      }
+      else
+      {
+        return System.setProperty(name, value);
+      }
+    }
+    catch (final Throwable t)
+    {
+      // It is possible that the call to System.setProperty or
+      // System.clearProperty could fail under some security managers.  In that
+      // case, simply swallow the error and act as if that system property is
+      // not set.
+      Debug.debugException(t);
+      return null;
+    }
+  }
+
+
+
+  /**
+   * Attempts to clear the value of the specified system property.  Note that
+   * this may not be permitted by some security managers, in which case the
+   * attempt will have no effect.
+   *
+   * @param  name  The name of the System property to clear.  It must not be
+   *               {@code null}.
+   *
+   * @return  The former value of the system property, or {@code null} if it
+   *          did not have a value or if it could not be set (for example,
+   *          because a security manager prevents it).
+   */
+  public static String clearSystemProperty(final String name)
+  {
+    try
+    {
+      return System.clearProperty(name);
+    }
+    catch (final Throwable t)
+    {
+      // It is possible that the call to System.clearProperty could fail under
+      // some security managers.  In that case, simply swallow the error and
+      // act as if that system property is not set.
+      Debug.debugException(t);
+      return null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves a map of all environment variables defined in the JVM's process.
+   *
+   * @return  A map of all environment variables defined in the JVM's process,
+   *          or an empty map if no environment variables are set or the actual
+   *          set could not be retrieved (for example, because a security
+   *          manager prevents it).
+   */
+  public static Map<String,String> getEnvironmentVariables()
+  {
+    try
+    {
+      return System.getenv();
+    }
+    catch (final Throwable t)
+    {
+      // It is possible that the call to System.getenv could fail under some
+      // security managers.  In that case, simply swallow the error and pretend
+      // that the environment variable is not set.
+      Debug.debugException(t);
+      return Collections.emptyMap();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the value of the specified environment variable.
+   *
+   * @param  name  The name of the environment variable for which to retrieve
+   *               the value.
+   *
+   * @return  The value of the requested environment variable, or {@code null}
+   *          if that variable was not set or its value could not be retrieved
+   *          (for example, because a security manager prevents it).
+   */
+  public static String getEnvironmentVariable(final String name)
+  {
+    try
+    {
+      return System.getenv(name);
+    }
+    catch (final Throwable t)
+    {
+      // It is possible that the call to System.getenv could fail under some
+      // security managers.  In that case, simply swallow the error and pretend
+      // that the environment variable is not set.
+      Debug.debugException(t);
+      return null;
+    }
+  }
+
+
+
+  /**
+   * Attempts to set the desired log level for the specified logger.  Note that
+   * this may not be permitted by some security managers, in which case the
+   * attempt will have no effect.
+   *
+   * @param  logger    The logger whose level should be updated.
+   * @param  logLevel  The log level to set for the logger.
+   */
+  public static void setLoggerLevel(final Logger logger, final Level logLevel)
+  {
+    try
+    {
+      logger.setLevel(logLevel);
+    }
+    catch (final Throwable t)
+    {
+      Debug.debugException(t);
+    }
+  }
+
+
+
+  /**
+   * Attempts to set the desired log level for the specified log handler.  Note
+   * that this may not be permitted by some security managers, in which case the
+   * attempt will have no effect.
+   *
+   * @param  logHandler  The log handler whose level should be updated.
+   * @param  logLevel    The log level to set for the log handler.
+   */
+  public static void setLogHandlerLevel(final Handler logHandler,
+                                        final Level logLevel)
+  {
+    try
+    {
+      logHandler.setLevel(logLevel);
+    }
+    catch (final Throwable t)
+    {
+      Debug.debugException(t);
+    }
   }
 }

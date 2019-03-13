@@ -151,7 +151,8 @@ public final class ValidateLDIF
   /**
    * The end-of-line character for this platform.
    */
-  private static final String EOL = System.getProperty("line.separator", "\n");
+  private static final String EOL =
+       StaticUtils.getSystemProperty("line.separator", "\n");
 
 
 

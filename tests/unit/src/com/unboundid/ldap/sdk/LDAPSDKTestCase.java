@@ -22,12 +22,16 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.security.MessageDigest;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1811,6 +1815,70 @@ public abstract class LDAPSDKTestCase
     }
 
     f.delete();
+  }
+
+
+
+  /**
+   * Reads the bytes that comprise the specified file.
+   *
+   * @param  f  The file to be read.
+   *
+   * @return  The bytes that comprise the specified file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  protected static byte[] readFileBytes(final File f)
+            throws Exception
+  {
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+         FileInputStream inputStream = new FileInputStream(f))
+    {
+      final byte[] buffer = new byte[8192];
+      while (true)
+      {
+        final int bytesRead = inputStream.read(buffer);
+        if (bytesRead < 0)
+        {
+          return outputStream.toByteArray();
+        }
+
+        outputStream.write(buffer, 0, bytesRead);
+      }
+    }
+  }
+
+
+
+  /**
+   * Reads the lines of the specified file into a list.
+   *
+   * @param  f  The file to be read.
+   *
+   * @return  A list of the lines read from the specified file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  protected static List<String> readFileLines(final File f)
+            throws Exception
+  {
+    final List<String> lines = new ArrayList<>(100);
+    try (FileReader fileReader = new FileReader(f);
+         BufferedReader bufferedReader = new BufferedReader(fileReader))
+    {
+      while (true)
+      {
+        final String line = bufferedReader.readLine();
+        if (line == null)
+        {
+          break;
+        }
+
+        lines.add(line);
+      }
+    }
+
+    return lines;
   }
 
 

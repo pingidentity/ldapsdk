@@ -473,7 +473,7 @@ public final class LDAPDebugger
     {
       logHandler = new ConsoleHandler();
     }
-    logHandler.setLevel(Level.INFO);
+    StaticUtils.setLogHandlerLevel(logHandler, Level.INFO);
     logHandler.setFormatter(new MinimalLogFormatter(
          MinimalLogFormatter.DEFAULT_TIMESTAMP_FORMAT, false, false, true));
 

@@ -1228,7 +1228,8 @@ processingBlock:
       // schema files in it, then read the schema from that directory.
       try
       {
-        final String instanceRootStr = System.getenv("INSTANCE_ROOT");
+        final String instanceRootStr =
+             StaticUtils.getEnvironmentVariable("INSTANCE_ROOT");
         if (instanceRootStr != null)
         {
           final File instanceRoot = new File(instanceRootStr);

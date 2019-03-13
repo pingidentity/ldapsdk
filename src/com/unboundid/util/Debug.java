@@ -215,7 +215,7 @@ public final class Debug
     debugEnabled      = false;
     debugTypes        = EnumSet.allOf(DebugType.class);
 
-    logger.setLevel(Level.ALL);
+    StaticUtils.setLoggerLevel(logger, Level.ALL);
   }
 
 
@@ -309,7 +309,7 @@ public final class Debug
     final String levelProp = properties.getProperty(PROPERTY_DEBUG_LEVEL);
     if ((levelProp != null) && (! levelProp.isEmpty()))
     {
-      logger.setLevel(Level.parse(levelProp));
+      StaticUtils.setLoggerLevel(logger, Level.parse(levelProp));
     }
   }
 

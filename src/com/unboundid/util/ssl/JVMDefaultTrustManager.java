@@ -133,7 +133,8 @@ public final class JVMDefaultTrustManager
   JVMDefaultTrustManager(final String javaHomePropertyName)
   {
     // Determine the path to the root of the Java installation.
-    final String javaHomePath = System.getProperty(javaHomePropertyName);
+    final String javaHomePath =
+         StaticUtils.getSystemProperty(javaHomePropertyName);
     if (javaHomePath == null)
     {
       certificateException = new CertificateException(

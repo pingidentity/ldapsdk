@@ -192,7 +192,7 @@ public final class LDIFReader
   static
   {
     final File currentDir;
-    final String currentDirString = System.getProperty("user.dir");
+    final String currentDirString = StaticUtils.getSystemProperty("user.dir");
     if (currentDirString == null)
     {
       currentDir = new File(".");

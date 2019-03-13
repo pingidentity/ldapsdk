@@ -128,10 +128,11 @@ public final class ToolInvocationLogger
     // that path, but to facilitate unit testing, we'll allow it to be
     // overridden by a Java system property so that we can have our own custom
     // path.
-    String instanceRootPath = System.getProperty(PROPERTY_TEST_INSTANCE_ROOT);
+    String instanceRootPath =
+         StaticUtils.getSystemProperty(PROPERTY_TEST_INSTANCE_ROOT);
     if (instanceRootPath == null)
     {
-      instanceRootPath = System.getenv("INSTANCE_ROOT");
+      instanceRootPath = StaticUtils.getEnvironmentVariable("INSTANCE_ROOT");
       if (instanceRootPath == null)
       {
         return ToolInvocationLogDetails.createDoNotLogDetails(commandName);
@@ -489,7 +490,7 @@ public final class ToolInvocationLogger
     msgBuffer.append(logDetails.getInvocationID());
     msgBuffer.append(StaticUtils.EOL);
 
-    final String systemUserName = System.getProperty("user.name");
+    final String systemUserName = StaticUtils.getSystemProperty("user.name");
     if ((systemUserName != null) && (! systemUserName.isEmpty()))
     {
       msgBuffer.append("# System User: ");

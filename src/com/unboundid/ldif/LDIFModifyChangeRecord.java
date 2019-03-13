@@ -78,7 +78,7 @@ public final class LDIFModifyChangeRecord
   static
   {
     final String propValue =
-         System.getProperty(PROPERTY_ALWAYS_INCLUDE_TRAILING_DASH);
+         StaticUtils.getSystemProperty(PROPERTY_ALWAYS_INCLUDE_TRAILING_DASH);
     if ((propValue != null) && (propValue.equalsIgnoreCase("false")))
     {
       alwaysIncludeTrailingDash = false;

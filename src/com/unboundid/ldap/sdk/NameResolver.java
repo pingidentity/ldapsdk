@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.unboundid.util.Extensible;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -48,7 +49,7 @@ public abstract class NameResolver
    * The name of the system property that the JVM uses to specify how long (in
    * seconds) to cache the results of successful name service lookups.
    */
-  private static String JVM_PROPERTY_POSITIVE_ADDRESS_CACHE_TTL_SECONDS =
+  private static final String JVM_PROPERTY_POSITIVE_ADDRESS_CACHE_TTL_SECONDS =
        "networkaddress.cache.ttl";
 
 
@@ -58,7 +59,7 @@ public abstract class NameResolver
    * seconds) to cache the results of unsuccessful name service lookups (that
    * is, lookups that return no mapping).
    */
-  private static String JVM_PROPERTY_NEGATIVE_ADDRESS_CACHE_TTL_SECONDS =
+  private static final String JVM_PROPERTY_NEGATIVE_ADDRESS_CACHE_TTL_SECONDS =
        "networkaddress.cache.negative.ttl";
 
 
@@ -68,7 +69,7 @@ public abstract class NameResolver
    */
   protected NameResolver()
   {
-    // No implemenattion is required.
+    // No implementation is required.
   }
 
 
@@ -218,11 +219,13 @@ public abstract class NameResolver
   {
     if (seconds < 0)
     {
-      System.setProperty(JVM_PROPERTY_POSITIVE_ADDRESS_CACHE_TTL_SECONDS, "-1");
+      StaticUtils.setSystemProperty(
+           JVM_PROPERTY_POSITIVE_ADDRESS_CACHE_TTL_SECONDS, "-1");
     }
     else
     {
-      System.setProperty(JVM_PROPERTY_POSITIVE_ADDRESS_CACHE_TTL_SECONDS,
+      StaticUtils.setSystemProperty(
+           JVM_PROPERTY_POSITIVE_ADDRESS_CACHE_TTL_SECONDS,
            String.valueOf(seconds));
     }
   }
@@ -248,11 +251,13 @@ public abstract class NameResolver
   {
     if (seconds < 0)
     {
-      System.setProperty(JVM_PROPERTY_NEGATIVE_ADDRESS_CACHE_TTL_SECONDS, "-1");
+      StaticUtils.setSystemProperty(
+           JVM_PROPERTY_NEGATIVE_ADDRESS_CACHE_TTL_SECONDS, "-1");
     }
     else
     {
-      System.setProperty(JVM_PROPERTY_NEGATIVE_ADDRESS_CACHE_TTL_SECONDS,
+      StaticUtils.setSystemProperty(
+           JVM_PROPERTY_NEGATIVE_ADDRESS_CACHE_TTL_SECONDS,
            String.valueOf(seconds));
     }
   }
@@ -264,6 +269,7 @@ public abstract class NameResolver
    *
    * @return  A string representation of this name resolver.
    */
+  @Override()
   public final String toString()
   {
     final StringBuilder buffer = new StringBuilder();

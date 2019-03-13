@@ -2497,10 +2497,12 @@ public final class ArgumentParser
     // JVM property or an environment variable.  If both are defined, the JVM
     // property will take precedence.  If a property or environment variable
     // specifies an invalid value, then we'll just ignore it.
-    String path = System.getProperty(PROPERTY_DEFAULT_PROPERTIES_FILE_PATH);
+    String path = StaticUtils.getSystemProperty(
+         PROPERTY_DEFAULT_PROPERTIES_FILE_PATH);
     if (path == null)
     {
-      path = System.getenv(ENV_DEFAULT_PROPERTIES_FILE_PATH);
+      path = StaticUtils.getEnvironmentVariable(
+           ENV_DEFAULT_PROPERTIES_FILE_PATH);
     }
 
     if (path != null)

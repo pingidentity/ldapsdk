@@ -173,7 +173,7 @@ public final class GSSAPIBindRequest
    * an automatically-generated config file.
    */
   private static final String DEFAULT_CONFIG_FILE =
-       System.getProperty(PROPERTY_CONFIG_FILE);
+       StaticUtils.getSystemProperty(PROPERTY_CONFIG_FILE);
 
 
 
@@ -181,7 +181,7 @@ public final class GSSAPIBindRequest
    * The default KDC address that will be used if none is explicitly configured.
    */
   private static final String DEFAULT_KDC_ADDRESS =
-       System.getProperty(PROPERTY_KDC_ADDRESS);
+       StaticUtils.getSystemProperty(PROPERTY_KDC_ADDRESS);
 
 
 
@@ -189,7 +189,7 @@ public final class GSSAPIBindRequest
    * The default realm that will be used if none is explicitly configured.
    */
   private static final String DEFAULT_REALM =
-       System.getProperty(PROPERTY_REALM);
+       StaticUtils.getSystemProperty(PROPERTY_REALM);
 
 
 
@@ -1532,7 +1532,7 @@ public final class GSSAPIBindRequest
   {
     if (! suppressedSystemProperties.contains(name))
     {
-      System.clearProperty(name);
+      StaticUtils.clearSystemProperty(name);
     }
   }
 
@@ -1549,7 +1549,7 @@ public final class GSSAPIBindRequest
   {
     if (! suppressedSystemProperties.contains(name))
     {
-      System.setProperty(name, value);
+      StaticUtils.setSystemProperty(name, value);
     }
   }
 

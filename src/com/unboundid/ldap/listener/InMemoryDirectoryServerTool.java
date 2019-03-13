@@ -1264,7 +1264,7 @@ public final class InMemoryDirectoryServerTool
     {
       final StreamHandler handler = new StreamHandler(System.out,
            new MinimalLogFormatter(null, false, false, true));
-      handler.setLevel(Level.INFO);
+      StaticUtils.setLogHandlerLevel(handler, Level.INFO);
       serverConfig.setAccessLogHandler(handler);
     }
     else if (accessLogFileArgument.isPresent())
@@ -1274,7 +1274,7 @@ public final class InMemoryDirectoryServerTool
       {
         final FileHandler handler =
              new FileHandler(logFile.getAbsolutePath(), true);
-        handler.setLevel(Level.INFO);
+        StaticUtils.setLogHandlerLevel(handler, Level.INFO);
         handler.setFormatter(new MinimalLogFormatter(null, false, false,
              true));
         serverConfig.setAccessLogHandler(handler);
@@ -1297,7 +1297,7 @@ public final class InMemoryDirectoryServerTool
     {
       final StreamHandler handler = new StreamHandler(System.out,
            new MinimalLogFormatter(null, false, false, true));
-      handler.setLevel(Level.INFO);
+      StaticUtils.setLogHandlerLevel(handler, Level.INFO);
       serverConfig.setLDAPDebugLogHandler(handler);
     }
     else if (ldapDebugLogFileArgument.isPresent())
@@ -1307,7 +1307,7 @@ public final class InMemoryDirectoryServerTool
       {
         final FileHandler handler =
              new FileHandler(logFile.getAbsolutePath(), true);
-        handler.setLevel(Level.INFO);
+        StaticUtils.setLogHandlerLevel(handler, Level.INFO);
         handler.setFormatter(new MinimalLogFormatter(null, false, false,
              true));
         serverConfig.setLDAPDebugLogHandler(handler);

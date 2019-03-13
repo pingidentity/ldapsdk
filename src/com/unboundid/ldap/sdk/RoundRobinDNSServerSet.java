@@ -893,7 +893,7 @@ public final class RoundRobinDNSServerSet
   InetAddress[] getDefaultAddresses()
   {
     final String defaultAddrsStr =
-         System.getProperty(PROPERTY_DEFAULT_ADDRESSES);
+         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_ADDRESSES);
     if (defaultAddrsStr == null)
     {
       return null;

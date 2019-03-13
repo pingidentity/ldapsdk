@@ -926,8 +926,8 @@ public final class LDAPConnectionOptions
     final HashMap<String,Long> timeoutsByExtOpType =
          new HashMap<>(StaticUtils.computeMapCapacity(10));
 
-    final String allOpsPropertyValue =
-         System.getProperty(PROPERTY_DEFAULT_RESPONSE_TIMEOUT_MILLIS);
+    final String allOpsPropertyValue = StaticUtils.getSystemProperty(
+         PROPERTY_DEFAULT_RESPONSE_TIMEOUT_MILLIS);
     if (allOpsPropertyValue != null)
     {
       try
@@ -1096,8 +1096,8 @@ public final class LDAPConnectionOptions
   private static final boolean DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE;
   static
   {
-    final String vmVendor =
-         StaticUtils.toLowerCase(System.getProperty("java.vm.vendor"));
+    final String vmVendor = StaticUtils.toLowerCase(
+         StaticUtils.getSystemProperty("java.vm.vendor"));
     DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE = ((vmVendor != null) &&
          (vmVendor.contains("sun microsystems") ||
           vmVendor.contains("oracle") ||
@@ -2402,7 +2402,7 @@ public final class LDAPConnectionOptions
   static boolean getSystemProperty(final String propertyName,
                                    final boolean defaultValue)
   {
-    final String propertyValue = System.getProperty(propertyName);
+    final String propertyValue = StaticUtils.getSystemProperty(propertyName);
     if (propertyValue == null)
     {
       if (Debug.debugEnabled())
@@ -2470,7 +2470,8 @@ public final class LDAPConnectionOptions
   static int getSystemProperty(final String propertyName,
                                final int defaultValue)
   {
-    final String propertyValueString = System.getProperty(propertyName);
+    final String propertyValueString =
+         StaticUtils.getSystemProperty(propertyName);
     if (propertyValueString == null)
     {
       if (Debug.debugEnabled())
@@ -2530,7 +2531,8 @@ public final class LDAPConnectionOptions
   static Long getSystemProperty(final String propertyName,
                                 final Long defaultValue)
   {
-    final String propertyValueString = System.getProperty(propertyName);
+    final String propertyValueString =
+         StaticUtils.getSystemProperty(propertyName);
     if (propertyValueString == null)
     {
       if (Debug.debugEnabled())

@@ -894,7 +894,7 @@ public final class SSLUtil
     // See if there is a system property that specifies what the default SSL
     // protocol should be.  If not, then try to dynamically determine it.
     final String defaultPropValue =
-         System.getProperty(PROPERTY_DEFAULT_SSL_PROTOCOL);
+         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_SSL_PROTOCOL);
     if ((defaultPropValue != null) && (! defaultPropValue.isEmpty()))
     {
       DEFAULT_SSL_PROTOCOL.set(defaultPropValue);
@@ -964,7 +964,7 @@ public final class SSLUtil
     // If there is a system property that specifies which enabled SSL protocols
     // to use, then it will override the defaults.
     final String enabledPropValue =
-         System.getProperty(PROPERTY_ENABLED_SSL_PROTOCOLS);
+         StaticUtils.getSystemProperty(PROPERTY_ENABLED_SSL_PROTOCOLS);
     if ((enabledPropValue != null) && (! enabledPropValue.isEmpty()))
     {
       enabledProtocols.clear();

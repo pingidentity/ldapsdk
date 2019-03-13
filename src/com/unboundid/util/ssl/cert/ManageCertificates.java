@@ -142,7 +142,7 @@ public final class ManageCertificates
   static
   {
     final String propertyValue =
-         System.getProperty(PROPERTY_DEFAULT_KEYSTORE_TYPE);
+         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_KEYSTORE_TYPE);
     if ((propertyValue != null) &&
         (propertyValue.equalsIgnoreCase("PKCS12") ||
          propertyValue.equalsIgnoreCase("PKCS#12") ||
