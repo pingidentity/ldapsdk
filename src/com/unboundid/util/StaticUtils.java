@@ -123,17 +123,15 @@ public final class StaticUtils
     // Try to dynamically determine the size of the terminal window using the
     // COLUMNS environment variable.
     int terminalWidth = 80;
-    final String columnsEnvVar = System.getenv("COLUMNS");
-    if (columnsEnvVar != null)
-    {
-      try
-      {
+    try {
+      final String columnsEnvVar = System.getenv("COLUMNS");
+      if (columnsEnvVar != null) {
         terminalWidth = Integer.parseInt(columnsEnvVar);
       }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
     }
 
     TERMINAL_WIDTH_COLUMNS = terminalWidth;
