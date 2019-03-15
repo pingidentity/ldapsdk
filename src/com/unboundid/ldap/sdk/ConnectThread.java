@@ -151,12 +151,23 @@ final class ConnectThread
 
       if (s instanceof SSLSocket)
       {
-        ((SSLSocket) s).startHandshake();
+        try
+        {
+          ((SSLSocket) s).startHandshake();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          s.close();
+          throw e;
+        }
       }
     }
     catch (final Throwable t)
     {
       Debug.debugException(t);
+      socket.set(null);
+      connected.set(false);
       exception.set(t);
     }
     finally

@@ -14,6 +14,18 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Improved the exception message that is generated if a failure occurs while
+                  trying to create a TLS-based connection.  If the JVM supports creating an
+                  unconnected SSLSocket and then connecting it after the fact (which makes it
+                  possible to specify a connect timeout), and that connection attempt failed (for
+                  example, because the client did not trust the certificate presented by the
+                  server), the LDAP SDK could think that the connection was still established.
+                  Subsequent attempts to use the connection would fail, but the failure message
+                  would not accurately reflect the true cause of the problem.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK to add protection against JVM security managers that may
                   prevent calls to certain methods, like attempts to interact with system
                   properties, environment variables, or logger levels.
