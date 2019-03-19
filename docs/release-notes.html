@@ -26,6 +26,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapsearch and ldapmodify command-line tools to use an unlimited
+                  response timeout, which will prevent the tool from giving up on an operation if
+                  it takes the server a long time to return any kind of response.  Previously,
+                  the tools used the LDAP SDK's default timeout of 5 minutes for searches and 30
+                  seconds for add, delete, modify, and modify DN operations.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK to add protection against JVM security managers that may
                   prevent calls to certain methods, like attempts to interact with system
                   properties, environment variables, or logger levels.

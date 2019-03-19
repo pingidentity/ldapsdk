@@ -1481,6 +1481,7 @@ public final class LDAPModify
     options.setUseSynchronousMode(true);
     options.setFollowReferrals(followReferrals.isPresent());
     options.setUnsolicitedNotificationHandler(this);
+    options.setResponseTimeoutMillis(0L);
 
     return options;
   }
