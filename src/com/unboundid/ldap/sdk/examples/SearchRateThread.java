@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -67,6 +68,9 @@ final class SearchRateThread
 
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
+
+  // The number of searchrate threads that are currently running.
+  private final AtomicInteger runningThreads;
 
   // The counter used to track the number of entries returned.
   private final AtomicLong entryCounter;
@@ -183,6 +187,9 @@ final class SearchRateThread
    *                                    processed on a connection before it is
    *                                    closed and replaced with a
    *                                    newly-established connection.
+   * @param  runningThreads             An atomic integer that will be
+   *                                    incremented when this thread starts,
+   *                                    and decremented when it completes.
    * @param  startBarrier               A barrier used to coordinate starting
    *                                    between all of the threads.
    * @param  searchCounter              A value that will be used to keep track
@@ -215,6 +222,7 @@ final class SearchRateThread
                    final Integer simplePageSize,
                    final List<Control> requestControls,
                    final long iterationsBeforeReconnect,
+                   final AtomicInteger runningThreads,
                    final CyclicBarrier startBarrier,
                    final AtomicLong searchCounter,
                    final AtomicLong entryCounter,
@@ -243,6 +251,7 @@ final class SearchRateThread
     this.searchDurations           = searchDurations;
     this.errorCounter              = errorCounter;
     this.rcCounter                 = rcCounter;
+    this.runningThreads            = runningThreads;
     this.startBarrier              = startBarrier;
     this.asyncSemaphore            = asyncSemaphore;
     fixedRateBarrier               = rateBarrier;
@@ -275,253 +284,261 @@ final class SearchRateThread
   @Override()
   public void run()
   {
-    searchThread.set(currentThread());
-
     try
     {
-      startBarrier.await();
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
+      searchThread.set(currentThread());
+      runningThreads.incrementAndGet();
 
-    while (! stopRequested.get())
-    {
-      if ((iterationsBeforeReconnect > 0L) &&
-          (remainingIterationsBeforeReconnect.decrementAndGet() <= 0))
+      try
       {
-        remainingIterationsBeforeReconnect.set(iterationsBeforeReconnect);
-        if (connection != null)
-        {
-          connection.close();
-          connection = null;
-        }
+        startBarrier.await();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
       }
 
-      if (connection == null)
+      while (! stopRequested.get())
       {
-        try
+        if ((iterationsBeforeReconnect > 0L) &&
+             (remainingIterationsBeforeReconnect.decrementAndGet() <= 0))
         {
-          connection = searchRate.getConnection();
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
-          if (fixedRateBarrier != null)
+          remainingIterationsBeforeReconnect.set(iterationsBeforeReconnect);
+          if (connection != null)
           {
-            fixedRateBarrier.await();
+            connection.close();
+            connection = null;
           }
-
-          continue;
         }
-      }
 
-      // If we're trying for a specific target rate, then we might need to
-      // wait until issuing the next search.
-      if (fixedRateBarrier != null)
-      {
-        fixedRateBarrier.await();
-      }
-
-      ProxiedAuthorizationV2RequestControl proxyControl = null;
-      if (async)
-      {
-        if (asyncSemaphore != null)
+        if (connection == null)
         {
           try
           {
-            asyncSemaphore.acquire();
+            connection = searchRate.getConnection();
           }
-          catch (final Exception e)
+          catch (final LDAPException le)
           {
-            Debug.debugException(e);
+            Debug.debugException(le);
+
             errorCounter.incrementAndGet();
 
-            final ResultCode rc = ResultCode.LOCAL_ERROR;
+            final ResultCode rc = le.getResultCode();
             rcCounter.increment(rc);
             resultCode.compareAndSet(null, rc);
+
+            if (fixedRateBarrier != null)
+            {
+              fixedRateBarrier.await();
+            }
+
             continue;
           }
         }
 
-        final SearchRateAsyncListener listener = new SearchRateAsyncListener(
-             searchCounter, entryCounter, searchDurations, errorCounter,
-             rcCounter, asyncSemaphore, resultCode);
-
-        try
+        // If we're trying for a specific target rate, then we might need to
+        // wait until issuing the next search.
+        if (fixedRateBarrier != null)
         {
-          final SearchRequest r = new SearchRequest(listener,
-               baseDN.nextValue(), scope, filter.nextValue(), attributes);
-          r.setControls(requestControls);
-          if (authzID != null)
-          {
-            r.addControl(new ProxiedAuthorizationV2RequestControl(
-                 authzID.nextValue()));
-          }
-
-          connection.asyncSearch(r);
+          fixedRateBarrier.await();
         }
-        catch (final LDAPException le)
+
+        ProxiedAuthorizationV2RequestControl proxyControl = null;
+        if (async)
         {
-          Debug.debugException(le);
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
           if (asyncSemaphore != null)
           {
-            asyncSemaphore.release();
+            try
+            {
+              asyncSemaphore.acquire();
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+              errorCounter.incrementAndGet();
+
+              final ResultCode rc = ResultCode.LOCAL_ERROR;
+              rcCounter.increment(rc);
+              resultCode.compareAndSet(null, rc);
+              continue;
+            }
           }
 
-          continue;
-        }
-      }
-      else
-      {
-        try
-        {
-          searchRequest.setBaseDN(baseDN.nextValue());
-          searchRequest.setFilter(filter.nextValue());
+          final SearchRateAsyncListener listener = new SearchRateAsyncListener(
+               searchCounter, entryCounter, searchDurations, errorCounter,
+               rcCounter, asyncSemaphore, resultCode);
 
-          searchRequest.setControls(requestControls);
-
-          if (simplePageSize != null)
-          {
-            searchRequest.addControl(
-                 new SimplePagedResultsControl(simplePageSize));
-          }
-
-          if (authzID != null)
-          {
-            proxyControl = new ProxiedAuthorizationV2RequestControl(
-                 authzID.nextValue());
-            searchRequest.addControl(proxyControl);
-          }
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-          continue;
-        }
-
-        long entriesReturned = 0L;
-        final long startTime = System.nanoTime();
-
-        while (true)
-        {
-          SearchResult r;
           try
           {
-            r = connection.search(searchRequest);
-            entriesReturned += r.getEntryCount();
+            final SearchRequest r = new SearchRequest(listener,
+                 baseDN.nextValue(), scope, filter.nextValue(), attributes);
+            r.setControls(requestControls);
+            if (authzID != null)
+            {
+              r.addControl(new ProxiedAuthorizationV2RequestControl(
+                   authzID.nextValue()));
+            }
+
+            connection.asyncSearch(r);
           }
-          catch (final LDAPSearchException lse)
+          catch (final LDAPException le)
           {
-            Debug.debugException(lse);
-
-            r = lse.getSearchResult();
-
+            Debug.debugException(le);
             errorCounter.incrementAndGet();
-            entriesReturned += lse.getEntryCount();
 
-            final ResultCode rc = lse.getResultCode();
+            final ResultCode rc = le.getResultCode();
             rcCounter.increment(rc);
             resultCode.compareAndSet(null, rc);
 
-            if (! lse.getResultCode().isConnectionUsable())
+            if (asyncSemaphore != null)
             {
-              connection.close();
-              connection = null;
+              asyncSemaphore.release();
             }
 
-            break;
+            continue;
           }
-
-          if (simplePageSize == null)
-          {
-            break;
-          }
-
+        }
+        else
+        {
           try
           {
-            final SimplePagedResultsControl sprResponse =
-                 SimplePagedResultsControl.get(r);
-            if ((sprResponse == null) || (! sprResponse.moreResultsToReturn()))
-            {
-              break;
-            }
+            searchRequest.setBaseDN(baseDN.nextValue());
+            searchRequest.setFilter(filter.nextValue());
 
             searchRequest.setControls(requestControls);
 
             if (simplePageSize != null)
             {
-              searchRequest.addControl(new SimplePagedResultsControl(
-                   simplePageSize, sprResponse.getCookie()));
+              searchRequest.addControl(
+                   new SimplePagedResultsControl(simplePageSize));
             }
 
-            if (proxyControl != null)
+            if (authzID != null)
             {
+              proxyControl = new ProxiedAuthorizationV2RequestControl(
+                   authzID.nextValue());
               searchRequest.addControl(proxyControl);
             }
+          }
+          catch (final LDAPException le)
+          {
+            Debug.debugException(le);
+            errorCounter.incrementAndGet();
+
+            final ResultCode rc = le.getResultCode();
+            rcCounter.increment(rc);
+            resultCode.compareAndSet(null, rc);
+            continue;
+          }
+
+          long entriesReturned = 0L;
+          final long startTime = System.nanoTime();
+
+          while (true)
+          {
+            SearchResult r;
+            try
+            {
+              r = connection.search(searchRequest);
+              entriesReturned += r.getEntryCount();
+            }
+            catch (final LDAPSearchException lse)
+            {
+              Debug.debugException(lse);
+
+              r = lse.getSearchResult();
+
+              errorCounter.incrementAndGet();
+              entriesReturned += lse.getEntryCount();
+
+              final ResultCode rc = lse.getResultCode();
+              rcCounter.increment(rc);
+              resultCode.compareAndSet(null, rc);
+
+              if (! lse.getResultCode().isConnectionUsable())
+              {
+                connection.close();
+                connection = null;
+              }
+
+              break;
+            }
+
+            if (simplePageSize == null)
+            {
+              break;
+            }
+
+            try
+            {
+              final SimplePagedResultsControl sprResponse =
+                   SimplePagedResultsControl.get(r);
+              if ((sprResponse == null) ||
+                   (! sprResponse.moreResultsToReturn()))
+              {
+                break;
+              }
+
+              searchRequest.setControls(requestControls);
+
+              if (simplePageSize != null)
+              {
+                searchRequest.addControl(new SimplePagedResultsControl(
+                     simplePageSize, sprResponse.getCookie()));
+              }
+
+              if (proxyControl != null)
+              {
+                searchRequest.addControl(proxyControl);
+              }
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+              break;
+            }
+          }
+
+          searchCounter.incrementAndGet();
+          searchDurations.addAndGet(System.nanoTime() - startTime);
+          entryCounter.addAndGet(entriesReturned);
+        }
+      }
+
+      // Wait for all outstanding asynchronous searches to complete before
+      // closing the connection.
+      if (asyncSemaphore != null)
+      {
+        while (asyncSemaphore.availablePermits() <
+             searchRate.getMaxOutstandingRequests())
+        {
+          try
+          {
+            Thread.sleep(1L);
           }
           catch (final Exception e)
           {
             Debug.debugException(e);
-            break;
+
+            if (e instanceof InterruptedException)
+            {
+              Thread.currentThread().interrupt();
+              break;
+            }
           }
         }
-
-        searchCounter.incrementAndGet();
-        searchDurations.addAndGet(System.nanoTime() - startTime);
-        entryCounter.addAndGet(entriesReturned);
       }
     }
-
-    // Wait for all outstanding asynchronous searches to complete before closing
-    // the connection.
-    if (asyncSemaphore != null)
+    finally
     {
-      while (asyncSemaphore.availablePermits() <
-           searchRate.getMaxOutstandingRequests())
+      if (connection != null)
       {
-        try
-        {
-          Thread.sleep(1L);
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-
-          if (e instanceof InterruptedException)
-          {
-            Thread.currentThread().interrupt();
-            break;
-          }
-        }
+        connection.close();
       }
-    }
 
-    if (connection != null)
-    {
-      connection.close();
+      searchThread.set(null);
+      runningThreads.decrementAndGet();
     }
-
-    searchThread.set(null);
   }
 
 

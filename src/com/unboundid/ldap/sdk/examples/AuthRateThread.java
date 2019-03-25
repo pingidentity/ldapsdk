@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.examples;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -90,6 +91,9 @@ final class AuthRateThread
 
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
+
+  // The number of authrate threads that are currently running.
+  private final AtomicInteger runningThreads;
 
   // The counter used to track the number of searches performed.
   private final AtomicLong authCounter;
@@ -168,6 +172,9 @@ final class AuthRateThread
    * @param  searchControls    The set of controls to include in search
    *                           requests.
    * @param  bindControls      The set of controls to include in bind requests.
+   * @param  runningThreads    An atomic integer that will be incremented when
+   *                           this thread starts, and decremented when it
+   *                           completes.
    * @param  startBarrier      A barrier used to coordinate starting between all
    *                           of the threads.
    * @param  authCounter       A value that will be used to keep track of the
@@ -190,6 +197,7 @@ final class AuthRateThread
                  final boolean bindOnly, final String authType,
                  final List<Control> searchControls,
                  final List<Control> bindControls,
+                 final AtomicInteger runningThreads,
                  final CyclicBarrier startBarrier,
                  final AtomicLong authCounter, final AtomicLong authDurations,
                  final AtomicLong errorCounter,
@@ -210,6 +218,7 @@ final class AuthRateThread
     this.authDurations    = authDurations;
     this.errorCounter     = errorCounter;
     this.rcCounter        = rcCounter;
+    this.runningThreads   = runningThreads;
     this.startBarrier     = startBarrier;
     fixedRateBarrier      = rateBarrier;
 
@@ -259,190 +268,198 @@ final class AuthRateThread
   @Override()
   public void run()
   {
-    authThread.set(currentThread());
-
     try
     {
-      startBarrier.await();
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-    while (! stopRequested.get())
-    {
-      if (searchConnection == null)
-      {
-        try
-        {
-          searchConnection = authRate.getConnection();
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
-          if (fixedRateBarrier != null)
-          {
-            fixedRateBarrier.await();
-          }
-
-          continue;
-        }
-      }
-
-      if (bindConnection == null)
-      {
-        try
-        {
-          bindConnection = authRate.getConnection();
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
-          if (fixedRateBarrier != null)
-          {
-            fixedRateBarrier.await();
-          }
-
-          continue;
-        }
-      }
-
-      if (! bindOnly)
-      {
-        try
-        {
-          searchRequest.setBaseDN(baseDN.nextValue());
-          searchRequest.setFilter(filter.nextValue());
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-          continue;
-        }
-      }
-
-      // If we're trying for a specific target rate, then we might need to
-      // wait until starting the next authorization.
-      if (fixedRateBarrier != null)
-      {
-        fixedRateBarrier.await();
-      }
-
-      final long startTime = System.nanoTime();
+      authThread.set(currentThread());
+      runningThreads.incrementAndGet();
 
       try
       {
-        final String bindDN;
-        if (bindOnly)
+        startBarrier.await();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+
+      while (! stopRequested.get())
+      {
+        if (searchConnection == null)
         {
-          bindDN = baseDN.nextValue();
-        }
-        else
-        {
-          final SearchResult r = searchConnection.search(searchRequest);
-          switch (r.getEntryCount())
+          try
           {
-            case 0:
-              errorCounter.incrementAndGet();
-              rcCounter.increment(ResultCode.NO_RESULTS_RETURNED);
-              resultCode.compareAndSet(null, ResultCode.NO_RESULTS_RETURNED);
-              continue;
+            searchConnection = authRate.getConnection();
+          }
+          catch (final LDAPException le)
+          {
+            Debug.debugException(le);
 
-            case 1:
-              // This is acceptable, and we can continue processing.
-              bindDN = r.getSearchEntries().get(0).getDN();
-              break;
+            errorCounter.incrementAndGet();
 
-            default:
-              errorCounter.incrementAndGet();
-              rcCounter.increment(ResultCode.MORE_RESULTS_TO_RETURN);
-              resultCode.compareAndSet(null, ResultCode.MORE_RESULTS_TO_RETURN);
-              continue;
+            final ResultCode rc = le.getResultCode();
+            rcCounter.increment(rc);
+            resultCode.compareAndSet(null, rc);
+
+            if (fixedRateBarrier != null)
+            {
+              fixedRateBarrier.await();
+            }
+
+            continue;
           }
         }
 
-        BindRequest bindRequest = null;
-        switch (authType)
+        if (bindConnection == null)
         {
-          case AUTH_TYPE_SIMPLE:
-            bindRequest =
-                 new SimpleBindRequest(bindDN, userPassword, bindControls);
-            break;
+          try
+          {
+            bindConnection = authRate.getConnection();
+          }
+          catch (final LDAPException le)
+          {
+            Debug.debugException(le);
 
-          case AUTH_TYPE_CRAM_MD5:
-            bindRequest = new CRAMMD5BindRequest("dn:" + bindDN, userPassword,
-                 bindControls);
-            break;
+            errorCounter.incrementAndGet();
 
-          case AUTH_TYPE_DIGEST_MD5:
-            bindRequest = new DIGESTMD5BindRequest("dn:" + bindDN, null,
-                 userPassword, null, bindControls);
-            break;
+            final ResultCode rc = le.getResultCode();
+            rcCounter.increment(rc);
+            resultCode.compareAndSet(null, rc);
 
-          case AUTH_TYPE_PLAIN:
-            bindRequest = new PLAINBindRequest("dn:" + bindDN, userPassword,
-                 bindControls);
-            break;
+            if (fixedRateBarrier != null)
+            {
+              fixedRateBarrier.await();
+            }
+
+            continue;
+          }
         }
 
-        bindConnection.bind(bindRequest);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        errorCounter.incrementAndGet();
-
-        final ResultCode rc = le.getResultCode();
-        rcCounter.increment(rc);
-        resultCode.compareAndSet(null, rc);
-
-        if (! le.getResultCode().isConnectionUsable())
+        if (! bindOnly)
         {
-          searchConnection.close();
-          searchConnection = null;
+          try
+          {
+            searchRequest.setBaseDN(baseDN.nextValue());
+            searchRequest.setFilter(filter.nextValue());
+          }
+          catch (final LDAPException le)
+          {
+            Debug.debugException(le);
+            errorCounter.incrementAndGet();
 
-          bindConnection.close();
-          bindConnection = null;
+            final ResultCode rc = le.getResultCode();
+            rcCounter.increment(rc);
+            resultCode.compareAndSet(null, rc);
+            continue;
+          }
+        }
+
+        // If we're trying for a specific target rate, then we might need to
+        // wait until starting the next authorization.
+        if (fixedRateBarrier != null)
+        {
+          fixedRateBarrier.await();
+        }
+
+        final long startTime = System.nanoTime();
+
+        try
+        {
+          final String bindDN;
+          if (bindOnly)
+          {
+            bindDN = baseDN.nextValue();
+          }
+          else
+          {
+            final SearchResult r = searchConnection.search(searchRequest);
+            switch (r.getEntryCount())
+            {
+              case 0:
+                errorCounter.incrementAndGet();
+                rcCounter.increment(ResultCode.NO_RESULTS_RETURNED);
+                resultCode.compareAndSet(null, ResultCode.NO_RESULTS_RETURNED);
+                continue;
+
+              case 1:
+                // This is acceptable, and we can continue processing.
+                bindDN = r.getSearchEntries().get(0).getDN();
+                break;
+
+              default:
+                errorCounter.incrementAndGet();
+                rcCounter.increment(ResultCode.MORE_RESULTS_TO_RETURN);
+                resultCode.compareAndSet(null,
+                     ResultCode.MORE_RESULTS_TO_RETURN);
+                continue;
+            }
+          }
+
+          BindRequest bindRequest = null;
+          switch (authType)
+          {
+            case AUTH_TYPE_SIMPLE:
+              bindRequest =
+                   new SimpleBindRequest(bindDN, userPassword, bindControls);
+              break;
+
+            case AUTH_TYPE_CRAM_MD5:
+              bindRequest = new CRAMMD5BindRequest("dn:" + bindDN, userPassword,
+                   bindControls);
+              break;
+
+            case AUTH_TYPE_DIGEST_MD5:
+              bindRequest = new DIGESTMD5BindRequest("dn:" + bindDN, null,
+                   userPassword, null, bindControls);
+              break;
+
+            case AUTH_TYPE_PLAIN:
+              bindRequest = new PLAINBindRequest("dn:" + bindDN, userPassword,
+                   bindControls);
+              break;
+          }
+
+          bindConnection.bind(bindRequest);
+        }
+        catch (final LDAPException le)
+        {
+          Debug.debugException(le);
+          errorCounter.incrementAndGet();
+
+          final ResultCode rc = le.getResultCode();
+          rcCounter.increment(rc);
+          resultCode.compareAndSet(null, rc);
+
+          if (! le.getResultCode().isConnectionUsable())
+          {
+            searchConnection.close();
+            searchConnection = null;
+
+            bindConnection.close();
+            bindConnection = null;
+          }
+        }
+        finally
+        {
+          authCounter.incrementAndGet();
+          authDurations.addAndGet(System.nanoTime() - startTime);
         }
       }
-      finally
+    }
+    finally
+    {
+      if (searchConnection != null)
       {
-        authCounter.incrementAndGet();
-        authDurations.addAndGet(System.nanoTime() - startTime);
+        searchConnection.close();
       }
-    }
 
-    if (searchConnection != null)
-    {
-      searchConnection.close();
-    }
+      if (bindConnection != null)
+      {
+        bindConnection.close();
+      }
 
-    if (bindConnection != null)
-    {
-      bindConnection.close();
+      authThread.set(null);
+      runningThreads.decrementAndGet();
     }
-
-    authThread.set(null);
   }
 
 

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.ldap.sdk.Control;
@@ -173,6 +174,9 @@ public final class AuthRate
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
+  // The number of authrate threads that are currently running.
+  private final AtomicInteger runningThreads;
+
   // The argument used to indicate that bind requests should include the
   // authorization identity request control.
   private BooleanArgument authorizationIdentityRequestControl;
@@ -246,9 +250,6 @@ public final class AuthRate
   // The argument used to specify the password to use to authenticate.
   private StringArgument userPassword;
 
-  // The thread currently being used to run the searchrate tool.
-  private volatile Thread runningThread;
-
   // A wakeable sleeper that will be used to sleep between reporting intervals.
   private final WakeableSleeper sleeper;
 
@@ -310,6 +311,7 @@ public final class AuthRate
     super(outStream, errStream);
 
     stopRequested = new AtomicBoolean(false);
+    runningThreads = new AtomicInteger(0);
     sleeper = new WakeableSleeper();
   }
 
@@ -751,29 +753,6 @@ public final class AuthRate
   @Override()
   public ResultCode doToolProcessing()
   {
-    runningThread = Thread.currentThread();
-
-    try
-    {
-      return doToolProcessingInternal();
-    }
-    finally
-    {
-      runningThread = null;
-    }
-  }
-
-
-
-  /**
-   * Performs the actual processing for this tool.  In this case, it gets a
-   * connection to the directory server and uses it to perform the requested
-   * searches.
-   *
-   * @return  The result code for the processing that was performed.
-   */
-  private ResultCode doToolProcessingInternal()
-  {
     // If the sample rate file argument was specified, then generate the sample
     // variable rate data file and return.
     if (sampleRateFile.isPresent())
@@ -992,8 +971,9 @@ public final class AuthRate
       threads[i] = new AuthRateThread(this, i, searchConnection, bindConnection,
            dnPattern, scopeArg.getValue(), filterPattern, attrs,
            userPassword.getValue(), bindOnly.isPresent(), authType.getValue(),
-           searchControl.getValues(), bindControls, barrier, authCounter,
-           authDurations, errorCounter, rcCounter, fixedRateBarrier);
+           searchControl.getValues(), bindControls, runningThreads, barrier,
+           authCounter, authDurations, errorCounter, rcCounter,
+           fixedRateBarrier);
       threads[i].start();
     }
 
@@ -1188,21 +1168,19 @@ public final class AuthRate
     stopRequested.set(true);
     sleeper.wakeup();
 
-    final Thread t = runningThread;
-    if (t != null)
+    while (true)
     {
-      try
+      final int stillRunning = runningThreads.get();
+      if (stillRunning <= 0)
       {
-        t.join();
+        break;
       }
-      catch (final Exception e)
+      else
       {
-        Debug.debugException(e);
-
-        if (e instanceof InterruptedException)
+        try
         {
-          Thread.currentThread().interrupt();
-        }
+          Thread.sleep(1L);
+        } catch (final Exception e) {}
       }
     }
   }
