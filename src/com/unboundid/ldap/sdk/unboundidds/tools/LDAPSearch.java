@@ -764,6 +764,20 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(assertionFilter);
 
+    accountUsable = new BooleanArgument(null, "accountUsable", 1,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_ACCOUNT_USABLE.get());
+    accountUsable.addLongIdentifier("account-usable", true);
+    accountUsable.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(accountUsable);
+
+    excludeBranch = new DNArgument(null, "excludeBranch", false, 0, null,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_EXCLUDE_BRANCH.get());
+    excludeBranch.addLongIdentifier("exclude-branch", true);
+    excludeBranch.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(excludeBranch);
+
     getAuthorizationEntryAttribute = new StringArgument(null,
          "getAuthorizationEntryAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
@@ -780,34 +794,6 @@ public final class LDAPSearch
     getBackendSetID.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getBackendSetID);
-
-    getServerID = new BooleanArgument(null, "getServerID",
-         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_SERVER_ID.get());
-    getServerID.addLongIdentifier("get-server-id", true);
-    getServerID.setArgumentGroupName(
-         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(getServerID);
-
-    getUserResourceLimits = new BooleanArgument(null, "getUserResourceLimits",
-         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_USER_RESOURCE_LIMITS.get());
-    getUserResourceLimits.addLongIdentifier("get-user-resource-limits", true);
-    getUserResourceLimits.setArgumentGroupName(
-         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(getUserResourceLimits);
-
-    accountUsable = new BooleanArgument(null, "accountUsable", 1,
-         INFO_LDAPSEARCH_ARG_DESCRIPTION_ACCOUNT_USABLE.get());
-    accountUsable.addLongIdentifier("account-usable", true);
-    accountUsable.setArgumentGroupName(
-         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(accountUsable);
-
-    excludeBranch = new DNArgument(null, "excludeBranch", false, 0, null,
-         INFO_LDAPSEARCH_ARG_DESCRIPTION_EXCLUDE_BRANCH.get());
-    excludeBranch.addLongIdentifier("exclude-branch", true);
-    excludeBranch.setArgumentGroupName(
-         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(excludeBranch);
 
     getEffectiveRightsAuthzID = new StringArgument('g',
          "getEffectiveRightsAuthzID", false, 1,
@@ -829,6 +815,20 @@ public final class LDAPSearch
     getEffectiveRightsAttribute.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getEffectiveRightsAttribute);
+
+    getServerID = new BooleanArgument(null, "getServerID",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_SERVER_ID.get());
+    getServerID.addLongIdentifier("get-server-id", true);
+    getServerID.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(getServerID);
+
+    getUserResourceLimits = new BooleanArgument(null, "getUserResourceLimits",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_USER_RESOURCE_LIMITS.get());
+    getUserResourceLimits.addLongIdentifier("get-user-resource-limits", true);
+    getUserResourceLimits.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(getUserResourceLimits);
 
     includeReplicationConflictEntries = new BooleanArgument(null,
          "includeReplicationConflictEntries", 1,
@@ -970,6 +970,19 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(persistentSearch);
 
+    permitUnindexedSearch = new BooleanArgument(null, "permitUnindexedSearch",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_PERMIT_UNINDEXED_SEARCH.get());
+    permitUnindexedSearch.addLongIdentifier("permitUnindexedSearches", true);
+    permitUnindexedSearch.addLongIdentifier("permitUnindexed", true);
+    permitUnindexedSearch.addLongIdentifier("permitIfUnindexed", true);
+    permitUnindexedSearch.addLongIdentifier("permit-unindexed-search", true);
+    permitUnindexedSearch.addLongIdentifier("permit-unindexed-searches", true);
+    permitUnindexedSearch.addLongIdentifier("permit-unindexed", true);
+    permitUnindexedSearch.addLongIdentifier("permit-if-unindexed", true);
+    permitUnindexedSearch.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(permitUnindexedSearch);
+
     proxyAs = new StringArgument('Y', "proxyAs", false, 1,
          INFO_PLACEHOLDER_AUTHZID.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_PROXY_AS.get());
@@ -982,6 +995,19 @@ public final class LDAPSearch
     proxyV1As.addLongIdentifier("proxy-v1-as", true);
     proxyV1As.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(proxyV1As);
+
+    rejectUnindexedSearch = new BooleanArgument(null, "rejectUnindexedSearch",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_REJECT_UNINDEXED_SEARCH.get());
+    rejectUnindexedSearch.addLongIdentifier("rejectUnindexedSearches", true);
+    rejectUnindexedSearch.addLongIdentifier("rejectUnindexed", true);
+    rejectUnindexedSearch.addLongIdentifier("rejectIfUnindexed", true);
+    rejectUnindexedSearch.addLongIdentifier("reject-unindexed-search", true);
+    rejectUnindexedSearch.addLongIdentifier("reject-unindexed-searches", true);
+    rejectUnindexedSearch.addLongIdentifier("reject-unindexed", true);
+    rejectUnindexedSearch.addLongIdentifier("reject-if-unindexed", true);
+    rejectUnindexedSearch.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(rejectUnindexedSearch);
 
     routeToBackendSet = new StringArgument(null, "routeToBackendSet",
          false, 0,
@@ -1060,32 +1086,6 @@ public final class LDAPSearch
     virtualListView.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(virtualListView);
-
-    rejectUnindexedSearch = new BooleanArgument(null, "rejectUnindexedSearch",
-         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_REJECT_UNINDEXED_SEARCH.get());
-    rejectUnindexedSearch.addLongIdentifier("rejectUnindexedSearches", true);
-    rejectUnindexedSearch.addLongIdentifier("rejectUnindexed", true);
-    rejectUnindexedSearch.addLongIdentifier("rejectIfUnindexed", true);
-    rejectUnindexedSearch.addLongIdentifier("reject-unindexed-search", true);
-    rejectUnindexedSearch.addLongIdentifier("reject-unindexed-searches", true);
-    rejectUnindexedSearch.addLongIdentifier("reject-unindexed", true);
-    rejectUnindexedSearch.addLongIdentifier("reject-if-unindexed", true);
-    rejectUnindexedSearch.setArgumentGroupName(
-         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(rejectUnindexedSearch);
-
-    permitUnindexedSearch = new BooleanArgument(null, "permitUnindexedSearch",
-         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_PERMIT_UNINDEXED_SEARCH.get());
-    permitUnindexedSearch.addLongIdentifier("permitUnindexedSearches", true);
-    permitUnindexedSearch.addLongIdentifier("permitUnindexed", true);
-    permitUnindexedSearch.addLongIdentifier("permitIfUnindexed", true);
-    permitUnindexedSearch.addLongIdentifier("permit-unindexed-search", true);
-    permitUnindexedSearch.addLongIdentifier("permit-unindexed-searches", true);
-    permitUnindexedSearch.addLongIdentifier("permit-unindexed", true);
-    permitUnindexedSearch.addLongIdentifier("permit-if-unindexed", true);
-    permitUnindexedSearch.setArgumentGroupName(
-         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(permitUnindexedSearch);
 
     excludeAttribute = new StringArgument(null, "excludeAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
