@@ -22,6 +22,7 @@ package com.unboundid.ldap.listener;
 
 
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -36,21 +37,13 @@ import javax.net.SocketFactory;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.listener.interceptor.
             InMemoryOperationInterceptorRequestHandler;
-import com.unboundid.ldap.protocol.AddRequestProtocolOp;
-import com.unboundid.ldap.protocol.AddResponseProtocolOp;
 import com.unboundid.ldap.protocol.BindRequestProtocolOp;
 import com.unboundid.ldap.protocol.BindResponseProtocolOp;
 import com.unboundid.ldap.protocol.CompareRequestProtocolOp;
 import com.unboundid.ldap.protocol.CompareResponseProtocolOp;
-import com.unboundid.ldap.protocol.DeleteRequestProtocolOp;
-import com.unboundid.ldap.protocol.DeleteResponseProtocolOp;
 import com.unboundid.ldap.protocol.ExtendedRequestProtocolOp;
 import com.unboundid.ldap.protocol.ExtendedResponseProtocolOp;
 import com.unboundid.ldap.protocol.LDAPMessage;
-import com.unboundid.ldap.protocol.ModifyRequestProtocolOp;
-import com.unboundid.ldap.protocol.ModifyResponseProtocolOp;
-import com.unboundid.ldap.protocol.ModifyDNRequestProtocolOp;
-import com.unboundid.ldap.protocol.ModifyDNResponseProtocolOp;
 import com.unboundid.ldap.protocol.SearchRequestProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultDoneProtocolOp;
 import com.unboundid.ldap.sdk.AddRequest;
@@ -1183,10 +1176,38 @@ public final class InMemoryDirectoryServer
   public int importFromLDIF(final boolean clear, final String path)
          throws LDAPException
   {
+    return importFromLDIF(clear, new File(path));
+  }
+
+
+
+  /**
+   * Reads entries from the specified LDIF file and adds them to the server,
+   * optionally clearing any existing entries before beginning to add the new
+   * entries.  If an error is encountered while adding entries from LDIF then
+   * the server will remain populated with the data it held before the import
+   * attempt (even if the {@code clear} is given with a value of {@code true}).
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   *
+   * @param  clear     Indicates whether to remove all existing entries prior to
+   *                   adding entries read from LDIF.
+   * @param  ldifFile  The LDIF file from which the entries should be read.  It
+   *                   must not be {@code null}.
+   *
+   * @return  The number of entries read from LDIF and added to the server.
+   *
+   * @throws  LDAPException  If a problem occurs while reading entries or adding
+   *                         them to the server.
+   */
+  public int importFromLDIF(final boolean clear, final File ldifFile)
+         throws LDAPException
+  {
     final LDIFReader reader;
     try
     {
-      reader = new LDIFReader(path);
+      reader = new LDIFReader(ldifFile);
 
       final Schema schema = getSchema();
       if (schema != null)
@@ -1198,8 +1219,8 @@ public final class InMemoryDirectoryServer
     {
       Debug.debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_MEM_DS_INIT_FROM_LDIF_CANNOT_CREATE_READER.get(path,
-                StaticUtils.getExceptionMessage(e)),
+           ERR_MEM_DS_INIT_FROM_LDIF_CANNOT_CREATE_READER.get(
+                ldifFile.getAbsolutePath(), StaticUtils.getExceptionMessage(e)),
            e);
     }
 
@@ -1309,6 +1330,107 @@ public final class InMemoryDirectoryServer
   {
     return inMemoryHandler.exportToLDIF(ldifWriter, excludeGeneratedAttrs,
          excludeChangeLog, closeWriter);
+  }
+
+
+
+  /**
+   * Reads LDIF change records from the specified LDIF file and applies them
+   * to the data in the server.  Any LDIF records without a changetype will be
+   * treated as add change records.  If an error is encountered while attempting
+   * to apply the requested changes, then the server will remain populated with
+   * the data it held before this method was called, even if earlier changes
+   * could have been applied successfully.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   *
+   * @param  path   The path to the LDIF file from which the LDIF change
+   *                records should be read.  It must not be {@code null}.
+   *
+   * @return  The number of changes applied from the LDIF file.
+   *
+   * @throws  LDAPException  If a problem occurs while reading change records
+   *                         or applying them to the server.
+   */
+  public int applyChangesFromLDIF(final String path)
+         throws LDAPException
+  {
+    return applyChangesFromLDIF(new File(path));
+  }
+
+
+
+  /**
+   * Reads LDIF change records from the specified LDIF file and applies them
+   * to the data in the server.  Any LDIF records without a changetype will be
+   * treated as add change records.  If an error is encountered while attempting
+   * to apply the requested changes, then the server will remain populated with
+   * the data it held before this method was called, even if earlier changes
+   * could have been applied successfully.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   *
+   * @param  ldifFile  The LDIF file from which the LDIF change records should
+   *                   be read.  It must not be {@code null}.
+   *
+   * @return  The number of changes applied from the LDIF file.
+   *
+   * @throws  LDAPException  If a problem occurs while reading change records
+   *                         or applying them to the server.
+   */
+  public int applyChangesFromLDIF(final File ldifFile)
+         throws LDAPException
+  {
+    final LDIFReader reader;
+    try
+    {
+      reader = new LDIFReader(ldifFile);
+
+      final Schema schema = getSchema();
+      if (schema != null)
+      {
+        reader.setSchema(schema);
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_MEM_DS_APPLY_CHANGES_FROM_LDIF_CANNOT_CREATE_READER.get(
+                ldifFile.getAbsolutePath(), StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    return applyChangesFromLDIF(reader);
+  }
+
+
+
+  /**
+   * Reads LDIF change records from the provided LDIF reader file and applies
+   * them to the data in the server.  Any LDIF records without a changetype will
+   * be treated as add change records.  If an error is encountered while
+   * attempting to apply the requested changes, then the server will remain
+   * populated with the data it held before this method was called, even if
+   * earlier changes could have been applied successfully.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   *
+   * @param  reader  The LDIF reader to use to obtain the change records to be
+   *                 applied.
+   *
+   * @return  The number of changes applied from the LDIF file.
+   *
+   * @throws  LDAPException  If a problem occurs while reading change records
+   *                         or applying them to the server.
+   */
+  public int applyChangesFromLDIF(final LDIFReader reader)
+         throws LDAPException
+  {
+    return inMemoryHandler.applyChangesFromLDIF(reader);
   }
 
 
@@ -1466,32 +1588,7 @@ public final class InMemoryDirectoryServer
   public LDAPResult add(final AddRequest addRequest)
          throws LDAPException
   {
-    final ArrayList<Control> requestControlList =
-         new ArrayList<>(addRequest.getControlList());
-    requestControlList.add(new Control(
-         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
-
-    final LDAPMessage responseMessage = inMemoryHandler.processAddRequest(1,
-         new AddRequestProtocolOp(addRequest.getDN(),
-              addRequest.getAttributes()),
-         requestControlList);
-
-    final AddResponseProtocolOp addResponse =
-         responseMessage.getAddResponseProtocolOp();
-
-    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
-         ResultCode.valueOf(addResponse.getResultCode()),
-         addResponse.getDiagnosticMessage(), addResponse.getMatchedDN(),
-         addResponse.getReferralURLs(), responseMessage.getControls());
-
-    switch (addResponse.getResultCode())
-    {
-      case ResultCode.SUCCESS_INT_VALUE:
-      case ResultCode.NO_OPERATION_INT_VALUE:
-        return ldapResult;
-      default:
-        throw new LDAPException(ldapResult);
-    }
+    return inMemoryHandler.add(addRequest);
   }
 
 
@@ -1829,31 +1926,7 @@ public final class InMemoryDirectoryServer
   public LDAPResult delete(final DeleteRequest deleteRequest)
          throws LDAPException
   {
-    final ArrayList<Control> requestControlList =
-         new ArrayList<>(deleteRequest.getControlList());
-    requestControlList.add(new Control(
-         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
-
-    final LDAPMessage responseMessage = inMemoryHandler.processDeleteRequest(1,
-         new DeleteRequestProtocolOp(deleteRequest.getDN()),
-         requestControlList);
-
-    final DeleteResponseProtocolOp deleteResponse =
-         responseMessage.getDeleteResponseProtocolOp();
-
-    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
-         ResultCode.valueOf(deleteResponse.getResultCode()),
-         deleteResponse.getDiagnosticMessage(), deleteResponse.getMatchedDN(),
-         deleteResponse.getReferralURLs(), responseMessage.getControls());
-
-    switch (deleteResponse.getResultCode())
-    {
-      case ResultCode.SUCCESS_INT_VALUE:
-      case ResultCode.NO_OPERATION_INT_VALUE:
-        return ldapResult;
-      default:
-        throw new LDAPException(ldapResult);
-    }
+    return inMemoryHandler.delete(deleteRequest);
   }
 
 
@@ -2159,32 +2232,7 @@ public final class InMemoryDirectoryServer
   public LDAPResult modify(final ModifyRequest modifyRequest)
          throws LDAPException
   {
-    final ArrayList<Control> requestControlList =
-         new ArrayList<>(modifyRequest.getControlList());
-    requestControlList.add(new Control(
-         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
-
-    final LDAPMessage responseMessage = inMemoryHandler.processModifyRequest(1,
-         new ModifyRequestProtocolOp(modifyRequest.getDN(),
-              modifyRequest.getModifications()),
-         requestControlList);
-
-    final ModifyResponseProtocolOp modifyResponse =
-         responseMessage.getModifyResponseProtocolOp();
-
-    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
-         ResultCode.valueOf(modifyResponse.getResultCode()),
-         modifyResponse.getDiagnosticMessage(), modifyResponse.getMatchedDN(),
-         modifyResponse.getReferralURLs(), responseMessage.getControls());
-
-    switch (modifyResponse.getResultCode())
-    {
-      case ResultCode.SUCCESS_INT_VALUE:
-      case ResultCode.NO_OPERATION_INT_VALUE:
-        return ldapResult;
-      default:
-        throw new LDAPException(ldapResult);
-    }
+    return inMemoryHandler.modify(modifyRequest);
   }
 
 
@@ -2252,34 +2300,7 @@ public final class InMemoryDirectoryServer
   public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
-    final ArrayList<Control> requestControlList =
-         new ArrayList<>(modifyDNRequest.getControlList());
-    requestControlList.add(new Control(
-         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
-
-    final LDAPMessage responseMessage = inMemoryHandler.processModifyDNRequest(
-         1, new ModifyDNRequestProtocolOp(modifyDNRequest.getDN(),
-              modifyDNRequest.getNewRDN(), modifyDNRequest.deleteOldRDN(),
-              modifyDNRequest.getNewSuperiorDN()),
-         requestControlList);
-
-    final ModifyDNResponseProtocolOp modifyDNResponse =
-         responseMessage.getModifyDNResponseProtocolOp();
-
-    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
-         ResultCode.valueOf(modifyDNResponse.getResultCode()),
-         modifyDNResponse.getDiagnosticMessage(),
-         modifyDNResponse.getMatchedDN(), modifyDNResponse.getReferralURLs(),
-         responseMessage.getControls());
-
-    switch (modifyDNResponse.getResultCode())
-    {
-      case ResultCode.SUCCESS_INT_VALUE:
-      case ResultCode.NO_OPERATION_INT_VALUE:
-        return ldapResult;
-      default:
-        throw new LDAPException(ldapResult);
-    }
+    return inMemoryHandler.modifyDN(modifyDNRequest);
   }
 
 

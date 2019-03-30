@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added <tt>InMemoryDirectoryServer.applyChangesFromLDIF</tt> methods that can be
+                  used to read LDIF change records and apply them to data in the server.  The
+                  changes will be applied atomically, and if any of the changes cannot be applied
+                  successfully, then the server data will remain unchanged.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved the exception message that is generated if a failure occurs while
                   trying to create a TLS-based connection.  If the JVM supports creating an
                   unconnected SSLSocket and then connecting it after the fact (which makes it

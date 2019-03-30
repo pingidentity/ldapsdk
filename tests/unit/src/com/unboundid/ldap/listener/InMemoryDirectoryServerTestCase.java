@@ -736,6 +736,254 @@ public final class InMemoryDirectoryServerTestCase
 
 
   /**
+   * Tests operations involving applying changes from LDIF.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testApplyChangesFromLDIF()
+         throws Exception
+  {
+    // Create the in-memory directory server.  Enable a changelog.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    cfg.setAccessLogHandler(new MemoryBasedLogHandler());
+    cfg.setLDAPDebugLogHandler(new MemoryBasedLogHandler());
+    cfg.setCodeLogDetails(createTempFile().getAbsolutePath(), true);
+    cfg.setSchema(Schema.getDefaultStandardSchema());
+    cfg.setMaxChangeLogEntries(1000);
+
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
+
+
+    // Make sure that the server has the expected state.
+    assertNotNull(ds);
+    assertEquals(ds.countEntries(), 0);
+    assertNull(ds.getEntry("dc=example,dc=com"));
+    assertNotNull(ds.getEntry("cn=changelog"));
+    assertNotNull(ds.getEntry("", "changeLog").getAttribute("changeLog"));
+    assertNotNull(ds.getEntry("", "firstChangeNumber").getAttribute(
+         "firstChangeNumber"));
+    assertEquals(
+         ds.getEntry("", "firstChangeNumber").getAttributeValue(
+              "firstChangeNumber"),
+         "0");
+    assertNotNull(ds.getEntry("", "lastChangeNumber").getAttribute(
+         "lastChangeNumber"));
+    assertEquals(
+         ds.getEntry("", "lastChangeNumber").getAttributeValue(
+              "lastChangeNumber"),
+         "0");
+
+    assertNotNull(ds.getSchema());
+
+    assertNotNull(ds.getBaseDNs());
+    assertFalse(ds.getBaseDNs().isEmpty());
+    assertEquals(ds.getBaseDNs().size(), 2);
+    assertTrue(ds.getBaseDNs().contains(new DN("dc=example,dc=com")));
+    assertTrue(ds.getBaseDNs().contains(new DN("cn=changelog")));
+
+
+    // Create an LDIF file with all types of changes.  Include a change that
+    // will fail as the last item.
+    final File ldifFile1 = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: add",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "changetype: add",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User",
+         "userPassword: password",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description: foo",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "changetype: moddn",
+         "newrdn: cn=Test User",
+         "deleteoldrdn: 0",
+         "",
+         "dn: cn=Test User,ou=People,dc=example,dc=com",
+         "changetype: delete",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "changetype: delete");
+
+
+    // Try to apply the changes.  Make sure we get an LDAPException.
+    try
+    {
+      ds.applyChangesFromLDIF(ldifFile1.getAbsolutePath());
+      fail("Expected an exception when trying to apply changes from LDIF " +
+           "when the last change should fail.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected.
+    }
+
+
+    // Make sure that the server is still empty, and that there are no
+    // changelog records.
+    assertNotNull(ds);
+    assertEquals(ds.countEntries(), 0);
+    assertNull(ds.getEntry("dc=example,dc=com"));
+    assertNotNull(ds.getEntry("cn=changelog"));
+    assertNotNull(ds.getEntry("", "changeLog").getAttribute("changeLog"));
+    assertNotNull(ds.getEntry("", "firstChangeNumber").getAttribute(
+         "firstChangeNumber"));
+    assertEquals(
+         ds.getEntry("", "firstChangeNumber").getAttributeValue(
+              "firstChangeNumber"),
+         "0");
+    assertNotNull(ds.getEntry("", "lastChangeNumber").getAttribute(
+         "lastChangeNumber"));
+    assertEquals(
+         ds.getEntry("", "lastChangeNumber").getAttributeValue(
+              "lastChangeNumber"),
+         "0");
+
+
+    // Create another LDIF file with the same set of changes, minus the last one
+    // that failed.  We should be able to apply this successfully.
+    final File ldifFile2 = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: add",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "changetype: add",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User",
+         "userPassword: password",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description: foo",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "changetype: moddn",
+         "newrdn: cn=Test User",
+         "deleteoldrdn: 0",
+         "",
+         "dn: cn=Test User,ou=People,dc=example,dc=com",
+         "changetype: delete");
+
+
+    // Try to apply the changes.  Make sure that it succeeds and that the
+    // return value is what we expected.
+    final int changesApplied = ds.applyChangesFromLDIF(
+         ldifFile2.getAbsolutePath());
+    assertEquals(changesApplied, 6);
+
+
+    // Make sure that the server is now not empty.  It should have two
+    // entries and six changelog records.
+    assertNotNull(ds);
+    assertEquals(ds.countEntries(), 2);
+    assertNotNull(ds.getEntry("dc=example,dc=com"));
+    assertNotNull(ds.getEntry("ou=People,dc=example,dc=com"));
+    assertNull(ds.getEntry("uid=test.user,ou=People,dc=example,dc=com"));
+    assertNull(ds.getEntry("cn=Test User,ou=People,dc=example,dc=com"));
+    assertNotNull(ds.getEntry("cn=changelog"));
+    assertNotNull(ds.getEntry("", "changeLog").getAttribute("changeLog"));
+    assertNotNull(ds.getEntry("", "firstChangeNumber").getAttribute(
+         "firstChangeNumber"));
+    assertEquals(
+         ds.getEntry("", "firstChangeNumber").getAttributeValue(
+              "firstChangeNumber"),
+         "1");
+    assertNotNull(ds.getEntry("", "lastChangeNumber").getAttribute(
+         "lastChangeNumber"));
+    assertEquals(
+         ds.getEntry("", "lastChangeNumber").getAttributeValue(
+              "lastChangeNumber"),
+         "6");
+
+
+    // Create a third LDIF file with a malformed LDIF record.
+    final File ldifFile3 = createTempFile(
+         "dn: ou=People,dc=example,dc=com",
+         "changetype: delete",
+         "",
+         "dn: dc=example,dc=com",
+         "changetype: delete",
+         "",
+         "dn: malformedrecord",
+         "changetype: malformed");
+
+
+    // Try to apply the changes.  Make sure that we get an exception.
+    try
+    {
+      ds.applyChangesFromLDIF(ldifFile3.getAbsolutePath());
+      fail("Expected an LDAPException from trying to apply changes from an " +
+           "LDIF file with a malformed record.");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected.
+    }
+
+
+    // Make sure that the server still has the same content it had before the
+    // change attempt.
+    assertNotNull(ds);
+    assertEquals(ds.countEntries(), 2);
+    assertNotNull(ds.getEntry("dc=example,dc=com"));
+    assertNotNull(ds.getEntry("ou=People,dc=example,dc=com"));
+    assertNull(ds.getEntry("uid=test.user,ou=People,dc=example,dc=com"));
+    assertNull(ds.getEntry("cn=Test User,ou=People,dc=example,dc=com"));
+    assertNotNull(ds.getEntry("cn=changelog"));
+    assertNotNull(ds.getEntry("", "changeLog").getAttribute("changeLog"));
+    assertNotNull(ds.getEntry("", "firstChangeNumber").getAttribute(
+         "firstChangeNumber"));
+    assertEquals(
+         ds.getEntry("", "firstChangeNumber").getAttributeValue(
+              "firstChangeNumber"),
+         "1");
+    assertNotNull(ds.getEntry("", "lastChangeNumber").getAttribute(
+         "lastChangeNumber"));
+    assertEquals(
+         ds.getEntry("", "lastChangeNumber").getAttributeValue(
+              "lastChangeNumber"),
+         "6");
+  }
+
+
+
+  /**
    * Provides a various set of test cases for add operations.
    *
    * @throws  Exception  If an unexpected problem occurs.

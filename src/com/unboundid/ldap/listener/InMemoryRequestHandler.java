@@ -67,20 +67,25 @@ import com.unboundid.ldap.matchingrules.GeneralizedTimeMatchingRule;
 import com.unboundid.ldap.matchingrules.IntegerMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.protocol.SearchResultReferenceProtocolOp;
+import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.ChangeLogEntry;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.EntrySorter;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
+import com.unboundid.ldap.sdk.ModifyDNRequest;
+import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
@@ -124,6 +129,7 @@ import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             IgnoreNoUserModificationRequestControl;
 import com.unboundid.ldif.LDIFAddChangeRecord;
+import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
@@ -762,6 +768,55 @@ public final class InMemoryRequestHandler
     else
     {
       this.processingDelayMillis.set(0L);
+    }
+  }
+
+
+
+  /**
+   * Processes the provided add request.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
+   *
+   * @param  addRequest  The add request to be processed.  It must not be
+   *                     {@code null}.
+   *
+   * @return  The result of processing the add operation.
+   *
+   * @throws  LDAPException  If the server rejects the add request, or if a
+   *                         problem is encountered while sending the request or
+   *                         reading the response.
+   */
+  public LDAPResult add(final AddRequest addRequest)
+         throws LDAPException
+  {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<>(addRequest.getControlList());
+    requestControlList.add(new Control(OID_INTERNAL_OPERATION_REQUEST_CONTROL,
+         false));
+
+    final LDAPMessage responseMessage = processAddRequest(1,
+         new AddRequestProtocolOp(addRequest.getDN(),
+              addRequest.getAttributes()),
+         requestControlList);
+
+    final AddResponseProtocolOp addResponse =
+         responseMessage.getAddResponseProtocolOp();
+
+    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
+         ResultCode.valueOf(addResponse.getResultCode()),
+         addResponse.getDiagnosticMessage(), addResponse.getMatchedDN(),
+         addResponse.getReferralURLs(), responseMessage.getControls());
+
+    switch (addResponse.getResultCode())
+    {
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        return ldapResult;
+      default:
+        throw new LDAPException(ldapResult);
     }
   }
 
@@ -1649,6 +1704,54 @@ public final class InMemoryRequestHandler
 
 
   /**
+   * Processes the provided delete request.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections, and regardless of whether delete operations are
+   * allowed in the server.
+   *
+   * @param  deleteRequest  The delete request to be processed.  It must not be
+   *                        {@code null}.
+   *
+   * @return  The result of processing the delete operation.
+   *
+   * @throws  LDAPException  If the server rejects the delete request, or if a
+   *                         problem is encountered while sending the request or
+   *                         reading the response.
+   */
+  public LDAPResult delete(final DeleteRequest deleteRequest)
+         throws LDAPException
+  {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<>(deleteRequest.getControlList());
+    requestControlList.add(new Control(OID_INTERNAL_OPERATION_REQUEST_CONTROL,
+         false));
+
+    final LDAPMessage responseMessage = processDeleteRequest(1,
+         new DeleteRequestProtocolOp(deleteRequest.getDN()),
+         requestControlList);
+
+    final DeleteResponseProtocolOp deleteResponse =
+         responseMessage.getDeleteResponseProtocolOp();
+
+    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
+         ResultCode.valueOf(deleteResponse.getResultCode()),
+         deleteResponse.getDiagnosticMessage(), deleteResponse.getMatchedDN(),
+         deleteResponse.getReferralURLs(), responseMessage.getControls());
+
+    switch (deleteResponse.getResultCode())
+    {
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        return ldapResult;
+      default:
+        throw new LDAPException(ldapResult);
+    }
+  }
+
+
+
+  /**
    * Attempts to process the provided delete request.  The attempt will fail if
    * any of the following conditions is true:
    * <UL>
@@ -2031,6 +2134,55 @@ public final class InMemoryRequestHandler
                   StaticUtils.getExceptionMessage(e)),
              null, null, null));
       }
+    }
+  }
+
+
+
+  /**
+   * Processes the provided modify request.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections, and regardless of whether modify operations are allowed
+   * in the server.
+   *
+   * @param  modifyRequest  The modify request to be processed.  It must not be
+   *                        {@code null}.
+   *
+   * @return  The result of processing the modify operation.
+   *
+   * @throws  LDAPException  If the server rejects the modify request, or if a
+   *                         problem is encountered while sending the request or
+   *                         reading the response.
+   */
+  public LDAPResult modify(final ModifyRequest modifyRequest)
+         throws LDAPException
+  {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<>(modifyRequest.getControlList());
+    requestControlList.add(new Control(OID_INTERNAL_OPERATION_REQUEST_CONTROL,
+         false));
+
+    final LDAPMessage responseMessage = processModifyRequest(1,
+         new ModifyRequestProtocolOp(modifyRequest.getDN(),
+              modifyRequest.getModifications()),
+         requestControlList);
+
+    final ModifyResponseProtocolOp modifyResponse =
+         responseMessage.getModifyResponseProtocolOp();
+
+    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
+         ResultCode.valueOf(modifyResponse.getResultCode()),
+         modifyResponse.getDiagnosticMessage(), modifyResponse.getMatchedDN(),
+         modifyResponse.getReferralURLs(), responseMessage.getControls());
+
+    switch (modifyResponse.getResultCode())
+    {
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        return ldapResult;
+      default:
+        throw new LDAPException(ldapResult);
     }
   }
 
@@ -2657,6 +2809,57 @@ public final class InMemoryRequestHandler
                     m.getModificationType().getName(), attrName));
         }
       }
+    }
+  }
+
+
+
+  /**
+   * Processes the provided modify DN request.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections, and regardless of whether modify DN operations are
+   * allowed in the server.
+   *
+   * @param  modifyDNRequest  The modify DN request to be processed.  It must
+   *                          not be {@code null}.
+   *
+   * @return  The result of processing the modify DN operation.
+   *
+   * @throws  LDAPException  If the server rejects the modify DN request, or if
+   *                         a problem is encountered while sending the request
+   *                         or reading the response.
+   */
+  public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
+         throws LDAPException
+  {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<>(modifyDNRequest.getControlList());
+    requestControlList.add(new Control(OID_INTERNAL_OPERATION_REQUEST_CONTROL,
+         false));
+
+    final LDAPMessage responseMessage = processModifyDNRequest(
+         1, new ModifyDNRequestProtocolOp(modifyDNRequest.getDN(),
+              modifyDNRequest.getNewRDN(), modifyDNRequest.deleteOldRDN(),
+              modifyDNRequest.getNewSuperiorDN()),
+         requestControlList);
+
+    final ModifyDNResponseProtocolOp modifyDNResponse =
+         responseMessage.getModifyDNResponseProtocolOp();
+
+    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
+         ResultCode.valueOf(modifyDNResponse.getResultCode()),
+         modifyDNResponse.getDiagnosticMessage(),
+         modifyDNResponse.getMatchedDN(), modifyDNResponse.getReferralURLs(),
+         responseMessage.getControls());
+
+    switch (modifyDNResponse.getResultCode())
+    {
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        return ldapResult;
+      default:
+        throw new LDAPException(ldapResult);
     }
   }
 
@@ -4525,6 +4728,119 @@ findEntriesAndRefs:
                    e);
             }
           }
+        }
+      }
+    }
+  }
+
+
+
+  /**
+   * Reads entries from the provided LDIF reader and adds them to the server,
+   * optionally clearing any existing entries before beginning to add the new
+   * entries.  If an error is encountered while adding entries from LDIF then
+   * the server will remain populated with the data it held before the import
+   * attempt (even if the {@code clear} is given with a value of {@code true}).
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   *
+   * @param  ldifReader  The LDIF reader to use to obtain the change records to
+   *                     be applied.
+   *
+   * @return  The number of changes applied from the LDIF file.
+   *
+   * @throws  LDAPException  If a problem occurs while reading change records
+   *                         or applying them to the server.
+   */
+  public int applyChangesFromLDIF(final LDIFReader ldifReader)
+         throws LDAPException
+  {
+    synchronized (entryMap)
+    {
+      final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
+      boolean restoreSnapshot = true;
+
+      try
+      {
+        int changesApplied = 0;
+        while (true)
+        {
+          final LDIFChangeRecord changeRecord;
+          try
+          {
+            changeRecord = ldifReader.readChangeRecord(true);
+            if (changeRecord == null)
+            {
+              restoreSnapshot = false;
+              return changesApplied;
+            }
+          }
+          catch (final LDIFException le)
+          {
+            Debug.debugException(le);
+            throw new LDAPException(ResultCode.LOCAL_ERROR,
+                 ERR_MEM_HANDLER_APPLY_CHANGES_FROM_LDIF_READ_ERROR.get(
+                      le.getMessage()),
+                 le);
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            throw new LDAPException(ResultCode.LOCAL_ERROR,
+                 ERR_MEM_HANDLER_APPLY_CHANGES_FROM_LDIF_READ_ERROR.get(
+                      StaticUtils.getExceptionMessage(e)),
+                 e);
+          }
+
+          if (changeRecord instanceof LDIFAddChangeRecord)
+          {
+            final LDIFAddChangeRecord addChangeRecord =
+                 (LDIFAddChangeRecord) changeRecord;
+            add(addChangeRecord.toAddRequest());
+          }
+          else if (changeRecord instanceof LDIFDeleteChangeRecord)
+          {
+            final LDIFDeleteChangeRecord deleteChangeRecord =
+                 (LDIFDeleteChangeRecord) changeRecord;
+            delete(deleteChangeRecord.toDeleteRequest());
+          }
+          else if (changeRecord instanceof LDIFModifyChangeRecord)
+          {
+            final LDIFModifyChangeRecord modifyChangeRecord =
+                 (LDIFModifyChangeRecord) changeRecord;
+            modify(modifyChangeRecord.toModifyRequest());
+          }
+          else if (changeRecord instanceof LDIFModifyDNChangeRecord)
+          {
+            final LDIFModifyDNChangeRecord modifyDNChangeRecord =
+                 (LDIFModifyDNChangeRecord) changeRecord;
+            modifyDN(modifyDNChangeRecord.toModifyDNRequest());
+          }
+          else
+          {
+            throw new LDAPException(ResultCode.LOCAL_ERROR,
+                 ERR_MEM_HANDLER_APPLY_CHANGES_UNSUPPORTED_CHANGE.get(
+                      String.valueOf(changeRecord)));
+          }
+
+          changesApplied++;
+        }
+      }
+      finally
+      {
+        try
+        {
+          ldifReader.close();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+
+        if (restoreSnapshot)
+        {
+          restoreSnapshot(snapshot);
         }
       }
     }
