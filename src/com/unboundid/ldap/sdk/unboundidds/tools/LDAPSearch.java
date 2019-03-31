@@ -494,6 +494,17 @@ public final class LDAPSearch
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsSSLDebugging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected Set<Character> getSuppressedShortIdentifiers()
   {
     return Collections.singleton('T');

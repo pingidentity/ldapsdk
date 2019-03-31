@@ -3418,6 +3418,23 @@ public final class ManageCertificates
     trustServerIssuersOnly.addLongIdentifier("onlyIssuerCertificates", true);
     trustServerParser.addArgument(trustServerIssuersOnly);
 
+    final BooleanArgument trustServerEnableSSLDebugging = new BooleanArgument(
+         null, "enableSSLDebugging", 1,
+         INFO_MANAGE_CERTS_SC_TRUST_SERVER_ARG_ENABLE_SSL_DEBUGGING_DESC.get());
+    trustServerEnableSSLDebugging.addLongIdentifier("enableTLSDebugging", true);
+    trustServerEnableSSLDebugging.addLongIdentifier("enableStartTLSDebugging",
+         true);
+    trustServerEnableSSLDebugging.addLongIdentifier("enable-ssl-debugging",
+         true);
+    trustServerEnableSSLDebugging.addLongIdentifier("enable-tls-debugging",
+         true);
+    trustServerEnableSSLDebugging.addLongIdentifier("enable-starttls-debugging",
+         true);
+    trustServerEnableSSLDebugging.addLongIdentifier(
+         "enable-start-tls-debugging", true);
+    trustServerParser.addArgument(trustServerEnableSSLDebugging);
+    addEnableSSLDebuggingArgument(trustServerEnableSSLDebugging);
+
     final BooleanArgument trustServerVerbose = new BooleanArgument(null,
          "verbose", 1,
          INFO_MANAGE_CERTS_SC_TRUST_SERVER_ARG_VERBOSE_DESC.get());

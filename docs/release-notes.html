@@ -43,6 +43,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the <tt>LDAPCommandLineTool</tt> API to add an option to expose an
+                  <tt>--enableSSLDebugging</tt> argument.  If this argument is available, and if
+                  it is provided in the set of command-line arguments when the tool is run, then
+                  the JVM's SSL/TLS debugging support will be enabled by setting the
+                  "<tt>javax.net.debug</tt>" property to "<tt>all</tt>", and the JVM will write a
+                  large amount of TLS-related debugging information to standard error.  This can
+                  help troubleshoot problems with or provide detailed information about any TLS
+                  communication that the tool attempts.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK to add protection against JVM security managers that may
                   prevent calls to certain methods, like attempts to interact with system
                   properties, environment variables, or logger levels.

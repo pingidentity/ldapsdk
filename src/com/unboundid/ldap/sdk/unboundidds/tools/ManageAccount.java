@@ -496,6 +496,17 @@ public final class ManageAccount
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsSSLDebugging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean supportsMultipleServers()
   {
     return true;

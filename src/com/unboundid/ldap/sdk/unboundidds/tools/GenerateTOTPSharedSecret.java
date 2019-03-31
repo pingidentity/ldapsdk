@@ -278,6 +278,17 @@ public final class GenerateTOTPSharedSecret
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsSSLDebugging()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean logToolInvocationByDefault()
   {
     return true;

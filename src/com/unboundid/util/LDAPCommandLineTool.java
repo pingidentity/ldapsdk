@@ -198,6 +198,7 @@ public abstract class LDAPCommandLineTool
 {
   // Arguments used to communicate with an LDAP directory server.
   private BooleanArgument helpSASL                    = null;
+  private BooleanArgument enableSSLDebugging          = null;
   private BooleanArgument promptForBindPassword       = null;
   private BooleanArgument promptForKeyStorePassword   = null;
   private BooleanArgument promptForTrustStorePassword = null;
@@ -604,6 +605,25 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(certificateNickname);
 
+    if (supportsSSLDebugging())
+    {
+      enableSSLDebugging = new BooleanArgument(null, "enableSSLDebugging", 1,
+           INFO_LDAP_TOOL_DESCRIPTION_ENABLE_SSL_DEBUGGING.get());
+      enableSSLDebugging.setArgumentGroupName(argumentGroup);
+      if (includeAlternateLongIdentifiers())
+      {
+        enableSSLDebugging.addLongIdentifier("enableTLSDebugging", true);
+        enableSSLDebugging.addLongIdentifier("enableStartTLSDebugging", true);
+        enableSSLDebugging.addLongIdentifier("enable-ssl-debugging", true);
+        enableSSLDebugging.addLongIdentifier("enable-tls-debugging", true);
+        enableSSLDebugging.addLongIdentifier("enable-starttls-debugging", true);
+        enableSSLDebugging.addLongIdentifier("enable-start-tls-debugging",
+             true);
+      }
+      parser.addArgument(enableSSLDebugging);
+      addEnableSSLDebuggingArgument(enableSSLDebugging);
+    }
+
     if (supportsAuthentication)
     {
       saslOption = new StringArgument(getShortIdentifierIfNotSuppressed('o'),
@@ -833,6 +853,23 @@ public abstract class LDAPCommandLineTool
    *          multiple servers, or {@code false} if not.
    */
   protected boolean supportsMultipleServers()
+  {
+    return false;
+  }
+
+
+
+  /**
+   * Indicates whether this tool should provide a command-line argument that
+   * allows for low-level SSL debugging.  If this returns {@code true}, then an
+   * "--enableSSLDebugging" argument will be added that sets the
+   * "javax.net.debug" system property to "all" before attempting any
+   * communication.
+   *
+   * @return  {@code true} if this tool should offer an "--enableSSLDebugging"
+   *          argument, or {@code false} if not.
+   */
+  protected boolean supportsSSLDebugging()
   {
     return false;
   }

@@ -136,10 +136,11 @@ public final class InteractiveCommandLineToolTestCase
          "cn=Directory Manager", // Bind DN
          "", // Empty password -- this isn't valid
          "password", // Bind password
-         "", // Base DN
+         "2", // Select Base DN
+         "", // Empty base DN
          "(objectClass=*)", // First trailing argument
          "", // No more trailing arguments.
-         "2", // Change scope
+         "3", // Change scope
          "1", // BaseObject scope.
          "t", // Specify trailing arguments again.
          "(objectClass=*)", // First trailing argument -- the filter
@@ -362,10 +363,12 @@ public final class InteractiveCommandLineToolTestCase
          String.valueOf(ds.getListenPort()),
          "2", // Use LDAP simple authentication
          "", // Bind DN is no DN -- there won't be a password prompt
-         "", // Base DN
+         "2", // Select Base DN
+         "", // Empty base DN
+         "t", // Trailing arguments
          "(objectClass=*)", // First trailing argument
          "", // No more trailing arguments.
-         "2", // Change scope
+         "3", // Change scope
          "1", // BaseObject scope.
          "t", // Specify trailing arguments again.
          "(objectClass=*)", // First trailing argument -- the filter

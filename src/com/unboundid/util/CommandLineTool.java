@@ -124,6 +124,9 @@ public abstract class CommandLineTool
   // standard error.
   private FileArgument outputFileArgument = null;
 
+  // A list of arguments that can be used to enable SSL/TLS debugging.
+  private final List<BooleanArgument> enableSSLDebuggingArguments;
+
   // The password file reader for this tool.
   private final PasswordFileReader passwordFileReader;
 
@@ -184,6 +187,7 @@ public abstract class CommandLineTool
     originalErr = err;
 
     passwordFileReader = new PasswordFileReader(out, err);
+    enableSSLDebuggingArguments = new ArrayList<>(1);
   }
 
 
@@ -296,6 +300,18 @@ public abstract class CommandLineTool
       {
         out(getToolVersion());
         return ResultCode.SUCCESS;
+      }
+
+      // If we should enable SSL/TLS debugging, then do that now.  Do it before
+      // any kind of user-defined validation is performed.  Java is really
+      // touchy about when this is done, and we need to do it before any
+      // connection attempt is made.
+      for (final BooleanArgument a : enableSSLDebuggingArguments)
+      {
+        if (a.isPresent())
+        {
+          StaticUtils.setSystemProperty("javax.net.debug", "all");
+        }
       }
 
       boolean extendedValidationDone = false;
@@ -1144,6 +1160,22 @@ public abstract class CommandLineTool
   void setHelpSASLArgument(final BooleanArgument helpSASLArgument)
   {
     this.helpSASLArgument = helpSASLArgument;
+  }
+
+
+
+  /**
+   * Adds the provided argument to the set of arguments that may be used to
+   * enable JVM SSL/TLS debugging.
+   *
+   * @param  enableSSLDebuggingArgument  The argument to add to the set of
+   *                                     arguments that may be used to enable
+   *                                     JVM SSL/TLS debugging.
+   */
+  protected void addEnableSSLDebuggingArgument(
+                      final BooleanArgument enableSSLDebuggingArgument)
+  {
+    enableSSLDebuggingArguments.add(enableSSLDebuggingArgument);
   }
 
 
