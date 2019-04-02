@@ -224,7 +224,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -394,7 +394,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -469,7 +469,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -641,7 +641,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -714,7 +714,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -879,7 +879,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -952,7 +952,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -1119,7 +1119,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -1199,7 +1199,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);
@@ -1279,7 +1279,7 @@ public class EntryTestCase
     assertEquals(e.getAttributeValue("description"), "foo");
 
     assertNotNull(e.getAttributeValueBytes("description"));
-    assertEquals(new String(e.getAttributeValueBytes("description")), "foo");
+    assertEquals(toUTF8String(e.getAttributeValueBytes("description")), "foo");
 
     assertNotNull(e.getAttributeValues("description"));
     assertEquals(e.getAttributeValues("description").length, 1);

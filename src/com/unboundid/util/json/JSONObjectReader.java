@@ -26,7 +26,6 @@ import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -486,7 +485,7 @@ public final class JSONObjectReader
                     "0x" + StaticUtils.toHex(byteRead)));
         }
 
-        stringBuffer.append(new String(charBytes, StandardCharsets.UTF_8));
+        stringBuffer.append(StaticUtils.toUTF8String(charBytes));
         continue;
       }
 
@@ -554,10 +553,9 @@ public final class JSONObjectReader
       {
         // It's an unescaped quote, so it marks the end of the string.
         return new JSONString(stringBuffer.toString(),
-             new String(currentObjectBytes.getBackingArray(),
+             StaticUtils.toUTF8String(currentObjectBytes.getBackingArray(),
                   jsonStringStartPos,
-                  (currentObjectBytes.length() - jsonStringStartPos),
-                  StandardCharsets.UTF_8));
+                  (currentObjectBytes.length() - jsonStringStartPos)));
       }
 
       final int byteReadInt = (byteRead & 0xFF);

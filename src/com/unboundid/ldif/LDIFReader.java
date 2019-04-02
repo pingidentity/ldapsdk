@@ -2336,7 +2336,7 @@ public final class LDIFReader
       try
       {
         final byte[] dnBytes = Base64.decode(line.substring(pos));
-        dn = new String(dnBytes, StandardCharsets.UTF_8);
+        dn = StaticUtils.toUTF8String(dnBytes);
       }
       catch (final ParseException pe)
       {
@@ -2469,7 +2469,7 @@ public final class LDIFReader
       try
       {
         final byte[] dnBytes = Base64.decode(line.substring(pos));
-        dn = new String(dnBytes, StandardCharsets.UTF_8);
+        dn = StaticUtils.toUTF8String(dnBytes);
       }
       catch (final ParseException pe)
       {
@@ -2707,7 +2707,7 @@ public final class LDIFReader
       try
       {
         final byte[] controlBytes = Base64.decode(line.substring(pos));
-        controlString =  new String(controlBytes, StandardCharsets.UTF_8);
+        controlString =  StaticUtils.toUTF8String(controlBytes);
       }
       catch (final ParseException pe)
       {
@@ -2973,7 +2973,7 @@ public final class LDIFReader
       try
       {
         final byte[] changeTypeBytes = Base64.decode(line.substring(pos));
-        return new String(changeTypeBytes, StandardCharsets.UTF_8);
+        return StaticUtils.toUTF8String(changeTypeBytes);
       }
       catch (final ParseException pe)
       {
@@ -3505,7 +3505,7 @@ public final class LDIFReader
         try
         {
           final byte[] dnBytes = Base64.decode(line.substring(pos));
-          attributeName = new String(dnBytes, StandardCharsets.UTF_8);
+          attributeName = StaticUtils.toUTF8String(dnBytes);
         }
         catch (final ParseException pe)
         {
@@ -3808,7 +3808,7 @@ public final class LDIFReader
       try
       {
         final byte[] dnBytes = Base64.decode(line.substring(pos));
-        newRDN = new String(dnBytes, StandardCharsets.UTF_8);
+        newRDN = StaticUtils.toUTF8String(dnBytes);
       }
       catch (final ParseException pe)
       {
@@ -3891,7 +3891,7 @@ public final class LDIFReader
       try
       {
         final byte[] changeTypeBytes = Base64.decode(line.substring(pos));
-        deleteOldRDNStr = new String(changeTypeBytes, StandardCharsets.UTF_8);
+        deleteOldRDNStr = StaticUtils.toUTF8String(changeTypeBytes);
       }
       catch (final ParseException pe)
       {
@@ -3987,7 +3987,7 @@ public final class LDIFReader
         try
         {
           final byte[] dnBytes = Base64.decode(line.substring(pos));
-          newSuperiorDN = new String(dnBytes, StandardCharsets.UTF_8);
+          newSuperiorDN = StaticUtils.toUTF8String(dnBytes);
         }
         catch (final ParseException pe)
         {

@@ -30,7 +30,6 @@ import java.util.Map;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -265,18 +264,7 @@ public abstract class SchemaElement
     byteBuffer.flip();
     final byte[] byteArray = new byte[byteBuffer.limit()];
     byteBuffer.get(byteArray);
-
-    try
-    {
-      buffer.append(StaticUtils.toUTF8String(byteArray));
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      // This should never happen.
-      buffer.append(new String(byteArray));
-    }
-
+    buffer.append(StaticUtils.toUTF8String(byteArray));
     return pos;
   }
 

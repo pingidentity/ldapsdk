@@ -1185,18 +1185,7 @@ valueLoop:
     byteBuffer.flip();
     final byte[] byteArray = new byte[byteBuffer.limit()];
     byteBuffer.get(byteArray);
-
-    try
-    {
-      buffer.append(StaticUtils.toUTF8String(byteArray));
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      // This should never happen.
-      buffer.append(new String(byteArray));
-    }
-
+    buffer.append(StaticUtils.toUTF8String(byteArray));
     return pos;
   }
 

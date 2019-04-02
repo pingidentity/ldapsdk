@@ -48,6 +48,7 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -132,7 +133,7 @@ public class JNDIConverterTestCase
       Object v = values.nextElement();
       if (v instanceof byte[])
       {
-        s = new String((byte[]) v);
+        s = StaticUtils.toUTF8String((byte[]) v);
       }
       else
       {

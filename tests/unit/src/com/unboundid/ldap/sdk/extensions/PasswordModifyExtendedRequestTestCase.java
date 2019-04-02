@@ -32,6 +32,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 
+import static com.unboundid.util.StaticUtils.toUTF8String;
+
 
 
 /**
@@ -69,7 +71,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -148,7 +150,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -223,7 +225,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -232,7 +234,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -274,7 +276,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -312,7 +314,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -355,7 +357,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -364,7 +366,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -407,7 +409,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -446,7 +448,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -492,7 +494,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -501,7 +503,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -539,7 +541,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -548,7 +550,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -594,7 +596,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -636,7 +638,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -683,7 +685,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -692,7 +694,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -732,7 +734,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -741,7 +743,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -787,7 +789,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -829,7 +831,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -881,7 +883,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -890,7 +892,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -935,7 +937,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -944,7 +946,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -996,7 +998,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -1044,7 +1046,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -1090,7 +1092,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -1099,7 +1101,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -1148,7 +1150,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -1157,7 +1159,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -1204,7 +1206,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -1213,7 +1215,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -1265,7 +1267,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
@@ -1313,7 +1315,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -1360,7 +1362,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getOldPassword(), "oldPassword");
 
     assertNotNull(r.getOldPasswordBytes());
-    assertEquals(new String(r.getOldPasswordBytes()), "oldPassword");
+    assertEquals(toUTF8String(r.getOldPasswordBytes()), "oldPassword");
 
     assertNotNull(r.getRawOldPassword());
     assertEquals(r.getRawOldPassword().stringValue(), "oldPassword");
@@ -1369,7 +1371,7 @@ public class PasswordModifyExtendedRequestTestCase
     assertEquals(r.getNewPassword(), "newPassword");
 
     assertNotNull(r.getNewPasswordBytes());
-    assertEquals(new String(r.getNewPasswordBytes()), "newPassword");
+    assertEquals(toUTF8String(r.getNewPasswordBytes()), "newPassword");
 
     assertNotNull(r.getRawNewPassword());
     assertEquals(r.getRawNewPassword().stringValue(), "newPassword");
