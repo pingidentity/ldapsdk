@@ -14,6 +14,16 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Improved the LDAP SDK's protection against socket write attempts that block for
+                  an indefinite length of time.  This is only likely to occur when sending a large
+                  number of asynchronous requests over a connection, and only in the case that the
+                  server stops reading requests from the client, or if a networking problem
+                  prevents the request from reaching the server and prevents the client from
+                  receiving any information about that failure.
+                  <br><br>
+                </li>
+
+                <li>
                   Added <tt>InMemoryDirectoryServer.applyChangesFromLDIF</tt> methods that can be
                   used to read LDIF change records and apply them to data in the server.  The
                   changes will be applied atomically, and if any of the changes cannot be applied

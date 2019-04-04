@@ -42,6 +42,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.WriteWithTimeout;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
@@ -558,7 +559,7 @@ final class LDAPConnectionInternals
       final OutputStream os = outputStream;
       if (saslClient == null)
       {
-        buffer.writeTo(os);
+        buffer.writeTo(os, sendTimeoutMillis, true);
       }
       else
       {
@@ -573,10 +574,9 @@ final class LDAPConnectionInternals
         lengthBytes[1] = (byte) ((saslBytes.length >> 16) & 0xFF);
         lengthBytes[2] = (byte) ((saslBytes.length >> 8) & 0xFF);
         lengthBytes[3] = (byte) (saslBytes.length & 0xFF);
-        os.write(lengthBytes);
-        os.write(saslBytes);
+        WriteWithTimeout.write(os, lengthBytes, false, sendTimeoutMillis);
+        WriteWithTimeout.write(os, saslBytes, true, sendTimeoutMillis);
       }
-      os.flush();
     }
     catch (final IOException ioe)
     {

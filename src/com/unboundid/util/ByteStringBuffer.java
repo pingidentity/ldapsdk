@@ -1664,6 +1664,35 @@ public final class ByteStringBuffer
 
 
   /**
+   * Writes the contents of this byte string buffer to the provided output
+   * stream.
+   *
+   * @param  outputStream   The output stream to which the data should be
+   *                        written.
+   * @param  timeoutMillis  The maximum length of time, in milliseconds, that
+   *                        the write attempt will be allowed to block.  If the
+   *                        value is less than or equal to zero, then the write
+   *                        attempt will be allowed to block indefinitely.  If
+   *                        the value is greater than zero and the write attempt
+   *                        blocks for longer than this length of time, then
+   *                        the output stream will be closed.
+   * @param  flush          Indicates whether to flush the output stream after
+   *                        the data has been written.
+   *
+   * @throws  IOException  If a problem occurs while writing to the provided
+   *                       output stream.
+   */
+  public void write(final OutputStream outputStream, final long timeoutMillis,
+                    final boolean flush)
+         throws IOException
+  {
+    WriteWithTimeout.write(outputStream, array, 0, endPos, flush,
+         timeoutMillis);
+  }
+
+
+
+  /**
    * Adds the bytes comprising the string representation of the provided long
    * value to the temporary number buffer.
    *
