@@ -130,6 +130,12 @@ import com.unboundid.util.args.StringArgument;
  *       user attributes, or "+" for all operational attributes.  Multiple
  *       attributes may be requested with multiple instances of this
  *       argument.</LI>
+ *   <LI>"--ldapURL {url}" -- Specifies an LDAP URL that represents the base DN,
+ *       scope, filter, and set of requested attributes that should be used for
+ *       the search requests.  It may be a simple LDAP URL, or it may be a value
+ *       pattern to express a range of LDAP URLs.  If this argument is provided,
+ *       then none of the --baseDN, --scope, --filter, or --attribute arguments
+ *       may be used.</LI>
  *   <LI>"-t {num}" or "--numThreads {num}" -- specifies the number of
  *       concurrent threads to use when performing the searches.  If this is not
  *       provided, then a default of one thread will be used.</LI>
@@ -266,7 +272,7 @@ public final class SearchRate
   private IntegerArgument warmUpIntervals;
 
   // The argument used to specify the scope for the searches.
-  private ScopeArgument scopeArg;
+  private ScopeArgument scope;
 
   // The argument used to specify the attributes to return.
   private StringArgument attributes;
@@ -280,6 +286,9 @@ public final class SearchRate
 
   // The argument used to specify the filters for the searches.
   private StringArgument filter;
+
+  // The argument used to specify the LDAP URLs for the searches.
+  private StringArgument ldapURL;
 
   // The argument used to specify the proxied authorization identity.
   private StringArgument proxyAs;
@@ -522,41 +531,82 @@ public final class SearchRate
          "simple DN or a value pattern to specify a range of DNs (e.g., " +
          "\"uid=user.[1-1000],ou=People,dc=example,dc=com\").  See " +
          ValuePattern.PUBLIC_JAVADOC_URL + " for complete details about the " +
-         "value pattern syntax.  This must be provided.";
-    baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
+         "value pattern syntax.  This argument must not be used in " +
+         "conjunction with the --ldapURL argument.";
+    baseDN = new StringArgument('b', "baseDN", false, 1, "{dn}", description,
+         "");
     baseDN.setArgumentGroupName("Search Arguments");
     baseDN.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDN);
 
 
     description = "The scope to use for the searches.  It should be 'base', " +
-                  "'one', 'sub', or 'subord'.  If this is not provided, then " +
-                  "a default scope of 'sub' will be used.";
-    scopeArg = new ScopeArgument('s', "scope", false, "{scope}", description,
-                                 SearchScope.SUB);
-    scopeArg.setArgumentGroupName("Search Arguments");
-    parser.addArgument(scopeArg);
+         "'one', 'sub', or 'subord'.  If this is not provided, then a " +
+         "default scope of 'sub' will be used.  This argument must not be " +
+         "used in conjunction with the --ldapURL argument.";
+    scope = new ScopeArgument('s', "scope", false, "{scope}", description,
+         SearchScope.SUB);
+    scope.setArgumentGroupName("Search Arguments");
+    parser.addArgument(scope);
+
+
+    description = "The filter to use for the searches.  It may be a simple " +
+         "filter or a value pattern to specify a range of filters (e.g., " +
+         "\"(uid=user.[1-1000])\").  See " + ValuePattern.PUBLIC_JAVADOC_URL +
+         " for complete details about the value pattern syntax.  Exactly one " +
+         "of this argument and the --ldapURL arguments must be provided.";
+    filter = new StringArgument('f', "filter", false, 1, "{filter}",
+         description);
+    filter.setArgumentGroupName("Search Arguments");
+    parser.addArgument(filter);
+
+
+    description = "The name of an attribute to include in entries returned " +
+         "from the searches.  Multiple attributes may be requested by " +
+         "providing this argument multiple times.  If no request attributes " +
+         "are provided, then the entries returned will include all user " +
+         "attributes.  This argument must not be used in conjunction with " +
+         "the --ldapURL argument.";
+    attributes = new StringArgument('A', "attribute", false, 0, "{name}",
+         description);
+    attributes.setArgumentGroupName("Search Arguments");
+    parser.addArgument(attributes);
+
+
+    description = "An LDAP URL that provides the base DN, scope, filter, and " +
+         "requested attributes to use for the search requests (the address " +
+         "and port components of the URL, if present, will be ignored).  It " +
+         "may be a simple LDAP URL or a value pattern to specify a range of " +
+         "URLs.  See " + ValuePattern.PUBLIC_JAVADOC_URL + " for complete " +
+         "details about the value pattern syntax.  If this argument is " +
+         "provided, then none of the --baseDN, --scope, --filter, or " +
+         "--attribute arguments may be used.";
+    ldapURL = new StringArgument(null, "ldapURL", false, 1, "{url}",
+         description);
+    ldapURL.setArgumentGroupName("Search Arguments");
+    ldapURL.addLongIdentifier("ldap-url", true);
+    parser.addArgument(ldapURL);
 
 
     description = "The maximum number of entries that the server should " +
-                  "return in response to each search request.  A value of " +
-                  "zero indicates that the client does not wish to impose " +
-                  "any limit on the number of entries that are returned " +
-                  "(although the server may impose its own limit).  If this " +
-                  "is not provided, then a default value of zero will be used.";
+         "return in response to each search request.  A value of zero " +
+         "indicates that the client does not wish to impose any limit on " +
+         "the number of entries that are returned (although the server may " +
+         "impose its own limit).  If this is not provided, then a default " +
+         "value of zero will be used.";
     sizeLimit = new IntegerArgument('z', "sizeLimit", false, 1, "{num}",
-                                    description, 0, Integer.MAX_VALUE, 0);
+         description, 0, Integer.MAX_VALUE, 0);
     sizeLimit.setArgumentGroupName("Search Arguments");
     sizeLimit.addLongIdentifier("size-limit", true);
     parser.addArgument(sizeLimit);
 
 
     description = "The maximum length of time, in seconds, that the server " +
-                  "should spend processing each search request.  A value of " +
-                  "zero indicates that the client does not wish to impose " +
-                  "any limit on the server's processing time (although the " +
-                  "server may impose its own limit).  If this is not " +
-                  "provided, then a default value of zero will be used.";
+         "should spend processing each search request.  A value of zero " +
+         "indicates that the client does not wish to impose any limit on the " +
+         "server's processing time (although the server may impose its own " +
+         "limit).  If this is not provided, then a default value of zero " +
+         "will be used.";
     timeLimitSeconds = new IntegerArgument('l', "timeLimitSeconds", false, 1,
          "{seconds}", description, 0, Integer.MAX_VALUE, 0);
     timeLimitSeconds.setArgumentGroupName("Search Arguments");
@@ -569,9 +619,9 @@ public final class SearchRate
     final Set<String> derefAllowedValues =
          StaticUtils.setOf("never", "always", "search", "find");
     description = "The alias dereferencing policy to use for search " +
-                  "requests.  The value should be one of 'never', 'always', " +
-                  "'search', or 'find'.  If this is not provided, then a " +
-                  "default value of 'never' will be used.";
+         "requests.  The value should be one of 'never', 'always', 'search', " +
+         "or 'find'.  If this is not provided, then a default value of " +
+         "'never' will be used.";
     dereferencePolicy = new StringArgument(null, "dereferencePolicy", false, 1,
          "{never|always|search|find}", description, derefAllowedValues,
          "never");
@@ -580,132 +630,103 @@ public final class SearchRate
     parser.addArgument(dereferencePolicy);
 
 
-    description = "Indicates that serve should only include the names of the " +
-                  "attributes contained in matching entries rather than both " +
-                  "names and values.";
+    description = "Indicates that server should only include the names of " +
+         "the attributes contained in matching entries rather than both " +
+         "names and values.";
     typesOnly = new BooleanArgument(null, "typesOnly", 1, description);
     typesOnly.setArgumentGroupName("Search Arguments");
     typesOnly.addLongIdentifier("types-only", true);
     parser.addArgument(typesOnly);
 
 
-    description = "The filter to use for the searches.  It may be a simple " +
-                  "filter or a value pattern to specify a range of filters " +
-                  "(e.g., \"(uid=user.[1-1000])\").  See " +
-                  ValuePattern.PUBLIC_JAVADOC_URL + " for complete details " +
-                  "about the value pattern syntax.  This must be provided.";
-    filter = new StringArgument('f', "filter", true, 1, "{filter}",
-                                description);
-    filter.setArgumentGroupName("Search Arguments");
-    parser.addArgument(filter);
-
-
-    description = "The name of an attribute to include in entries returned " +
-                  "from the searches.  Multiple attributes may be requested " +
-                  "by providing this argument multiple times.  If no request " +
-                  "attributes are provided, then the entries returned will " +
-                  "include all user attributes.";
-    attributes = new StringArgument('A', "attribute", false, 0, "{name}",
-                                    description);
-    attributes.setArgumentGroupName("Search Arguments");
-    parser.addArgument(attributes);
-
-
     description = "Indicates that search requests should include the " +
-                  "assertion request control with the specified filter.";
+         "assertion request control with the specified filter.";
     assertionFilter = new FilterArgument(null, "assertionFilter", false, 1,
-                                         "{filter}", description);
+         "{filter}", description);
     assertionFilter.setArgumentGroupName("Request Control Arguments");
     assertionFilter.addLongIdentifier("assertion-filter", true);
     parser.addArgument(assertionFilter);
 
 
     description = "Indicates that search requests should include the simple " +
-                  "paged results control with the specified page size.";
+         "paged results control with the specified page size.";
     simplePageSize = new IntegerArgument(null, "simplePageSize", false, 1,
-                                         "{size}", description, 1,
-                                         Integer.MAX_VALUE);
+         "{size}", description, 1, Integer.MAX_VALUE);
     simplePageSize.setArgumentGroupName("Request Control Arguments");
     simplePageSize.addLongIdentifier("simple-page-size", true);
     parser.addArgument(simplePageSize);
 
 
     description = "Indicates that search requests should include the " +
-                  "server-side sort request control with the specified sort " +
-                  "order. This should be a comma-delimited list in which " +
-                  "each item is an attribute name, optionally preceded by a " +
-                  "plus or minus sign (to indicate ascending or descending " +
-                  "order; where ascending order is the default), and " +
-                  "optionally followed by a colon and the name or OID of " +
-                  "the desired ordering matching rule (if this is not " +
-                  "provided, the the attribute type's default ordering " +
-                  "rule will be used).";
+         "server-side sort request control with the specified sort order.  " +
+         "This should be a comma-delimited list in which each item is an " +
+         "attribute name, optionally preceded by a plus or minus sign (to " +
+         "indicate ascending or descending order; where ascending order is " +
+         "the default), and optionally followed by a colon and the name or " +
+         "OID of the desired ordering matching rule (if this is not " +
+         "provided, the the attribute type's default ordering rule will be " +
+         "used).";
     sortOrder = new StringArgument(null, "sortOrder", false, 1, "{sortOrder}",
-                                   description);
+         description);
     sortOrder.setArgumentGroupName("Request Control Arguments");
     sortOrder.addLongIdentifier("sort-order", true);
     parser.addArgument(sortOrder);
 
 
     description = "Indicates that the proxied authorization control (as " +
-                  "defined in RFC 4370) should be used to request that " +
-                  "operations be processed using an alternate authorization " +
-                  "identity.  This may be a simple authorization ID or it " +
-                  "may be a value pattern to specify a range of " +
-                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
-                  " for complete details about the value pattern syntax.";
+         "defined in RFC 4370) should be used to request that operations be " +
+         "processed using an alternate authorization identity.  This may be " +
+         "a simple authorization ID or it may be a value pattern to specify " +
+         "a range of identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
+         " for complete details about the value pattern syntax.";
     proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
-                                 description);
+         description);
     proxyAs.setArgumentGroupName("Request Control Arguments");
     proxyAs.addLongIdentifier("proxy-as", true);
     parser.addArgument(proxyAs);
 
 
     description = "Indicates that search requests should include the " +
-                  "specified request control.  This may be provided multiple " +
-                  "times to include multiple request controls.";
+         "specified request control.  This may be provided multiple times to " +
+         "include multiple request controls.";
     control = new ControlArgument('J', "control", false, 0, null, description);
     control.setArgumentGroupName("Request Control Arguments");
     parser.addArgument(control);
 
 
     description = "The number of threads to use to perform the searches.  If " +
-                  "this is not provided, then a default of one thread will " +
-                  "be used.";
+         "this is not provided, then a default of one thread will be used.";
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
-                                     description, 1, Integer.MAX_VALUE, 1);
+         description, 1, Integer.MAX_VALUE, 1);
     numThreads.setArgumentGroupName("Rate Management Arguments");
     numThreads.addLongIdentifier("num-threads", true);
     parser.addArgument(numThreads);
 
 
     description = "The length of time in seconds between output lines.  If " +
-                  "this is not provided, then a default interval of five " +
-                  "seconds will be used.";
+         "this is not provided, then a default interval of five seconds will " +
+         "be used.";
     collectionInterval = new IntegerArgument('i', "intervalDuration", true, 1,
-                                             "{num}", description, 1,
-                                             Integer.MAX_VALUE, 5);
+         "{num}", description, 1, Integer.MAX_VALUE, 5);
     collectionInterval.setArgumentGroupName("Rate Management Arguments");
     collectionInterval.addLongIdentifier("interval-duration", true);
     parser.addArgument(collectionInterval);
 
 
     description = "The maximum number of intervals for which to run.  If " +
-                  "this is not provided, then the tool will run until it is " +
-                  "interrupted.";
+         "this is not provided, then the tool will run until it is " +
+         "interrupted.";
     numIntervals = new IntegerArgument('I', "numIntervals", true, 1, "{num}",
-                                       description, 1, Integer.MAX_VALUE,
-                                       Integer.MAX_VALUE);
+         description, 1, Integer.MAX_VALUE, Integer.MAX_VALUE);
     numIntervals.setArgumentGroupName("Rate Management Arguments");
     numIntervals.addLongIdentifier("num-intervals", true);
     parser.addArgument(numIntervals);
 
     description = "The number of search iterations that should be processed " +
-                  "on a connection before that connection is closed and " +
-                  "replaced with a newly-established (and authenticated, if " +
-                  "appropriate) connection.  If this is not provided, then " +
-                  "connections will not be periodically closed and " +
-                  "re-established.";
+         "on a connection before that connection is closed and replaced with " +
+         "a newly-established (and authenticated, if appropriate) " +
+         "connection.  If this is not provided, then connections will not " +
+         "be periodically closed and re-established.";
     iterationsBeforeReconnect = new IntegerArgument(null,
          "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
     iterationsBeforeReconnect.setArgumentGroupName("Rate Management Arguments");
@@ -714,14 +735,12 @@ public final class SearchRate
     parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of searches to perform per second.  It " +
-                  "is still necessary to specify a sufficient number of " +
-                  "threads for achieving this rate.  If neither this option " +
-                  "nor --variableRateData is provided, then the tool will " +
-                  "run at the maximum rate for the specified number of " +
-                  "threads.";
+         "is still necessary to specify a sufficient number of threads for " +
+         "achieving this rate.  If neither this option nor " +
+         "--variableRateData is provided, then the tool will run at the " +
+         "maximum rate for the specified number of threads.";
     ratePerSecond = new IntegerArgument('r', "ratePerSecond", false, 1,
-                                        "{searches-per-second}", description,
-                                        1, Integer.MAX_VALUE);
+         "{searches-per-second}", description, 1, Integer.MAX_VALUE);
     ratePerSecond.setArgumentGroupName("Rate Management Arguments");
     ratePerSecond.addLongIdentifier("rate-per-second", true);
     parser.addArgument(ratePerSecond);
@@ -731,8 +750,7 @@ public final class SearchRate
     description = RateAdjustor.getVariableRateDataArgumentDescription(
          generateSampleRateFileArgName);
     variableRateData = new FileArgument(null, variableRateDataArgName, false, 1,
-                                        "{path}", description, true, true, true,
-                                        false);
+         "{path}", description, true, true, true, false);
     variableRateData.setArgumentGroupName("Rate Management Arguments");
     variableRateData.addLongIdentifier("variable-rate-data", true);
     parser.addArgument(variableRateData);
@@ -740,8 +758,7 @@ public final class SearchRate
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
          variableRateDataArgName);
     sampleRateFile = new FileArgument(null, generateSampleRateFileArgName,
-                                      false, 1, "{path}", description, false,
-                                      true, true, false);
+         false, 1, "{path}", description, false, true, true, false);
     sampleRateFile.setArgumentGroupName("Rate Management Arguments");
     sampleRateFile.addLongIdentifier("generate-sample-rate-file", true);
     sampleRateFile.setUsageArgument(true);
@@ -749,9 +766,9 @@ public final class SearchRate
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
 
     description = "The number of intervals to complete before beginning " +
-                  "overall statistics collection.  Specifying a nonzero " +
-                  "number of warm-up intervals gives the client and server " +
-                  "a chance to warm up without skewing performance results.";
+         "overall statistics collection.  Specifying a nonzero number of " +
+         "warm-up intervals gives the client and server a chance to warm up " +
+         "without skewing performance results.";
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
     warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
@@ -759,11 +776,10 @@ public final class SearchRate
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +
-                  "the output.  A value of 'none' indicates that no " +
-                  "timestamps should be included.  A value of 'with-date' " +
-                  "indicates that both the date and the time should be " +
-                  "included.  A value of 'without-date' indicates that only " +
-                  "the time should be included.";
+         "the output.  A value of 'none' indicates that no timestamps should " +
+         "be included.  A value of 'with-date' indicates that both the date " +
+         "and the time should be included.  A value of 'without-date' " +
+         "indicates that only the time should be included.";
     final Set<String> allowedFormats =
          StaticUtils.setOf("none", "with-date", "without-date");
     timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
@@ -772,30 +788,29 @@ public final class SearchRate
     parser.addArgument(timestampFormat);
 
     description = "Indicates that the client should operate in asynchronous " +
-                  "mode, in which it will not be necessary to wait for a " +
-                  "response to a previous request before sending the next " +
-                  "request.  Either the '--ratePerSecond' or the " +
-                  "'--maxOutstandingRequests' argument must be provided to " +
-                  "limit the number of outstanding requests.";
+         "mode, in which it will not be necessary to wait for a response to " +
+         "a previous request before sending the next request.  Either the " +
+         "'--ratePerSecond' or the '--maxOutstandingRequests' argument must " +
+         "be provided to limit the number of outstanding requests.";
     asynchronousMode = new BooleanArgument('a', "asynchronous", description);
     parser.addArgument(asynchronousMode);
 
     description = "Specifies the maximum number of outstanding requests " +
-                  "that should be allowed when operating in asynchronous mode.";
+         "that should be allowed when operating in asynchronous mode.";
     maxOutstandingRequests = new IntegerArgument('O', "maxOutstandingRequests",
          false, 1, "{num}", description, 1, Integer.MAX_VALUE, (Integer) null);
     maxOutstandingRequests.addLongIdentifier("max-outstanding-requests", true);
     parser.addArgument(maxOutstandingRequests);
 
     description = "Indicates that information about the result codes for " +
-                  "failed operations should not be displayed.";
+         "failed operations should not be displayed.";
     suppressErrors = new BooleanArgument(null,
          "suppressErrorResultCodes", 1, description);
     suppressErrors.addLongIdentifier("suppress-error-result-codes", true);
     parser.addArgument(suppressErrors);
 
     description = "Generate output in CSV format rather than a " +
-                  "display-friendly format";
+         "display-friendly format";
     csvFormat = new BooleanArgument('c', "csv", 1, description);
     parser.addArgument(csvFormat);
 
@@ -805,6 +820,13 @@ public final class SearchRate
     randomSeed.addLongIdentifier("random-seed", true);
     parser.addArgument(randomSeed);
 
+
+    parser.addExclusiveArgumentSet(baseDN, ldapURL);
+    parser.addExclusiveArgumentSet(scope, ldapURL);
+    parser.addExclusiveArgumentSet(filter, ldapURL);
+    parser.addExclusiveArgumentSet(attributes, ldapURL);
+
+    parser.addRequiredArgumentSet(filter, ldapURL);
 
     parser.addDependentArgumentSet(asynchronousMode, ratePerSecond,
          maxOutstandingRequests);
@@ -891,12 +913,19 @@ public final class SearchRate
       seed = null;
     }
 
-    // Create value patterns for the base DN, filter, and proxied authorization
-    // DN.
+    // Create value patterns for the base DN, filter, LDAP URL, and proxied
+    // authorization DN.
     final ValuePattern dnPattern;
     try
     {
-      dnPattern = new ValuePattern(baseDN.getValue(), seed);
+      if (baseDN.getNumOccurrences() > 0)
+      {
+        dnPattern = new ValuePattern(baseDN.getValue(), seed);
+      }
+      else
+      {
+        dnPattern = null;
+      }
     }
     catch (final ParseException pe)
     {
@@ -908,12 +937,38 @@ public final class SearchRate
     final ValuePattern filterPattern;
     try
     {
-      filterPattern = new ValuePattern(filter.getValue(), seed);
+      if (filter.isPresent())
+      {
+        filterPattern = new ValuePattern(filter.getValue(), seed);
+      }
+      else
+      {
+        filterPattern = null;
+      }
     }
     catch (final ParseException pe)
     {
       Debug.debugException(pe);
       err("Unable to parse the filter pattern:  ", pe.getMessage());
+      return ResultCode.PARAM_ERROR;
+    }
+
+    final ValuePattern ldapURLPattern;
+    try
+    {
+      if (ldapURL.isPresent())
+      {
+        ldapURLPattern = new ValuePattern(ldapURL.getValue(), seed);
+      }
+      else
+      {
+        ldapURLPattern = null;
+      }
+    }
+    catch (final ParseException pe)
+    {
+      Debug.debugException(pe);
+      err("Unable to parse the LDAP URL pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
 
@@ -1177,10 +1232,10 @@ public final class SearchRate
       }
 
       threads[i] = new SearchRateThread(this, i, connection,
-           asynchronousMode.isPresent(), dnPattern, scopeArg.getValue(),
+           asynchronousMode.isPresent(), dnPattern, scope.getValue(),
            derefPolicy, sizeLimit.getValue(), timeLimitSeconds.getValue(),
-           typesOnly.isPresent(), filterPattern, attrs, authzIDPattern,
-           simplePageSize.getValue(), controlList,
+           typesOnly.isPresent(), filterPattern, attrs, ldapURLPattern,
+           authzIDPattern, simplePageSize.getValue(), controlList,
            iterationsBeforeReconnect.getValue(), runningThreads, barrier,
            searchCounter, entryCounter, searchDurations, errorCounter,
            rcCounter, fixedRateBarrier, asyncSemaphore);

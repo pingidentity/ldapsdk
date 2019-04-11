@@ -35,6 +35,7 @@ import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
@@ -103,6 +104,10 @@ final class SearchRateThread
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
 
+  // The barrier to use for controlling the rate of searches.  null if no
+  // rate-limiting should be used.
+  private final FixedRateBarrier fixedRateBarrier;
+
   // The page size to use for the simple paged results control, if any.
   private final Integer simplePageSize;
 
@@ -141,9 +146,8 @@ final class SearchRateThread
   // The value pattern to use for the filters.
   private final ValuePattern filter;
 
-  // The barrier to use for controlling the rate of searches.  null if no
-  // rate-limiting should be used.
-  private final FixedRateBarrier fixedRateBarrier;
+  // The value pattern to use for the LDAP URLs.
+  private final ValuePattern ldapURL;
 
 
 
@@ -171,6 +175,7 @@ final class SearchRateThread
    *                                    and values.
    * @param  filter                     The value pattern for the filters.
    * @param  attributes                 The set of attributes to return.
+   * @param  ldapURL                    The value pattern for the LDAP URLs.
    * @param  authzID                    The value pattern to use to generate
    *                                    authorization identities for use with
    *                                    the proxied authorization control.  It
@@ -218,8 +223,8 @@ final class SearchRateThread
                    final DereferencePolicy dereferencePolicy,
                    final int sizeLimit, final int timeLimitSeconds,
                    final boolean typesOnly, final ValuePattern filter,
-                   final String[] attributes, final ValuePattern authzID,
-                   final Integer simplePageSize,
+                   final String[] attributes, final ValuePattern ldapURL,
+                   final ValuePattern authzID, final Integer simplePageSize,
                    final List<Control> requestControls,
                    final long iterationsBeforeReconnect,
                    final AtomicInteger runningThreads,
@@ -242,6 +247,7 @@ final class SearchRateThread
     this.scope                     = scope;
     this.filter                    = filter;
     this.attributes                = attributes;
+    this.ldapURL                   = ldapURL;
     this.authzID                   = authzID;
     this.simplePageSize            = simplePageSize;
     this.requestControls           = requestControls;
@@ -370,8 +376,27 @@ final class SearchRateThread
 
           try
           {
-            final SearchRequest r = new SearchRequest(listener,
-                 baseDN.nextValue(), scope, filter.nextValue(), attributes);
+            final SearchRequest r;
+            if (ldapURL == null)
+            {
+              r = new SearchRequest(listener, baseDN.nextValue(),
+                   scope, searchRequest.getDereferencePolicy(),
+                   searchRequest.getSizeLimit(),
+                   searchRequest.getTimeLimitSeconds(),
+                   searchRequest.typesOnly(), filter.nextValue(), attributes);
+            }
+            else
+            {
+              final LDAPURL url = new LDAPURL(ldapURL.nextValue());
+              r = new SearchRequest(listener,
+                   url.getBaseDN().toString(), url.getScope(),
+                   searchRequest.getDereferencePolicy(),
+                   searchRequest.getSizeLimit(),
+                   searchRequest.getTimeLimitSeconds(),
+                   searchRequest.typesOnly(), url.getFilter(),
+                   url.getAttributes());
+            }
+
             r.setControls(requestControls);
             if (authzID != null)
             {
@@ -402,8 +427,19 @@ final class SearchRateThread
         {
           try
           {
-            searchRequest.setBaseDN(baseDN.nextValue());
-            searchRequest.setFilter(filter.nextValue());
+            if (ldapURL == null)
+            {
+              searchRequest.setBaseDN(baseDN.nextValue());
+              searchRequest.setFilter(filter.nextValue());
+            }
+            else
+            {
+              final LDAPURL url = new LDAPURL(ldapURL.nextValue());
+              searchRequest.setBaseDN(url.getBaseDN());
+              searchRequest.setScope(url.getScope());
+              searchRequest.setFilter(url.getFilter());
+              searchRequest.setAttributes(url.getAttributes());
+            }
 
             searchRequest.setControls(requestControls);
 

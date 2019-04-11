@@ -60,6 +60,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the searchrate utility to allow specifying the base DN, scope, filter,
+                  and requested attributes using LDAP URLs rather than individual attribute values
+                  (note that any addresses and ports in the URLs will be ignored; the --hostname
+                  and --port arguments will still be used to identify which servers to use).  The
+                  LDAP URL can be a fixed URL or it can be a value pattern (including the ability
+                  to include variable content in the URLs, or to load URLs from a file).  Using
+                  LDAP URLs allows for more precise control over the combination of base DN,
+                  scope, filter, and requested attributes on a per-request basis.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>LDAPCommandLineTool</tt> API to add an option to expose an
                   <tt>--enableSSLDebugging</tt> argument.  If this argument is available, and if
                   it is provided in the set of command-line arguments when the tool is run, then

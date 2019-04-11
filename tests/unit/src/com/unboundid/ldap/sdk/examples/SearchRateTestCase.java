@@ -636,10 +636,8 @@ public class SearchRateTestCase
       "-p", String.valueOf(getTestPort()),
       "-D", getTestBindDN(),
       "-w", getTestBindPassword(),
-      "-b", "uid=user.[1-10]," + getTestBaseDN(),
-      "-s", "base",
-      "-A", "1.1",
-      "-f", "(objectClass=*)",
+      "--ldapURL", "ldap:///uid=user.[1-10]," + getTestBaseDN() +
+           "?1.1?base?(objectClass=*)",
       "-t", "10",
       "-i", "1",
       "-I", "2",
@@ -729,6 +727,41 @@ public class SearchRateTestCase
 
 
   /**
+   * Performs a test using asynchronous mode with a malformed LDAP URL pattern.
+   * <BR><BR>
+   * Access to a Directory Server instance is required for complete processing.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAsynchronousModeMalformedLDAPURL()
+         throws Exception
+  {
+    if (! isDirectoryInstanceAvailable())
+    {
+      return;
+    }
+
+    String[] args =
+    {
+      "-h", getTestHost(),
+      "-p", String.valueOf(getTestPort()),
+      "-D", getTestBindDN(),
+      "-w", getTestBindPassword(),
+      "--ldapURL", "ldap:///uid=user.[1-10]," + getTestBaseDN() +
+           "?1.1?base?(uid=user.[1-10000)", // Missing a closing bracket
+      "-t", "10",
+      "-i", "1",
+      "-I", "2",
+      "--asynchronous",
+      "--maxOutstandingRequests", "100"
+    };
+    assertFalse(SearchRate.main(args, null, null).equals(ResultCode.SUCCESS));
+  }
+
+
+
+  /**
    * Performs a test of --variableRate without the rates repeating.  The command
    * should complete when all of the rates have been processed.
    * <BR><BR>
@@ -758,10 +791,8 @@ public class SearchRateTestCase
       "-p", String.valueOf(getTestPort()),
       "-D", getTestBindDN(),
       "-w", getTestBindPassword(),
-      "-b", "uid=user.[1-10]," + getTestBaseDN(),
-      "-s", "base",
-      "-A", "1.1",
-      "-f", "(objectClass=*)",
+      "--ldapURL", "ldap:///uid=user.[1-10]," + getTestBaseDN() +
+           "?1.1?base?(objectClass=*)",
       "-t", "10",
       "-i", "1",
       "--variableRateData", repeatingRatesFile.getAbsolutePath()
