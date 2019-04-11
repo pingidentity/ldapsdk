@@ -32,6 +32,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the in-memory directory server to improve the diagnostic message that is
+                  returned when it rejects an add attempt because the provided entry is not within
+                  any of the configured base DNs.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved the exception message that is generated if a failure occurs while
                   trying to create a TLS-based connection.  If the JVM supports creating an
                   unconnected SSLSocket and then connecting it after the fact (which makes it

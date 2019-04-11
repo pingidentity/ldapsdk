@@ -1238,11 +1238,24 @@ public final class InMemoryRequestHandler
              responseControls);
       }
 
-      // The add attempt must fail.
+      // The add attempt must fail because the parent doesn't exist.  See if
+      // it's just that the parent doesn't exist or whether the entry isn't
+      // within any of the configured base DNs.
+      for (final DN baseDN : baseDNs)
+      {
+        if (dn.isDescendantOf(baseDN, true))
+        {
+          return new LDAPMessage(messageID, new AddResponseProtocolOp(
+               ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
+               ERR_MEM_HANDLER_ADD_MISSING_PARENT.get(request.getDN(),
+                    dn.getParentString()),
+               null));
+        }
+      }
+
       return new LDAPMessage(messageID, new AddResponseProtocolOp(
-           ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
-           ERR_MEM_HANDLER_ADD_MISSING_PARENT.get(request.getDN(),
-                dn.getParentString()),
+           ResultCode.NO_SUCH_OBJECT_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_NOT_BELOW_BASE_DN.get(request.getDN()),
            null));
     }
   }
