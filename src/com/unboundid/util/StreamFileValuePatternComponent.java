@@ -88,7 +88,7 @@ final class StreamFileValuePatternComponent
   StreamFileValuePatternComponent(final String path)
        throws IOException
   {
-    this(path, 1000, 60_000L);
+    this(path, 10_000, 60_000L);
   }
 
 
@@ -167,13 +167,14 @@ final class StreamFileValuePatternComponent
       return;
     }
 
-    synchronized (this)
+    while (true)
     {
-      while (true)
+      try
       {
-        try
+        StreamFileValuePatternReaderThread readerThread;
+        synchronized (this)
         {
-          StreamFileValuePatternReaderThread readerThread = threadRef.get();
+          readerThread = threadRef.get();
           if (readerThread == null)
           {
             readerThread = new StreamFileValuePatternReaderThread(file,
@@ -182,24 +183,24 @@ final class StreamFileValuePatternComponent
             threadRef.set(readerThread);
             readerThread.start();
           }
+        }
 
-          line = lineQueue.poll(10L, TimeUnit.MILLISECONDS);
-          if (line != null)
-          {
-            buffer.append(line);
-            return;
-          }
-        }
-        catch (final Exception e)
+        line = lineQueue.poll(10L, TimeUnit.MILLISECONDS);
+        if (line != null)
         {
-          Debug.debugException(e);
-          throw new LDAPRuntimeException(
-               new LDAPException(ResultCode.LOCAL_ERROR,
-                    ERR_STREAM_FILE_VALUE_PATTERN_ERROR_GETTING_NEXT_VALUE.get(
-                         file.getAbsolutePath(),
-                         StaticUtils.getExceptionMessage(e)),
-                    e));
+          buffer.append(line);
+          return;
         }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPRuntimeException(
+             new LDAPException(ResultCode.LOCAL_ERROR,
+                  ERR_STREAM_FILE_VALUE_PATTERN_ERROR_GETTING_NEXT_VALUE.get(
+                       file.getAbsolutePath(),
+                       StaticUtils.getExceptionMessage(e)),
+                  e));
       }
     }
   }

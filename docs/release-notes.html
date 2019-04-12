@@ -97,6 +97,14 @@ ${TARGET="offline"}                <br>
                   in an interactive shell (for example, in a cron job or system startup script).
                   <br><br>
                 </li>
+
+                <li>
+                  Dramatically improved the performance of the streamfile value pattern, which
+                  operates like the sequentialfile value pattern in that it can iterate through
+                  values in a file in sequential order, except that streamfile doesn't need to
+                  hold the whole file in memory whereas sequentialfile does.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
