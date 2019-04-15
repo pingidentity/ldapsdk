@@ -220,6 +220,22 @@ public final class ManageCertificates
 
   /**
    * Creates a new instance of this tool with the provided output and error
+   * streams.  Standard input will bot be available.
+   *
+   * @param  out  The output stream to use for standard output.  It may be
+   *              {@code null} if standard output should be suppressed.
+   * @param  err  The output stream to use for standard error.  It may be
+   *              {@code null} if standard error should be suppressed.
+   */
+  public ManageCertificates(final OutputStream out, final OutputStream err)
+  {
+    this(null, out, err);
+  }
+
+
+
+  /**
+   * Creates a new instance of this tool with the provided output and error
    * streams.
    *
    * @param  in   The input stream to use for standard input.  It may be

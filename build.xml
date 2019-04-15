@@ -56,6 +56,12 @@
   <property name="copydocs.classes.dir" location="${build.dir}/copydocs" />
 
 
+  <!-- Define properties used for generating tool usage information. -->
+  <property name="toolusage.src.dir"
+            location="${build-src.dir}/toolusage" />
+  <property name="toolusage.classes.dir" location="${build.dir}/toolusage" />
+
+
   <!-- Define properties used for generating file digests. -->
   <property name="digest.src.dir"     location="${build-src.dir}/digest" />
   <property name="digest.classes.dir" location="${build.dir}/digest" />
@@ -282,7 +288,7 @@
 
   <!-- Create a distributable package including the JAR file, docs, etc. -->
   <target name="package" description="Create a distributable package"
-          depends="compile,define-copydocs,checkstyle">
+          depends="compile,define-copydocs,define-toolusage,checkstyle">
     <mkdir dir="${package.dir}" />
 
     <property name="base-name"
@@ -329,6 +335,11 @@
         <exclude name="**/package-info.java" />
       </fileset>
     </copy>
+
+    <property name="toolusage.localdocs.dir"
+              location="${sdk.package.dir}/docs/tool-usages" />
+    <mkdir dir="${toolusage.localdocs.dir}" />
+    <toolusage outputDirectory="${toolusage.localdocs.dir}" />
 
     <copy todir="${sdk.package.dir}/android-ldap-client">
       <fileset dir="android-ldap-client">
@@ -454,6 +465,31 @@
              className="com.unboundid.buildtools.copydocs.CopyDocs">
       <classpath>
         <pathelement location="${copydocs.classes.dir}" />
+      </classpath>
+    </taskdef>
+  </target>
+
+
+
+  <!-- Define the task used to generate tool usage information. -->
+  <target name="define-toolusage">
+    <mkdir dir="${toolusage.classes.dir}" />
+    <javac srcdir="${toolusage.src.dir}" destdir="${toolusage.classes.dir}"
+           source="1.7" target="1.7" deprecation="true" fork="true"
+           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="true">
+      <compilerarg value="-Xlint:all" />
+      <classpath>
+        <pathelement location="${classes.dir}" />
+      </classpath>
+    </javac>
+
+    <taskdef name="toolusage"
+             className="com.unboundid.buildtools.toolusage.GenerateToolUsage">
+      <classpath>
+        <pathelement location="${toolusage.classes.dir}" />
+        <pathelement location="${classes.dir}" />
       </classpath>
     </taskdef>
   </target>
@@ -674,6 +710,11 @@
     <delete file="${package.dir}/www/javadoc/resources/inherit.gif" />
     <copy file="${resource.dir}/inherit.gif"
           toFile="${package.dir}/www/javadoc/resources/inherit.gif" />
+
+    <property name="toolusage.online.dir"
+              location="${package.dir}/www/tool-usages" />
+    <mkdir dir="${toolusage.online.dir}" />
+    <toolusage outputDirectory="${toolusage.online.dir}" />
 
     <zip destfile="${package.dir}/unboundid-ldapsdk-${MMPQ}-www.zip" compress="true">
       <zipfileset dir="${package.dir}/www" filemode="644" dirmode="755" />

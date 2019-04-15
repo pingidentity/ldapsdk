@@ -379,6 +379,22 @@ public final class LDAPModify
 
 
   /**
+   * Creates a new instance of this tool with the provided streams.  Standard
+   * input will not be available.
+   *
+   * @param  out  The output stream to use for standard output.  If this is
+   *              {@code null}, then standard output will be suppressed.
+   * @param  err  The output stream to use for standard error.  If this is
+   *              {@code null}, then standard error will be suppressed.
+   */
+  public LDAPModify(final OutputStream out, final OutputStream err)
+  {
+    this(null, out, err);
+  }
+
+
+
+  /**
    * Creates a new instance of this tool with the provided streams.
    *
    * @param  in   The input stream to use for standard input.  If this is

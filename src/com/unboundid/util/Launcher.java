@@ -127,6 +127,8 @@ public final class Launcher
                                 final OutputStream errStream,
                                 final String... args)
   {
+
+
     if ((args == null) || (args.length == 0) ||
         args[0].equalsIgnoreCase("version"))
     {

@@ -24,8 +24,12 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.List;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServerTool;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.examples.AuthRate;
@@ -49,10 +53,14 @@ import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
 import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
+import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.Debug;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ssl.cert.ManageCertificates;
+
+import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 
@@ -332,6 +340,112 @@ public final class Launcher
       }
 
       return ResultCode.PARAM_ERROR;
+    }
+  }
+
+
+
+  /**
+   * Retrieves a list of all of the classes that provide the implementations for
+   * all of the command-line tools included with the LDAP SDK.
+   *
+   * @return  A list of all of the classes that provide  the implementations for
+   *          all of the command-line tools included with the LDAP SDK.
+   */
+  public static List<Class<? extends CommandLineTool>> getToolClasses()
+  {
+    return Arrays.asList(
+         AuthRate.class,
+         Base64Tool.class,
+         DeliverOneTimePassword.class,
+         DeliverPasswordResetToken.class,
+         DumpDNs.class,
+         GenerateSchemaFromSource.class,
+         GenerateSourceFromSchema.class,
+         GenerateTOTPSharedSecret.class,
+         IdentifyReferencesToMissingEntries.class,
+         IdentifyUniqueAttributeConflicts.class,
+         InMemoryDirectoryServerTool.class,
+         LDAPCompare.class,
+         LDAPDebugger.class,
+         LDAPModify.class,
+         LDAPSearch.class,
+         ManageAccount.class,
+         ManageCertificates.class,
+         ModRate.class,
+         MoveSubtree.class,
+         RegisterYubiKeyOTPDevice.class,
+         SearchAndModRate.class,
+         SearchRate.class,
+         SplitLDIF.class,
+         SubtreeAccessibility.class,
+         SummarizeAccessLog.class,
+         TransformLDIF.class,
+         ValidateLDIF.class);
+  }
+
+
+
+  /**
+   * Retrieves an instance of the specified type of command-line tool with the
+   * given output and error streams.  The tool class must provide a two-argument
+   * constructor in which the first argument is a possibly-{@code null}
+   * {@code OutputStream} to use for standard output, and the second argument is
+   * a possibly-{@code null} {@code OutputStream} to use for standard error.
+   *
+   * @param  toolClass  The class that provides the implementation for the
+   *                    desired command-line tool.
+   * @param  outStream  The output stream to which standard out should be
+   *                    written.  It may be {@code null} if output should be
+   *                    suppressed.
+   * @param  errStream  The output stream to which standard error should be
+   *                    written.  It may be {@code null} if error messages
+   *                    should be suppressed.
+   *
+   * @return  An instance of the specified command-line tool.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to create an
+   *                         instance of the requested tool.
+   */
+  public static CommandLineTool getToolInstance(final Class<?> toolClass,
+                                                final OutputStream outStream,
+                                                final OutputStream errStream)
+         throws LDAPException
+  {
+    if (! CommandLineTool.class.isAssignableFrom(toolClass))
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_LAUNCHER_CLASS_NOT_COMMAND_LINE_TOOL.get(toolClass.getName(),
+                CommandLineTool.class.getName()));
+    }
+
+    final Constructor<?> constructor;
+    try
+    {
+      constructor = toolClass.getConstructor(OutputStream.class,
+           OutputStream.class);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_LAUNCHER_TOOL_CLASS_MISSING_EXPECTED_CONSTRUCTOR.get(
+                toolClass.getName()),
+           e);
+    }
+
+
+    try
+    {
+      return (CommandLineTool) constructor.newInstance(outStream, errStream);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_LAUNCHER_ERROR_INVOKING_CONSTRUCTOR.get(toolClass.getName(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
     }
   }
 }
