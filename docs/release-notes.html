@@ -72,6 +72,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new indent-filter command-line tool that can help make it easier to
+                  visualize complex filters with a lot of components, and especially a lot of
+                  nesting.  If possible, it can also try to simplify the filter (for example, to
+                  remove unnecessary levels of nesting, like an AND inside an AND).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>LDAPCommandLineTool</tt> API to add an option to expose an
                   <tt>--enableSSLDebugging</tt> argument.  If this argument is available, and if
                   it is provided in the set of command-line arguments when the tool is run, then

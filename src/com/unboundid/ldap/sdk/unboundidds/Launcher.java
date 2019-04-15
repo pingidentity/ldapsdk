@@ -36,6 +36,7 @@ import com.unboundid.ldap.sdk.examples.AuthRate;
 import com.unboundid.ldap.sdk.examples.Base64Tool;
 import com.unboundid.ldap.sdk.examples.IdentifyReferencesToMissingEntries;
 import com.unboundid.ldap.sdk.examples.IdentifyUniqueAttributeConflicts;
+import com.unboundid.ldap.sdk.examples.IndentFilter;
 import com.unboundid.ldap.sdk.examples.LDAPCompare;
 import com.unboundid.ldap.sdk.examples.LDAPDebugger;
 import com.unboundid.ldap.sdk.examples.ModRate;
@@ -102,6 +103,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *       {@link IdentifyReferencesToMissingEntries} tool.</LI>
  *   <LI>identify-unique-attribute-conflicts -- Launch the
  *       {@link IdentifyUniqueAttributeConflicts} tool.</LI>
+ *   <LI>indent-filter -- Launch the {@link IndentFilter} tool.</LI>
  *   <LI>in-memory-directory-server -- Launch the
  *       {@link InMemoryDirectoryServerTool} tool.</LI>
  *   <LI>ldapcompare -- Launch the {@link LDAPCompare} tool.</LI>
@@ -225,6 +227,10 @@ public final class Launcher
       return InMemoryDirectoryServerTool.main(remainingArgs, outStream,
            errStream);
     }
+    else if (firstArg.equals("indent-filter"))
+    {
+      return IndentFilter.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("generate-schema-from-source"))
     {
       return GenerateSchemaFromSource.main(remainingArgs, outStream, errStream);
@@ -319,6 +325,7 @@ public final class Launcher
         err.println("     generate-totp-shared-secret");
         err.println("     identify-references-to-missing-entries");
         err.println("     identify-unique-attribute-conflicts");
+        err.println("     indent-filter");
         err.println("     in-memory-directory-server");
         err.println("     ldapcompare");
         err.println("     ldapmodify");
@@ -365,6 +372,7 @@ public final class Launcher
          GenerateTOTPSharedSecret.class,
          IdentifyReferencesToMissingEntries.class,
          IdentifyUniqueAttributeConflicts.class,
+         IndentFilter.class,
          InMemoryDirectoryServerTool.class,
          LDAPCompare.class,
          LDAPDebugger.class,
