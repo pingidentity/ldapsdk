@@ -3431,6 +3431,10 @@ attrNameLoop:
    *       "(&amp;(objectClass=person)(&amp;(givenName=John)(sn=Doe)))" will be
    *       converted to
    *       "(&amp;(objectClass=person)(givenName=John)(sn=Doe))".</LI>
+   *   <LI>Any AND filter that contains an LDAP false filter will be converted
+   *       to just an LDAP false filter.</LI>
+   *   <LI>Any OR filter that contains an LDAP true filter will be converted
+   *       to just an LDAP true filter.</LI>
    *   <LI>If {@code reOrderElements} is true, then this method will attempt to
    *       re-order the elements inside AND and OR filters in an attempt to
    *       ensure that the components which are likely to be the most efficient
@@ -3544,6 +3548,32 @@ attrNameLoop:
     if (componentSet.size() == 1)
     {
       return componentSet.iterator().next();
+    }
+
+
+    // If we have an AND filter that contains an embedded LDAP false filter,
+    // then just return the LDAP false filter.  If we have an OR filter that
+    // contains an embedded LDAP true filter, then just return the LDAP true
+    // filter.
+    if (filterType == FILTER_TYPE_AND)
+    {
+      for (final Filter f : componentSet)
+      {
+        if ((f.filterType == FILTER_TYPE_OR) && (f.filterComps.length == 0))
+        {
+          return f;
+        }
+      }
+    }
+    else if (filterType == FILTER_TYPE_OR)
+    {
+      for (final Filter f : componentSet)
+      {
+        if ((f.filterType == FILTER_TYPE_AND) && (f.filterComps.length == 0))
+        {
+          return f;
+        }
+      }
     }
 
 

@@ -115,6 +115,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the <tt>Filter.simplifyFilter</tt> method to simplify an AND filter
+                  containing an LDAP false filter (an OR filter with zero components, which will
+                  never match anything) to just that LDAP false filter, and to simplify an OR
+                  filter containing an LDAP true filter (an AND filter with zero components, which
+                  will match any entry) to just that LDAP true filter.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK build process to automatically generate documentation for
                   all of the command-line tools included with the SDK.  Usages are provided in
                   both plain text and HTML, and the HTML documentation is linked from the main

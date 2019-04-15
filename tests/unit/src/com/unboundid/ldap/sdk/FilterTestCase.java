@@ -8041,14 +8041,43 @@ public class FilterTestCase
         "(&(eq1=1)(objectClass=ocEq1)(pr1=*)(objectClass=*)(si1=1*)(sa1=*1*)" +
              "(sf1=*1)(ge1>=1)(le1<=1)(am1~=1)(em1:=1)(eq2=2)" +
              "(objectClass=ocEq2)(pr2=*)(ss2=2*2*2)(!(eq3=3))(!(eq4=4))" +
-             "(!(|(objectClass=ocEq3)(eq5=5)))(|(&)(eq2=2)(objectClass=ocEq1)" +
-             "(objectClass=ocEq2)(pr1=*)(pr2=*)(objectClass=*)(ss2=2*2*2)))",
-        "(&(eq1=1)(eq2=2)(|(eq2=2)(objectClass=ocEq1)(objectClass=ocEq2)" +
-             "(pr1=*)(pr2=*)(ss2=2*2*2)(objectClass=*)(&))" +
-             "(objectClass=ocEq1)(objectClass=ocEq2)(am1~=1)(pr1=*)(pr2=*)" +
-             "(si1=1*)(ss2=2*2*2)(sa1=*1*)(sf1=*1)(ge1>=1)(le1<=1)(em1:=1)" +
-             "(objectClass=*)(!(eq3=3))(!(eq4=4))(!(|(eq5=5)" +
-             "(objectClass=ocEq3))))"
+             "(!(|(objectClass=ocEq3)(eq5=5))))",
+        "(&(eq1=1)(eq2=2)(objectClass=ocEq1)(objectClass=ocEq2)(am1~=1)" +
+             "(pr1=*)(pr2=*)(si1=1*)(ss2=2*2*2)(sa1=*1*)(sf1=*1)(ge1>=1)" +
+             "(le1<=1)(em1:=1)(objectClass=*)(!(eq3=3))(!(eq4=4))" +
+             "(!(|(eq5=5)(objectClass=ocEq3))))"
+      },
+
+      // AND that contains an LDAP false filter in the top level.
+      new String[]
+      {
+        "(&(objectClass=*)(|))",
+        "(|)",
+        "(|)"
+      },
+
+      // AND that contains an LDAP false filter in a nested level.
+      new String[]
+      {
+        "(&(objectClass=*)(&(objectClass=top)(|)))",
+        "(|)",
+        "(|)"
+      },
+
+      // OR that contains an LDAP true filter in the top level.
+      new String[]
+      {
+        "(|(objectClass=*)(&))",
+        "(&)",
+        "(&)"
+      },
+
+      // OR that contains an LDAP true filter in a nested level.
+      new String[]
+      {
+        "(|(objectClass=*)(|(objectClass=top)(&)))",
+        "(&)",
+        "(&)"
       },
     };
   }
