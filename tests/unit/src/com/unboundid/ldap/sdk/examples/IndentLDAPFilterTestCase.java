@@ -43,9 +43,10 @@ import com.unboundid.util.StaticUtils;
 
 
 /**
- * This class provides a set of test cases for the {@code IndentFilter} tool.
+ * This class provides a set of test cases for the {@code IndentLDAPFilter}
+ * tool.
  */
-public final class IndentFilterTestCase
+public final class IndentLDAPFilterTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -65,7 +66,8 @@ public final class IndentFilterTestCase
          throws Exception
   {
     assertEquals(
-         IndentFilter.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM, "--help"),
+         IndentLDAPFilter.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--help"),
          ResultCode.SUCCESS);
   }
 
@@ -91,7 +93,7 @@ public final class IndentFilterTestCase
   {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     assertEquals(
-         IndentFilter.main(out, out,
+         IndentLDAPFilter.main(out, out,
               "--indent-spaces", String.valueOf(numSpaces),
               "--do-not-simplify",
               filterString),
@@ -146,7 +148,7 @@ public final class IndentFilterTestCase
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     assertEquals(
-         IndentFilter.main(out, out,
+         IndentLDAPFilter.main(out, out,
               "--indent-spaces", String.valueOf(numSpaces),
               filterString),
          ResultCode.SUCCESS);
@@ -176,8 +178,8 @@ public final class IndentFilterTestCase
       }
       final String indentSpaces = indentSpacesBuffer.toString();
 
-      IndentFilter.indentFilter(simplifiedFilter, "", indentSpaces,
-           expectedOutputWithSimplification);
+      IndentLDAPFilter.indentLDAPFilter(simplifiedFilter, "",
+           indentSpaces, expectedOutputWithSimplification);
     }
     else
     {
@@ -212,7 +214,7 @@ public final class IndentFilterTestCase
          throws Exception
   {
     assertEquals(
-         IndentFilter.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+         IndentLDAPFilter.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
               "this is not a valid filter"),
          ResultCode.FILTER_ERROR);
   }

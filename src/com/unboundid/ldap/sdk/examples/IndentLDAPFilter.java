@@ -52,7 +52,7 @@ import com.unboundid.util.args.IntegerArgument;
  * unnecessary complexity.
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
-public final class IndentFilter
+public final class IndentLDAPFilter
        extends CommandLineTool
 {
   /**
@@ -118,8 +118,8 @@ public final class IndentFilter
                                 final OutputStream err,
                                 final String... args)
   {
-    final IndentFilter indentFilter = new IndentFilter(out, err);
-    return indentFilter.runTool(args);
+    final IndentLDAPFilter indentLDAPFilter = new IndentLDAPFilter(out, err);
+    return indentLDAPFilter.runTool(args);
   }
 
 
@@ -134,7 +134,7 @@ public final class IndentFilter
    * @param  err  The output stream to which standard error should be written.
    *              It may be {@code null} if standard error should be suppressed.
    */
-  public IndentFilter(final OutputStream out, final OutputStream err)
+  public IndentLDAPFilter(final OutputStream out, final OutputStream err)
   {
     super(out, err);
 
@@ -152,7 +152,7 @@ public final class IndentFilter
   @Override()
   public String getToolName()
   {
-    return "indent-filter";
+    return "indent-ldap-filter";
   }
 
 
@@ -410,7 +410,7 @@ public final class IndentFilter
 
     // Display an indented representation of the provided filter.
     final List<String> indentedFilterLines = new ArrayList<>(10);
-    indentFilter(filter, "", indentString, indentedFilterLines);
+    indentLDAPFilter(filter, "", indentString, indentedFilterLines);
     for (final String line : indentedFilterLines)
     {
       out(line);
@@ -437,7 +437,8 @@ public final class IndentFilter
         out();
 
         indentedFilterLines.clear();
-        indentFilter(simplifiedFilter, "", indentString, indentedFilterLines);
+        indentLDAPFilter(simplifiedFilter, "", indentString,
+             indentedFilterLines);
         for (final String line : indentedFilterLines)
         {
           out(line);
@@ -467,10 +468,10 @@ public final class IndentFilter
    *                              indented filter should be added.  It must not
    *                              be {@code null}, and must be updatable.
    */
-  public static void indentFilter(final Filter filter,
-                                  final String currentIndentString,
-                                  final String indentSpaces,
-                                  final List<String> indentedFilterLines)
+  public static void indentLDAPFilter(final Filter filter,
+                                      final String currentIndentString,
+                                      final String indentSpaces,
+                                      final List<String> indentedFilterLines)
   {
     switch (filter.getFilterType())
     {
@@ -488,7 +489,7 @@ public final class IndentFilter
                currentIndentString + " &" + indentSpaces;
           for (final Filter andComponent : andComponents)
           {
-            indentFilter(andComponent, andComponentIndent, indentSpaces,
+            indentLDAPFilter(andComponent, andComponentIndent, indentSpaces,
                  indentedFilterLines);
           }
           indentedFilterLines.add(currentIndentString + " &)");
@@ -510,7 +511,7 @@ public final class IndentFilter
                currentIndentString + " |" + indentSpaces;
           for (final Filter orComponent : orComponents)
           {
-            indentFilter(orComponent, orComponentIndent, indentSpaces,
+            indentLDAPFilter(orComponent, orComponentIndent, indentSpaces,
                  indentedFilterLines);
           }
           indentedFilterLines.add(currentIndentString + " |)");
@@ -520,7 +521,7 @@ public final class IndentFilter
 
       case Filter.FILTER_TYPE_NOT:
         indentedFilterLines.add(currentIndentString + "(!");
-        indentFilter(filter.getNOTComponent(),
+        indentLDAPFilter(filter.getNOTComponent(),
              currentIndentString + " !" + indentSpaces, indentSpaces,
              indentedFilterLines);
         indentedFilterLines.add(currentIndentString + " !)");

@@ -32,5 +32,5 @@ cd ${CURRENT_DIR}
 # Invoke the tool with the provided command-line arguments.
 "${JAVA_CMD}" ${JAVA_ARGS} \
      -cp "${TOOLS_DIR}/../unboundid-ldapsdk.jar:${CLASSPATH}" \
-     com.unboundid.ldap.sdk.examples.IndentFilter "${@}"
+     com.unboundid.ldap.sdk.examples.IndentLDAPFilter "${@}"
 

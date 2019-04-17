@@ -32,7 +32,7 @@ import com.unboundid.ldap.sdk.examples.AuthRate;
 import com.unboundid.ldap.sdk.examples.Base64Tool;
 import com.unboundid.ldap.sdk.examples.IdentifyReferencesToMissingEntries;
 import com.unboundid.ldap.sdk.examples.IdentifyUniqueAttributeConflicts;
-import com.unboundid.ldap.sdk.examples.IndentFilter;
+import com.unboundid.ldap.sdk.examples.IndentLDAPFilter;
 import com.unboundid.ldap.sdk.examples.LDAPCompare;
 import com.unboundid.ldap.sdk.examples.LDAPDebugger;
 import com.unboundid.ldap.sdk.examples.LDAPModify;
@@ -69,7 +69,7 @@ import com.unboundid.util.ssl.cert.ManageCertificates;
  *       {@link IdentifyReferencesToMissingEntries} tool.</LI>
  *   <LI>identify-unique-attribute-conflicts -- Launch the
  *       {@link IdentifyUniqueAttributeConflicts} tool.</LI>
- *   <LI>indent-filter -- Launch the {@link IndentFilter} tool.</LI>
+ *   <LI>indent-ldap-filter -- Launch the {@link IndentLDAPFilter} tool.</LI>
  *   <LI>in-memory-directory-server -- Launch the
  *       {@link InMemoryDirectoryServerTool} tool.</LI>
  *   <LI>ldapcompare -- Launch the {@link LDAPCompare} tool.</LI>
@@ -168,9 +168,9 @@ public final class Launcher
       return IdentifyUniqueAttributeConflicts.main(remainingArgs, outStream,
            errStream);
     }
-    else if (firstArg.equals("indent-filter"))
+    else if (firstArg.equals("indent-ldap-filter"))
     {
-      return IndentFilter.main(outStream, errStream, remainingArgs);
+      return IndentLDAPFilter.main(outStream, errStream, remainingArgs);
     }
     else if (firstArg.equals("in-memory-directory-server"))
     {
@@ -239,7 +239,7 @@ public final class Launcher
         err.println("     generate-source-from-schema");
         err.println("     identify-references-to-missing-entries");
         err.println("     identify-unique-attribute-conflicts");
-        err.println("     indent-filter");
+        err.println("     indent-ldap-filter");
         err.println("     in-memory-directory-server");
         err.println("     ldapcompare");
         err.println("     ldapmodify");
