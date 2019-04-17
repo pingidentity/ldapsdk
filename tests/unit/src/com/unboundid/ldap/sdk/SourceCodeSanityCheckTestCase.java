@@ -200,46 +200,46 @@ public final class SourceCodeSanityCheckTestCase
                            final List<String> errorMessages)
   {
     final boolean hasHeader =
-         hasHeaderLine(f, fileLines, errorMessages, 0, "/*") ||
+         hasHeaderLine(f, fileLines, errorMessages, 0, "/*") &&
          hasHeaderLine(f, fileLines, errorMessages, 1, " * Copyright ",
-              YEAR + " Ping Identity Corporation") ||
+              YEAR + " Ping Identity Corporation") &&
          hasHeaderLine(f, fileLines, errorMessages, 2,
-              " * All Rights Reserved.") ||
-         hasHeaderLine(f, fileLines, errorMessages, 3, " */") ||
-         hasHeaderLine(f, fileLines, errorMessages, 4, "/*") ||
+              " * All Rights Reserved.") &&
+         hasHeaderLine(f, fileLines, errorMessages, 3, " */") &&
+         hasHeaderLine(f, fileLines, errorMessages, 4, "/*") &&
          hasHeaderLine(f, fileLines, errorMessages, 5, " * Copyright (C) ",
-              YEAR + " Ping Identity Corporation") ||
-         hasHeaderLine(f, fileLines, errorMessages, 6, " *") ||
+              YEAR + " Ping Identity Corporation") &&
+         hasHeaderLine(f, fileLines, errorMessages, 6, " *") &&
          hasHeaderLine(f, fileLines, errorMessages, 7,
               " * This program is free software; you can redistribute it " +
-                   "and/or modify") ||
+                   "and/or modify") &&
          hasHeaderLine(f, fileLines, errorMessages, 8,
               " * it under the terms of the GNU General Public License " +
-                   "(GPLv2 only)") ||
+                   "(GPLv2 only)") &&
          hasHeaderLine(f, fileLines, errorMessages, 9,
               " * or the terms of the GNU Lesser General Public License " +
-                   "(LGPLv2.1 only)") ||
+                   "(LGPLv2.1 only)") &&
          hasHeaderLine(f, fileLines, errorMessages, 10,
-              " * as published by the Free Software Foundation.") ||
-         hasHeaderLine(f, fileLines, errorMessages, 11, " *") ||
+              " * as published by the Free Software Foundation.") &&
+         hasHeaderLine(f, fileLines, errorMessages, 11, " *") &&
          hasHeaderLine(f, fileLines, errorMessages, 12,
               " * This program is distributed in the hope that it will be " +
-                   "useful,") ||
+                   "useful,") &&
          hasHeaderLine(f, fileLines, errorMessages, 13,
               " * but WITHOUT ANY WARRANTY; without even the implied " +
-                   "warranty of") ||
+                   "warranty of") &&
          hasHeaderLine(f, fileLines, errorMessages, 14,
-              " * MERCHANTABILITY or FITNESS FOR A  PARTICULAR PURPOSE.  See " +
-                   "the") ||
+              " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See " +
+                   "the") &&
          hasHeaderLine(f, fileLines, errorMessages, 15,
-              " * GNU General Public License for more details.") ||
-         hasHeaderLine(f, fileLines, errorMessages, 16, " *") ||
+              " * GNU General Public License for more details.") &&
+         hasHeaderLine(f, fileLines, errorMessages, 16, " *") &&
          hasHeaderLine(f, fileLines, errorMessages, 17,
               " * You should have received a copy of the GNU General Public " +
-                   "License") ||
+                   "License") &&
          hasHeaderLine(f, fileLines, errorMessages, 18,
               " * along with this program; if not, see " +
-                   "<http://www.gnu.org/licenses>.") ||
+                   "<http://www.gnu.org/licenses>.") &&
          hasHeaderLine(f, fileLines, errorMessages, 19, " */");
   }
 
