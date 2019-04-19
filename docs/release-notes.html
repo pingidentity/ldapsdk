@@ -32,6 +32,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new <tt>SubtreeDeleter</tt> utility class that can make it easier to
+                  delete a specified subtree, optionally including or excluding the base entry for
+                  that subtree.  It provides a good client-side alternative to the subtree delete
+                  request control, which isn't supported by all servers, and can sometimes be
+                  problematic in servers that do support it.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the in-memory directory server to improve the diagnostic message that is
                   returned when it rejects an add attempt because the provided entry is not within
                   any of the configured base DNs.
