@@ -69,6 +69,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapmodify command-line tool to add a
+                  <tt>--clientSideSubtreeDelete</tt> argument that can be used to cause each
+                  delete operation to be converted to a client-side subtree delete operation, in
+                  which the tool will search for entries to delete and then delete them
+                  individually.  This makes it easier to delete entries with subordinates on
+                  servers that either do not support the subtree delete request control, or in
+                  which the client may not have permission to use that control.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the searchrate utility to allow specifying the base DN, scope, filter,
                   and requested attributes using LDAP URLs rather than individual attribute values
                   (note that any addresses and ports in the URLs will be ignored; the --hostname

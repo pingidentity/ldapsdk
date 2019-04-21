@@ -22,8 +22,10 @@ package com.unboundid.util;
 
 
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPResult;
@@ -40,7 +42,15 @@ import com.unboundid.ldap.sdk.SearchResult;
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class SubtreeDeleterResult
+       implements Serializable
 {
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -4801520019525316763L;
+
+
+
   // Indicates whether the target subtree is inaccessible.
   private final boolean subtreeInaccessible;
 
@@ -57,7 +67,8 @@ public final class SubtreeDeleterResult
 
   // A map that contains the DNs of the entries that could not be deleted,
   // associated with a result indicating the reason for the delete failure.
-  private final SortedMap<DN,LDAPResult> deleteErrors;
+  // It will be sorted in descending order
+  private final TreeMap<DN,LDAPResult> deleteErrors;
 
 
 
@@ -98,13 +109,13 @@ public final class SubtreeDeleterResult
                        final boolean subtreeInaccessible,
                        final SearchResult searchError,
                        final long entriesDeleted,
-                       final SortedMap<DN,LDAPResult> deleteErrors)
+                       final TreeMap<DN,LDAPResult> deleteErrors)
   {
     this.setSubtreeAccessibilityError = setSubtreeAccessibilityError;
     this.subtreeInaccessible = subtreeInaccessible;
     this.searchError = searchError;
     this.entriesDeleted = entriesDeleted;
-    this.deleteErrors = Collections.unmodifiableSortedMap(deleteErrors);
+    this.deleteErrors = deleteErrors;
   }
 
 
@@ -201,13 +212,45 @@ public final class SubtreeDeleterResult
   /**
    * Retrieves an unmodifiable sorted map of the DNs of entries that could not
    * be successfully deleted, each of which is associated with an
-   * {@code LDAPResult} indicating the reason for the delete failure.
+   * {@code LDAPResult} indicating the reason for the delete failure.  The map
+   * will be ordered in ascending order using the comparator provided by the
+   * {@code DN} class (that is, with ancestor entries before their descendants).
    *
    * @return  An unmodifiable sorted map of the DNs of the entries that could
    *          not be deleted, each of which is associated with an
    *          {@code LDAPResult} indicating the reason for the delete failure.
    */
   public SortedMap<DN,LDAPResult> getDeleteErrors()
+  {
+    return Collections.unmodifiableSortedMap(deleteErrors);
+  }
+
+
+
+  /**
+   * Retrieves an unmodifiable sorted map of the DNs of entries that could not
+   * be successfully deleted, each of which is associated with an
+   * {@code LDAPResult} indicating the reason for the delete failure.  The map
+   * will be ordered in descending order using the comparator provided by the
+   * {@code DN} class (that is, with descendant entries before their ancestors).
+   *
+   * @return  An unmodifiable sorted map of the DNs of the entries that could
+   *          not be deleted, each of which is associated with an
+   *          {@code LDAPResult} indicating the reason for the delete failure.
+   */
+  public SortedMap<DN,LDAPResult> getDeleteErrorsDescendingMap()
+  {
+    return Collections.unmodifiableSortedMap(deleteErrors.descendingMap());
+  }
+
+
+
+  /**
+   * Retrieves the delete errors as a {@code TreeMap}.
+   *
+   * @return  Retrieves the delete errors as a {@code TreeMap}.
+   */
+  TreeMap<DN,LDAPResult> getDeleteErrorsTreeMap()
   {
     return deleteErrors;
   }

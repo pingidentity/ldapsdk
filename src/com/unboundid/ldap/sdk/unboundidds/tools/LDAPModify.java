@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -143,6 +144,8 @@ import com.unboundid.util.FilterFileReader;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.SubtreeDeleter;
+import com.unboundid.util.SubtreeDeleterResult;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
@@ -262,6 +265,7 @@ public final class LDAPModify
   private BooleanArgument allowUndelete = null;
   private BooleanArgument assuredReplication = null;
   private BooleanArgument authorizationIdentity = null;
+  private BooleanArgument clientSideSubtreeDelete = null;
   private BooleanArgument continueOnError = null;
   private BooleanArgument defaultAdd = null;
   private BooleanArgument dryRun = null;
@@ -282,7 +286,7 @@ public final class LDAPModify
   private BooleanArgument retryFailedOperations = null;
   private BooleanArgument softDelete = null;
   private BooleanArgument stripTrailingSpaces = null;
-  private BooleanArgument subtreeDelete = null;
+  private BooleanArgument serverSideSubtreeDelete = null;
   private BooleanArgument suppressReferentialIntegrityUpdates = null;
   private BooleanArgument useAdministrativeSession = null;
   private BooleanArgument usePasswordPolicyControl = null;
@@ -982,12 +986,31 @@ public final class LDAPModify
     parser.addArgument(permissiveModify);
 
 
-    subtreeDelete = new BooleanArgument(null, "subtreeDelete", 1,
-         INFO_LDAPMODIFY_ARG_DESCRIPTION_SUBTREE_DELETE.get());
-    subtreeDelete.addLongIdentifier("subtree-delete", true);
-    subtreeDelete.setArgumentGroupName(
+    clientSideSubtreeDelete = new BooleanArgument(null,
+         "clientSideSubtreeDelete", 1,
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_CLIENT_SIDE_SUBTREE_DELETE.get());
+    clientSideSubtreeDelete.addLongIdentifier("client-side-subtree-delete",
+         true);
+    clientSideSubtreeDelete.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(subtreeDelete);
+    parser.addArgument(clientSideSubtreeDelete);
+
+
+    serverSideSubtreeDelete = new BooleanArgument(null,
+         "serverSideSubtreeDelete", 1,
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_SERVER_SIDE_SUBTREE_DELETE.get());
+    serverSideSubtreeDelete.addLongIdentifier("server-side-subtree-delete",
+         true);
+    serverSideSubtreeDelete.addLongIdentifier("subtreeDelete", true);
+    serverSideSubtreeDelete.addLongIdentifier("subtree-delete", true);
+    serverSideSubtreeDelete.addLongIdentifier("subtreeDeleteControl", true);
+    serverSideSubtreeDelete.addLongIdentifier("subtree-delete-control", true);
+    serverSideSubtreeDelete.addLongIdentifier("useSubtreeDeleteControl", true);
+    serverSideSubtreeDelete.addLongIdentifier("use-subtree-delete-control",
+         true);
+    serverSideSubtreeDelete.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(serverSideSubtreeDelete);
 
 
     softDelete = new BooleanArgument('s', "softDelete", 1,
@@ -1251,6 +1274,8 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(useTransaction, modifyEntryWithDN);
     parser.addExclusiveArgumentSet(useTransaction,
          modifyEntriesWithDNsFromFile);
+    parser.addExclusiveArgumentSet(useTransaction,
+         clientSideSubtreeDelete);
 
     // Multi-update is incompatible with a lot of settings.
     parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, ratePerSecond);
@@ -1269,10 +1294,26 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(multiUpdateErrorBehavior, modifyEntryWithDN);
     parser.addExclusiveArgumentSet(multiUpdateErrorBehavior,
          modifyEntriesWithDNsFromFile);
+    parser.addExclusiveArgumentSet(multiUpdateErrorBehavior,
+         clientSideSubtreeDelete);
+
+    // Client-side and server-side subtree deletes cannot be used together.
+    parser.addExclusiveArgumentSet(clientSideSubtreeDelete,
+         serverSideSubtreeDelete);
 
     // Soft delete cannot be used with either hard delete or subtree delete.
     parser.addExclusiveArgumentSet(softDelete, hardDelete);
-    parser.addExclusiveArgumentSet(softDelete, subtreeDelete);
+    parser.addExclusiveArgumentSet(softDelete, clientSideSubtreeDelete);
+    parser.addExclusiveArgumentSet(softDelete, serverSideSubtreeDelete);
+
+    // Client-side subtree delete cannot be used in conjunction with a few
+    // other settings.
+    parser.addExclusiveArgumentSet(clientSideSubtreeDelete, followReferrals);
+    parser.addExclusiveArgumentSet(clientSideSubtreeDelete, preReadAttribute);
+    parser.addExclusiveArgumentSet(clientSideSubtreeDelete, getBackendSetID);
+    parser.addExclusiveArgumentSet(clientSideSubtreeDelete, getServerID);
+    parser.addExclusiveArgumentSet(clientSideSubtreeDelete, noOperation);
+    parser.addExclusiveArgumentSet(clientSideSubtreeDelete, dryRun);
 
     // Password retiring and purging can't be used together.
     parser.addExclusiveArgumentSet(retireCurrentPassword, purgeCurrentPassword);
@@ -1295,7 +1336,10 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(modifyEntriesMatchingFilter,
          nameWithEntryUUID);
     parser.addExclusiveArgumentSet(modifyEntriesMatchingFilter, softDelete);
-    parser.addExclusiveArgumentSet(modifyEntriesMatchingFilter, subtreeDelete);
+    parser.addExclusiveArgumentSet(modifyEntriesMatchingFilter,
+         clientSideSubtreeDelete);
+    parser.addExclusiveArgumentSet(modifyEntriesMatchingFilter,
+         serverSideSubtreeDelete);
     parser.addExclusiveArgumentSet(modifyEntriesMatchingFilter,
          suppressReferentialIntegrityUpdates);
     parser.addExclusiveArgumentSet(modifyEntriesMatchingFilter, addControl);
@@ -1320,7 +1364,9 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(modifyEntriesMatchingFiltersFromFile,
          softDelete);
     parser.addExclusiveArgumentSet(modifyEntriesMatchingFiltersFromFile,
-         subtreeDelete);
+         clientSideSubtreeDelete);
+    parser.addExclusiveArgumentSet(modifyEntriesMatchingFiltersFromFile,
+         serverSideSubtreeDelete);
     parser.addExclusiveArgumentSet(modifyEntriesMatchingFiltersFromFile,
          suppressReferentialIntegrityUpdates);
     parser.addExclusiveArgumentSet(modifyEntriesMatchingFiltersFromFile,
@@ -1339,7 +1385,8 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(modifyEntryWithDN, ignoreNoUserModification);
     parser.addExclusiveArgumentSet(modifyEntryWithDN, nameWithEntryUUID);
     parser.addExclusiveArgumentSet(modifyEntryWithDN, softDelete);
-    parser.addExclusiveArgumentSet(modifyEntryWithDN, subtreeDelete);
+    parser.addExclusiveArgumentSet(modifyEntryWithDN, clientSideSubtreeDelete);
+    parser.addExclusiveArgumentSet(modifyEntryWithDN, serverSideSubtreeDelete);
     parser.addExclusiveArgumentSet(modifyEntryWithDN,
          suppressReferentialIntegrityUpdates);
     parser.addExclusiveArgumentSet(modifyEntryWithDN, addControl);
@@ -1357,7 +1404,10 @@ public final class LDAPModify
     parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile,
          nameWithEntryUUID);
     parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile, softDelete);
-    parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile, subtreeDelete);
+    parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile,
+         clientSideSubtreeDelete);
+    parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile,
+         serverSideSubtreeDelete);
     parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile,
          suppressReferentialIntegrityUpdates);
     parser.addExclusiveArgumentSet(modifyEntriesWithDNsFromFile, addControl);
@@ -2875,7 +2925,7 @@ readChangeRecordLoop:
       modifyDNControls.add(c);
     }
 
-    if (hardDelete.isPresent())
+    if (hardDelete.isPresent() && (! clientSideSubtreeDelete.isPresent()))
     {
       deleteControls.add(new HardDeleteRequestControl(true));
     }
@@ -2895,7 +2945,7 @@ readChangeRecordLoop:
       deleteControls.add(new SoftDeleteRequestControl(true, true));
     }
 
-    if (subtreeDelete.isPresent())
+    if (serverSideSubtreeDelete.isPresent())
     {
       deleteControls.add(new SubtreeDeleteRequestControl());
     }
@@ -2927,7 +2977,10 @@ readChangeRecordLoop:
     {
       final ManageDsaITRequestControl c = new ManageDsaITRequestControl(true);
       addControls.add(c);
-      deleteControls.add(c);
+      if (! clientSideSubtreeDelete.isPresent())
+      {
+        deleteControls.add(c);
+      }
       modifyControls.add(c);
       modifyDNControls.add(c);
     }
@@ -3441,6 +3494,15 @@ readChangeRecordLoop:
                               final LDIFWriter rejectWriter)
           throws LDAPException
   {
+    // If we should perform a client-side subtree delete, then do that
+    // differently.
+    if (clientSideSubtreeDelete.isPresent())
+    {
+      return doClientSideSubtreeDelete(changeRecord, controls, pool,
+           rejectWriter);
+    }
+
+
     // Create the delete request to process.
     final DeleteRequest deleteRequest = changeRecord.toDeleteRequest(true);
     for (final Control c : controls)
@@ -3524,6 +3586,184 @@ readChangeRecordLoop:
     }
 
     return deleteResult.getResultCode();
+  }
+
+
+
+  /**
+   * Performs the appropriate processing for an LDIF delete change record.
+   *
+   * @param  changeRecord  The LDIF delete change record to process.
+   * @param  controls      The set of controls to include in the request.
+   * @param  pool          The connection pool to use to communicate with the
+   *                       directory server.
+   * @param  rejectWriter  The LDIF writer to use for recording information
+   *                       about rejected changes.  It may be {@code null} if no
+   *                       reject writer is configured.
+   *
+   * @return  The result code obtained from processing.
+   *
+   * @throws  LDAPException  If the operation did not complete successfully
+   *                         and processing should not continue.
+   */
+  private ResultCode doClientSideSubtreeDelete(
+                          final LDIFChangeRecord changeRecord,
+                          final List<Control> controls,
+                          final LDAPConnectionPool pool,
+                          final LDIFWriter rejectWriter)
+          throws LDAPException
+  {
+    // Create the subtree deleter with the provided set of controls.  Make sure
+    // to include any controls in the delete change record itself.
+    final List<Control> additionalControls;
+    if (changeRecord.getControls().isEmpty())
+    {
+      additionalControls = controls;
+    }
+    else
+    {
+      additionalControls = new ArrayList<>(controls.size() +
+           changeRecord.getControls().size());
+      additionalControls.addAll(changeRecord.getControls());
+      additionalControls.addAll(controls);
+    }
+
+    final SubtreeDeleter subtreeDeleter = new SubtreeDeleter();
+    subtreeDeleter.setAdditionalDeleteControls(additionalControls);
+
+
+    // Perform the subtree delete.
+    commentToOut(INFO_LDAPMODIFY_CLIENT_SIDE_DELETING_SUBTREE.get(
+         changeRecord.getDN()));
+    final SubtreeDeleterResult subtreeDeleterResult =
+         subtreeDeleter.delete(pool, changeRecord.getDN());
+
+
+    // Evaluate the result of the subtree delete.
+    final LDAPResult finalResult;
+    if (subtreeDeleterResult.completelySuccessful())
+    {
+      final long entriesDeleted = subtreeDeleterResult.getEntriesDeleted();
+      if (entriesDeleted == 0L)
+      {
+        // This means that the base entry did not exist.  Even though the
+        // subtree deleter returned a successful result, we'll use a final
+        // result of "no such object".
+        finalResult = new LDAPResult(-1, ResultCode.NO_SUCH_OBJECT,
+             ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_SUCCEEDED_WITH_0_ENTRIES.get(
+                  changeRecord.getDN()),
+             null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+      }
+      else if (entriesDeleted == 1L)
+      {
+        // This means the base entry existed (and we deleted it successfully),
+        // but did not have any subordinates.
+        finalResult = new LDAPResult(-1, ResultCode.SUCCESS,
+             INFO_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_SUCCEEDED_WITH_1_ENTRY.get(
+                  changeRecord.getDN()),
+             null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+      }
+      else
+      {
+        // This means that the base entry existed and had subordinates, and we
+        // deleted all of them successfully.
+        finalResult = new LDAPResult(-1, ResultCode.SUCCESS,
+             INFO_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_SUCCEEDED_WITH_ENTRIES.get(
+                  subtreeDeleterResult.getEntriesDeleted(),
+                  changeRecord.getDN()),
+             null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+      }
+    }
+    else
+    {
+      // If there was a search error, then display information about it.
+      final SearchResult searchError = subtreeDeleterResult.getSearchError();
+      if (searchError != null)
+      {
+        commentToErr(ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_SEARCH_ERROR.get());
+        displayResult(searchError, false);
+        err("#");
+      }
+
+      final SortedMap<DN,LDAPResult> deleteErrors =
+           subtreeDeleterResult.getDeleteErrorsDescendingMap();
+      for (final Map.Entry<DN,LDAPResult> deleteError : deleteErrors.entrySet())
+      {
+        commentToErr(ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_ERROR.get(
+             String.valueOf(deleteError.getKey())));
+        displayResult(deleteError.getValue(), false);
+        err("#");
+      }
+
+      ResultCode resultCode = ResultCode.OTHER;
+      final StringBuilder buffer = new StringBuilder();
+      buffer.append(ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_FINAL_ERR_BASE.get());
+      if (searchError != null)
+      {
+        resultCode = searchError.getResultCode();
+        buffer.append("  ");
+        buffer.append(
+             ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_FINAL_SEARCH_ERR.get());
+      }
+
+      if (! deleteErrors.isEmpty())
+      {
+        resultCode = deleteErrors.values().iterator().next().getResultCode();
+        buffer.append("  ");
+        final int numDeleteErrors = deleteErrors.size();
+        if (numDeleteErrors == 1)
+        {
+          buffer.append(
+               ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_FINAL_DEL_ERR_COUNT_1.get());
+        }
+        else
+        {
+          buffer.append(
+               ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_FINAL_DEL_ERR_COUNT.get(
+                    numDeleteErrors));
+        }
+      }
+
+      buffer.append("  ");
+      final long deletedCount = subtreeDeleterResult.getEntriesDeleted();
+      if (deletedCount == 1L)
+      {
+        buffer.append(
+             ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_FINAL_DEL_COUNT_1.get());
+      }
+      else
+      {
+        buffer.append(ERR_LDAPMODIFY_CLIENT_SIDE_SUB_DEL_FINAL_DEL_COUNT.get(
+             deletedCount));
+      }
+
+      finalResult = new LDAPResult(-1, resultCode, buffer.toString(), null,
+           StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+    }
+
+
+    // Display information about the final result.
+    displayResult(finalResult, useTransaction.isPresent());
+
+
+    // See if the delete operation succeeded or failed.  If it failed, and we
+    // should end all processing, then throw an exception.
+    switch (finalResult.getResultCode().intValue())
+    {
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        break;
+
+      default:
+        writeRejectedChange(rejectWriter, null, changeRecord, finalResult);
+        if (! continueOnError.isPresent())
+        {
+          throw new LDAPException(finalResult);
+        }
+        break;
+    }
+
+    return finalResult.getResultCode();
   }
 
 

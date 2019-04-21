@@ -39,6 +39,7 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.controls.PasswordUpdateBehaviorRequestControl;
@@ -1444,15 +1445,14 @@ public final class LDAPModifyTestCase
 
 
   /**
-   * Provides test coverage for the --subtreeDelete argument.
+   * Provides test coverage for the --clientSideSubtreeDelete argument.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testSubtreeDelete()
+  public void testClientSideSubtreeDelete()
          throws Exception
   {
-    // The in-memory directory server supports the subtree delete control.
     final InMemoryDirectoryServer ds = getTestDS(true, true);
 
 
@@ -1486,7 +1486,220 @@ public final class LDAPModifyTestCase
               "--bindDN", "cn=Directory Manager",
               "--bindPassword", "password",
               "--ldifFile", ldifFile.getAbsolutePath(),
-              "--subtreeDelete"),
+              "--clientSideSubtreeDelete"),
+         ResultCode.SUCCESS,
+         new String(out.toByteArray(), "UTF-8"));
+  }
+
+
+
+  /**
+   * Provides test coverage for the --clientSideSubtreeDelete argument when an
+   * error is expected while attempting to search for entries to delete.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testClientSideSubtreeDeleteWithSearchError()
+         throws Exception
+  {
+    // Create an in-memory directory server instance that requires
+    // authentication for search operations.
+    final InMemoryDirectoryServerConfig dsCfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    dsCfg.setAuthenticationRequiredOperationTypes(OperationType.SEARCH);
+    dsCfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(dsCfg);
+    ds.addEntries(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User",
+         "userPassword: password");
+    ds.startListening();
+
+    // Create an LDIF file with the change to process.
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: delete");
+
+    // Verify that the ldapmodify attempt fails without authentication.
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPModify.main(getInputStream(), out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--clientSideSubtreeDelete",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.INSUFFICIENT_ACCESS_RIGHTS,
+         new String(out.toByteArray(), "UTF-8"));
+
+    // Verify that the ldapmodify attempt succeeds with authentication.
+    out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPModify.main(getInputStream(), out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--bindDN", "cn=Directory Manager",
+              "--bindPassword", "password",
+              "--clientSideSubtreeDelete",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         new String(out.toByteArray(), "UTF-8"));
+
+    // Verify that a repeated attempt fails because the base entry does not
+    // exist.
+    out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPModify.main(getInputStream(), out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--bindDN", "cn=Directory Manager",
+              "--bindPassword", "password",
+              "--clientSideSubtreeDelete",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.NO_SUCH_OBJECT,
+         new String(out.toByteArray(), "UTF-8"));
+
+    ds.shutDown(true);
+  }
+
+
+
+  /**
+   * Provides test coverage for the --clientSideSubtreeDelete argument when an
+   * error is expected while attempting to delete entries.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testClientSideSubtreeDeleteWithDeleteError()
+         throws Exception
+  {
+    // Create an in-memory directory server instance that requires
+    // authentication for search operations.
+    final InMemoryDirectoryServerConfig dsCfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    dsCfg.setAuthenticationRequiredOperationTypes(OperationType.DELETE);
+    dsCfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(dsCfg);
+    ds.addEntries(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User",
+         "userPassword: password");
+    ds.startListening();
+
+    // Create an LDIF file with the change to process.
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: delete");
+
+    // Verify that the ldapmodify attempt fails without authentication.
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPModify.main(getInputStream(), out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--clientSideSubtreeDelete",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.INSUFFICIENT_ACCESS_RIGHTS,
+         new String(out.toByteArray(), "UTF-8"));
+
+    // Verify that the ldapmodify attempt succeeds with authentication.
+    out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPModify.main(getInputStream(), out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--bindDN", "cn=Directory Manager",
+              "--bindPassword", "password",
+              "--clientSideSubtreeDelete",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         new String(out.toByteArray(), "UTF-8"));
+
+    ds.shutDown(true);
+  }
+
+
+
+  /**
+   * Provides test coverage for the --serverSideSubtreeDelete argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testServerSideSubtreeDelete()
+         throws Exception
+  {
+    // The in-memory directory server supports the subtree delete control.
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    // Create an LDIF file with the change to process.
+    final File ldifFile = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: delete");
+
+
+    // Verify that the attempt to delete the dc=example,dc=com entry without
+    // the subtree delete control will fail because the entry has subordinates.
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPModify.main(getInputStream(), out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--bindDN", "cn=Directory Manager",
+              "--bindPassword", "password",
+              "--ldifFile", ldifFile.getAbsolutePath()),
+         ResultCode.NOT_ALLOWED_ON_NONLEAF,
+         new String(out.toByteArray(), "UTF-8"));
+
+
+    // Verify that the attempt to delete the dc=example,dc=com entry will
+    // succeed when we include the subtree delete request control.
+    out.reset();
+    assertEquals(
+         LDAPModify.main(getInputStream(), out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--bindDN", "cn=Directory Manager",
+              "--bindPassword", "password",
+              "--ldifFile", ldifFile.getAbsolutePath(),
+              "--serverSideSubtreeDelete"),
          ResultCode.SUCCESS,
          new String(out.toByteArray(), "UTF-8"));
   }
@@ -1724,7 +1937,7 @@ public final class LDAPModifyTestCase
          "--assuredReplicationTimeout", "30s",
          "--replicationRepair",
          "--hardDelete",
-         "--subtreeDelete",
+         "--serverSideSubtreeDelete",
          "--operationPurpose", "testAddControls");
   }
 

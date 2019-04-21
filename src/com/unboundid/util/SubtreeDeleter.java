@@ -1116,8 +1116,7 @@ public final class SubtreeDeleter
       if (setInaccessibleResult != null)
       {
         return new SubtreeDeleterResult(setInaccessibleResult, false, null,
-             0L, Collections.unmodifiableSortedMap(
-                  new TreeMap<DN,LDAPResult>()));
+             0L,  new TreeMap<DN,LDAPResult>());
       }
     }
 
@@ -1144,12 +1143,13 @@ public final class SubtreeDeleter
            ResultCode.SUCCESS)
       {
         return new SubtreeDeleterResult(null, false, null,
-             result.getEntriesDeleted(), result.getDeleteErrors());
+             result.getEntriesDeleted(), result.getDeleteErrorsTreeMap());
       }
       else
       {
         return new SubtreeDeleterResult(removeAccessibilityRestrictionResult,
-             true, null, result.getEntriesDeleted(), result.getDeleteErrors());
+             true, null, result.getEntriesDeleted(),
+             result.getDeleteErrorsTreeMap());
       }
     }
     else
@@ -1157,7 +1157,7 @@ public final class SubtreeDeleter
       return new SubtreeDeleterResult(null,
            useSetSubtreeAccessibilityOperation,
            result.getSearchError(), result.getEntriesDeleted(),
-           result.getDeleteErrors());
+           result.getDeleteErrorsTreeMap());
     }
   }
 
@@ -1307,7 +1307,7 @@ public final class SubtreeDeleter
       {
         Debug.debugException(e);
         return new SubtreeDeleterResult(null, false, e.getSearchResult(), 0L,
-             Collections.unmodifiableSortedMap(new TreeMap<DN,LDAPResult>()));
+             new TreeMap<DN,LDAPResult>());
       }
     }
 
@@ -1324,7 +1324,7 @@ public final class SubtreeDeleter
     {
       Debug.debugException(e);
       return new SubtreeDeleterResult(null, false, e.getSearchResult(), 0L,
-           Collections.unmodifiableSortedMap(new TreeMap<DN,LDAPResult>()));
+           new TreeMap<DN,LDAPResult>());
     }
 
 
@@ -1373,7 +1373,7 @@ public final class SubtreeDeleter
     }
 
     return new SubtreeDeleterResult(null, false, null, entriesDeleted.get(),
-         Collections.unmodifiableSortedMap(deleteErrors));
+         deleteErrors);
   }
 
 
@@ -2071,7 +2071,7 @@ public final class SubtreeDeleter
     final TreeSet<DN> dnsToDelete = new TreeSet<>();
     final AtomicReference<SearchResult> searchError = new AtomicReference<>();
     final AtomicLong entriesDeleted = new AtomicLong(0L);
-    final SortedMap<DN,LDAPResult> deleteErrors = new TreeMap<>();
+    final TreeMap<DN,LDAPResult> deleteErrors = new TreeMap<>();
     if (useSubentriesControl)
     {
       final SearchRequest searchRequest = createSubentriesSearchRequest(
@@ -2094,7 +2094,7 @@ public final class SubtreeDeleter
          entriesDeleted, deleteErrors);
 
     return new SubtreeDeleterResult(null, false, searchError.get(),
-         entriesDeleted.get(), Collections.unmodifiableSortedMap(deleteErrors));
+         entriesDeleted.get(), deleteErrors);
   }
 
 
