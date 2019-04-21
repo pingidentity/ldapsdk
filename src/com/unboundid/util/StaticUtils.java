@@ -3477,6 +3477,8 @@ public final class StaticUtils
    *
    * @return  An unmodifiable set containing the provided items.
    */
+  @SafeVarargs()
+  @SuppressWarnings("varargs")
   public static <T> Set<T> setOf(final T... items)
   {
     return Collections.unmodifiableSet(
@@ -3494,6 +3496,8 @@ public final class StaticUtils
    *
    * @return  A {@code HashSet} containing the provided items.
    */
+  @SafeVarargs()
+  @SuppressWarnings("varargs")
   public static <T> HashSet<T> hashSetOf(final T... items)
   {
     return new HashSet<>(Arrays.asList(items));
@@ -3510,6 +3514,8 @@ public final class StaticUtils
    *
    * @return  A {@code LinkedHashSet} containing the provided items.
    */
+  @SafeVarargs()
+  @SuppressWarnings("varargs")
   public static <T> LinkedHashSet<T> linkedHashSetOf(final T... items)
   {
     return new LinkedHashSet<>(Arrays.asList(items));
@@ -3526,6 +3532,8 @@ public final class StaticUtils
    *
    * @return  A {@code LinkedHashSet} containing the provided items.
    */
+  @SafeVarargs()
+  @SuppressWarnings("varargs")
   public static <T> TreeSet<T> treeSetOf(final T... items)
   {
     return new TreeSet<>(Arrays.asList(items));
@@ -3933,6 +3941,7 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
+  @SafeVarargs()
   public static <T> Map<T,T> mapOf(final T... items)
   {
     if ((items == null) || (items.length == 0))
@@ -3965,6 +3974,7 @@ public final class StaticUtils
    *
    * @return  The unmodifiable map that was created.
    */
+  @SafeVarargs()
   public static <K,V> Map<K,V> mapOfObjectPairs(final ObjectPair<K,V>... items)
   {
     if ((items == null) || (items.length == 0))

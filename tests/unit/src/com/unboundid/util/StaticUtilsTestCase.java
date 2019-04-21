@@ -2986,7 +2986,8 @@ public class StaticUtilsTestCase
     assertNotNull(m1);
     assertTrue(m1.isEmpty());
 
-    final Map<String,Integer> m2 = StaticUtils.mapOfObjectPairs(null);
+    final ObjectPair<String,Integer>[] nullItems = null;
+    final Map<String,Integer> m2 = StaticUtils.mapOfObjectPairs(nullItems);
     assertNotNull(m2);
     assertTrue(m2.isEmpty());
 
