@@ -24,6 +24,7 @@ package com.unboundid.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.util.Timer;
 
 
@@ -84,7 +85,41 @@ public final class WriteWithTimeout
                            final long timeoutMillis)
          throws IOException
   {
-    write(outputStream, StaticUtils.byteArray(byteToWrite), 0, 1, flush,
+    write(outputStream, null, StaticUtils.byteArray(byteToWrite), 0, 1, flush,
+         timeoutMillis);
+  }
+
+
+
+  /**
+   * Attempts to write the provided data to the given output stream.  If the
+   * write attempt does not complete within the specified timeout, then the
+   * output stream will be closed.
+   *
+   * @param  outputStream   The output stream to which the data is to be
+   *                        written.  It must not be {@code null}.
+   * @param  socket         The socket to be closed if a timeout is encountered
+   *                        while writing to the output stream.  It may be
+   *                        {@code null} if no socket is available.
+   * @param  byteToWrite    The byte to be written.  Note that only the lower
+   *                        eight bits of the value will be used.
+   * @param  flush          Indicates whether to flush the output stream after
+   *                        the data has been written.
+   * @param  timeoutMillis  The maximum length of time, in milliseconds, that
+   *                        the write attempt will be allowed to block.  If the
+   *                        value is less than or equal to zero, then the write
+   *                        attempt will be allowed to block indefinitely.
+   *
+   * @throws  IOException  If a problem is encountered while trying to write to
+   *                       or flush the output stream.
+   */
+  public static void write(final OutputStream outputStream,
+                           final Socket socket,
+                           final int byteToWrite, final boolean flush,
+                           final long timeoutMillis)
+         throws IOException
+  {
+    write(outputStream, socket, StaticUtils.byteArray(byteToWrite), 0, 1, flush,
          timeoutMillis);
   }
 
@@ -113,7 +148,39 @@ public final class WriteWithTimeout
                            final boolean flush, final long timeoutMillis)
          throws IOException
   {
-    write(outputStream, data, 0, data.length, flush, timeoutMillis);
+    write(outputStream, null, data, 0, data.length, flush, timeoutMillis);
+  }
+
+
+
+  /**
+   * Attempts to write the provided data to the given output stream.  If the
+   * write attempt does not complete within the specified timeout, then the
+   * output stream will be closed.
+   *
+   * @param  outputStream   The output stream to which the data is to be
+   *                        written.  It must not be {@code null}.
+   * @param  socket         The socket to be closed if a timeout is encountered
+   *                        while writing to the output stream.  It may be
+   *                        {@code null} if no socket is available.
+   * @param  data           A byte array containing the data to be written.  It
+   *                        must not be {@code null}.
+   * @param  flush          Indicates whether to flush the output stream after
+   *                        the data has been written.
+   * @param  timeoutMillis  The maximum length of time, in milliseconds, that
+   *                        the write attempt will be allowed to block.  If the
+   *                        value is less than or equal to zero, then the write
+   *                        attempt will be allowed to block indefinitely.
+   *
+   * @throws  IOException  If a problem is encountered while trying to write to
+   *                       or flush the output stream.
+   */
+  public static void write(final OutputStream outputStream, final Socket socket,
+                           final byte[] data, final boolean flush,
+                           final long timeoutMillis)
+         throws IOException
+  {
+    write(outputStream, socket, data, 0, data.length, flush, timeoutMillis);
   }
 
 
@@ -151,6 +218,48 @@ public final class WriteWithTimeout
                            final boolean flush, final long timeoutMillis)
          throws IOException
   {
+    write(outputStream, null, data, offset, length, flush, timeoutMillis);
+  }
+
+
+
+  /**
+   * Attempts to write the provided data to the given output stream.  If the
+   * write attempt does not complete within the specified timeout, then the
+   * output stream will be closed.
+   *
+   * @param  outputStream   The output stream to which the data is to be
+   *                        written.  It must not be {@code null}.
+   * @param  socket         The socket to be closed if a timeout is encountered
+   *                        while writing to the output stream.  It may be
+   *                        {@code null} if no socket is available.
+   * @param  data           A byte array containing the data to be written.  It
+   *                        must not be {@code null}.
+   * @param  offset         The offset within the provided array of the start of
+   *                        the data to be written.  It must be greater than
+   *                        or equal to zero, and less than the capacity of the
+   *                        {@code data} array minus the provided {@code length}
+   *                        value.
+   * @param  length         The number of bytes to be written.  It must be
+   *                        greater than or equal to zero and less than or
+   *                        equal to the length of the {@code data array} minus
+   *                        the provided {@code offset} value.
+   * @param  flush          Indicates whether to flush the output stream after
+   *                        the data has been written.
+   * @param  timeoutMillis  The maximum length of time, in milliseconds, that
+   *                        the write attempt will be allowed to block.  If the
+   *                        value is less than or equal to zero, then the write
+   *                        attempt will be allowed to block indefinitely.
+   *
+   * @throws  IOException  If a problem is encountered while trying to write to
+   *                       or flush the output stream.
+   */
+  public static void write(final OutputStream outputStream, final Socket socket,
+                           final byte[] data, final int offset,
+                           final int length, final boolean flush,
+                           final long timeoutMillis)
+         throws IOException
+  {
     if ((data == null) || (length == 0))
     {
       return;
@@ -159,7 +268,7 @@ public final class WriteWithTimeout
     if (timeoutMillis > 0L)
     {
       final WriteWithTimeoutTimerTask timerTask =
-           new WriteWithTimeoutTimerTask(outputStream);
+           new WriteWithTimeoutTimerTask(outputStream, socket);
       TIMER.schedule(timerTask, timeoutMillis);
       try
       {

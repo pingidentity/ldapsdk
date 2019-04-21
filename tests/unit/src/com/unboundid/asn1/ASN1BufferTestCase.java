@@ -81,6 +81,18 @@ public class ASN1BufferTestCase
     assertEquals(bufferBytes.length, elementBytes.length);
     assertTrue(Arrays.equals(bufferBytes, elementBytes));
 
+    s = new ByteArrayOutputStream();
+    b.writeTo(s, 10_000, false);
+    bufferBytes = s.toByteArray();
+    assertEquals(bufferBytes.length, elementBytes.length);
+    assertTrue(Arrays.equals(bufferBytes, elementBytes));
+
+    s = new ByteArrayOutputStream();
+    b.writeTo(s, null, 10_000, false);
+    bufferBytes = s.toByteArray();
+    assertEquals(bufferBytes.length, elementBytes.length);
+    assertTrue(Arrays.equals(bufferBytes, elementBytes));
+
     ByteBuffer byteBuffer = b.asByteBuffer();
     assertEquals(byteBuffer.position(), 0);
     assertEquals(byteBuffer.limit(), elementBytes.length);

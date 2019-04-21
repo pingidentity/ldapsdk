@@ -559,7 +559,7 @@ final class LDAPConnectionInternals
       final OutputStream os = outputStream;
       if (saslClient == null)
       {
-        buffer.writeTo(os, sendTimeoutMillis, true);
+        buffer.writeTo(os, socket, sendTimeoutMillis, true);
       }
       else
       {
@@ -574,8 +574,9 @@ final class LDAPConnectionInternals
         lengthBytes[1] = (byte) ((saslBytes.length >> 16) & 0xFF);
         lengthBytes[2] = (byte) ((saslBytes.length >> 8) & 0xFF);
         lengthBytes[3] = (byte) (saslBytes.length & 0xFF);
-        WriteWithTimeout.write(os, lengthBytes, false, sendTimeoutMillis);
-        WriteWithTimeout.write(os, saslBytes, true, sendTimeoutMillis);
+        WriteWithTimeout.write(os, socket, lengthBytes, false,
+             sendTimeoutMillis);
+        WriteWithTimeout.write(os, socket, saslBytes, true, sendTimeoutMillis);
       }
     }
     catch (final IOException ioe)
@@ -648,6 +649,14 @@ final class LDAPConnectionInternals
          ((disconnectInfo.getType() == DisconnectType.CLOSED_BY_FINALIZER) &&
           socket.isConnected());
 
+    try
+    {
+      socket.close();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
 
     // Make sure that the connection reader is no longer running.
     try
@@ -662,15 +671,6 @@ final class LDAPConnectionInternals
     try
     {
       outputStream.close();
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-    try
-    {
-      socket.close();
     }
     catch (final Exception e)
     {

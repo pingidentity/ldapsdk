@@ -23,14 +23,16 @@ package com.unboundid.util;
 
 
 import java.io.OutputStream;
+import java.net.Socket;
 import java.util.TimerTask;
 
 
 
 /**
  * This class implements a timer task that works in conjunction with the
- * {@link WriteWithTimeout} class to close an output stream if an attempt to
- * write data to it blocks for longer than a specified length of time.
+ * {@link WriteWithTimeout} class to close a socket or an output stream if an
+ * attempt to write data to it blocks for longer than a specified length of
+ * time.
  */
 final class WriteWithTimeoutTimerTask
       extends TimerTask
@@ -42,6 +44,10 @@ final class WriteWithTimeoutTimerTask
   // an acceptable length of time.
   private final OutputStream outputStream;
 
+  // The socket to be closed if the write attempt did not complete within an
+  // acceptable length of time.
+  private final Socket socket;
+
 
 
   /**
@@ -49,12 +55,17 @@ final class WriteWithTimeoutTimerTask
    * output stream if the write does not complete within the acceptable timeout
    * period.
    *
-   * @param  outputStream  The output stream to be closed.  It must not be
+   * @param  outputStream  The output stream to be closed if the provided
+   *                       socket is {@code null}.  This must not be
    *                       {@code null}.
+   * @param  socket        The socket to be closed, if available.  This may be
+   *                       {@code null} if no socket is available.
    */
-  WriteWithTimeoutTimerTask(final OutputStream outputStream)
+  WriteWithTimeoutTimerTask(final OutputStream outputStream,
+                            final Socket socket)
   {
     this.outputStream = outputStream;
+    this.socket = socket;
     writeCompleted = false;
   }
 
@@ -71,7 +82,14 @@ final class WriteWithTimeoutTimerTask
     {
       try
       {
-        outputStream.close();
+        if (socket == null)
+        {
+          outputStream.close();
+        }
+        else
+        {
+          socket.close();
+        }
       }
       catch (final Exception e)
       {

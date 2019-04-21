@@ -40,12 +40,78 @@ public final class WriteWithTimeoutTestCase
        extends LDAPSDKTestCase
 {
   /**
-   * Tests the {@code WriteWithTimeout} class.
+   * Tests the {@code WriteWithTimeout} class when a socket is available to the
+   * {@code WriteWithTimeout} instance.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testWriteWithTimeout()
+  public void testSocketWriteWithTimeout()
+         throws Exception
+  {
+    final ServerSocket serverSocket = new ServerSocket(0);
+    final int serverSocketPort = serverSocket.getLocalPort();
+
+    final WriteWithTimeoutAcceptThread acceptThread =
+         new WriteWithTimeoutAcceptThread(serverSocket);
+    acceptThread.start();
+
+    final Socket clientSocket = new Socket("localhost", serverSocketPort);
+    final OutputStream outputStream = clientSocket.getOutputStream();
+
+    WriteWithTimeout.write(outputStream, clientSocket, 0, false, 1000L);
+    WriteWithTimeout.write(outputStream, clientSocket, 0, true, 1000L);
+
+    final byte[] dataToWrite = new byte[1024];
+    WriteWithTimeout.write(outputStream, clientSocket, dataToWrite, false,
+         1000L);
+    WriteWithTimeout.write(outputStream, clientSocket, dataToWrite, true,
+         1000L);
+
+    WriteWithTimeout.write(outputStream, clientSocket, null, 0, 0, false,
+         1000L);
+    WriteWithTimeout.write(outputStream, clientSocket, dataToWrite, 0, 0, false,
+         1000L);
+    WriteWithTimeout.write(outputStream, clientSocket, dataToWrite, false, 0L);
+    WriteWithTimeout.write(outputStream, clientSocket, dataToWrite, true, 0L);
+
+    final long stopRunningTime = System.currentTimeMillis() + 60_000L;
+    int numWrites = 0;
+    while (System.currentTimeMillis() < stopRunningTime)
+    {
+      final long startTime = System.currentTimeMillis();
+      try
+      {
+        WriteWithTimeout.write(outputStream, clientSocket, dataToWrite, true,
+             1000L);
+        numWrites++;
+      }
+      catch (final IOException e)
+      {
+        assertTrue(numWrites > 0);
+
+        final long elapsedTime = System.currentTimeMillis() - startTime;
+        assertTrue(elapsedTime >= 1000L);
+
+        return;
+      }
+    }
+
+    fail("Did not get the expected IOException when trying to write with a " +
+         "blocked writer");
+  }
+
+
+
+  /**
+   * Tests the {@code WriteWithTimeout} class when no socket is available to the
+   * {@code WriteWithTimeout} instance (although the output stream itself will
+   * have a socket).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNoAvailableSocketWriteWithTimeout()
          throws Exception
   {
     final ServerSocket serverSocket = new ServerSocket(0);
