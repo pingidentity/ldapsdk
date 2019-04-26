@@ -42,7 +42,6 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.StaticUtils;
-import com.unboundid.util.WriteWithTimeout;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
@@ -105,6 +104,9 @@ final class LDAPConnectionInternals
   // The address of the server to which the connection is established.
   private final String host;
 
+  // The write timeout handler for this connection.
+  private final WriteTimeoutHandler writeTimeoutHandler;
+
 
 
   /**
@@ -153,6 +155,8 @@ final class LDAPConnectionInternals
     synchronousMode = options.useSynchronousMode();
     saslClient      = null;
     socket          = null;
+
+    writeTimeoutHandler = new WriteTimeoutHandler(connection);
 
     try
     {
@@ -554,12 +558,22 @@ final class LDAPConnectionInternals
     }
 
 
+    final Long writeID;
+    if (sendTimeoutMillis > 0)
+    {
+      writeID = writeTimeoutHandler.beginWrite(sendTimeoutMillis);
+    }
+    else
+    {
+      writeID = null;
+    }
+
     try
     {
       final OutputStream os = outputStream;
       if (saslClient == null)
       {
-        buffer.writeTo(os, socket, sendTimeoutMillis, true);
+        buffer.writeTo(os);
       }
       else
       {
@@ -574,10 +588,10 @@ final class LDAPConnectionInternals
         lengthBytes[1] = (byte) ((saslBytes.length >> 16) & 0xFF);
         lengthBytes[2] = (byte) ((saslBytes.length >> 8) & 0xFF);
         lengthBytes[3] = (byte) (saslBytes.length & 0xFF);
-        WriteWithTimeout.write(os, socket, lengthBytes, false,
-             sendTimeoutMillis);
-        WriteWithTimeout.write(os, socket, saslBytes, true, sendTimeoutMillis);
+        os.write(lengthBytes);
+        os.write(saslBytes);
       }
+      os.flush();
     }
     catch (final IOException ioe)
     {
@@ -623,6 +637,11 @@ final class LDAPConnectionInternals
     }
     finally
     {
+      if (writeID != null)
+      {
+        writeTimeoutHandler.writeCompleted(writeID);
+      }
+
       if (buffer.zeroBufferOnClear())
       {
         buffer.clear();
@@ -648,6 +667,8 @@ final class LDAPConnectionInternals
     final boolean closedByFinalizer =
          ((disconnectInfo.getType() == DisconnectType.CLOSED_BY_FINALIZER) &&
           socket.isConnected());
+
+    writeTimeoutHandler.cancel();
 
     try
     {

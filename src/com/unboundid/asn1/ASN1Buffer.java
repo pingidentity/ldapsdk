@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1010,70 +1009,6 @@ public final class ASN1Buffer
     }
 
     buffer.write(outputStream);
-  }
-
-
-
-  /**
-   * Writes the contents of this buffer to the provided output stream.
-   *
-   * @param  outputStream   The output stream to which the data should be
-   *                        written.  It must not be {@code null}.
-   * @param  timeoutMillis  The maximum length of time, in milliseconds, that
-   *                        the write attempt will be allowed to block.  If the
-   *                        value is less than or equal to zero, then the write
-   *                        attempt will be allowed to block indefinitely.  If
-   *                        the value is greater than zero and the write attempt
-   *                        blocks for longer than this length of time, then
-   *                        the output stream will be closed.
-   * @param  flush          Indicates whether to flush the output stream after
-   *                        the data has been written.
-   *
-   * @throws  IOException  If a problem occurs while writing to the provided
-   *                       output stream.
-   */
-  public void writeTo(final OutputStream outputStream, final long timeoutMillis,
-                      final boolean flush)
-         throws IOException
-  {
-    writeTo(outputStream, null, timeoutMillis, flush);
-  }
-
-
-
-  /**
-   * Writes the contents of this buffer to the provided output stream.
-   *
-   * @param  outputStream   The output stream to which the data should be
-   *                        written.  It must not be {@code null}.
-   * @param  socket         The socket to be closed if the attempt to write the
-   *                        data takes longer than the specified timeout.  It
-   *                        may be {@code null} if no socket is available, in
-   *                        which case an attempt will be made to close the
-   *                        output stream.
-   * @param  timeoutMillis  The maximum length of time, in milliseconds, that
-   *                        the write attempt will be allowed to block.  If the
-   *                        value is less than or equal to zero, then the write
-   *                        attempt will be allowed to block indefinitely.  If
-   *                        the value is greater than zero and the write attempt
-   *                        blocks for longer than this length of time, then
-   *                        the output stream will be closed.
-   * @param  flush          Indicates whether to flush the output stream after
-   *                        the data has been written.
-   *
-   * @throws  IOException  If a problem occurs while writing to the provided
-   *                       output stream.
-   */
-  public void writeTo(final OutputStream outputStream, final Socket socket,
-                      final long timeoutMillis, final boolean flush)
-         throws IOException
-  {
-    if (Debug.debugEnabled(DebugType.ASN1))
-    {
-      Debug.debugASN1Write(this);
-    }
-
-    buffer.write(outputStream, timeoutMillis, flush);
   }
 
 
