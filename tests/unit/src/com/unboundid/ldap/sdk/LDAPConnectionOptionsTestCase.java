@@ -159,7 +159,9 @@ public class LDAPConnectionOptionsTestCase
          StaticUtils.toLowerCase(System.getProperty("java.vm.vendor"));
     if (vmVendor.contains("sun microsystems") ||
         vmVendor.contains("oracle") ||
-        vmVendor.contains("apple"))
+        vmVendor.contains("amazon") ||
+        vmVendor.contains("apple") ||
+        vmVendor.contains("azul"))
     {
       assertTrue(opts.allowConcurrentSocketFactoryUse());
     }

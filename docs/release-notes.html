@@ -144,6 +144,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDAP SDK to allow multiple threads to concurrently use the same SSL
+                  socket factory instance when running on an Amazon Coretto JVM.  Some socket
+                  factory implementations (at least on some IBM JVMs) are known to not properly
+                  handle concurrent SSL socket factory use, so the LDAP SDK offers a whitelist of
+                  JVM vendors for which it will permit concurrent socket factory use.  Since
+                  Amazon Coretto uses the Sun/Oracle lineage (like JVMs from Apple and Azul, which
+                  were already handled), it should be safe to allow concurrent SSL socket factory
+                  use on that JVM.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK build process to automatically generate documentation for
                   all of the command-line tools included with the SDK.  Usages are provided in
                   both plain text and HTML, and the HTML documentation is linked from the main
