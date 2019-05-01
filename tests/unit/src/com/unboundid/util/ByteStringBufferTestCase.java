@@ -1188,11 +1188,19 @@ public class ByteStringBufferTestCase
     ByteStringBuffer buffer = new ByteStringBuffer();
     assertEquals(buffer.length(), 0);
 
+    buffer.append("foobar", 0, 0);
+    assertEquals(buffer.length(), 0);
+    assertEquals(buffer.toString(), "");
+
     buffer.append("foobar", 0, 3);
     assertEquals(buffer.length(), 3);
     assertEquals(buffer.toString(), "foo");
 
-    buffer.append(new StringBuilder("foobar"), 3, 3);
+    buffer.append("foobar", 3, 3);
+    assertEquals(buffer.length(), 3);
+    assertEquals(buffer.toString(), "foo");
+
+    buffer.append(new StringBuilder("foobar"), 3, 6);
     assertEquals(buffer.length(), 6);
     assertEquals(buffer.toString(), "foobar");
 

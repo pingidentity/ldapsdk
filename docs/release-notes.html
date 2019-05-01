@@ -112,6 +112,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed a bug in the <tt>ByteStringBuffer.append(CharSequence,int,int)</tt> method
+                  in which the final integer argument could be interpreted as the number of
+                  characters to append rather than the end position at which to stop appending,
+                  which could yield incorrect results when the method was called with a nonzero
+                  start position.  Also, updated the ByteStringBuffer.append methods that take
+                  CharSequence arguments to eliminate the creation of an intermediate character
+                  array, thereby improving performance and reducing garbage creation.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK to add protection against JVM security managers that may
                   prevent calls to certain methods, like attempts to interact with system
                   properties, environment variables, or logger levels.

@@ -435,7 +435,8 @@ public final class ByteStringBuffer
   public ByteStringBuffer append(final CharSequence s)
          throws NullPointerException
   {
-    return append(s, 0, s.length());
+    final String str = s.toString();
+    return append(str, 0, str.length());
   }
 
 
@@ -471,17 +472,48 @@ public final class ByteStringBuffer
       throw e;
     }
 
-    final char[] chars;
-    if (s instanceof String)
+    final String string = s.toString();
+    final int stringLength = string.length();
+    if (start < 0)
     {
-      chars = ((String) s).toCharArray();
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_START_NEGATIVE.get(start));
     }
-    else
+    else if (start > end)
     {
-      chars = s.toString().toCharArray();
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_START_BEYOND_END.get(start, end));
+    }
+    else if (start > stringLength)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_START_BEYOND_LENGTH.get(start, stringLength));
+    }
+    else if (end > stringLength)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_END_BEYOND_LENGTH.get(start, stringLength));
+    }
+    else if (start < end)
+    {
+      ensureCapacity(endPos + (end - start));
+      for (int pos=start; pos < end; pos++)
+      {
+        final char c = string.charAt(pos);
+        if (c <= 0x7F)
+        {
+          array[endPos++] = (byte) (c & 0x7F);
+        }
+        else
+        {
+          final String remainingString = string.substring(pos, end);
+          final byte[] remainingBytes = StaticUtils.getBytes(remainingString);
+          return append(remainingBytes);
+        }
+      }
     }
 
-    return append(chars, start, end);
+    return this;
   }
 
 
