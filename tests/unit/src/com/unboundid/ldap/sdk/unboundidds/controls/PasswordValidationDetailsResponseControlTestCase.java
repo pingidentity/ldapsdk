@@ -373,6 +373,9 @@ public final class PasswordValidationDetailsResponseControlTestCase
   {
     final LDAPResult r = new LDAPResult(1, ResultCode.SUCCESS);
     assertNull(PasswordValidationDetailsResponseControl.get(r));
+
+    assertNull(PasswordValidationDetailsResponseControl.get(
+         new LDAPException(r)));
   }
 
 
@@ -396,6 +399,9 @@ public final class PasswordValidationDetailsResponseControlTestCase
     final LDAPResult r = new LDAPResult(1, ResultCode.SUCCESS, null, null,
          null, controls);
     assertNull(PasswordValidationDetailsResponseControl.get(r));
+
+    assertNull(PasswordValidationDetailsResponseControl.get(
+         new LDAPException(r)));
   }
 
 
@@ -428,6 +434,9 @@ public final class PasswordValidationDetailsResponseControlTestCase
     assertEquals(
          PasswordValidationDetailsResponseControl.get(r).getResponseType(),
          PasswordValidationDetailsResponseType.NO_PASSWORD_PROVIDED);
+
+    assertNotNull(PasswordValidationDetailsResponseControl.get(
+         new LDAPException(r)));
   }
 
 
@@ -461,6 +470,9 @@ public final class PasswordValidationDetailsResponseControlTestCase
     assertEquals(
          PasswordValidationDetailsResponseControl.get(r).getResponseType(),
          PasswordValidationDetailsResponseType.NO_PASSWORD_PROVIDED);
+
+    assertNotNull(PasswordValidationDetailsResponseControl.get(
+         new LDAPException(r)));
   }
 
 

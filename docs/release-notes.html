@@ -155,6 +155,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a <tt>PasswordValidationDetailsResponseControl.get(LDAPException)</tt>
+                  method that makes it more convenient to get the response control from an
+                  unsuccessful operation.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK to allow multiple threads to concurrently use the same SSL
                   socket factory instance when running on an Amazon Coretto JVM.  Some socket
                   factory implementations (at least on some IBM JVMs) are known to not properly

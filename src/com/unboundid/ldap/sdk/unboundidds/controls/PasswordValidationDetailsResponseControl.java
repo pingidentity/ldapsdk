@@ -569,6 +569,30 @@ public final class PasswordValidationDetailsResponseControl
 
 
   /**
+   * Extracts a password validation details response control from the provided
+   * result.
+   *
+   * @param  exception  The exception that was thrown when trying to process the
+   *                    associated operation.
+   *
+   * @return  The password validation details response control contained in the
+   *          provided result, or {@code null} if the result did not contain a
+   *          password validation details response control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the password validation details response
+   *                         control contained in the provided result.
+   */
+  public static PasswordValidationDetailsResponseControl
+                     get(final LDAPException exception)
+         throws LDAPException
+  {
+    return get(exception.toLDAPResult());
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
