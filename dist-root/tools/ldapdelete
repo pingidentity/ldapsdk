@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# Copyright 2008-2019 Ping Identity Corporation
+# All Rights Reserved.
+#
+# -----
+#
+# Copyright (C) 2008-2019 Ping Identity Corporation
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License (GPLv2 only)
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+
+
+# Get the current working directory and the tools directory.
+CURRENT_DIR=`pwd`
+cd "`dirname "${0}"`"
+TOOLS_DIR=`pwd`
+cd ${CURRENT_DIR}
+
+
+# Invoke a number of common script utility functions.
+. "${TOOLS_DIR}/.script-util.sh"
+
+
+# Invoke the tool with the provided command-line arguments.
+"${JAVA_CMD}" ${JAVA_ARGS} \
+     -cp "${TOOLS_DIR}/../unboundid-ldapsdk.jar:${CLASSPATH}" \
+     com.unboundid.ldap.sdk.unboundidds.tools.LDAPDelete "${@}"
+

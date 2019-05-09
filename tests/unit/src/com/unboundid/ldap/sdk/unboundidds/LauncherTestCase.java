@@ -130,6 +130,7 @@ public final class LauncherTestCase
       new Object[] { "identify-unique-attribute-conflicts" },
       new Object[] { "in-memory-directory-server" },
       new Object[] { "ldapcompare" },
+      new Object[] { "ldapdelete" },
       new Object[] { "ldapmodify" },
       new Object[] { "ldapsearch" },
       new Object[] { "ldap-debugger" },

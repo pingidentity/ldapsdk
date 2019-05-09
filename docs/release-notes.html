@@ -100,6 +100,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added an ldapdelete command-line tool that can be used to delete entries from an
+                  LDAP directory server.  The DNs of the entries to delete can be provided on the
+                  command line, read from a file, or read from standard input.  Alternately, the
+                  server can search for and delete all entries matching one or more filters.  It
+                  offers a number of options, including support for client-side and server-side
+                  subtree deletes, rate limiting, and a variety of standard and proprietary
+                  controls.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the <tt>LDAPCommandLineTool</tt> API to add an option to expose an
                   <tt>--enableSSLDebugging</tt> argument.  If this argument is available, and if
                   it is provided in the set of command-line arguments when the tool is run, then

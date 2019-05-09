@@ -50,6 +50,7 @@ import com.unboundid.ldap.sdk.unboundidds.examples.DumpDNs;
 import com.unboundid.ldap.sdk.unboundidds.examples.SubtreeAccessibility;
 import com.unboundid.ldap.sdk.unboundidds.examples.SummarizeAccessLog;
 import com.unboundid.ldap.sdk.unboundidds.tools.GenerateTOTPSharedSecret;
+import com.unboundid.ldap.sdk.unboundidds.tools.LDAPDelete;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
@@ -107,6 +108,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>in-memory-directory-server -- Launch the
  *       {@link InMemoryDirectoryServerTool} tool.</LI>
  *   <LI>ldapcompare -- Launch the {@link LDAPCompare} tool.</LI>
+ *   <LI>ldapdelete -- Launch the {@link LDAPDelete} tool.</LI>
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
@@ -247,6 +249,10 @@ public final class Launcher
     {
       return LDAPCompare.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("ldapdelete"))
+    {
+      return LDAPDelete.main(System.in, outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("ldapmodify"))
     {
       return LDAPModify.main(System.in, outStream, errStream, remainingArgs);
@@ -328,6 +334,7 @@ public final class Launcher
         err.println("     indent-ldap-filter");
         err.println("     in-memory-directory-server");
         err.println("     ldapcompare");
+        err.println("     ldapdelete");
         err.println("     ldapmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
@@ -376,6 +383,7 @@ public final class Launcher
          InMemoryDirectoryServerTool.class,
          LDAPCompare.class,
          LDAPDebugger.class,
+         LDAPDelete.class,
          LDAPModify.class,
          LDAPSearch.class,
          ManageAccount.class,
