@@ -1150,7 +1150,7 @@ public final class LDAPDelete
 
     if (authorizationIdentity.isPresent())
     {
-      bindControls.add(new AuthorizationIdentityRequestControl(false));
+      bindControls.add(new AuthorizationIdentityRequestControl(true));
     }
 
     if (getAuthorizationEntryAttribute.isPresent())
@@ -1161,7 +1161,7 @@ public final class LDAPDelete
 
     if (getUserResourceLimits.isPresent())
     {
-      bindControls.add(new GetUserResourceLimitsRequestControl());
+      bindControls.add(new GetUserResourceLimitsRequestControl(true));
     }
 
     return bindControls;
@@ -2352,7 +2352,7 @@ public final class LDAPDelete
 
     if (softDelete.isPresent())
     {
-      controlList.add(new SoftDeleteRequestControl(false, true));
+      controlList.add(new SoftDeleteRequestControl(true, true));
     }
 
     if (hardDelete.isPresent() && (! clientSideSubtreeDelete.isPresent()))
@@ -2385,7 +2385,7 @@ public final class LDAPDelete
 
     if (preReadAttribute.isPresent())
     {
-      controlList.add(new PreReadRequestControl(
+      controlList.add(new PreReadRequestControl(true,
            preReadAttribute.getValues().toArray(StaticUtils.NO_STRINGS)));
     }
 
@@ -2396,17 +2396,17 @@ public final class LDAPDelete
 
     if (getBackendSetID.isPresent())
     {
-      controlList.add(new GetBackendSetIDRequestControl(false));
+      controlList.add(new GetBackendSetIDRequestControl(true));
     }
 
     if (getServerID.isPresent())
     {
-      controlList.add(new GetServerIDRequestControl(false));
+      controlList.add(new GetServerIDRequestControl(true));
     }
 
     if (routeToServer.isPresent())
     {
-      controlList.add(new RouteToServerRequestControl(false,
+      controlList.add(new RouteToServerRequestControl(true,
            routeToServer.getValue(), false, false, false));
     }
 
@@ -2481,7 +2481,7 @@ public final class LDAPDelete
 
     if (operationPurpose.isPresent())
     {
-      controlList.add(new OperationPurposeRequestControl(false,
+      controlList.add(new OperationPurposeRequestControl(true,
            "ldapdelete", Version.NUMERIC_VERSION_STRING,
            LDAPDelete.class.getName() + ".getDeleteControls",
            operationPurpose.getValue()));
@@ -2522,7 +2522,7 @@ public final class LDAPDelete
 
     if (operationPurpose.isPresent())
     {
-      controlList.add(new OperationPurposeRequestControl(false,
+      controlList.add(new OperationPurposeRequestControl(true,
            "ldapdelete", Version.NUMERIC_VERSION_STRING,
            LDAPDelete.class.getName() + ".getSearchControls",
            operationPurpose.getValue()));
@@ -2530,7 +2530,7 @@ public final class LDAPDelete
 
     if (routeToServer.isPresent())
     {
-      controlList.add(new RouteToServerRequestControl(false,
+      controlList.add(new RouteToServerRequestControl(true,
            routeToServer.getValue(), false, false, false));
     }
 
