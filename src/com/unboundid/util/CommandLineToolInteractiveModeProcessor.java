@@ -3649,7 +3649,7 @@ argsLoop:
       boolean found = false;
       for (final Argument a : requiredArgumentsSet)
       {
-        if (a.isPresent())
+        if (a.getNumOccurrences() > 0)
         {
           found = true;
           break;
@@ -3683,7 +3683,7 @@ argsLoop:
       boolean found = false;
       for (final Argument a : exclusiveArgumentsSet)
       {
-        if (a.isPresent())
+        if (a.getNumOccurrences() > 0)
         {
           if (found)
           {
@@ -3716,12 +3716,12 @@ argsLoop:
     for (final ObjectPair<Argument,Set<Argument>> p :
          parser.getDependentArgumentSets())
     {
-      if (p.getFirst().isPresent())
+      if (p.getFirst().getNumOccurrences() > 0)
       {
         boolean found = false;
         for (final Argument a : p.getSecond())
         {
-          if (a.isPresent())
+          if (a.getNumOccurrences() > 0)
           {
             found = true;
             break;

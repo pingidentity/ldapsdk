@@ -185,6 +185,20 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDAP SDK's command-line tool framework to fix an issue with the
+                  tool's validation for required, exclusive, and dependent argument sets.  If an
+                  argument was configured with a default value, then that value could have been
+                  mistakenly treated as if it had been explicitly provided by the user.  This
+                  could cause problems for arguments that are part of an exclusive argument set
+                  (in which only one of the arguments in that set may be provided) or a dependent
+                  argument set (in which an argument can only be used if at least one of a
+                  specified set of additional arguments is present).  In such cases, the tool
+                  could not have been used in interactive mode.  The <tt>modrate</tt> tool was
+                  affected by this issue.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK build process to automatically generate documentation for
                   all of the command-line tools included with the SDK.  Usages are provided in
                   both plain text and HTML, and the HTML documentation is linked from the main
