@@ -708,6 +708,7 @@ public final class RoundRobinDNSServerSet
         doBindPostConnectAndHealthCheckProcessing(conn, bindRequest,
              postConnectProcessor, healthCheck);
         close = false;
+        associateConnectionWithThisServerSet(conn);
         return conn;
       }
       catch (final LDAPException le)

@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import javax.net.SocketFactory;
 
@@ -107,10 +108,10 @@ public final class FewestConnectionsServerSetTestCase
          new FewestConnectionsServerSet(addresses, ports);
 
     assertNotNull(set.getAddresses());
-    assertEquals(set.getAddresses(), addresses);
+    assertTrue(Arrays.equals(set.getAddresses(), addresses));
 
     assertNotNull(set.getPorts());
-    assertEquals(set.getPorts(), ports);
+    assertTrue(Arrays.equals(set.getPorts(), ports));
 
     assertNotNull(set.getSocketFactory());
 
@@ -140,10 +141,10 @@ public final class FewestConnectionsServerSetTestCase
          new FewestConnectionsServerSet(addresses, ports, connectionOptions);
 
     assertNotNull(set.getAddresses());
-    assertEquals(set.getAddresses(), addresses);
+    assertTrue(Arrays.equals(set.getAddresses(), addresses));
 
     assertNotNull(set.getPorts());
-    assertEquals(set.getPorts(), ports);
+    assertTrue(Arrays.equals(set.getPorts(), ports));
 
     assertNotNull(set.getSocketFactory());
 
@@ -172,10 +173,10 @@ public final class FewestConnectionsServerSetTestCase
          new FewestConnectionsServerSet(addresses, ports, socketFactory);
 
     assertNotNull(set.getAddresses());
-    assertEquals(set.getAddresses(), addresses);
+    assertTrue(Arrays.equals(set.getAddresses(), addresses));
 
     assertNotNull(set.getPorts());
-    assertEquals(set.getPorts(), ports);
+    assertTrue(Arrays.equals(set.getPorts(), ports));
 
     assertNotNull(set.getSocketFactory());
 
@@ -204,31 +205,16 @@ public final class FewestConnectionsServerSetTestCase
          new LinkedList<LDAPConnection>();
 
 
-    // Use the server set to create and close connections.  As long as there
-    // are no previously-established connections, all of them should go to the
-    // first server.
+    // Use the server set to create connections.  As long as we hold on to all
+    // of the connections, each subsequent connection should go to a different
+    // server than the previous connection.
     for (int i=0; i < 10; i++)
     {
       final LDAPConnection conn = set.getConnection();
       assertTrue(conn.isConnected());
       assertEquals(conn.getConnectedAddress(), "localhost");
-      assertEquals(conn.getConnectedPort(), ds1.getListenPort());
-      conn.close();
-    }
-
-
-    // Use the server set to create ten connections.  With no connections
-    // established, they should go to alternate servers (evens to server 1,
-    // odds to server 2).
-    for (int i=0; i < 10; i++)
-    {
-      final LDAPConnection conn = set.getConnection();
-      assertTrue(conn.isConnected());
-      assertEquals(conn.getConnectedAddress(), "localhost");
-
-      if ((i % 2) == 0)
+      if (conn.getConnectedPort() == ds1.getListenPort())
       {
-        assertEquals(conn.getConnectedPort(), ds1.getListenPort());
         connList1.add(conn);
       }
       else
@@ -237,68 +223,72 @@ public final class FewestConnectionsServerSetTestCase
         connList2.add(conn);
       }
     }
+
     assertEquals(connList1.size(), 5);
     assertEquals(connList2.size(), 5);
 
 
-    // Close three connections in the first set, and then create five new
-    // connections.  Ensure that the first four connections go to the first
-    // set and the fifth to the second set.
+    // Close three connections in the first set, then create five new
+    // connections.  After the first three are created, then each set should
+    // have five connections.  After the last two are created, then each set
+    // should have six connections.
     for (int i=0; i < 3; i++)
     {
-      connList1.remove().close();
+      final LDAPConnection conn = connList1.remove(0);
+      conn.close();
     }
 
     GetEntryLDAPConnectionPoolHealthCheck healthCheck =
          new GetEntryLDAPConnectionPoolHealthCheck("", 1000L, true, true,
               true, true, true);
-    for (int i=0 ; i < 5; i++)
+    for (int i=0; i < 3; i++)
     {
       final LDAPConnection conn = set.getConnection(healthCheck);
       assertTrue(conn.isConnected());
       assertEquals(conn.getConnectedAddress(), "localhost");
-      if (i == 4)
+      assertEquals(conn.getConnectedPort(), ds1.getListenPort());
+      connList1.add(conn);
+    }
+
+    for (int i=0; i < 2; i++)
+    {
+      final LDAPConnection conn = set.getConnection(healthCheck);
+      assertTrue(conn.isConnected());
+      assertEquals(conn.getConnectedAddress(), "localhost");
+      if (conn.getConnectedPort() == ds1.getListenPort())
+      {
+        connList1.add(conn);
+      }
+      else
       {
         assertEquals(conn.getConnectedPort(), ds2.getListenPort());
         connList2.add(conn);
       }
-      else
-      {
-        assertEquals(conn.getConnectedPort(), ds1.getListenPort());
-        connList1.add(conn);
-      }
     }
+
     assertEquals(connList1.size(), 6);
     assertEquals(connList2.size(), 6);
 
 
-    // Close all of the connections in the second set, and then create ten
-    // new connections.  Ensure that the first six connections go to the
-    // second set, then alternate between the sets after that.
-    while (! connList2.isEmpty())
+    // Close all of the connections in the second set, and then create six new
+    // connections.  Ensure that they all go to the second server.
+    for (final LDAPConnection conn : connList2)
     {
-      final LDAPConnection conn = connList2.remove();
       conn.close();
     }
+    connList2.clear();
 
-    for (int i=0; i < 10; i++)
+    for (int i=0; i < 6; i++)
     {
-      final LDAPConnection conn = set.getConnection();
+      final LDAPConnection conn = set.getConnection(healthCheck);
       assertTrue(conn.isConnected());
       assertEquals(conn.getConnectedAddress(), "localhost");
-      if ((i < 6) || ((i % 2) == 1))
-      {
-        assertEquals(conn.getConnectedPort(), ds2.getListenPort());
-        connList2.add(conn);
-      }
-      else
-      {
-        assertEquals(conn.getConnectedPort(), ds1.getListenPort());
-        connList1.add(conn);
-      }
+      assertEquals(conn.getConnectedPort(), ds2.getListenPort());
+      connList2.add(conn);
     }
-    assertEquals(connList1.size(), 8);
-    assertEquals(connList2.size(), 8);
+
+    assertEquals(connList1.size(), 6);
+    assertEquals(connList2.size(), 6);
 
 
     // Close all of the connections.  Stop the first server instance and verify

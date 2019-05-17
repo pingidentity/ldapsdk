@@ -142,6 +142,13 @@ final class DisconnectInfo
       return;
     }
 
+    final ServerSet serverSet = connection.getServerSet();
+    if (serverSet != null)
+    {
+      serverSet.handleConnectionClosed(connection, host, port, type, message,
+           cause);
+    }
+
     final DisconnectHandler handler =
          connection.getConnectionOptions().getDisconnectHandler();
     if (handler != null)

@@ -284,6 +284,56 @@ public abstract class ServerSet
 
 
   /**
+   * Updates the provided connection to indicate that it was created by this
+   * server set.
+   *
+   * @param  connection  The connection to be updated to indicate it was created
+   *                     by this server set.
+   */
+  protected final void associateConnectionWithThisServerSet(
+                            final LDAPConnection connection)
+  {
+    if (connection != null)
+    {
+      connection.setServerSet(this);
+    }
+  }
+
+
+
+  /**
+   * Performs any processing that may be required when the provided connection
+   * is closed.  This will only be invoked for connections created by this
+   * server set, and only if the {@link #associateConnectionWithThisServerSet}
+   * method was called on the connection when it was created by this server set.
+   *
+   * @param  connection      The connection that has been closed.
+   * @param  host            The address of the server to which the connection
+   *                         had been established.
+   * @param  port            The port of the server to which the connection had
+   *                         been established.
+   * @param  disconnectType  The disconnect type, which provides general
+   *                         information about the nature of the disconnect.
+   * @param  message         A message that may be associated with the
+   *                         disconnect.  It may be {@code null} if no message
+   *                         is available.
+   * @param  cause           A {@code Throwable} that was caught and triggered
+   *                         the disconnect.  It may be {@code null} if the
+   *                         disconnect was not triggered by a client-side
+   *                         exception or error.
+   */
+  protected void handleConnectionClosed(final LDAPConnection connection,
+                                        final String host, final int port,
+                                        final DisconnectType disconnectType,
+                                        final String message,
+                                        final Throwable cause)
+  {
+    // No action is taken by default.
+  }
+
+
+
+  /**
    * Retrieves a string representation of this server set.
    *
    * @return  A string representation of this server set.

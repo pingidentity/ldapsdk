@@ -532,6 +532,7 @@ public final class DNSSRVRecordServerSet
              connectionOptions, r.getAddress(), r.getPort());
         doBindPostConnectAndHealthCheckProcessing(connection, bindRequest,
              postConnectProcessor, healthCheck);
+        associateConnectionWithThisServerSet(connection);
         return connection;
       }
       catch (final LDAPException le)

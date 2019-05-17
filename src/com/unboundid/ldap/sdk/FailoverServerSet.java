@@ -577,6 +577,15 @@ public final class FailoverServerSet
                              final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
+    // NOTE:  This method does not associate the connection that is created with
+    // this server set.  This is because another server set is actually used to
+    // create the connection, and we want that server set to be able to
+    // associate itself with the connection.  The failover server set does not
+    // override the handleConnectionClosed method, but other server sets might,
+    // and associating a connection with the failover server set instead of the
+    // downstream set that actually created it could prevent that downstream
+    // set from being properly notified about the connection closure.
+
     if (reOrderOnFailover.get() && (serverSets.length > 1))
     {
       synchronized (this)

@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.concurrent.atomic.AtomicLong;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
@@ -84,6 +85,9 @@ import com.unboundid.util.Validator;
 public final class RoundRobinServerSet
        extends ServerSet
 {
+  // A counter used to determine the next slot that should be used.
+  private final AtomicLong nextSlot;
+
   // The bind request to use to authenticate connections created by this
   // server set.
   private final BindRequest bindRequest;
@@ -103,10 +107,6 @@ public final class RoundRobinServerSet
 
   // The addresses of the target servers.
   private final String[] addresses;
-
-  // The slot to use for the server to be selected for the next connection
-  // attempt.
-  private int nextSlot;
 
 
 
@@ -278,7 +278,7 @@ public final class RoundRobinServerSet
       this.connectionOptions = connectionOptions;
     }
 
-    nextSlot = 0;
+    nextSlot = new AtomicLong(0L);
   }
 
 
@@ -375,58 +375,37 @@ public final class RoundRobinServerSet
    * {@inheritDoc}
    */
   @Override()
-  public synchronized LDAPConnection getConnection(
-                           final LDAPConnectionPoolHealthCheck healthCheck)
+  public LDAPConnection getConnection(
+                             final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
-    final int initialSlotNumber = nextSlot++;
+    final int initialSlotNumber =
+         (int) (nextSlot.getAndIncrement() %  addresses.length);
 
-    if (nextSlot >= addresses.length)
+    LDAPException lastException = null;
+    for (int i=0; i < addresses.length; i++)
     {
-      nextSlot = 0;
-    }
+      final int slotNumber = ((initialSlotNumber + i) % addresses.length);
 
-    try
-    {
-      final LDAPConnection c = new LDAPConnection(socketFactory,
-           connectionOptions, addresses[initialSlotNumber],
-           ports[initialSlotNumber]);
-      doBindPostConnectAndHealthCheckProcessing(c, bindRequest,
-           postConnectProcessor, healthCheck);
-      return c;
-    }
-    catch (final LDAPException le)
-    {
-      Debug.debugException(le);
-      LDAPException lastException = le;
-
-      while (nextSlot != initialSlotNumber)
+      try
       {
-        final int slotNumber = nextSlot++;
-        if (nextSlot >= addresses.length)
-        {
-          nextSlot = 0;
-        }
-
-        try
-        {
-          final LDAPConnection c = new LDAPConnection(socketFactory,
-               connectionOptions, addresses[slotNumber], ports[slotNumber]);
-          doBindPostConnectAndHealthCheckProcessing(c, bindRequest,
-               postConnectProcessor, healthCheck);
-          return c;
-        }
-        catch (final LDAPException le2)
-        {
-          Debug.debugException(le2);
-          lastException = le2;
-        }
+        final LDAPConnection c = new LDAPConnection(socketFactory,
+             connectionOptions, addresses[slotNumber], ports[slotNumber]);
+        doBindPostConnectAndHealthCheckProcessing(c, bindRequest,
+             postConnectProcessor, healthCheck);
+        associateConnectionWithThisServerSet(c);
+        return c;
       }
-
-      // If we've gotten here, then we've failed to connect to any of the
-      // servers, so propagate the last exception to the caller.
-      throw lastException;
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        lastException = e;
+      }
     }
+
+    // If we've gotten here, then we've failed to connect to any of the servers,
+    // so propagate the last exception to the caller.
+    throw lastException;
   }
 
 

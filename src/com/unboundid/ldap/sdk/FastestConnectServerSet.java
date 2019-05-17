@@ -444,7 +444,9 @@ public final class FastestConnectServerSet
         }
         else if (o instanceof LDAPConnection)
         {
-          return (LDAPConnection) o;
+          final LDAPConnection conn = (LDAPConnection) o;
+          associateConnectionWithThisServerSet(conn);
+          return conn;
         }
         else
         {

@@ -308,6 +308,7 @@ public final class SingleServerSet
          new LDAPConnection(socketFactory, connectionOptions, address, port);
     doBindPostConnectAndHealthCheckProcessing(connection, bindRequest,
          postConnectProcessor, healthCheck);
+    associateConnectionWithThisServerSet(connection);
     return connection;
   }
 

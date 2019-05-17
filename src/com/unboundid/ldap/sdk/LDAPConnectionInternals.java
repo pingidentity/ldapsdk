@@ -722,6 +722,7 @@ final class LDAPConnectionInternals
            "Connection closed by LDAP SDK finalizer:  " + toString());
     }
     disconnectInfo.notifyDisconnectHandler();
+    connection.setServerSet(null);
 
     final long remainingActiveConnections =
          ACTIVE_CONNECTION_COUNT.decrementAndGet();

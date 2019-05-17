@@ -23,14 +23,19 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -97,15 +102,12 @@ public final class FewestConnectionsServerSet
   // server set.
   private final BindRequest bindRequest;
 
-  // The port numbers of the target servers.
-  private final int[] ports;
-
   // The set of connection options to use for new connections.
   private final LDAPConnectionOptions connectionOptions;
 
-  // A list of the potentially-established connections created by this server
-  // set.
-  private final List<LDAPConnection> establishedConnections;
+  // A map with the number of connections currently established for each server.
+  private final Map<ObjectPair<String,Integer>,AtomicLong>
+       connectionCountsByServer;
 
   // The post-connect processor to invoke against connections created by this
   // server set.
@@ -113,9 +115,6 @@ public final class FewestConnectionsServerSet
 
   // The socket factory to use to establish connections.
   private final SocketFactory socketFactory;
-
-  // The addresses of the target servers.
-  private final String[] addresses;
 
 
 
@@ -264,12 +263,17 @@ public final class FewestConnectionsServerSet
          "FewestConnectionsServerSet addresses and ports arrays must be " +
               "the same size.");
 
-    this.addresses = addresses;
-    this.ports = ports;
+    final LinkedHashMap<ObjectPair<String,Integer>,AtomicLong> m =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(ports.length));
+    for (int i=0; i < addresses.length; i++)
+    {
+      m.put(new ObjectPair<>(addresses[i], ports[i]), new AtomicLong(0L));
+    }
+
+    connectionCountsByServer = Collections.unmodifiableMap(m);
+
     this.bindRequest = bindRequest;
     this.postConnectProcessor = postConnectProcessor;
-
-    establishedConnections = new ArrayList<>(100);
 
     if (socketFactory == null)
     {
@@ -301,6 +305,14 @@ public final class FewestConnectionsServerSet
    */
   public String[] getAddresses()
   {
+    int i = 0;
+    final String[] addresses = new String[connectionCountsByServer.size()];
+    for (final ObjectPair<String,Integer> hostPort :
+         connectionCountsByServer.keySet())
+    {
+      addresses[i++] = hostPort.getFirst();
+    }
+
     return addresses;
   }
 
@@ -315,6 +327,14 @@ public final class FewestConnectionsServerSet
    */
   public int[] getPorts()
   {
+    int i = 0;
+    final int[] ports = new int[connectionCountsByServer.size()];
+    for (final ObjectPair<String,Integer> hostPort :
+         connectionCountsByServer.keySet())
+    {
+      ports[i++] = hostPort.getSecond();
+    }
+
     return ports;
   }
 
@@ -384,76 +404,51 @@ public final class FewestConnectionsServerSet
    * {@inheritDoc}
    */
   @Override()
-  public synchronized LDAPConnection getConnection(
-                           final LDAPConnectionPoolHealthCheck healthCheck)
+  public LDAPConnection getConnection(
+                             final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
-    // Count the number of connections established to each server.
-    final int[] counts = new int[addresses.length];
-    final Iterator<LDAPConnection> iterator = establishedConnections.iterator();
-    while (iterator.hasNext())
+    // Organize the servers int lists by increasing numbers of connections.
+    final TreeMap<Long,List<ObjectPair<String,Integer>>> serversByCount =
+         new TreeMap<>();
+    for (final Map.Entry<ObjectPair<String,Integer>,AtomicLong> e :
+        connectionCountsByServer.entrySet())
     {
-      final LDAPConnection conn = iterator.next();
-      if (! conn.isConnected())
-      {
-        iterator.remove();
-        continue;
-      }
+      final ObjectPair<String,Integer> hostPort = e.getKey();
+      final long count = e.getValue().get();
 
-      int slot = -1;
-      for (int i=0; i < addresses.length; i++)
+      List<ObjectPair<String,Integer>> l = serversByCount.get(count);
+      if (l == null)
       {
-        if (addresses[i].equals(conn.getConnectedAddress()) &&
-            (ports[i] == conn.getConnectedPort()))
-        {
-          slot = i;
-          break;
-        }
+        l = new ArrayList<>(connectionCountsByServer.size());
+        serversByCount.put(count, l);
       }
-
-      if (slot < 0)
-      {
-        // This indicates a connection is established to some address:port that
-        // we don't expect.  This shouldn't happen under normal circumstances.
-        iterator.remove();
-        break;
-      }
-      else
-      {
-        counts[slot]++;
-      }
+      l.add(hostPort);
     }
 
 
-    // Sort the servers based on the number of established connections.
-    final TreeMap<Integer,List<ObjectPair<String,Integer>>> m = new TreeMap<>();
-    for (int i=0; i < counts.length; i++)
-    {
-      final Integer count = counts[i];
-      List<ObjectPair<String,Integer>> serverList = m.get(count);
-      if (serverList == null)
-      {
-        serverList = new ArrayList<>(counts.length);
-        m.put(count, serverList);
-      }
-      serverList.add(new ObjectPair<>(addresses[i], ports[i]));
-    }
-
-
-    // Iterate through the sorted elements, trying each server in sequence until
-    // we are able to successfully establish a connection.
+    // Try the servers in order of fewest connections to most.  If there are
+    // multiple servers with the same number of connections, then randomize the
+    // order of servers in that list to better spread the load across all of
+    // the servers.
     LDAPException lastException = null;
-    for (final List<ObjectPair<String,Integer>> l : m.values())
+    for (final List<ObjectPair<String,Integer>> l : serversByCount.values())
     {
-      for (final ObjectPair<String,Integer> p : l)
+      if (l.size() > 1)
+      {
+        Collections.shuffle(l);
+      }
+
+      for (final ObjectPair<String,Integer> hostPort : l)
       {
         try
         {
           final LDAPConnection conn = new LDAPConnection(socketFactory,
-               connectionOptions, p.getFirst(), p.getSecond());
+               connectionOptions, hostPort.getFirst(), hostPort.getSecond());
           doBindPostConnectAndHealthCheckProcessing(conn, bindRequest,
                postConnectProcessor, healthCheck);
-          establishedConnections.add(conn);
+          connectionCountsByServer.get(hostPort).incrementAndGet();
+          associateConnectionWithThisServerSet(conn);
           return conn;
         }
         catch (final LDAPException le)
@@ -476,43 +471,61 @@ public final class FewestConnectionsServerSet
    * {@inheritDoc}
    */
   @Override()
+  protected void handleConnectionClosed(final LDAPConnection connection,
+                                        final String host, final int port,
+                                        final DisconnectType disconnectType,
+                                        final String message,
+                                        final Throwable cause)
+  {
+    final ObjectPair<String,Integer> hostPort = new ObjectPair<>(host, port);
+    final AtomicLong counter = connectionCountsByServer.get(hostPort);
+    if (counter != null)
+    {
+      final long remainingCount = counter.decrementAndGet();
+      if (remainingCount < 0L)
+      {
+        // This shouldn't happen.  If it does, reset it back to zero.
+        counter.compareAndSet(remainingCount, 0L);
+      }
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("FewestConnectionsServerSet(servers={");
 
-    for (int i=0; i < addresses.length; i++)
+    final Iterator<Map.Entry<ObjectPair<String,Integer>,AtomicLong>>
+         cbsIterator = connectionCountsByServer.entrySet().iterator();
+    while (cbsIterator.hasNext())
     {
-      if (i > 0)
+      final Map.Entry<ObjectPair<String,Integer>,AtomicLong> e =
+           cbsIterator.next();
+      final ObjectPair<String,Integer> hostPort = e.getKey();
+      final long count = e.getValue().get();
+
+      buffer.append('\'');
+      buffer.append(hostPort.getFirst());
+      buffer.append(':');
+      buffer.append(hostPort.getSecond());
+      buffer.append("':");
+      buffer.append(count);
+
+      if (cbsIterator.hasNext())
       {
         buffer.append(", ");
       }
-
-      buffer.append(addresses[i]);
-      buffer.append(':');
-      buffer.append(ports[i]);
     }
 
     buffer.append("}, includesAuthentication=");
     buffer.append(bindRequest != null);
     buffer.append(", includesPostConnectProcessing=");
     buffer.append(postConnectProcessor != null);
-    buffer.append(", establishedConnections=");
-
-    synchronized (this)
-    {
-      final Iterator<LDAPConnection> iterator =
-           establishedConnections.iterator();
-      while (iterator.hasNext())
-      {
-        final LDAPConnection conn = iterator.next();
-        if (! conn.isConnected())
-        {
-          iterator.remove();
-        }
-      }
-      buffer.append(establishedConnections.size());
-    }
-
     buffer.append(')');
   }
 }

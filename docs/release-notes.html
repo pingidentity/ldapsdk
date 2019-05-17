@@ -92,6 +92,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the round-robin and fewest connections server sets to improve
+                  concurrency.  In previous implementations, these sets could only create one
+                  connection at a time, which could limit the rate at which connection pools
+                  using them could establish new connections.  This is no longer the case, and
+                  any number of threads will be able to create connections in parallel using the
+                  server sets.  This change also updated the ServerSet API to make it possible
+                  for a server set to be notified whenever a connection created with that set has
+                  been closed.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new indent-ldap-filter command-line tool that can help make it easier to
                   visualize complex filters with a lot of components, and especially a lot of
                   nesting.  If possible, it can also try to simplify the filter (for example, to

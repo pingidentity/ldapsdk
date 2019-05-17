@@ -281,6 +281,9 @@ public final class LDAPConnection
   // The cached schema read from the server.
   private volatile Schema cachedSchema;
 
+  // The server set that was used to create this connection, if available.
+  private volatile ServerSet serverSet;
+
   // The socket factory used for the last connection attempt.
   private SocketFactory lastUsedSocketFactory;
 
@@ -416,6 +419,7 @@ public final class LDAPConnection
     connectionPoolName   = null;
     cachedSchema         = null;
     timer                = null;
+    serverSet            = null;
 
     referralConnector = this.connectionOptions.getReferralConnector();
     if (referralConnector == null)
@@ -1327,6 +1331,32 @@ public final class LDAPConnection
            connectionInternals.getConnectionReader();
       reader.updateThreadName();
     }
+  }
+
+
+
+  /**
+   * Retrieves the server set that was used to create this connection.
+   *
+   * @return  The server set that was used to create this connection, or
+   *          {@code null} if it is not associated with any server set.
+   */
+  ServerSet getServerSet()
+  {
+    return serverSet;
+  }
+
+
+
+  /**
+   * Specifies the server set that was used to create this connection.
+   *
+   * @param  serverSet  The server set that was used to create this connection,
+   *                    or {@code null} if it was not created by a server set.
+   */
+  void setServerSet(final ServerSet serverSet)
+  {
+    this.serverSet = serverSet;
   }
 
 
