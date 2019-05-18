@@ -1480,7 +1480,14 @@ public class ArgumentParserTestCase
       new Object[]
       {
         "Double \\\\ Backslash",
-        "Double \\\\ Backslash",
+        "Double \\ Backslash",
+        true
+      },
+
+      new Object[]
+      {
+        "cn\\=Directory Manager",
+        "cn=Directory Manager",
         true
       },
 

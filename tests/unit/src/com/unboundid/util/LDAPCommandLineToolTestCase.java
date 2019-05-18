@@ -642,7 +642,7 @@ public class LDAPCommandLineToolTestCase
          "--trustAll=true",
          "",
          "# Use a one-dash identifier to specify the bind DN.",
-         "-D=cn=Directory Manager",
+         "-D=cn\\=Directory Manager",
          "",
          "# Use a one-dash tool-specific identifier to specify the password.",
          "ldapsearch.-w=password",

@@ -3015,7 +3015,8 @@ public final class ArgumentParser
   /**
    * Retrieves a string that contains the contents of the provided buffer, but
    * with any Unicode escape sequences converted to the appropriate character
-   * representation.
+   * representation, and any other escapes having the initial backslash
+   * removed.
    *
    * @param  propertiesFilePath  The path to the properties file
    * @param  lineNumber  The line number on which the property definition
@@ -3068,7 +3069,7 @@ public final class ArgumentParser
           }
           else
           {
-            pos++;
+            buffer.deleteCharAt(pos);
           }
         }
       }

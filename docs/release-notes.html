@@ -211,6 +211,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the argument parser to fix a problem with the way that it handles
+                  backslash characters in argument properties files.  It previously only correctly
+                  handled backslashes if they were at the end of a line to indicate that the
+                  content continued on to the next line, or if they were followed by the letter
+                  'u' and the hexadecimal representation of the desired Unicode character.  It did
+                  not handle a backslash in front of other characters used to force that character
+                  to be treated as a literal (for example, a backslash followed by an equal sign
+                  should be treated as just the equal sign, but was instead being treated as a
+                  backslash followed by an equal sign).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK build process to automatically generate documentation for
                   all of the command-line tools included with the SDK.  Usages are provided in
                   both plain text and HTML, and the HTML documentation is linked from the main
