@@ -142,7 +142,7 @@ public class DNTestCase
   {
     RDN[] rdns =
     {
-      new RDN("givenName=Test+sn=User", schema),
+      new RDN("cn=Test User+emailAddress=test.user@example.com", schema),
       new RDN("ou=People", schema),
       new RDN("dc=example", schema),
       new RDN("dc=com", schema)
@@ -150,12 +150,14 @@ public class DNTestCase
 
     DN dn = new DN(rdns);
     assertNotNull(dn.getRDN());
-    assertEquals(dn.getRDN(), new RDN("givenname=Test+sn=User", schema));
+    assertEquals(dn.getRDN(),
+         new RDN("cn=test user+e=Test.User@EXAMPLE.COM", schema));
     assertNotNull(dn.getRDNs());
     assertEquals(dn.getRDNs().length, 4);
 
     assertEquals(dn.toString(),
-                 "givenName=Test+sn=User,ou=People,dc=example,dc=com");
+         "cn=Test User+emailAddress=test.user@example.com,ou=People," +
+              "dc=example,dc=com");
 
     StringBuilder buffer = new StringBuilder();
     dn.toString(buffer);
@@ -170,7 +172,7 @@ public class DNTestCase
     assertEquals(decodedDN.hashCode(), dn.hashCode());
 
     assertEquals(dn.toNormalizedString(),
-                 "givenname=test+sn=user,ou=people,dc=example,dc=com");
+         "cn=test user+e=test.user@example.com,ou=people,dc=example,dc=com");
     decodedDN = new DN(dn.toNormalizedString(), schema);
     assertEquals(decodedDN, dn);
     assertEquals(decodedDN.hashCode(), dn.hashCode());

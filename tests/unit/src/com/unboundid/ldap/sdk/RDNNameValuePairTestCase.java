@@ -54,12 +54,12 @@ public final class RDNNameValuePairTestCase
     assertNotNull(p.getAttributeName());
     assertEquals(p.getAttributeName(), "givenName");
 
-    assertNotNull(p.getLowercaseAttributeName());
-    assertEquals(p.getLowercaseAttributeName(), "givenname");
+    assertNotNull(p.getNormalizedAttributeName());
+    assertEquals(p.getNormalizedAttributeName(), "givenname");
 
     // The second time should use a cached version.
-    assertNotNull(p.getLowercaseAttributeName());
-    assertEquals(p.getLowercaseAttributeName(), "givenname");
+    assertNotNull(p.getNormalizedAttributeName());
+    assertEquals(p.getNormalizedAttributeName(), "givenname");
 
     assertNotNull(p.getAttributeValue());
     assertEquals(p.getAttributeValue(), "foo");
@@ -111,12 +111,12 @@ public final class RDNNameValuePairTestCase
     assertNotNull(p.getAttributeName());
     assertEquals(p.getAttributeName(), "givenName");
 
-    assertNotNull(p.getLowercaseAttributeName());
-    assertEquals(p.getLowercaseAttributeName(), "givenname");
+    assertNotNull(p.getNormalizedAttributeName());
+    assertEquals(p.getNormalizedAttributeName(), "givenname");
 
     // The second time should use a cached version.
-    assertNotNull(p.getLowercaseAttributeName());
-    assertEquals(p.getLowercaseAttributeName(), "givenname");
+    assertNotNull(p.getNormalizedAttributeName());
+    assertEquals(p.getNormalizedAttributeName(), "givenname");
 
     assertNotNull(p.getAttributeValue());
     assertEquals(p.getAttributeValue(), "foo");

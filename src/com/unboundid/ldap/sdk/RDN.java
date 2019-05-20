@@ -1379,9 +1379,9 @@ valueLoop:
    */
   public boolean hasAttribute(final String attributeName)
   {
-    for (final String name : attributeNames)
+    for (final RDNNameValuePair nameValuePair : getNameValuePairs())
     {
-      if (name.equalsIgnoreCase(attributeName))
+      if (nameValuePair.hasAttributeName(attributeName))
       {
         return true;
       }
@@ -1406,19 +1406,12 @@ valueLoop:
   public boolean hasAttributeValue(final String attributeName,
                                    final String attributeValue)
   {
-    for (int i=0; i < attributeNames.length; i++)
+    for (final RDNNameValuePair nameValuePair : getNameValuePairs())
     {
-      if (attributeNames[i].equalsIgnoreCase(attributeName))
+      if (nameValuePair.hasAttributeName(attributeName) &&
+           nameValuePair.hasAttributeValue(attributeValue))
       {
-        final Attribute a =
-             new Attribute(attributeName, schema, attributeValue);
-        final Attribute b = new Attribute(attributeName, schema,
-             attributeValues[i].stringValue());
-
-        if (a.equals(b))
-        {
-          return true;
-        }
+        return true;
       }
     }
 
@@ -1441,19 +1434,12 @@ valueLoop:
   public boolean hasAttributeValue(final String attributeName,
                                    final byte[] attributeValue)
   {
-    for (int i=0; i < attributeNames.length; i++)
+    for (final RDNNameValuePair nameValuePair : getNameValuePairs())
     {
-      if (attributeNames[i].equalsIgnoreCase(attributeName))
+      if (nameValuePair.hasAttributeName(attributeName) &&
+           nameValuePair.hasAttributeValue(attributeValue))
       {
-        final Attribute a =
-             new Attribute(attributeName, schema, attributeValue);
-        final Attribute b = new Attribute(attributeName, schema,
-             attributeValues[i].getValue());
-
-        if (a.equals(b))
-        {
-          return true;
-        }
+        return true;
       }
     }
 

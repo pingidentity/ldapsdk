@@ -135,6 +135,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in generating the normalized representation of a multivalued RDN
+                  when one or more of those components referenced an attribute type by its OID or
+                  a name other than the first of its names.  The normalized string representation
+                  would have simply used an all-lowercase representation of the provided attribute
+                  name rather than an all-lowercase representation of the primary name.  Also
+                  updated the logic used to determine whether an RDN has a specified name or
+                  name-value pair to handle the use of alternate names.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a bug in the <tt>ByteStringBuffer.append(CharSequence,int,int)</tt> method
                   in which the final integer argument could be interpreted as the number of
                   characters to append rather than the end position at which to stop appending,

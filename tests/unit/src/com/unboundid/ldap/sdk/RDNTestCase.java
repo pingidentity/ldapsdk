@@ -657,8 +657,8 @@ public class RDNTestCase
   public void testConstructor3MultiElementWithSchema()
          throws Exception
   {
-    RDN rdn = new RDN(new String[] { "givenName", "sn" },
-                      new String[] { "Test", "User" },
+    RDN rdn = new RDN(new String[] { "cn", "emailAddress" },
+                      new String[] { "Test User", "test.user@example.com" },
                       schema);
 
     assertTrue(rdn.isMultiValued());
@@ -671,51 +671,62 @@ public class RDNTestCase
     final Iterator<RDNNameValuePair> iterator =
          rdn.getNameValuePairs().iterator();
     assertEquals(iterator.next(),
-         new RDNNameValuePair("givenName", new ASN1OctetString("Test"), null));
+         new RDNNameValuePair("cn", new ASN1OctetString("Test User"), schema));
     assertEquals(iterator.next(),
-         new RDNNameValuePair("sn", new ASN1OctetString("User"), null));
+         new RDNNameValuePair("emailAddress",
+              new ASN1OctetString("test.user@example.com"), schema));
 
     Attribute[] attributes = rdn.getAttributes();
     assertNotNull(attributes);
     assertEquals(attributes.length, 2);
-    assertEquals(attributes[0], new Attribute("givenName", "Test"));
-    assertEquals(attributes[1], new Attribute("sn", "User"));
+    assertEquals(attributes[0], new Attribute("cn", schema, "Test User"));
+    assertEquals(attributes[1], new Attribute("emailAddress", schema,
+         "test.user@example.com"));
 
     String[] attrNames = rdn.getAttributeNames();
     assertNotNull(attrNames);
     assertEquals(attrNames.length, 2);
-    assertEquals(attrNames[0], "givenName");
-    assertEquals(attrNames[1], "sn");
+    assertEquals(attrNames[0], "cn");
+    assertEquals(attrNames[1], "emailAddress");
 
     String[] attrValues = rdn.getAttributeValues();
     assertNotNull(attrValues);
     assertEquals(attrValues.length, 2);
-    assertEquals(attrValues[0], "Test");
-    assertEquals(attrValues[1], "User");
+    assertEquals(attrValues[0], "Test User");
+    assertEquals(attrValues[1], "test.user@example.com");
 
     byte[][] byteArrayValues = rdn.getByteArrayAttributeValues();
     assertNotNull(byteArrayValues);
     assertEquals(byteArrayValues.length, 2);
     assertTrue(Arrays.equals(byteArrayValues[0],
-         "Test".getBytes("UTF-8")));
+         "Test User".getBytes("UTF-8")));
     assertTrue(Arrays.equals(byteArrayValues[1],
-         "User".getBytes("UTF-8")));
+         "test.user@example.com".getBytes("UTF-8")));
 
-    assertTrue(rdn.hasAttribute("givenName"));
-    assertTrue(rdn.hasAttribute("sn"));
-    assertFalse(rdn.hasAttribute("cn"));
+    assertTrue(rdn.hasAttribute("cn"));
+    assertTrue(rdn.hasAttribute("emailAddress"));
+    assertTrue(rdn.hasAttribute("emailaddress"));
+    assertTrue(rdn.hasAttribute("e"));
+    assertFalse(rdn.hasAttribute("givenName"));
 
-    assertTrue(rdn.hasAttributeValue("givenName", "Test"));
-    assertTrue(rdn.hasAttributeValue("sn", "User"));
-    assertFalse(rdn.hasAttributeValue("givenName", "User"));
-    assertFalse(rdn.hasAttributeValue("sn", "Test"));
-    assertFalse(rdn.hasAttributeValue("cn", "Test"));
+    assertTrue(rdn.hasAttributeValue("cn", "Test User"));
+    assertTrue(rdn.hasAttributeValue("cn", "test user"));
+    assertTrue(rdn.hasAttributeValue("CN", "test user"));
+    assertTrue(rdn.hasAttributeValue("emailAddress", "test.user@example.com"));
+    assertTrue(rdn.hasAttributeValue("emailaddress", "Test.User@Example.COM"));
+    assertTrue(rdn.hasAttributeValue("e", "test.user@example.com"));
+    assertFalse(rdn.hasAttributeValue("givenname", "Test"));
 
-    assertTrue(rdn.hasAttributeValue("givenName", "Test".getBytes("UTF-8")));
-    assertTrue(rdn.hasAttributeValue("sn", "User".getBytes("UTF-8")));
-    assertFalse(rdn.hasAttributeValue("givenName", "User".getBytes("UTF-8")));
-    assertFalse(rdn.hasAttributeValue("sn", "Test".getBytes("UTF-8")));
-    assertFalse(rdn.hasAttributeValue("cn", "Test".getBytes("UTF-8")));
+    assertTrue(rdn.hasAttributeValue("cn", "Test User".getBytes("UTF-8")));
+    assertTrue(rdn.hasAttributeValue("cn", "test user".getBytes("UTF-8")));
+    assertTrue(rdn.hasAttributeValue("CN", "test user".getBytes("UTF-8")));
+    assertTrue(rdn.hasAttributeValue("emailAddress",
+         "test.user@example.com".getBytes("UTF-8")));
+    assertTrue(rdn.hasAttributeValue("emailaddress",
+         "Test.User@Example.COM".getBytes("UTF-8")));
+    assertTrue(rdn.hasAttributeValue("e",
+         "test.user@example.com".getBytes("UTF-8")));
+    assertFalse(rdn.hasAttributeValue("givenname", "Test".getBytes("UTF-8")));
 
     RDN decodedRDN = new RDN(rdn.toString(), schema);
     assertNotNull(decodedRDN);
@@ -727,7 +738,8 @@ public class RDNTestCase
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());
     assertEquals(decodedRDN, rdn);
 
-    assertEquals(rdn.toNormalizedString(), "givenname=test+sn=user");
+    assertEquals(rdn.toNormalizedString(),
+         "cn=test user+e=test.user@example.com");
     decodedRDN = new RDN(rdn.toNormalizedString(), schema);
     assertNotNull(decodedRDN);
     assertEquals(decodedRDN.hashCode(), rdn.hashCode());

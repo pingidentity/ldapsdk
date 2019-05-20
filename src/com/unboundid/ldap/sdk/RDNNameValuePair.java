@@ -26,7 +26,10 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.matchingrules.MatchingRule;
+import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -63,7 +66,7 @@ public final class RDNNameValuePair
 
   // The all-lowercase representation of the attribute name for this name-value
   // pair.
-  private volatile String lowerAttributeName;
+  private volatile String normalizedAttributeName;
 
   // The normalized string representation for this RDN name-value pair.
   private volatile String normalizedString;
@@ -76,13 +79,13 @@ public final class RDNNameValuePair
   /**
    * Creates a new RDN name-value pair with the provided information.
    *
-   * @param attributeName  The attribute name for this name-value pair.  It must
-   *                       not be {@code null}.
-   * @param attributeValue The attribute value for this name-value pair.  It
-   *                       must not be {@code null}.
-   * @param schema         The schema to use to generate the normalized string
-   *                       representation of this name-value pair, if any.  It
-   *                       may be {@code null} if no schema is available.
+   * @param  attributeName  The attribute name for this name-value pair.  It
+   *                        must not be {@code null}.
+   * @param  attributeValue The attribute value for this name-value pair.  It
+   *                        must not be {@code null}.
+   * @param  schema         The schema to use to generate the normalized string
+   *                        representation of this name-value pair, if any.  It
+   *                        may be {@code null} if no schema is available.
    */
   RDNNameValuePair(final String attributeName,
                    final ASN1OctetString attributeValue, final Schema schema)
@@ -91,7 +94,7 @@ public final class RDNNameValuePair
     this.attributeValue = attributeValue;
     this.schema = schema;
 
-    lowerAttributeName = null;
+    normalizedAttributeName = null;
     normalizedString = null;
     stringRepresentation = null;
   }
@@ -101,7 +104,7 @@ public final class RDNNameValuePair
   /**
    * Retrieves the attribute name for this name-value pair.
    *
-   * @return The attribute name for this name-value pair.
+   * @return  The attribute name for this name-value pair.
    */
   public String getAttributeName()
   {
@@ -111,18 +114,61 @@ public final class RDNNameValuePair
 
 
   /**
-   * Retrieves an all-lowercase representation of the attribute name.
+   * Retrieves a normalized representation of the attribute name.
    *
-   * @return An all-lowercase representation of the attribute name.
+   * @return  A normalized representation of the attribute name.
    */
-  String getLowercaseAttributeName()
+  public String getNormalizedAttributeName()
   {
-    if (lowerAttributeName == null)
+    if (normalizedAttributeName == null)
     {
-      lowerAttributeName = StaticUtils.toLowerCase(attributeName);
+      if (schema != null)
+      {
+        final AttributeTypeDefinition attributeType =
+             schema.getAttributeType(attributeName);
+        if (attributeType != null)
+        {
+          normalizedAttributeName =
+               StaticUtils.toLowerCase(attributeType.getNameOrOID());
+        }
+      }
+
+      if (normalizedAttributeName == null)
+      {
+        normalizedAttributeName = StaticUtils.toLowerCase(attributeName);
+      }
     }
 
-    return lowerAttributeName;
+    return normalizedAttributeName;
+  }
+
+
+
+  /**
+   * Indicates whether this RDN name-value pair has the provided attribute name
+   * (or a name that is logically equivalent to it).
+   *
+   * @param  name  The name for which to make the determination.
+   *
+   * @return  {@code true} if this name-value pair has the provided attribute
+   *          name (or a name that is logically equivalent to it), or
+   *          {@code false} if not.
+   */
+  public boolean hasAttributeName(final String name)
+  {
+    if (attributeName.equalsIgnoreCase(name))
+    {
+      return true;
+    }
+
+    if (schema != null)
+    {
+      final AttributeTypeDefinition attributeType =
+           schema.getAttributeType(attributeName);
+      return ((attributeType != null) && attributeType.hasNameOrOID(name));
+    }
+
+    return false;
   }
 
 
@@ -131,8 +177,8 @@ public final class RDNNameValuePair
    * Retrieves the string representation of the attribute value for this
    * name-value pair.
    *
-   * @return The string representation of the attribute value for this
-   * name-value pair.
+   * @return  The string representation of the attribute value for this
+   *          name-value pair.
    */
   public String getAttributeValue()
   {
@@ -145,8 +191,8 @@ public final class RDNNameValuePair
    * Retrieves the bytes that comprise the attribute value for this name-value
    * pair.
    *
-   * @return The bytes that comprise the attribute value for this name-value
-   * pair.
+   * @return  The bytes that comprise the attribute value for this name-value
+   *          pair.
    */
   public byte[] getAttributeValueBytes()
   {
@@ -158,7 +204,7 @@ public final class RDNNameValuePair
   /**
    * Retrieves the raw attribute value for this name-value pair.
    *
-   * @return The raw attribute value for this name-value pair.
+   * @return  The raw attribute value for this name-value pair.
    */
   public ASN1OctetString getRawAttributeValue()
   {
@@ -168,33 +214,101 @@ public final class RDNNameValuePair
 
 
   /**
+   * Indicates whether this RDN name-value pair has the provided attribute value
+   * (or a value that is logically equivalent to it).
+   *
+   * @param  value  The value for which to make the determination.
+   *
+   * @return  {@code true} if this RDN name-value pair has the provided
+   *          attribute value (or a value that is logically equivalent to it),
+   *          or {@code false} if not.
+   */
+  public boolean hasAttributeValue(final String value)
+  {
+    try
+    {
+      final MatchingRule matchingRule =
+           MatchingRule.selectEqualityMatchingRule(attributeName, schema);
+      return matchingRule.valuesMatch(new ASN1OctetString(value),
+           attributeValue);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return false;
+    }
+  }
+
+
+
+  /**
+   * Indicates whether this RDN name-value pair has the provided attribute value
+   * (or a value that is logically equivalent to it).
+   *
+   * @param  value  The value for which to make the determination.
+   *
+   * @return  {@code true} if this RDN name-value pair has the provided
+   *          attribute value (or a value that is logically equivalent to it),
+   *          or {@code false} if not.
+   */
+  public boolean hasAttributeValue(final byte[] value)
+  {
+    try
+    {
+      final MatchingRule matchingRule =
+           MatchingRule.selectEqualityMatchingRule(attributeName, schema);
+      return matchingRule.valuesMatch(new ASN1OctetString(value),
+           attributeValue);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return false;
+    }
+  }
+
+
+
+  /**
    * Retrieves an integer value that represents the order in which this RDN
    * name-value pair should be placed in relation to the provided RDN name-value
    * pair in a sorted list.
    *
-   * @param p The RDN name-value pair to be ordered relative to this RDN
-   *          name-value pair.  It must not be {@code null}.
+   * @param  p  The RDN name-value pair to be ordered relative to this RDN
+   *            name-value pair.  It must not be {@code null}.
    *
-   * @return A negative integer if this RDN name-value pair should be ordered
-   * before the provided RDN name-value pair, a positive integer if this RDN
-   * name-value pair should be ordered after the provided RDN name-value pair,
-   * or zero if this RDN name-value pair is logically equivalent to the provided
-   * RDN name-value pair.
+   * @return  A negative integer if this RDN name-value pair should be ordered
+   *          before the provided RDN name-value pair, a positive integer if
+   *          this RDN name-value pair should be ordered after the provided RDN
+   *          name-value pair, or zero if this RDN name-value pair is logically
+   *          equivalent to the provided RDN name-value pair.
    */
   @Override()
   public int compareTo(final RDNNameValuePair p)
   {
-    final String thisLowerName = getLowercaseAttributeName();
-    final String thatLowerName = p.getLowercaseAttributeName();
-    final int nameComparison = thisLowerName.compareTo(thatLowerName);
+    final String thisNormalizedName = getNormalizedAttributeName();
+    final String thatNormalizedName = p.getNormalizedAttributeName();
+    final int nameComparison =
+         thisNormalizedName.compareTo(thatNormalizedName);
     if (nameComparison != 0)
     {
       return nameComparison;
     }
 
-    final String thisNormalizedString = toNormalizedString();
-    final String thatNormalizedString = p.toNormalizedString();
-    return thisNormalizedString.compareTo(thatNormalizedString);
+    try
+    {
+      final MatchingRule matchingRule =
+           MatchingRule.selectOrderingMatchingRule(attributeName, schema);
+      return matchingRule.compareValues(attributeValue, p.attributeValue);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+
+      final String thisNormalizedString = toNormalizedString();
+      final String thatNormalizedString = p.toNormalizedString();
+      return thisNormalizedString.compareTo(thatNormalizedString);
+    }
   }
 
 
@@ -203,16 +317,16 @@ public final class RDNNameValuePair
    * Retrieves an integer value that represents the order in which the provided
    * RDN name-value pairs should be placed in a sorted list.
    *
-   * @param p1 The first RDN name-value pair to compare.  It must not be {@code
-   *           null}.
-   * @param p2 The second RDN name-value pair to compare.  It must not be {@code
-   *           null}.
+   * @param  p1  The first RDN name-value pair to compare.  It must not be
+   *             {@code null}.
+   * @param  p2  The second RDN name-value pair to compare.  It must not be
+   *             {@code null}.
    *
-   * @return A negative integer if the first RDN name-value pair should be
-   * ordered before the second RDN name-value pair, a positive integer if the
-   * first RDN name-value pair should be ordered after the second RDN name-value
-   * pair, or zero if the provided RDN name-value pairs are logically
-   * equivalent.
+   * @return  A negative integer if the first RDN name-value pair should be
+   *          ordered before the second RDN name-value pair, a positive integer
+   *          if the first RDN name-value pair should be ordered after the
+   *          second RDN name-value pair, or zero if the provided RDN name-value
+   *          pairs are logically equivalent.
    */
   @Override()
   public int compare(final RDNNameValuePair p1, final RDNNameValuePair p2)
@@ -225,7 +339,7 @@ public final class RDNNameValuePair
   /**
    * Retrieves a hash code for this RDN name-value pair.
    *
-   * @return A hash code for this RDN name-value pair.
+   * @return  A hash code for this RDN name-value pair.
    */
   @Override()
   public int hashCode()
@@ -239,11 +353,11 @@ public final class RDNNameValuePair
    * Indicates whether the provided object is considered logically equivalent to
    * this RDN name-value pair.
    *
-   * @param o The object for which to make the determination.
+   * @param  o  The object for which to make the determination.
    *
-   * @return {@code true} if the provided object is an RDN name-value pair that
-   * is logically equivalent to this RDN name-value pair, or {@code false} if
-   * not.
+   * @return  {@code true} if the provided object is an RDN name-value pair that
+   *          is logically equivalent to this RDN name-value pair, or
+   *          {@code false} if not.
    */
   public boolean equals(final Object o)
   {
@@ -371,7 +485,7 @@ public final class RDNNameValuePair
    */
   public void toNormalizedString(final StringBuilder buffer)
   {
-    buffer.append(getLowercaseAttributeName());
+    buffer.append(getNormalizedAttributeName());
     buffer.append('=');
     RDN.appendNormalizedValue(buffer, attributeName, attributeValue, schema);
   }
