@@ -2160,4 +2160,170 @@ public class RDNTestCase
               0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xaa, 0xbb, 0xcc,
               0xdd, 0xee, 0xff));
   }
+
+
+
+  /**
+   * Tests various forms of RDNs whose attribute values contain spaces.
+   *
+   * @param  attributeNames               The names of the attributes for use in
+   *                                      the RDN.
+   * @param  attributeValues              The string representations of the
+   *                                      values for the RDNs.
+   * @param  expectedNonNormalizedString  The expected non-normalized string
+   *                                      representation of the RDN.
+   * @param  expectedNormalizedString     The expected normalized string
+   *                                      representation of the RDN.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "rdnsWithSpacesTestData")
+  public void testRDNsWithSpaces(final String[] attributeNames,
+                                 final String[] attributeValues,
+                                 final String expectedNonNormalizedString,
+                                 final String expectedNormalizedString)
+         throws Exception
+  {
+    final RDN rdn = new RDN(attributeNames, attributeValues);
+
+    assertEquals(rdn.getAttributeNames(), attributeNames);
+
+    assertEquals(rdn.getAttributeValues(), attributeValues);
+
+    assertEquals(rdn.toString(), expectedNonNormalizedString);
+
+    assertEquals(rdn.toNormalizedString(), expectedNormalizedString);
+
+    assertEquals(new RDN(rdn.toString()), rdn);
+
+    assertEquals(new RDN(rdn.toNormalizedString()), rdn);
+  }
+
+
+
+  /**
+   * Retrieves a set of test data for use in testing RDNs whose attribute
+   * values contain spaces.
+   *
+   * @return  A set of test data for use in testing RDNs whose attribute values
+   *          contain spaces.
+   */
+  @DataProvider(name = "rdnsWithSpacesTestData")
+  public Object[][] getRDNsWithSpacesTestData()
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        new String[] { "cn" },
+        new String[] { " " },
+        "cn=\\ ",
+        "cn=\\ "
+      },
+
+      new Object[]
+      {
+        new String[] { "cn" },
+        new String[] { " a" },
+        "cn=\\ a",
+        "cn=a"
+      },
+
+      new Object[]
+      {
+        new String[] { "cn" },
+        new String[] { "a " },
+        "cn=a\\ ",
+        "cn=a"
+      },
+
+      new Object[]
+      {
+        new String[] { "cn" },
+        new String[] { " a " },
+        "cn=\\ a\\ ",
+        "cn=a"
+      },
+
+      new Object[]
+      {
+        new String[] { "cn" },
+        new String[] { "  " },
+        "cn=\\ \\ ",
+        "cn=\\ "
+      },
+
+      new Object[]
+      {
+        new String[] { "cn" },
+        new String[] { "   " },
+        "cn=\\  \\ ",
+        "cn=\\ "
+      },
+
+      new Object[]
+      {
+        new String[] { "cn" },
+        new String[] { "a b" },
+        "cn=a b",
+        "cn=a b"
+      },
+
+      new Object[]
+      {
+        new String[] { "cn" },
+        new String[] { " a b " },
+        "cn=\\ a b\\ ",
+        "cn=a b"
+      },
+
+      new Object[]
+      {
+        new String[] { "givenName", "sn" },
+        new String[] { " ", " " },
+        "givenName=\\ +sn=\\ ",
+        "givenname=\\ +sn=\\ "
+      },
+
+      new Object[]
+      {
+        new String[] { "givenName", "sn" },
+        new String[] { "  ", "  " },
+        "givenName=\\ \\ +sn=\\ \\ ",
+        "givenname=\\ +sn=\\ "
+      },
+
+      new Object[]
+      {
+        new String[] { "givenName", "sn" },
+        new String[] { "   ", "   " },
+        "givenName=\\  \\ +sn=\\  \\ ",
+        "givenname=\\ +sn=\\ "
+      },
+
+      new Object[]
+      {
+        new String[] { "givenName", "sn" },
+        new String[] { " a", "b " },
+        "givenName=\\ a+sn=b\\ ",
+        "givenname=a+sn=b"
+      },
+
+      new Object[]
+      {
+        new String[] { "givenName", "sn" },
+        new String[] { "a ", " b" },
+        "givenName=a\\ +sn=\\ b",
+        "givenname=a+sn=b"
+      },
+
+      new Object[]
+      {
+        new String[] { "givenName", "sn" },
+        new String[] { " a ", " b " },
+        "givenName=\\ a\\ +sn=\\ b\\ ",
+        "givenname=a+sn=b"
+      },
+    };
+  }
 }
