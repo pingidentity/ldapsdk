@@ -58,11 +58,11 @@ public final class FewestConnectionsServerSetTestCase
   /**
    * Prepares a couple of directory server instances to use in the testing.
    *
-   * @throws  Exception  If an unexpected problem occurs.
+   * @throws Exception If an unexpected problem occurs.
    */
   @BeforeClass()
   public void setUp()
-         throws Exception
+       throws Exception
   {
     ds1 = new InMemoryDirectoryServer("dc=example,dc=com");
     ds1.startListening();
@@ -82,11 +82,11 @@ public final class FewestConnectionsServerSetTestCase
   /**
    * Cleans up after testing has completed.
    *
-   * @throws  Exception  If an unexpected problem occurs.
+   * @throws Exception If an unexpected problem occurs.
    */
   @AfterClass()
   public void cleanUp()
-         throws Exception
+       throws Exception
   {
     ds1.shutDown(true);
     ds2.shutDown(true);
@@ -98,14 +98,15 @@ public final class FewestConnectionsServerSetTestCase
    * Tests the behavior of the fewest connections server set using the first
    * constructor.
    *
-   * @throws  Exception  If an unexpected problem occurs.
+   * @throws Exception If an unexpected problem occurs.
    */
   @Test()
   public void testConstructor1()
-         throws Exception
+       throws Exception
   {
     final FewestConnectionsServerSet set =
          new FewestConnectionsServerSet(addresses, ports);
+    assertNotNull(set.getBlacklistManager());
 
     assertNotNull(set.getAddresses());
     assertTrue(Arrays.equals(set.getAddresses(), addresses));
@@ -116,6 +117,10 @@ public final class FewestConnectionsServerSetTestCase
     assertNotNull(set.getSocketFactory());
 
     assertNotNull(set.getConnectionOptions());
+
+    assertFalse(set.includesAuthentication());
+
+    assertFalse(set.includesPostConnectProcessing());
 
     assertNotNull(set.toString());
 
@@ -128,17 +133,18 @@ public final class FewestConnectionsServerSetTestCase
    * Tests the behavior of the fewest connections server set using the second
    * constructor.
    *
-   * @throws  Exception  If an unexpected problem occurs.
+   * @throws Exception If an unexpected problem occurs.
    */
   @Test()
   public void testConstructor2()
-         throws Exception
+       throws Exception
   {
     final LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
     connectionOptions.setUseSynchronousMode(true);
 
     final FewestConnectionsServerSet set =
          new FewestConnectionsServerSet(addresses, ports, connectionOptions);
+    assertNotNull(set.getBlacklistManager());
 
     assertNotNull(set.getAddresses());
     assertTrue(Arrays.equals(set.getAddresses(), addresses));
@@ -149,6 +155,10 @@ public final class FewestConnectionsServerSetTestCase
     assertNotNull(set.getSocketFactory());
 
     assertNotNull(set.getConnectionOptions());
+
+    assertFalse(set.includesAuthentication());
+
+    assertFalse(set.includesPostConnectProcessing());
 
     assertNotNull(set.toString());
 
@@ -161,16 +171,17 @@ public final class FewestConnectionsServerSetTestCase
    * Tests the behavior of the fewest connections server set using the third
    * constructor.
    *
-   * @throws  Exception  If an unexpected problem occurs.
+   * @throws Exception If an unexpected problem occurs.
    */
   @Test()
   public void testConstructor3()
-         throws Exception
+       throws Exception
   {
     final SocketFactory socketFactory = SocketFactory.getDefault();
 
     final FewestConnectionsServerSet set =
          new FewestConnectionsServerSet(addresses, ports, socketFactory);
+    assertNotNull(set.getBlacklistManager());
 
     assertNotNull(set.getAddresses());
     assertTrue(Arrays.equals(set.getAddresses(), addresses));
@@ -182,6 +193,10 @@ public final class FewestConnectionsServerSetTestCase
 
     assertNotNull(set.getConnectionOptions());
 
+    assertFalse(set.includesAuthentication());
+
+    assertFalse(set.includesPostConnectProcessing());
+
     assertNotNull(set.toString());
 
     testServerSet(set);
@@ -192,35 +207,33 @@ public final class FewestConnectionsServerSetTestCase
   /**
    * Tests to ensure that the provided server set works as expected.
    *
-   * @param  set  The server set to be tested.
+   * @param set The server set to be tested.
    *
-   * @throws  Exception  If an unexpected problem occurs.
+   * @throws Exception If an unexpected problem occurs.
    */
   private void testServerSet(final FewestConnectionsServerSet set)
-          throws Exception
+       throws Exception
   {
-    final LinkedList<LDAPConnection> connList1 =
-         new LinkedList<LDAPConnection>();
-    final LinkedList<LDAPConnection> connList2 =
-         new LinkedList<LDAPConnection>();
+    final LinkedList<LDAPConnection> connList1 = new LinkedList<>();
+    final LinkedList<LDAPConnection> connList2 = new LinkedList<>();
 
 
     // Use the server set to create connections.  As long as we hold on to all
     // of the connections, each subsequent connection should go to a different
     // server than the previous connection.
-    for (int i=0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
       final LDAPConnection conn = set.getConnection();
       assertTrue(conn.isConnected());
       assertEquals(conn.getConnectedAddress(), "localhost");
-      if (conn.getConnectedPort() == ds1.getListenPort())
+      switch (getServerNumber(conn))
       {
-        connList1.add(conn);
-      }
-      else
-      {
-        assertEquals(conn.getConnectedPort(), ds2.getListenPort());
-        connList2.add(conn);
+        case 1:
+          connList1.add(conn);
+          break;
+        case 2:
+          connList2.add(conn);
+          break;
       }
     }
 
@@ -232,7 +245,7 @@ public final class FewestConnectionsServerSetTestCase
     // connections.  After the first three are created, then each set should
     // have five connections.  After the last two are created, then each set
     // should have six connections.
-    for (int i=0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
       final LDAPConnection conn = connList1.remove(0);
       conn.close();
@@ -241,28 +254,28 @@ public final class FewestConnectionsServerSetTestCase
     GetEntryLDAPConnectionPoolHealthCheck healthCheck =
          new GetEntryLDAPConnectionPoolHealthCheck("", 1000L, true, true,
               true, true, true);
-    for (int i=0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
       final LDAPConnection conn = set.getConnection(healthCheck);
       assertTrue(conn.isConnected());
       assertEquals(conn.getConnectedAddress(), "localhost");
-      assertEquals(conn.getConnectedPort(), ds1.getListenPort());
+      assertEquals(getServerNumber(conn), 1);
       connList1.add(conn);
     }
 
-    for (int i=0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
       final LDAPConnection conn = set.getConnection(healthCheck);
       assertTrue(conn.isConnected());
       assertEquals(conn.getConnectedAddress(), "localhost");
-      if (conn.getConnectedPort() == ds1.getListenPort())
+      switch (getServerNumber(conn))
       {
-        connList1.add(conn);
-      }
-      else
-      {
-        assertEquals(conn.getConnectedPort(), ds2.getListenPort());
-        connList2.add(conn);
+        case 1:
+          connList1.add(conn);
+          break;
+        case 2:
+          connList2.add(conn);
+          break;
       }
     }
 
@@ -278,12 +291,12 @@ public final class FewestConnectionsServerSetTestCase
     }
     connList2.clear();
 
-    for (int i=0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {
       final LDAPConnection conn = set.getConnection(healthCheck);
       assertTrue(conn.isConnected());
       assertEquals(conn.getConnectedAddress(), "localhost");
-      assertEquals(conn.getConnectedPort(), ds2.getListenPort());
+      assertEquals(getServerNumber(conn), 2);
       connList2.add(conn);
     }
 
@@ -293,28 +306,28 @@ public final class FewestConnectionsServerSetTestCase
 
     // Close all of the connections.  Stop the first server instance and verify
     // that all connections get established to the second set.
-    while (! connList1.isEmpty())
+    while (!connList1.isEmpty())
     {
       final LDAPConnection conn = connList1.remove();
       conn.close();
     }
 
-    while (! connList2.isEmpty())
+    while (!connList2.isEmpty())
     {
       final LDAPConnection conn = connList2.remove();
       conn.close();
     }
 
     ds1.shutDown(true);
-    for (int i=0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
       final LDAPConnection conn = set.getConnection();
       assertTrue(conn.isConnected());
       assertEquals(conn.getConnectedAddress(), "localhost");
-      assertEquals(conn.getConnectedPort(), ds2.getListenPort());
+      assertEquals(getServerNumber(conn), 2);
       connList2.add(conn);
     }
-    while (! connList2.isEmpty())
+    while (!connList2.isEmpty())
     {
       final LDAPConnection conn = connList2.remove();
       conn.close();
@@ -324,7 +337,7 @@ public final class FewestConnectionsServerSetTestCase
     // Stop the second instance.  Then try to create connections with both
     // servers down.
     ds2.shutDown(true);
-    for (int i=0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
       try
       {
@@ -346,7 +359,7 @@ public final class FewestConnectionsServerSetTestCase
     ds2.startListening();
     healthCheck = new GetEntryLDAPConnectionPoolHealthCheck(
          "ou=missing,dc=example,dc=com", 1000L, true, true, true, true, true);
-    for (int i=0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
       try
       {
@@ -359,6 +372,304 @@ public final class FewestConnectionsServerSetTestCase
       {
         assertEquals(le.getResultCode(), ResultCode.SERVER_DOWN);
       }
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the fewest connections server set when no blacklist
+   * will be used.
+   *
+   * @throws Exception If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithoutBlacklist()
+       throws Exception
+  {
+    System.setProperty(
+         FewestConnectionsServerSet.
+              PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS,
+         "0");
+
+    try
+    {
+      final FewestConnectionsServerSet serverSet =
+           new FewestConnectionsServerSet(addresses, ports);
+      assertNull(serverSet.getBlacklistManager());
+
+      testServerSet(serverSet);
+
+
+      // Get two connections with both servers up and verify that they go to
+      // different servers.
+      LDAPConnection conn1 = serverSet.getConnection();
+      LDAPConnection conn2 = serverSet.getConnection();
+      if (getServerNumber(conn1) == 1)
+      {
+        assertEquals(getServerNumber(conn2), 2);
+      }
+      else
+      {
+        assertEquals(getServerNumber(conn2), 1);
+      }
+
+      conn1.close();
+      conn2.close();
+
+
+      // Shut down the first instance.  Get two more connections and verify that
+      // they both go to the second instance.
+      ds1.shutDown(true);
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn1), 2);
+      assertEquals(getServerNumber(conn2), 2);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Shut down the second instance.  Verify that we are unable to get any
+      // more connections.
+      ds2.shutDown(true);
+
+      try
+      {
+        serverSet.getConnection();
+        fail("Expected an exception when trying to get a connection with " +
+             "both servers offline");
+      }
+      catch (final Exception e)
+      {
+        // This was expected.
+      }
+
+
+      // Start up the first instance and get two more connections.  Verify that
+      // they both go to that instance.
+      ds1.startListening();
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn1), 1);
+      assertEquals(getServerNumber(conn2), 1);
+
+
+      // With the two connections still established, start the second instance.
+      // Get four new connections.  Make sure that the first two go to the
+      // second instance, and one of the last two goes to server 1 and the other
+      // to server 2.
+      ds2.startListening();
+
+      final LDAPConnection conn3 = serverSet.getConnection();
+      final LDAPConnection conn4 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn3), 2);
+      assertEquals(getServerNumber(conn4), 2);
+
+      final LDAPConnection conn5 = serverSet.getConnection();
+      final LDAPConnection conn6 = serverSet.getConnection();
+      if (getServerNumber(conn5) == 1)
+      {
+        assertEquals(getServerNumber(conn6), 2);
+      }
+      else
+      {
+        assertEquals(getServerNumber(conn6), 1);
+      }
+
+      conn1.close();
+      conn2.close();
+      conn3.close();
+      conn4.close();
+      conn5.close();
+      conn6.close();
+    }
+    finally
+    {
+      System.clearProperty(
+           FewestConnectionsServerSet.
+                PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the fewest connections server set when the blacklist
+   * property has a non-numeric value.
+   *
+   * @throws Exception If an unexpected problem occurs.
+   */
+  @Test()
+  public void testBlacklistPropertyWithNonNumericValue()
+       throws Exception
+  {
+    System.setProperty(
+         FewestConnectionsServerSet.
+              PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS,
+         "invalid");
+
+    try
+    {
+      final FewestConnectionsServerSet serverSet =
+           new FewestConnectionsServerSet(addresses, ports);
+      assertNotNull(serverSet.getBlacklistManager());
+
+      testServerSet(serverSet);
+
+      // Use the blacklist manager to check the blacklisted servers.  This will
+      // ensure that the blacklist timer is shut down.
+      serverSet.getBlacklistManager().checkBlacklistedServers();
+    }
+    finally
+    {
+      System.clearProperty(
+           FewestConnectionsServerSet.
+                PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the server set when there is a blacklist manager
+   * that will temporarily remember when a server has been blacklisted.
+   *
+   * @throws Exception If an unexpected problem occurs.
+   */
+  @Test()
+  public void testBlacklistMemory()
+       throws Exception
+  {
+    final FewestConnectionsServerSet serverSet =
+         new FewestConnectionsServerSet(addresses, ports);
+    assertNotNull(serverSet.getBlacklistManager());
+
+
+    // Get two connections while both servers are up set and verify that they go
+    // to different servers.
+    LDAPConnection conn1 = serverSet.getConnection();
+    LDAPConnection conn2 = serverSet.getConnection();
+    if (getServerNumber(conn1) == 1)
+    {
+      assertEquals(getServerNumber(conn2), 2);
+    }
+    else
+    {
+      assertEquals(getServerNumber(conn2), 1);
+    }
+
+    conn1.close();
+    conn2.close();
+
+
+    // Stop the first instance and try to get two more connections.  Verify that
+    // they both go to the second instance.
+    ds1.shutDown(true);
+
+    conn1 = serverSet.getConnection();
+    conn2 = serverSet.getConnection();
+    assertEquals(getServerNumber(conn1), 2);
+    assertEquals(getServerNumber(conn2), 2);
+
+    conn1.close();
+    conn2.close();
+
+
+    // Re-start the first instance and try to get two more connections.  The
+    // blacklist should remember that the first server was down, and it's not
+    // been long enough for the blacklist to have checked them again, so the
+    // server set will still assume that it's offline.  Therefore, both
+    // connections should still go to server 2.
+    ds1.startListening();
+
+    conn1 = serverSet.getConnection();
+    conn2 = serverSet.getConnection();
+    assertEquals(getServerNumber(conn1), 2);
+    assertEquals(getServerNumber(conn2), 2);
+
+    conn1.close();
+    conn2.close();
+
+
+    // Stop the second instance and try to get two more connections.  Server
+    // 1 should be blacklisted so it won't be tried initially, but it will be
+    // tried as a fallback when the non-blacklisted server isn't available.
+    ds2.shutDown(true);
+
+    conn1 = serverSet.getConnection();
+    conn2 = serverSet.getConnection();
+    assertEquals(getServerNumber(conn1), 1);
+    assertEquals(getServerNumber(conn2), 1);
+
+    conn1.close();
+    conn2.close();
+
+
+    // Re-start the second instance and make sure that connections still go to
+    // the first instance because of the blacklist.
+    ds2.startListening();
+
+    conn1 = serverSet.getConnection();
+    conn2 = serverSet.getConnection();
+    assertEquals(getServerNumber(conn1), 1);
+    assertEquals(getServerNumber(conn2), 1);
+
+    conn1.close();
+    conn2.close();
+
+
+    // Get the blacklist and force a check, which will make both servers
+    // available again.  Get two more connections and verify that they go to
+    // different servers.
+    serverSet.getBlacklistManager().checkBlacklistedServers();
+
+    conn1 = serverSet.getConnection();
+    conn2 = serverSet.getConnection();
+    if (getServerNumber(conn1) == 1)
+    {
+      assertEquals(getServerNumber(conn2), 2);
+    }
+    else
+    {
+      assertEquals(getServerNumber(conn2), 1);
+    }
+
+    conn1.close();
+    conn2.close();
+  }
+
+
+
+  /**
+   * Determines the server to which the connection is established.
+   *
+   * @param  conn  The connection for which to make the determination.
+   *
+   * @return  1 to indicate that the connection is established to ds1, or 2 to
+   *          indicate that the connection is established to ds2.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  private int getServerNumber(final LDAPConnection conn)
+          throws Exception
+  {
+    final int port = conn.getConnectedPort();
+    if (port == ds1.getListenPort())
+    {
+      return 1;
+    }
+    else if (port == ds2.getListenPort())
+    {
+      return 2;
+    }
+    else
+    {
+      throw new AssertionError("Connected port of '" + port +
+           "' does not match either ds1 port of " + ds1.getListenPort() +
+           "' or ds2 port of '" + ds2.getListenPort() + "'.");
     }
   }
 }

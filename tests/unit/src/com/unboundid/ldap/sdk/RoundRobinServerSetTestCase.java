@@ -26,6 +26,7 @@ import javax.net.SocketFactory;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.util.LDAPSDKUsageException;
 
 
@@ -60,6 +61,10 @@ public class RoundRobinServerSetTestCase
 
     assertNotNull(serverSet.getConnectionOptions());
 
+    assertFalse(serverSet.includesAuthentication());
+
+    assertFalse(serverSet.includesPostConnectProcessing());
+
     assertNotNull(serverSet.toString());
   }
 
@@ -88,6 +93,10 @@ public class RoundRobinServerSetTestCase
     assertNotNull(serverSet.getSocketFactory());
 
     assertNotNull(serverSet.getConnectionOptions());
+
+    assertFalse(serverSet.includesAuthentication());
+
+    assertFalse(serverSet.includesPostConnectProcessing());
 
     assertNotNull(serverSet.toString());
   }
@@ -165,6 +174,10 @@ public class RoundRobinServerSetTestCase
 
     assertNotNull(serverSet.getConnectionOptions());
 
+    assertFalse(serverSet.includesAuthentication());
+
+    assertFalse(serverSet.includesPostConnectProcessing());
+
     assertNotNull(serverSet.toString());
   }
 
@@ -195,6 +208,10 @@ public class RoundRobinServerSetTestCase
 
     assertNotNull(serverSet.getConnectionOptions());
 
+    assertFalse(serverSet.includesAuthentication());
+
+    assertFalse(serverSet.includesPostConnectProcessing());
+
     assertNotNull(serverSet.toString());
   }
 
@@ -224,6 +241,10 @@ public class RoundRobinServerSetTestCase
     assertNotNull(serverSet.getSocketFactory());
 
     assertNotNull(serverSet.getConnectionOptions());
+
+    assertFalse(serverSet.includesAuthentication());
+
+    assertFalse(serverSet.includesPostConnectProcessing());
 
     assertNotNull(serverSet.toString());
   }
@@ -401,7 +422,7 @@ public class RoundRobinServerSetTestCase
       return;
     }
 
-    //   Surely no one would try to run a server on port 2.
+    // Surely no one would try to run a server on port 2.
     String[] addresses = { getTestHost(), getTestHost() };
     int[]    ports     = { 2, getTestPort() };
 
@@ -437,11 +458,358 @@ public class RoundRobinServerSetTestCase
   public void testGetConnectionFailure()
          throws Exception
   {
-    //   Surely no one would try to run a server on port 2.
+    // Surely no one would try to run a server on port 2.
     String[] addresses = { "127.0.0.1", "127.0.0.1" };
     int[]    ports     = { 2, 2 };
 
     RoundRobinServerSet serverSet = new RoundRobinServerSet(addresses, ports);
     serverSet.getConnection();
+  }
+
+
+
+  /**
+   * Tests the behavior of the round robin server set when no blacklist will be
+   * used.
+   *
+   * @throws Exception If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithoutBlacklist()
+       throws Exception
+  {
+    final InMemoryDirectoryServer ds1 =
+         new InMemoryDirectoryServer("dc=example,dc=com");
+    ds1.startListening();
+
+    final InMemoryDirectoryServer ds2 =
+         new InMemoryDirectoryServer("dc=example,dc=com");
+    ds2.startListening();
+
+    final String[] addresses = { "localhost", "localhost" };
+    final int[] ports = { ds1.getListenPort(), ds2.getListenPort() };
+
+    System.setProperty(
+         RoundRobinServerSet.
+              PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS,
+         "0");
+
+    try
+    {
+      final RoundRobinServerSet serverSet =
+           new RoundRobinServerSet(addresses, ports);
+      assertNull(serverSet.getBlacklistManager());
+
+
+      // Get two connections with both servers up and verify that the first
+      // goes to ds1 and the second to ds2.
+      LDAPConnection conn1 = serverSet.getConnection();
+      LDAPConnection conn2 = serverSet.getConnection();
+
+      assertEquals(getServerNumber(conn1, ds1, ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 2);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Shut down the first instance.  Get two more connections and verify that
+      // they both go to the second instance.
+      ds1.shutDown(true);
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn1, ds1,ds2), 2);
+      assertEquals(getServerNumber(conn2, ds1,ds2), 2);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Shut down the second instance.  Verify that we are unable to get any
+      // more connections.
+      ds2.shutDown(true);
+
+      try
+      {
+        serverSet.getConnection();
+        fail("Expected an exception when trying to get a connection with " +
+             "both servers offline");
+      }
+      catch (final Exception e)
+      {
+        // This was expected.
+      }
+
+
+      // Start up the first instance and get two more connections.  Verify that
+      // they both go to that instance.
+      ds1.startListening();
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+
+      assertEquals(getServerNumber(conn1, ds1,ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1,ds2), 1);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Start up the second instance again.  Try to get two more connections
+      // and verify that they go to the second and first instances,
+      // respectively.
+      ds2.startListening();
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+
+      assertEquals(getServerNumber(conn1, ds1,ds2), 2);
+      assertEquals(getServerNumber(conn2, ds1,ds2), 1);
+
+      conn1.close();
+      conn2.close();
+    }
+    finally
+    {
+      System.clearProperty(
+           FewestConnectionsServerSet.
+                PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
+
+      ds1.shutDown(true);
+      ds2.shutDown(true);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the fewest connections server set when the blacklist
+   * property has a non-numeric value.
+   *
+   * @throws Exception If an unexpected problem occurs.
+   */
+  @Test()
+  public void testBlacklistPropertyWithNonNumericValue()
+       throws Exception
+  {
+    final InMemoryDirectoryServer ds1 =
+         new InMemoryDirectoryServer("dc=example,dc=com");
+    ds1.startListening();
+
+    final InMemoryDirectoryServer ds2 =
+         new InMemoryDirectoryServer("dc=example,dc=com");
+    ds2.startListening();
+
+    final String[] addresses = { "localhost", "localhost" };
+    final int[] ports = { ds1.getListenPort(), ds2.getListenPort() };
+
+    System.setProperty(
+         RoundRobinServerSet.
+              PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS,
+         "invalid");
+
+    try
+    {
+      final RoundRobinServerSet serverSet =
+           new RoundRobinServerSet(addresses, ports);
+      assertNotNull(serverSet.getBlacklistManager());
+    }
+    finally
+    {
+      System.clearProperty(
+           FewestConnectionsServerSet.
+                PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the round robin server set when a blacklist will be
+   * used and will remember when a server has been blacklisted.
+   *
+   * @throws Exception If an unexpected problem occurs.
+   */
+  @Test()
+  public void testBlacklistMemory()
+       throws Exception
+  {
+    final InMemoryDirectoryServer ds1 =
+         new InMemoryDirectoryServer("dc=example,dc=com");
+    ds1.startListening();
+
+    final InMemoryDirectoryServer ds2 =
+         new InMemoryDirectoryServer("dc=example,dc=com");
+    ds2.startListening();
+
+    final String[] addresses = { "localhost", "localhost" };
+    final int[] ports = { ds1.getListenPort(), ds2.getListenPort() };
+
+    try
+    {
+      final RoundRobinServerSet serverSet =
+           new RoundRobinServerSet(addresses, ports);
+      assertNotNull(serverSet.getBlacklistManager());
+
+
+      // Get two connections with both servers up and verify that the first
+      // goes to ds1 and the second to ds2.
+      LDAPConnection conn1 = serverSet.getConnection();
+      LDAPConnection conn2 = serverSet.getConnection();
+
+      assertEquals(getServerNumber(conn1, ds1, ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1, ds2), 2);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Shut down the first instance.  Get two more connections and verify that
+      // they both go to the second instance.
+      ds1.shutDown(true);
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn1, ds1,ds2), 2);
+      assertEquals(getServerNumber(conn2, ds1,ds2), 2);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Re-start the first instance.  But the blacklist will remember that it's
+      // up and will not have had enough time to check the its availability,
+      // so both connections will still go to server 2.
+      ds1.startListening();
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn1, ds1,ds2), 2);
+      assertEquals(getServerNumber(conn2, ds1,ds2), 2);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Shut down the second instance and try to get two more connections.
+      // The server set will think that 2 is available and 1 is not, but when it
+      // actually tries, it will find the opposite  is true.  As such, both
+      // connections should go to the first instance.
+      ds2.shutDown(true);
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn1, ds1,ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1,ds2), 1);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Re-start the second instance.  Because of the blacklist, new
+      // connections should still go to the first instance.
+      ds2.startListening();
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn1, ds1,ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1,ds2), 1);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Have the blacklist check availability, which will cause it to see that
+      // both servers are usable.  When we get two new connections, the first
+      // should go to ds1 and the second to ds2.
+      serverSet.getBlacklistManager().checkBlacklistedServers();
+
+      conn1 = serverSet.getConnection();
+      conn2 = serverSet.getConnection();
+      assertEquals(getServerNumber(conn1, ds1,ds2), 1);
+      assertEquals(getServerNumber(conn2, ds1,ds2), 2);
+
+      conn1.close();
+      conn2.close();
+
+
+      // Shut down both instances and try to get a connection.  Verify that it
+      // fails.  Try to get two connections so that the blacklist will empty
+      // on the first attempt but non-empty on the second.
+      ds1.shutDown(true);
+      ds2.shutDown(true);
+
+      try
+      {
+        serverSet.getConnection();
+        fail("Expected an exception when trying to get a connection when " +
+             "both servers are offline.");
+      }
+      catch (final Exception e)
+      {
+        // This was expected.
+      }
+
+      try
+      {
+        serverSet.getConnection();
+        fail("Expected an exception when trying to get a connection when " +
+             "both servers are offline.");
+      }
+      catch (final Exception e)
+      {
+        // This was expected.
+      }
+
+
+      // Start the instances and check availability to ensure the background
+      // timer thread gets shut down.
+      ds1.startListening();
+      ds2.startListening();
+
+      serverSet.getBlacklistManager().checkBlacklistedServers();
+    }
+    finally
+    {
+      ds1.shutDown(true);
+      ds2.shutDown(true);
+    }
+  }
+
+
+
+  /**
+   * Determines the server to which the connection is established.
+   *
+   * @param  conn  The connection for which to make the determination.
+   * @param  ds1   The first directory server instance.
+   * @param  ds2   The second directory server instance.
+   *
+   * @return  1 to indicate that the connection is established to ds1, or 2 to
+   *          indicate that the connection is established to ds2.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  private int getServerNumber(final LDAPConnection conn,
+                              final InMemoryDirectoryServer ds1,
+                              final InMemoryDirectoryServer ds2)
+          throws Exception
+  {
+    final int port = conn.getConnectedPort();
+    if (port == ds1.getListenPort())
+    {
+      return 1;
+    }
+    else if (port == ds2.getListenPort())
+    {
+      return 2;
+    }
+    else
+    {
+      throw new AssertionError("Connected port of '" + port +
+           "' does not match either ds1 port of " + ds1.getListenPort() +
+           "' or ds2 port of '" + ds2.getListenPort() + "'.");
+    }
   }
 }

@@ -22,11 +22,15 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -41,6 +45,16 @@ import com.unboundid.util.Validator;
  * circling back to the beginning of the list as necessary.  If a server is
  * unavailable when an attempt is made to establish a connection to it, then
  * the connection will be established to the next available server in the set.
+ * <BR><BR>
+ * This server set implementation has the ability to maintain a temporary
+ * blacklist of servers that have been recently found to be unavailable or
+ * unsuitable for use.  If an attempt to establish or authenticate a
+ * connection fails, if post-connect processing fails for that connection, or if
+ * health checking indicates that the connection is not suitable, then that
+ * server may be placed on the blacklist so that it will only be tried as a last
+ * resort after all non-blacklisted servers have been attempted.  The blacklist
+ * will be checked at regular intervals to determine whether a server should be
+ * re-instated to availability.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for creating a round-robin
@@ -85,6 +99,16 @@ import com.unboundid.util.Validator;
 public final class RoundRobinServerSet
        extends ServerSet
 {
+  /**
+   * The name of a system property that can be used to override the default
+   * blacklist check interval, in milliseconds.
+   */
+  static final String PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS =
+       RoundRobinServerSet.class.getName() +
+            ".defaultBlacklistCheckIntervalMillis";
+
+
+
   // A counter used to determine the next slot that should be used.
   private final AtomicLong nextSlot;
 
@@ -101,6 +125,9 @@ public final class RoundRobinServerSet
   // The post-connect processor to invoke against connections created by this
   // server set.
   private final PostConnectProcessor postConnectProcessor;
+
+  // The blacklist manager for this server set.
+  private final ServerSetBlacklistManager blacklistManager;
 
   // The socket factory to use to establish connections.
   private final SocketFactory socketFactory;
@@ -234,11 +261,11 @@ public final class RoundRobinServerSet
    * @param  connectionOptions     The set of connection options to use for the
    *                               underlying connections.
    * @param  bindRequest           The bind request that should be used to
-   *                               authenticate newly-established connections.
+   *                               authenticate newly established connections.
    *                               It may be {@code null} if this server set
    *                               should not perform any authentication.
    * @param  postConnectProcessor  The post-connect processor that should be
-   *                               invoked on newly-established connections.  It
+   *                               invoked on newly established connections.  It
    *                               may be {@code null} if this server set should
    *                               not perform any post-connect processing.
    */
@@ -247,6 +274,60 @@ public final class RoundRobinServerSet
                              final LDAPConnectionOptions connectionOptions,
                              final BindRequest bindRequest,
                              final PostConnectProcessor postConnectProcessor)
+  {
+    this(addresses, ports, socketFactory, connectionOptions, bindRequest,
+         postConnectProcessor, getDefaultBlacklistCheckIntervalMillis());
+  }
+
+
+
+  /**
+   * Creates a new round robin server set with the specified set of directory
+   * server addresses and port numbers.  It will use the provided socket factory
+   * to create the underlying sockets.
+   *
+   * @param  addresses                     The addresses of the directory
+   *                                       servers to which the connections
+   *                                       should be established.  It must not
+   *                                       be {@code null} or empty.
+   * @param  ports                         The ports of the directory servers to
+   *                                       which the connections should be
+   *                                       established.  It must not be
+   *                                       {@code null}, and it must have the
+   *                                       same number of elements as the
+   *                                       {@code addresses} array.  The order
+   *                                       of elements in the {@code addresses}
+   *                                       array must correspond to the order of
+   *                                       elements in the {@code ports} array.
+   * @param  socketFactory                 The socket factory to use to create
+   *                                       the underlying connections.
+   * @param  connectionOptions             The set of connection options to use
+   *                                       for the underlying connections.
+   * @param  bindRequest                   The bind request that should be used
+   *                                       to authenticate newly established
+   *                                       connections.  It may be {@code null}
+   *                                       if this server set should not perform
+   *                                       any authentication.
+   * @param  postConnectProcessor          The post-connect processor that
+   *                                       should be invoked on newly
+   *                                       established connections.  It may be
+   *                                       {@code null} if this server set
+   *                                       should not perform any post-connect
+   *                                       processing.
+   * @param  blacklistCheckIntervalMillis  The length of time in milliseconds
+   *                                       between checks of servers on the
+   *                                       blacklist to determine whether they
+   *                                       are once again suitable for use.  A
+   *                                       value that is less than or equal to
+   *                                       zero indicates that no blacklist
+   *                                       should be maintained.
+   */
+  public RoundRobinServerSet(final String[] addresses, final int[] ports,
+                             final SocketFactory socketFactory,
+                             final LDAPConnectionOptions connectionOptions,
+                             final BindRequest bindRequest,
+                             final PostConnectProcessor postConnectProcessor,
+                             final long blacklistCheckIntervalMillis)
   {
     Validator.ensureNotNull(addresses, ports);
     Validator.ensureTrue(addresses.length > 0,
@@ -279,6 +360,45 @@ public final class RoundRobinServerSet
     }
 
     nextSlot = new AtomicLong(0L);
+
+    if (blacklistCheckIntervalMillis > 0L)
+    {
+      blacklistManager = new ServerSetBlacklistManager(this, socketFactory,
+           connectionOptions, bindRequest, postConnectProcessor,
+           blacklistCheckIntervalMillis);
+    }
+    else
+    {
+      blacklistManager = null;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the default blacklist check interval (in milliseconds that should
+   * be used if it is not specified.
+   *
+   * @return  The default blacklist check interval (in milliseconds that should
+   *          be used if it is not specified.
+   */
+  private static long getDefaultBlacklistCheckIntervalMillis()
+  {
+    final String propertyValue = StaticUtils.getSystemProperty(
+         PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
+    if (propertyValue != null)
+    {
+      try
+      {
+        return Long.parseLong(propertyValue);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    return 30_000L;
   }
 
 
@@ -383,9 +503,23 @@ public final class RoundRobinServerSet
          (int) (nextSlot.getAndIncrement() %  addresses.length);
 
     LDAPException lastException = null;
+    List<ObjectPair<String,Integer>> blacklistedServers = null;
     for (int i=0; i < addresses.length; i++)
     {
       final int slotNumber = ((initialSlotNumber + i) % addresses.length);
+      final String address = addresses[slotNumber];
+      final int port = ports[slotNumber];
+      if ((blacklistManager != null) &&
+           blacklistManager.isBlacklisted(address, port))
+      {
+        if (blacklistedServers == null)
+        {
+          blacklistedServers = new ArrayList<>(addresses.length);
+        }
+
+        blacklistedServers.add(new ObjectPair<>(address, port));
+        continue;
+      }
 
       try
       {
@@ -400,12 +534,56 @@ public final class RoundRobinServerSet
       {
         Debug.debugException(e);
         lastException = e;
+        if (blacklistManager != null)
+        {
+          blacklistManager.addToBlacklist(address, port, healthCheck);
+        }
       }
     }
+
+
+    // If we've gotten here, then we couldn't get a connection from a
+    // non-blacklisted server.  If there were any blacklisted servers, then try
+    // them as a last resort.
+    if (blacklistedServers != null)
+    {
+      for (final ObjectPair<String,Integer> hostPort : blacklistedServers)
+      {
+        try
+        {
+          final LDAPConnection c = new LDAPConnection(socketFactory,
+               connectionOptions, hostPort.getFirst(), hostPort.getSecond());
+          doBindPostConnectAndHealthCheckProcessing(c, bindRequest,
+               postConnectProcessor, healthCheck);
+          associateConnectionWithThisServerSet(c);
+          blacklistManager.removeFromBlacklist(hostPort);
+          return c;
+        }
+        catch (final LDAPException e)
+        {
+          Debug.debugException(e);
+          lastException = e;
+        }
+      }
+    }
+
 
     // If we've gotten here, then we've failed to connect to any of the servers,
     // so propagate the last exception to the caller.
     throw lastException;
+  }
+
+
+
+  /**
+   * Retrieves the blacklist manager for this server set.
+   *
+   * @return  The blacklist manager for this server set, or {@code null} if no
+   *          blacklist will be maintained.
+   */
+  ServerSetBlacklistManager getBlacklistManager()
+  {
+    return blacklistManager;
   }
 
 

@@ -104,6 +104,20 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the round-robin and fewest connections server sets so that they can
+                  temporarily blacklist a server that was found to be offline.  If an attempt to
+                  create a connection to a server fails, or if that connection is found to be
+                  unacceptable for some reason (e.g., it does not pass the associated health
+                  check), subsequent connection attempts will avoid that server until a background
+                  thread determines that it is available again.  Blacklisted servers will still be
+                  tried as a last resort if it is not possible to get an acceptable connection to
+                  a non-blacklisted server.  These server sets now use the blacklist by default,
+                  but that can be disabled programmatically through the constructor or by setting
+                  a system property before creating the server set.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new indent-ldap-filter command-line tool that can help make it easier to
                   visualize complex filters with a lot of components, and especially a lot of
                   nesting.  If possible, it can also try to simplify the filter (for example, to
