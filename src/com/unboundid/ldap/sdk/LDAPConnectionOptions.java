@@ -1089,22 +1089,29 @@ public final class LDAPConnectionOptions
 
 
   /**
+   * The name of a system property that can be used to specify the default value
+   * for the "allow concurrent socket factory use" behavior.  If this property
+   * is set at the time that this class is loaded, then its value must be
+   * either "true" or "false".  If this property is not set, then a default
+   * value of "true" will be assumed.
+   * <BR><BR>
+   * The full name for this system property is "com.unboundid.ldap.sdk.
+   * LDAPConnectionOptions.defaultAllowConcurrentSocketFactoryUse".
+   */
+  public static final String
+       PROPERTY_DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE =
+            PROPERTY_PREFIX + "defaultAllowConcurrentSocketFactoryUse";
+
+
+
+  /**
    * The default value for the setting that controls the default behavior with
    * regard to whether to allow concurrent use of a socket factory to create
    * client connections.
    */
-  private static final boolean DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE;
-  static
-  {
-    final String vmVendor = StaticUtils.toLowerCase(
-         StaticUtils.getSystemProperty("java.vm.vendor"));
-    DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE = ((vmVendor != null) &&
-         (vmVendor.contains("sun microsystems") ||
-          vmVendor.contains("oracle") ||
-          vmVendor.contains("amazon") ||
-          vmVendor.contains("apple") ||
-          vmVendor.contains("azul")));
-  }
+  private static final boolean DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE =
+       getSystemProperty(PROPERTY_DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE,
+            true);
 
 
 

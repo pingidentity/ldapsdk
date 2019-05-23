@@ -60,7 +60,6 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.LDAPSDKUsageException;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.SynchronizedSocketFactory;
 import com.unboundid.util.SynchronizedSSLSocketFactory;
 import com.unboundid.util.ssl.HostNameSSLSocketVerifier;
@@ -155,20 +154,7 @@ public class LDAPConnectionOptionsTestCase
            300_000L);
     }
 
-    final String vmVendor =
-         StaticUtils.toLowerCase(System.getProperty("java.vm.vendor"));
-    if (vmVendor.contains("sun microsystems") ||
-        vmVendor.contains("oracle") ||
-        vmVendor.contains("amazon") ||
-        vmVendor.contains("apple") ||
-        vmVendor.contains("azul"))
-    {
-      assertTrue(opts.allowConcurrentSocketFactoryUse());
-    }
-    else
-    {
-      assertFalse(opts.allowConcurrentSocketFactoryUse());
-    }
+    assertTrue(opts.allowConcurrentSocketFactoryUse());
 
     assertNotNull(opts.getSSLSocketVerifier());
     assertTrue(
