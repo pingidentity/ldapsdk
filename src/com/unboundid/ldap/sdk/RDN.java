@@ -1336,7 +1336,7 @@ valueLoop:
    *
    * @return  A sorted set of the name-value pairs that comprise this RDN.
    */
-  SortedSet<RDNNameValuePair> getNameValuePairs()
+  public SortedSet<RDNNameValuePair> getNameValuePairs()
   {
     if (nameValuePairs == null)
     {
