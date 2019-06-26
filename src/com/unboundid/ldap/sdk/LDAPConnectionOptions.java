@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -1064,10 +1065,26 @@ public final class LDAPConnectionOptions
     NameResolver defaultNameResolver = DefaultNameResolver.getInstance();
     try
     {
-      final Class<?> nrClass = Class.forName(
-           "com.unboundid.directory.server.util.OutageSafeDnsCache");
-      final Method getNameResolverMethod = nrClass.getMethod("getNameResolver");
-      defaultNameResolver = (NameResolver) getNameResolverMethod.invoke(null);
+      if ((StaticUtils.getSystemProperty(
+           "com.unboundid.directory.server.ServerRoot") != null) ||
+           (StaticUtils.getEnvironmentVariable("INSTANCE_ROOT") != null))
+      {
+        final Class<?> nrClass = Class.forName(
+             "com.unboundid.directory.server.util.OutageSafeDnsCache");
+        final Method getNameResolverMethod =
+             nrClass.getMethod("getNameResolver");
+        final NameResolver nameResolver =
+             (NameResolver) getNameResolverMethod.invoke(null);
+
+        final InetAddress localHostAddress = nameResolver.getLocalHost();
+        if (localHostAddress != null)
+        {
+          if (nameResolver.getByName(localHostAddress.getHostAddress()) != null)
+          {
+            defaultNameResolver = nameResolver;
+          }
+        }
+      }
     }
     catch (final Throwable t)
     {
