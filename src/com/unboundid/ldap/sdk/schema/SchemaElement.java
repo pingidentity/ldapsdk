@@ -174,14 +174,14 @@ public abstract class SchemaElement
           b = (byte) 0xF0;
           break;
         default:
-          throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+          throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
                                   ERR_SCHEMA_ELEM_INVALID_HEX_CHAR.get(s,
                                        s.charAt(pos-1), (pos-1)));
       }
 
       if (pos >= length)
       {
-        throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+        throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
                                 ERR_SCHEMA_ELEM_MISSING_HEX_CHAR.get(s));
       }
 
@@ -242,7 +242,7 @@ public abstract class SchemaElement
           byteBuffer.put((byte) (b | 0x0F));
           break;
         default:
-          throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+          throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
                                   ERR_SCHEMA_ELEM_INVALID_HEX_CHAR.get(s,
                                        s.charAt(pos-1), (pos-1)));
       }
