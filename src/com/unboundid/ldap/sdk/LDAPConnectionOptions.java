@@ -1069,12 +1069,20 @@ public final class LDAPConnectionOptions
       final Method getNameResolverMethod = nrClass.getMethod("getNameResolver");
       defaultNameResolver = (NameResolver) getNameResolverMethod.invoke(null);
     }
-    catch (final Exception e)
+    catch (final Throwable t)
     {
-      // This is fine.  It just means that we're not running with access to the
-      // server codebase (or a version of the server codebase that supports the
-      // LDAP SDK's name resolver API).
-      Debug.debugException(Level.FINEST, e);
+      // This is probably fine.  It just means that we're not running with
+      // access to the server codebase (or a version of the server codebase that
+      // supports the LDAP SDK's name resolver API), or without the appropriate
+      // setup in place (e.g., knowledge of the server root).  In this case,
+      // we'll just use the LDAP SDK's default resolver.
+      //
+      // Note that we intentionally catch Throwable in this case rather than
+      // just Exception because even if the server code is available, there
+      // may be an unexpected Error thrown (e.g., NoClassDefFound or
+      // ExceptionInInitializerError) under certain circumstances, like if the
+      // server's name resolver code cannot identify the server root.
+      Debug.debugException(Level.FINEST, t);
     }
 
 
