@@ -20,6 +20,17 @@ ${TARGET="offline"}                <br>
                   appropriate INVALID_ATTRIBUTE_SYNTAX result code.
                   <br><br>
                 </li>
+
+                <li>
+                  Fixed an issue in the persistence framework logic used to create LDAP attributes
+                  from Java objects.  While it was intended to select an appropriate matching rule
+                  from the corresponding Java data type, this code was only used when generating
+                  attribute type definitions to be added to the server schema, and the attribute
+                  objects created by the persistence framework always used a default matching rule
+                  intended for case-insensitive strings.  The created attributes now use a
+                  matching rule selected from the corresponding Java data type.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

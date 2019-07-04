@@ -50,10 +50,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.matchingrules.BooleanMatchingRule;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
+import com.unboundid.ldap.matchingrules.GeneralizedTimeMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
+import com.unboundid.ldap.matchingrules.OctetStringMatchingRule;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
@@ -709,7 +713,10 @@ public final class DefaultObjectEncoder
         c.equals(LDAPURL.class) ||
         c.equals(RDN.class))
     {
-      return new Attribute(name, String.valueOf(value));
+      final String syntaxOID = getSyntaxOID(c);
+      final MatchingRule matchingRule =
+           MatchingRule.selectMatchingRuleForSyntax(syntaxOID);
+      return new Attribute(name, matchingRule, String.valueOf(value));
     }
     else if (value instanceof URI)
     {
@@ -723,7 +730,8 @@ public final class DefaultObjectEncoder
     }
     else if (value instanceof byte[])
     {
-      return new Attribute(name, (byte[]) value);
+      return new Attribute(name, OctetStringMatchingRule.getInstance(),
+           (byte[]) value);
     }
     else if (value instanceof char[])
     {
@@ -732,19 +740,21 @@ public final class DefaultObjectEncoder
     else if (c.equals(Boolean.class) || c.equals(Boolean.TYPE))
     {
       final Boolean b = (Boolean) value;
+      final MatchingRule matchingRule = BooleanMatchingRule.getInstance();
       if (b)
       {
-        return new Attribute(name, "TRUE");
+        return new Attribute(name, matchingRule, "TRUE");
       }
       else
       {
-        return new Attribute(name, "FALSE");
+        return new Attribute(name, matchingRule, "FALSE");
       }
     }
     else if (c.equals(Date.class))
     {
       final Date d = (Date) value;
-      return new Attribute(name, StaticUtils.encodeGeneralizedTime(d));
+      return new Attribute(name, GeneralizedTimeMatchingRule.getInstance(),
+           StaticUtils.encodeGeneralizedTime(d));
     }
     else if (typeInfo.isArray())
     {
@@ -768,7 +778,8 @@ public final class DefaultObjectEncoder
         final ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(value);
         oos.close();
-        return new Attribute(name, baos.toByteArray());
+        return new Attribute(name, OctetStringMatchingRule.getInstance(),
+             baos.toByteArray());
       }
       catch (final Exception e)
       {
@@ -805,6 +816,7 @@ public final class DefaultObjectEncoder
   {
     final ASN1OctetString[] values =
          new ASN1OctetString[Array.getLength(arrayObject)];
+    final AtomicReference<MatchingRule> matchingRule = new AtomicReference<>();
     for (int i=0; i < values.length; i++)
     {
       final Object o = Array.get(arrayObject, i);
@@ -831,6 +843,12 @@ public final class DefaultObjectEncoder
           arrayType.equals(LDAPURL.class) ||
           arrayType.equals(RDN.class))
       {
+        if (matchingRule.get() == null)
+        {
+          final String syntaxOID = getSyntaxOID(arrayType);
+          matchingRule.set(MatchingRule.selectMatchingRuleForSyntax(syntaxOID));
+        }
+
         values[i] = new ASN1OctetString(String.valueOf(o));
       }
       else if (arrayType.equals(URI.class))
@@ -845,6 +863,7 @@ public final class DefaultObjectEncoder
       }
       else if (o instanceof byte[])
       {
+        matchingRule.compareAndSet(null, OctetStringMatchingRule.getInstance());
         values[i] = new ASN1OctetString((byte[]) o);
       }
       else if (o instanceof char[])
@@ -854,6 +873,8 @@ public final class DefaultObjectEncoder
       else if (arrayType.equals(Boolean.class) ||
                arrayType.equals(Boolean.TYPE))
       {
+        matchingRule.compareAndSet(null, BooleanMatchingRule.getInstance());
+
         final Boolean b = (Boolean) o;
         if (b)
         {
@@ -866,6 +887,9 @@ public final class DefaultObjectEncoder
       }
       else if (arrayType.equals(Date.class))
       {
+        matchingRule.compareAndSet(null,
+             GeneralizedTimeMatchingRule.getInstance());
+
         final Date d = (Date) o;
         values[i] = new ASN1OctetString(StaticUtils.encodeGeneralizedTime(d));
       }
@@ -876,6 +900,8 @@ public final class DefaultObjectEncoder
       }
       else if (Serializable.class.isAssignableFrom(arrayType))
       {
+        matchingRule.compareAndSet(null, OctetStringMatchingRule.getInstance());
+
         try
         {
           final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -900,8 +926,9 @@ public final class DefaultObjectEncoder
       }
     }
 
-    return new Attribute(attributeName,
-         CaseIgnoreStringMatchingRule.getInstance(), values);
+    matchingRule.compareAndSet(null,
+         CaseIgnoreStringMatchingRule.getInstance());
+    return new Attribute(attributeName, matchingRule.get(), values);
   }
 
 
@@ -924,6 +951,7 @@ public final class DefaultObjectEncoder
           throws LDAPPersistException
   {
     final ASN1OctetString[] values = new ASN1OctetString[collection.size()];
+    final AtomicReference<MatchingRule> matchingRule = new AtomicReference<>();
 
     int i=0;
     for (final Object o : collection)
@@ -951,6 +979,12 @@ public final class DefaultObjectEncoder
           genericType.equals(LDAPURL.class) ||
           genericType.equals(RDN.class))
       {
+        if (matchingRule.get() == null)
+        {
+          final String syntaxOID = getSyntaxOID(genericType);
+          matchingRule.set(MatchingRule.selectMatchingRuleForSyntax(syntaxOID));
+        }
+
         values[i] = new ASN1OctetString(String.valueOf(o));
       }
       else if (genericType.equals(URI.class))
@@ -965,6 +999,7 @@ public final class DefaultObjectEncoder
       }
       else if (o instanceof byte[])
       {
+        matchingRule.compareAndSet(null, OctetStringMatchingRule.getInstance());
         values[i] = new ASN1OctetString((byte[]) o);
       }
       else if (o instanceof char[])
@@ -974,6 +1009,8 @@ public final class DefaultObjectEncoder
       else if (genericType.equals(Boolean.class) ||
                genericType.equals(Boolean.TYPE))
       {
+        matchingRule.compareAndSet(null, BooleanMatchingRule.getInstance());
+
         final Boolean b = (Boolean) o;
         if (b)
         {
@@ -986,6 +1023,9 @@ public final class DefaultObjectEncoder
       }
       else if (genericType.equals(Date.class))
       {
+        matchingRule.compareAndSet(null,
+             GeneralizedTimeMatchingRule.getInstance());
+
         final Date d = (Date) o;
         values[i] = new ASN1OctetString(StaticUtils.encodeGeneralizedTime(d));
       }
@@ -996,6 +1036,8 @@ public final class DefaultObjectEncoder
       }
       else if (Serializable.class.isAssignableFrom(genericType))
       {
+        matchingRule.compareAndSet(null, OctetStringMatchingRule.getInstance());
+
         try
         {
           final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1022,8 +1064,9 @@ public final class DefaultObjectEncoder
       i++;
     }
 
-    return new Attribute(attributeName,
-         CaseIgnoreStringMatchingRule.getInstance(), values);
+    matchingRule.compareAndSet(null,
+         CaseIgnoreStringMatchingRule.getInstance());
+    return new Attribute(attributeName, matchingRule.get(), values);
   }
 
 
