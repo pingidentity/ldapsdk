@@ -1829,6 +1829,26 @@ public final class ArgumentParser
 
 
   /**
+   * Resets this argument parser so that it appears as if it had not been used
+   * to parse any command-line arguments.
+   */
+  void reset()
+  {
+    selectedSubCommand = null;
+
+    for (final Argument a : namedArgs)
+    {
+      a.reset();
+    }
+
+    propertiesFileUsed = null;
+    argumentsSetFromPropertiesFile.clear();
+    trailingArgs.clear();
+  }
+
+
+
+  /**
    * Clears the set of trailing arguments for this argument parser.
    */
   void resetTrailingArguments()

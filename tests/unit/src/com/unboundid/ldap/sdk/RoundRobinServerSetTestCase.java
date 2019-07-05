@@ -572,9 +572,8 @@ public class RoundRobinServerSetTestCase
     }
     finally
     {
-      System.clearProperty(
-           FewestConnectionsServerSet.
-                PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
+      System.clearProperty(RoundRobinServerSet.
+           PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
 
       ds1.shutDown(true);
       ds2.shutDown(true);
@@ -584,7 +583,7 @@ public class RoundRobinServerSetTestCase
 
 
   /**
-   * Tests the behavior of the fewest connections server set when the blacklist
+   * Tests the behavior of the round-robin server set when the blacklist
    * property has a non-numeric value.
    *
    * @throws Exception If an unexpected problem occurs.
@@ -617,9 +616,8 @@ public class RoundRobinServerSetTestCase
     }
     finally
     {
-      System.clearProperty(
-           FewestConnectionsServerSet.
-                PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
+      System.clearProperty(RoundRobinServerSet.
+           PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
     }
   }
 

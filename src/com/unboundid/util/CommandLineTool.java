@@ -42,6 +42,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentHelper;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
@@ -323,12 +324,22 @@ public abstract class CommandLineTool
              (parser.getArgumentsSetFromPropertiesFile().isEmpty() ||
                   exceptionFromParsingWithNoArgumentsExplicitlyProvided)))
         {
-          final CommandLineToolInteractiveModeProcessor interactiveProcessor =
-               new CommandLineToolInteractiveModeProcessor(this, parser);
           try
           {
-            interactiveProcessor.doInteractiveModeProcessing();
-            extendedValidationDone = true;
+            final List<String> interactiveArgs =
+                 requestToolArgumentsInteractively(parser);
+            if (interactiveArgs == null)
+            {
+              final CommandLineToolInteractiveModeProcessor processor =
+                   new CommandLineToolInteractiveModeProcessor(this, parser);
+              processor.doInteractiveModeProcessing();
+              extendedValidationDone = true;
+            }
+            else
+            {
+              ArgumentHelper.reset(parser);
+              parser.parse(StaticUtils.toArray(interactiveArgs, String.class));
+            }
           }
           catch (final LDAPException le)
           {
@@ -961,6 +972,46 @@ public abstract class CommandLineTool
   public boolean defaultsToInteractiveMode()
   {
     return false;
+  }
+
+
+
+  /**
+   * Interactively prompts the user for information needed to invoke this tool
+   * and returns an appropriate list of arguments that should be used to run it.
+   * <BR><BR>
+   * This method will only be invoked if {@link #supportsInteractiveMode()}
+   * returns {@code true}, and if one of the following conditions is satisfied:
+   * <UL>
+   *   <LI>The {@code --interactive} argument is explicitly provided on the
+   *       command line.</LI>
+   *   <LI>The tool was invoked without any command-line arguments and
+   *       {@link #defaultsToInteractiveMode()} returns {@code true}.</LI>
+   * </UL>
+   * If this method is invoked and returns {@code null}, then the LDAP SDK's
+   * default interactive mode processing will be performed.  Otherwise, the tool
+   * will be invoked with only the arguments in the list that is returned.
+   *
+   * @param  parser  The argument parser that has been used to parse any
+   *                 command-line arguments that were provided before the
+   *                 interactive mode processing was invoked.  If this method
+   *                 returns a non-{@code null} value, then this parser will be
+   *                 reset before parsing the new set of arguments.
+   *
+   * @return  Retrieves a list of command-line arguments that may be used to
+   *          invoke this tool, or {@code null} if the LDAP SDK's default
+   *          interactive mode processing should be performed.
+   *
+   * @throws  LDAPException  If a problem is encountered while interactively
+   *                         obtaining the arguments that should be used to
+   *                         run the tool.
+   */
+  protected List<String> requestToolArgumentsInteractively(
+                              final ArgumentParser parser)
+            throws LDAPException
+  {
+    // Fall back to using the LDAP SDK's default interactive mode processor.
+    return null;
   }
 
 

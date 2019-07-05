@@ -50,6 +50,20 @@ public final class ArgumentHelper
 
 
   /**
+   * Resets the provided argument parser so that it behaves as if it had not
+   * been used to parse a set of command-line arguments.
+   *
+   * @param  parser  The argument parser to be reset.
+   */
+  @InternalUseOnly()
+  public static void reset(final ArgumentParser parser)
+  {
+    parser.reset();
+  }
+
+
+
+  /**
    * Increments the number of occurrences for the argument in the provided set
    * of command line arguments.
    *
