@@ -24,12 +24,14 @@ package com.unboundid.util.args;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.UtilTestCase;
 
 
@@ -550,6 +552,141 @@ public class ArgumentParserTestCase
     assertNotNull(p.getUsageString(79));
 
     assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the {@code addMutuallyDependentArgumentSet} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAddMutuallyDependentArgumentSet()
+         throws Exception
+  {
+    ArgumentParser p = new ArgumentParser("foo", "bar");
+
+    assertNotNull(p.getDependentArgumentSets());
+    assertTrue(p.getDependentArgumentSets().isEmpty());
+
+    BooleanArgument a = new BooleanArgument('a', "argA", "argA");
+    BooleanArgument b = new BooleanArgument('b', "argB", "argB");
+    BooleanArgument c = new BooleanArgument('c', "argC", "argC");
+    BooleanArgument d = new BooleanArgument('d', "argD", "argD");
+    BooleanArgument e = new BooleanArgument('e', "argE", "argE");
+    BooleanArgument f = new BooleanArgument('f', "argF", "argF");
+    BooleanArgument g = new BooleanArgument('g', "argG", "argG");
+    BooleanArgument h = new BooleanArgument('h', "argH", "argH");
+
+    p.addArgument(a);
+    p.addArgument(b);
+    p.addArgument(c);
+    p.addArgument(d);
+    p.addArgument(e);
+
+    p.addMutuallyDependentArgumentSet(a, b);
+
+    assertNotNull(p.getDependentArgumentSets());
+    assertFalse(p.getDependentArgumentSets().isEmpty());
+    assertEquals(p.getDependentArgumentSets().size(), 2);
+
+    p.addMutuallyDependentArgumentSet(c, d, e);
+
+    assertNotNull(p.getDependentArgumentSets());
+    assertFalse(p.getDependentArgumentSets().isEmpty());
+    assertEquals(p.getDependentArgumentSets().size(), 5);
+
+    try
+    {
+      final List<Argument> nullList = null;
+      p.addMutuallyDependentArgumentSet(nullList);
+      fail("Expected an exception with a null argument list.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.addMutuallyDependentArgumentSet(Collections.<Argument>emptyList());
+      fail("Expected an exception with an empty argument list.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.addMutuallyDependentArgumentSet(Collections.<Argument>singleton(a));
+      fail("Expected an exception with a single-element argument list.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.addMutuallyDependentArgumentSet(null, c);
+      fail("Expected an exception with a null first argument.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.addMutuallyDependentArgumentSet(a, null);
+      fail("Expected an exception with a null second argument.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.addMutuallyDependentArgumentSet(f, a, b);
+      fail("Expected an exception with an unregistered first argument.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.addMutuallyDependentArgumentSet(a, f, b);
+      fail("Expected an exception with an unregistered second argument.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.addMutuallyDependentArgumentSet(a, b, f);
+      fail("Expected an exception with an unregistered third argument.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      p.addMutuallyDependentArgumentSet(f, g, h);
+      fail("Expected an exception with all unregistered arguments.");
+    }
+    catch (final LDAPSDKUsageException ex)
+    {
+      // This was expected.
+    }
   }
 
 

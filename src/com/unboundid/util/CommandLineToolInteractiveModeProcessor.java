@@ -3721,7 +3721,7 @@ argsLoop:
         boolean found = false;
         for (final Argument a : p.getSecond())
         {
-          if (a.getNumOccurrences() > 0)
+          if (a.isPresent())
           {
             found = true;
             break;

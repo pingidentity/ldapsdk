@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
@@ -1409,6 +1410,85 @@ public final class ArgumentParser
 
     dependentArgumentSets.add(
          new ObjectPair<Argument,Set<Argument>>(targetArgument, argSet));
+  }
+
+
+
+  /**
+   * Adds the provided set of arguments as mutually dependent, such that if any
+   * of the arguments is provided, then all of them must be provided.  It will
+   * be implemented by creating multiple dependent argument sets (one for each
+   * argument in the provided collection).
+   *
+   * @param  arguments  The collection of arguments to be used to create the
+   *                    dependent argument sets.  It must not be {@code null},
+   *                    and must contain at least two elements.
+   */
+  public void addMutuallyDependentArgumentSet(
+                   final Collection<Argument> arguments)
+  {
+    Validator.ensureNotNullWithMessage(arguments,
+         "ArgumentParser.addMutuallyDependentArgumentSet.arguments must not " +
+              "be null.");
+    Validator.ensureTrue((arguments.size() >= 2),
+         "ArgumentParser.addMutuallyDependentArgumentSet.arguments must " +
+              "contain at least two elements.");
+
+    for (final Argument a : arguments)
+    {
+      Validator.ensureTrue(namedArgs.contains(a),
+           "ArgumentParser.addMutuallyDependentArgumentSet invoked with " +
+                "argument " + a.getIdentifierString() +
+                " that is not registered with the argument parser.");
+    }
+
+    final Set<Argument> allArgsSet = new HashSet<>(arguments);
+    for (final Argument a : allArgsSet)
+    {
+      final Set<Argument> dependentArgs = new HashSet<>(allArgsSet);
+      dependentArgs.remove(a);
+      addDependentArgumentSet(a, dependentArgs);
+    }
+  }
+
+
+
+  /**
+   * Adds the provided set of arguments as mutually dependent, such that if any
+   * of the arguments is provided, then all of them must be provided.  It will
+   * be implemented by creating multiple dependent argument sets (one for each
+   * argument in the provided collection).
+   *
+   * @param  arg1       The first argument to include in the mutually dependent
+   *                    argument set.  It must not be {@code null}.
+   * @param  arg2       The second argument to include in the mutually dependent
+   *                    argument set.  It must not be {@code null}.
+   * @param  remaining  An optional set of additional arguments to include in
+   *                    the mutually dependent argument set.  It may be
+   *                    {@code null} or empty if only two arguments should be
+   *                    included in the mutually dependent argument set.
+   */
+  public void addMutuallyDependentArgumentSet(final Argument arg1,
+                                              final Argument arg2,
+                                              final Argument... remaining)
+  {
+    Validator.ensureNotNullWithMessage(arg1,
+         "ArgumentParser.addMutuallyDependentArgumentSet.arg1 must not be " +
+              "null.");
+    Validator.ensureNotNullWithMessage(arg2,
+         "ArgumentParser.addMutuallyDependentArgumentSet.arg2 must not be " +
+              "null.");
+
+    final List<Argument> args = new ArrayList<>(10);
+    args.add(arg1);
+    args.add(arg2);
+
+    if (remaining != null)
+    {
+      args.addAll(Arrays.asList(remaining));
+    }
+
+    addMutuallyDependentArgumentSet(args);
   }
 
 

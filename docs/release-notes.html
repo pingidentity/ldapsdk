@@ -33,11 +33,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Added a CommandLineTool.requestToolArgumentsInteractively method that can be
-                  used to override the LDAP SDK's default interactive mode processing for a tool.
-                  If a tool supports interactive mode and overrides this method, then the
+                  Added a <tt>CommandLineTool.requestToolArgumentsInteractively</tt> method that
+                  can be used to override the LDAP SDK's default interactive mode processing for a
+                  tool.  If a tool supports interactive mode and overrides this method, then the
                   processing performed by that method will be used to obtain the command-line
                   arguments that should be used to actually run the tool.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added <tt>ArgumentParser.addMutuallyDependentArgumentSet</tt> methods that can
+                  be used to define a set of arguments that are mutually dependent such that if
+                  any of the arguments is provided, then all of them must be provided.
                   <br><br>
                 </li>
               </ul>
