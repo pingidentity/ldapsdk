@@ -27,9 +27,12 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -47,6 +50,15 @@ final class WriteTimeoutHandler
       extends TimerTask
 {
   /**
+   * The timer that will be used to identify and close connections on which
+   * write attempts have been blocked for too long.
+   */
+  private static final AtomicReference<ObjectPair<Timer,AtomicLong>>
+       TIMER_REFERENCE = new AtomicReference<>();
+
+
+
+  /**
    * The interval, in milliseconds, at which the timer should examine
    * connections to determine whether to close of them because of a blocked
    * write.
@@ -55,14 +67,12 @@ final class WriteTimeoutHandler
 
 
 
-  /**
-   * The timer that will be used to identify and close connections on which
-   * write attempts have been blocked for too long.
-   */
-  private static final Timer TIMER =
-       new Timer("Write Timeout Handler Timer", true);
+  // Indicates whether this instance has been destroyed.
+  private final AtomicBoolean destroyed;
 
-
+  // A counter used to keep track of the number of connections using the
+  // associated timer.
+  private final AtomicLong connectionsUsingTimer;
 
   // A counter that will be used to create a unique identifier for each write.
   private final AtomicLong counter;
@@ -71,9 +81,11 @@ final class WriteTimeoutHandler
   // for that write.
   private final ConcurrentHashMap<Long,Long> writeTimeouts;
 
-
   // A handle to the connection with which this handler is associated.
   private final LDAPConnection connection;
+
+  // The timer with which this task is associated.
+  private final Timer timer;
 
 
 
@@ -87,10 +99,28 @@ final class WriteTimeoutHandler
   {
     this.connection = connection;
 
+    destroyed = new AtomicBoolean(false);
     counter = new AtomicLong(0L);
     writeTimeouts = new ConcurrentHashMap<>(10);
 
-    TIMER.schedule(this, TIMER_INTERVAL_MILLIS, TIMER_INTERVAL_MILLIS);
+    synchronized (TIMER_REFERENCE)
+    {
+      final ObjectPair<Timer,AtomicLong> timerPair = TIMER_REFERENCE.get();
+      if (timerPair == null)
+      {
+        timer = new Timer("Write Timeout Handler Timer", true);
+        connectionsUsingTimer = new AtomicLong(1L);
+        TIMER_REFERENCE.set(new ObjectPair<>(timer, connectionsUsingTimer));
+      }
+      else
+      {
+        timer = timerPair.getFirst();
+        connectionsUsingTimer = timerPair.getSecond();
+        connectionsUsingTimer.incrementAndGet();
+      }
+
+      timer.schedule(this, TIMER_INTERVAL_MILLIS, TIMER_INTERVAL_MILLIS);
+    }
   }
 
 
@@ -139,8 +169,37 @@ final class WriteTimeoutHandler
   public boolean cancel()
   {
     final boolean result = super.cancel();
-    TIMER.purge();
+    timer.purge();
     return result;
+  }
+
+
+
+  /**
+   * Destroys this timer task (by canceling it) when a connection is closed.
+   * If no more connections are using the timer, then the timer itself will be
+   * canceled (to shut down its associated thread background).
+   */
+  void destroy()
+  {
+    cancel();
+
+    if (destroyed.getAndSet(true))
+    {
+      // This instance has already been destroyed.  Don't do it again.
+      return;
+    }
+
+    synchronized (TIMER_REFERENCE)
+    {
+      final long remainingConnectionsUsingTimer =
+           connectionsUsingTimer.decrementAndGet();
+      if (remainingConnectionsUsingTimer <= 0L)
+      {
+        TIMER_REFERENCE.set(null);
+        timer.cancel();
+      }
+    }
   }
 
 

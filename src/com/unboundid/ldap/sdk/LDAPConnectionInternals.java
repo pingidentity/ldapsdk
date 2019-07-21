@@ -668,7 +668,7 @@ final class LDAPConnectionInternals
          ((disconnectInfo.getType() == DisconnectType.CLOSED_BY_FINALIZER) &&
           socket.isConnected());
 
-    writeTimeoutHandler.cancel();
+    writeTimeoutHandler.destroy();
 
     try
     {

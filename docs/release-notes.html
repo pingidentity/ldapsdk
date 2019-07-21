@@ -14,6 +14,20 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue that could cause the write timeout handler (used to ensure that
+                  connections are terminated if a write attempt is blocked for longer than the
+                  maximum allowed length of time) to leave a thread running after all connections
+                  had been closed.  The timeout handler had previously used a single timer that is
+                  shared by all connections for the life of the JVM.  It will now share a timer
+                  across all connections that are established concurrently, but the timer instance
+                  will be destroyed when the last active connection is closed.  If a new
+                  connection is established after the timer has been destroyed, a new timer will
+                  be created, and that timer may be shared by any other connections created after
+                  that as long as at least one connection remains active.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the code for parsing schema element definitions in which an
                   attempt to parse a malformed schema definition could incorrectly result in an
                   LDAPException with an INVALID_DN_SYNTAX result code instead of the more
