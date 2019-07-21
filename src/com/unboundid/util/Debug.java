@@ -1151,7 +1151,6 @@ public final class Debug
       buffer.append(dataType);
       buffer.append("' berType='");
       buffer.append(StaticUtils.toHex((byte) (berType & 0xFF)));
-      buffer.append('\'');
       buffer.append("' valueLength=");
       buffer.append(length);
 
