@@ -3168,6 +3168,57 @@ public final class StaticUtils
 
 
   /**
+   * Creates a string that is a concatenation of all of the provided lines, with
+   * a line break (using the end-of-line sequence appropriate for the underlying
+   * platform) after each line (including the last line).
+   *
+   * @param  lines  The lines to include in the string.
+   *
+   * @return  The string resulting from concatenating the provided lines with
+   *          line breaks.
+   */
+  public static String linesToString(final CharSequence... lines)
+  {
+    if (lines == null)
+    {
+      return "";
+    }
+
+    return linesToString(Arrays.asList(lines));
+  }
+
+
+
+  /**
+   * Creates a string that is a concatenation of all of the provided lines, with
+   * a line break (using the end-of-line sequence appropriate for the underlying
+   * platform) after each line (including the last line).
+   *
+   * @param  lines  The lines to include in the string.
+   *
+   * @return  The string resulting from concatenating the provided lines with
+   *          line breaks.
+   */
+  public static String linesToString(final List<? extends CharSequence> lines)
+  {
+    if (lines == null)
+    {
+      return "";
+    }
+
+    final StringBuilder buffer = new StringBuilder();
+    for (final CharSequence line : lines)
+    {
+      buffer.append(line);
+      buffer.append(EOL);
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
    * Constructs a {@code File} object from the provided path.
    *
    * @param  baseDirectory  The base directory to use as the starting point.

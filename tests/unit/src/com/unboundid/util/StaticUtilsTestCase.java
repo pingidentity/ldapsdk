@@ -2462,6 +2462,47 @@ public class StaticUtilsTestCase
 
 
   /**
+   * Tests the {@code linesToString} methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLinesToString()
+         throws Exception
+  {
+    final String[] nullStringArray = null;
+    assertNotNull(StaticUtils.linesToString(nullStringArray));
+    assertEquals(StaticUtils.linesToString(nullStringArray), "");
+
+    final List<String> nullStringList = null;
+    assertNotNull(StaticUtils.linesToString(nullStringList));
+    assertEquals(StaticUtils.linesToString(nullStringList), "");
+
+    assertNotNull(StaticUtils.linesToString(StaticUtils.NO_STRINGS));
+    assertEquals(StaticUtils.linesToString(StaticUtils.NO_STRINGS), "");
+
+    assertNotNull(StaticUtils.linesToString());
+    assertEquals(StaticUtils.linesToString(), "");
+
+    assertEquals(StaticUtils.linesToString(""),
+         StaticUtils.EOL);
+
+    assertEquals(StaticUtils.linesToString("line1"),
+         "line1" + StaticUtils.EOL);
+
+    assertEquals(StaticUtils.linesToString("line1", "line2"),
+         "line1" + StaticUtils.EOL +
+              "line2" + StaticUtils.EOL);
+
+    assertEquals(StaticUtils.linesToString("line1", "", "line2"),
+         "line1" + StaticUtils.EOL +
+              StaticUtils.EOL +
+              "line2" + StaticUtils.EOL);
+  }
+
+
+
+  /**
    * Provides coverage for the {@code byteArray} method.
    *
    * @throws  Exception  If an unexpected problem occurs.
