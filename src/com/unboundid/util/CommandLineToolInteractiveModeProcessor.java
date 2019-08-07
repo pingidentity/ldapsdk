@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -468,7 +469,8 @@ final class CommandLineToolInteractiveModeProcessor
 
         // Get the PIN needed to access the keystore.
         keyStorePIN = promptForPassword(
-             INFO_INTERACTIVE_LDAP_KEYSTORE_PIN_PROMPT.get(), false);
+             INFO_INTERACTIVE_LDAP_KEYSTORE_PIN_PROMPT.get(),
+             INFO_INTERACTIVE_PIN_CONFIRM_PROMPT.get(), false);
         if (keyStorePIN != null)
         {
           argList.add("--keyStorePassword");
@@ -600,7 +602,8 @@ final class CommandLineToolInteractiveModeProcessor
 
         // Get the PIN needed to access the truststore.
         trustStorePIN = promptForPassword(
-             INFO_INTERACTIVE_LDAP_TRUSTSTORE_PIN_PROMPT.get(), false);
+             INFO_INTERACTIVE_LDAP_TRUSTSTORE_PIN_PROMPT.get(),
+             INFO_INTERACTIVE_PIN_CONFIRM_PROMPT.get(), false);
         if (trustStorePIN != null)
         {
           argList.add("--trustStorePassword");
@@ -748,7 +751,8 @@ final class CommandLineToolInteractiveModeProcessor
           else
           {
             final byte[] bindPassword = promptForPassword(
-                 INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(), true);
+                 INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(),
+                 INFO_INTERACTIVE_PW_CONFIRM_PROMPT.get(), true);
             bindRequest = new SimpleBindRequest(bindDN, bindPassword);
             argList.add("--bindDN");
             argList.add(bindDN.toString());
@@ -814,7 +818,8 @@ final class CommandLineToolInteractiveModeProcessor
                    INFO_INTERACTIVE_LDAP_AUTH_AUTHID_PROMPT.get(),
                    defaultAuthID, true);
               byte[] pw = promptForPassword(
-                   INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(), true);
+                   INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(),
+                 INFO_INTERACTIVE_PW_CONFIRM_PROMPT.get(), true);
               bindRequest = new CRAMMD5BindRequest(authID, pw);
 
               argList.add("--saslOption");
@@ -843,7 +848,7 @@ final class CommandLineToolInteractiveModeProcessor
                    INFO_INTERACTIVE_LDAP_AUTH_REALM_PROMPT.get(), defaultRealm,
                    false);
               pw = promptForPassword(INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(),
-                   true);
+                   INFO_INTERACTIVE_PW_CONFIRM_PROMPT.get(), true);
               bindRequest = new DIGESTMD5BindRequest(authID, authzID, pw,
                    realm);
 
@@ -886,7 +891,7 @@ final class CommandLineToolInteractiveModeProcessor
                    INFO_INTERACTIVE_LDAP_AUTH_AUTHZID_PROMPT.get(),
                    defaultAuthzID, false);
               pw = promptForPassword(INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(),
-                   true);
+                 INFO_INTERACTIVE_PW_CONFIRM_PROMPT.get(), true);
               bindRequest = new PLAINBindRequest(authID, authzID, pw);
 
               argList.add("--saslOption");
@@ -2514,7 +2519,8 @@ argsLoop:
         if (a.isSensitive())
         {
           final byte[] newValueBytes = promptForPassword(
-               INFO_INTERACTIVE_ARG_PROMPT_NEW_VALUE.get(), a.isRequired());
+               INFO_INTERACTIVE_ARG_PROMPT_NEW_VALUE.get(),
+               INFO_INTERACTIVE_ARG_PROMPT_VALUE_CONFIRM.get(), a.isRequired());
           if (newValueBytes == null)
           {
             newValue = null;
@@ -3438,8 +3444,13 @@ argsLoop:
   /**
    * Prompts the user to enter a password.
    *
-   * @param  prompt        The prompt to display to the user.
-   * @param  requireValue  Indicates whether a value is required.
+   * @param  prompt         The prompt to display to the user.
+   * @param  confirmPrompt  A prompt that should be displayed before prompting
+   *                        for the password a second time (to confirm that the
+   *                        user entered it correctly the first time).  If this
+   *                        is {@code null}, then there will be no prompt for
+   *                        confirmation.
+   * @param  requireValue   Indicates whether a value is required.
    *
    * @return  The password obtained from the user, or {@code null} if the user
    *          did not provide a value and no value is required.
@@ -3448,6 +3459,7 @@ argsLoop:
    *                         the user.
    */
   private byte[] promptForPassword(final String prompt,
+                                   final String confirmPrompt,
                                    final boolean requireValue)
           throws LDAPException
   {
@@ -3478,7 +3490,7 @@ argsLoop:
         {
           tool.wrapErr(0, wrapColumn,
                ERR_INTERACTIVE_PROMPT_VALUE_REQUIRED.get());
-          return promptForPassword(prompt, requireValue);
+          return promptForPassword(prompt, confirmPrompt, requireValue);
         }
         else
         {
@@ -3487,6 +3499,32 @@ argsLoop:
       }
       else
       {
+        if (confirmPrompt != null)
+        {
+          final byte[] confirmedPWBytes;
+          try
+          {
+            if (IN_UNIT_TEST)
+            {
+              PasswordReader.setTestReader(systemInReader);
+            }
+
+            tool.wrapStandardOut(0, 0, wrapColumn, false, confirmPrompt, ": ");
+            confirmedPWBytes = PasswordReader.readPassword();
+
+            if (! Arrays.equals(pwBytes, confirmedPWBytes))
+            {
+              tool.wrapErr(0, wrapColumn,
+                   ERR_INTERACTIVE_PROMPT_CONFIRM_MISMATCH.get());
+              return promptForPassword(prompt, confirmPrompt, requireValue);
+            }
+          }
+          finally
+          {
+            PasswordReader.setTestReader(null);
+          }
+        }
+
         return pwBytes;
       }
     }

@@ -70,6 +70,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the command-line tool interactive mode processor so that when it prompts
+                  for a password, PIN, or other sensitive argument that does not get echoed to the
+                  terminal, it will now prompt to confirm the value to help ensure that the user
+                  entered it correctly.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the command-line tool's interactive mode processor to change the
                   behavior that it exhibits when displaying what will be invoked.  Previously, it
                   only displayed a list of the arguments to be provided to the tool.  It will now

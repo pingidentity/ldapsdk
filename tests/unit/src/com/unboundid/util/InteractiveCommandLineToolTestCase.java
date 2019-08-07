@@ -136,6 +136,7 @@ public final class InteractiveCommandLineToolTestCase
          "cn=Directory Manager", // Bind DN
          "", // Empty password -- this isn't valid
          "password", // Bind password
+         "password", // Confirm the password
          "2", // Select Base DN
          "", // Empty base DN
          "(objectClass=*)", // First trailing argument
@@ -183,6 +184,7 @@ public final class InteractiveCommandLineToolTestCase
          "2", // Use LDAP simple authentication
          "cn=Directory Manager", // Bind DN
          "password", // Bind password
+         "password", // Confirm the password
          "", // Base DN
          "(objectClass=*)", // First trailing argument -- filter
          "*", // Second trailing argument -- return all user attributes
@@ -240,6 +242,7 @@ public final class InteractiveCommandLineToolTestCase
          "2", // Present a client certificate from a JKS keystore
          clientKeyStore.getAbsolutePath(),
          "password", // PIN for the client keystore
+         "password", // Confirm the PIN
          "", // No certificate nickname
          "2", // Don't authenticate via SASL external
          "2", // Trust using a JKS truststore
@@ -252,6 +255,7 @@ public final class InteractiveCommandLineToolTestCase
          "dn:cn=Directory Manager", // Authentication ID
          "", // No authorization ID
          "password", // Bind password
+         "password", // Confirm the password
          "", // Base DN
          "(objectClass=*)", // First trailing argument -- filter
          "*", // Second trailing argument -- return all user attributes
@@ -347,6 +351,7 @@ public final class InteractiveCommandLineToolTestCase
          "1", // Use CRAM-MD5
          "dn:cn=Directory Manager", // Authentication ID
          "password", // Password
+         "password", // confirm the password
          "1", // Re-try LDAP settings
          "1", // No communication encryption
          "localhost", // Directory server address.
@@ -357,6 +362,7 @@ public final class InteractiveCommandLineToolTestCase
          "dn:cn=Directory Manager", // Authorization ID
          "EXAMPLE-REALM", // Example realm
          "password", // Password
+         "password", // Confirm the password
          "1", // Re-try LDAP settings
          "1", // No communication encryption
          "localhost", // Directory server address.
