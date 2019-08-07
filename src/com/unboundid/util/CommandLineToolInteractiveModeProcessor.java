@@ -178,7 +178,7 @@ final class CommandLineToolInteractiveModeProcessor
     else
     {
       tool.wrapStandardOut(0, 0, wrapColumn, true,
-           INFO_INTERACTIVE_RUNNING_WITH_ARGS.get(tool.getToolName()));
+           INFO_INTERACTIVE_RUNNING_WITH_ARGS.get());
       printArgs(allArgs);
     }
     tool.out();
@@ -193,10 +193,19 @@ final class CommandLineToolInteractiveModeProcessor
    */
   private void printArgs(final List<String> args)
   {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append("     ");
+    buffer.append(tool.getToolName());
+    if (! args.isEmpty())
+    {
+      buffer.append(" \\");
+    }
+    tool.out(buffer);
+
     for (int i=0; i < args.size(); i++)
     {
-      final StringBuilder buffer = new StringBuilder();
-      buffer.append("     ");
+      buffer.setLength(0);
+      buffer.append("          ");
 
       final String arg = args.get(i);
       buffer.append(ExampleCommandLineArgument.getCleanArgument(
@@ -212,6 +221,11 @@ final class CommandLineToolInteractiveModeProcessor
                nextArg).getLocalForm());
           i++;
         }
+      }
+
+      if (i < (args.size() - 1))
+      {
+        buffer.append(" \\");
       }
 
       tool.out(buffer);

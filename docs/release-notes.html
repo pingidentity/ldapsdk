@@ -70,6 +70,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the command-line tool's interactive mode processor to change the
+                  behavior that it exhibits when displaying what will be invoked.  Previously, it
+                  only displayed a list of the arguments to be provided to the tool.  It will now
+                  include the name of the command, and it will end all but the last line with a
+                  backslash as an indicator that the command continues onto the next line.  This
+                  makes it easier to copy and past the command without needing to edit it (or it
+                  at least reduces the amount of editing required).
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the manage-certificates tool in which the usage information
                   for the --key-size-bits argument to the generate-self-signed-certificate
                   subcommand inadvertently used the description for the --key-algorithm argument.
