@@ -25,13 +25,11 @@ package com.unboundid.ldap.listener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
@@ -145,66 +143,15 @@ public final class SelfSignedCertificateGenerator
                                                    final String alias)
          throws CertException
   {
-    // Try to get a list of all addresses associated with the system, and all of
-    // the addresses associated with them.
+    // Try to get a set of all addresses associated with the local system and
+    // their corresponding canonical hostnames.
     final NameResolver nameResolver =
          LDAPConnectionOptions.DEFAULT_NAME_RESOLVER;
-    final LinkedHashSet<InetAddress> localAddresses = new LinkedHashSet<>(20);
-
-    try
-    {
-      localAddresses.add(nameResolver.getLocalHost());
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-    try
-    {
-      final Enumeration<NetworkInterface> networkInterfaces =
-           NetworkInterface.getNetworkInterfaces();
-      while (networkInterfaces.hasMoreElements())
-      {
-        final NetworkInterface networkInterface =
-             networkInterfaces.nextElement();
-        final Enumeration<InetAddress> interfaceAddresses =
-             networkInterface.getInetAddresses();
-        while (interfaceAddresses.hasMoreElements())
-        {
-          localAddresses.add(interfaceAddresses.nextElement());
-        }
-      }
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-    try
-    {
-      localAddresses.add(nameResolver.getLoopbackAddress());
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-
-    // Get canonical names for all of the local addresses.
-    final LinkedHashSet<String> localAddressNames = new LinkedHashSet<>(20);
-    for (final InetAddress localAddress : localAddresses)
-    {
-      final String hostAddress = localAddress.getHostAddress();
-      final String trimmedHostAddress = trimHostAddress(hostAddress);
-      final String canonicalHostName =
-           nameResolver.getCanonicalHostName(localAddress);
-      if (! (canonicalHostName.equalsIgnoreCase(hostAddress) ||
-           canonicalHostName.equalsIgnoreCase(trimmedHostAddress)))
-      {
-        localAddressNames.add(canonicalHostName);
-      }
-    }
+    final Set<InetAddress> localAddresses =
+         StaticUtils.getAllLocalAddresses(nameResolver);
+    final Set<String> canonicalHostNames =
+         StaticUtils.getAvailableCanonicalHostNames(nameResolver,
+              localAddresses);
 
 
     // Construct a subject DN for the certificate.
@@ -265,7 +212,7 @@ public final class SelfSignedCertificateGenerator
     argList.add("--signature-algorithm");
     argList.add("SHA256withRSA");
 
-    for (final String hostName : localAddressNames)
+    for (final String hostName : canonicalHostNames)
     {
       argList.add("--subject-alternative-name-dns");
       argList.add(hostName);
@@ -274,7 +221,8 @@ public final class SelfSignedCertificateGenerator
     for (final InetAddress address : localAddresses)
     {
       argList.add("--subject-alternative-name-ip-address");
-      argList.add(trimHostAddress(address.getHostAddress()));
+      argList.add(StaticUtils.trimInterfaceNameFromHostAddress(
+           address.getHostAddress()));
     }
 
     argList.add("--key-usage");
@@ -295,31 +243,6 @@ public final class SelfSignedCertificateGenerator
       throw new CertException(
            ERR_SELF_SIGNED_CERT_GENERATOR_ERROR_GENERATING_CERT.get(
                 StaticUtils.toUTF8String(output.toByteArray())));
-    }
-  }
-
-
-
-  /**
-   * Java sometimes follows an IP address with a percent sign and the interface
-   * name.  If the provided host address contains an interface name, then trim
-   * it off.
-   *
-   * @param  hostAddress  The host address to be trimmed.
-   *
-   * @return  The provided host name without an interface name.
-   */
-  private static String trimHostAddress(final String hostAddress)
-  {
-    final int percentPos = hostAddress.indexOf('%');
-    final String trimmedHostAddress;
-    if (percentPos > 0)
-    {
-      return hostAddress.substring(0, percentPos);
-    }
-    else
-    {
-      return hostAddress;
     }
   }
 }

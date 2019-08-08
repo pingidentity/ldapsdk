@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -36,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -54,6 +57,8 @@ import java.util.logging.Logger;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.NameResolver;
 import com.unboundid.ldap.sdk.Version;
 
 import static com.unboundid.util.UtilityMessages.*;
@@ -4341,6 +4346,197 @@ public final class StaticUtils
     catch (final Throwable t)
     {
       Debug.debugException(t);
+    }
+  }
+
+
+
+  /**
+   * Attempts to determine all addresses associated with the local system.
+   *
+   * @param  nameResolver  The name resolver to use to determine the local
+   *                       host and loopback addresses.  If this is
+   *                       {@code null}, then the LDAP SDK's default name
+   *                       resolver will be used.
+   *
+   * @return  A set of the local addresses that were identified.
+   */
+  public static Set<InetAddress> getAllLocalAddresses(
+                                      final NameResolver nameResolver)
+  {
+    final NameResolver resolver;
+    if (nameResolver == null)
+    {
+      resolver = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER;
+    }
+    else
+    {
+      resolver = nameResolver;
+    }
+
+    final LinkedHashSet<InetAddress> localAddresses =
+         new LinkedHashSet<>(computeMapCapacity(10));
+
+    try
+    {
+      localAddresses.add(resolver.getLocalHost());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    try
+    {
+      final Enumeration<NetworkInterface> networkInterfaces =
+           NetworkInterface.getNetworkInterfaces();
+      while (networkInterfaces.hasMoreElements())
+      {
+        final NetworkInterface networkInterface =
+             networkInterfaces.nextElement();
+        final Enumeration<InetAddress> interfaceAddresses =
+             networkInterface.getInetAddresses();
+        while (interfaceAddresses.hasMoreElements())
+        {
+          localAddresses.add(interfaceAddresses.nextElement());
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    try
+    {
+      localAddresses.add(resolver.getLoopbackAddress());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    return Collections.unmodifiableSet(localAddresses);
+  }
+
+
+
+  /**
+   * Retrieves the canonical host name for the provided address, if it can be
+   * resolved to a name.
+   *
+   * @param  nameResolver  The name resolver to use to obtain the canonical
+   *                       host name.  If this is {@code null}, then the LDAP
+   *                       SDK's default name resolver will be used.
+   * @param  address       The {@code InetAddress} for which to attempt to
+   *                       obtain the canonical host name.
+   *
+   * @return  The canonical host name for the provided address, or {@code null}
+   *          if it cannot be obtained (either because the attempt returns
+   *          {@code null}, which shouldn't happen, or because it matches the
+   *          IP address).
+   */
+  public static String getCanonicalHostNameIfAvailable(
+                            final NameResolver nameResolver,
+                            final InetAddress address)
+  {
+    final NameResolver resolver;
+    if (nameResolver == null)
+    {
+      resolver = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER;
+    }
+    else
+    {
+      resolver = nameResolver;
+    }
+
+    final String hostAddress = address.getHostAddress();
+    final String trimmedHostAddress =
+         trimInterfaceNameFromHostAddress(hostAddress);
+
+    final String canonicalHostName = resolver.getCanonicalHostName(address);
+    if ((canonicalHostName == null) ||
+         canonicalHostName.equalsIgnoreCase(hostAddress) ||
+         canonicalHostName.equalsIgnoreCase(trimmedHostAddress))
+    {
+      return null;
+    }
+
+    return canonicalHostName;
+  }
+
+
+
+  /**
+   * Retrieves the canonical host names for the provided set of
+   * {@code InetAddress} objects.  If any of the provided addresses cannot be
+   * resolved to a canonical host name (in which case the attempt to get the
+   * canonical host name will return its IP address), it will be excluded from
+   * the returned set.
+   *
+   * @param  nameResolver  The name resolver to use to obtain the canonical
+   *                       host names.  If this is {@code null}, then the LDAP
+   *                       SDK's default name resolver will be used.
+   * @param  addresses     The set of addresses for which to obtain the
+   *                       canonical host names.
+   *
+   * @return  A set of the canonical host names that could be obtained from the
+   *          provided addresses.
+   */
+  public static Set<String> getAvailableCanonicalHostNames(
+                                 final NameResolver nameResolver,
+                                 final Collection<InetAddress> addresses)
+  {
+    final NameResolver resolver;
+    if (nameResolver == null)
+    {
+      resolver = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER;
+    }
+    else
+    {
+      resolver = nameResolver;
+    }
+
+    final Set<String> canonicalHostNames =
+         new LinkedHashSet<>(computeMapCapacity(addresses.size()));
+    for (final InetAddress address : addresses)
+    {
+      final String canonicalHostName =
+           getCanonicalHostNameIfAvailable(resolver, address);
+      if (canonicalHostName != null)
+      {
+        canonicalHostNames.add(canonicalHostName);
+      }
+    }
+
+    return Collections.unmodifiableSet(canonicalHostNames);
+  }
+
+
+
+  /**
+   * Retrieves a version of the provided host address with the interface name
+   * stripped off.  Java sometimes follows an IP address with a percent sign and
+   * the interface name.  If that interface name is present in the provided
+   * host address, then this method will trim it off, leaving just the IP
+   * address.  If the provided host address does not include the interface name,
+   * then the provided address will be returned as-is.
+   *
+   * @param  hostAddress  The host address to be trimmed.
+   *
+   * @return  The provided host address without the interface name.
+   */
+  public static String trimInterfaceNameFromHostAddress(
+                            final String hostAddress)
+  {
+    final int percentPos = hostAddress.indexOf('%');
+    if (percentPos > 0)
+    {
+      return hostAddress.substring(0, percentPos);
+    }
+    else
+    {
+      return hostAddress;
     }
   }
 }
