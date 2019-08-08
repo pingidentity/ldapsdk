@@ -77,6 +77,10 @@ public final class ControlHelper
          new AssuredReplicationResponseControl());
 
     Control.registerDecodeableControl(
+         GeneratePasswordResponseControl.GENERATE_PASSWORD_RESPONSE_OID,
+         new GeneratePasswordResponseControl());
+
+    Control.registerDecodeableControl(
          GetAuthorizationEntryResponseControl.
               GET_AUTHORIZATION_ENTRY_RESPONSE_OID,
          new GetAuthorizationEntryResponseControl());
