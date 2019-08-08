@@ -51,7 +51,7 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * </BLOCKQUOTE>
  * <BR>
  * The OID for this control is 1.3.6.1.4.1.30221.2.5.58, the criticality may be
- * either {@code true{ or {@code false}, and it does not have a value.
+ * either {@code true} or {@code false}, and it does not have a value.
  *
  * @see  GeneratePasswordResponseControl
  */
