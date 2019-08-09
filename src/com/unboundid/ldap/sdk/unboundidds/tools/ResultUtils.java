@@ -68,6 +68,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             AssuredReplicationResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AuthenticationFailureReason;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GeneratePasswordResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GetAuthorizationEntryResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetBackendSetIDResponseControl;
@@ -738,6 +740,11 @@ public final class ResultUtils
          ASSURED_REPLICATION_RESPONSE_OID))
     {
       addAssuredReplicationResponseControl(lines, c, prefix, maxWidth);
+    }
+    else if (oid.equals(GeneratePasswordResponseControl.
+         GENERATE_PASSWORD_RESPONSE_OID))
+    {
+      addGeneratePasswordResponseControl(lines, c, prefix, maxWidth);
     }
     else if (oid.equals(GetAuthorizationEntryResponseControl.
          GET_AUTHORIZATION_ENTRY_RESPONSE_OID))
@@ -1617,6 +1624,59 @@ public final class ResultUtils
                indentPrefix + "     ", maxWidth);
         }
       }
+    }
+  }
+
+
+
+  /**
+   * Adds a multi-line string representation of the provided control, which is
+   * expected to be a generate password response control, to the given list.
+   *
+   * @param  lines     The list to which the lines should be added.
+   * @param  c         The control to be formatted.
+   * @param  prefix    The prefix to use for each line.
+   * @param  maxWidth  The maximum length of each line in characters, including
+   *                   the comment prefix and indent.
+   */
+  private static void addGeneratePasswordResponseControl(
+                           final List<String> lines, final Control c,
+                           final String prefix, final int maxWidth)
+  {
+    final GeneratePasswordResponseControl decoded;
+    try
+    {
+      decoded = new GeneratePasswordResponseControl(c.getOID(),
+           c.isCritical(), c.getValue());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      addGenericResponseControl(lines, c, prefix, maxWidth);
+      return;
+    }
+
+    wrap(lines, INFO_RESULT_UTILS_GENERATE_PW_HEADER.get(), prefix,
+         maxWidth);
+
+    final String indentPrefix = prefix + "     ";
+    wrap(lines, INFO_RESULT_UTILS_RESPONSE_CONTROL_OID.get(c.getOID()),
+         indentPrefix, maxWidth);
+    wrap(lines,
+         INFO_RESULT_UTILS_GENERATE_PW_PASSWORD.get(
+              decoded.getGeneratedPasswordString()),
+         indentPrefix, maxWidth);
+    wrap(lines,
+         INFO_RESULT_UTILS_GENERATE_PW_MUST_CHANGE.get(
+              String.valueOf(decoded.mustChangePassword())),
+         indentPrefix, maxWidth);
+
+    if (decoded.getSecondsUntilExpiration() != null)
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_GENERATE_PW_SECONDS_UNTIL_EXPIRATION.get(
+                decoded.getSecondsUntilExpiration().longValue()),
+           indentPrefix, maxWidth);
     }
   }
 

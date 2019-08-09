@@ -177,6 +177,12 @@ public final class ControlArgument
     oidsByName.put("account-usable", "1.3.6.1.4.1.42.2.27.9.5.8");
     oidsByName.put("account-usability", "1.3.6.1.4.1.42.2.27.9.5.8");
 
+    // The generate password request control.
+    oidsByName.put("generatepassword", "1.3.6.1.4.1.30221.2.5.58");
+    oidsByName.put("generate-password", "1.3.6.1.4.1.30221.2.5.58");
+    oidsByName.put("generatepw", "1.3.6.1.4.1.30221.2.5.58");
+    oidsByName.put("generate-pw", "1.3.6.1.4.1.30221.2.5.58");
+
     // The get backend set ID request control.
     oidsByName.put("backendsetid", "1.3.6.1.4.1.30221.2.5.33");
     oidsByName.put("getbackendsetid", "1.3.6.1.4.1.30221.2.5.33");

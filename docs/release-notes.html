@@ -55,6 +55,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapmodify command-line tool to provide an option to include the
+                  generate password request control in add requests, and to display information
+                  from a corresponding generate password response control if it is present in the
+                  add result.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a <tt>CommandLineTool.requestToolArgumentsInteractively</tt> method that
                   can be used to override the LDAP SDK's default interactive mode processing for a
                   tool.  If a tool supports interactive mode and overrides this method, then the

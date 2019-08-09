@@ -73,6 +73,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             AssuredReplicationServerResultCode;
 import com.unboundid.ldap.sdk.unboundidds.controls.AuthenticationFailureReason;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GeneratePasswordResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GetAuthorizationEntryResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetBackendSetIDResponseControl;
@@ -1069,6 +1071,53 @@ public final class ResultUtilsTestCase
                 "#      Response Control:",
                 "#           OID:  " + AssuredReplicationResponseControl.
                      ASSURED_REPLICATION_RESPONSE_OID,
+                "#           Is Critical:  false")
+         });
+
+
+    // A valid generate password response control without a password expiration
+    // time.
+    resultList.add(
+         new Object[]
+         {
+           new GeneratePasswordResponseControl("generated-password", false,
+                (Long) null),
+           Arrays.asList(
+                "#      Generate Password Response Control:",
+                "#           OID:  " + GeneratePasswordResponseControl.
+                     GENERATE_PASSWORD_RESPONSE_OID,
+                "#           Generated Password:  generated-password",
+                "#           Must Change Password:  false")
+         });
+
+
+    // A valid generate password response control with a password expiration
+    // time.
+    resultList.add(
+         new Object[]
+         {
+           new GeneratePasswordResponseControl("generated-password", true,
+                86400L),
+           Arrays.asList(
+                "#      Generate Password Response Control:",
+                "#           OID:  " + GeneratePasswordResponseControl.
+                     GENERATE_PASSWORD_RESPONSE_OID,
+                "#           Generated Password:  generated-password",
+                "#           Must Change Password:  true",
+                "#           Seconds Until Expiration:  86400")
+         });
+
+
+    // An invalid generate password response control.
+    resultList.add(
+         new Object[]
+         {
+           new Control(GeneratePasswordResponseControl.
+                GENERATE_PASSWORD_RESPONSE_OID),
+           Arrays.asList(
+                "#      Response Control:",
+                "#           OID:  " + GeneratePasswordResponseControl.
+                     GENERATE_PASSWORD_RESPONSE_OID,
                 "#           Is Critical:  false")
          });
 

@@ -83,6 +83,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.
             AssuredReplicationRemoteLevel;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GeneratePasswordRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GetAuthorizationEntryRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetBackendSetIDRequestControl;
@@ -270,6 +272,7 @@ public final class LDAPModify
   private BooleanArgument defaultAdd = null;
   private BooleanArgument dryRun = null;
   private BooleanArgument followReferrals = null;
+  private BooleanArgument generatePassword = null;
   private BooleanArgument getBackendSetID = null;
   private BooleanArgument getServerID = null;
   private BooleanArgument getUserResourceLimits = null;
@@ -787,6 +790,16 @@ public final class LDAPModify
     parser.addArgument(authorizationIdentity);
 
 
+    generatePassword = new BooleanArgument(null, "generatePassword", 1,
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_GENERATE_PASSWORD.get());
+    generatePassword.addLongIdentifier("generatePW", true);
+    generatePassword.addLongIdentifier("generate-password", true);
+    generatePassword.addLongIdentifier("generate-pw", true);
+    generatePassword.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(generatePassword);
+
+
     getAuthorizationEntryAttribute = new StringArgument(null,
          "getAuthorizationEntryAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
@@ -796,7 +809,6 @@ public final class LDAPModify
     getAuthorizationEntryAttribute.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getAuthorizationEntryAttribute);
-
 
 
     getBackendSetID = new BooleanArgument(null, "getBackendSetID",
@@ -2768,6 +2780,11 @@ readChangeRecordLoop:
       deleteControls.add(c);
       modifyControls.add(c);
       modifyDNControls.add(c);
+    }
+
+    if (generatePassword.isPresent())
+    {
+      addControls.add(new GeneratePasswordRequestControl());
     }
 
     if (getBackendSetID.isPresent())
