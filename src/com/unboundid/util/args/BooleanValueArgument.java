@@ -291,7 +291,7 @@ public final class BooleanValueArgument
     else
     {
       throw new ArgumentException(ERR_ARG_VALUE_NOT_ALLOWED.get(
-           valueString, getIdentifierString()));
+           valueString, getIdentifierString(), "'true', 'false'"));
     }
   }
 

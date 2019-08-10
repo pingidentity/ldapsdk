@@ -534,8 +534,22 @@ public final class StringArgument
     {
       if (! allowedValues.contains(lowerValue))
       {
+        final StringBuilder allowedValuesBuffer = new StringBuilder();
+        for (final String allowedValue : allowedValues)
+        {
+          if (allowedValuesBuffer.length() > 0)
+          {
+            allowedValuesBuffer.append(", ");
+          }
+
+          allowedValuesBuffer.append('\'');
+          allowedValuesBuffer.append(allowedValue);
+          allowedValuesBuffer.append('\'');
+        }
+
         throw new ArgumentException(ERR_ARG_VALUE_NOT_ALLOWED.get(
-                                         valueString, getIdentifierString()));
+             valueString, getIdentifierString(),
+             allowedValuesBuffer.toString()));
       }
     }
 

@@ -112,6 +112,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Improved the error message that would be returned by the argument parser when
+                  the value provided for a string or Boolean argument was not included in the set
+                  of allowed values for that argument.  It would previously just tell you that the
+                  provided value was not allowed.  It will now also provide a list of the allowed
+                  values.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the manage-certificates tool in which the usage information
                   for the --key-size-bits argument to the generate-self-signed-certificate
                   subcommand inadvertently used the description for the --key-algorithm argument.
