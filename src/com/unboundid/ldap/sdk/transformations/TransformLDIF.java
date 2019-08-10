@@ -27,14 +27,17 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPOutputStream;
 
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.ChangeType;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -134,6 +137,7 @@ public final class TransformLDIF
   private BooleanArgument appendToTargetLDIF = null;
   private BooleanArgument compressTarget = null;
   private BooleanArgument encryptTarget = null;
+  private BooleanArgument excludeRecordsWithoutChangeType = null;
   private BooleanArgument excludeNonMatchingEntries = null;
   private BooleanArgument flattenAddOmittedRDNAttributesToEntry = null;
   private BooleanArgument flattenAddOmittedRDNAttributesToRDN = null;
@@ -165,6 +169,7 @@ public final class TransformLDIF
   private StringArgument addAttributeName = null;
   private StringArgument addAttributeValue = null;
   private StringArgument excludeAttribute = null;
+  private StringArgument excludeChangeType  = null;
   private StringArgument redactAttribute = null;
   private StringArgument renameAttributeFrom = null;
   private StringArgument renameAttributeTo = null;
@@ -756,6 +761,31 @@ public final class TransformLDIF
          excludeEntryBaseDN, excludeEntryScope, excludeEntryFilter);
 
 
+    // Add arguments for excluding records based on their change types.
+    excludeChangeType = new StringArgument(null, "excludeChangeType",
+         false, 0, INFO_TRANSFORM_LDIF_PLACEHOLDER_CHANGE_TYPES.get(),
+         INFO_TRANSFORM_LDIF_ARG_DESC_EXCLUDE_CHANGE_TYPE.get(),
+         StaticUtils.setOf("add", "delete", "modify", "moddn"));
+    excludeChangeType.addLongIdentifier("exclude-change-type", true);
+    excludeChangeType.addLongIdentifier("exclude-changetype", true);
+    excludeChangeType.setArgumentGroupName(
+         INFO_TRANSFORM_LDIF_ARG_GROUP_EXCLUDE.get());
+    parser.addArgument(excludeChangeType);
+
+
+    // Add arguments for excluding records that don't have a change type.
+    excludeRecordsWithoutChangeType = new BooleanArgument(null,
+         "excludeRecordsWithoutChangeType", 1,
+         INFO_TRANSFORM_LDIF_EXCLUDE_WITHOUT_CHANGETYPE.get());
+    excludeRecordsWithoutChangeType.addLongIdentifier(
+         "exclude-records-without-change-type", true);
+    excludeRecordsWithoutChangeType.addLongIdentifier(
+         "exclude-records-without-changetype", true);
+    excludeRecordsWithoutChangeType.setArgumentGroupName(
+         INFO_TRANSFORM_LDIF_ARG_GROUP_EXCLUDE.get());
+    parser.addArgument(excludeRecordsWithoutChangeType);
+
+
     // Add the remaining arguments.
     schemaPath = new FileArgument(null, "schemaPath", false, 0, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_SCHEMA_PATH.get(),
@@ -783,7 +813,8 @@ public final class TransformLDIF
     parser.addRequiredArgumentSet(scrambleAttribute, sequentialAttribute,
          replaceValuesAttribute, addAttributeName, renameAttributeFrom,
          flattenBaseDN, moveSubtreeFrom, redactAttribute, excludeAttribute,
-         excludeEntryBaseDN, excludeEntryScope, excludeEntryFilter);
+         excludeEntryBaseDN, excludeEntryScope, excludeEntryFilter,
+         excludeChangeType, excludeRecordsWithoutChangeType);
   }
 
 
@@ -1430,6 +1461,23 @@ processingBlock:
            excludeEntryFilter.getValue(),
            (! excludeNonMatchingEntries.isPresent()), excludedEntryCount);
       entryTranslators.add(t);
+    }
+
+    if (excludeChangeType.isPresent())
+    {
+      final Set<ChangeType> changeTypes = EnumSet.noneOf(ChangeType.class);
+      for (final String changeTypeName : excludeChangeType.getValues())
+      {
+        changeTypes.add(ChangeType.forName(changeTypeName));
+      }
+
+      changeRecordTranslators.add(
+           new ExcludeChangeTypeTransformation(changeTypes));
+    }
+
+    if (excludeRecordsWithoutChangeType.isPresent())
+    {
+      entryTranslators.add(new ExcludeAllEntriesTransformation());
     }
 
     entryTranslators.add(this);

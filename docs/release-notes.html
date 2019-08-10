@@ -63,6 +63,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the transform-ldif tool to add options for excluding LDIF records by
+                  change type, and for excluding LDIF records that do not have a change type (and
+                  are therefore considered entries).
+                  <br><br>
+                </li>
+
+                <li>
                   Added a <tt>CommandLineTool.requestToolArgumentsInteractively</tt> method that
                   can be used to override the LDAP SDK's default interactive mode processing for a
                   tool.  If a tool supports interactive mode and overrides this method, then the
