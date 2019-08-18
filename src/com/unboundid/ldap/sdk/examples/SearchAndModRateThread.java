@@ -377,130 +377,127 @@ searchLoop:
         final ASN1OctetString pagedResultCookie = null;
         final long searchStartTime = System.nanoTime();
 
-        try
+        while (true)
         {
-          while (true)
+          final SearchResult r;
+          try
           {
-            final SearchResult r;
+            r = connection.search(searchRequest);
+          }
+          catch (final LDAPSearchException lse)
+          {
+            Debug.debugException(lse);
+            errorCounter.incrementAndGet();
+
+            final ResultCode rc = lse.getResultCode();
+            rcCounter.increment(rc);
+            resultCode.compareAndSet(null, rc);
+
+            if (! lse.getResultCode().isConnectionUsable())
+            {
+              connection.close();
+              connection = null;
+            }
+
+            continue searchLoop;
+          }
+          finally
+          {
+            searchCounter.incrementAndGet();
+            searchDurations.addAndGet(System.nanoTime() - searchStartTime);
+          }
+
+          for (int i=0; i < valueLength; i++)
+          {
+            valueBytes[i] = charSet[random.nextInt(charSet.length)];
+          }
+
+          values[0] = new ASN1OctetString(valueBytes);
+          for (int i=0; i < modAttributes.length; i++)
+          {
+            mods[i] = new Modification(ModificationType.REPLACE,
+                 modAttributes[i], values);
+          }
+          modifyRequest.setModifications(mods);
+
+          modifyRequest.setControls(modifyControls);
+          if (proxyControl != null)
+          {
+            modifyRequest.addControl(proxyControl);
+          }
+
+          for (final SearchResultEntry e : r.getSearchEntries())
+          {
+            if (fixedRateBarrier != null)
+            {
+              fixedRateBarrier.await();
+            }
+
+            modifyRequest.setDN(e.getDN());
+
+            final long modStartTime = System.nanoTime();
             try
             {
-              r = connection.search(searchRequest);
+              if (connection != null)
+              {
+                connection.modify(modifyRequest);
+              }
             }
-            catch (final LDAPSearchException lse)
+            catch (final LDAPException le)
             {
-              Debug.debugException(lse);
+              Debug.debugException(le);
               errorCounter.incrementAndGet();
 
-              final ResultCode rc = lse.getResultCode();
+              final ResultCode rc = le.getResultCode();
               rcCounter.increment(rc);
               resultCode.compareAndSet(null, rc);
 
-              if (! lse.getResultCode().isConnectionUsable())
+              if (! le.getResultCode().isConnectionUsable())
               {
                 connection.close();
                 connection = null;
               }
-
-              continue searchLoop;
             }
-
-            for (int i=0; i < valueLength; i++)
+            finally
             {
-              valueBytes[i] = charSet[random.nextInt(charSet.length)];
-            }
-
-            values[0] = new ASN1OctetString(valueBytes);
-            for (int i=0; i < modAttributes.length; i++)
-            {
-              mods[i] = new Modification(ModificationType.REPLACE,
-                   modAttributes[i], values);
-            }
-            modifyRequest.setModifications(mods);
-
-            modifyRequest.setControls(modifyControls);
-            if (proxyControl != null)
-            {
-              modifyRequest.addControl(proxyControl);
-            }
-
-            for (final SearchResultEntry e : r.getSearchEntries())
-            {
-              if (fixedRateBarrier != null)
-              {
-                fixedRateBarrier.await();
-              }
-
-              modifyRequest.setDN(e.getDN());
-
-              final long modStartTime = System.nanoTime();
-              try
-              {
-                if (connection != null)
-                {
-                  connection.modify(modifyRequest);
-                }
-              }
-              catch (final LDAPException le)
-              {
-                Debug.debugException(le);
-                errorCounter.incrementAndGet();
-
-                final ResultCode rc = le.getResultCode();
-                rcCounter.increment(rc);
-                resultCode.compareAndSet(null, rc);
-
-                if (! le.getResultCode().isConnectionUsable())
-                {
-                  connection.close();
-                  connection = null;
-                }
-              }
-              finally
-              {
-                modCounter.incrementAndGet();
-                modDurations.addAndGet(System.nanoTime() - modStartTime);
-              }
-            }
-
-            if (simplePageSize == null)
-            {
-              break;
-            }
-
-            try
-            {
-              final SimplePagedResultsControl sprResponse =
-                   SimplePagedResultsControl.get(r);
-              if ((sprResponse == null) ||
-                   (! sprResponse.moreResultsToReturn()))
-              {
-                break;
-              }
-
-              searchRequest.setControls(searchControls);
-
-              if (proxyControl != null)
-              {
-                searchRequest.addControl(proxyControl);
-              }
-
-              if (simplePageSize != null)
-              {
-                searchRequest.addControl(new SimplePagedResultsControl(
-                     simplePageSize, sprResponse.getCookie()));
-              }
-            }
-            catch (final Exception e)
-            {
-              Debug.debugException(e);
-              break;
+              modCounter.incrementAndGet();
+              modDurations.addAndGet(System.nanoTime() - modStartTime);
             }
           }
-        }
-        finally
-        {
-          searchCounter.incrementAndGet();
-          searchDurations.addAndGet(System.nanoTime() - searchStartTime);
+
+          if (simplePageSize == null)
+          {
+            break;
+          }
+
+          try
+          {
+            final SimplePagedResultsControl sprResponse =
+                 SimplePagedResultsControl.get(r);
+            if ((sprResponse == null) ||
+                 (! sprResponse.moreResultsToReturn()))
+            {
+              break;
+            }
+
+            searchRequest.setControls(searchControls);
+
+            if (proxyControl != null)
+            {
+              searchRequest.addControl(proxyControl);
+            }
+
+            if (simplePageSize != null)
+            {
+              searchRequest.addControl(new SimplePagedResultsControl(
+                   simplePageSize, sprResponse.getCookie()));
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            break;
+          }
         }
       }
     }

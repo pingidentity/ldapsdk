@@ -130,6 +130,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in the search-and-mod-rate tool in which the search duration
+                  times reported included not only the time required to process the search, but
+                  also the time required to process the associated modify operations as well.  If
+                  rate limiting was used, then the search duration would also include the wait
+                  before each modify attempt.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the manage-certificates tool in which the usage information
                   for the --key-size-bits argument to the generate-self-signed-certificate
                   subcommand inadvertently used the description for the --key-algorithm argument.
