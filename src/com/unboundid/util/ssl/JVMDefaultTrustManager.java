@@ -47,6 +47,9 @@ import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.ssl.cert.AuthorityKeyIdentifierExtension;
+import com.unboundid.util.ssl.cert.SubjectKeyIdentifierExtension;
+import com.unboundid.util.ssl.cert.X509CertificateExtension;
 
 import static com.unboundid.util.ssl.SSLMessages.*;
 
@@ -120,7 +123,11 @@ public final class JVMDefaultTrustManager
   private final KeyStore keystore;
 
   // A map of the certificates in the keystore, indexed by signature.
-  private final Map<ASN1OctetString,X509Certificate> trustedCertificateMap;
+  private final Map<ASN1OctetString,X509Certificate> trustedCertsBySignature;
+
+  // A map of the certificates in the keystore, indexed by key ID.
+  private final Map<ASN1OctetString,
+       com.unboundid.util.ssl.cert.X509Certificate> trustedCertsByKeyID;
 
 
 
@@ -142,7 +149,8 @@ public final class JVMDefaultTrustManager
                 javaHomePropertyName));
       caCertsFile = null;
       keystore = null;
-      trustedCertificateMap = Collections.emptyMap();
+      trustedCertsBySignature = Collections.emptyMap();
+      trustedCertsByKeyID = Collections.emptyMap();
       return;
     }
 
@@ -154,7 +162,8 @@ public final class JVMDefaultTrustManager
                 javaHomePropertyName, javaHomePath));
       caCertsFile = null;
       keystore = null;
-      trustedCertificateMap = Collections.emptyMap();
+      trustedCertsBySignature = Collections.emptyMap();
+      trustedCertsByKeyID = Collections.emptyMap();
       return;
     }
 
@@ -172,7 +181,8 @@ public final class JVMDefaultTrustManager
       certificateException = ce;
       caCertsFile = null;
       keystore = null;
-      trustedCertificateMap = Collections.emptyMap();
+      trustedCertsBySignature = Collections.emptyMap();
+      trustedCertsByKeyID = Collections.emptyMap();
       return;
     }
 
@@ -182,7 +192,10 @@ public final class JVMDefaultTrustManager
 
     // Iterate through the certificates in the keystore and load them into a
     // map for faster and more reliable access.
-    final LinkedHashMap<ASN1OctetString,X509Certificate> certificateMap =
+    final LinkedHashMap<ASN1OctetString,X509Certificate> certsBySignature =
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(50));
+    final LinkedHashMap<ASN1OctetString,
+         com.unboundid.util.ssl.cert.X509Certificate> certsByKeyID =
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(50));
     try
     {
@@ -197,8 +210,31 @@ public final class JVMDefaultTrustManager
                (X509Certificate) keystore.getCertificate(alias);
           if (certificate != null)
           {
-            certificateMap.put(new ASN1OctetString(certificate.getSignature()),
+            certsBySignature.put(
+                 new ASN1OctetString(certificate.getSignature()),
                  certificate);
+
+            try
+            {
+              final com.unboundid.util.ssl.cert.X509Certificate c =
+                   new com.unboundid.util.ssl.cert.X509Certificate(
+                        certificate.getEncoded());
+              for (final X509CertificateExtension e : c.getExtensions())
+              {
+                if (e instanceof SubjectKeyIdentifierExtension)
+                {
+                  final SubjectKeyIdentifierExtension skie =
+                       (SubjectKeyIdentifierExtension) e;
+                  certsByKeyID.put(
+                       new ASN1OctetString(skie.getKeyIdentifier().getValue()),
+                       c);
+                }
+              }
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+            }
           }
         }
         catch (final Exception e)
@@ -215,11 +251,13 @@ public final class JVMDefaultTrustManager
                 caCertsFile.getAbsolutePath(),
                 StaticUtils.getExceptionMessage(e)),
            e);
-      trustedCertificateMap = Collections.emptyMap();
+      trustedCertsBySignature = Collections.emptyMap();
+      trustedCertsByKeyID = Collections.emptyMap();
       return;
     }
 
-    trustedCertificateMap = Collections.unmodifiableMap(certificateMap);
+    trustedCertsBySignature = Collections.unmodifiableMap(certsBySignature);
+    trustedCertsByKeyID = Collections.unmodifiableMap(certsByKeyID);
     certificateException = null;
   }
 
@@ -312,7 +350,7 @@ public final class JVMDefaultTrustManager
       throw certificateException;
     }
 
-    return trustedCertificateMap.values();
+    return trustedCertsBySignature.values();
   }
 
 
@@ -375,8 +413,8 @@ public final class JVMDefaultTrustManager
     }
 
     final X509Certificate[] acceptedIssuers =
-         new X509Certificate[trustedCertificateMap.size()];
-    return trustedCertificateMap.values().toArray(acceptedIssuers);
+         new X509Certificate[trustedCertsBySignature.size()];
+    return trustedCertsBySignature.values().toArray(acceptedIssuers);
   }
 
 
@@ -664,7 +702,14 @@ filesInDirectoryLoop:
 
       final ASN1OctetString signature =
            new ASN1OctetString(cert.getSignature());
-      foundIssuer |= (trustedCertificateMap.get(signature) != null);
+      foundIssuer |= (trustedCertsBySignature.get(signature) != null);
+    }
+
+    if (! foundIssuer)
+    {
+      // It's possible that the server sent an incomplete chain.  Handle that
+      // possibility.
+      foundIssuer = checkIncompleteChain(chain);
     }
 
     if (! foundIssuer)
@@ -673,6 +718,62 @@ filesInDirectoryLoop:
            ERR_JVM_DEFAULT_TRUST_MANGER_NO_TRUSTED_ISSUER_FOUND.get(
                 chainToString(chain)));
     }
+  }
+
+
+
+  /**
+   * Checks to determine whether the provided certificate chain may be
+   * incomplete, and if so, whether we can find and trust the issuer of the last
+   * certificate in the chain.
+   *
+   * @param  chain  The chain to validate.
+   *
+   * @return  {@code true} if the chain could be validated, or {@code false} if
+   *          not.
+   */
+  private boolean checkIncompleteChain(final X509Certificate[] chain)
+  {
+    try
+    {
+      // Get the last certificate in the chain and decode it as one that we can
+      // more fully inspect.
+      final com.unboundid.util.ssl.cert.X509Certificate c =
+           new com.unboundid.util.ssl.cert.X509Certificate(
+                chain[chain.length - 1].getEncoded());
+
+      // If the certificate is self-signed, then it can't be trusted.
+      if (c.isSelfSigned())
+      {
+        return false;
+      }
+
+      // See if the certificate has an authority key identifier extension.  If
+      // so, then use it to try to find the issuer.
+      for (final X509CertificateExtension e : c.getExtensions())
+      {
+        if (e instanceof AuthorityKeyIdentifierExtension)
+        {
+          final AuthorityKeyIdentifierExtension akie =
+               (AuthorityKeyIdentifierExtension) e;
+          final ASN1OctetString authorityKeyID =
+               new ASN1OctetString(akie.getKeyIdentifier().getValue());
+          final com.unboundid.util.ssl.cert.X509Certificate issuer =
+               trustedCertsByKeyID.get(authorityKeyID);
+          if ((issuer != null) && issuer.isWithinValidityWindow())
+          {
+            c.verifySignature(issuer);
+            return true;
+          }
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    return false;
   }
 
 

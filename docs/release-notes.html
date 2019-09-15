@@ -28,6 +28,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue with the JVM-default trust manager that could arise if the
+                  certificate chain presented during TLS negotiation was not a complete chain, and
+                  in which the last certificate in the chain is not in the JVM's list of trusted
+                  issuers.  If the last certificate in the chain is not self-signed and not found
+                  in the set of trusted issuers, the trust manager will now check to see if that
+                  certificate has an authority key identifier extension, and if so, whether any of
+                  the trusted issuers has a subject key identifier extension with a matching key
+                  ID.  If so, and if that trusted issuer signed the last certificate in the
+                  provided chain, then the chain will be trusted.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the code for parsing schema element definitions in which an
                   attempt to parse a malformed schema definition could incorrectly result in an
                   LDAPException with an INVALID_DN_SYNTAX result code instead of the more
