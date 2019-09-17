@@ -28,6 +28,12 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue that could cause the LDAP SDK to leak a write timeout timer task if
+                  it is unable to establish successfully establish a connection.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the JVM-default trust manager that could arise if the
                   certificate chain presented during TLS negotiation was not a complete chain, and
                   in which the last certificate in the chain is not in the JVM's list of trusted

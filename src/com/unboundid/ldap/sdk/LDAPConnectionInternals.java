@@ -180,8 +180,11 @@ final class LDAPConnectionInternals
         socket.close();
       }
 
+      writeTimeoutHandler.destroy();
+
       throw new IOException(le);
     }
+
     try
     {
       Debug.debugConnect(host, port, connection);
@@ -223,6 +226,8 @@ final class LDAPConnectionInternals
       {
         Debug.debugException(e);
       }
+
+      writeTimeoutHandler.destroy();
 
       throw ioe;
     }
