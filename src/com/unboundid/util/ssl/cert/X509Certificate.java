@@ -1282,7 +1282,9 @@ public final class X509Certificate
         Debug.debugException(e);
       }
 
-      final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+      final MessageDigest sha256 = MessageDigest.getInstance(
+           SubjectKeyIdentifierExtension.
+                SUBJECT_KEY_IDENTIFIER_DIGEST_ALGORITHM);
       subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
     }
     catch (final Exception e)
@@ -1400,7 +1402,9 @@ public final class X509Certificate
     final byte[] subjectKeyIdentifier;
     try
     {
-      final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+      final MessageDigest sha256 = MessageDigest.getInstance(
+           SubjectKeyIdentifierExtension.
+                SUBJECT_KEY_IDENTIFIER_DIGEST_ALGORITHM);
       subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
     }
     catch (final Exception e)

@@ -66,6 +66,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated manage-certificates to use the SHA-1 digest algorithm instead of 256-bit
+                  SHA-2 when generating the subject key identifier for certificates and
+                  certificate signing requests.  It appears that the Microsoft CA cannot handle
+                  256-bit subject key identifiers, and therefore could not sign the CSRs with
+                  256-bit subject key identifiers that manage-certificates had generated.
+                  <br><br>
+                </li>
+
+                <li>
                   Added client-side support for the SCRAM-SHA-1, SCRAM-SHA-256, and SCRAM-SHA-512
                   SASL mechanisms.
                   <br><br>

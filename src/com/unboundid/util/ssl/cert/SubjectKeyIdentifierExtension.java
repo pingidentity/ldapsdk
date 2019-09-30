@@ -56,6 +56,17 @@ public final class SubjectKeyIdentifierExtension
 
 
   /**
+   * The name of the message digest algorithm that will be used to generate a
+   * certificate's subject key identifier from its public key.  Note that we're
+   * using SHA-1 rather than something better (like SHA-256) because it appears
+   * that the Microsoft CA cannot handle a 256-bit identifier but will accept a
+   * 160-bit identifier.
+   */
+  static final String SUBJECT_KEY_IDENTIFIER_DIGEST_ALGORITHM = "SHA-1";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -7175921866230880172L;

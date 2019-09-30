@@ -718,7 +718,9 @@ public final class PKCS10CertificateSigningRequest
         Debug.debugException(e);
       }
 
-      final MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+      final MessageDigest sha256 = MessageDigest.getInstance(
+           SubjectKeyIdentifierExtension.
+                SUBJECT_KEY_IDENTIFIER_DIGEST_ALGORITHM);
       subjectKeyIdentifier = sha256.digest(encodedPublicKey.getBytes());
     }
     catch (final Exception e)
