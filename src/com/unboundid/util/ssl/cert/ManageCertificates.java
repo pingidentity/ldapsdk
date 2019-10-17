@@ -10512,7 +10512,7 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while reading
    *                         certificates from the specified file.
    */
-  static List<X509Certificate> readCertificatesFromFile(final File f)
+  public static List<X509Certificate> readCertificatesFromFile(final File f)
          throws LDAPException
   {
     // Read the first byte of the file to see if it contains DER-formatted data,
