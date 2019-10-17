@@ -10931,8 +10931,8 @@ public final class ManageCertificates
    * @throws  LDAPException  If a problem is encountered while reading the
    *                         certificate signing request.
    */
-  static PKCS10CertificateSigningRequest
-              readCertificateSigningRequestFromFile(final File f)
+  public static PKCS10CertificateSigningRequest
+                     readCertificateSigningRequestFromFile(final File f)
          throws LDAPException
   {
     // Read the first byte of the file to see if it contains DER-formatted data,

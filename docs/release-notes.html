@@ -23,7 +23,15 @@ ${TARGET="offline"}                <br>
                 <li>
                   Made the <tt>ManageCertificates.readCertificatesFromFile</tt> method public so
                   that it can be used outside of the LDAP SDK.  This method can be used to read a
-                  set of PEM-encoded or DER-encoded certificates from a specified file.
+                  set of PEM-encoded or DER-encoded X.509 certificates from a specified file.
+                  <br><br>
+                </li>
+
+                <li>
+                  Made the <tt>ManageCertificates.readCertificateSigningRequestFromFile</tt>
+                  method public so that it can be used outside of the LDAP SDK.  This method can
+                  be used to read a PEM-encoded or DER-encoded PKCS #10 certificate signing
+                  request from a file.
                   <br><br>
                 </li>
               </ul>
