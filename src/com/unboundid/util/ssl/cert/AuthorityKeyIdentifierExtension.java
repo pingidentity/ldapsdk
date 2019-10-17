@@ -173,7 +173,9 @@ public final class AuthorityKeyIdentifierExtension
             keyID = element.decodeAsOctetString();
             break;
           case TYPE_AUTHORITY_CERT_ISSUER:
-            generalNames = new GeneralNames(element);
+            final ASN1Element generalNamesElement =
+                 ASN1Element.decode(element.getValue());
+            generalNames = new GeneralNames(generalNamesElement);
             break;
           case TYPE_AUTHORITY_CERT_SERIAL_NUMBER:
             serialNumber = element.decodeAsBigInteger().getBigIntegerValue();
@@ -230,7 +232,7 @@ public final class AuthorityKeyIdentifierExtension
     if (authorityCertIssuer != null)
     {
       elements.add(new ASN1Element(TYPE_AUTHORITY_CERT_ISSUER,
-           authorityCertIssuer.encode().getValue()));
+           authorityCertIssuer.encode().encode()));
     }
 
     if (authorityCertSerialNumber != null)
