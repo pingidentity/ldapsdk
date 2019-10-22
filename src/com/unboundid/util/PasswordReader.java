@@ -24,9 +24,9 @@ package com.unboundid.util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -47,7 +47,6 @@ import static com.unboundid.util.UtilityMessages.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class PasswordReader
-       extends Thread
 {
   /**
    * The input stream from which to read the password.  This should only be set
@@ -57,12 +56,23 @@ public final class PasswordReader
 
 
 
-  // Indicates whether a request has been made for the backspace thread to
-  // stop running.
-  private final AtomicBoolean stopRequested;
+  /**
+   * The default value to use for the environment variable.  This should only
+   * be set when running unit tests.
+   */
+  private static volatile String DEFAULT_ENVIRONMENT_VARIABLE_VALUE = null;
 
-  // An object that will be used to wait for the reader thread to be started.
-  private final Object startMutex;
+
+
+  /**
+   * The name of an environment variable that can be used to specify the path
+   * to a file that contains the password to be read.  This is also
+   * predominantly intended for use when running unit tests, and may be
+   * necessary for tests running in a separate process that can't use the
+   * {@code TEST_READER}.
+   */
+  private static final String PASSWORD_FILE_ENVIRONMENT_VARIABLE =
+       "LDAP_SDK_PASSWORD_READER_PASSWORD_FILE";
 
 
 
@@ -71,12 +81,7 @@ public final class PasswordReader
    */
   private PasswordReader()
   {
-    startMutex = new Object();
-    stopRequested = new AtomicBoolean(false);
-
-    setName("Password Reader Thread");
-    setDaemon(true);
-    setPriority(Thread.MAX_PRIORITY);
+    // No implementation is required.
   }
 
 
@@ -108,6 +113,30 @@ public final class PasswordReader
              e);
       }
     }
+
+
+    // If a password input file environment variable has been set, then read
+    // the password from that file.
+    final String environmentVariableValue = StaticUtils.getEnvironmentVariable(
+         PASSWORD_FILE_ENVIRONMENT_VARIABLE,
+         DEFAULT_ENVIRONMENT_VARIABLE_VALUE);
+    if (environmentVariableValue != null)
+    {
+      try
+      {
+        final File f = new File(environmentVariableValue);
+        final PasswordFileReader r = new PasswordFileReader();
+        return r.readPassword(f);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_PW_READER_FAILURE.get(StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
 
     if (System.console() == null)
     {
@@ -146,22 +175,17 @@ public final class PasswordReader
 
 
   /**
-   * Repeatedly sends backspace and space characters to standard output in an
-   * attempt to try to hide what the user enters.
+   * This is a legacy method that now does nothing.  It was required by a
+   * former version of this class when older versions of Java were still
+   * supported, and is retained only for the purpose of API backward
+   * compatibility.
+   *
+   * @deprecated  This method is no longer used.
    */
-  @Override()
+  @Deprecated()
   public void run()
   {
-    synchronized (startMutex)
-    {
-      startMutex.notifyAll();
-    }
-
-    while (! stopRequested.get())
-    {
-      System.out.print("\u0008 ");
-      yield();
-    }
+    // No implementation is required.
   }
 
 
@@ -207,5 +231,20 @@ public final class PasswordReader
   public static void setTestReader(final BufferedReader reader)
   {
     TEST_READER = reader;
+  }
+
+
+
+  /**
+   * Sets the default value that should be used for the environment variable if
+   * it is not set.  This is only intended for use in testing purposes.
+   *
+   * @param  value  The default value that should be used for the environment
+   *                variable if it is not set.  It may be {@code null} if
+   */
+  @InternalUseOnly()
+  static void setDefaultEnvironmentVariableValue(final String value)
+  {
+    DEFAULT_ENVIRONMENT_VARIABLE_VALUE = value;
   }
 }

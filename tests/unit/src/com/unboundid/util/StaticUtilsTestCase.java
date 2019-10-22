@@ -3020,7 +3020,7 @@ public class StaticUtilsTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testMapOfObjecttPairs()
+  public void testMapOfObjectPairs()
          throws Exception
   {
     final Map<String,Integer> m1 = StaticUtils.mapOfObjectPairs();
@@ -3097,5 +3097,45 @@ public class StaticUtilsTestCase
     assertNotNull(StaticUtils.getSystemProperties("foo", "bar"));
     assertEquals(StaticUtils.getSystemProperties("foo", "bar"),
          System.getProperties());
+  }
+
+
+
+  /**
+   * Tests the behavior of methods for interacting with environment variables.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetEnvironmentVariables()
+         throws Exception
+  {
+    final Map<String,String> definedVariables =
+         StaticUtils.getEnvironmentVariables();
+    assertNotNull(definedVariables);
+
+    for (final Map.Entry<String,String> e : definedVariables.entrySet())
+    {
+      final String name = e.getKey();
+      final String expectedValue = e.getValue();
+      final String actualValue = StaticUtils.getEnvironmentVariable(name);
+      assertEquals(actualValue, expectedValue);
+
+      assertEquals(StaticUtils.getEnvironmentVariable(name, "default value"),
+           expectedValue);
+    }
+
+    while (true)
+    {
+      final String randomKey = UUID.randomUUID().toString();
+      if (! definedVariables.containsKey(randomKey))
+      {
+        assertNull(StaticUtils.getEnvironmentVariable(randomKey));
+        assertEquals(
+             StaticUtils.getEnvironmentVariable(randomKey, "default value"),
+             "default value");
+        break;
+      }
+    }
   }
 }

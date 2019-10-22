@@ -4539,4 +4539,34 @@ public final class StaticUtils
       return hostAddress;
     }
   }
+
+
+
+  /**
+   * Retrieves the value of the specified environment variable.
+   *
+   * @param  name          The name of the environment variable for which to
+   *                       retrieve the value.
+   * @param  defaultValue  The default value to use if the specified environment
+   *                       variable is not set.  It may be {@code null} if no
+   *                       default should be used.
+   *
+   * @return  The value of the requested environment variable, or {@code null}
+   *          if that variable was not set or its value could not be retrieved
+   *          (for example, because a security manager prevents it) and there
+   *          is no default value.
+   */
+  public static String getEnvironmentVariable(final String name,
+                                              final String defaultValue)
+  {
+    final String value = getEnvironmentVariable(name);
+    if (value == null)
+    {
+      return defaultValue;
+    }
+    else
+    {
+      return value;
+    }
+  }
 }
