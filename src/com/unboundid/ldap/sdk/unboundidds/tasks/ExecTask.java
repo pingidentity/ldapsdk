@@ -72,6 +72,8 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
  *       output to the server error log.</LI>
  *   <LI>An optional string that specifies the task state that should be used
  *       if the command completes with a nonzero exit code.</LI>
+ *   <LI>An optional string that specifies the path to the working directory to
+ *       use when executing the command.</LI>
  * </UL>
  */
 @NotMutable()
@@ -128,6 +130,15 @@ public final class ExecTask
    */
   private static final String ATTR_TASK_STATE_FOR_NONZERO_EXIT_CODE =
        "ds-task-exec-task-completion-state-for-nonzero-exit-code";
+
+
+
+  /**
+   * The name of the attribute used to specify the path to the working directory
+   * to use when executing the command.
+   */
+  private static final String ATTR_WORKING_DIRECTORY =
+       "ds-task-exec-working-directory";
 
 
 
@@ -189,7 +200,7 @@ public final class ExecTask
   private static final TaskProperty PROPERTY_TASK_STATE_FOR_NONZERO_EXIT_CODE =
      new TaskProperty(ATTR_TASK_STATE_FOR_NONZERO_EXIT_CODE,
           INFO_EXEC_DISPLAY_NAME_TASK_STATE_FOR_NONZERO_EXIT_CODE.get(),
-          INFO_EXEC_DESCRIPTION_NAME_TASK_STATE_FOR_NONZERO_EXIT_CODE.get(),
+          INFO_EXEC_DESCRIPTION_TASK_STATE_FOR_NONZERO_EXIT_CODE.get(),
           String.class, false, false, false,
           new String[]
           {
@@ -204,9 +215,21 @@ public final class ExecTask
 
 
   /**
+   * The task property that will be used for path to use as the the path to the
+   * working directory to use when executing the command.
+   */
+  private static final TaskProperty PROPERTY_WORKING_DIRECTORY =
+     new TaskProperty(ATTR_WORKING_DIRECTORY,
+          INFO_EXEC_DISPLAY_NAME_WORKING_DIRECTORY.get(),
+          INFO_EXEC_DESCRIPTION_WORKING_DIRECTORY.get(),
+          String.class, false, false, false);
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -6541429978844959603L;
+  private static final long serialVersionUID = -1647609631634328008L;
 
 
 
@@ -226,6 +249,9 @@ public final class ExecTask
   // with a nonzero exit code.
   private final String taskStateForNonZeroExitCode;
 
+  // The path to the working directory to use when executing the command.
+  private final String workingDirectory;
+
 
 
   /**
@@ -241,6 +267,7 @@ public final class ExecTask
     commandOutputFile = null;
     logCommandOutput = null;
     taskStateForNonZeroExitCode = null;
+    workingDirectory = null;
   }
 
 
@@ -293,6 +320,62 @@ public final class ExecTask
     this(null, commandPath, commandArguments, commandOutputFile,
          logCommandOutput, taskStateForNonZeroExitCode, null, null, null, null,
          null);
+  }
+
+
+
+  /**
+   * Creates a new exec task with the provided information.
+   *
+   * @param  commandPath
+   *              The absolute path (on the server filesystem) to the command
+   *              that should be executed.  This must not be {@code null}.
+   * @param  commandArguments
+   *              The complete set of arguments that should be used when
+   *              running the command.  This may be {@code null} if no arguments
+   *              should be provided.
+   * @param  commandOutputFile
+   *              The path to an output file that should be used to record all
+   *              output that the command writes to standard output or standard
+   *              error.  This may be {@code null} if the command output should
+   *              not be recorded in a file.
+   * @param  logCommandOutput
+   *              Indicates whether to record the command output in the server
+   *              error log.  If this is {@code true}, then all non-blank lines
+   *              that the command writes to standard output or standard error
+   *              will be recorded in the server error log.  if this is
+   *              {@code false}, then the output will not be recorded in the
+   *              server error log.  If this is {@code null}, then the server
+   *              will determine whether to log command output.  Note that a
+   *              value of {@code true} should only be used if you are certain
+   *              that the tool will only generate text-based output, and you
+   *              should use {@code false} if you know that the command may
+   *              generate non-text output.
+   * @param  taskStateForNonZeroExitCode
+   *              The task state that should be used if the command completes
+   *              with a nonzero exit code.  This may be {@code null} to
+   *              indicate that the server should determine the appropriate task
+   *              state.  If it is non-{@code null}, then the value must be one
+   *              of {@link TaskState#STOPPED_BY_ERROR},
+   *              {@link TaskState#COMPLETED_WITH_ERRORS}, or
+   *              {@link TaskState#COMPLETED_SUCCESSFULLY}.
+   * @param  workingDirectory
+   *              The path to the working directory to use when executing the
+   *              command.
+   *
+   * @throws  TaskException  If there is a problem with any of the provided
+   *                         arguments.
+   */
+  public ExecTask(final String commandPath, final String commandArguments,
+                  final String commandOutputFile,
+                  final Boolean logCommandOutput,
+                  final TaskState taskStateForNonZeroExitCode,
+                  final String workingDirectory)
+         throws TaskException
+  {
+    this(null, commandPath, commandArguments, commandOutputFile,
+         logCommandOutput, taskStateForNonZeroExitCode, workingDirectory, null,
+         null, null, null, null, null, null, null, null, null);
   }
 
 
@@ -457,6 +540,103 @@ public final class ExecTask
                   final Boolean alertOnSuccess, final Boolean alertOnError)
          throws TaskException
   {
+    this(taskID, commandPath, commandArguments, commandOutputFile,
+         logCommandOutput, taskStateForNonZeroExitCode, null,
+         scheduledStartTime, dependencyIDs, failedDependencyAction,
+         notifyOnStart, notifyOnCompletion, notifyOnSuccess, notifyOnError,
+         alertOnStart, alertOnSuccess, alertOnError);
+  }
+
+
+
+  /**
+   * Creates a new exec task with the provided information.
+   *
+   * @param  taskID
+   *              The task ID to use for this task.  If it is {@code null} then
+   *              a UUID will be generated for use as the task ID.
+   * @param  commandPath
+   *              The absolute path (on the server filesystem) to the command
+   *              that should be executed.  This must not be {@code null}.
+   * @param  commandArguments
+   *              The complete set of arguments that should be used when
+   *              running the command.  This may be {@code null} if no arguments
+   *              should be provided.
+   * @param  commandOutputFile
+   *              The path to an output file that should be used to record all
+   *              output that the command writes to standard output or standard
+   *              error.  This may be {@code null} if the command output should
+   *              not be recorded in a file.
+   * @param  logCommandOutput
+   *              Indicates whether to record the command output in the server
+   *              error log.  If this is {@code true}, then all non-blank lines
+   *              that the command writes to standard output or standard error
+   *              will be recorded in the server error log.  if this is
+   *              {@code false}, then the output will not be recorded in the
+   *              server error log.  If this is {@code null}, then the server
+   *              will determine whether to log command output.  Note that a
+   *              value of {@code true} should only be used if you are certain
+   *              that the tool will only generate text-based output, and you
+   *              should use {@code false} if you know that the command may
+   *              generate non-text output.
+   * @param  taskStateForNonZeroExitCode
+   *              The task state that should be used if the command completes
+   *              with a nonzero exit code.  This may be {@code null} to
+   *              indicate that the server should determine the appropriate task
+   *              state.  If it is non-{@code null}, then the value must be one
+   *              of {@link TaskState#STOPPED_BY_ERROR},
+   *              {@link TaskState#COMPLETED_WITH_ERRORS}, or
+   *              {@link TaskState#COMPLETED_SUCCESSFULLY}.
+   * @param  workingDirectory
+   *              The path to the working directory to use when executing the
+   *              command.
+   * @param  scheduledStartTime
+   *              The time that this task should start running.
+   * @param  dependencyIDs
+   *              The list of task IDs that will be required to complete before
+   *              this task will be eligible to start.
+   * @param  failedDependencyAction
+   *              Indicates what action should be taken if any of the
+   *              dependencies for this task do not complete successfully.
+   * @param  notifyOnStart
+   *              The list of e-mail addresses of individuals that should be
+   *              notified when this task starts.
+   * @param  notifyOnCompletion
+   *              The list of e-mail addresses of individuals that should be
+   *              notified when this task completes.
+   * @param  notifyOnSuccess
+   *              The list of e-mail addresses of individuals that should be
+   *              notified if this task completes successfully.
+   * @param  notifyOnError
+   *              The list of e-mail addresses of individuals that should be
+   *              notified if this task does not complete successfully.
+   * @param  alertOnStart
+   *              Indicates whether the server should send an alert notification
+   *              when this task starts.
+   * @param  alertOnSuccess
+   *              Indicates whether the server should send an alert notification
+   *              if this task completes successfully.
+   * @param  alertOnError
+   *              Indicates whether the server should send an alert notification
+   *              if this task fails to complete successfully.
+   *
+   * @throws  TaskException  If there is a problem with any of the provided
+   *                         arguments.
+   */
+  public ExecTask(final String taskID, final String commandPath,
+                  final String commandArguments, final String commandOutputFile,
+                  final Boolean logCommandOutput,
+                  final TaskState taskStateForNonZeroExitCode,
+                  final String workingDirectory, final Date scheduledStartTime,
+                  final List<String> dependencyIDs,
+                  final FailedDependencyAction failedDependencyAction,
+                  final List<String> notifyOnStart,
+                  final List<String> notifyOnCompletion,
+                  final List<String> notifyOnSuccess,
+                  final List<String> notifyOnError, final Boolean alertOnStart,
+                  final Boolean alertOnSuccess, final Boolean alertOnError)
+         throws TaskException
+  {
     super(taskID, EXEC_TASK_CLASS, scheduledStartTime, dependencyIDs,
          failedDependencyAction, notifyOnStart, notifyOnCompletion,
          notifyOnSuccess, notifyOnError, alertOnStart, alertOnSuccess,
@@ -466,6 +646,7 @@ public final class ExecTask
     this.commandArguments = commandArguments;
     this.commandOutputFile = commandOutputFile;
     this.logCommandOutput = logCommandOutput;
+    this.workingDirectory = workingDirectory;
 
     if ((commandPath == null) || commandPath.isEmpty())
     {
@@ -525,6 +706,7 @@ public final class ExecTask
          entry.getAttributeValueAsBoolean(ATTR_LOG_COMMAND_OUTPUT);
     taskStateForNonZeroExitCode =
          entry.getAttributeValue(ATTR_TASK_STATE_FOR_NONZERO_EXIT_CODE);
+    workingDirectory = entry.getAttributeValue(ATTR_WORKING_DIRECTORY);
   }
 
 
@@ -549,6 +731,7 @@ public final class ExecTask
     String outputFile = null;
     Boolean logOutput = null;
     String nonZeroExitState = null;
+    String workingDir = null;
     for (final Map.Entry<TaskProperty,List<Object>> entry :
          properties.entrySet())
     {
@@ -576,6 +759,10 @@ public final class ExecTask
       {
         nonZeroExitState = parseString(p, values, nonZeroExitState);
       }
+      else if (attrName.equals(ATTR_WORKING_DIRECTORY))
+      {
+        workingDir = parseString(p, values, workingDir);
+      }
     }
 
     commandPath = path;
@@ -583,6 +770,7 @@ public final class ExecTask
     commandOutputFile = outputFile;
     logCommandOutput = logOutput;
     taskStateForNonZeroExitCode = nonZeroExitState;
+    workingDirectory = workingDir;
 
     if (commandPath == null)
     {
@@ -688,6 +876,22 @@ public final class ExecTask
 
 
   /**
+   * Retrieves the path to the working directory to use when executing the
+   * command.
+   *
+   * @return  The path to the working directory to use when executing the
+   *          command, or {@code null} if the task should not specify the
+   *          working directory and the server root directory should be used by
+   *          default.
+   */
+  public String getWorkingDirectory()
+  {
+    return workingDirectory;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -729,6 +933,11 @@ public final class ExecTask
            taskStateForNonZeroExitCode));
     }
 
+    if (workingDirectory != null)
+    {
+      attrList.add(new Attribute(ATTR_WORKING_DIRECTORY, workingDirectory));
+    }
+
     return attrList;
   }
 
@@ -743,7 +952,8 @@ public final class ExecTask
     return Collections.unmodifiableList(Arrays.asList(
          PROPERTY_COMMAND_PATH, PROPERTY_COMMAND_ARGUMENTS,
          PROPERTY_COMMAND_OUTPUT_FILE, PROPERTY_LOG_COMMAND_OUTPUT,
-         PROPERTY_TASK_STATE_FOR_NONZERO_EXIT_CODE));
+         PROPERTY_TASK_STATE_FOR_NONZERO_EXIT_CODE,
+         PROPERTY_WORKING_DIRECTORY));
   }
 
 
@@ -755,7 +965,8 @@ public final class ExecTask
   public Map<TaskProperty,List<Object>> getTaskPropertyValues()
   {
     final LinkedHashMap<TaskProperty, List<Object>> props =
-         new LinkedHashMap<>(StaticUtils.computeMapCapacity(5));
+         new LinkedHashMap<>(StaticUtils.computeMapCapacity(
+              StaticUtils.computeMapCapacity(6)));
 
     props.put(PROPERTY_COMMAND_PATH,
          Collections.<Object>singletonList(commandPath));
@@ -782,6 +993,12 @@ public final class ExecTask
     {
       props.put(PROPERTY_TASK_STATE_FOR_NONZERO_EXIT_CODE,
            Collections.<Object>singletonList(taskStateForNonZeroExitCode));
+    }
+
+    if (workingDirectory != null)
+    {
+      props.put(PROPERTY_WORKING_DIRECTORY,
+           Collections.<Object>singletonList(workingDirectory));
     }
 
     return Collections.unmodifiableMap(props);

@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated support for the exec task to make it possible to specify the path to the
+                  working directory to use when executing the command.  Previously, the server
+                  would always use the instance root directory as the working directory, and that
+                  will still be the default if no working directory is specified.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the encoding and decoding of X.509 certificates that
                   included an authority key extension that included the optional
                   authorityCertIssuer element.

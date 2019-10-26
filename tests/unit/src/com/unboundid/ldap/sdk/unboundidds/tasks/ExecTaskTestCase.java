@@ -64,12 +64,13 @@ public class ExecTaskTestCase
 
   /**
    * Tests the behavior when trying to create an exec task with values for all
-   * of the exec-related arguments.
+   * of the exec-related arguments when using the variant that does not
+   * support the working directory.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testCreateWithValuesForAllArguments()
+  public void testCreateWithValuesForAllArgumentsNoOptionForWorkingDirectory()
          throws Exception
   {
     ExecTask t = new ExecTask("/path/to/command", "command arguments",
@@ -103,6 +104,8 @@ public class ExecTaskTestCase
     assertEquals(t.getTaskStateForNonZeroExitCode(),
          TaskState.STOPPED_BY_ERROR.name());
 
+    assertNull(t.getWorkingDirectory());
+
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
     assertEquals(t.getAdditionalObjectClasses(),
@@ -112,10 +115,73 @@ public class ExecTaskTestCase
     assertEquals(t.getAdditionalAttributes().size(), 5);
 
     assertNotNull(t.getTaskSpecificProperties());
-    assertEquals(t.getTaskSpecificProperties().size(), 5);
+    assertEquals(t.getTaskSpecificProperties().size(), 6);
 
     assertNotNull(t.getTaskPropertyValues());
     assertEquals(t.getTaskPropertyValues().size(), 5);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create an exec task with values for all
+   * of the exec-related arguments when using the variant that supports the
+   * working directory.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateWithValuesForAllArgumentsWithOptionForWorkingDirectory()
+         throws Exception
+  {
+    ExecTask t = new ExecTask("/path/to/command", "command arguments",
+         "/path/to/output", true, TaskState.STOPPED_BY_ERROR,
+         "/path/to/working/directory");
+
+    t = (ExecTask) Task.decodeTask(t.createTaskEntry());
+    assertNotNull(t);
+
+    t = new ExecTask(t.getTaskPropertyValues());
+
+    assertEquals(t.getTaskClassName(),
+         "com.unboundid.directory.server.tasks.ExecTask");
+
+    assertNotNull(t.getTaskName());
+
+    assertNotNull(t.getTaskDescription());
+
+    assertNotNull(t.getCommandPath());
+    assertEquals(t.getCommandPath(), "/path/to/command");
+
+    assertNotNull(t.getCommandArguments());
+    assertEquals(t.getCommandArguments(), "command arguments");
+
+    assertNotNull(t.getCommandOutputFile());
+    assertEquals(t.getCommandOutputFile(), "/path/to/output");
+
+    assertNotNull(t.logCommandOutput());
+    assertEquals(t.logCommandOutput(), Boolean.TRUE);
+
+    assertNotNull(t.getTaskStateForNonZeroExitCode());
+    assertEquals(t.getTaskStateForNonZeroExitCode(),
+         TaskState.STOPPED_BY_ERROR.name());
+
+    assertNotNull(t.getWorkingDirectory());
+    assertEquals(t.getWorkingDirectory(), "/path/to/working/directory");
+
+    assertNotNull(t.getAdditionalObjectClasses());
+    assertEquals(t.getAdditionalObjectClasses().size(), 1);
+    assertEquals(t.getAdditionalObjectClasses(),
+         Collections.singletonList("ds-task-exec"));
+
+    assertNotNull(t.getAdditionalAttributes());
+    assertEquals(t.getAdditionalAttributes().size(), 6);
+
+    assertNotNull(t.getTaskSpecificProperties());
+    assertEquals(t.getTaskSpecificProperties().size(), 6);
+
+    assertNotNull(t.getTaskPropertyValues());
+    assertEquals(t.getTaskPropertyValues().size(), 6);
   }
 
 
@@ -155,6 +221,8 @@ public class ExecTaskTestCase
 
     assertNull(t.getTaskStateForNonZeroExitCode());
 
+    assertNull(t.getWorkingDirectory());
+
     assertNotNull(t.getAdditionalObjectClasses());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
     assertEquals(t.getAdditionalObjectClasses(),
@@ -164,7 +232,7 @@ public class ExecTaskTestCase
     assertEquals(t.getAdditionalAttributes().size(), 1);
 
     assertNotNull(t.getTaskSpecificProperties());
-    assertEquals(t.getTaskSpecificProperties().size(), 5);
+    assertEquals(t.getTaskSpecificProperties().size(), 6);
 
     assertNotNull(t.getTaskPropertyValues());
     assertEquals(t.getTaskPropertyValues().size(), 1);
