@@ -57,7 +57,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4056, 4058, 4071, 4080, 4096));
+         "StaticUtils.java", StaticUtils.setOf(4064, 4066, 4079, 4088, 4104));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -102,7 +102,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4111, 4138, 4142, 4157, 4171));
+         "StaticUtils.java", StaticUtils.setOf(4119, 4146, 4150, 4165, 4179));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -147,7 +147,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4209, 4214));
+         "StaticUtils.java", StaticUtils.setOf(4217, 4222));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -192,7 +192,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4205, 4215, 4241, 4245));
+         "StaticUtils.java", StaticUtils.setOf(4213, 4223, 4249, 4253));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -237,7 +237,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4267, 4271, 4295, 4299));
+         "StaticUtils.java", StaticUtils.setOf(4275, 4279, 4303, 4307));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -284,7 +284,7 @@ public final class ProhibitedMethodCallsTestCase
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
          "Debug.java", StaticUtils.setOf(72),
-         "StaticUtils.java", StaticUtils.setOf(4321, 4344));
+         "StaticUtils.java", StaticUtils.setOf(4329, 4352));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));

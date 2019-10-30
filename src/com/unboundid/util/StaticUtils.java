@@ -1496,16 +1496,58 @@ public final class StaticUtils
    * (if available) for the stack trace.
    *
    * @param  elements  The stack trace.
-   * @param  buffer  The buffer to which the information should be appended.
+   * @param  buffer    The buffer to which the information should be appended.
    */
   public static void getStackTrace(final StackTraceElement[] elements,
                                    final StringBuilder buffer)
   {
+    getStackTrace(elements, buffer, -1);
+  }
+
+
+
+  /**
+   * Appends a single-line string representation of the stack trace to the given
+   * buffer.  It will include a list of source files and line numbers
+   * (if available) for the stack trace.
+   *
+   * @param  elements         The stack trace.
+   * @param  buffer           The buffer to which the information should be
+   *                          appended.
+   * @param  maxPreSDKFrames  The maximum number of stack trace frames to
+   *                          include from code invoked before calling into the
+   *                          LDAP SDK.  A value of zero indicates that only
+   *                          stack trace frames from the LDAP SDK itself (or
+   *                          things that it calls) will be included.  A
+   *                          negative value indicates that
+   */
+  public static void getStackTrace(final StackTraceElement[] elements,
+                                   final StringBuilder buffer,
+                                   final int maxPreSDKFrames)
+  {
+    boolean sdkElementFound = false;
+    int numPreSDKElementsFound = 0;
     for (int i=0; i < elements.length; i++)
     {
       if (i > 0)
       {
         buffer.append(" / ");
+      }
+
+      if (elements[i].getClassName().startsWith("com.unboundid."))
+      {
+        sdkElementFound = true;
+      }
+      else if (sdkElementFound)
+      {
+        if ((maxPreSDKFrames >= 0) &&
+             (numPreSDKElementsFound >= maxPreSDKFrames))
+        {
+          buffer.append("...");
+          return;
+        }
+
+        numPreSDKElementsFound++;
       }
 
       buffer.append(elements[i].getMethodName());
@@ -1603,45 +1645,11 @@ public final class StaticUtils
     }
     else if (t instanceof NullPointerException)
     {
+      // For NullPointerExceptions, we'll always print at least a portion of
+      // the stack trace that includes all of the LDAP SDK code, and up to
+      // three frames of whatever called into the SDK.
       buffer.append("NullPointerException(");
-
-      final StackTraceElement[] stackTraceElements = t.getStackTrace();
-      for (int i=0; i < stackTraceElements.length; i++)
-      {
-        final StackTraceElement e = stackTraceElements[i];
-        if (i > 0)
-        {
-          buffer.append(" / ");
-        }
-
-        buffer.append(e.getFileName());
-
-        final int lineNumber = e.getLineNumber();
-        if (lineNumber > 0)
-        {
-          buffer.append(':');
-          buffer.append(lineNumber);
-        }
-        else if (e.isNativeMethod())
-        {
-          buffer.append(":native");
-        }
-        else
-        {
-          buffer.append(":unknown");
-        }
-
-        if (e.getClassName().contains("unboundid"))
-        {
-          if (i < (stackTraceElements.length - 1))
-          {
-            buffer.append(" ...");
-          }
-
-          break;
-        }
-      }
-
+      getStackTrace(t.getStackTrace(), buffer, 3);
       buffer.append(')');
     }
     else if ((t.getMessage() == null) || t.getMessage().isEmpty() ||

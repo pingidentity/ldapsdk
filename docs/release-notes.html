@@ -49,6 +49,17 @@ ${TARGET="offline"}                <br>
                   environment variable is not set.
                   <br><br>
                 </li>
+
+                <li>
+                  Updated <tt>StaticUtils</tt> to add a <tt>getStackTrace</tt> method variant that
+                  allows you to limit the number of stack trace frames to include from code before
+                  the call into the LDAP SDK.  Also updated the
+                  <tt>StaticUtils.getExceptionMessage</tt> behavior for a
+                  <tt>NullPointerException</tt> so that it now shows all frames from the LDAP SDK
+                  (and anything that the LDAP SDK calls), and up to three frames from code before
+                  the call into the LDAP SDK.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
