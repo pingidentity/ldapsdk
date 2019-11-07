@@ -34,6 +34,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1Null;
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DisconnectType;
@@ -41,6 +42,8 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
@@ -713,6 +716,7 @@ public class DebugTestCase
     assertFalse(Debug.debugEnabled());
     assertFalse(Debug.debugEnabled(DebugType.ASN1));
     assertFalse(Debug.debugEnabled(DebugType.CONNECT));
+    assertFalse(Debug.debugEnabled(DebugType.CONNECTION_POOL));
     assertFalse(Debug.debugEnabled(DebugType.EXCEPTION));
     assertFalse(Debug.debugEnabled(DebugType.LDAP));
     assertFalse(Debug.debugEnabled(DebugType.LDIF));
@@ -724,6 +728,7 @@ public class DebugTestCase
     assertTrue(Debug.debugEnabled());
     assertFalse(Debug.debugEnabled(DebugType.ASN1));
     assertFalse(Debug.debugEnabled(DebugType.CONNECT));
+    assertFalse(Debug.debugEnabled(DebugType.CONNECTION_POOL));
     assertTrue(Debug.debugEnabled(DebugType.EXCEPTION));
     assertFalse(Debug.debugEnabled(DebugType.LDAP));
     assertFalse(Debug.debugEnabled(DebugType.LDIF));
@@ -735,6 +740,7 @@ public class DebugTestCase
     assertFalse(Debug.debugEnabled());
     assertFalse(Debug.debugEnabled(DebugType.ASN1));
     assertFalse(Debug.debugEnabled(DebugType.CONNECT));
+    assertFalse(Debug.debugEnabled(DebugType.CONNECTION_POOL));
     assertFalse(Debug.debugEnabled(DebugType.EXCEPTION));
     assertFalse(Debug.debugEnabled(DebugType.LDAP));
     assertFalse(Debug.debugEnabled(DebugType.LDIF));
@@ -746,6 +752,7 @@ public class DebugTestCase
     Debug.setEnabled(true);
     assertTrue(Debug.debugEnabled(DebugType.ASN1));
     assertTrue(Debug.debugEnabled(DebugType.CONNECT));
+    assertTrue(Debug.debugEnabled(DebugType.CONNECTION_POOL));
     assertTrue(Debug.debugEnabled(DebugType.EXCEPTION));
     assertTrue(Debug.debugEnabled(DebugType.LDAP));
     assertTrue(Debug.debugEnabled(DebugType.LDIF));
@@ -757,6 +764,7 @@ public class DebugTestCase
     Debug.setEnabled(true, null);
     assertTrue(Debug.debugEnabled(DebugType.ASN1));
     assertTrue(Debug.debugEnabled(DebugType.CONNECT));
+    assertTrue(Debug.debugEnabled(DebugType.CONNECTION_POOL));
     assertTrue(Debug.debugEnabled(DebugType.EXCEPTION));
     assertTrue(Debug.debugEnabled(DebugType.LDAP));
     assertTrue(Debug.debugEnabled(DebugType.LDIF));
@@ -768,6 +776,7 @@ public class DebugTestCase
     Debug.setEnabled(true, EnumSet.noneOf(DebugType.class));
     assertTrue(Debug.debugEnabled(DebugType.ASN1));
     assertTrue(Debug.debugEnabled(DebugType.CONNECT));
+    assertTrue(Debug.debugEnabled(DebugType.CONNECTION_POOL));
     assertTrue(Debug.debugEnabled(DebugType.EXCEPTION));
     assertTrue(Debug.debugEnabled(DebugType.LDAP));
     assertTrue(Debug.debugEnabled(DebugType.LDIF));
@@ -3007,6 +3016,57 @@ public class DebugTestCase
          new byte[] { 0x01, 0x02, 0x03, 0x04 });
 
     assertTrue(testLogHandler.getMessageCount() >= 3);
+  }
+
+
+
+  /**
+   * Provides coverage for the method that debugs connection pool interaction.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDebugConnectionPool()
+         throws Exception
+  {
+    Debug.setEnabled(true);
+    testLogHandler.resetMessageCount();
+
+    assertTrue(Debug.debugEnabled(DebugType.CONNECTION_POOL));
+
+    final InMemoryDirectoryServer ds = getTestDS();
+    final LDAPConnectionPool pool = ds.getConnectionPool(1);
+
+    assertNotNull(pool.getRootDSE());
+    assertTrue(testLogHandler.getMessageCount() >= 2);
+    testLogHandler.resetMessageCount();
+
+    pool.setConnectionPoolName("Test pool");
+    final LDAPConnection conn = pool.getConnection();
+    conn.setConnectionName("Test connection");
+    pool.releaseConnection(conn);
+    assertTrue(testLogHandler.getMessageCount() >= 2);
+    testLogHandler.resetMessageCount();
+
+    pool.close();
+    assertTrue(testLogHandler.getMessageCount() >= 1);
+    testLogHandler.resetMessageCount();
+
+    try
+    {
+      pool.getRootDSE();
+      fail("Expected an exception when trying to use a closed pool");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected.
+    }
+    assertTrue(testLogHandler.getMessageCount() >= 1);
+    testLogHandler.resetMessageCount();
+
+    Debug.debugConnectionPool(Level.SEVERE, pool, null, "Test message",
+         new Exception());
+    assertTrue(testLogHandler.getMessageCount() >= 1);
   }
 
 

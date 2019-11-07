@@ -62,6 +62,14 @@ public enum DebugType
 
 
   /**
+   * The debug type that will be used for information about connection pool
+   * interaction.
+   */
+  CONNECTION_POOL("connection-pool"),
+
+
+
+  /**
    * The debug type that will be used for debugging information about LDIF
    * entries or change records read or written.
    */
@@ -144,6 +152,11 @@ public enum DebugType
         return EXCEPTION;
       case "ldap":
         return LDAP;
+      case "pool":
+      case "connectionpool":
+      case "connection-pool":
+      case "connection_pool":
+        return CONNECTION_POOL;
       case "ldif":
         return LDIF;
       case "monitor":

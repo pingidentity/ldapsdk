@@ -22,6 +22,12 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.logging.Level;
+
+import com.unboundid.util.Debug;
+
+
+
 /**
  * This class provides a task that will close a connection for a connection
  * pool.
@@ -67,6 +73,8 @@ final class ParallelPoolCloserTask
       if (stats != null)
       {
         stats.incrementNumConnectionsClosedUnneeded();
+        Debug.debugConnectionPool(Level.INFO, pool, connection,
+             "Closing a pooled connection because the pool is closing", null);
       }
     }
 

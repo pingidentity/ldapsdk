@@ -14,6 +14,13 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added connection pool debugging support.  The debugging covers checking out,
+                  releasing, establishing, and closing connections for use in the pool, as well as
+                  closing the pool itself.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated support for the exec task to make it possible to specify the path to the
                   working directory to use when executing the command.  Previously, the server
                   would always use the instance root directory as the working directory, and that

@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.ldap.protocol.LDAPResponse;
+import com.unboundid.ldap.sdk.AbstractConnectionPool;
 import com.unboundid.ldap.sdk.DisconnectType;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.InternalSDKHelper;
@@ -1170,6 +1171,82 @@ public final class Debug
       buffer.append('"');
 
       logger.log(l, buffer.toString());
+    }
+  }
+
+
+
+  /**
+   * Writes debug information about interaction with a connection pool.
+   *
+   * @param  l  The log level that should be used for the debug information.
+   * @param  p  The associated connection pool.
+   * @param  c  The associated LDAP connection, if appropriate.
+   * @param  m  A message with information about the pool interaction.
+   * @param  e  An exception to include with the log message, if appropriate.
+   */
+  public static void debugConnectionPool(final Level l,
+                                         final AbstractConnectionPool p,
+                                         final LDAPConnection c, final String m,
+                                         final Throwable e)
+  {
+    if (debugEnabled && debugTypes.contains(DebugType.CONNECTION_POOL))
+    {
+      final StringBuilder buffer = new StringBuilder();
+      addCommonHeader(buffer, l);
+
+      final String poolName = p.getConnectionPoolName();
+      buffer.append("connectionPool=\"");
+      if (poolName == null)
+      {
+        buffer.append("{unnamed}");
+      }
+      else
+      {
+        buffer.append(poolName);
+      }
+      buffer.append("\" ");
+
+      if (c != null)
+      {
+        buffer.append(" connectionID=");
+        buffer.append(c.getConnectionID());
+
+        final String hostPort = c.getHostPort();
+        if ((hostPort != null) && (! hostPort.isEmpty()))
+        {
+          buffer.append(" connectedTo=\"");
+          buffer.append(hostPort);
+          buffer.append('"');
+        }
+      }
+
+      final long currentAvailable = p.getCurrentAvailableConnections();
+      if (currentAvailable >= 0)
+      {
+        buffer.append(" currentAvailableConnections=");
+        buffer.append(currentAvailable);
+      }
+
+      final long maxAvailable = p.getCurrentAvailableConnections();
+      if (maxAvailable >= 0)
+      {
+        buffer.append(" maxAvailableConnections=");
+        buffer.append(maxAvailable);
+      }
+
+      buffer.append(" message=\"");
+      buffer.append(m);
+      buffer.append('"');
+
+      if (e != null)
+      {
+        buffer.append(" exception=\"");
+        StaticUtils.getStackTrace(e, buffer);
+        buffer.append('"');
+      }
+
+      logger.log(l, buffer.toString(), e);
     }
   }
 
