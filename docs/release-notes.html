@@ -21,6 +21,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the passphrase-encrypted output stream to provide an option to override
+                  the default key factory iteration count (16,384 rounds when using the baseline
+                  encryption strength and 131,027 rounds when using the strong encryption option).
+                  <br><br>
+                </li>
+
+                <li>
                   Updated support for the exec task to make it possible to specify the path to the
                   working directory to use when executing the command.  Previously, the server
                   would always use the instance root directory as the working directory, and that

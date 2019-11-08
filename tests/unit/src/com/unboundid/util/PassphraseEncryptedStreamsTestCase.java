@@ -234,7 +234,7 @@ public final class PassphraseEncryptedStreamsTestCase
               new FileOutputStream(encryptedFile);
          PassphraseEncryptedOutputStream passphraseEncryptedOutputStream =
               new PassphraseEncryptedOutputStream("passphrase",
-                   fileOutputStream, "key-identifier", true, true);
+                   fileOutputStream, "key-identifier", true, 4_096, true);
          PrintStream printStream =
               new PrintStream(passphraseEncryptedOutputStream))
     {
@@ -242,7 +242,7 @@ public final class PassphraseEncryptedStreamsTestCase
       assertEquals(
            passphraseEncryptedOutputStream.getEncryptionHeader().
                 getKeyFactoryIterationCount(),
-           131_072);
+           4_096);
 
       for (final String line : linesToEncrypt)
       {
@@ -257,7 +257,7 @@ public final class PassphraseEncryptedStreamsTestCase
               new FileOutputStream(encryptedFile);
          PassphraseEncryptedOutputStream passphraseEncryptedOutputStream =
               new PassphraseEncryptedOutputStream("passphrase",
-                   fileOutputStream, "key-identifier", true, true);
+                   fileOutputStream, "key-identifier", true, 4_096, true);
          PrintStream printStream =
               new PrintStream(passphraseEncryptedOutputStream))
     {
@@ -265,7 +265,7 @@ public final class PassphraseEncryptedStreamsTestCase
       assertEquals(
            passphraseEncryptedOutputStream.getEncryptionHeader().
                 getKeyFactoryIterationCount(),
-           131_072);
+           4_096);
 
       for (final String line : linesToEncrypt)
       {

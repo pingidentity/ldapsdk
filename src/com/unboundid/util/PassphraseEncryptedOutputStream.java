@@ -188,13 +188,13 @@ public final class PassphraseEncryptedOutputStream
    * will write the generated {@link PassphraseEncryptedStreamHeader} to the
    * underlying stream before writing any encrypted data.
    *
-   * @param  passphrase           The passphrase that will be used to generate
-   *                              the encryption key.  It must not be
-   *                              {@code null}.
-   * @param  wrappedOutputStream  The output stream to which the encrypted data
-   *                              (optionally preceded by a header with
-   *                              details about the encryption) will be written.
-   *                              It must not be {@code null}.
+   * @param  passphrase
+   *              The passphrase that will be used to generate the encryption
+   *              key.  It must not be {@code null}.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
    *
    * @throws  GeneralSecurityException  If a problem is encountered while
    *                                    initializing the encryption.
@@ -218,13 +218,13 @@ public final class PassphraseEncryptedOutputStream
    * will write the generated {@link PassphraseEncryptedStreamHeader} to the
    * underlying stream before writing any encrypted data.
    *
-   * @param  passphrase           The passphrase that will be used to generate
-   *                              the encryption key.  It must not be
-   *                              {@code null}.
-   * @param  wrappedOutputStream  The output stream to which the encrypted data
-   *                              (optionally preceded by a header with
-   *                              details about the encryption) will be written.
-   *                              It must not be {@code null}.
+   * @param  passphrase
+   *              The passphrase that will be used to generate the encryption
+   *              key.  It must not be {@code null}.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
    *
    * @throws  GeneralSecurityException  If a problem is encountered while
    *                                    initializing the encryption.
@@ -245,41 +245,37 @@ public final class PassphraseEncryptedOutputStream
    * Creates a new passphrase-encrypted output stream with the provided
    * information.
    *
-   * @param  passphrase           The passphrase that will be used to generate
-   *                              the encryption key.  It must not be
-   *                              {@code null}.
-   * @param  wrappedOutputStream  The output stream to which the encrypted data
-   *                              (optionally preceded by a header with
-   *                              details about the encryption) will be written.
-   *                              It must not be {@code null}.
-   * @param  keyIdentifier        An optional identifier that may be used to
-   *                              associate the encryption details with
-   *                              information in another system.  This is
-   *                              primarily intended for use in conjunction with
-   *                              UnboundID/Ping Identity products, but may be
-   *                              useful in other systems.  It may be
-   *                              {@code null} if no key identifier is needed.
-   * @param  useStrongEncryption  Indicates whether to attempt to use strong
-   *                              encryption, if it is available.  If this is
-   *                              {@code true} and the JVM supports the stronger
-   *                              level of encryption, then that encryption will
-   *                              be used.  If this is {@code false}, or if the
-   *                              JVM does not support the attempted stronger
-   *                              level of encryption, then the baseline
-   *                              configuration will be used.
-   * @param  writeHeaderToStream  Indicates whether to write the generated
-   *                              {@link PassphraseEncryptedStreamHeader} to the
-   *                              provided {@code wrappedOutputStream} before
-   *                              any encrypted data so that a
-   *                              {@link PassphraseEncryptedInputStream} can
-   *                              read it to obtain information necessary for
-   *                              decrypting the data.  If this is
-   *                              {@code false}, then the
-   *                              {@link #getEncryptionHeader()} method must be
-   *                              used to obtain the encryption header so that
-   *                              it can be stored elsewhere and provided to the
-   *                              {@code PassphraseEncryptedInputStream}
-   *                              constructor.
+   * @param  passphrase
+   *              The passphrase that will be used to generate the encryption
+   *              key.  It must not be {@code null}.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
+   * @param  keyIdentifier
+   *              An optional identifier that may be used to associate the
+   *              encryption details with information in another system.  This
+   *              is primarily intended for use in conjunction with
+   *              UnboundID/Ping Identity products, but may be useful in other
+   *              systems.  It may be {@code null} if no key identifier is
+   *              needed.
+   * @param  useStrongEncryption
+   *              Indicates whether to attempt to use strong encryption, if it
+   *              is available.  If this is {@code true} and the JVM supports
+   *              the stronger level of encryption, then that encryption will be
+   *              used.  If this is {@code false}, or if the JVM does not
+   *              support the attempted stronger level of encryption, then the
+   *              baseline configuration will be used.
+   * @param  writeHeaderToStream
+   *              Indicates whether to write the generated
+   *              {@link PassphraseEncryptedStreamHeader} to the provided
+   *              {@code wrappedOutputStream} before any encrypted data so that
+   *              a {@link PassphraseEncryptedInputStream} can read it to obtain
+   *              information necessary for decrypting the data.  If this is
+   *              {@code false}, then the {@link #getEncryptionHeader()} method
+   *              must be used to obtain the encryption header so that it can be
+   *              stored elsewhere and provided to the
+   *              {@code PassphraseEncryptedInputStream} constructor.
    *
    * @throws  GeneralSecurityException  If a problem is encountered while
    *                                    initializing the encryption.
@@ -304,41 +300,37 @@ public final class PassphraseEncryptedOutputStream
    * Creates a new passphrase-encrypted output stream with the provided
    * information.
    *
-   * @param  passphrase           The passphrase that will be used to generate
-   *                              the encryption key.  It must not be
-   *                              {@code null}.
-   * @param  wrappedOutputStream  The output stream to which the encrypted data
-   *                              (optionally preceded by a header with
-   *                              details about the encryption) will be written.
-   *                              It must not be {@code null}.
-   * @param  keyIdentifier        An optional identifier that may be used to
-   *                              associate the encryption details with
-   *                              information in another system.  This is
-   *                              primarily intended for use in conjunction with
-   *                              UnboundID/Ping Identity products, but may be
-   *                              useful in other systems.  It may be
-   *                              {@code null} if no key identifier is needed.
-   * @param  useStrongEncryption  Indicates whether to attempt to use strong
-   *                              encryption, if it is available.  If this is
-   *                              {@code true} and the JVM supports the stronger
-   *                              level of encryption, then that encryption will
-   *                              be used.  If this is {@code false}, or if the
-   *                              JVM does not support the attempted stronger
-   *                              level of encryption, then the baseline
-   *                              configuration will be used.
-   * @param  writeHeaderToStream  Indicates whether to write the generated
-   *                              {@link PassphraseEncryptedStreamHeader} to the
-   *                              provided {@code wrappedOutputStream} before
-   *                              any encrypted data so that a
-   *                              {@link PassphraseEncryptedInputStream} can
-   *                              read it to obtain information necessary for
-   *                              decrypting the data.  If this is
-   *                              {@code false}, then the
-   *                              {@link #getEncryptionHeader()} method must be
-   *                              used to obtain the encryption header so that
-   *                              it can be stored elsewhere and provided to the
-   *                              {@code PassphraseEncryptedInputStream}
-   *                              constructor.
+   * @param  passphrase
+   *              The passphrase that will be used to generate the encryption
+   *              key.  It must not be {@code null}.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
+   * @param  keyIdentifier
+   *              An optional identifier that may be used to associate the
+   *              encryption details with information in another system.  This
+   *              is primarily intended for use in conjunction with
+   *              UnboundID/Ping Identity products, but may be useful in other
+   *              systems.  It may be {@code null} if no key identifier is
+   *              needed.
+   * @param  useStrongEncryption
+   *              Indicates whether to attempt to use strong encryption, if it
+   *              is available.  If this is {@code true} and the JVM supports
+   *              the stronger level of encryption, then that encryption will be
+   *              used.  If this is {@code false}, or if the JVM does not
+   *              support the attempted stronger level of encryption, then the
+   *              baseline configuration will be used.
+   * @param  writeHeaderToStream
+   *              Indicates whether to write the generated
+   *              {@link PassphraseEncryptedStreamHeader} to the provided
+   *              {@code wrappedOutputStream} before any encrypted data so that
+   *              a {@link PassphraseEncryptedInputStream} can read it to obtain
+   *              information necessary for decrypting the data.  If this is
+   *              {@code false}, then the {@link #getEncryptionHeader()} method
+   *              must be used to obtain the encryption header so that it can be
+   *              stored elsewhere and provided to the
+   *              {@code PassphraseEncryptedInputStream} constructor.
    *
    * @throws  GeneralSecurityException  If a problem is encountered while
    *                                    initializing the encryption.
@@ -353,6 +345,127 @@ public final class PassphraseEncryptedOutputStream
                                          final boolean writeHeaderToStream)
          throws GeneralSecurityException, IOException
   {
+    this(passphrase, wrappedOutputStream, keyIdentifier, useStrongEncryption,
+         (useStrongEncryption
+              ? STRONG_KEY_FACTORY_ITERATION_COUNT
+              : BASELINE_KEY_FACTORY_ITERATION_COUNT),
+         writeHeaderToStream);
+  }
+
+
+
+  /**
+   * Creates a new passphrase-encrypted output stream with the provided
+   * information.
+   *
+   * @param  passphrase
+   *              The passphrase that will be used to generate the encryption
+   *              key.  It must not be {@code null}.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
+   * @param  keyIdentifier
+   *              An optional identifier that may be used to associate the
+   *              encryption details with information in another system.  This
+   *              is primarily intended for use in conjunction with
+   *              UnboundID/Ping Identity products, but may be useful in other
+   *              systems.  It may be {@code null} if no key identifier is
+   *              needed.
+   * @param  useStrongEncryption
+   *              Indicates whether to attempt to use strong encryption, if it
+   *              is available.  If this is {@code true} and the JVM supports
+   *              the stronger level of encryption, then that encryption will be
+   *              used.  If this is {@code false}, or if the JVM does not
+   *              support the attempted stronger level of encryption, then the
+   *              baseline configuration will be used.
+   * @param  keyFactoryIterationCount
+   *              The iteration count to use when generating the encryption key
+   *              from the provided passphrase.
+   * @param  writeHeaderToStream
+   *              Indicates whether to write the generated
+   *              {@link PassphraseEncryptedStreamHeader} to the provided
+   *              {@code wrappedOutputStream} before any encrypted data so that
+   *              a {@link PassphraseEncryptedInputStream} can read it to obtain
+   *              information necessary for decrypting the data.  If this is
+   *              {@code false}, then the {@link #getEncryptionHeader()} method
+   *              must be used to obtain the encryption header so that it can be
+   *              stored elsewhere and provided to the
+   *              {@code PassphraseEncryptedInputStream} constructor.
+   *
+   * @throws  GeneralSecurityException  If a problem is encountered while
+   *                                    initializing the encryption.
+   *
+   * @throws  IOException  If a problem is encountered while writing the
+   *                       encryption header to the underlying output stream.
+   */
+  public PassphraseEncryptedOutputStream(final String passphrase,
+                                         final OutputStream wrappedOutputStream,
+                                         final String keyIdentifier,
+                                         final boolean useStrongEncryption,
+                                         final int keyFactoryIterationCount,
+                                         final boolean writeHeaderToStream)
+         throws GeneralSecurityException, IOException
+  {
+    this(passphrase.toCharArray(), wrappedOutputStream, keyIdentifier,
+         useStrongEncryption, keyFactoryIterationCount, writeHeaderToStream);
+  }
+
+
+
+  /**
+   * Creates a new passphrase-encrypted output stream with the provided
+   * information.
+   *
+   * @param  passphrase
+   *              The passphrase that will be used to generate the encryption
+   *              key.  It must not be {@code null}.
+   * @param  wrappedOutputStream
+   *              The output stream to which the encrypted data (optionally
+   *              preceded by a header with details about the encryption) will
+   *              be written.  It must not be {@code null}.
+   * @param  keyIdentifier
+   *              An optional identifier that may be used to associate the
+   *              encryption details with information in another system.  This
+   *              is primarily intended for use in conjunction with
+   *              UnboundID/Ping Identity products, but may be useful in other
+   *              systems.  It may be {@code null} if no key identifier is
+   *              needed.
+   * @param  useStrongEncryption
+   *              Indicates whether to attempt to use strong encryption, if it
+   *              is available.  If this is {@code true} and the JVM supports
+   *              the stronger level of encryption, then that encryption will be
+   *              used.  If this is {@code false}, or if the JVM does not
+   *              support the attempted stronger level of encryption, then the
+   *              baseline configuration will be used.
+   * @param  keyFactoryIterationCount
+   *              The iteration count to use when generating the encryption key
+   *              from the provided passphrase.
+   * @param  writeHeaderToStream
+   *              Indicates whether to write the generated
+   *              {@link PassphraseEncryptedStreamHeader} to the provided
+   *              {@code wrappedOutputStream} before any encrypted data so that
+   *              a {@link PassphraseEncryptedInputStream} can read it to obtain
+   *              information necessary for decrypting the data.  If this is
+   *              {@code false}, then the {@link #getEncryptionHeader()} method
+   *              must be used to obtain the encryption header so that it can be
+   *              stored elsewhere and provided to the
+   *              {@code PassphraseEncryptedInputStream} constructor.
+   *
+   * @throws  GeneralSecurityException  If a problem is encountered while
+   *                                    initializing the encryption.
+   *
+   * @throws  IOException  If a problem is encountered while writing the
+   *                       encryption header to the underlying output stream.
+   */
+  public PassphraseEncryptedOutputStream(final char[] passphrase,
+                                         final OutputStream wrappedOutputStream,
+                                         final String keyIdentifier,
+                                         final boolean useStrongEncryption,
+                                         final int keyFactoryIterationCount,
+                                         final boolean writeHeaderToStream)
+         throws GeneralSecurityException, IOException
+  {
     final SecureRandom random = new SecureRandom();
 
     final byte[] keyFactorySalt = new byte[KEY_FACTORY_SALT_LENGTH_BYTES];
@@ -362,13 +475,11 @@ public final class PassphraseEncryptedOutputStream
          new byte[CIPHER_INITIALIZATION_VECTOR_LENGTH_BYTES];
     random.nextBytes(cipherInitializationVector);
 
-    final int keyFactoryIterationCount;
     final String macAlgorithm;
     PassphraseEncryptedStreamHeader header = null;
     CipherOutputStream cipherStream = null;
     if (useStrongEncryption)
     {
-      keyFactoryIterationCount = STRONG_KEY_FACTORY_ITERATION_COUNT;
       macAlgorithm = STRONG_MAC_ALGORITHM;
 
       final Boolean supportsStrongEncryption = SUPPORTS_STRONG_ENCRYPTION.get();
@@ -401,7 +512,6 @@ public final class PassphraseEncryptedOutputStream
     }
     else
     {
-      keyFactoryIterationCount = BASELINE_KEY_FACTORY_ITERATION_COUNT;
       macAlgorithm = BASELINE_MAC_ALGORITHM;
     }
 
