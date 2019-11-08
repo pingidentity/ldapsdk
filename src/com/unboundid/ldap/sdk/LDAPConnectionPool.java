@@ -1165,6 +1165,8 @@ public final class LDAPConnectionPool
     retryOperationTypes = new AtomicReference<>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
     minConnectionGoal   = 0;
+    numConnections = maxConnections;
+    availableConnections = new LinkedBlockingQueue<>(numConnections);
 
     if (healthCheck == null)
     {
@@ -1219,10 +1221,6 @@ public final class LDAPConnectionPool
       }
     }
 
-    numConnections = maxConnections;
-
-    availableConnections =
-         new LinkedBlockingQueue<>(numConnections);
     availableConnections.addAll(connList);
 
     failedReplaceCount                 =

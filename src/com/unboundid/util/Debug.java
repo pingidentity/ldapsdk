@@ -1228,7 +1228,7 @@ public final class Debug
         buffer.append(currentAvailable);
       }
 
-      final long maxAvailable = p.getCurrentAvailableConnections();
+      final long maxAvailable = p.getMaximumAvailableConnections();
       if (maxAvailable >= 0)
       {
         buffer.append(" maxAvailableConnections=");
