@@ -9449,6 +9449,12 @@ public final class ManageCertificates
                INFO_MANAGE_CERTS_PRINT_CERT_LABEL_EXT_KU_DE.get());
         }
 
+        if (kue.isKeyAgreementBitSet())
+        {
+          out(indent + "               " +
+               INFO_MANAGE_CERTS_PRINT_CERT_LABEL_EXT_KU_KA.get());
+        }
+
         if (kue.isKeyCertSignBitSet())
         {
           out(indent + "               " +

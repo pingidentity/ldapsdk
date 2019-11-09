@@ -43,6 +43,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in manage-certificates when displaying verbose information about
+                  a certificate that included the key usage extension.  It failed to properly
+                  indicate when the key agreement flag was set in the extension.
+                  <br><br>
+                </li>
+
+                <li>
                   Made the <tt>ManageCertificates.readCertificatesFromFile</tt> method public so
                   that it can be used outside of the LDAP SDK.  This method can be used to read a
                   set of PEM-encoded or DER-encoded X.509 certificates from a specified file.
