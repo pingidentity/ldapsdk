@@ -57,6 +57,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the manage-certificates check-certificate-usability command to add an
+                  additional check to see whether the certificate at the root of the chain is
+                  found in the JVM's set of trusted issuer certificates.  If the CA certificate
+                  is not found in the JVM's default trust store, a notice will be displayed, but
+                  the tool will still complete with a success result.
+                  <br><br>
+                </li>
+
+                <li>
                   Made the <tt>ManageCertificates.readCertificatesFromFile</tt> method public so
                   that it can be used outside of the LDAP SDK.  This method can be used to read a
                   set of PEM-encoded or DER-encoded X.509 certificates from a specified file.

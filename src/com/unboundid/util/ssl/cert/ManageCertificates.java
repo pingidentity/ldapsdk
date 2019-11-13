@@ -8294,6 +8294,73 @@ public final class ManageCertificates
     }
 
 
+    // If there are multiple certificates in the chain, and if the last
+    // certificate in the chain is self-signed, then check to see if it is
+    // contained in the JVM-default trust manager.  If it isn't, then we'll
+    // display a notice, but we won't consider it a warning in and of itself.
+    if ((chain.length > 1) && chain[chain.length-1].isSelfSigned())
+    {
+      final X509Certificate caCert = chain[chain.length-1];
+
+      try
+      {
+        final String jvmDefaultTrustStoreType =
+             inferKeystoreType(JVM_DEFAULT_CACERTS_FILE);
+        final KeyStore jvmDefaultTrustStore =
+             KeyStore.getInstance(jvmDefaultTrustStoreType);
+        try (FileInputStream inputStream =
+                  new FileInputStream(JVM_DEFAULT_CACERTS_FILE))
+        {
+          jvmDefaultTrustStore.load(inputStream, null);
+        }
+
+        boolean found = false;
+        final Enumeration<String> aliases = jvmDefaultTrustStore.aliases();
+        while (aliases.hasMoreElements())
+        {
+          final String jvmDefaultCertAlias = aliases.nextElement();
+          if (jvmDefaultTrustStore.isCertificateEntry(jvmDefaultCertAlias))
+          {
+            final Certificate c =
+                 jvmDefaultTrustStore.getCertificate(jvmDefaultCertAlias);
+            final X509Certificate xc = new X509Certificate(c.getEncoded());
+            if ((caCert.getSubjectDN().equals(xc.getSubjectDN())) &&
+                 Arrays.equals(caCert.getSignatureValue().getBits(),
+                      xc.getSignatureValue().getBits()))
+            {
+              found = true;
+              break;
+            }
+          }
+        }
+
+        if (found)
+        {
+          out();
+          wrapOut(0, WRAP_COLUMN,
+               INFO_MANAGE_CERTS_CHECK_USABILITY_CA_TRUSTED_OK.get(
+                    caCert.getSubjectDN()));
+        }
+        else
+        {
+          out();
+          wrapOut(0, WRAP_COLUMN,
+               NOTE_MANAGE_CERTS_CHECK_USABILITY_CA_NOT_IN_JVM_DEFAULT_TS.get(
+                    caCert.getSubjectDN()));
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        err();
+        wrapErr(0, WRAP_COLUMN,
+             WARN_MANAGE_CERTS_CHECK_USABILITY_CHECK_CA_IN_TS_ERROR.get(
+                  caCert.getSubjectDN(), StaticUtils.getExceptionMessage(e)));
+        numWarnings++;
+      }
+    }
+
+
     // Make sure that the signature is valid for each certificate in the
     // chain.  If any certificate has an invalid signature, then that's an
     // error.
