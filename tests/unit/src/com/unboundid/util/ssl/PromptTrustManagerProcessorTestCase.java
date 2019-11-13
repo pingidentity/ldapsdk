@@ -887,11 +887,20 @@ public final class PromptTrustManagerProcessorTestCase
     // during testing.
     final File tempDir = createTempDir();
 
-    final String caCertificateAlias = "ca-cert";
-    final String caKeyStorePath = new File(tempDir,
-         caCertificateAlias + "-keystore.jks").getAbsolutePath();
-    final String caCertificatePath =
-         new File(tempDir, caCertificateAlias + ".cert").getAbsolutePath();
+    final String rootCACertificateAlias = "root-ca-cert";
+    final String rootCAKeyStorePath = new File(tempDir,
+         rootCACertificateAlias + "-keystore.jks").getAbsolutePath();
+    final String rootCACertificatePath =
+         new File(tempDir, rootCACertificateAlias + ".cert").getAbsolutePath();
+
+    final String intermediateCACertificateAlias = "intermediate-ca-cert";
+    final String intermediateCAKeyStorePath = new File(tempDir,
+         intermediateCACertificateAlias + "-keystore.jks").getAbsolutePath();
+    final String intermediateCACSRPath = new File(tempDir,
+         intermediateCACertificateAlias + ".csr").getAbsolutePath();
+    final String intermediateCACertificatePath =
+         new File(tempDir, intermediateCACertificateAlias + ".cert").
+              getAbsolutePath();
 
     final String serverCertificateAlias = "server-cert";
     final String serverKeyStorePath = new File(tempDir,
@@ -901,13 +910,13 @@ public final class PromptTrustManagerProcessorTestCase
     final String serverCertificatePath =
          new File(tempDir, serverCertificateAlias + ".cert").getAbsolutePath();
 
-    // Create a JKS keystore with just a CA certificate.
+    // Create a JKS keystore with just a root CA certificate.
     manageCertificates(
          "generate-self-signed-certificate",
-         "--keystore", caKeyStorePath,
+         "--keystore", rootCAKeyStorePath,
          "--keystore-password", "password",
          "--keystore-type", "JKS",
-         "--alias", caCertificateAlias,
+         "--alias", rootCACertificateAlias,
          "--subject-dn", "CN=Example Root CA,O=Example Corporation,C=US",
          "--days-valid", "7300",
          "--key-algorithm", "RSA",
@@ -915,20 +924,21 @@ public final class PromptTrustManagerProcessorTestCase
          "--signature-algorithm", "SHA256withRSA",
          "--subject-alternative-name-email-address", "ca@example.com",
          "--basic-constraints-is-ca", "true",
-         "--basic-constraints-maximum-path-length", "1",
+         "--basic-constraints-maximum-path-length", "0",
          "--key-usage", "key-cert-sign",
          "--display-keytool-command");
     manageCertificates(
          "export-certificate",
-         "--keystore", caKeyStorePath,
+         "--keystore", rootCAKeyStorePath,
          "--keystore-password", "password",
-         "--alias", caCertificateAlias,
+         "--alias", rootCACertificateAlias,
          "--output-format", "PEM",
-         "--output-file", caCertificatePath,
+         "--output-file", rootCACertificatePath,
          "--display-keytool-command");
 
 
-    // Create a JKS keystore with a server certificate that is signed by the CA.
+    // Create a JKS keystore with a server certificate that is signed by the
+    // root CA.
     manageCertificates(
          "generate-certificate-signing-request",
          "--output-file", serverCSRPath,
@@ -955,9 +965,9 @@ public final class PromptTrustManagerProcessorTestCase
          "--request-input-file", serverCSRPath,
          "--certificate-output-file", serverCertificatePath,
          "--output-format", "PEM",
-         "--keystore", caKeyStorePath,
+         "--keystore", rootCAKeyStorePath,
          "--keystore-password", "password",
-         "--signing-certificate-alias", caCertificateAlias,
+         "--signing-certificate-alias", rootCACertificateAlias,
          "--days-valid", "365",
          "--include-requested-extensions",
          "--no-prompt",
@@ -965,7 +975,7 @@ public final class PromptTrustManagerProcessorTestCase
     manageCertificates(
          "import-certificate",
          "--certificate-file", serverCertificatePath,
-         "--certificate-file", caCertificatePath,
+         "--certificate-file", rootCACertificatePath,
          "--keystore", serverKeyStorePath,
          "--keystore-password", "password",
          "--alias", serverCertificateAlias,
@@ -974,24 +984,146 @@ public final class PromptTrustManagerProcessorTestCase
 
 
     // Load the keystore and get the certificate chain.
-    final KeyStore keystore = KeyStore.getInstance("JKS");
+    KeyStore keystore = KeyStore.getInstance("JKS");
     try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
     {
       keystore.load(inputStream, "password".toCharArray());
     }
 
-    final Certificate[] javaChain =
+    Certificate[] javaChain =
          keystore.getCertificateChain(serverCertificateAlias);
-    final X509Certificate[] ldapSDKChain =
-         PromptTrustManager.convertChain(javaChain);
+    X509Certificate[] ldapSDKChain = PromptTrustManager.convertChain(javaChain);
 
 
     // Invoke the shouldPrompt method and examine the result.
-    final ObjectPair<Boolean,List<String>> promptResult =
+    ObjectPair<Boolean,List<String>> promptResult =
          PromptTrustManagerProcessor.shouldPrompt(
               PromptTrustManager.getCacheKey(javaChain[0]),
               ldapSDKChain, true, true, Collections.<String,Boolean>emptyMap(),
               Collections.singletonList("ldap.example.com"));
+
+    assertNotNull(promptResult.getFirst());
+    assertEquals(promptResult.getFirst(), Boolean.TRUE);
+
+    assertNotNull(promptResult.getSecond());
+    assertTrue(promptResult.getSecond().isEmpty());
+
+
+    // Create a JKS keystore with an intermediate CA certificate that is signed
+    // by the root CA.
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", intermediateCACSRPath,
+         "--keystore", intermediateCAKeyStorePath,
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", intermediateCACertificateAlias,
+         "--subject-dn",
+              "CN=Example Intermediate CA,O=Example Corporation,C=US",
+         "--key-algorithm", "RSA",
+         "--key-size-bits", "2048",
+         "--signature-algorithm", "SHA256withRSA",
+         "--basic-constraints-is-ca", "true",
+         "--basic-constraints-maximum-path-length", "0",
+         "--subject-alternative-name-dns", "ldap.example.com",
+         "--subject-alternative-name-dns", "ldap",
+         "--subject-alternative-name-dns", "ds.example.com",
+         "--subject-alternative-name-dns", "ds",
+         "--subject-alternative-name-dns", "localhost",
+         "--subject-alternative-name-ip-address", "127.0.0.1",
+         "--subject-alternative-name-ip-address", "::1",
+         "--extended-key-usage", "server-auth",
+         "--extended-key-usage", "client-auth",
+         "--display-keytool-command");
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", intermediateCACSRPath,
+         "--certificate-output-file", intermediateCACertificatePath,
+         "--output-format", "PEM",
+         "--keystore", rootCAKeyStorePath,
+         "--keystore-password", "password",
+         "--signing-certificate-alias", rootCACertificateAlias,
+         "--days-valid", "365",
+         "--include-requested-extensions",
+         "--no-prompt",
+         "--display-keytool-command");
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", intermediateCACertificatePath,
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", intermediateCAKeyStorePath,
+         "--keystore-password", "password",
+         "--alias", intermediateCACertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+
+
+    // Delete the server certificate keystore and recreate it with a server
+    // certificate that is signed by the intermediate CA.
+    assertTrue(new File(serverKeyStorePath).delete());
+    assertTrue(new File(serverCertificatePath).delete());
+    assertTrue(new File(serverCSRPath).delete());
+    manageCertificates(
+         "generate-certificate-signing-request",
+         "--output-file", serverCSRPath,
+         "--keystore", serverKeyStorePath,
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", serverCertificateAlias,
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--key-algorithm", "RSA",
+         "--key-size-bits", "2048",
+         "--signature-algorithm", "SHA256withRSA",
+         "--subject-alternative-name-dns", "ldap.example.com",
+         "--subject-alternative-name-dns", "ldap",
+         "--subject-alternative-name-dns", "ds.example.com",
+         "--subject-alternative-name-dns", "ds",
+         "--subject-alternative-name-dns", "localhost",
+         "--subject-alternative-name-ip-address", "127.0.0.1",
+         "--subject-alternative-name-ip-address", "::1",
+         "--extended-key-usage", "server-auth",
+         "--extended-key-usage", "client-auth",
+         "--display-keytool-command");
+    manageCertificates(
+         "sign-certificate-signing-request",
+         "--request-input-file", serverCSRPath,
+         "--certificate-output-file", serverCertificatePath,
+         "--output-format", "PEM",
+         "--keystore", intermediateCAKeyStorePath,
+         "--keystore-password", "password",
+         "--signing-certificate-alias", intermediateCACertificateAlias,
+         "--days-valid", "365",
+         "--include-requested-extensions",
+         "--no-prompt",
+         "--display-keytool-command");
+    manageCertificates(
+         "import-certificate",
+         "--certificate-file", serverCertificatePath,
+         "--certificate-file", intermediateCACertificatePath,
+         "--certificate-file", rootCACertificatePath,
+         "--keystore", serverKeyStorePath,
+         "--keystore-password", "password",
+         "--alias", serverCertificateAlias,
+         "--no-prompt",
+         "--display-keytool-command");
+
+
+    // Load the keystore and get the certificate chain.
+    keystore = KeyStore.getInstance("JKS");
+    try (FileInputStream inputStream = new FileInputStream(serverKeyStorePath))
+    {
+      keystore.load(inputStream, "password".toCharArray());
+    }
+
+    javaChain = keystore.getCertificateChain(serverCertificateAlias);
+    ldapSDKChain = PromptTrustManager.convertChain(javaChain);
+
+
+    // Invoke the shouldPrompt method and examine the result.
+    promptResult = PromptTrustManagerProcessor.shouldPrompt(
+         PromptTrustManager.getCacheKey(javaChain[0]),
+         ldapSDKChain, true, true, Collections.<String,Boolean>emptyMap(),
+         Collections.singletonList("ldap.example.com"));
 
     assertNotNull(promptResult.getFirst());
     assertEquals(promptResult.getFirst(), Boolean.TRUE);

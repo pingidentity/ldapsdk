@@ -36,6 +36,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in the prompt trust manager that could cause it to display an
+                  incorrect warning for some certificates with a basic constraints extension with
+                  a path length constraint.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue in the encoding and decoding of X.509 certificates that
                   included an authority key extension that included the optional
                   authorityCertIssuer element.

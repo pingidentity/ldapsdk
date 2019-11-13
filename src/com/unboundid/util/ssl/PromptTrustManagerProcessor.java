@@ -279,11 +279,21 @@ final class PromptTrustManagerProcessor
                chain[i].getSubjectDN()));
         }
         else if ((bc.getPathLengthConstraint() != null) &&
-             (bc.getPathLengthConstraint() < chain.length))
+             ((i-1) > bc.getPathLengthConstraint()))
         {
-          warningMessages.add(WARN_PROMPT_PROCESSOR_BC_PATH_LENGTH_EXCEEDED.get(
-               chain[i].getSubjectDN(), bc.getPathLengthConstraint(),
-               chain.length));
+          if (bc.getPathLengthConstraint() == 0)
+          {
+            warningMessages.add(
+                 WARN_PROMPT_PROCESSOR_BC_DISALLOWED_INTERMEDIATE.get(
+                      chain[i].getSubjectDN()));
+          }
+          else
+          {
+            warningMessages.add(
+                 WARN_PROMPT_PROCESSOR_BC_TOO_MANY_INTERMEDIATES.get(
+                      chain[i].getSubjectDN(), bc.getPathLengthConstraint(),
+                      (i-1)));
+          }
         }
 
         if ((ku != null) && (! ku.isKeyCertSignBitSet()))
