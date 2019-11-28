@@ -297,7 +297,7 @@ public final class ASN1StreamReader
     }
     else
     {
-      if (saslInputStream == null)
+      if ((saslInputStream == null) || (saslInputStream.available() <= 0))
       {
         readAndDecodeSASLData(-1);
       }
