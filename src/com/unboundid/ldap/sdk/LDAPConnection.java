@@ -198,7 +198,7 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.MOSTLY_THREADSAFE)
 public final class LDAPConnection
-       implements LDAPInterface, ReferralConnector, Closeable
+       implements FullLDAPInterface, ReferralConnector, Closeable
 {
   /**
    * The counter that will be used when assigning connection IDs to connections.

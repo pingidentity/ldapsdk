@@ -60,12 +60,12 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.FullLDAPInterface;
 import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.Modification;
@@ -147,8 +147,8 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       files, and it has the ability to capture a point-in-time snapshot of
  *       the data (including changelog information) that may be restored at any
  *       point.</LI>
- *   <LI>It implements the {@link LDAPInterface} interface, which means that in
- *       many cases it can be used as a drop-in replacement for an
+ *   <LI>It implements the {@link FullLDAPInterface} interface, which means that
+ *       in many cases it can be used as a drop-in replacement for an
  *       {@link LDAPConnection}.</LI>
  * </UL>
  * <BR><BR>
@@ -228,7 +228,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class InMemoryDirectoryServer
-       implements LDAPInterface
+       implements FullLDAPInterface
 {
   // The in-memory request handler that will be used for the server.
   private final InMemoryRequestHandler inMemoryHandler;
@@ -464,6 +464,17 @@ public final class InMemoryDirectoryServer
                 StaticUtils.getExceptionMessage(e)),
            e);
     }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void close()
+  {
+    shutDown(true);
   }
 
 

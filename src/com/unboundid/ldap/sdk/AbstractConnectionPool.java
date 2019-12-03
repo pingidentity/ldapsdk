@@ -53,7 +53,7 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)
 public abstract class AbstractConnectionPool
-       implements LDAPInterface, Closeable
+       implements FullLDAPInterface, Closeable
 {
   /**
    * Closes this connection pool.  All connections currently held in the pool

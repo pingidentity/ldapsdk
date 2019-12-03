@@ -37,7 +37,14 @@ import com.unboundid.util.ThreadSafetyLevel;
  * This interface defines a set of methods that are available for objects that
  * may be used to communicate with an LDAP directory server.  This can be used
  * to facilitate development of methods which can be used for either a single
- * LDAP connection or an LDAP connection pool.
+ * LDAP connection or an LDAP connection pool.  Note that this interface does
+ * not include support for bind or extended operations, as they may alter the
+ * state of the underlying connection (or connection-like object), and care must
+ * be taken when invoking such operations.  The {@link FullLDAPInterface}
+ * interface is a subclass of this interface that does include support for
+ * bind and extended operations, but those methods should be used with care to
+ * ensure that they do not inappropriately alter the state of the associated
+ * object.
  * <BR><BR>
  * At present, all implementations provided by the LDAP SDK are at least mostly
  * threadsafe and can be used to process multiple requests concurrently.

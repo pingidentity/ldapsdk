@@ -22,6 +22,27 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added a new <tt>FullLDAPInterface</tt> interface that extends
+                  <tt>LDAPInterface</tt> and adds support for <tt>close</tt>, <tt>bind</tt>, and
+                  <tt>processExtendedOperation</tt> methods.  The existing
+                  <tt>LDAPConnection</tt>, <tt>AbstractConnectionPool</tt>, and
+                  <tt>InMemoryDirectoryServer</tt> classes have been updated to implement this
+                  interface rather than its <tt>LDAPInterface</tt> superclass.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new a new non-final <tt>MockableLDAPConnection</tt> class that makes it
+                  easier to mock an <tt>LDAPConnection</tt> instance.  It implements
+                  <tt>FullLDAPInterface</tt> and wraps a provided <tt>LDAPConnection</tt> instance.
+                  If you create a <tt>MockableLDAPConnection</tt> subclass, then you may override
+                  any of the <tt>FullLDAPInterface</tt> methods to implement your own behavior.
+                  Any non-overridden methods will simply invoke the corresponding method on the
+                  provided <tt>LDAPConnection</tt> instance.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a minor typo in the <tt>ldapsearch</tt> usage information
                   <br><br>
                 </li>
