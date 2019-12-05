@@ -414,7 +414,7 @@ public final class GenerateToolUsage
                                     final String s,
                                     final LinkedHashMap<String[],String> m)
   {
-    if (m.isEmpty())
+    if ((m == null) || m.isEmpty())
     {
       return;
     }
@@ -807,7 +807,7 @@ public final class GenerateToolUsage
                                  final String s,
                                  final LinkedHashMap<String[],String> m)
   {
-    if (m.isEmpty())
+    if ((m == null) || m.isEmpty())
     {
       return;
     }
