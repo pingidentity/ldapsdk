@@ -235,7 +235,6 @@ public class SearchRateTestCase
       "-p", String.valueOf(getTestPort()),
       "-D", getTestBindDN(),
       "-w", getTestBindPassword(),
-      "-b", getTestBaseDN(),
       "-s", "sub",
       "-f", "(uid=user.[1-10])",
       "-t", "10",

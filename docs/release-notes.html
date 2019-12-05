@@ -22,6 +22,12 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue that prevented the searchrate tool from running if neither a base
+                  DN pattern nor an LDAP URL pattern was provided.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new <tt>FullLDAPInterface</tt> interface that extends
                   <tt>LDAPInterface</tt> and adds support for <tt>close</tt>, <tt>bind</tt>, and
                   <tt>processExtendedOperation</tt> methods.  The existing

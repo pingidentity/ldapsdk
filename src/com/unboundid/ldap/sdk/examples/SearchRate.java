@@ -922,9 +922,13 @@ public final class SearchRate
       {
         dnPattern = new ValuePattern(baseDN.getValue(), seed);
       }
-      else
+      else if (ldapURL.isPresent())
       {
         dnPattern = null;
+      }
+      else
+      {
+        dnPattern = new ValuePattern("", seed);
       }
     }
     catch (final ParseException pe)
