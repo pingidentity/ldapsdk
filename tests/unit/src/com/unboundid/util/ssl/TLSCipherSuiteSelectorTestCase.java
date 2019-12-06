@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -262,21 +263,26 @@ public final class TLSCipherSuiteSelectorTestCase
     assertNotNull(selectedSuites);
     assertFalse(selectedSuites.isEmpty());
     assertEquals(selectedSuites,
-         TLSCipherSuiteSelector.getSupportedCipherSuites()):
+         TLSCipherSuiteSelector.getSupportedCipherSuites());
 
     selectedSuites = TLSCipherSuiteSelector.selectSupportedCipherSuites(
          TLSCipherSuiteSelector.getDefaultCipherSuites());
     assertNotNull(selectedSuites);
     assertFalse(selectedSuites.isEmpty());
     assertEquals(selectedSuites,
-         TLSCipherSuiteSelector.getDefaultCipherSuites()):
+         TLSCipherSuiteSelector.getDefaultCipherSuites());
 
     selectedSuites = TLSCipherSuiteSelector.selectSupportedCipherSuites(
          TLSCipherSuiteSelector.getRecommendedCipherSuites());
     assertNotNull(selectedSuites);
     assertFalse(selectedSuites.isEmpty());
     assertEquals(selectedSuites,
-         TLSCipherSuiteSelector.getRecommendedCipherSuites()):
+         TLSCipherSuiteSelector.getRecommendedCipherSuites());
+
+    selectedSuites = TLSCipherSuiteSelector.selectSupportedCipherSuites(
+         Arrays.asList("unsupported1", "unsupported2", "unsupported3"));
+    assertNotNull(selectedSuites);
+    assertTrue(selectedSuites.isEmpty());
   }
 
 
