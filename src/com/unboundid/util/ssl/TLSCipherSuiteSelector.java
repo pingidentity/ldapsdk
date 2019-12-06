@@ -26,9 +26,13 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -636,5 +640,50 @@ public final class TLSCipherSuiteSelector
     {
       s.println("* " + cipherSuite);
     }
+  }
+
+
+
+  /**
+   * Filters the provided collection of potential cipher suite names to retrieve
+   * a set of the suites that are supported by the JVM.
+   *
+   * @param  potentialSuiteNames  The collection of cipher suite names to be
+   *                              filtered.
+   *
+   * @return  The set of provided cipher suites that are supported by the JVM,
+   *          or an empty set if none of the potential provided suite names are
+   *          supported by the JVM.
+   */
+  public static Set<String> selectSupportedCipherSuites(
+       final Collection<String> potentialSuiteNames)
+  {
+    if (potentialSuiteNames == null)
+    {
+      return Collections.emptySet();
+    }
+
+    final int capacity =
+         StaticUtils.computeMapCapacity(INSTANCE.supportedCipherSuites.size());
+    final Map<String,String> supportedMap = new HashMap<>(capacity);
+    for (final String supportedSuite : INSTANCE.supportedCipherSuites)
+    {
+      supportedMap.put(
+           StaticUtils.toUpperCase(supportedSuite).replace('-', '_'),
+           supportedSuite);
+    }
+
+    final Set<String> selectedSet = new LinkedHashSet<>(capacity);
+    for (final String potentialSuite : potentialSuiteNames)
+    {
+      final String supportedName = supportedMap.get(
+           StaticUtils.toUpperCase(potentialSuite).replace('-', '_'));
+      if (supportedName != null)
+      {
+        selectedSet.add(supportedName);
+      }
+    }
+
+    return Collections.unmodifiableSet(selectedSet);
   }
 }

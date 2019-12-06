@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
@@ -174,6 +175,13 @@ public final class TLSCipherSuiteSelectorTestCase
     // Make sure that the non-recommended suites isn't empty.
     assertNotNull(selectedPair.getSecond());
     assertFalse(selectedPair.getSecond().isEmpty());
+
+
+    // Get the supported set of suites from the complete and pared-down sets.
+    assertNotNull(TLSCipherSuiteSelector.selectSupportedCipherSuites(
+         nonParedDownCipherSuiteList));
+    assertNotNull(TLSCipherSuiteSelector.selectSupportedCipherSuites(
+         paredDownCipherSuiteList));
   }
 
 
@@ -221,6 +229,54 @@ public final class TLSCipherSuiteSelectorTestCase
         "java-13-tls-cipher-suites.txt"
       }
     };
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code selectSupportedCipherSuites} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSelectSupportedCipherSuites()
+         throws Exception
+  {
+    Set<String> selectedSuites =
+         TLSCipherSuiteSelector.selectSupportedCipherSuites(null);
+    assertNotNull(selectedSuites);
+    assertTrue(selectedSuites.isEmpty());
+
+    selectedSuites = TLSCipherSuiteSelector.selectSupportedCipherSuites(
+         Collections.<String>emptyList());
+    assertNotNull(selectedSuites);
+    assertTrue(selectedSuites.isEmpty());
+
+    selectedSuites = TLSCipherSuiteSelector.selectSupportedCipherSuites(
+         Collections.<String>emptySet());
+    assertNotNull(selectedSuites);
+    assertTrue(selectedSuites.isEmpty());
+
+    selectedSuites = TLSCipherSuiteSelector.selectSupportedCipherSuites(
+         TLSCipherSuiteSelector.getSupportedCipherSuites());
+    assertNotNull(selectedSuites);
+    assertFalse(selectedSuites.isEmpty());
+    assertEquals(selectedSuites,
+         TLSCipherSuiteSelector.getSupportedCipherSuites()):
+
+    selectedSuites = TLSCipherSuiteSelector.selectSupportedCipherSuites(
+         TLSCipherSuiteSelector.getDefaultCipherSuites());
+    assertNotNull(selectedSuites);
+    assertFalse(selectedSuites.isEmpty());
+    assertEquals(selectedSuites,
+         TLSCipherSuiteSelector.getDefaultCipherSuites()):
+
+    selectedSuites = TLSCipherSuiteSelector.selectSupportedCipherSuites(
+         TLSCipherSuiteSelector.getRecommendedCipherSuites());
+    assertNotNull(selectedSuites);
+    assertFalse(selectedSuites.isEmpty());
+    assertEquals(selectedSuites,
+         TLSCipherSuiteSelector.getRecommendedCipherSuites()):
   }
 
 
