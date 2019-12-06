@@ -1,0 +1,640 @@
+/*
+ * Copyright 2019 Ping Identity Corporation
+ * All Rights Reserved.
+ */
+/*
+ * Copyright (C) 2019 Ping Identity Corporation
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+package com.unboundid.util.ssl;
+
+
+
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPRuntimeException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
+import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.Debug;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.ObjectPair;
+import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.args.ArgumentException;
+import com.unboundid.util.args.ArgumentParser;
+
+import static com.unboundid.util.ssl.SSLMessages.*;
+
+
+
+/**
+ * This class provides a utility for selecting the cipher suites that should be
+ * supported for TLS communication.  The logic used to select the recommended
+ * TLS cipher suites is as follows:
+ * <UL>
+ *   <LI>
+ *     Only cipher suites that use the TLS protocol will be recommended.  Legacy
+ *     SSL suites will not be recommended, nor will any suites that use an
+ *     unrecognized protocol.
+ *   </LI>
+ *
+ *   <LI>
+ *     Any cipher suite that uses a NULL key exchange, authentication, bulk
+ *     encryption, or digest algorithm will not be recommended.
+ *   </LI>
+ *
+ *   <LI>
+ *     Any cipher suite that uses anonymous authentication will not be
+ *     recommended.
+ *   </LI>
+ *
+ *   <LI>
+ *     Any cipher suite that uses weakened export-grade encryption will not be
+ *     recommended.
+ *   </LI>
+ *
+ *   <LI>
+ *     Only cipher suites that use ECDHE, DHE, or RSA key exchange algorithms
+ *     will be recommended.  Other key agreement algorithms, including ECDH,
+ *     DH, and KRB5, will not be recommended.  Cipher suites that use a
+ *     pre-shared key or password will not be recommended.
+ *   </LI>
+ *
+ *   <LI>
+ *     Only cipher suites that use AES or ChaCha20 bulk encryption ciphers will
+ *     be recommended.  Other bulk cipher algorithms, including RC4, DES, 3DES,
+ *     IDEA, Camellia, and ARIA, will not be recommended.
+ *   </LI>
+ *
+ *   <LI>
+ *     Only cipher suites that use SHA-1 or SHA-2 digests will be recommended
+ *     (although SHA-1 digests are de-prioritized).  Other digest algorithms,
+ *     like MD5, will not be recommended.
+ *   </LI>
+ * </UL>
+ * <BR><BR>
+ * Also note that this class can be used as a command-line tool for debugging
+ * purposes.
+ */
+@NotMutable()
+@ThreadSafety(level= ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+public final class TLSCipherSuiteSelector
+       extends CommandLineTool
+{
+  /**
+   * The singleton instance of this TLS cipher suite selector.
+   */
+  private static final TLSCipherSuiteSelector INSTANCE =
+       new TLSCipherSuiteSelector();
+
+
+
+  // Retrieves a map of the supported cipher suites that are not recommended
+  // for use, mapped to a list of the reasons that the cipher suites are not
+  // recommended.
+  private final SortedMap<String,List<String>> nonRecommendedCipherSuites;
+
+  // The set of TLS cipher suites enabled in the JVM by default, sorted in
+  // order of most preferred to least preferred.
+  private final SortedSet<String> defaultCipherSuites;
+
+  // The recommended set of TLS cipher suites selected by this class, sorted in
+  // order of most preferred to least preferred.
+  private final SortedSet<String> recommendedCipherSuites;
+
+  // The full set of TLS cipher suites supported in the JVM, sorted in order of
+  // most preferred to least preferred.
+  private final SortedSet<String> supportedCipherSuites;
+
+  // The recommended set of TLS cipher suites as an array rather than a set.
+  private final String[] recommendedCipherSuiteArray;
+
+
+
+  /**
+   * Invokes this command-line program with the provided set of arguments.
+   *
+   * @param  args  The command-line arguments provided to this program.
+   */
+  public static void main(final String... args)
+  {
+    final ResultCode resultCode = main(System.out, System.err, args);
+    if (resultCode != ResultCode.SUCCESS)
+    {
+      System.exit(resultCode.intValue());
+    }
+  }
+
+
+
+  /**
+   * Invokes this command-line program with the provided set of arguments.
+   *
+   * @param  out   The output stream to use for standard output.  It may be
+   *               {@code null} if standard output should be suppressed.
+   * @param  err   The output stream to use for standard error.  It may be
+   *               {@code null} if standard error should be suppressed.
+   * @param  args  The command-line arguments provided to this program.
+   *
+   * @return  A result code that indicates whether the processing was
+   *          successful.
+   */
+  public static ResultCode main(final OutputStream out, final OutputStream err,
+                                final String... args)
+  {
+    final TLSCipherSuiteSelector tool = new TLSCipherSuiteSelector(out, err);
+    return tool.runTool(args);
+  }
+
+
+
+  /**
+   * Creates a new instance of this TLS cipher suite selector that will suppress
+   * all output.
+   */
+  private TLSCipherSuiteSelector()
+  {
+    this(null, null);
+  }
+
+
+
+
+  /**
+   * Creates a new instance of this TLS cipher suite selector that will use the
+   * provided output streams.  Note that this constructor should only be used
+   * when invoking it as a command-line tool.
+   *
+   * @param  out  The output stream to use for standard output.  It may be
+   *              {@code null} if standard output should be suppressed.
+   * @param  err  The output stream to use for standard error.  It may be
+   *              {@code null} if standard error should be suppressed.
+   */
+  public TLSCipherSuiteSelector(final OutputStream out,
+                                 final OutputStream err)
+  {
+    super(out, err);
+
+    try
+    {
+      final SSLContext sslContext = SSLContext.getDefault();
+
+      final SSLParameters supportedParameters =
+           sslContext.getSupportedSSLParameters();
+      final TreeSet<String> supportedSet =
+           new TreeSet<>(TLSCipherSuiteComparator.getInstance());
+      supportedSet.addAll(Arrays.asList(supportedParameters.getCipherSuites()));
+      supportedCipherSuites = Collections.unmodifiableSortedSet(supportedSet);
+
+      final SSLParameters defaultParameters =
+           sslContext.getDefaultSSLParameters();
+      final TreeSet<String> defaultSet =
+           new TreeSet<>(TLSCipherSuiteComparator.getInstance());
+      defaultSet.addAll(Arrays.asList(defaultParameters.getCipherSuites()));
+      defaultCipherSuites = Collections.unmodifiableSortedSet(supportedSet);
+
+      final ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
+           selectedPair = selectCipherSuites(
+           supportedParameters.getCipherSuites());
+      recommendedCipherSuites =
+           Collections.unmodifiableSortedSet(selectedPair.getFirst());
+      nonRecommendedCipherSuites =
+           Collections.unmodifiableSortedMap(selectedPair.getSecond());
+
+      recommendedCipherSuiteArray =
+           recommendedCipherSuites.toArray(StaticUtils.NO_STRINGS);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+
+      // This should never happen.
+      throw new LDAPRuntimeException(new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_TLS_CIPHER_SUITE_SELECTOR_INIT_ERROR.get(
+                StaticUtils.getExceptionMessage(e)),
+           e));
+    }
+
+
+    // If the JVM's TLS debugging support is enabled, then invoke the tool
+    // and send its output to standard error.
+    final String debugProperty =
+         StaticUtils.getSystemProperty("javax.net.debug");
+    if ((debugProperty != null) && debugProperty.equals("all"))
+    {
+      System.err.println();
+      System.err.println(getClass().getName() + " Results:");
+      generateOutput(System.err);
+      System.err.println();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the set of all TLS cipher suites supported by the JVM.  The set
+   * will be sorted in order of most preferred to least preferred, as determined
+   * by the {@link TLSCipherSuiteComparator}.
+   *
+   * @return  The set of all TLS cipher suites supported by the JVM.
+   */
+  public static SortedSet<String> getSupportedCipherSuites()
+  {
+    return INSTANCE.supportedCipherSuites;
+  }
+
+
+
+  /**
+   * Retrieves the set of TLS cipher suites enabled by default in the JVM.  The
+   * set will be sorted in order of most preferred to least preferred, as
+   * determined by the {@link TLSCipherSuiteComparator}.
+   *
+   * @return  The set of TLS cipher suites enabled by default in the JVM.
+   */
+  public static SortedSet<String> getDefaultCipherSuites()
+  {
+    return INSTANCE.defaultCipherSuites;
+  }
+
+
+
+  /**
+   * Retrieves the recommended set of TLS cipher suites as selected by this
+   * class.  The set will be sorted in order of most preferred to least
+   * preferred, as determined by the {@link TLSCipherSuiteComparator}.
+   *
+   * @return  The recommended set of TLS cipher suites as selected by this
+   *          class.
+   */
+  public static SortedSet<String> getRecommendedCipherSuites()
+  {
+    return INSTANCE.recommendedCipherSuites;
+  }
+
+
+
+  /**
+   * Retrieves an array containing the recommended set of TLS cipher suites as
+   * selected by this class.  The array will be sorted in order of most
+   * preferred to least preferred, as determined by the
+   * {@link TLSCipherSuiteComparator}.
+   *
+   * @return  An array containing the recommended set of TLS cipher suites as
+   *          selected by this class.
+   */
+  public static String[] getRecommendedCipherSuiteArray()
+  {
+    return INSTANCE.recommendedCipherSuiteArray.clone();
+  }
+
+
+
+  /**
+   * Retrieves a map containing the TLS cipher suites that are supported by the
+   * JVM but are not recommended for use.  The keys of the map will be the names
+   * of the non-recommended cipher suites, sorted in order of most preferred to
+   * least preferred, as determined by the {@link TLSCipherSuiteComparator}.
+   * Each TLS cipher suite name will be mapped to a list of the reasons it is
+   * not recommended for use.
+   *
+   * @return  A map containing the TLS cipher suites that are supported by the
+   *          JVM but are not recommended for use
+   */
+  public static SortedMap<String,List<String>> getNonRecommendedCipherSuites()
+  {
+    return INSTANCE.nonRecommendedCipherSuites;
+  }
+
+
+
+  /**
+   * Organizes the provided set of cipher suites into recommended and
+   * non-recommended sets.
+   *
+   * @param  cipherSuiteArray  An array of the cipher suites to be organized.
+   *
+   * @return  An object pair in which the first element is the sorted set of
+   *          recommended cipher suites, and the second element is the sorted
+   *          map of non-recommended cipher suites and the reasons they are not
+   *          recommended for use.
+   */
+  static ObjectPair<SortedSet<String>,SortedMap<String,List<String>>>
+       selectCipherSuites(final String[] cipherSuiteArray)
+  {
+    final SortedSet<String> recommendedSet =
+         new TreeSet<>(TLSCipherSuiteComparator.getInstance());
+    final SortedMap<String,List<String>> nonRecommendedMap =
+         new TreeMap<>(TLSCipherSuiteComparator.getInstance());
+
+    for (final String cipherSuiteName : cipherSuiteArray)
+    {
+      final String name =
+           StaticUtils.toUpperCase(cipherSuiteName).replace('-', '_');
+
+      // Signalling cipher suite values (which indicate capabilities of the
+      // implementation and aren't really cipher suites on their own) will
+      // always be accepted.
+      if (name.endsWith("_SCSV"))
+      {
+        recommendedSet.add(cipherSuiteName);
+        continue;
+      }
+
+
+      // Only cipher suites using the TLS protocol will be accepted.
+      final List<String> nonRecommendedReasons = new ArrayList<>(5);
+      if (name.startsWith("SSL_"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_LEGACY_SSL_PROTOCOL.get());
+      }
+      else if (name.startsWith("TLS_"))
+      {
+        // Only TLS cipher suites using a recommended key exchange algorithm
+        // will be accepted.
+        if (name.startsWith("TLS_AES_") ||
+             name.startsWith("TLS_CHACHA20_") ||
+             name.startsWith("TLS_ECDHE_") ||
+             name.startsWith("TLS_DHE_") ||
+             name.startsWith("TLS_RSA_"))
+        {
+          // These are recommended key exchange algorithms.
+        }
+        else if (name.startsWith("TLS_ECDH_"))
+        {
+          nonRecommendedReasons.add(
+               ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_KE_ALG.get(
+                    "ECDH"));
+        }
+        else if (name.startsWith("TLS_DH_"))
+        {
+          nonRecommendedReasons.add(
+               ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_KE_ALG.get(
+                    "DH"));
+        }
+        else if (name.startsWith("TLS_KRB5_"))
+        {
+          nonRecommendedReasons.add(
+               ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_KE_ALG.get(
+                    "KRB5"));
+        }
+        else
+        {
+          nonRecommendedReasons.add(
+               ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_UNKNOWN_KE_ALG.
+                    get());
+        }
+      }
+      else
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_UNRECOGNIZED_PROTOCOL.get());
+      }
+
+
+      // Cipher suites that rely on pre-shared keys will not be accepted.
+      if (name.contains("_PSK"))
+      {
+        nonRecommendedReasons.add(ERR_TLS_CIPHER_SUITE_SELECTOR_PSK.get());
+      }
+
+
+      // Cipher suites that use a null component will not be accepted.
+      if (name.contains("_NULL"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NULL_COMPONENT.get());
+      }
+
+
+      // Cipher suites that use anonymous authentication will not be accepted.
+      if (name.contains("_ANON"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_ANON_AUTH.get());
+      }
+
+
+      // Cipher suites that use export-grade encryption will not be accepted.
+      if (name.contains("_EXPORT"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_EXPORT_ENCRYPTION.get());
+      }
+
+
+      // Only cipher suites that use AES or ChaCha20 will be accepted.
+      if (name.contains("_AES") || name.contains("_CHACHA20"))
+      {
+        // These are recommended bulk cipher algorithms.
+      }
+      else if (name.contains("_RC4"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_BE_ALG.get(
+                  "RC4"));
+      }
+      else if (name.contains("_3DES"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_BE_ALG.get(
+                  "3DES"));
+      }
+      else if (name.contains("_DES"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_BE_ALG.get(
+                  "DES"));
+      }
+      else if (name.contains("_IDEA"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_BE_ALG.get(
+                  "IDEA"));
+      }
+      else if (name.contains("_CAMELLIA"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_BE_ALG.get(
+                  "Camellia"));
+      }
+      else if (name.contains("_ARIA"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_BE_ALG.get(
+                  "ARIA"));
+      }
+      else
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_UNKNOWN_BE_ALG.
+                  get());
+      }
+
+
+      // Only cipher suites that use a SHA-1 or SHA-2 digest algorithm will be
+      // accepted.
+      if (name.endsWith("_SHA512") ||
+           name.endsWith("_SHA384") ||
+           name.endsWith("_SHA256") ||
+           name.endsWith("_SHA"))
+      {
+        // These are recommended digest algorithms.
+      }
+      else if (name.endsWith("_MD5"))
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_KNOWN_DIGEST_ALG.get(
+                  "MD5"));
+      }
+      else
+      {
+        nonRecommendedReasons.add(
+             ERR_TLS_CIPHER_SUITE_SELECTOR_NON_RECOMMENDED_UNKNOWN_DIGEST_ALG.
+                  get());
+      }
+
+
+      // Determine whether to recommend the cipher suite based on whether there
+      // are any non-recommended reasons.
+      if (nonRecommendedReasons.isEmpty())
+      {
+        recommendedSet.add(cipherSuiteName);
+      }
+      else
+      {
+        nonRecommendedMap.put(cipherSuiteName,
+             Collections.unmodifiableList(nonRecommendedReasons));
+      }
+    }
+
+    return new ObjectPair<>(recommendedSet, nonRecommendedMap);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getToolName()
+  {
+    return "tls-cipher-suite-selector";
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getToolDescription()
+  {
+    return INFO_TLS_CIPHER_SUITE_SELECTOR_TOOL_DESC.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void addToolArguments(final ArgumentParser parser)
+       throws ArgumentException
+  {
+    // This tool does not require any arguments.
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public ResultCode doToolProcessing()
+  {
+    generateOutput(getOut());
+    return ResultCode.SUCCESS;
+  }
+
+
+
+  /**
+   * Writes the output to the provided print stream.
+   *
+   * @param  s  The print stream to which the output should be written.
+   */
+  private void generateOutput(final PrintStream s)
+  {
+    s.println("Supported TLS Cipher Suites:");
+    for (final String cipherSuite : supportedCipherSuites)
+    {
+      s.println("* " + cipherSuite);
+    }
+
+    s.println();
+    s.println("JVM-Default TLS Cipher Suites:");
+    for (final String cipherSuite : defaultCipherSuites)
+    {
+      s.println("* " + cipherSuite);
+    }
+
+    s.println();
+    s.println("Non-Recommended TLS Cipher Suites:");
+    for (final Map.Entry<String,List<String>> e :
+         nonRecommendedCipherSuites.entrySet())
+    {
+      s.println("* " + e.getKey());
+      for (final String reason : e.getValue())
+      {
+        s.println("  - " + reason);
+      }
+    }
+
+    s.println();
+    s.println("Recommended TLS Cipher Suites:");
+    for (final String cipherSuite : recommendedCipherSuites)
+    {
+      s.println("* " + cipherSuite);
+    }
+  }
+}

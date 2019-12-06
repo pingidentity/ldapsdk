@@ -44,6 +44,7 @@ import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
 import com.unboundid.ldap.sdk.transformations.TransformLDIF;
+import com.unboundid.util.ssl.TLSCipherSuiteSelector;
 import com.unboundid.util.ssl.cert.ManageCertificates;
 
 
@@ -80,6 +81,8 @@ import com.unboundid.util.ssl.cert.ManageCertificates;
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
  *   <LI>search-and-mod-rate -- Launch the {@link SearchAndModRate} tool.</LI>
+ *   <LI>tls-cipher-suite-selector -- Launch the {@link TLSCipherSuiteSelector}
+ *       tool.</LI>
  *   <LI>transform-ldif -- Launch the {@link TransformLDIF} tool.</LI>
  *   <LI>validate-ldif -- Launch the {@link ValidateLDIF} tool.</LI>
  *   <LI>version -- Display version information for the LDAP SDK.</LI>
@@ -218,6 +221,10 @@ public final class Launcher
     {
       return SearchAndModRate.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("tls-cipher-suite-selector"))
+    {
+      return TLSCipherSuiteSelector.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("transform-ldif"))
     {
       return TransformLDIF.main(outStream, errStream, remainingArgs);
@@ -249,6 +256,7 @@ public final class Launcher
         err.println("     modrate");
         err.println("     searchrate");
         err.println("     search-and-mod-rate");
+        err.println("     tls-cipher-suite-selector");
         err.println("     transform-ldif");
         err.println("     validate-ldif");
         err.println("     version");

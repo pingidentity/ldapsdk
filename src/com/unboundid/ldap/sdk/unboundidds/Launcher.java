@@ -60,6 +60,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.ssl.TLSCipherSuiteSelector;
 import com.unboundid.util.ssl.cert.ManageCertificates;
 
 import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
@@ -124,6 +125,8 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>subtree-accessibility -- Launch the {@link SubtreeAccessibility}
  *       tool.</LI>
  *   <LI>summarize-access-log -- Launch the {@link SummarizeAccessLog}
+ *       tool.</LI>
+ *   <LI>tls-cipher-suite-selector -- Launch the {@link TLSCipherSuiteSelector}
  *       tool.</LI>
  *   <LI>transform-ldif -- Launch the {@link TransformLDIF} tool.</LI>
  *   <LI>validate-ldif -- Launch the {@link ValidateLDIF} tool.</LI>
@@ -306,6 +309,10 @@ public final class Launcher
     {
       return SummarizeAccessLog.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("tls-cipher-suite-selector"))
+    {
+      return TLSCipherSuiteSelector.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("transform-ldif"))
     {
       return TransformLDIF.main(outStream, errStream, remainingArgs);
@@ -348,6 +355,7 @@ public final class Launcher
         err.println("     split-ldif");
         err.println("     subtree-accessibility");
         err.println("     summarize-access-log");
+        err.println("     tls-cipher-suite-selector");
         err.println("     transform-ldif");
         err.println("     validate-ldif");
         err.println("     version");
@@ -396,6 +404,7 @@ public final class Launcher
          SplitLDIF.class,
          SubtreeAccessibility.class,
          SummarizeAccessLog.class,
+         TLSCipherSuiteSelector.class,
          TransformLDIF.class,
          ValidateLDIF.class);
   }

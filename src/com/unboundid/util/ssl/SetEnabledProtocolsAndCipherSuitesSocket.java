@@ -46,16 +46,20 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 
 /**
  * This class provides an SSL socket implementation that is only intended for
- * use in conjunction with the {@link SetEnabledProtocolsSSLSocketFactory}.  It
- * delegates all operations to a provided socket, except that it will
- * automatically apply a set of enabled protocols when one of the
- * {@code connect} methods is called.
+ * use in conjunction with the
+ * {@link SetEnabledProtocolsAndCipherSuitesSSLSocketFactory}.  It delegates all
+ * operations to a provided socket, except that it will automatically apply a
+ * set of enabled protocols and cipher suites when one of the {@code connect}
+ * methods is called.
  */
 @InternalUseOnly()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
-final class SetEnabledProtocolsSocket
+final class SetEnabledProtocolsAndCipherSuitesSocket
       extends SSLSocket
 {
+  // The cipher suites to be enabled when this socket is connected.
+  private final Set<String> cipherSuites;
+
   // The protocols to be enabled when this socket is connected.
   private final Set<String> protocols;
 
@@ -72,9 +76,12 @@ final class SetEnabledProtocolsSocket
    *                         must not be connected.
    * @param  protocols       The protocols to be enabled when this socket is
    *                         connected.
+   * @param  cipherSuites    The cipher suites to be enabled when this socket is
+   *                         connected.
    */
-  SetEnabledProtocolsSocket(final Socket delegateSocket,
-                            final Set<String> protocols)
+  SetEnabledProtocolsAndCipherSuitesSocket(final Socket delegateSocket,
+                                           final Set<String> protocols,
+                                           final Set<String> cipherSuites)
   {
     super();
 
@@ -83,6 +90,7 @@ final class SetEnabledProtocolsSocket
 
     this.delegateSocket = (SSLSocket) delegateSocket;
     this.protocols = protocols;
+    this.cipherSuites = cipherSuites;
   }
 
 
@@ -122,6 +130,7 @@ final class SetEnabledProtocolsSocket
   {
     delegateSocket.connect(endpoint, timeout);
     SSLUtil.applyEnabledSSLProtocols(delegateSocket, protocols);
+    SSLUtil.applyEnabledSSLCipherSuites(delegateSocket, cipherSuites);
   }
 
 

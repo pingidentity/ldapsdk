@@ -60,10 +60,11 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
       final SSLSocketFactory sslSocketFactory =
            sslUtil.createSSLSocketFactory();
       assertNotNull(sslSocketFactory);
-      assertTrue(
-           sslSocketFactory instanceof SetEnabledProtocolsSSLSocketFactory);
-      final SetEnabledProtocolsSSLSocketFactory f =
-           (SetEnabledProtocolsSSLSocketFactory) sslSocketFactory;
+      assertTrue(sslSocketFactory instanceof
+           SetEnabledProtocolsAndCipherSuitesSSLSocketFactory);
+      final SetEnabledProtocolsAndCipherSuitesSSLSocketFactory f =
+           (SetEnabledProtocolsAndCipherSuitesSSLSocketFactory)
+                sslSocketFactory;
 
       assertNotNull(f.getDefaultCipherSuites());
 
@@ -71,10 +72,11 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
 
       final Socket socket = f.createSocket();
       assertNotNull(socket);
-      assertTrue(socket instanceof SetEnabledProtocolsSocket);
+      assertTrue(socket instanceof SetEnabledProtocolsAndCipherSuitesSocket);
       assertFalse(socket.isConnected());
 
-      final SetEnabledProtocolsSocket s = (SetEnabledProtocolsSocket) socket;
+      final SetEnabledProtocolsAndCipherSuitesSocket s =
+           (SetEnabledProtocolsAndCipherSuitesSocket) socket;
 
       s.setTcpNoDelay(true);
       assertTrue(s.getTcpNoDelay());
@@ -229,9 +231,10 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
 
     final SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
     assertNotNull(sslSocketFactory);
-    assertTrue(sslSocketFactory instanceof SetEnabledProtocolsSSLSocketFactory);
-    final SetEnabledProtocolsSSLSocketFactory f =
-         (SetEnabledProtocolsSSLSocketFactory) sslSocketFactory;
+    assertTrue(sslSocketFactory instanceof
+         SetEnabledProtocolsAndCipherSuitesSSLSocketFactory);
+    final SetEnabledProtocolsAndCipherSuitesSSLSocketFactory f =
+         (SetEnabledProtocolsAndCipherSuitesSSLSocketFactory) sslSocketFactory;
 
     assertNotNull(f.getDefaultCipherSuites());
 
@@ -267,9 +270,10 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
 
     final SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
     assertNotNull(sslSocketFactory);
-    assertTrue(sslSocketFactory instanceof SetEnabledProtocolsSSLSocketFactory);
-    final SetEnabledProtocolsSSLSocketFactory f =
-         (SetEnabledProtocolsSSLSocketFactory) sslSocketFactory;
+    assertTrue(sslSocketFactory instanceof
+         SetEnabledProtocolsAndCipherSuitesSSLSocketFactory);
+    final SetEnabledProtocolsAndCipherSuitesSSLSocketFactory f =
+         (SetEnabledProtocolsAndCipherSuitesSSLSocketFactory) sslSocketFactory;
 
     assertNotNull(f.getDefaultCipherSuites());
 
@@ -305,9 +309,10 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
 
     final SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
     assertNotNull(sslSocketFactory);
-    assertTrue(sslSocketFactory instanceof SetEnabledProtocolsSSLSocketFactory);
-    final SetEnabledProtocolsSSLSocketFactory f =
-         (SetEnabledProtocolsSSLSocketFactory) sslSocketFactory;
+    assertTrue(sslSocketFactory instanceof
+         SetEnabledProtocolsAndCipherSuitesSSLSocketFactory);
+    final SetEnabledProtocolsAndCipherSuitesSSLSocketFactory f =
+         (SetEnabledProtocolsAndCipherSuitesSSLSocketFactory) sslSocketFactory;
 
     assertNotNull(f.getDefaultCipherSuites());
 
@@ -343,9 +348,10 @@ public final class SetEnabledProtocolsSSLSocketFactoryTestCase
 
     final SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
     assertNotNull(sslSocketFactory);
-    assertTrue(sslSocketFactory instanceof SetEnabledProtocolsSSLSocketFactory);
-    final SetEnabledProtocolsSSLSocketFactory f =
-         (SetEnabledProtocolsSSLSocketFactory) sslSocketFactory;
+    assertTrue(sslSocketFactory instanceof
+         SetEnabledProtocolsAndCipherSuitesSSLSocketFactory);
+    final SetEnabledProtocolsAndCipherSuitesSSLSocketFactory f =
+         (SetEnabledProtocolsAndCipherSuitesSSLSocketFactory) sslSocketFactory;
 
     assertNotNull(f.getDefaultCipherSuites());
 

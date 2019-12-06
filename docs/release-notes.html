@@ -28,6 +28,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Improved the logic that the LDAP SDK uses when choosing the cipher suites to
+                  offer when establishing a TLS-secured connection.  Weaker suites are disabled,
+                  and the enabled suites are prioritized so that those offering forward secrecy
+                  and the strongest encryption are preferred.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new <tt>FullLDAPInterface</tt> interface that extends
                   <tt>LDAPInterface</tt> and adds support for <tt>close</tt>, <tt>bind</tt>, and
                   <tt>processExtendedOperation</tt> methods.  The existing

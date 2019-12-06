@@ -40,17 +40,21 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 /**
  * This class provides an implementation of an {@code SSLServerSocketFactory}
- * that will update the set of enabled protocols for a {@code ServerSocket}
- * upon creating the socket.  Note that although not all server socket factory
- * implementations are threadsafe, the LDAP SDK will only use this factory in a
- * way that is threadsafe.
+ * that will update the set of enabled protocols and cipher suites for a
+ * {@code ServerSocket} upon creating the socket.  Note that although not all
+ * server socket factory implementations are threadsafe, the LDAP SDK will only
+ * use this factory in a way that is threadsafe.
  */
 @InternalUseOnly()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.MOSTLY_THREADSAFE)
-final class SetEnabledProtocolsSSLServerSocketFactory
+final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
       extends SSLServerSocketFactory
 {
+  // The set of cipher suites that should be enabled for server sockets created
+  // by this socket factory.
+  private final Set<String> cipherSuites;
+
   // The set of protocols that should be enabled for server sockets created by
   // this socket factory.
   private final Set<String> protocols;
@@ -67,12 +71,15 @@ final class SetEnabledProtocolsSSLServerSocketFactory
    * @param  delegateFactory  The SSL server socket factory to which most
    *                          processing will be delegated.
    * @param  defaultProtocol  The default protocol to use.
+   * @param  cipherSuites     The cipher suties to be enabled on sockets created
+   *                          by this socket factory.
    */
-  SetEnabledProtocolsSSLServerSocketFactory(
+  SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
        final SSLServerSocketFactory delegateFactory,
-       final String defaultProtocol)
+       final String defaultProtocol, final Set<String> cipherSuites)
   {
     this.delegateFactory = delegateFactory;
+    this.cipherSuites = cipherSuites;
 
     if (defaultProtocol.equalsIgnoreCase("TLSv1.2"))
     {
@@ -104,13 +111,16 @@ final class SetEnabledProtocolsSSLServerSocketFactory
    *                          processing will be delegated.
    * @param  protocols        The protocols to be enabled on sockets created by
    *                          this socket factory.
+   * @param  cipherSuites     The cipher suties to be enabled on sockets created
+   *                          by this socket factory.
    */
-  SetEnabledProtocolsSSLServerSocketFactory(
+  SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
        final SSLServerSocketFactory delegateFactory,
-       final Set<String> protocols)
+       final Set<String> protocols, final Set<String> cipherSuites)
   {
     this.delegateFactory = delegateFactory;
     this.protocols       = protocols;
+    this.cipherSuites    = cipherSuites;
   }
 
 
@@ -129,6 +139,7 @@ final class SetEnabledProtocolsSSLServerSocketFactory
   {
     final ServerSocket serverSocket = delegateFactory.createServerSocket();
     SSLUtil.applyEnabledSSLProtocols(serverSocket, protocols);
+    SSLUtil.applyEnabledSSLCipherSuites(serverSocket, cipherSuites);
     return serverSocket;
   }
 
@@ -150,6 +161,7 @@ final class SetEnabledProtocolsSSLServerSocketFactory
   {
     final ServerSocket serverSocket = delegateFactory.createServerSocket(port);
     SSLUtil.applyEnabledSSLProtocols(serverSocket, protocols);
+    SSLUtil.applyEnabledSSLCipherSuites(serverSocket, cipherSuites);
     return serverSocket;
   }
 
@@ -175,6 +187,7 @@ final class SetEnabledProtocolsSSLServerSocketFactory
     final ServerSocket serverSocket =
          delegateFactory.createServerSocket(port, backlog);
     SSLUtil.applyEnabledSSLProtocols(serverSocket, protocols);
+    SSLUtil.applyEnabledSSLCipherSuites(serverSocket, cipherSuites);
     return serverSocket;
   }
 
@@ -203,6 +216,7 @@ final class SetEnabledProtocolsSSLServerSocketFactory
     final ServerSocket serverSocket =
          delegateFactory.createServerSocket(port, backlog, ifAddress);
     SSLUtil.applyEnabledSSLProtocols(serverSocket, protocols);
+    SSLUtil.applyEnabledSSLCipherSuites(serverSocket, cipherSuites);
     return serverSocket;
   }
 
