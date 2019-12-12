@@ -23,9 +23,9 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
@@ -909,7 +909,7 @@ public final class LDAPURL
     }
 
     int pos = firstPercentPos;
-    final StringBuilder buffer = new StringBuilder(2 * length);
+    final ByteStringBuffer buffer = new ByteStringBuffer(2 * length);
     buffer.append(s.substring(0, firstPercentPos));
 
     while (pos < length)
@@ -923,152 +923,136 @@ public final class LDAPURL
                                   ERR_LDAPURL_HEX_STRING_TOO_SHORT.get(s));
         }
 
-
-        final ByteBuffer byteBuffer = ByteBuffer.allocate(length - pos);
-        while (pos < length)
+        final byte b;
+        switch (s.charAt(pos++))
         {
-          final byte b;
-          switch (s.charAt(pos++))
-          {
-            case '0':
-              b = 0x00;
-              break;
-            case '1':
-              b = 0x10;
-              break;
-            case '2':
-              b = 0x20;
-              break;
-            case '3':
-              b = 0x30;
-              break;
-            case '4':
-              b = 0x40;
-              break;
-            case '5':
-              b = 0x50;
-              break;
-            case '6':
-              b = 0x60;
-              break;
-            case '7':
-              b = 0x70;
-              break;
-            case '8':
-              b = (byte) 0x80;
-              break;
-            case '9':
-              b = (byte) 0x90;
-              break;
-            case 'a':
-            case 'A':
-              b = (byte) 0xA0;
-              break;
-            case 'b':
-            case 'B':
-              b = (byte) 0xB0;
-              break;
-            case 'c':
-            case 'C':
-              b = (byte) 0xC0;
-              break;
-            case 'd':
-            case 'D':
-              b = (byte) 0xD0;
-              break;
-            case 'e':
-            case 'E':
-              b = (byte) 0xE0;
-              break;
-            case 'f':
-            case 'F':
-              b = (byte) 0xF0;
-              break;
-            default:
-              throw new LDAPException(ResultCode.DECODING_ERROR,
-                                      ERR_LDAPURL_INVALID_HEX_CHAR.get(
-                                           s.charAt(pos-1)));
-          }
-
-          if (pos >= length)
-          {
-            throw new LDAPException(ResultCode.DECODING_ERROR,
-                                    ERR_LDAPURL_HEX_STRING_TOO_SHORT.get(s));
-          }
-
-          switch (s.charAt(pos++))
-          {
-            case '0':
-              byteBuffer.put(b);
-              break;
-            case '1':
-              byteBuffer.put((byte) (b | 0x01));
-              break;
-            case '2':
-              byteBuffer.put((byte) (b | 0x02));
-              break;
-            case '3':
-              byteBuffer.put((byte) (b | 0x03));
-              break;
-            case '4':
-              byteBuffer.put((byte) (b | 0x04));
-              break;
-            case '5':
-              byteBuffer.put((byte) (b | 0x05));
-              break;
-            case '6':
-              byteBuffer.put((byte) (b | 0x06));
-              break;
-            case '7':
-              byteBuffer.put((byte) (b | 0x07));
-              break;
-            case '8':
-              byteBuffer.put((byte) (b | 0x08));
-              break;
-            case '9':
-              byteBuffer.put((byte) (b | 0x09));
-              break;
-            case 'a':
-            case 'A':
-              byteBuffer.put((byte) (b | 0x0A));
-              break;
-            case 'b':
-            case 'B':
-              byteBuffer.put((byte) (b | 0x0B));
-              break;
-            case 'c':
-            case 'C':
-              byteBuffer.put((byte) (b | 0x0C));
-              break;
-            case 'd':
-            case 'D':
-              byteBuffer.put((byte) (b | 0x0D));
-              break;
-            case 'e':
-            case 'E':
-              byteBuffer.put((byte) (b | 0x0E));
-              break;
-            case 'f':
-            case 'F':
-              byteBuffer.put((byte) (b | 0x0F));
-              break;
-            default:
-              throw new LDAPException(ResultCode.DECODING_ERROR,
-                                      ERR_LDAPURL_INVALID_HEX_CHAR.get(
-                                           s.charAt(pos-1)));
-          }
-
-          if ((pos < length) && (s.charAt(pos) != '%'))
-          {
+          case '0':
+            b = 0x00;
             break;
-          }
+          case '1':
+            b = 0x10;
+            break;
+          case '2':
+            b = 0x20;
+            break;
+          case '3':
+            b = 0x30;
+            break;
+          case '4':
+            b = 0x40;
+            break;
+          case '5':
+            b = 0x50;
+            break;
+          case '6':
+            b = 0x60;
+            break;
+          case '7':
+            b = 0x70;
+            break;
+          case '8':
+            b = (byte) 0x80;
+            break;
+          case '9':
+            b = (byte) 0x90;
+            break;
+          case 'a':
+          case 'A':
+            b = (byte) 0xA0;
+            break;
+          case 'b':
+          case 'B':
+            b = (byte) 0xB0;
+            break;
+          case 'c':
+          case 'C':
+            b = (byte) 0xC0;
+            break;
+          case 'd':
+          case 'D':
+            b = (byte) 0xD0;
+            break;
+          case 'e':
+          case 'E':
+            b = (byte) 0xE0;
+            break;
+          case 'f':
+          case 'F':
+            b = (byte) 0xF0;
+            break;
+          default:
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                                    ERR_LDAPURL_INVALID_HEX_CHAR.get(
+                                         s.charAt(pos-1)));
         }
 
-        byteBuffer.flip();
-        final byte[] byteArray = new byte[byteBuffer.limit()];
-        byteBuffer.get(byteArray);
+        if (pos >= length)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+                                  ERR_LDAPURL_HEX_STRING_TOO_SHORT.get(s));
+        }
 
-        buffer.append(StaticUtils.toUTF8String(byteArray));
+        switch (s.charAt(pos++))
+        {
+          case '0':
+            buffer.append(b);
+            break;
+          case '1':
+            buffer.append((byte) (b | 0x01));
+            break;
+          case '2':
+            buffer.append((byte) (b | 0x02));
+            break;
+          case '3':
+            buffer.append((byte) (b | 0x03));
+            break;
+          case '4':
+            buffer.append((byte) (b | 0x04));
+            break;
+          case '5':
+            buffer.append((byte) (b | 0x05));
+            break;
+          case '6':
+            buffer.append((byte) (b | 0x06));
+            break;
+          case '7':
+            buffer.append((byte) (b | 0x07));
+            break;
+          case '8':
+            buffer.append((byte) (b | 0x08));
+            break;
+          case '9':
+            buffer.append((byte) (b | 0x09));
+            break;
+          case 'a':
+          case 'A':
+            buffer.append((byte) (b | 0x0A));
+            break;
+          case 'b':
+          case 'B':
+            buffer.append((byte) (b | 0x0B));
+            break;
+          case 'c':
+          case 'C':
+            buffer.append((byte) (b | 0x0C));
+            break;
+          case 'd':
+          case 'D':
+            buffer.append((byte) (b | 0x0D));
+            break;
+          case 'e':
+          case 'E':
+            buffer.append((byte) (b | 0x0E));
+            break;
+          case 'f':
+          case 'F':
+            buffer.append((byte) (b | 0x0F));
+            break;
+          default:
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                                    ERR_LDAPURL_INVALID_HEX_CHAR.get(
+                                         s.charAt(pos-1)));
+        }
       }
       else
       {

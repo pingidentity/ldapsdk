@@ -14,6 +14,12 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue in which LDAP URLs with consecutive percent-encoded bytes were
+                  not decoded correctly.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue that could cause the LDAP SDK to incorrectly handle data read
                   from a server when the communication is protected with SASL integrity or
                   confidentiality.Thanks to Boris Danilovich for reporting this problem and
@@ -46,8 +52,8 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Added a new a new non-final <tt>MockableLDAPConnection</tt> class that makes it
-                  easier to mock an <tt>LDAPConnection</tt> instance.  It implements
+                  Added a new non-final <tt>MockableLDAPConnection</tt> class that makes it easier
+                  to mock an <tt>LDAPConnection</tt> instance.  It implements
                   <tt>FullLDAPInterface</tt> and wraps a provided <tt>LDAPConnection</tt> instance.
                   If you create a <tt>MockableLDAPConnection</tt> subclass, then you may override
                   any of the <tt>FullLDAPInterface</tt> methods to implement your own behavior.
@@ -57,7 +63,7 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Fixed a minor typo in the <tt>ldapsearch</tt> usage information
+                  Fixed a minor typo in the <tt>ldapsearch</tt> usage information.
                   <br><br>
                 </li>
               </ul>

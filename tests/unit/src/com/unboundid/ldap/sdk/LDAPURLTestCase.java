@@ -1012,6 +1012,29 @@ public class LDAPURLTestCase
         "ldap://server.example.com:389/a=b+c=d,dc=example,dc=com??sub?" +
              "(cn=foo%20bar)"
       },
+
+      new Object[]
+      {
+        "ldap://child.root.example.com/OU=%25%5E%25%5E%25%5E*,DC=child," +
+             "DC=root,DC=example,DC=com",
+        "ldap",
+        "child.root.example.com",
+        true,
+        389,
+        false,
+        new DN(new RDN("OU", "%^%^%^*"), new RDN("DC", "child"),
+             new RDN("DC", "root"), new RDN("DC", "example"),
+             new RDN("dc", "com")),
+        true,
+        new String[0],
+        false,
+        SearchScope.BASE,
+        false,
+        Filter.create("(objectClass=*)"),
+        false,
+        "ldap://child.root.example.com:389/ou=%25%5e%25%5e%25%5e*,dc=child," +
+             "dc=root,dc=example,dc=com??base?(objectclass=*)"
+      }
     };
   }
 
