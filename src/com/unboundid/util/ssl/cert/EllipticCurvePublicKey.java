@@ -116,50 +116,92 @@ public final class EllipticCurvePublicKey
   {
     try
     {
+      final byte[] xBytes;
+      final byte[] yBytes;
       final byte[] keyBytes = subjectPublicKey.getBytes();
-      if (keyBytes.length == 65)
+      switch (keyBytes.length)
       {
-        if (keyBytes[0] != 0x04)
-        {
-          throw new CertException(
-               ERR_EC_PUBLIC_KEY_PARSE_UNEXPECTED_UNCOMPRESSED_FIRST_BYTE.get(
-                    StaticUtils.toHex(keyBytes[0])));
-        }
+        case 33:
+          yCoordinate = null;
+          if (keyBytes[0] == 0x02)
+          {
+            yCoordinateIsEven = true;
+          }
+          else if (keyBytes[0] == 0x03)
+          {
+            yCoordinateIsEven = false;
+          }
+          else
+          {
+            throw new CertException(
+                 ERR_EC_PUBLIC_KEY_PARSE_UNEXPECTED_COMPRESSED_FIRST_BYTE.get(
+                      keyBytes.length, StaticUtils.toHex(keyBytes[0])));
+          }
 
-        final byte[] xBytes = new byte[32];
-        final byte[] yBytes = new byte[32];
-        System.arraycopy(keyBytes, 1, xBytes, 0, 32);
-        System.arraycopy(keyBytes, 33, yBytes, 0, 32);
-        xCoordinate = new BigInteger(xBytes);
-        yCoordinate = new BigInteger(yBytes);
-        yCoordinateIsEven = ((keyBytes[64] & 0x01) == 0x00);
-      }
-      else if (keyBytes.length == 33)
-      {
-        yCoordinate = null;
-        if (keyBytes[0] == 0x02)
-        {
-          yCoordinateIsEven = true;
-        }
-        else if (keyBytes[0] == 0x03)
-        {
-          yCoordinateIsEven = false;
-        }
-        else
-        {
-          throw new CertException(
-               ERR_EC_PUBLIC_KEY_PARSE_UNEXPECTED_COMPRESSED_FIRST_BYTE.get(
-                    StaticUtils.toHex(keyBytes[0])));
-        }
+          xBytes = new byte[32];
+          System.arraycopy(keyBytes, 1, xBytes, 0, 32);
+          xCoordinate = new BigInteger(xBytes);
+          break;
 
-        final byte[] xBytes = new byte[32];
-        System.arraycopy(keyBytes, 1, xBytes, 0, 32);
-        xCoordinate = new BigInteger(xBytes);
-      }
-      else
-      {
-        throw new CertException(
-             ERR_EC_PUBLIC_KEY_PARSE_UNEXPECTED_SIZE.get(keyBytes.length));
+        case 48:
+          yCoordinate = null;
+          if (keyBytes[0] == 0x02)
+          {
+            yCoordinateIsEven = true;
+          }
+          else if (keyBytes[0] == 0x03)
+          {
+            yCoordinateIsEven = false;
+          }
+          else
+          {
+            throw new CertException(
+                 ERR_EC_PUBLIC_KEY_PARSE_UNEXPECTED_COMPRESSED_FIRST_BYTE.get(
+                      keyBytes.length, StaticUtils.toHex(keyBytes[0])));
+          }
+
+          xBytes = new byte[48];
+          System.arraycopy(keyBytes, 1, xBytes, 0, 48);
+          xCoordinate = new BigInteger(xBytes);
+          break;
+
+        case 65:
+          if (keyBytes[0] != 0x04)
+          {
+            throw new CertException(
+                 ERR_EC_PUBLIC_KEY_PARSE_UNEXPECTED_UNCOMPRESSED_FIRST_BYTE.get(
+                      keyBytes.length, StaticUtils.toHex(keyBytes[0])));
+          }
+
+          xBytes = new byte[32];
+          yBytes = new byte[32];
+          System.arraycopy(keyBytes, 1, xBytes, 0, 32);
+          System.arraycopy(keyBytes, 33, yBytes, 0, 32);
+          xCoordinate = new BigInteger(xBytes);
+          yCoordinate = new BigInteger(yBytes);
+          yCoordinateIsEven = ((keyBytes[64] & 0x01) == 0x00);
+          break;
+
+        case 97:
+          if (keyBytes[0] != 0x04)
+          {
+            throw new CertException(
+                 ERR_EC_PUBLIC_KEY_PARSE_UNEXPECTED_UNCOMPRESSED_FIRST_BYTE.get(
+                      keyBytes.length, StaticUtils.toHex(keyBytes[0])));
+          }
+
+          xBytes = new byte[48];
+          yBytes = new byte[48];
+          System.arraycopy(keyBytes, 1, xBytes, 0, 48);
+          System.arraycopy(keyBytes, 49, yBytes, 0, 48);
+          xCoordinate = new BigInteger(xBytes);
+          yCoordinate = new BigInteger(yBytes);
+          yCoordinateIsEven = ((keyBytes[96] & 0x01) == 0x00);
+          break;
+
+        default:
+          throw new CertException(
+               ERR_EC_PUBLIC_KEY_PARSE_UNEXPECTED_SIZE.get(keyBytes.length));
       }
     }
     catch (final CertException e)
