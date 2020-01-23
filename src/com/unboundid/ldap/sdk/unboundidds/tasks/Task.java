@@ -50,8 +50,8 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
 /**
  * This class defines a data structure for holding information about scheduled
  * tasks as used by the Ping Identity, UnboundID, or Nokia/Alcatel-Lucent 8661
- * Directory Server.  Subclasses be used to provide additional functionality
- * when dealing with certain types of tasks.
+ * Directory Server.  Subclasses will be used to provide additional
+ * functionality when dealing with certain types of tasks.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
