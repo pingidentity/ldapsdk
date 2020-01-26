@@ -22,6 +22,7 @@ package com.unboundid.util;
 
 
 
+import java.io.ByteArrayInputStream;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Properties;
@@ -49,6 +50,8 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
+import com.unboundid.util.json.JSONObject;
+import com.unboundid.util.json.JSONObjectReader;
 
 
 
@@ -804,7 +807,8 @@ public class DebugTestCase
     Debug.debug(Level.SEVERE, DebugType.OTHER, "foo");
     String s = testLogHandler.getMessagesString();
     assertTrue(s.contains("foo"));
-    assertFalse(s.contains("calledFrom="));
+    assertFalse(s.contains("caller-stack-trace"));
+    assertValidJSON(testLogHandler.getMessagesString());
 
     Debug.setIncludeStackTrace(true);
     assertTrue(Debug.includeStackTrace());
@@ -813,7 +817,8 @@ public class DebugTestCase
     Debug.debug(Level.SEVERE, DebugType.OTHER, "foo");
     s = testLogHandler.getMessagesString();
     assertTrue(s.contains("foo"));
-    assertTrue(s.contains("calledFrom="));
+    assertTrue(s.contains("caller-stack-trace"));
+    assertValidJSON(testLogHandler.getMessagesString());
 
     Debug.setIncludeStackTrace(false);
     assertFalse(Debug.includeStackTrace());
@@ -822,7 +827,36 @@ public class DebugTestCase
     Debug.debug(Level.SEVERE, DebugType.OTHER, "foo");
     s = testLogHandler.getMessagesString();
     assertTrue(s.contains("foo"));
-    assertFalse(s.contains("calledFrom="));
+    assertFalse(s.contains("caller-stack-trace"));
+    assertValidJSON(testLogHandler.getMessagesString());
+  }
+
+
+
+  /**
+   * Ensures that the provided string consists of zero or more valid JSON
+   * objects.
+   *
+   * @param  s  The string to examine.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  private static void assertValidJSON(final String s)
+          throws Exception
+  {
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(StaticUtils.getBytes(s));
+    try (JSONObjectReader r = new JSONObjectReader(inputStream))
+    {
+      while (true)
+      {
+        final JSONObject o = r.readObject();
+        if (o == null)
+        {
+          break;
+        }
+      }
+    }
   }
 
 
@@ -4656,6 +4690,7 @@ public class DebugTestCase
     LDAPConnection conn = getAdminConnection();
     assertTrue((testLogHandler.getMessageCount() >= 4),
                testLogHandler.getMessagesString());
+    assertValidJSON(testLogHandler.getMessagesString());
 
 
     // Add an entry to the server.  This should result in four debug events:
@@ -4666,6 +4701,7 @@ public class DebugTestCase
     conn.add(getTestBaseDN(), getBaseEntryAttributes());
     assertTrue((testLogHandler.getMessageCount() >= 3),
                testLogHandler.getMessagesString());
+    assertValidJSON(testLogHandler.getMessagesString());
 
 
     // Read the entry back.  This should result in six debug events:
@@ -4677,6 +4713,7 @@ public class DebugTestCase
     conn.getEntry(getTestBaseDN());
     assertTrue((testLogHandler.getMessageCount() >= 4),
                testLogHandler.getMessagesString());
+    assertValidJSON(testLogHandler.getMessagesString());
 
 
     // Remove entry from the server.  This should result in four debug events:
@@ -4687,6 +4724,7 @@ public class DebugTestCase
     conn.delete(getTestBaseDN());
     assertTrue((testLogHandler.getMessageCount() >= 3),
                testLogHandler.getMessagesString());
+    assertValidJSON(testLogHandler.getMessagesString());
 
 
     // Close the connection to the server.  This should result in three debug
@@ -4698,6 +4736,7 @@ public class DebugTestCase
     conn.close();
     assertTrue((testLogHandler.getMessageCount() >= 3),
                testLogHandler.getMessagesString());
+    assertValidJSON(testLogHandler.getMessagesString());
   }
 
 

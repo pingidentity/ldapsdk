@@ -23,6 +23,8 @@ package com.unboundid.util;
 
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.Properties;
 import java.util.Set;
@@ -41,6 +43,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPRequest;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldif.LDIFRecord;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
@@ -164,6 +167,14 @@ public final class Debug
    * enabled.
    */
   private static final Logger logger = Logger.getLogger(LOGGER_NAME);
+
+
+
+  /**
+   * A set of thread-local formatters that may be used to generate timestamps.
+   */
+  private static final ThreadLocal<SimpleDateFormat> TIMESTAMP_FORMATTERS =
+       new ThreadLocal<>();
 
 
 
@@ -464,13 +475,12 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.EXCEPTION))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("caughtException=\"");
-      StaticUtils.getStackTrace(t, buffer);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.EXCEPTION);
+      addCaughtException(buffer, "caught-exception", t);
+      addCommonFooter(buffer);
 
-      logger.log(l, buffer.toString(), t);
+      log(l, buffer, t);
     }
   }
 
@@ -554,37 +564,30 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("connectedTo=\"");
-      buffer.append(h);
-      buffer.append(':');
-      buffer.append(p);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.CONNECT);
+      buffer.appendString("connected-to-address", h);
+      buffer.appendNumber("connected-to-port", p);
 
       if (c != null)
       {
-        buffer.append(" connectionID=");
-        buffer.append(c.getConnectionID());
+        buffer.appendNumber("connection-id", c.getConnectionID());
 
         final String connectionName = c.getConnectionName();
         if (connectionName != null)
         {
-          buffer.append(" connectionName=\"");
-          buffer.append(connectionName);
-          buffer.append('"');
+          buffer.appendString("connection-name", connectionName);
         }
 
         final String connectionPoolName = c.getConnectionPoolName();
         if (connectionPoolName != null)
         {
-          buffer.append(" connectionPoolName=\"");
-          buffer.append(connectionPoolName);
-          buffer.append('"');
+          buffer.appendString("connection-pool-name", connectionPoolName);
         }
       }
 
-      logger.log(l, buffer.toString());
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -688,56 +691,43 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.CONNECT);
 
       if (c != null)
       {
-        buffer.append("connectionID=");
-        buffer.append(c.getConnectionID());
+        buffer.appendNumber("connection-id", c.getConnectionID());
 
         final String connectionName = c.getConnectionName();
         if (connectionName != null)
         {
-          buffer.append(" connectionName=\"");
-          buffer.append(connectionName);
-          buffer.append('"');
+          buffer.appendString("connection-name", connectionName);
         }
 
         final String connectionPoolName = c.getConnectionPoolName();
         if (connectionPoolName != null)
         {
-          buffer.append(" connectionPoolName=\"");
-          buffer.append(connectionPoolName);
-          buffer.append('"');
+          buffer.appendString("connection-pool-name", connectionPoolName);
         }
 
-        buffer.append(' ');
-      }
+        buffer.appendString("disconnected-from-address", h);
+        buffer.appendNumber("disconnected-from-port", p);
+        buffer.appendString("disconnect-type", t.name());
 
-      buffer.append("disconnectedFrom=\"");
-      buffer.append(h);
-      buffer.append(':');
-      buffer.append(p);
-      buffer.append("\" disconnectType=\"");
-      buffer.append(t.name());
-      buffer.append('"');
+        if (m != null)
+        {
+          buffer.appendString("disconnect-message", m);
+        }
 
-      if (m != null)
-      {
-        buffer.append("\" disconnectMessage=\"");
-        buffer.append(m);
-        buffer.append('"');
       }
 
       if (e != null)
       {
-        buffer.append("\" disconnectCause=\"");
-        StaticUtils.getStackTrace(e, buffer);
-        buffer.append('"');
+        addCaughtException(buffer, "disconnect-cause", e);
       }
 
-      logger.log(l, buffer.toString(), c);
+      addCommonFooter(buffer);
+      log(l, buffer, e);
     }
   }
 
@@ -838,57 +828,48 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.LDAP);
 
       if (c != null)
       {
-        buffer.append("connectionID=");
-        buffer.append(c.getConnectionID());
+        buffer.appendNumber("connection-id", c.getConnectionID());
 
         final String connectionName = c.getConnectionName();
         if (connectionName != null)
         {
-          buffer.append(" connectionName=\"");
-          buffer.append(connectionName);
-          buffer.append('"');
+          buffer.appendString("connection-name", connectionName);
         }
 
         final String connectionPoolName = c.getConnectionPoolName();
         if (connectionPoolName != null)
         {
-          buffer.append(" connectionPoolName=\"");
-          buffer.append(connectionPoolName);
-          buffer.append('"');
+          buffer.appendString("connection-pool-name", connectionPoolName);
         }
 
-        buffer.append(" connectedTo=\"");
-        buffer.append(c.getConnectedAddress());
-        buffer.append(':');
-        buffer.append(c.getConnectedPort());
-        buffer.append("\" ");
+        final String connectedAddress = c.getConnectedAddress();
+        if (connectedAddress != null)
+        {
+          buffer.appendString("connected-to-address", connectedAddress);
+          buffer.appendNumber("connected-to-port", c.getConnectedPort());
+        }
 
         try
         {
           final int soTimeout = InternalSDKHelper.getSoTimeout(c);
-          buffer.append("socketTimeoutMillis=");
-          buffer.append(soTimeout);
-          buffer.append(' ');
+          buffer.appendNumber("socket-timeout-millis", soTimeout);
         } catch (final Exception e) {}
       }
 
       if (i >= 0)
       {
-        buffer.append("messageID=");
-        buffer.append(i);
-        buffer.append(' ');
+        buffer.appendNumber("message-id", i);
       }
 
-      buffer.append("sendingLDAPRequest=\"");
-      buffer.append(s);
-      buffer.append('"');
+      buffer.appendString("sending-ldap-request", s);
 
-      logger.log(l,  buffer.toString());
+      addCommonFooter(buffer);
+      log(l,  buffer);
     }
   }
 
@@ -962,42 +943,37 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.LDAP);
 
       if (c != null)
       {
-        buffer.append("connectionID=");
-        buffer.append(c.getConnectionID());
+        buffer.appendNumber("connection-id", c.getConnectionID());
 
         final String connectionName = c.getConnectionName();
         if (connectionName != null)
         {
-          buffer.append(" connectionName=\"");
-          buffer.append(connectionName);
-          buffer.append('"');
+          buffer.appendString("connection-name", connectionName);
         }
 
         final String connectionPoolName = c.getConnectionPoolName();
         if (connectionPoolName != null)
         {
-          buffer.append(" connectionPoolName=\"");
-          buffer.append(connectionPoolName);
-          buffer.append('"');
+          buffer.appendString("connection-pool-name", connectionPoolName);
         }
 
-        buffer.append(" connectedTo=\"");
-        buffer.append(c.getConnectedAddress());
-        buffer.append(':');
-        buffer.append(c.getConnectedPort());
-        buffer.append("\" ");
+        final String connectedAddress = c.getConnectedAddress();
+        if (connectedAddress != null)
+        {
+          buffer.appendString("connected-to-address", connectedAddress);
+          buffer.appendNumber("connected-to-port", c.getConnectedPort());
+        }
       }
 
-      buffer.append("readLDAPResult=\"");
-      r.toString(buffer);
-      buffer.append('"');
+      buffer.appendString("read-ldap-result", r.toString());
 
-      logger.log(l,  buffer.toString());
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1031,13 +1007,12 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("writingASN1Element=\"");
-      e.toString(buffer);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.ASN1);
+      buffer.appendString("writing-asn1-element", e.toString());
 
-      logger.log(l, buffer.toString());
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1071,13 +1046,13 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("writingASN1Element=\"");
-      StaticUtils.toHex(b.toByteArray(), buffer);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.ASN1);
+      buffer.appendString("writing-asn1-element",
+           StaticUtils.toHex(b.toByteArray()));
 
-      logger.log(l, buffer.toString());
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1111,13 +1086,12 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("readASN1Element=\"");
-      e.toString(buffer);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.ASN1);
+      buffer.appendString("read-asn1-element", e.toString());
 
-      logger.log(l, buffer.toString());
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1146,31 +1120,32 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("readASN1Element=\"dataType='");
-      buffer.append(dataType);
-      buffer.append("' berType='");
-      buffer.append(StaticUtils.toHex((byte) (berType & 0xFF)));
-      buffer.append("' valueLength=");
-      buffer.append(length);
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.ASN1);
+
+      buffer.beginObject("read-asn1-element");
+      buffer.appendString("data-type", dataType);
+      buffer.appendString("ber-type",
+           StaticUtils.toHex((byte) (berType & 0xFF)));
+      buffer.appendNumber("value-length", length);
 
       if (value != null)
       {
-        buffer.append(" value='");
         if (value instanceof byte[])
         {
-          StaticUtils.toHex((byte[]) value, buffer);
+          buffer.appendString("value-bytes",
+               StaticUtils.toHex((byte[]) value));
         }
         else
         {
-          buffer.append(value);
+          buffer.appendString("value-string", value.toString());
         }
-        buffer.append('\'');
       }
-      buffer.append('"');
 
-      logger.log(l, buffer.toString());
+      buffer.endObject();
+
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1192,61 +1167,55 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECTION_POOL))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.CONNECTION_POOL);
 
       final String poolName = p.getConnectionPoolName();
-      buffer.append("connectionPool=\"");
       if (poolName == null)
       {
-        buffer.append("{unnamed}");
+        buffer.appendNull("connection-pool-name");
       }
       else
       {
-        buffer.append(poolName);
+        buffer.appendString("connection-pool-name", poolName);
       }
-      buffer.append("\" ");
 
       if (c != null)
       {
-        buffer.append(" connectionID=");
-        buffer.append(c.getConnectionID());
+        buffer.appendNumber("connection-id", c.getConnectionID());
 
-        final String hostPort = c.getHostPort();
-        if ((hostPort != null) && (! hostPort.isEmpty()))
+        final String connectedAddress = c.getConnectedAddress();
+        if (connectedAddress != null)
         {
-          buffer.append(" connectedTo=\"");
-          buffer.append(hostPort);
-          buffer.append('"');
+          buffer.appendString("connected-to-address", connectedAddress);
+          buffer.appendNumber("connected-to-port", c.getConnectedPort());
         }
       }
 
       final long currentAvailable = p.getCurrentAvailableConnections();
       if (currentAvailable >= 0)
       {
-        buffer.append(" currentAvailableConnections=");
-        buffer.append(currentAvailable);
+        buffer.appendNumber("current-available-connections", currentAvailable);
       }
 
       final long maxAvailable = p.getMaximumAvailableConnections();
       if (maxAvailable >= 0)
       {
-        buffer.append(" maxAvailableConnections=");
-        buffer.append(maxAvailable);
+        buffer.appendNumber("maximum-available-connections", maxAvailable);
       }
 
-      buffer.append(" message=\"");
-      buffer.append(m);
-      buffer.append('"');
+      if (m != null)
+      {
+        buffer.appendString("message", m);
+      }
 
       if (e != null)
       {
-        buffer.append(" exception=\"");
-        StaticUtils.getStackTrace(e, buffer);
-        buffer.append('"');
+        addCaughtException(buffer, "caught-exception", e);
       }
 
-      logger.log(l, buffer.toString(), e);
+      addCommonFooter(buffer);
+      log(l, buffer, e);
     }
   }
 
@@ -1280,13 +1249,12 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("writingLDIFRecord=\"");
-      r.toString(buffer);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.LDIF);
+      buffer.appendString("writing-ldif-record", r.toString());
 
-      logger.log(l, buffer.toString());
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1320,13 +1288,12 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("readLDIFRecord=\"");
-      r.toString(buffer);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.LDIF);
+      buffer.appendString("read-ldif-record", r.toString());
 
-      logger.log(l, buffer.toString());
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1361,15 +1328,21 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.MONITOR))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("monitorEntryDN=\"");
-      buffer.append(e.getDN());
-      buffer.append("\" message=\"");
-      buffer.append(m);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, DebugType.MONITOR);
 
-      logger.log(l, buffer.toString());
+      if (e != null)
+      {
+        buffer.appendString("monitor-entry-dn", e.getDN());
+      }
+
+      if (m != null)
+      {
+        buffer.appendString("message", m);
+      }
+
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1387,13 +1360,12 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CODING_ERROR))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, Level.SEVERE);
-      buffer.append("codingError=\"");
-      StaticUtils.getStackTrace(t, buffer);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, Level.SEVERE, DebugType.CODING_ERROR);
+      addCaughtException(buffer, "coding-error", t);
 
-      logger.log(Level.SEVERE, buffer.toString());
+      addCommonFooter(buffer);
+      log(Level.SEVERE, buffer, t);
     }
   }
 
@@ -1410,13 +1382,16 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(t))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("message=\"");
-      buffer.append(m);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, t);
 
-      logger.log(l, buffer.toString());
+      if (m != null)
+      {
+        buffer.appendString("message", m);
+      }
+
+      addCommonFooter(buffer);
+      log(l, buffer);
     }
   }
 
@@ -1435,44 +1410,177 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(t))
     {
-      final StringBuilder buffer = new StringBuilder();
-      addCommonHeader(buffer, l);
-      buffer.append("message=\"");
-      buffer.append(m);
-      buffer.append('"');
-      buffer.append(" exception=\"");
-      StaticUtils.getStackTrace(e, buffer);
-      buffer.append('"');
+      final JSONBuffer buffer = new JSONBuffer(1000);
+      addCommonHeader(buffer, l, t);
 
-      logger.log(l, buffer.toString(), e);
+      if (m != null)
+      {
+        buffer.appendString("message", m);
+      }
+
+      if (e != null)
+      {
+        addCaughtException(buffer, "caught-exception", e);
+      }
+
+      addCommonFooter(buffer);
+      log(l, buffer, e);
     }
   }
 
 
 
   /**
-   * Writes common header information to the provided buffer.  It will include
-   * the thread ID, name, and caller stack trace (optional), and it will be
-   * followed by a trailing space.
+   * Adds common header information to the provided JSON buffer.  It will begin
+   * a JSON object for the log message, then add a timestamp, debug type, log
+   * level, thread ID, and thread name.
    *
-   * @param  buffer  The buffer to which the information should be appended.
+   * @param  buffer  The JSON buffer to which the content should be added.
    * @param  level   The log level for the message that will be written.
+   * @param  type    The debug type for the message that will be written.
    */
-  private static void addCommonHeader(final StringBuilder buffer,
-                                      final Level level)
+  private static void addCommonHeader(final JSONBuffer buffer,
+                                      final Level level, final DebugType type)
   {
-    buffer.append("level=\"");
-    buffer.append(level.getName());
-    buffer.append("\" threadID=");
-    buffer.append(Thread.currentThread().getId());
-    buffer.append(" threadName=\"");
-    buffer.append(Thread.currentThread().getName());
+    buffer.beginObject();
+    buffer.appendString("timestamp", getTimestamp());
+    buffer.appendString("debug-type", type.getName());
+    buffer.appendString("level", level.getName());
 
+    final Thread t = Thread.currentThread();
+    buffer.appendNumber("thread-id", t.getId());
+    buffer.appendString("thread-name", t.getName());
+  }
+
+
+
+  /**
+   * Retrieves a timestamp that represents the current time.
+   *
+   * @return  A timestamp that represents the current time.
+   */
+  private static String getTimestamp()
+  {
+    SimpleDateFormat timestampFormatter = TIMESTAMP_FORMATTERS.get();
+    if (timestampFormatter == null)
+    {
+      timestampFormatter =
+           new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
+      timestampFormatter.setTimeZone(StaticUtils.getUTCTimeZone());
+      TIMESTAMP_FORMATTERS.set(timestampFormatter);
+    }
+
+    return timestampFormatter.format(new Date());
+  }
+
+
+
+  /**
+   * Creates a formatted string representation of the provided stack trace
+   * frame.
+   *
+   * @param  e  The stack trace element to be formatted.
+   *
+   * @return  The formatted string representation of the provided stack trace
+   *          frame.
+   */
+  private static String formatStackTraceFrame(final StackTraceElement e)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append(e.getMethodName());
+    buffer.append('(');
+    buffer.append(e.getFileName());
+
+    final int lineNumber = e.getLineNumber();
+    if (lineNumber > 0)
+    {
+      buffer.append(':');
+      buffer.append(lineNumber);
+    }
+    else if (e.isNativeMethod())
+    {
+      buffer.append(":native");
+    }
+
+    buffer.append(')');
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Adds information about a caught exception to the provided JSON buffer.
+   *
+   * @param  buffer     The JSON buffer to which the information should be
+   *                    appended.
+   * @param  fieldName  The name to use for the new field to be added with the
+   *                    exception information.
+   * @param  t          The exception to be included.
+   */
+  private static void addCaughtException(final JSONBuffer buffer,
+                                         final String fieldName,
+                                         final Throwable t)
+  {
+    if (t == null)
+    {
+      return;
+    }
+
+    buffer.beginObject(fieldName);
+
+    String message = t.getMessage();
+    if (message != null)
+    {
+      buffer.appendString("message", t.getMessage());
+    }
+
+    buffer.beginArray("stack-trace");
+    for (final StackTraceElement e : t.getStackTrace())
+    {
+      buffer.appendString(formatStackTraceFrame(e));
+    }
+    buffer.endArray();
+
+    Throwable cause = t.getCause();
+    while (cause != null)
+    {
+      buffer.beginObject("cause");
+
+      message = cause.getMessage();
+      if (message != null)
+      {
+        buffer.appendString("message", cause.getMessage());
+      }
+
+      buffer.beginArray("stack-trace");
+      for (final StackTraceElement e : cause.getStackTrace())
+      {
+        buffer.appendString(formatStackTraceFrame(e));
+      }
+      buffer.endArray();
+
+      cause = cause.getCause();
+    }
+
+    buffer.endObject();
+  }
+
+
+
+  /**
+   * Adds common footer information to the provided JSON buffer.  It will
+   * include an optional caller stack trace, along with the LDAP SDK version
+   * and revision.  It will also end the object that encapsulates the log
+   * message.
+   *
+   * @param  buffer  The JSON buffer to which the content should be added.
+   */
+  private static void addCommonFooter(final JSONBuffer buffer)
+  {
     if (includeStackTrace)
     {
-      buffer.append("\" calledFrom=\"");
+      buffer.beginArray("caller-stack-trace");
 
-      boolean appended   = false;
       boolean foundDebug = false;
       for (final StackTraceElement e : Thread.currentThread().getStackTrace())
       {
@@ -1483,36 +1591,43 @@ public final class Debug
         }
         else if (foundDebug)
         {
-          if (appended)
-          {
-            buffer.append(" / ");
-          }
-          appended = true;
-
-          buffer.append(e.getMethodName());
-          buffer.append('(');
-          buffer.append(e.getFileName());
-
-          final int lineNumber = e.getLineNumber();
-          if (lineNumber > 0)
-          {
-            buffer.append(':');
-            buffer.append(lineNumber);
-          }
-          else if (e.isNativeMethod())
-          {
-            buffer.append(":native");
-          }
-
-          buffer.append(')');
+          buffer.appendString(formatStackTraceFrame(e));
         }
       }
+
+      buffer.endArray();
     }
 
-    buffer.append("\" ldapSDKVersion=\"");
-    buffer.append(Version.NUMERIC_VERSION_STRING);
-    buffer.append("\" revision=\"");
-    buffer.append(Version.REVISION_ID);
-    buffer.append("\" ");
+    buffer.appendString("ldap-sdk-version", Version.NUMERIC_VERSION_STRING);
+    buffer.appendString("ldap-sdk-revision", Version.REVISION_ID);
+    buffer.endObject();
+  }
+
+
+
+  /**
+   * Logs a JSON-formatted debug message with the given level and fields.
+   *
+   * @param  level   The log level to use for the message.
+   * @param  buffer  The JSON buffer containing the message to be written.
+   */
+  private static void log(final Level level, final JSONBuffer buffer)
+  {
+    logger.log(level, buffer.toString());
+  }
+
+
+
+  /**
+   * Logs a JSON-formatted debug message with the given level and fields.
+   *
+   * @param  level   The log level to use for the message.
+   * @param  buffer  The JSON buffer containing the message to be written.
+   * @param  thrown  An exception to be included with the debug message.
+   */
+  private static void log(final Level level, final JSONBuffer buffer,
+                          final Throwable thrown)
+  {
+    logger.log(level, buffer.toString(), thrown);
   }
 }
