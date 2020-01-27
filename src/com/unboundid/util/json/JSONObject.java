@@ -1103,6 +1103,23 @@ public final class JSONObject
 
 
   /**
+   * Indicates whether this JSON object has a field with the specified name.
+   *
+   * @param  fieldName  The name of the field for which to make the
+   *                    determination.  It will be treated in a case-sensitive
+   *                    manner.
+   *
+   * @return  {@code true} if this JSON object has a field with the specified
+   *          name, or {@code false} if not.
+   */
+  public boolean hasField(final String fieldName)
+  {
+    return fields.containsKey(fieldName);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

@@ -126,6 +126,10 @@ public class InMemoryDirectoryServerConfig
   // operations processed by the server.
   private Handler accessLogHandler;
 
+  // The log handler that should be used to record JSON-formatted access log
+  // messages about operations processed by the server.
+  private Handler jsonAccessLogHandler;
+
   // The log handler that should be used to record detailed protocol-level
   // messages about LDAP operations processed by the server.
   private Handler ldapDebugLogHandler;
@@ -250,6 +254,7 @@ public class InMemoryDirectoryServerConfig
     additionalBindCredentials            =
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(1));
     accessLogHandler                     = null;
+    jsonAccessLogHandler                 = null;
     ldapDebugLogHandler                  = null;
     enforceAttributeSyntaxCompliance     = true;
     enforceSingleStructuralObjectClass   = true;
@@ -329,6 +334,7 @@ public class InMemoryDirectoryServerConfig
     enforceSingleStructuralObjectClass = cfg.enforceSingleStructuralObjectClass;
     generateOperationalAttributes      = cfg.generateOperationalAttributes;
     accessLogHandler                   = cfg.accessLogHandler;
+    jsonAccessLogHandler               = cfg.jsonAccessLogHandler;
     ldapDebugLogHandler                = cfg.ldapDebugLogHandler;
     maxChangeLogEntries                = cfg.maxChangeLogEntries;
     maxConnections                     = cfg.maxConnections;
@@ -843,6 +849,38 @@ public class InMemoryDirectoryServerConfig
   public void setAccessLogHandler(final Handler accessLogHandler)
   {
     this.accessLogHandler = accessLogHandler;
+  }
+
+
+
+  /**
+   * Retrieves the log handler that should be used to record JSON-formatted
+   * access log messages about operations processed by the server, if any.
+   *
+   * @return  The log handler that should be used to record JSON-formatted
+   *          access log messages about operations processed by the server, or
+   *          {@code null} if no access logging should be performed.
+   */
+  public Handler getJSONAccessLogHandler()
+  {
+    return jsonAccessLogHandler;
+  }
+
+
+
+  /**
+   * Specifies the log handler that should be used to record JSON-formatted
+   * access log messages about operations processed by the server.
+   *
+   * @param  jsonAccessLogHandler  The log handler that should be used to record
+   *                               JSON-formatted access log messages about
+   *                               operations processed by the server.  It may
+   *                               be {@code null} if no access logging should
+   *                               be performed.
+   */
+  public void setJSONAccessLogHandler(final Handler jsonAccessLogHandler)
+  {
+    this.jsonAccessLogHandler = jsonAccessLogHandler;
   }
 
 
@@ -1869,6 +1907,13 @@ public class InMemoryDirectoryServerConfig
     {
       buffer.append(", accessLogHandlerClass='");
       buffer.append(accessLogHandler.getClass().getName());
+      buffer.append('\'');
+    }
+
+    if (jsonAccessLogHandler != null)
+    {
+      buffer.append(", jsonAccessLogHandlerClass='");
+      buffer.append(jsonAccessLogHandler.getClass().getName());
       buffer.append('\'');
     }
 

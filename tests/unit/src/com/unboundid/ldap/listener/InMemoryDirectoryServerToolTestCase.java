@@ -128,6 +128,7 @@ public final class InMemoryDirectoryServerToolTestCase
          throws Exception
   {
     final File accessLogFile = createTempFile();
+    final File jsonAccessLogFile = createTempFile();
     final File ldapDebugLogFile = createTempFile();
     final File codeLogFile = createTempFile();
 
@@ -169,6 +170,7 @@ public final class InMemoryDirectoryServerToolTestCase
          "--additionalBindPassword", "password",
          "--maxChangeLogEntries", "100",
          "--accessLogFile", accessLogFile.getAbsolutePath(),
+         "--jsonAccessLogFile", jsonAccessLogFile.getAbsolutePath(),
          "--ldapDebugLogFile", ldapDebugLogFile.getAbsolutePath(),
          "--codeLogFile", codeLogFile.getAbsolutePath(),
          "--useDefaultSchema",
@@ -211,6 +213,9 @@ public final class InMemoryDirectoryServerToolTestCase
 
     assertTrue(accessLogFile.exists());
     assertTrue(accessLogFile.length() > 0L);
+
+    assertTrue(jsonAccessLogFile.exists());
+    assertTrue(jsonAccessLogFile.length() > 0L);
 
     assertTrue(ldapDebugLogFile.exists());
     assertTrue(ldapDebugLogFile.length() > 0L);
@@ -419,7 +424,7 @@ public final class InMemoryDirectoryServerToolTestCase
            "--additionalBindDN", "cn=Directory Manager",
            "--additionalBindPassword", "password",
            "--maxChangeLogEntries", "100",
-           "--accessLogToStandardOut",
+           "--jsonAccessLogToStandardOut",
            "--ldapDebugLogToStandardOut",
            "--useSchemaFile", schemaFile.getAbsolutePath(),
            "--useSSL",

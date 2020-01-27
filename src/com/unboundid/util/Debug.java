@@ -475,7 +475,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.EXCEPTION))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.EXCEPTION);
       addCaughtException(buffer, "caught-exception", t);
       addCommonFooter(buffer);
@@ -564,7 +564,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.CONNECT);
       buffer.appendString("connected-to-address", h);
       buffer.appendNumber("connected-to-port", p);
@@ -691,7 +691,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.CONNECT);
 
       if (c != null)
@@ -828,7 +828,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.LDAP);
 
       if (c != null)
@@ -943,7 +943,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.LDAP);
 
       if (c != null)
@@ -1007,7 +1007,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.ASN1);
       buffer.appendString("writing-asn1-element", e.toString());
 
@@ -1046,7 +1046,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.ASN1);
       buffer.appendString("writing-asn1-element",
            StaticUtils.toHex(b.toByteArray()));
@@ -1086,7 +1086,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.ASN1);
       buffer.appendString("read-asn1-element", e.toString());
 
@@ -1120,7 +1120,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.ASN1))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.ASN1);
 
       buffer.beginObject("read-asn1-element");
@@ -1167,7 +1167,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECTION_POOL))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.CONNECTION_POOL);
 
       final String poolName = p.getConnectionPoolName();
@@ -1249,7 +1249,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.LDIF);
       buffer.appendString("writing-ldif-record", r.toString());
 
@@ -1288,7 +1288,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.LDIF);
       buffer.appendString("read-ldif-record", r.toString());
 
@@ -1328,7 +1328,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.MONITOR))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, DebugType.MONITOR);
 
       if (e != null)
@@ -1360,7 +1360,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CODING_ERROR))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, Level.SEVERE, DebugType.CODING_ERROR);
       addCaughtException(buffer, "coding-error", t);
 
@@ -1382,7 +1382,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(t))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, t);
 
       if (m != null)
@@ -1410,7 +1410,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(t))
     {
-      final JSONBuffer buffer = new JSONBuffer(1000);
+      final JSONBuffer buffer = new JSONBuffer();
       addCommonHeader(buffer, l, t);
 
       if (m != null)

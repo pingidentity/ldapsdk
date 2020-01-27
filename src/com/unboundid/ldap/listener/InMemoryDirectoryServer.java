@@ -294,6 +294,12 @@ public final class InMemoryDirectoryServer
            requestHandler);
     }
 
+    if (config.getJSONAccessLogHandler() != null)
+    {
+      requestHandler = new JSONAccessLogRequestHandler(
+           config.getJSONAccessLogHandler(), requestHandler);
+    }
+
     if (config.getLDAPDebugLogHandler() != null)
     {
       requestHandler = new LDAPDebuggerRequestHandler(

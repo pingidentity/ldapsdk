@@ -26,7 +26,6 @@ import java.net.Socket;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -56,24 +55,26 @@ import com.unboundid.ldap.protocol.SearchResultEntryProtocolOp;
 import com.unboundid.ldap.protocol.UnbindRequestProtocolOp;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.json.JSONBuffer;
 
 
 
 /**
  * This class provides a request handler that may be used to log each request
- * and result using the Java logging framework.  It will be also be associated
- * with another request handler that will actually be used to handle the
- * request.
+ * and result using the Java logging framework.  Messages will be formatted as
+ * JSON objects.  It will be also be associated with another request handler
+ * that will actually be used to handle the request.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class AccessLogRequestHandler
+public final class JSONAccessLogRequestHandler
        extends LDAPListenerRequestHandler
        implements SearchEntryTransformer
 {
@@ -83,8 +84,7 @@ public final class AccessLogRequestHandler
 
   // A map used to correlate the number of search result entries returned for a
   // particular message ID.
-  private final ConcurrentHashMap<Integer,AtomicLong> entryCounts =
-       new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(50));
+  private final ConcurrentHashMap<Integer,AtomicLong> entryCounts;
 
   // The log handler that will be used to log the messages.
   private final Handler logHandler;
@@ -100,18 +100,19 @@ public final class AccessLogRequestHandler
   // values.
   private final ThreadLocal<DecimalFormat> decimalFormatters;
 
+  // The thread-local JSON buffers that will be used to format log message
+  // objects.
+  private final ThreadLocal<JSONBuffer> jsonBuffers;
+
   // The thread-local date formatters that will be used to format timestamps.
   private final ThreadLocal<SimpleDateFormat> timestampFormatters;
-
-  // The thread-local string builders that will be used to build log messages.
-  private final ThreadLocal<StringBuilder> buffers;
 
 
 
   /**
-   * Creates a new access log request handler that will log request and result
-   * messages using the provided log handler, and will process client requests
-   * using the provided request handler.
+   * Creates a new JSON-formatted access log request handler that will log
+   * request and result messages using the provided log handler, and will
+   * process client requests using the provided request handler.
    *
    * @param  logHandler      The log handler that will be used to log request
    *                         and result messages.  Note that all messages will
@@ -123,7 +124,7 @@ public final class AccessLogRequestHandler
    *                         process any requests received.  It must not be
    *                         {@code null}.
    */
-  public AccessLogRequestHandler(final Handler logHandler,
+  public JSONAccessLogRequestHandler(final Handler logHandler,
               final LDAPListenerRequestHandler requestHandler)
   {
     Validator.ensureNotNull(logHandler, requestHandler);
@@ -131,52 +132,53 @@ public final class AccessLogRequestHandler
     this.logHandler = logHandler;
     this.requestHandler = requestHandler;
 
-    decimalFormatters = new ThreadLocal<>();
-    timestampFormatters = new ThreadLocal<>();
-    buffers = new ThreadLocal<>();
-
     nextOperationID = null;
     clientConnection = null;
+    entryCounts = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(50));
+    jsonBuffers = new ThreadLocal<>();
+    timestampFormatters = new ThreadLocal<>();
+    decimalFormatters = new ThreadLocal<>();
   }
 
 
 
   /**
-   * Creates a new access log request handler that will log request and result
-   * messages using the provided log handler, and will process client requests
-   * using the provided request handler.
+   * Creates a new JSON-formatted access log request handler that will log
+   * request and result messages using the provided log handler, and will
+   * process client requests using the provided request handler.
    *
-   * @param  logHandler        The log handler that will be used to log request
-   *                           and result messages.  Note that all messages will
-   *                           be logged at the INFO level.  It must not be
-   *                           {@code null}.
-   * @param  requestHandler    The request handler that will actually be used to
-   *                           process any requests received.  It must not be
-   *                           {@code null}.
-   * @param  clientConnection  The client connection with which this instance is
-   *                           associated.
-   * @param  buffers              The thread-local string builders that will be
-   *                              used to build log messages.
+   * @param  logHandler           The log handler that will be used to log
+   *                              request and result messages.  Note that all
+   *                              messages will be logged at the INFO level.  It
+   *                              must not be {@code null}.
+   * @param  requestHandler       The request handler that will actually be used
+   *                              to process any requests received.  It must not
+   *                              be {@code null}.
+   * @param  clientConnection     The client connection with which this instance
+   *                              is associated.
+   * @param  jsonBuffers          The thread-local JSON buffers that will be
+   *                              used to format log message objects.
    * @param  timestampFormatters  The thread-local date formatters that will be
    *                              used to format timestamps.
    * @param  decimalFormatters    The thread-local decimal formatters that
    *                              will be used to format etime values.
    */
-  private AccessLogRequestHandler(final Handler logHandler,
+  private JSONAccessLogRequestHandler(final Handler logHandler,
                final LDAPListenerRequestHandler requestHandler,
                final LDAPListenerClientConnection clientConnection,
-               final ThreadLocal<StringBuilder> buffers,
+               final ThreadLocal<JSONBuffer> jsonBuffers,
                final ThreadLocal<SimpleDateFormat> timestampFormatters,
                final ThreadLocal<DecimalFormat> decimalFormatters)
   {
     this.logHandler = logHandler;
-    this.requestHandler  = requestHandler;
+    this.requestHandler = requestHandler;
     this.clientConnection = clientConnection;
-    this.buffers = buffers;
+    this.jsonBuffers = jsonBuffers;
     this.timestampFormatters = timestampFormatters;
     this.decimalFormatters = decimalFormatters;
 
-    nextOperationID  = new AtomicLong(0L);
+    nextOperationID = new AtomicLong(0L);
+    entryCounts = new ConcurrentHashMap<>(StaticUtils.computeMapCapacity(50));
   }
 
 
@@ -185,29 +187,26 @@ public final class AccessLogRequestHandler
    * {@inheritDoc}
    */
   @Override()
-  public AccessLogRequestHandler newInstance(
+  public JSONAccessLogRequestHandler newInstance(
               final LDAPListenerClientConnection connection)
          throws LDAPException
   {
-    final AccessLogRequestHandler h = new AccessLogRequestHandler(logHandler,
-         requestHandler.newInstance(connection), connection, buffers,
-         timestampFormatters, decimalFormatters);
+    final JSONAccessLogRequestHandler h =
+         new JSONAccessLogRequestHandler(logHandler,
+              requestHandler.newInstance(connection), connection, jsonBuffers,
+              timestampFormatters, decimalFormatters);
     connection.addSearchEntryTransformer(h);
 
-    final StringBuilder b = h.getConnectionHeader("CONNECT");
+    final JSONBuffer buffer = h.getConnectionHeader("connect");
 
     final Socket s = connection.getSocket();
-    b.append(" from=\"");
-    b.append(s.getInetAddress().getHostAddress());
-    b.append(':');
-    b.append(s.getPort());
-    b.append("\" to=\"");
-    b.append(s.getLocalAddress().getHostAddress());
-    b.append(':');
-    b.append(s.getLocalPort());
-    b.append('"');
+    buffer.appendString("from-address", s.getInetAddress().getHostAddress());
+    buffer.appendNumber("from-port", s.getPort());
+    buffer.appendString("to-address", s.getLocalAddress().getHostAddress());
+    buffer.appendNumber("to-port", s.getLocalPort());
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     return h;
@@ -221,8 +220,10 @@ public final class AccessLogRequestHandler
   @Override()
   public void closeInstance()
   {
-    final StringBuilder b = getConnectionHeader("DISCONNECT");
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    final JSONBuffer buffer = getConnectionHeader("disconnect");
+    buffer.endObject();
+
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     requestHandler.closeInstance();
@@ -238,13 +239,13 @@ public final class AccessLogRequestHandler
                                     final AbandonRequestProtocolOp request,
                                     final List<Control> controls)
   {
-    final StringBuilder b = getRequestHeader("ABANDON",
-         nextOperationID.getAndIncrement(), messageID);
+    final JSONBuffer buffer = getRequestHeader("abandon",
+         nextOperationID.incrementAndGet(), messageID);
 
-    b.append(" idToAbandon=");
-    b.append(request.getIDToAbandon());
+    buffer.appendNumber("id-to-abandon", request.getIDToAbandon());
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     requestHandler.processAbandonRequest(messageID, request, controls);
@@ -261,14 +262,12 @@ public final class AccessLogRequestHandler
                                        final List<Control> controls)
   {
     final long opID = nextOperationID.getAndIncrement();
+    final JSONBuffer buffer = getRequestHeader("add", opID, messageID);
 
-    final StringBuilder b = getRequestHeader("ADD", opID, messageID);
+    buffer.appendString("dn", request.getDN());
+    buffer.endObject();
 
-    b.append(" dn=\"");
-    b.append(request.getDN());
-    b.append('"');
-
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
@@ -278,11 +277,12 @@ public final class AccessLogRequestHandler
     final AddResponseProtocolOp protocolOp =
          responseMessage.getAddResponseProtocolOp();
 
-    generateResponse(b, "ADD", opID, messageID, protocolOp.getResultCode(),
-         protocolOp.getDiagnosticMessage(), protocolOp.getMatchedDN(),
-         protocolOp.getReferralURLs(), eTimeNanos);
+    generateResponse(buffer, "add", opID, messageID,
+         protocolOp.getResultCode(), protocolOp.getDiagnosticMessage(),
+         protocolOp.getMatchedDN(), protocolOp.getReferralURLs(), eTimeNanos);
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     return responseMessage;
@@ -300,29 +300,24 @@ public final class AccessLogRequestHandler
   {
     final long opID = nextOperationID.getAndIncrement();
 
-    final StringBuilder b = getRequestHeader("BIND", opID, messageID);
-
-    b.append(" version=");
-    b.append(request.getVersion());
-    b.append(" dn=\"");
-    b.append(request.getBindDN());
-    b.append("\" authType=\"");
+    final JSONBuffer buffer = getRequestHeader("bind", opID, messageID);
+    buffer.appendNumber("ldap-version", request.getVersion());
+    buffer.appendString("dn", request.getBindDN());
 
     switch (request.getCredentialsType())
     {
       case BindRequestProtocolOp.CRED_TYPE_SIMPLE:
-        b.append("SIMPLE");
+        buffer.appendString("authentication-type", "simple");
         break;
 
       case BindRequestProtocolOp.CRED_TYPE_SASL:
-        b.append("SASL ");
-        b.append(request.getSASLMechanism());
+        buffer.appendString("authentication-type", "sasl");
+        buffer.appendString("sasl-mechanism", request.getSASLMechanism());
         break;
     }
+    buffer.endObject();
 
-    b.append('"');
-
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
@@ -332,11 +327,12 @@ public final class AccessLogRequestHandler
     final BindResponseProtocolOp protocolOp =
          responseMessage.getBindResponseProtocolOp();
 
-    generateResponse(b, "BIND", opID, messageID, protocolOp.getResultCode(),
-         protocolOp.getDiagnosticMessage(), protocolOp.getMatchedDN(),
-         protocolOp.getReferralURLs(), eTimeNanos);
+    generateResponse(buffer, "bind", opID, messageID,
+         protocolOp.getResultCode(), protocolOp.getDiagnosticMessage(),
+         protocolOp.getMatchedDN(), protocolOp.getReferralURLs(), eTimeNanos);
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     return responseMessage;
@@ -354,15 +350,12 @@ public final class AccessLogRequestHandler
   {
     final long opID = nextOperationID.getAndIncrement();
 
-    final StringBuilder b = getRequestHeader("COMPARE", opID, messageID);
+    final JSONBuffer buffer = getRequestHeader("compare", opID, messageID);
+    buffer.appendString("dn", request.getDN());
+    buffer.appendString("attribute-type", request.getAttributeName());
+    buffer.endObject();
 
-    b.append(" dn=\"");
-    b.append(request.getDN());
-    b.append("\" attr=\"");
-    b.append(request.getAttributeName());
-    b.append('"');
-
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
@@ -372,11 +365,12 @@ public final class AccessLogRequestHandler
     final CompareResponseProtocolOp protocolOp =
          responseMessage.getCompareResponseProtocolOp();
 
-    generateResponse(b, "COMPARE", opID, messageID, protocolOp.getResultCode(),
-         protocolOp.getDiagnosticMessage(), protocolOp.getMatchedDN(),
-         protocolOp.getReferralURLs(), eTimeNanos);
+    generateResponse(buffer, "compare", opID, messageID,
+         protocolOp.getResultCode(), protocolOp.getDiagnosticMessage(),
+         protocolOp.getMatchedDN(), protocolOp.getReferralURLs(), eTimeNanos);
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     return responseMessage;
@@ -394,13 +388,11 @@ public final class AccessLogRequestHandler
   {
     final long opID = nextOperationID.getAndIncrement();
 
-    final StringBuilder b = getRequestHeader("DELETE", opID, messageID);
+    final JSONBuffer buffer = getRequestHeader("delete", opID, messageID);
+    buffer.appendString("dn", request.getDN());
+    buffer.endObject();
 
-    b.append(" dn=\"");
-    b.append(request.getDN());
-    b.append('"');
-
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
@@ -410,11 +402,13 @@ public final class AccessLogRequestHandler
     final DeleteResponseProtocolOp protocolOp =
          responseMessage.getDeleteResponseProtocolOp();
 
-    generateResponse(b, "DELETE", opID, messageID, protocolOp.getResultCode(),
+    generateResponse(buffer, "delete", opID, messageID,
+         protocolOp.getResultCode(),
          protocolOp.getDiagnosticMessage(), protocolOp.getMatchedDN(),
          protocolOp.getReferralURLs(), eTimeNanos);
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     return responseMessage;
@@ -432,13 +426,11 @@ public final class AccessLogRequestHandler
   {
     final long opID = nextOperationID.getAndIncrement();
 
-    final StringBuilder b = getRequestHeader("EXTENDED", opID, messageID);
+    final JSONBuffer buffer = getRequestHeader("extended", opID, messageID);
+    buffer.appendString("request-oid", request.getOID());
+    buffer.endObject();
 
-    b.append(" requestOID=\"");
-    b.append(request.getOID());
-    b.append('"');
-
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
@@ -448,19 +440,19 @@ public final class AccessLogRequestHandler
     final ExtendedResponseProtocolOp protocolOp =
          responseMessage.getExtendedResponseProtocolOp();
 
-    generateResponse(b, "EXTENDED", opID, messageID, protocolOp.getResultCode(),
-         protocolOp.getDiagnosticMessage(), protocolOp.getMatchedDN(),
-         protocolOp.getReferralURLs(), eTimeNanos);
+    generateResponse(buffer, "extended", opID, messageID,
+         protocolOp.getResultCode(), protocolOp.getDiagnosticMessage(),
+         protocolOp.getMatchedDN(), protocolOp.getReferralURLs(), eTimeNanos);
 
     final String responseOID = protocolOp.getResponseOID();
     if (responseOID != null)
     {
-      b.append(" responseOID=\"");
-      b.append(responseOID);
-      b.append('"');
+      buffer.appendString("response-oid", responseOID);
     }
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    buffer.endObject();
+
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     return responseMessage;
@@ -478,13 +470,11 @@ public final class AccessLogRequestHandler
   {
     final long opID = nextOperationID.getAndIncrement();
 
-    final StringBuilder b = getRequestHeader("MODIFY", opID, messageID);
+    final JSONBuffer buffer = getRequestHeader("modify", opID, messageID);
+    buffer.appendString("dn", request.getDN());
+    buffer.endObject();
 
-    b.append(" dn=\"");
-    b.append(request.getDN());
-    b.append('"');
-
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
@@ -494,11 +484,12 @@ public final class AccessLogRequestHandler
     final ModifyResponseProtocolOp protocolOp =
          responseMessage.getModifyResponseProtocolOp();
 
-    generateResponse(b, "MODIFY", opID, messageID, protocolOp.getResultCode(),
-         protocolOp.getDiagnosticMessage(), protocolOp.getMatchedDN(),
-         protocolOp.getReferralURLs(), eTimeNanos);
+    generateResponse(buffer, "modify", opID, messageID,
+         protocolOp.getResultCode(), protocolOp.getDiagnosticMessage(),
+         protocolOp.getMatchedDN(), protocolOp.getReferralURLs(), eTimeNanos);
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     return responseMessage;
@@ -516,24 +507,19 @@ public final class AccessLogRequestHandler
   {
     final long opID = nextOperationID.getAndIncrement();
 
-    final StringBuilder b = getRequestHeader("MODDN", opID, messageID);
-
-    b.append(" dn=\"");
-    b.append(request.getDN());
-    b.append("\" newRDN=\"");
-    b.append(request.getNewRDN());
-    b.append("\" deleteOldRDN=");
-    b.append(request.deleteOldRDN());
+    final JSONBuffer buffer = getRequestHeader("modify-dn", opID, messageID);
+    buffer.appendString("dn", request.getDN());
+    buffer.appendString("new-rdn", request.getNewRDN());
+    buffer.appendBoolean("delete-old-rdn", request.deleteOldRDN());
 
     final String newSuperior = request.getNewSuperiorDN();
     if (newSuperior != null)
     {
-      b.append(" newSuperior=\"");
-      b.append(newSuperior);
-      b.append('"');
+      buffer.appendString("new-superior", newSuperior);
     }
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
@@ -543,11 +529,12 @@ public final class AccessLogRequestHandler
     final ModifyDNResponseProtocolOp protocolOp =
          responseMessage.getModifyDNResponseProtocolOp();
 
-    generateResponse(b, "MODDN", opID, messageID, protocolOp.getResultCode(),
-         protocolOp.getDiagnosticMessage(), protocolOp.getMatchedDN(),
-         protocolOp.getReferralURLs(), eTimeNanos);
+    generateResponse(buffer, "modify-dn", opID, messageID,
+         protocolOp.getResultCode(), protocolOp.getDiagnosticMessage(),
+         protocolOp.getMatchedDN(), protocolOp.getReferralURLs(), eTimeNanos);
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     return responseMessage;
@@ -565,41 +552,24 @@ public final class AccessLogRequestHandler
   {
     final long opID = nextOperationID.getAndIncrement();
 
-    final StringBuilder b = getRequestHeader("SEARCH", opID, messageID);
+    final JSONBuffer buffer = getRequestHeader("search", opID, messageID);
+    buffer.appendString("base", request.getBaseDN());
+    buffer.appendNumber("scope", request.getScope().intValue());
+    buffer.appendString("filter", request.getFilter().toString());
 
-    b.append(" base=\"");
-    b.append(request.getBaseDN());
-    b.append("\" scope=");
-    b.append(request.getScope().intValue());
-    b.append(" filter=\"");
-    request.getFilter().toString(b);
-    b.append("\" attrs=\"");
-
-    final List<String> attrList = request.getAttributes();
-    if (attrList.isEmpty())
+    buffer.beginArray("requested-attributes");
+    for (final String requestedAttribute : request.getAttributes())
     {
-      b.append("ALL");
+      buffer.appendString(requestedAttribute);
     }
-    else
-    {
-      final Iterator<String> iterator = attrList.iterator();
-      while (iterator.hasNext())
-      {
-        b.append(iterator.next());
-        if (iterator.hasNext())
-        {
-          b.append(',');
-        }
-      }
-    }
+    buffer.endArray();
+    buffer.endObject();
 
-    b.append('"');
-
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
-    final AtomicLong l = new AtomicLong(0L);
-    entryCounts.put(messageID, l);
+    final AtomicLong entryCounter = new AtomicLong(0L);
+    entryCounts.put(messageID, entryCounter);
 
     try
     {
@@ -610,14 +580,13 @@ public final class AccessLogRequestHandler
       final SearchResultDoneProtocolOp protocolOp =
            responseMessage.getSearchResultDoneProtocolOp();
 
-      generateResponse(b, "SEARCH", opID, messageID, protocolOp.getResultCode(),
-           protocolOp.getDiagnosticMessage(), protocolOp.getMatchedDN(),
-           protocolOp.getReferralURLs(), eTimeNanos);
+      generateResponse(buffer, "search", opID, messageID,
+           protocolOp.getResultCode(), protocolOp.getDiagnosticMessage(),
+           protocolOp.getMatchedDN(), protocolOp.getReferralURLs(), eTimeNanos);
+      buffer.appendNumber("entries-returned", entryCounter.get());
+      buffer.endObject();
 
-      b.append(" entriesReturned=");
-      b.append(l.get());
-
-      logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+      logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
       logHandler.flush();
 
       return responseMessage;
@@ -638,10 +607,11 @@ public final class AccessLogRequestHandler
                                    final UnbindRequestProtocolOp request,
                                    final List<Control> controls)
   {
-    final StringBuilder b = getRequestHeader("UNBIND",
+    final JSONBuffer buffer = getRequestHeader("unbind",
          nextOperationID.getAndIncrement(), messageID);
+    buffer.endObject();
 
-    logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.publish(new LogRecord(Level.INFO, buffer.toString()));
     logHandler.flush();
 
     requestHandler.processUnbindRequest(messageID, request, controls);
@@ -650,72 +620,73 @@ public final class AccessLogRequestHandler
 
 
   /**
-   * Retrieves a string builder that can be used to construct a log message.
+   * Retrieves a JSON buffer that can be used to construct a log message.
    *
-   * @return  A string builder that can be used to construct a log message.
+   * @return  A JSON buffer that can be used to construct a log message.
    */
-  private StringBuilder getBuffer()
+  private JSONBuffer getBuffer()
   {
-    StringBuilder b = buffers.get();
-    if (b == null)
+    JSONBuffer buffer = jsonBuffers.get();
+    if (buffer == null)
     {
-      b = new StringBuilder();
-      buffers.set(b);
+      buffer = new JSONBuffer();
+      jsonBuffers.set(buffer);
     }
     else
     {
-      b.setLength(0);
+      buffer.clear();
     }
 
-    return b;
+    return buffer;
   }
 
 
 
   /**
-   * Adds a timestamp to the beginning of the provided buffer.
+   * Adds a timestamp to the provided buffer.
    *
    * @param  buffer  The buffer to which the timestamp should be added.
    */
-  private void addTimestamp(final StringBuilder buffer)
+  private void addTimestamp(final JSONBuffer buffer)
   {
-    SimpleDateFormat dateFormat = timestampFormatters.get();
-    if (dateFormat == null)
+    SimpleDateFormat timestampFormatter = timestampFormatters.get();
+    if (timestampFormatter == null)
     {
-      dateFormat = new SimpleDateFormat("'['dd/MMM/yyyy:HH:mm:ss Z']'");
-      timestampFormatters.set(dateFormat);
+      timestampFormatter =
+           new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
+      timestampFormatter.setTimeZone(StaticUtils.getUTCTimeZone());
+      timestampFormatters.set(timestampFormatter);
     }
 
-    buffer.append(dateFormat.format(new Date()));
+    buffer.appendString("timestamp", timestampFormatter.format(new Date()));
   }
 
 
 
   /**
-   * Retrieves a {@code StringBuilder} with header information for a request log
+   * Retrieves a {@code JSONBuffer} with header information for a connect log
    * message for the specified type of operation.
    *
    * @param  messageType  The type of operation being requested.
    *
-   * @return  A {@code StringBuilder} with header information appended for the
-   *          request;
+   * @return  A {@code JSONBuffer} with header information appended for the
+   *          connection;
    */
-  private StringBuilder getConnectionHeader(final String messageType)
+  private JSONBuffer getConnectionHeader(final String messageType)
   {
-    final StringBuilder b = getBuffer();
-    addTimestamp(b);
-    b.append(' ');
-    b.append(messageType);
-    b.append(" conn=");
-    b.append(clientConnection.getConnectionID());
+    final JSONBuffer buffer = getBuffer();
+    buffer.beginObject();
+    addTimestamp(buffer);
+    buffer.appendString("message-type", messageType);
+    buffer.appendNumber("connection-id", clientConnection.getConnectionID());
 
-    return b;
+    return buffer;
   }
 
 
 
   /**
-   * Retrieves a {@code StringBuilder} with header information for a request log
+   * Retrieves a {@code JSONBuffer} with header information for a request log
    * message for the specified type of operation.
    *
    * @param  opType  The type of operation being requested.
@@ -725,32 +696,30 @@ public final class AccessLogRequestHandler
    * @return  A {@code StringBuilder} with header information appended for the
    *          request;
    */
-  private StringBuilder getRequestHeader(final String opType, final long opID,
-                                         final int msgID)
+  private JSONBuffer getRequestHeader(final String opType, final long opID,
+                                      final int msgID)
   {
-    final StringBuilder b = getBuffer();
-    addTimestamp(b);
-    b.append(' ');
-    b.append(opType);
-    b.append(" REQUEST conn=");
-    b.append(clientConnection.getConnectionID());
-    b.append(" op=");
-    b.append(opID);
-    b.append(" msgID=");
-    b.append(msgID);
+    final JSONBuffer buffer = getBuffer();
+    buffer.beginObject();
+    addTimestamp(buffer);
+    buffer.appendString("message-type", "request");
+    buffer.appendString("operation-type", opType);
+    buffer.appendNumber("connection-id", clientConnection.getConnectionID());
+    buffer.appendNumber("operation-id", opID);
+    buffer.appendNumber("message-id", msgID);
 
-    return b;
+    return buffer;
   }
 
 
 
   /**
-   * Writes information about the result of processing an operation to the
-   * given buffer.
+   * Updates the provided JSON buffer with information about the result of
+   * processing an operation.
    *
-   * @param  b                  The buffer to which the information should be
-   *                            written.  The buffer will be cleared before
-   *                            adding any additional content.
+   * @param  buffer             The buffer to which the information will be
+   *                            written.  It will be cleared before adding any
+   *                            content.
    * @param  opType             The type of operation that was processed.
    * @param  opID               The operation ID for the response.
    * @param  msgID              The message ID for the response.
@@ -761,7 +730,7 @@ public final class AccessLogRequestHandler
    * @param  eTimeNanos         The length of time in nanoseconds required to
    *                            process the operation.
    */
-  private void generateResponse(final StringBuilder b, final String opType,
+  private void generateResponse(final JSONBuffer buffer, final String opType,
                                 final long opID, final int msgID,
                                 final int resultCode,
                                 final String diagnosticMessage,
@@ -769,59 +738,52 @@ public final class AccessLogRequestHandler
                                 final List<String> referralURLs,
                                 final long eTimeNanos)
   {
-    b.setLength(0);
-    addTimestamp(b);
-    b.append(' ');
-    b.append(opType);
-    b.append(" RESULT conn=");
-    b.append(clientConnection.getConnectionID());
-    b.append(" op=");
-    b.append(opID);
-    b.append(" msgID=");
-    b.append(msgID);
-    b.append(" resultCode=");
-    b.append(resultCode);
+    buffer.clear();
+
+    buffer.beginObject();
+    addTimestamp(buffer);
+    buffer.appendString("message-type", "response");
+    buffer.appendString("operation-type", opType);
+    buffer.appendNumber("connection-id", clientConnection.getConnectionID());
+    buffer.appendNumber("operation-id", opID);
+    buffer.appendNumber("message-id", msgID);
+    buffer.appendNumber("result-code-value", resultCode);
+
+    final ResultCode rc = ResultCode.valueOf(resultCode, null, false);
+    if (rc != null)
+    {
+      buffer.appendString("result-code-name", rc.getName());
+    }
 
     if (diagnosticMessage != null)
     {
-      b.append(" diagnosticMessage=\"");
-      b.append(diagnosticMessage);
-      b.append('"');
+      buffer.appendString("diagnostic-message", diagnosticMessage);
     }
 
     if (matchedDN != null)
     {
-      b.append(" matchedDN=\"");
-      b.append(matchedDN);
-      b.append('"');
+      buffer.appendString("matched-dn", matchedDN);
     }
 
     if (! referralURLs.isEmpty())
     {
-      b.append(" referralURLs=\"");
-      final Iterator<String> iterator = referralURLs.iterator();
-      while (iterator.hasNext())
+      buffer.beginArray("referral-urls");
+      for (final String url : referralURLs)
       {
-        b.append(iterator.next());
-
-        if (iterator.hasNext())
-        {
-          b.append(',');
-        }
+        buffer.appendString(url);
       }
-
-      b.append('"');
+      buffer.endArray();
     }
 
-    DecimalFormat f = decimalFormatters.get();
-    if (f == null)
+    DecimalFormat decimalFormat = decimalFormatters.get();
+    if (decimalFormat == null)
     {
-      f = new DecimalFormat("0.000");
-      decimalFormatters.set(f);
+      decimalFormat = new DecimalFormat("0.000");
+      decimalFormatters.set(decimalFormat);
     }
-
-    b.append(" etime=");
-    b.append(f.format(eTimeNanos / 1_000_000.0d));
+    final double eTimeMillis = eTimeNanos / 1_000_000.0d;
+    buffer.appendNumber("processing-time-millis",
+         decimalFormat.format(eTimeMillis));
   }
 
 

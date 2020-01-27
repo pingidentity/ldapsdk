@@ -106,13 +106,22 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *   <LI>"-A" or "--accessLogToStandardOut" -- indicates that access log
  *       information should be written to standard output.  This cannot be
  *       provided in conjunction with the "--accessLogFile" argument.  If
- *       that should be used as a server access log.  This cannot be provided in
  *       neither argument is provided, then no access logging will be
  *       performed</LI>
  *   <LI>"-a {path}" or "--accessLogFile {path}" -- specifies the path to a file
  *       that should be used as a server access log.  This cannot be provided in
  *       conjunction with the "--accessLogToStandardOut" argument.  If neither
  *       argument is provided, then no access logging will be performed</LI>
+ *   <LI>"---jsonAccessLogToStandardOut" -- indicates that JSON-formatted access
+ *       log information should be written to standard output.  This cannot be
+ *       provided in conjunction with the "--jsonAccessLogFile" argument.  If
+ *       neither argument is provided, then no JSON-formatted access logging
+ *       will be performed</LI>
+ *   <LI>"--jsonAccessLogFile {path}" -- specifies the path to a file that
+ *       should be used as a server access log with JSON-formatted messages.
+ *       This cannot be provided in conjunction with the
+ *       "--jsonAccessLogToStandardOut" argument.  If neither argument is
+ *       provided, then no JSON-formatted access logging will be performed</LI>
  *   <LI>"--ldapDebugLogToStandardOut" -- Indicates that LDAP debug log
  *       information should be written to standard output.  This cannot be
  *       provided in conjunction with the "--ldapDebugLogFile" argument.  If
@@ -235,6 +244,10 @@ public final class InMemoryDirectoryServerTool
   // certificate for use in SSL or StartTLS negotiation.
   private BooleanArgument generateSelfSignedCertificateArgument;
 
+  // The argument used to indicate that JSON-formatted access log information
+  // should be written to standard output.
+  private BooleanArgument jsonAccessLogToStandardOutArgument;
+
   // The argument used to indicate that LDAP debug log information should be
   // written to standard output.
   private BooleanArgument ldapDebugLogToStandardOutArgument;
@@ -262,6 +275,11 @@ public final class InMemoryDirectoryServerTool
 
   // The argument used to specify the code log file to use, if any.
   private FileArgument codeLogFile;
+
+  // The argument used to specify the path to an access log file to which
+  // JSON-formatted operation should be written about operations processed by
+  // the server.
+  private FileArgument jsonAccessLogFileArgument;
 
   // The argument used to specify the path to the SSL key store file.
   private FileArgument keyStorePathArgument;
@@ -413,6 +431,8 @@ public final class InMemoryDirectoryServerTool
     baseDNArgument = null;
     accessLogToStandardOutArgument = null;
     accessLogFileArgument = null;
+    jsonAccessLogToStandardOutArgument = null;
+    jsonAccessLogFileArgument = null;
     keyStorePathArgument = null;
     ldapDebugLogToStandardOutArgument = null;
     ldapDebugLogFileArgument = null;
@@ -796,6 +816,24 @@ public final class InMemoryDirectoryServerTool
     accessLogFileArgument.addLongIdentifier("access-log-format", true);
     parser.addArgument(accessLogFileArgument);
 
+    jsonAccessLogToStandardOutArgument = new BooleanArgument(null,
+         "jsonAccessLogToStandardOut",
+         INFO_MEM_DS_TOOL_ARG_DESC_JSON_ACCESS_LOG_TO_STDOUT.get());
+    jsonAccessLogToStandardOutArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
+    jsonAccessLogToStandardOutArgument.addLongIdentifier(
+         "json-access-log-to-standard-out", true);
+    parser.addArgument(jsonAccessLogToStandardOutArgument);
+
+    jsonAccessLogFileArgument = new FileArgument(null, "jsonAccessLogFile",
+         false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_JSON_ACCESS_LOG_FILE.get(), false, true,
+         true, false);
+    jsonAccessLogFileArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
+    jsonAccessLogFileArgument.addLongIdentifier("json-access-log-format", true);
+    parser.addArgument(jsonAccessLogFileArgument);
+
     ldapDebugLogToStandardOutArgument = new BooleanArgument(null,
          "ldapDebugLogToStandardOut",
          INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_TO_STDOUT.get());
@@ -831,6 +869,9 @@ public final class InMemoryDirectoryServerTool
 
     parser.addExclusiveArgumentSet(accessLogToStandardOutArgument,
          accessLogFileArgument);
+
+    parser.addExclusiveArgumentSet(jsonAccessLogToStandardOutArgument,
+         jsonAccessLogFileArgument);
 
     parser.addExclusiveArgumentSet(ldapDebugLogToStandardOutArgument,
          ldapDebugLogFileArgument);
@@ -1278,6 +1319,39 @@ public final class InMemoryDirectoryServerTool
         handler.setFormatter(new MinimalLogFormatter(null, false, false,
              true));
         serverConfig.setAccessLogHandler(handler);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MEM_DS_TOOL_ERROR_CREATING_LOG_HANDLER.get(
+                  logFile.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
+
+    // If a JSON-formatted access log file was specified, then create the
+    // appropriate log handler.
+    if (jsonAccessLogToStandardOutArgument.isPresent())
+    {
+      final StreamHandler handler = new StreamHandler(System.out,
+           new MinimalLogFormatter(null, false, false, true));
+      StaticUtils.setLogHandlerLevel(handler, Level.INFO);
+      serverConfig.setJSONAccessLogHandler(handler);
+    }
+    else if (jsonAccessLogFileArgument.isPresent())
+    {
+      final File logFile = jsonAccessLogFileArgument.getValue();
+      try
+      {
+        final FileHandler handler =
+             new FileHandler(logFile.getAbsolutePath(), true);
+        StaticUtils.setLogHandlerLevel(handler, Level.INFO);
+        handler.setFormatter(new MinimalLogFormatter(null, false, false,
+             true));
+        serverConfig.setJSONAccessLogHandler(handler);
       }
       catch (final Exception e)
       {
