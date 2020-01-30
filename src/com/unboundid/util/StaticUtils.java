@@ -123,6 +123,32 @@ public final class StaticUtils
 
 
   /**
+   * The thread-local date formatter used to encode generalized time values.
+   */
+  private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
+       new ThreadLocal<>();
+
+
+
+  /**
+   * The {@code TimeZone} object that represents the UTC (universal coordinated
+   * time) time zone.
+   */
+  private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+
+
+
+  /**
+   * A set containing the names of attributes that will be considered sensitive
+   * by the {@code toCode} methods of various request and data structure types.
+   */
+  private static volatile Set<String> TO_CODE_SENSITIVE_ATTRIBUTE_NAMES =
+       setOf("userpassword", "2.5.4.35",
+            "authpassword", "1.3.6.1.4.1.4203.1.3.4");
+
+
+
+  /**
    * The width of the terminal window, in columns.
    */
   public static final int TERMINAL_WIDTH_COLUMNS;
@@ -146,32 +172,6 @@ public final class StaticUtils
 
     TERMINAL_WIDTH_COLUMNS = terminalWidth;
   }
-
-
-
-  /**
-   * The thread-local date formatter used to encode generalized time values.
-   */
-  private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
-       new ThreadLocal<>();
-
-
-
-  /**
-   * The {@code TimeZone} object that represents the UTC (universal coordinated
-   * time) time zone.
-   */
-  private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
-
-
-
-  /**
-   * A set containing the names of attributes that will be considered sensitive
-   * by the {@code toCode} methods of various request and data structure types.
-   */
-  private static volatile Set<String> TO_CODE_SENSITIVE_ATTRIBUTE_NAMES =
-       setOf("userpassword", "2.5.4.35",
-            "authpassword", "1.3.6.1.4.1.4203.1.3.4");
 
 
 
