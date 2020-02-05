@@ -300,7 +300,8 @@ public final class GeneralNames
             x400AddressList.add(e);
             break;
           case NAME_TYPE_DIRECTORY_NAME:
-            directoryNameList.add(X509Certificate.decodeName(e));
+            final ASN1Element innerElement = ASN1Element.decode(e.getValue());
+            directoryNameList.add(X509Certificate.decodeName(innerElement));
             break;
           case NAME_TYPE_EDI_PARTY_NAME:
             ediPartyList.add(e);
@@ -382,7 +383,7 @@ public final class GeneralNames
       for (final DN directoryName : directoryNames)
       {
         elements.add(new ASN1Element(NAME_TYPE_DIRECTORY_NAME,
-             X509Certificate.encodeName(directoryName).getValue()));
+             X509Certificate.encodeName(directoryName).encode()));
       }
 
       for (final ASN1Element ediPartyName : ediPartyNames)

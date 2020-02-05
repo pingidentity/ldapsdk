@@ -21,7 +21,20 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Fixed an issue that prevented the LDAP SDK from properly decoding 384-bit
-                  elliptic curve public keys in X.509 certificates.
+                  elliptic curve public keys in X.509 certificates.  This did not affect the
+                  LDAP SDK's ability to use such certificates for TLS communication, but it
+                  did prevent the manage-certificates tool from displaying detailed information
+                  about the key when listing a certificate.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed an issue that could prevent the LDAP SDK from properly decoding an X.509
+                  certificate extension that made use of a general names element with a
+                  directoryName component.  This did not affect the LDAP SDK's ability to use
+                  certificates containing such extensions for TLS communication, but it did
+                  prevent the manage-certificates tool from displaying detailed information
+                  about the extension when listing a certificate.
                   <br><br>
                 </li>
 
