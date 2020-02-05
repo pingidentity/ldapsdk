@@ -965,6 +965,7 @@ public class Task
          new AlertTask(),
          new AuditDataSecurityTask(),
          new BackupTask(),
+         new CollectSupportDataTask(),
          new DelayTask(),
          new DisconnectClientTask(),
          new DumpDBDetailsTask(),
@@ -1985,6 +1986,11 @@ public class Task
       else if (taskClass.equals(BackupTask.BACKUP_TASK_CLASS))
       {
         return new BackupTask(entry);
+      }
+      else if (taskClass.equals(
+           CollectSupportDataTask.COLLECT_SUPPORT_DATA_TASK_CLASS))
+      {
+        return new CollectSupportDataTask(entry);
       }
       else if (taskClass.equals(DelayTask.DELAY_TASK_CLASS))
       {
