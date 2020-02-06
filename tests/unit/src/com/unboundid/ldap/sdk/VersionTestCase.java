@@ -60,4 +60,48 @@ public class VersionTestCase
       newOut.close();
     }
   }
+
+
+
+  /**
+   * Tests the methods that can be used to obtain version information.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testVersionMethods()
+         throws Exception
+  {
+    assertEquals(Version.getProductName(), Version.PRODUCT_NAME);
+
+    assertEquals(Version.getShortName(), Version.SHORT_NAME);
+
+    assertEquals(Version.getMajorVersion(), Version.MAJOR_VERSION);
+
+    assertEquals(Version.getMinorVersion(), Version.MINOR_VERSION);
+
+    assertEquals(Version.getPointVersion(), Version.POINT_VERSION);
+
+    assertEquals(Version.getVersionQualifier(), Version.VERSION_QUALIFIER);
+
+    assertEquals(Version.getBuildTimestamp(), Version.BUILD_TIMESTAMP);
+
+    assertEquals(Version.getRepositoryType(), Version.REPOSITORY_TYPE);
+
+    assertEquals(Version.getRepositoryURL(), Version.REPOSITORY_URL);
+
+    assertEquals(Version.getRepositoryPath(), Version.REPOSITORY_PATH);
+
+    assertEquals(Version.getRevisionID(), Version.REVISION_ID);
+
+    assertEquals(Version.getFullVersionString(), Version.FULL_VERSION_STRING);
+
+    assertEquals(Version.getShortVersionString(), Version.SHORT_VERSION_STRING);
+
+    assertEquals(Version.getNumericVersionString(),
+         Version.NUMERIC_VERSION_STRING);
+
+    assertNotNull(Version.getVersionLines());
+    assertFalse(Version.getVersionLines().isEmpty());
+  }
 }

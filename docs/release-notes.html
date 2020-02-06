@@ -50,6 +50,20 @@ ${TARGET="offline"}                <br>
                   Updated the debugging framework to format debug messages as JSON objects.
                   <br><br>
                 </li>
+
+                <li>
+                  Updated the Version class to add methods that can be used to obtain LDAP SDK
+                  version information.  The version information could previously only be obtained
+                  by directly referencing the public static final constant values that the Version
+                  class exposes, but referencing those constant values from an external class
+                  could cause the Java compiler to compile those hard-coded values directly into
+                  that external class.  If the LDAP SDK library was replaced with a new version
+                  without recompiling the source code, the compiled-in constant values could no
+                  longer accurately reflect the version of the LDAP SDK being used.  Obtaining
+                  LDAP SDK version information using the new method calls rather than the
+                  constants can help avoid this problem.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>

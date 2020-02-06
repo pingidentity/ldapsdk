@@ -34,6 +34,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 /**
  * This class provides information about the current version of the UnboundID
  * LDAP SDK for Java.
+ * <BR><BR>
+ * Note that if you reference the constant values directly in your source code,
+ * those constant values may be compiled into your source code directly rather
+ * than dynamically replacing them at runtime or when the class is loaded.  This
+ * means that if you swap out the LDAP SDK library after the source code has
+ * been compiled, the already-compiled code may not accurately reflect the
+ * values from the version of the LDAP SDK that is actually being used.  To
+ * avoid that, you may wish to use the provided methods to obtain the values
+ * rather than referencing the constants directly (e.g., use
+ * {@link #getProductName} instead of {@link #PRODUCT_NAME}).
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class Version
@@ -192,7 +202,7 @@ public final class Version
 
 
   /**
-   *The version number string for the LDAP SDK, which contains just the major,
+   * The version number string for the LDAP SDK, which contains just the major,
    * minor, and point version, and optional version qualifier.  For this build,
    * the version string is
    * "${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}".
@@ -224,6 +234,210 @@ public final class Version
     {
       System.out.println(line);
     }
+  }
+
+
+
+  /**
+   * Retrieves the official full product name for the LDAP SDK.  For this build,
+   * the value is "${PRODUCT_NAME}".
+   *
+   * @return  The official full product name for the LDAP SDK.
+   */
+  public static String getProductName()
+  {
+    return PRODUCT_NAME;
+  }
+
+
+
+  /**
+   * Retrieves the short product name for the LDAP SDK.  This will not have any
+   * spaces.  For this build, the value is "${SHORT_NAME}".
+   *
+   * @return  The short product name for the LDAP SDK.
+   */
+  public static String getShortName()
+  {
+    return SHORT_NAME;
+  }
+
+
+
+  /**
+   * Retrieves the major version number for the LDAP SDK.  For this build, the
+   * value is ${MAJOR_VERSION}.
+   *
+   * @return  The major version number for the LDAP SDK.
+   */
+  public static int getMajorVersion()
+  {
+    return MAJOR_VERSION;
+  }
+
+
+
+  /**
+   * Retrieves the minor version number for the LDAP SDK.  For this build, the
+   * value is ${MINOR_VERSION}.
+   *
+   * @return  The minor version number for the LDAP SDK.
+   */
+  public static int getMinorVersion()
+  {
+    return MINOR_VERSION;
+  }
+
+
+
+  /**
+   * Retrieves the point version number for the LDAP SDK.  For this build, the
+   * value is ${POINT_VERSION}.
+   *
+   * @return  The point version number for the LDAP SDK.
+   */
+  public static int getPointVersion()
+  {
+    return POINT_VERSION;
+  }
+
+
+
+  /**
+   * Retrieves the version qualifier string for the LDAP SDK.  It will often be
+   * a zero-length string, but may be non-empty for special builds that should
+   * be tagged in some way (e.g., "-beta1" or "-rc2"). For this build, the value
+   * is "${VERSION_QUALIFIER}".
+   *
+   * @return  The version qualifier string for the LDAP SDK.
+   */
+  public static String getVersionQualifier()
+  {
+    return VERSION_QUALIFIER;
+  }
+
+
+
+  /**
+   * Retrieves a timestamp that indicates when this build of the LDAP SDK was
+   * generated.  For this build, the value is "${timestamp}".
+   *
+   * @return  A timestamp that indicates when this build of the LDAP SDK was
+   *          generated.
+   */
+  public static String getBuildTimestamp()
+  {
+    return BUILD_TIMESTAMP;
+  }
+
+
+
+  /**
+   * Retrieves the type of repository from which the source code used to build
+   * the LDAP SDK was retrieved.  It will be one of "subversion", "git", or
+   * "{unknown}".  For this build, the value is "${repository-info.type}".
+   *
+   * @return  The type of repository from which the source code used to build
+   *          the LDAP SDK was retrieved.
+   */
+  public static String getRepositoryType()
+  {
+    return REPOSITORY_TYPE;
+  }
+
+
+
+  /**
+   * Retrieves the URL for the repository from which the source code used to
+   * build the LDAP SDK was retrieved.  If repository information could not be
+   * determined at build time, then this will be a file URL that references the
+   * path to the source code on the system used to build the LDAP SDK library.
+   * For this build, the value is
+   * "${repository-info.url}".
+   *
+   * @return  The URL for the repository from which the source code used to
+   *          build the LDAP SDK was retrieved.
+   */
+  public static String getRepositoryURL()
+  {
+    return REPOSITORY_URL;
+  }
+
+
+
+  /**
+   * Retrieves the path to the LDAP SDK source code in the repository.  If
+   * repository information could not be determined at build time, then this
+   * will be "/".  For this build, the value is
+   * "${repository-info.path}".
+   *
+   * @return  The path to the LDAP SDK source code in the repository.
+   */
+  public static String getRepositoryPath()
+  {
+    return REPOSITORY_PATH;
+  }
+
+
+
+  /**
+   * Retrieves the string representation of the source revision from which this
+   * build of the LDAP SDK was generated.  For a subversion repository, this
+   * will be the string representation of the revision number.  For a git
+   * repository, this will be the hexadecimal representation of the digest for
+   * the most recent commit.  If repository information could not be determined
+   * at build time, the value will be "{unknown}".  For this build, the value is
+   * "${repository-info.revision}".
+   *
+   * @return  The string representation of the source revision from which this
+   *          build of the LDAP SDK was generated.
+   */
+  public static String getRevisionID()
+  {
+    return REVISION_ID;
+  }
+
+
+
+  /**
+   * Retrieves the full version string for the LDAP SDK.  For this build, the
+   * value is
+   * "${PRODUCT_NAME} ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}".
+   *
+   * @return  The full version string for the LDAP SDK.
+   */
+  public static String getFullVersionString()
+  {
+    return FULL_VERSION_STRING;
+  }
+
+
+
+  /**
+   * Retrieves the short version string for the LDAP SDK.  This will not have
+   * any spaces.  For this build, the value is
+   * "${SHORT_NAME}-${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}".
+   *
+   * @return  The short version string for the LDAP SDK.
+   */
+  public static String getShortVersionString()
+  {
+    return SHORT_VERSION_STRING;
+  }
+
+
+
+  /**
+   * Retrieves the version number string for the LDAP SDK, which contains just
+   * the major, minor, and point version, and optional version qualifier.  For
+   * this build, the version string is
+   * "${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}".
+   *
+   * @return  The version number string for the LDAP SDK.
+   */
+  public static String getNumericVersionString()
+  {
+    return NUMERIC_VERSION_STRING;
   }
 
 
