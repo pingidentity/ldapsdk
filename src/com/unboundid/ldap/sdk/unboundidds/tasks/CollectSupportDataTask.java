@@ -224,6 +224,24 @@ public final class CollectSupportDataTask
 
 
   /**
+   *The name of the attribute used to specify the minimum age of previous
+   * support data archives that should be retained.
+   */
+  public static final String ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE =
+       ATTR_PREFIX + "retain-previous-support-data-archive-age";
+
+
+
+  /**
+   *The name of the attribute used to specify the minimum number of previous
+   * support data archives that should be retained.
+   */
+  public static final String ATTR_RETAIN_PREVIOUS_ARCHIVE_COUNT =
+       ATTR_PREFIX + "retain-previous-support-data-archive-count";
+
+
+
+  /**
    * The name of the attribute used to specify the security level to use for
    * information added to the support data archive.
    */
@@ -371,6 +389,30 @@ public final class CollectSupportDataTask
 
 
   /**
+   * The task property that will be used for the retain previous support data
+   * archive age.
+   */
+  static final TaskProperty PROPERTY_RETAIN_PREVIOUS_ARCHIVE_AGE =
+     new TaskProperty(ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE,
+          INFO_CSD_DISPLAY_NAME_RETAIN_PREVIOUS_ARCHIVE_AGE.get(),
+          INFO_CSD_DESCRIPTION_RETAIN_PREVIOUS_ARCHIVE_AGE.get(),
+          String.class, false, false, false);
+
+
+
+  /**
+   * The task property that will be used for the retain previous support data
+   * archive count.
+   */
+  static final TaskProperty PROPERTY_RETAIN_PREVIOUS_ARCHIVE_COUNT =
+     new TaskProperty(ATTR_RETAIN_PREVIOUS_ARCHIVE_COUNT,
+          INFO_CSD_DISPLAY_NAME_RETAIN_PREVIOUS_ARCHIVE_COUNT.get(),
+          INFO_CSD_DESCRIPTION_RETAIN_PREVIOUS_ARCHIVE_COUNT.get(),
+          Long.class, false, false, false);
+
+
+
+  /**
    * The task property that will be used for the security level.
    */
   static final TaskProperty PROPERTY_SECURITY_LEVEL =
@@ -404,7 +446,7 @@ public final class CollectSupportDataTask
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -4500184724021755079L;
+  private static final long serialVersionUID = -2568906018686907596L;
 
 
 
@@ -438,6 +480,10 @@ public final class CollectSupportDataTask
   // The report interval, in seconds, to use for sampled metrics.
   private final Integer reportIntervalSeconds;
 
+  // The minimum number of existing support data archives that should be
+  // retained.
+  private final Integer retainPreviousSupportDataArchiveCount;
+
   // A comment to include in the support data archive.
   private final String comment;
 
@@ -450,10 +496,13 @@ public final class CollectSupportDataTask
   // The path to which the support data archive should be written.
   private final String outputPath;
 
+  // The minimum age for existing support data archives that should be retained.
+  private final String retainPreviousSupportDataArchiveAge;
+
 
 
   /**
-   * Creates a new collect support dtaa task instance that will use default
+   * Creates a new collect support data task instance that will use default
    * settings for all properties.  This instance may be used to invoke the
    * task, but it can also be used for obtaining general information about this
    * task, including the task name, description, and supported properties.
@@ -491,10 +540,14 @@ public final class CollectSupportDataTask
     jstackCount = properties.getJStackCount();
     reportCount = properties.getReportCount();
     reportIntervalSeconds = properties.getReportIntervalSeconds();
+    retainPreviousSupportDataArchiveCount =
+         properties.getRetainPreviousSupportDataArchiveCount();
     comment = properties.getComment();
     encryptionPassphraseFile = properties.getEncryptionPassphraseFile();
     logDuration = properties.getLogDuration();
     outputPath = properties.getOutputPath();
+    retainPreviousSupportDataArchiveAge =
+         properties.getRetainPreviousSupportDataArchiveAge();
   }
 
 
@@ -527,6 +580,8 @@ public final class CollectSupportDataTask
     reportCount = entry.getAttributeValueAsInteger(ATTR_REPORT_COUNT);
     reportIntervalSeconds =
          entry.getAttributeValueAsInteger(ATTR_REPORT_INTERVAL_SECONDS);
+    retainPreviousSupportDataArchiveCount =
+         entry.getAttributeValueAsInteger(ATTR_RETAIN_PREVIOUS_ARCHIVE_COUNT);
 
     comment = entry.getAttributeValue(ATTR_COMMENT);
     encryptionPassphraseFile =
@@ -563,8 +618,28 @@ public final class CollectSupportDataTask
       {
         Debug.debugException(e);
         throw new TaskException(
-             ERR_CSD_ENTRY_INVALID_LOG_DURATION.get(entry.getDN(), logDuration,
+             ERR_CSD_ENTRY_INVALID_DURATION.get(entry.getDN(), logDuration,
                   ATTR_LOG_DURATION),
+             e);
+      }
+    }
+
+    retainPreviousSupportDataArchiveAge =
+         entry.getAttributeValue(ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE);
+    if (retainPreviousSupportDataArchiveAge != null)
+    {
+      try
+      {
+        DurationArgument.parseDuration(retainPreviousSupportDataArchiveAge,
+             TimeUnit.MILLISECONDS);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new TaskException(
+             ERR_CSD_ENTRY_INVALID_DURATION.get(entry.getDN(),
+                  retainPreviousSupportDataArchiveAge,
+                  ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE),
              e);
       }
     }
@@ -597,10 +672,12 @@ public final class CollectSupportDataTask
     Integer numJStacks = null;
     Integer numReports = null;
     Integer reportIntervalSecs = null;
+    Integer retainCount = null;
     String commentStr = null;
     String encPWFile = null;
     String logDurationStr = null;
     String outputPathStr = null;
+    String retainAge = null;
 
     for (final Map.Entry<TaskProperty,List<Object>> entry :
          properties.entrySet())
@@ -632,20 +709,24 @@ public final class CollectSupportDataTask
       }
       else if (attrName.equals(ATTR_SECURITY_LEVEL))
       {
-        final String secLevelStr = parseString(p, values, null);
+        final String secLevelStr = parseString(p, values,
+             getSecurityLevelName(secLevel));
         secLevel = CollectSupportDataSecurityLevel.forName(secLevelStr);
       }
       else if (attrName.equals(ATTR_JSTACK_COUNT))
       {
-        numJStacks = parseLong(p, values, null).intValue();
+        numJStacks = parseLong(p, values,
+             getIntegerAsLong(numJStacks)).intValue();
       }
       else if (attrName.equals(ATTR_REPORT_COUNT))
       {
-        numReports = parseLong(p, values, null).intValue();
+        numReports = parseLong(p, values,
+             getIntegerAsLong(numReports)).intValue();
       }
       else if (attrName.equals(ATTR_REPORT_INTERVAL_SECONDS))
       {
-        reportIntervalSecs = parseLong(p, values, null).intValue();
+        reportIntervalSecs = parseLong(p, values,
+             getIntegerAsLong(reportIntervalSecs)).intValue();
       }
       else if (attrName.equals(ATTR_COMMENT))
       {
@@ -666,7 +747,7 @@ public final class CollectSupportDataTask
         {
           Debug.debugException(e);
           throw new TaskException(
-               ERR_CSD_PROPERTY_INVALID_LOG_DURATION.get(logDurationStr,
+               ERR_CSD_PROPERTY_INVALID_DURATION.get(logDurationStr,
                     ATTR_LOG_DURATION),
                e);
         }
@@ -674,6 +755,27 @@ public final class CollectSupportDataTask
       else if (attrName.equals(ATTR_OUTPUT_PATH))
       {
         outputPathStr = parseString(p, values, outputPathStr);
+      }
+      else if (attrName.equals(ATTR_RETAIN_PREVIOUS_ARCHIVE_COUNT))
+      {
+        retainCount = parseLong(p, values,
+             getIntegerAsLong(retainCount)).intValue();
+      }
+      else if (attrName.equals(ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE))
+      {
+        retainAge = parseString(p, values, retainAge);
+        try
+        {
+          DurationArgument.parseDuration(retainAge, TimeUnit.MILLISECONDS);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          throw new TaskException(
+               ERR_CSD_PROPERTY_INVALID_DURATION.get(retainAge,
+                    ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE),
+               e);
+        }
       }
     }
 
@@ -686,10 +788,61 @@ public final class CollectSupportDataTask
     jstackCount = numJStacks;
     reportCount = numReports;
     reportIntervalSeconds = reportIntervalSecs;
+    retainPreviousSupportDataArchiveCount = retainCount;
     comment = commentStr;
     encryptionPassphraseFile = encPWFile;
     logDuration = logDurationStr;
     outputPath = outputPathStr;
+    retainPreviousSupportDataArchiveAge = retainAge;
+  }
+
+
+
+  /**
+   * Retrieves the name of the provided security level.
+   *
+   * @param  securityLevel  The security level for which to retrieve the name.
+   *                        It may be {@code null}.
+   *
+   * @return  The name of the provided security level, or {@code null} if the
+   *          provided security level is {@code null}.
+   */
+  static String getSecurityLevelName(
+                     final CollectSupportDataSecurityLevel securityLevel)
+  {
+    if (securityLevel == null)
+    {
+      return null;
+    }
+    else
+    {
+      return securityLevel.getName();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the value of the provided {@code Integer} object as a
+   * {@code Long}.
+   *
+   * @param  i  The {@code Integer} value to convert to a {@code Long}.  It may
+   *            be {@code null}.
+   *
+   * @return  The value of the provided {@code Integer} object as a
+   *          {@code Long}, or {@code null} if the provided value was
+   *          {@code null}.
+   */
+  static Long getIntegerAsLong(final Integer i)
+  {
+    if (i == null)
+    {
+      return null;
+    }
+    else
+    {
+      return i.longValue();
+    }
   }
 
 
@@ -965,6 +1118,66 @@ public final class CollectSupportDataTask
 
 
   /**
+   * Retrieves the minimum number of existing support data archives that should
+   * be retained.
+   *
+   * @return  The minimum number of existing support data archives that should
+   *          be retained, or {@code null} if there is no minimum retain count.
+   */
+  public Integer getRetainPreviousSupportDataArchiveCount()
+  {
+    return retainPreviousSupportDataArchiveCount;
+  }
+
+
+
+  /**
+   * Retrieves the minimum age of existing support data archives that should be
+   * retained.
+   *
+   * @return  The minimum age of existing support data archives that should
+   *          be retained, or {@code null} if there is no minimum retain age.
+   */
+  public String getRetainPreviousSupportDataArchiveAge()
+  {
+    return retainPreviousSupportDataArchiveAge;
+  }
+
+
+
+  /**
+   * Retrieves a parsed value of the retain previous support data archive age in
+   * milliseconds.
+   *
+   * @return  A parsed value of the retain previous support data archive age in
+   *          milliseconds or {@code null} if no retain age is set.
+   *
+   * @throws  TaskException  If the retain age value cannot be parsed as a valid
+   *                         duration.
+   */
+  public Long getRetainPreviousSupportDataArchiveAgeMillis()
+         throws TaskException
+  {
+    if (retainPreviousSupportDataArchiveAge == null)
+    {
+      return null;
+    }
+
+    try
+    {
+      return DurationArgument.parseDuration(
+           retainPreviousSupportDataArchiveAge, TimeUnit.MILLISECONDS);
+    }
+    catch (final ArgumentException e)
+    {
+      Debug.debugException(e);
+      throw new TaskException(e.getMessage(), e);
+    }
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -1057,6 +1270,18 @@ public final class CollectSupportDataTask
       attrList.add(new Attribute(ATTR_COMMENT, comment));
     }
 
+    if (retainPreviousSupportDataArchiveCount != null)
+    {
+      attrList.add(new Attribute(ATTR_RETAIN_PREVIOUS_ARCHIVE_COUNT,
+           String.valueOf(retainPreviousSupportDataArchiveCount)));
+    }
+
+    if (retainPreviousSupportDataArchiveAge != null)
+    {
+      attrList.add(new Attribute(ATTR_RETAIN_PREVIOUS_ARCHIVE_AGE,
+           retainPreviousSupportDataArchiveAge));
+    }
+
     return attrList;
   }
 
@@ -1081,7 +1306,9 @@ public final class CollectSupportDataTask
          PROPERTY_REPORT_COUNT,
          PROPERTY_REPORT_INTERVAL_SECONDS,
          PROPERTY_LOG_DURATION,
-         PROPERTY_COMMENT));
+         PROPERTY_COMMENT,
+         PROPERTY_RETAIN_PREVIOUS_ARCHIVE_COUNT,
+         PROPERTY_RETAIN_PREVIOUS_ARCHIVE_AGE));
   }
 
 
@@ -1172,6 +1399,20 @@ public final class CollectSupportDataTask
     {
       props.put(PROPERTY_COMMENT,
            Collections.<Object>singletonList(comment));
+    }
+
+    if (retainPreviousSupportDataArchiveCount != null)
+    {
+      props.put(PROPERTY_RETAIN_PREVIOUS_ARCHIVE_COUNT,
+           Collections.<Object>singletonList(
+                retainPreviousSupportDataArchiveCount.longValue()));
+    }
+
+    if (retainPreviousSupportDataArchiveAge != null)
+    {
+      props.put(PROPERTY_RETAIN_PREVIOUS_ARCHIVE_AGE,
+           Collections.<Object>singletonList(
+                retainPreviousSupportDataArchiveAge));
     }
 
     props.putAll(super.getTaskPropertyValues());

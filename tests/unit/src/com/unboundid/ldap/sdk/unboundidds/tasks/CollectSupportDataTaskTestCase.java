@@ -116,6 +116,12 @@ public final class CollectSupportDataTaskTestCase
 
     assertNull(t.getComment());
 
+    assertNull(t.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(t.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(t.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNotNull(t.getAdditionalObjectClasses());
     assertFalse(t.getAdditionalObjectClasses().isEmpty());
     assertEquals(t.getAdditionalObjectClasses().size(), 1);
@@ -215,6 +221,8 @@ public final class CollectSupportDataTaskTestCase
     p.setJStackCount(4);
     p.setLogDuration("5 minutes");
     p.setComment("foo");
+    p.setRetainPreviousSupportDataArchiveCount(5);
+    p.setRetainPreviousSupportDataArchiveAge("1 week");
     p.setTaskID("123-456-7890");
     p.setScheduledStartTime(d);
     p.setDependencyIDs(Arrays.asList("d1", "d2", "d3"));
@@ -286,6 +294,16 @@ public final class CollectSupportDataTaskTestCase
 
     assertNotNull(t.getComment());
     assertEquals(t.getComment(), "foo");
+
+    assertNotNull(t.getRetainPreviousSupportDataArchiveCount());
+    assertEquals(t.getRetainPreviousSupportDataArchiveCount().intValue(), 5);
+
+    assertNotNull(t.getRetainPreviousSupportDataArchiveAge());
+    assertEquals(t.getRetainPreviousSupportDataArchiveAge(), "1 week");
+
+    assertNotNull(t.getRetainPreviousSupportDataArchiveAgeMillis());
+    assertEquals(t.getRetainPreviousSupportDataArchiveAgeMillis().longValue(),
+         604_800_000L);
 
     assertNotNull(t.getAdditionalObjectClasses());
     assertFalse(t.getAdditionalObjectClasses().isEmpty());
@@ -372,6 +390,43 @@ public final class CollectSupportDataTaskTestCase
 
 
   /**
+   * Tests the behavior of the {@code getSecurityLevelName} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetSecurityLevelName()
+         throws Exception
+  {
+    assertNull(CollectSupportDataTask.getSecurityLevelName(null));
+
+    for (final CollectSupportDataSecurityLevel l :
+         CollectSupportDataSecurityLevel.values())
+    {
+      assertEquals(CollectSupportDataTask.getSecurityLevelName(l), l.getName());
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getIntegerAsLong} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetIntegerAsLong()
+         throws Exception
+  {
+    assertNull(CollectSupportDataTask.getIntegerAsLong(null));
+
+    assertEquals(CollectSupportDataTask.getIntegerAsLong(12345),
+         Long.valueOf(12345L));
+  }
+
+
+
+  /**
    * Tests the behavior when trying to create a collect support data task from
    * an entry with a malformed security level.
    *
@@ -419,6 +474,30 @@ public final class CollectSupportDataTaskTestCase
 
   /**
    * Tests the behavior when trying to create a collect support data task from
+   * an entry with a malformed retain age.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { TaskException.class })
+  public void testEntryMalformedRetainAge()
+         throws Exception
+  {
+    new CollectSupportDataTask(new Entry(
+         "dn: ds-task-id=123-456-7890,cn=Scheduled Tasks,cn=tasks",
+         "objectClass: top",
+         "objectClass: ds-task",
+         "objectClass: ds-task-collect-support-data",
+         "ds-task-id: 123-456-7890",
+         "ds-task-class-name: com.unboundid.directory.server.tasks." +
+              "CollectSupportDataTask",
+         "ds-task-collect-support-data-retain-previous-support-data-" +
+              "archive-age: malformed"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a collect support data task from
    * a properties map that contains a malformed security level.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -446,6 +525,23 @@ public final class CollectSupportDataTaskTestCase
   {
     new CollectSupportDataTask(StaticUtils.mapOf(
          CollectSupportDataTask.PROPERTY_LOG_DURATION,
+         Collections.<Object>singletonList("malformed")));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to create a collect support data task from
+   * a properties map that contains a malformed retain age.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { TaskException.class })
+  public void testPropertiesMalformedRetainAge()
+         throws Exception
+  {
+    new CollectSupportDataTask(StaticUtils.mapOf(
+         CollectSupportDataTask.PROPERTY_RETAIN_PREVIOUS_ARCHIVE_AGE,
          Collections.<Object>singletonList("malformed")));
   }
 }

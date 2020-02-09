@@ -79,6 +79,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -151,6 +157,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -212,6 +224,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -271,6 +289,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -344,6 +368,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -405,6 +435,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -464,6 +500,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -537,6 +579,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -597,6 +645,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -659,6 +713,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -718,6 +778,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -790,6 +856,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -913,6 +985,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -972,6 +1050,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -1045,6 +1129,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -1105,6 +1195,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -1167,6 +1263,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -1226,6 +1328,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -1299,6 +1407,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -1359,6 +1473,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -1421,6 +1541,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -1480,6 +1606,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -1553,6 +1685,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -1613,6 +1751,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -1675,6 +1819,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -1734,6 +1884,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -1807,6 +1963,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -1871,6 +2033,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
       assertNull(p.getComment());
 
+      assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+      assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+      assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
       assertNull(p.getTaskID());
 
       assertNull(p.getScheduledStartTime());
@@ -1931,6 +2099,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -2004,6 +2178,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -2064,6 +2244,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -2126,6 +2312,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -2185,6 +2377,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -2258,6 +2456,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -2318,6 +2522,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -2380,6 +2590,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -2439,6 +2655,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -2512,6 +2734,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -2572,6 +2800,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -2634,6 +2868,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -2693,6 +2933,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -2766,6 +3012,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -2827,6 +3079,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertEquals(p.getLogDurationMillis().longValue(), 300_000L);
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -2898,6 +3156,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -2957,6 +3221,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -3020,6 +3290,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -3079,6 +3355,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -3152,6 +3434,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -3213,6 +3501,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNotNull(p.getComment());
     assertEquals(p.getComment(), "foo");
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -3272,6 +3566,650 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior related to the retain previous support data archive
+   * count property.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRetainPreviousSupportDataArchiveCount()
+         throws Exception
+  {
+    final CollectSupportDataTaskProperties p =
+         new CollectSupportDataTaskProperties();
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setRetainPreviousSupportDataArchiveCount(5);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveCount());
+    assertEquals(p.getRetainPreviousSupportDataArchiveCount().intValue(), 5);
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setRetainPreviousSupportDataArchiveCount(null);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior related to the retain previous support data archive age
+   * property.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRetainPreviousSupportDataArchiveAge()
+         throws Exception
+  {
+    final CollectSupportDataTaskProperties p =
+         new CollectSupportDataTaskProperties();
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setRetainPreviousSupportDataArchiveAge("1 week");
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveAge());
+    assertEquals(p.getRetainPreviousSupportDataArchiveAge(), "1 week");
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+    assertEquals(p.getRetainPreviousSupportDataArchiveAgeMillis().longValue(),
+         604_800_000L);
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    try
+    {
+      p.setRetainPreviousSupportDataArchiveAge("malformed");
+      fail("Expected an exception from a malformed retain age");
+    }
+    catch (final TaskException e)
+    {
+      // This was expected.
+    }
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveAge());
+    assertEquals(p.getRetainPreviousSupportDataArchiveAge(), "1 week");
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+    assertEquals(p.getRetainPreviousSupportDataArchiveAgeMillis().longValue(),
+         604_800_000L);
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setRetainPreviousSupportDataArchiveAge(null);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setRetainPreviousSupportDataArchiveAgeMillis(432_000_000L);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveAge());
+    assertEquals(p.getRetainPreviousSupportDataArchiveAge(), "5 days");
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+    assertEquals(p.getRetainPreviousSupportDataArchiveAgeMillis().longValue(),
+         432_000_000L);
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setRetainPreviousSupportDataArchiveAgeMillis(null);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -3345,6 +4283,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -3404,6 +4348,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNotNull(p.getTaskID());
     assertEquals(p.getTaskID(), "123-456-7890");
@@ -3465,6 +4415,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -3538,6 +4494,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -3599,6 +4561,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNotNull(p.getScheduledStartTime());
@@ -3659,6 +4627,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -3732,6 +4706,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -3791,6 +4771,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -3853,6 +4839,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -3912,6 +4904,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -3973,6 +4971,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -4046,6 +5050,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -4109,6 +5119,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
       assertNull(p.getComment());
 
+      assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+      assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+      assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
       assertNull(p.getTaskID());
 
       assertNull(p.getScheduledStartTime());
@@ -4170,6 +5186,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -4243,6 +5265,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -4303,6 +5331,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -4366,6 +5400,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -4425,6 +5465,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -4487,6 +5533,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -4560,6 +5612,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -4620,6 +5678,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -4683,6 +5747,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -4742,6 +5812,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -4804,6 +5880,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -4877,6 +5959,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -4937,6 +6025,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5000,6 +6094,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -5059,6 +6159,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5121,6 +6227,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5194,6 +6306,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -5254,6 +6372,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5317,6 +6441,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -5376,6 +6506,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5438,6 +6574,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5511,6 +6653,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -5570,6 +6718,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5632,6 +6786,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -5692,6 +6852,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5765,6 +6931,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -5824,6 +6996,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -5886,6 +7064,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -5946,6 +7130,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -6019,6 +7209,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -6078,6 +7274,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -6140,6 +7342,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -6199,6 +7407,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDurationMillis());
 
     assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
 
     assertNull(p.getTaskID());
 
@@ -6272,6 +7486,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getComment());
 
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
     assertNull(p.getTaskID());
 
     assertNull(p.getScheduledStartTime());
@@ -6317,6 +7537,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     p.setJStackCount(4);
     p.setLogDuration("5 minutes");
     p.setComment("foo");
+    p.setRetainPreviousSupportDataArchiveCount(5);
+    p.setRetainPreviousSupportDataArchiveAge("1 week");
     p.setTaskID("123-456-7890");
     p.setScheduledStartTime(d);
     p.setDependencyIDs(Arrays.asList("d1", "d2", "d3"));
@@ -6375,6 +7597,16 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNotNull(p.getComment());
     assertEquals(p.getComment(), "foo");
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveCount());
+    assertEquals(p.getRetainPreviousSupportDataArchiveCount().intValue(), 5);
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveAge());
+    assertEquals(p.getRetainPreviousSupportDataArchiveAge(), "1 week");
+
+    assertNotNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+    assertEquals(p.getRetainPreviousSupportDataArchiveAgeMillis().longValue(),
+         604_800_000L);
 
     assertNotNull(p.getTaskID());
     assertEquals(p.getTaskID(), "123-456-7890");
