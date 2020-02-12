@@ -38,6 +38,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.Sasl;
@@ -1250,6 +1251,18 @@ public final class GSSAPIBindRequest
         Debug.debug(Level.CONFIG, DebugType.LDAP,
              "Using realm property " + PROPERTY_REALM + " = '" + realm + "'.");
       }
+    }
+
+    try
+    {
+      // Reload the configuration before creating the login context, which may
+      // work around problems that could arise if certain configuration is
+      // loaded and cached before the above system properties were set.
+      Configuration.getConfiguration().refresh();
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
     }
 
     try

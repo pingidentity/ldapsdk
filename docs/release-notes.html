@@ -20,6 +20,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue that could interfere with GSSAPI authentication in cases where
+                  a JAAS login module configuration was loaded and cached by the JVM before all
+                  the appropriate system properties had been set for the login attempt.  The
+                  configuration is now refreshed before attempting to create the login context
+                  so that the system property changes will be applied.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue that prevented the LDAP SDK from properly decoding 384-bit
                   elliptic curve public keys in X.509 certificates.  This did not affect the
                   LDAP SDK's ability to use such certificates for TLS communication, but it
