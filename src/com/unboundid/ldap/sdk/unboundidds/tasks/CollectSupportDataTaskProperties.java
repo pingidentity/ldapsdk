@@ -40,7 +40,7 @@ import com.unboundid.util.args.DurationArgument;
 
 /**
  * This class defines a set of properties that may be used when creating a
- * collect support data task.
+ * {@link CollectSupportDataTask}.
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -53,7 +53,7 @@ import com.unboundid.util.args.DurationArgument;
  * </BLOCKQUOTE>
  */
 @Mutable()
-@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+@ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class CollectSupportDataTaskProperties
        implements Serializable
 {

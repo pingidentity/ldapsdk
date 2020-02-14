@@ -23,13 +23,15 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
 
 
 
 /**
  * This enum defines the security level values that may be used in conjunction
  * with the collect-support-data tool (and the corresponding administrative
- * task).
+ * task and extended operation).
  * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class, and other classes within the
@@ -41,6 +43,7 @@ import com.unboundid.util.StaticUtils;
  *   interoperable way with other types of LDAP servers.
  * </BLOCKQUOTE>
  */
+@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum CollectSupportDataSecurityLevel
 {
   // NOTICE:  If new items are added in the future, then enum values should be
