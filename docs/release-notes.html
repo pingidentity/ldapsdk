@@ -23,6 +23,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue that could cause the LDAP debugger request handler (used used by
+                  the ldap-debugger tool and by the in-memory directory server's LDAP debug
+                  logging) to hold messages in an internal buffer rather than make them
+                  immediately available.  In some cases, this could significantly delay the
+                  appearance of the messages or prevent them from appearing at all (if there
+                  weren't enough messages generated to fill the buffer).
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue that prevented the LDAP SDK from properly decoding 384-bit
                   elliptic curve public keys in X.509 certificates.  This did not affect the
                   LDAP SDK's ability to use such certificates for TLS communication, but it

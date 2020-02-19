@@ -190,6 +190,7 @@ public final class LDAPDebuggerRequestHandler
     connection.addSearchReferenceTransformer(h);
 
     logHandler.publish(new LogRecord(Level.INFO, "CONNECT " + header));
+    logHandler.flush();
 
     return h;
   }
@@ -207,6 +208,7 @@ public final class LDAPDebuggerRequestHandler
     b.append(headerString);
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     requestHandler.closeInstance();
   }
@@ -230,6 +232,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     requestHandler.processAbandonRequest(messageID, request, controls);
   }
@@ -258,6 +261,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final LDAPMessage responseMessage = requestHandler.processAddRequest(
          messageID, request, controls);
@@ -274,6 +278,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, responseMessage.getControls());
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -322,6 +327,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final LDAPMessage responseMessage = requestHandler.processBindRequest(
          messageID, request, controls);
@@ -347,6 +353,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, responseMessage.getControls());
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -374,6 +381,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final LDAPMessage responseMessage = requestHandler.processCompareRequest(
          messageID, request, controls);
@@ -390,6 +398,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, responseMessage.getControls());
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -412,6 +421,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final LDAPMessage responseMessage = requestHandler.processDeleteRequest(
          messageID, request, controls);
@@ -428,6 +438,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, responseMessage.getControls());
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -459,6 +470,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final LDAPMessage responseMessage = requestHandler.processExtendedRequest(
          messageID, request, controls);
@@ -490,6 +502,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, responseMessage.getControls());
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -520,6 +533,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final LDAPMessage responseMessage = requestHandler.processModifyRequest(
          messageID, request, controls);
@@ -536,6 +550,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, responseMessage.getControls());
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -569,6 +584,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final LDAPMessage responseMessage = requestHandler.processModifyDNRequest(
          messageID, request, controls);
@@ -585,6 +601,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, responseMessage.getControls());
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -631,6 +648,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final LDAPMessage responseMessage = requestHandler.processSearchRequest(
          messageID, request, controls);
@@ -647,6 +665,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, responseMessage.getControls());
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -668,6 +687,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     requestHandler.processUnbindRequest(messageID, request, controls);
   }
@@ -848,6 +868,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return new ObjectPair<>(response, controls);
   }
@@ -876,6 +897,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return new ObjectPair<>(entry, controls);
   }
@@ -905,6 +927,7 @@ public final class LDAPDebuggerRequestHandler
 
     appendControls(b, controls);
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return new ObjectPair<>(reference, controls);
   }
