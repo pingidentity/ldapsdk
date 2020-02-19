@@ -369,7 +369,8 @@ public final class TimestampArgument
     }
 
 
-    // Configure the
+    // Create a date formatter that will use the selected format string to parse
+    // the timestamp.
     final SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
     dateFormat.setLenient(false);
     return dateFormat.parse(s);

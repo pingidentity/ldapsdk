@@ -27,6 +27,7 @@ import java.io.PrintStream;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.CommandLineTool;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -120,6 +121,7 @@ public final class LauncherTestCase
     {
       new Object[] { "authrate" },
       new Object[] { "base64" },
+      new Object[] { "collect-support-data" },
       new Object[] { "deliver-one-time-password" },
       new Object[] { "deliver-password-reset-token" },
       new Object[] { "dump-dns" },
@@ -129,6 +131,7 @@ public final class LauncherTestCase
       new Object[] { "identify-references-to-missing-entries" },
       new Object[] { "identify-unique-attribute-conflicts" },
       new Object[] { "in-memory-directory-server" },
+      new Object[] { "indent-ldap-filter" },
       new Object[] { "ldapcompare" },
       new Object[] { "ldapdelete" },
       new Object[] { "ldapmodify" },
@@ -144,6 +147,7 @@ public final class LauncherTestCase
       new Object[] { "split-ldif" },
       new Object[] { "subtree-accessibility" },
       new Object[] { "summarize-access-log" },
+      new Object[] { "tls-cipher-suite-selector" },
       new Object[] { "transform-ldif" },
       new Object[] { "validate-ldif" },
       new Object[] { "version" }
@@ -166,5 +170,27 @@ public final class LauncherTestCase
 
     assertTrue(outStream.size() == 0);
     assertTrue(errStream.size() > 0);
+  }
+
+
+
+  /**
+   * Tests to ensure that it's possible to get an instance of all of the
+   * defined tools.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetToolInstance()
+         throws Exception
+  {
+    for (final Class<?> c : Launcher.getToolClasses())
+    {
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
+      final ByteArrayOutputStream err = new ByteArrayOutputStream();
+
+      final CommandLineTool tool = Launcher.getToolInstance(c, out, err);
+      assertNotNull(tool);
+    }
   }
 }

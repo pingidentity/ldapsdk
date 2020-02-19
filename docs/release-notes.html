@@ -14,20 +14,6 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
-                  Added client-side support for an extended operation that may be used to invoke
-                  the collect-support-data utility in the Ping Identity Directory Server and
-                  stream the resulting output and support data archive back to the client through
-                  intermediate response messages.
-                  <br><br>
-                </li>
-
-                <li>
-                  Added client-side support for an administrative task that may be used to invoke
-                  the collect-support-data utility in the Ping Identity Directory Server.
-                  <br><br>
-                </li>
-
-                <li>
                   Fixed an issue that could interfere with GSSAPI authentication in cases where
                   a JAAS login module configuration was loaded and cached by the JVM before all
                   the appropriate system properties had been set for the login attempt.  The
@@ -65,6 +51,32 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Updated the debugging framework to format debug messages as JSON objects.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added client-side support for an extended operation that may be used to invoke
+                  the collect-support-data utility in the Ping Identity Directory Server and
+                  stream the resulting output and support data archive back to the client through
+                  intermediate response messages.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added client-side support for an administrative task that may be used to invoke
+                  the collect-support-data utility in the Ping Identity Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new collect-support-data command-line tool that can be used to obtain a
+                  range of useful information about an instance of the Ping Identity Directory
+                  Server (or related product, like the Directory Proxy Server, Synchronization
+                  Server, or Data Governance Server) that can help support personnel troubleshoot
+                  problems or better understand the server configuration and the environment in
+                  which it is running.  All of the data collection logic is actually provided by
+                  server-side code, but the tool is included in the LDAP SDK so that it can be
+                  invoked from a client system that does not have a full server installation.
                   <br><br>
                 </li>
 
