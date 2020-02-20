@@ -48,8 +48,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testDefaultProperties()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -126,8 +126,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testOutputPath()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -194,6 +194,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setOutputPath("/tmp/test-output-path");
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNotNull(p.getOutputPath());
     assertEquals(p.getOutputPath(), "/tmp/test-output-path");
@@ -261,6 +262,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setOutputPath(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -337,8 +339,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testEncryptionPassphraseFile()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -405,6 +407,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setEncryptionPassphraseFile("/tmp/pw.txt");
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -472,6 +475,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setEncryptionPassphraseFile(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -548,8 +552,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testIncludeExpensiveData()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -616,6 +620,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeExpensiveData(true);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -683,6 +688,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeExpensiveData(false);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -750,6 +756,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeExpensiveData(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -826,8 +833,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testIncludeReplicationStateDump()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -894,6 +901,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeReplicationStateDump(true);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -955,6 +963,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeReplicationStateDump(false);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1022,6 +1031,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeReplicationStateDump(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1098,8 +1108,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testIncludeBinaryFiles()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1166,6 +1176,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeBinaryFiles(true);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1233,6 +1244,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeBinaryFiles(false);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1300,6 +1312,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeBinaryFiles(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1376,8 +1389,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testIncludeExtensionSource()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1444,6 +1457,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeExtensionSource(true);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1511,6 +1525,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeExtensionSource(false);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1578,6 +1593,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setIncludeExtensionSource(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1654,8 +1670,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testUseSequentialMode()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1722,6 +1738,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setUseSequentialMode(true);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1789,6 +1806,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setUseSequentialMode(false);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1856,6 +1874,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setUseSequentialMode(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -1932,8 +1951,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testSecurityLevel()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2003,6 +2022,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
          CollectSupportDataSecurityLevel.values())
     {
       p.setSecurityLevel(l);
+      p = new CollectSupportDataTaskProperties(p);
 
       assertNull(p.getOutputPath());
 
@@ -2071,6 +2091,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setSecurityLevel(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2147,8 +2168,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testReportCount()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2215,6 +2236,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setReportCount(0);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2282,6 +2304,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setReportCount(1234);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2349,6 +2372,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setReportCount(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2425,8 +2449,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testReportIntervalSeconds()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2493,6 +2517,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setReportIntervalSeconds(1);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2560,6 +2585,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setReportIntervalSeconds(4321);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2627,6 +2653,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setReportIntervalSeconds(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2703,8 +2730,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testJStackCount()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2771,6 +2798,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setJStackCount(0);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2838,6 +2866,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setJStackCount(5678);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2905,6 +2934,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setJStackCount(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -2981,8 +3011,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testLogDuration()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3049,6 +3079,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setLogDuration("5 minutes");
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3193,6 +3224,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setLogDuration(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3259,6 +3291,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setLogDurationMillis(3_600_000L);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3327,6 +3360,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setLogDurationMillis(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3403,8 +3437,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testComment()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3471,6 +3505,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setComment("foo");
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3538,6 +3573,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setComment(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3615,8 +3651,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testRetainPreviousSupportDataArchiveCount()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3683,6 +3719,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setRetainPreviousSupportDataArchiveCount(5);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3750,6 +3787,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setRetainPreviousSupportDataArchiveCount(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3827,8 +3865,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testRetainPreviousSupportDataArchiveAge()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -3895,6 +3933,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setRetainPreviousSupportDataArchiveAge("1 week");
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4041,6 +4080,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setRetainPreviousSupportDataArchiveAge(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4107,6 +4147,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setRetainPreviousSupportDataArchiveAgeMillis(432_000_000L);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4176,6 +4217,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setRetainPreviousSupportDataArchiveAgeMillis(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4252,8 +4294,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testTaskID()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4320,6 +4362,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setTaskID("123-456-7890");
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4387,6 +4430,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setTaskID(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4463,8 +4507,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testScheduledStartTime()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4532,6 +4576,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     final Date d = new Date();
     p.setScheduledStartTime(d);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4599,6 +4644,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setScheduledStartTime(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4675,8 +4721,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testDependencyIDs()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4743,6 +4789,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setDependencyIDs(Arrays.asList("1", "2", "3"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4810,6 +4857,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setDependencyIDs(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4876,6 +4924,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setDependencyIDs(Collections.singletonList("4"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -4943,6 +4992,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setDependencyIDs(Collections.<String>emptyList());
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5019,8 +5069,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testFailedDependencyAction()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5090,6 +5140,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
          FailedDependencyAction.values())
     {
       p.setFailedDependencyAction(a);
+      p = new CollectSupportDataTaskProperties(p);
 
       assertNull(p.getOutputPath());
 
@@ -5158,6 +5209,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setFailedDependencyAction(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5234,8 +5286,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testNotifyOnStart()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5303,6 +5355,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     p.setNotifyOnStart(Arrays.asList("start1@example.com",
          "start2@example.com"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5371,6 +5424,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnStart(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5437,6 +5491,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnStart(Collections.singletonList("start3@example.com"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5505,6 +5560,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnStart(Collections.<String>emptyList());
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5581,8 +5637,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testNotifyOnCompletion()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5650,6 +5706,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     p.setNotifyOnCompletion(Arrays.asList("end1@example.com",
          "end2@example.com"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5718,6 +5775,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnCompletion(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5784,6 +5842,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnCompletion(Collections.singletonList("end3@example.com"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5852,6 +5911,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnCompletion(Collections.<String>emptyList());
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5928,8 +5988,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testNotifyOnSuccess()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -5997,6 +6057,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     p.setNotifyOnSuccess(Arrays.asList("success1@example.com",
          "success2@example.com"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6065,6 +6126,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnSuccess(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6131,6 +6193,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnSuccess(Collections.singletonList("success3@example.com"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6199,6 +6262,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnSuccess(Collections.<String>emptyList());
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6275,8 +6339,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testNotifyOnError()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6344,6 +6408,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     p.setNotifyOnError(Arrays.asList("error1@example.com",
          "error2@example.com"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6412,6 +6477,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnError(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6478,6 +6544,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnError(Collections.singletonList("error3@example.com"));
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6546,6 +6613,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setNotifyOnError(Collections.<String>emptyList());
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6622,8 +6690,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testAlertOnStart()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6690,6 +6758,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnStart(true);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6757,6 +6826,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnStart(false);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6824,6 +6894,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnStart(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6900,8 +6971,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testAlertOnSuccess()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -6968,6 +7039,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnSuccess(true);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -7035,6 +7107,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnSuccess(false);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -7102,6 +7175,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnSuccess(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -7178,8 +7252,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testAlertOnError()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -7246,6 +7320,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnError(true);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -7313,6 +7388,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnError(false);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -7379,6 +7455,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
 
     p.setAlertOnError(null);
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -7455,8 +7532,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
   public void testSetAllProperties()
          throws Exception
   {
-    final CollectSupportDataTaskProperties p =
-         new CollectSupportDataTaskProperties();
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
 
     assertNull(p.getOutputPath());
 
@@ -7554,6 +7631,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     p.setAlertOnStart(true);
     p.setAlertOnSuccess(false);
     p.setAlertOnError(true);
+
+    p = new CollectSupportDataTaskProperties(p);
 
 
     assertNotNull(p.getOutputPath());

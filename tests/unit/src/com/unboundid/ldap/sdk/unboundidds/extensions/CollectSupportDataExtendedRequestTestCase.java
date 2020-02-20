@@ -68,6 +68,9 @@ public final class CollectSupportDataExtendedRequestTestCase
 
     r = new CollectSupportDataExtendedRequest(r, listener);
 
+    r = new CollectSupportDataExtendedRequest(
+         new CollectSupportDataExtendedRequestProperties(r), listener);
+
     r = r.duplicate();
 
     assertNotNull(r.getOID());
@@ -153,6 +156,10 @@ public final class CollectSupportDataExtendedRequestTestCase
 
     CollectSupportDataExtendedRequest r = new CollectSupportDataExtendedRequest(
          properties, listener, new Control("1.2.3.4"), new Control("1.2.3.5"));
+
+    r = new CollectSupportDataExtendedRequest(
+         new CollectSupportDataExtendedRequestProperties(r), listener,
+         r.getControls());
 
     r = new CollectSupportDataExtendedRequest(r, listener);
 

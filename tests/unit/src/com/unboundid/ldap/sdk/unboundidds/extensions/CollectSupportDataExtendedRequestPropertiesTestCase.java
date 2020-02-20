@@ -47,8 +47,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testDefaultProperties()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -94,8 +95,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testEncryptionPassphrase()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -131,6 +133,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setEncryptionPassphrase("string");
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNotNull(p.getEncryptionPassphrase());
     assertEquals(p.getEncryptionPassphrase(),
@@ -168,6 +171,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setEncryptionPassphrase((String) null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -203,6 +207,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setEncryptionPassphrase("bytes".getBytes());
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNotNull(p.getEncryptionPassphrase());
     assertEquals(p.getEncryptionPassphrase(),
@@ -240,6 +245,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setEncryptionPassphrase((byte[]) null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -275,6 +281,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setEncryptionPassphrase(new ASN1OctetString("octetString"));
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNotNull(p.getEncryptionPassphrase());
     assertEquals(p.getEncryptionPassphrase(),
@@ -312,6 +319,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setEncryptionPassphrase((ASN1OctetString) null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -357,8 +365,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testIncludeExpensiveData()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -394,6 +403,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeExpensiveData(true);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -430,6 +440,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeExpensiveData(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -465,6 +476,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeExpensiveData(false);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -511,8 +523,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testIncludeReplicationStateDump()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -548,6 +561,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeReplicationStateDump(true);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -584,6 +598,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeReplicationStateDump(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -619,6 +634,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeReplicationStateDump(false);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -665,8 +681,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testIncludeBinaryFiles()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -702,6 +719,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeBinaryFiles(true);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -738,6 +756,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeBinaryFiles(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -773,6 +792,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeBinaryFiles(false);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -819,8 +839,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testIncludeExtensionSource()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -856,6 +877,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeExtensionSource(true);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -892,6 +914,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeExtensionSource(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -927,6 +950,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setIncludeExtensionSource(false);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -973,8 +997,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testUseSequentialMode()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1010,6 +1035,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setUseSequentialMode(true);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1046,6 +1072,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setUseSequentialMode(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1081,6 +1108,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setUseSequentialMode(false);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1127,8 +1155,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testSecurityLevel()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1167,6 +1196,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          CollectSupportDataSecurityLevel.values())
     {
       p.setSecurityLevel(level);
+      p = new CollectSupportDataExtendedRequestProperties(p);
 
       assertNull(p.getEncryptionPassphrase());
 
@@ -1204,6 +1234,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setSecurityLevel(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1249,8 +1280,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testJStackCount()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1286,6 +1318,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setJStackCount(5);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1322,6 +1355,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setJStackCount(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1377,8 +1411,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testReportCount()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1414,6 +1449,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setReportCount(4);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1450,6 +1486,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setReportCount(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1505,8 +1542,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testReportIntervalSeconds()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1542,6 +1580,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setReportIntervalSeconds(3);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1578,6 +1617,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setReportIntervalSeconds(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1633,8 +1673,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testLogCaptureWindow()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1671,6 +1712,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setLogCaptureWindow(
          ToolDefaultCollectSupportDataLogCaptureWindow.getInstance());
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1708,6 +1750,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setLogCaptureWindow(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1753,8 +1796,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testComment()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1790,6 +1834,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setComment("foo");
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1826,6 +1871,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setComment(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1871,8 +1917,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testProxyToServer()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1908,6 +1955,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setProxyToServer("ds.example.com", 636);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1945,6 +1993,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setProxyToServer(null, null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -2040,8 +2089,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testMaximumFragmentSizeBytes()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -2077,6 +2127,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setMaximumFragmentSizeBytes(12_345_678);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -2113,6 +2164,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
 
     p.setMaximumFragmentSizeBytes(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -2158,8 +2210,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
   public void testAllProperties()
          throws Exception
   {
-    final CollectSupportDataExtendedRequestProperties p =
+    CollectSupportDataExtendedRequestProperties p =
          new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -2209,6 +2262,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setComment("comment");
     p.setProxyToServer("backend.example.com", 1636);
     p.setMaximumFragmentSizeBytes(12_345_678);
+
+    p = new CollectSupportDataExtendedRequestProperties(p);
 
     assertNotNull(p.getEncryptionPassphrase());
     assertEquals(p.getEncryptionPassphrase().stringValue(), "password");

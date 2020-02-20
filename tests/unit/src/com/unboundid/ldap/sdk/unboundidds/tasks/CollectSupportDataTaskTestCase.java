@@ -78,6 +78,9 @@ public final class CollectSupportDataTaskTestCase
   {
     CollectSupportDataTask t = new CollectSupportDataTask();
 
+    t = new CollectSupportDataTask(
+         new CollectSupportDataTaskProperties(t));
+
     t = new CollectSupportDataTask(t.createTaskEntry());
 
     t = new CollectSupportDataTask(t.getTaskPropertyValues());
@@ -241,6 +244,9 @@ public final class CollectSupportDataTaskTestCase
 
 
     CollectSupportDataTask t = new CollectSupportDataTask(p);
+
+    t = new CollectSupportDataTask(
+         new CollectSupportDataTaskProperties(t));
 
     t = new CollectSupportDataTask(t.createTaskEntry());
 

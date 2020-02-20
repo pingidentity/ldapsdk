@@ -114,8 +114,9 @@ public final class CollectSupportDataExtendedRequestProperties
 
 
   /**
-   * Creates a new instance of this task without any of the properties set (so
-   * that the server will use default values for all of them).
+   * Creates a new set of collect support data extended request properties
+   * with none of the properties set, indicating that the server should use the
+   * default values for all of them.
    */
   public CollectSupportDataExtendedRequestProperties()
   {
@@ -134,6 +135,63 @@ public final class CollectSupportDataExtendedRequestProperties
     reportIntervalSeconds = null;
     comment = null;
     proxyToServerAddress = null;
+  }
+
+
+
+  /**
+   * Creates a new set of collect support data extended request properties
+   * that is a copy of the provided properties.
+   *
+   * @param  properties  The set of properties to duplicate.
+   */
+  public CollectSupportDataExtendedRequestProperties(
+              final CollectSupportDataExtendedRequestProperties properties)
+  {
+    encryptionPassphrase = properties.getEncryptionPassphrase();
+    includeBinaryFiles = properties.getIncludeBinaryFiles();
+    includeExpensiveData = properties.getIncludeExpensiveData();
+    includeExtensionSource = properties.getIncludeExtensionSource();
+    includeReplicationStateDump = properties.getIncludeReplicationStateDump();
+    useSequentialMode = properties.getUseSequentialMode();
+    logCaptureWindow = properties.getLogCaptureWindow();
+    securityLevel = properties.getSecurityLevel();
+    jstackCount = properties.getJStackCount();
+    maximumFragmentSizeBytes = properties.getMaximumFragmentSizeBytes();
+    proxyToServerPort = properties.getProxyToServerPort();
+    reportCount = properties.getReportCount();
+    reportIntervalSeconds = properties.getReportIntervalSeconds();
+    comment = properties.getComment();
+    proxyToServerAddress = properties.getProxyToServerAddress();
+  }
+
+
+
+  /**
+   * Creates a new set of collect support data extended request properties
+   * using the settings from the provided extended request.
+   *
+   * @param  request  The collect support data extended request from which to
+   *                  set the property values.
+   */
+  public CollectSupportDataExtendedRequestProperties(
+              final CollectSupportDataExtendedRequest request)
+  {
+    encryptionPassphrase = request.getEncryptionPassphrase();
+    includeBinaryFiles = request.getIncludeBinaryFiles();
+    includeExpensiveData = request.getIncludeExpensiveData();
+    includeExtensionSource = request.getIncludeExtensionSource();
+    includeReplicationStateDump = request.getIncludeReplicationStateDump();
+    useSequentialMode = request.getUseSequentialMode();
+    logCaptureWindow = request.getLogCaptureWindow();
+    securityLevel = request.getSecurityLevel();
+    jstackCount = request.getJStackCount();
+    maximumFragmentSizeBytes = request.getMaximumFragmentSizeBytes();
+    proxyToServerPort = request.getProxyToServerPort();
+    reportCount = request.getReportCount();
+    reportIntervalSeconds = request.getReportIntervalSeconds();
+    comment = request.getComment();
+    proxyToServerAddress = request.getProxyToServerAddress();
   }
 
 
@@ -237,7 +295,7 @@ public final class CollectSupportDataExtendedRequestProperties
    * @return  The value of a flag that indicates whether the support data
    *          archive may include data that is potentially expensive to collect,
    *          or {@code null} if the property should not be specified when the
-   *          task is created (in which case the server will use a default
+   *          request is created (in which case the server will use a default
    *          behavior of excluding expensive data).
    */
   public Boolean getIncludeExpensiveData()
@@ -256,9 +314,9 @@ public final class CollectSupportDataExtendedRequestProperties
    *                               the support data archive may include data
    *                               that is potentially expensive to collect.  It
    *                               may be {@code null} if the flag should not be
-   *                               specified when the task is created (in which
-   *                               case the server will use a default behavior
-   *                               of excluding expensive data).
+   *                               specified when the request is created (in
+   *                               which case the server will use a default
+   *                               behavior of excluding expensive data).
    */
   public void setIncludeExpensiveData(final Boolean includeExpensiveData)
   {
@@ -274,9 +332,9 @@ public final class CollectSupportDataExtendedRequestProperties
    *
    * @return  The value of a flag that indicates whether the support data
    *          archive may include a replication state dump, or {@code null} if
-   *          the property should not be specified when the task is created (in
-   *          which case the server will use a default behavior of excluding the
-   *          state dump).
+   *          the property should not be specified when the request is created
+   *          (in which case the server will use a default behavior of
+   *          excluding the state dump).
    */
   public Boolean getIncludeReplicationStateDump()
   {
@@ -294,7 +352,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                                      whether the support data archive may
    *                                      include a replication state dump.  It
    *                                      may be {@code null} if the flag should
-   *                                      not be specified when the task is
+   *                                      not be specified when the request is
    *                                      created (in which case the server will
    *                                      use a default behavior of excluding
    *                                      the state dump).
@@ -313,7 +371,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *
    * @return  The value of a flag that indicates whether the support data
    *          archive may include binary files, or {@code null} if the property
-   *          should not be specified when the task is created (in which case
+   *          should not be specified when the request is created (in which case
    *          the server will use a default behavior of excluding binary files).
    */
   public Boolean getIncludeBinaryFiles()
@@ -330,8 +388,8 @@ public final class CollectSupportDataExtendedRequestProperties
    * @param  includeBinaryFiles  The value of a flag that indicates whether the
    *                             support data archive may include binary files.
    *                             It may be {@code null} if the property should
-   *                             not be specified when the task is created (in
-   *                             which case the server will use a default
+   *                             not be specified when the request is created
+   *                             (in which case the server will use a default
    *                             behavior of excluding binary files).
    */
   public void setIncludeBinaryFiles(final Boolean includeBinaryFiles)
@@ -349,8 +407,8 @@ public final class CollectSupportDataExtendedRequestProperties
    * @return  The value of a flag that indicates whether the support data
    *          archive should include source code (if available) for any
    *          third-party extensions installed in the server, or {@code null} if
-   *          the property should not be specified when the task is created (in
-   *          which case the server will use a default behavior of excluding
+   *          the property should not be specified when the request is created
+   *          (in which case the server will use a default behavior of excluding
    *          extension source code).
    */
   public Boolean getIncludeExtensionSource()
@@ -370,7 +428,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                                 source code (if available) for any
    *                                 third-party extensions in the server.  It
    *                                 may be {@code null} if the property should
-   *                                 not be specified when the task is
+   *                                 not be specified when the requets is
    *                                 created (in which case the server will use
    *                                 a default behavior of excluding extension
    *                                 source code).
@@ -392,7 +450,7 @@ public final class CollectSupportDataExtendedRequestProperties
    * @return  The value of a flag that indicates whether the server should
    *          collect items for the support data archive in sequential mode
    *          rather than in parallel, or {@code null} if the property should
-   *          not be specified when the task is created (in which case the
+   *          not be specified when the request is created (in which case the
    *          server will default to capturing data in parallel).
    */
   public Boolean getUseSequentialMode()
@@ -413,9 +471,9 @@ public final class CollectSupportDataExtendedRequestProperties
    *                            server should collect items for the support data
    *                            archive in sequential mode rather than in
    *                            parallel.  It may be {@code null} if the
-   *                            property should not be specified when the task
-   *                            is created (in which case the server will
-   *                            default to capturing data in parallel).
+   *                            property should not be specified when the
+   *                            request is created (in which case the server
+   *                            will default to capturing data in parallel).
    */
   public void setUseSequentialMode(final Boolean useSequentialMode)
   {
@@ -430,8 +488,8 @@ public final class CollectSupportDataExtendedRequestProperties
    *
    * @return  The security level that should be used when creating the support
    *          data archive, or {@code null} if the property should not be
-   *          specified when the task is created (in which case the server will
-   *          use a default security level).
+   *          specified when the request is created (in which case the server
+   *          will use a default security level).
    */
   public CollectSupportDataSecurityLevel getSecurityLevel()
   {
@@ -446,9 +504,9 @@ public final class CollectSupportDataExtendedRequestProperties
    *
    * @param  securityLevel  The security level that should be used when creating
    *                        the support data archive.  It may be {@code null} if
-   *                        the property should not be specified when the task
-   *                        is created (in which case the server will use a
-   *                        default security level).
+   *                        the property should not be specified when the
+   *                        request is created (in which case the server will
+   *                        use a default security level).
    */
   public void setSecurityLevel(
                    final CollectSupportDataSecurityLevel securityLevel)
@@ -464,8 +522,9 @@ public final class CollectSupportDataExtendedRequestProperties
    *
    * @return  The number of times that the jstack utility should be invoked to
    *          obtain stack traces from all threads in the server, or
-   *          {@code null} if the property should not be specified when the task
-   *          is created (in which case the server will use a default count).
+   *          {@code null} if the property should not be specified when the
+   *          request is created (in which case the server will use a default
+   *          count).
    */
   public Integer getJStackCount()
   {
@@ -483,8 +542,8 @@ public final class CollectSupportDataExtendedRequestProperties
    *                      server.  The value must not be negative, but it may be
    *                      zero to indicate that the jstack utility should not be
    *                      invoked.  It may be {@code null} if the property
-   *                      should not be specified when the task is created (in
-   *                      which case the server will use a default count).
+   *                      should not be specified when the request is created
+   *                      (in which case the server will use a default count).
    */
   public void setJStackCount(final Integer jstackCount)
   {
@@ -507,7 +566,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *
    * @return  The number of intervals that should be captured from tools that
    *          use interval-based sampling, or {@code null} if the property
-   *          should not be specified when the task is created (in which case
+   *          should not be specified when the request is created (in which case
    *          the server will use a default report count).
    */
   public Integer getReportCount()
@@ -526,7 +585,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                      must not be negative, but it may be zero to indicate
    *                      that no intervals should be captured.  It may be
    *                      {@code null} if the property should not be specified
-   *                      when the task is created (in which case the server
+   *                      when the request is created (in which case the server
    *                      will use a default report count).
    */
   public void setReportCount(final Integer reportCount)
@@ -550,7 +609,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *
    * @return  The interval duration in seconds that should be used for tools
    *          that use interval-based sampling, or {@code null} if the property
-   *          should not be specified when the task is created (in which case
+   *          should not be specified when the request is created (in which case
    *          the server will use a default report interval).
    */
   public Integer getReportIntervalSeconds()
@@ -569,7 +628,7 @@ public final class CollectSupportDataExtendedRequestProperties
    *                                sampling.  The value must be greater than or
    *                                equal to one.  It may be {@code null} if the
    *                                property should not be specified when the
-   *                                task is created (in which case the server
+   *                                request is created (in which case the server
    *                                will use a default report count).
    */
   public void setReportIntervalSeconds(final Integer reportIntervalSeconds)
@@ -780,10 +839,10 @@ public final class CollectSupportDataExtendedRequestProperties
 
 
   /**
-   * Retrieves a string representation of this collect support data task
+   * Retrieves a string representation of this collect support data request
    * properties object.
    *
-   * @return  A string representation of this collect support data task
+   * @return  A string representation of this collect support data request
    *          properties object.
    */
   @Override()
@@ -797,7 +856,7 @@ public final class CollectSupportDataExtendedRequestProperties
 
 
   /**
-   * Appends a string representation of this collect support data task
+   * Appends a string representation of this collect support data request
    * properties object to the provided buffer.
    *
    * @param  buffer  The buffer to which the string representation will be

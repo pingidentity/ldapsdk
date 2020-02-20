@@ -155,8 +155,9 @@ public final class CollectSupportDataTaskProperties
 
 
   /**
-   * Creates a new instance of this task without any of the properties set (so
-   * that the server will use default values for all of them).
+   * Creates a new set of collect support data task properties without any of
+   * the properties set (so that the server will use default values for all of
+   * them).
    */
   public CollectSupportDataTaskProperties()
   {
@@ -186,6 +187,88 @@ public final class CollectSupportDataTaskProperties
     outputPath = null;
     retainPreviousSupportDataArchiveAge = null;
     taskID = null;
+  }
+
+
+
+  /**
+   * Creates a new set of collect support data task properties as a copy of the
+   * provided properties.
+   *
+   * @param  properties  The collect support data task properties to duplicate.
+   */
+  public CollectSupportDataTaskProperties(
+              final CollectSupportDataTaskProperties properties)
+  {
+    alertOnError = properties.getAlertOnError();
+    alertOnStart = properties.getAlertOnStart();
+    alertOnSuccess = properties.getAlertOnSuccess();
+    includeBinaryFiles = properties.getIncludeBinaryFiles();
+    includeExpensiveData = properties.getIncludeExpensiveData();
+    includeExtensionSource = properties.getIncludeExtensionSource();
+    includeReplicationStateDump = properties.getIncludeReplicationStateDump();
+    useSequentialMode = properties.getUseSequentialMode();
+    securityLevel = properties.getSecurityLevel();
+    scheduledStartTime = properties.getScheduledStartTime();
+    failedDependencyAction = properties.getFailedDependencyAction();
+    jstackCount = properties.getJStackCount();
+    reportCount = properties.getReportCount();
+    reportIntervalSeconds = properties.getReportIntervalSeconds();
+    retainPreviousSupportDataArchiveCount =
+         properties.getRetainPreviousSupportDataArchiveCount();
+    dependencyIDs = new ArrayList<>(properties.getDependencyIDs());
+    notifyOnCompletion = new ArrayList<>(properties.getNotifyOnCompletion());
+    notifyOnError = new ArrayList<>(properties.getNotifyOnError());
+    notifyOnStart = new ArrayList<>(properties.getNotifyOnStart());
+    notifyOnSuccess = new ArrayList<>(properties.getNotifyOnSuccess());
+    comment = properties.getComment();
+    encryptionPassphraseFile = properties.getEncryptionPassphraseFile();
+    logDuration = properties.getLogDuration();
+    outputPath = properties.getOutputPath();
+    retainPreviousSupportDataArchiveAge =
+         properties.getRetainPreviousSupportDataArchiveAge();
+    taskID = properties.getTaskID();
+  }
+
+
+
+  /**
+   * Creates a new set of collect support data task properties set from the
+   * provided task instance.
+   *
+   * @param  task  The collect support data task instance from which the
+   *               properties should be set.
+   */
+  public CollectSupportDataTaskProperties(final CollectSupportDataTask task)
+  {
+    alertOnError = task.getAlertOnError();
+    alertOnStart = task.getAlertOnStart();
+    alertOnSuccess = task.getAlertOnSuccess();
+    includeBinaryFiles = task.getIncludeBinaryFiles();
+    includeExpensiveData = task.getIncludeExpensiveData();
+    includeExtensionSource = task.getIncludeExtensionSource();
+    includeReplicationStateDump = task.getIncludeReplicationStateDump();
+    useSequentialMode = task.getUseSequentialMode();
+    securityLevel = task.getSecurityLevel();
+    scheduledStartTime = task.getScheduledStartTime();
+    failedDependencyAction = task.getFailedDependencyAction();
+    jstackCount = task.getJStackCount();
+    reportCount = task.getReportCount();
+    reportIntervalSeconds = task.getReportIntervalSeconds();
+    retainPreviousSupportDataArchiveCount =
+         task.getRetainPreviousSupportDataArchiveCount();
+    dependencyIDs = new ArrayList<>(task.getDependencyIDs());
+    notifyOnCompletion = new ArrayList<>(task.getNotifyOnCompletionAddresses());
+    notifyOnError = new ArrayList<>(task.getNotifyOnErrorAddresses());
+    notifyOnStart = new ArrayList<>(task.getNotifyOnStartAddresses());
+    notifyOnSuccess = new ArrayList<>(task.getNotifyOnSuccessAddresses());
+    comment = task.getComment();
+    encryptionPassphraseFile = task.getEncryptionPassphraseFile();
+    logDuration = task.getLogDuration();
+    outputPath = task.getOutputPath();
+    retainPreviousSupportDataArchiveAge =
+         task.getRetainPreviousSupportDataArchiveAge();
+    taskID = task.getTaskID();
   }
 
 

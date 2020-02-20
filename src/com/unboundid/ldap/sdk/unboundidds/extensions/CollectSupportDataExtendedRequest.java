@@ -996,25 +996,8 @@ public final class CollectSupportDataExtendedRequest
   @Override()
   public CollectSupportDataExtendedRequest duplicate(final Control[] controls)
   {
-    final CollectSupportDataExtendedRequestProperties properties =
-         new CollectSupportDataExtendedRequestProperties();
-
-    properties.setEncryptionPassphrase(encryptionPassphrase);
-    properties.setIncludeExpensiveData(includeExpensiveData);
-    properties.setIncludeReplicationStateDump(includeReplicationStateDump);
-    properties.setIncludeBinaryFiles(includeBinaryFiles);
-    properties.setIncludeExtensionSource(includeExtensionSource);
-    properties.setUseSequentialMode(useSequentialMode);
-    properties.setSecurityLevel(securityLevel);
-    properties.setJStackCount(jstackCount);
-    properties.setReportCount(reportCount);
-    properties.setReportIntervalSeconds(reportIntervalSeconds);
-    properties.setLogCaptureWindow(logCaptureWindow);
-    properties.setComment(comment);
-    properties.setProxyToServer(proxyToServerAddress, proxyToServerPort);
-    properties.setMaximumFragmentSizeBytes(maximumFragmentSizeBytes);
-
-    return new CollectSupportDataExtendedRequest(properties,
+    return new CollectSupportDataExtendedRequest(
+         new CollectSupportDataExtendedRequestProperties(this),
          intermediateResponseListener, controls);
   }
 
