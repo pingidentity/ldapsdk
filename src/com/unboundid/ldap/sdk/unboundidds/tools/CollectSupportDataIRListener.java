@@ -224,7 +224,8 @@ final class CollectSupportDataIRListener
         totalArchiveBytesWritten += response.getFragmentData().length;
         collectSupportData.wrapOut(0, WRAP_COLUMN,
              INFO_CSD_LISTENER_WROTE_FRAGMENT.get(totalArchiveBytesWritten,
-                  response.getTotalArchiveSizeBytes()));
+                  response.getTotalArchiveSizeBytes(),
+                  outputFile.getName()));
       }
     }
     catch (final IOException e)

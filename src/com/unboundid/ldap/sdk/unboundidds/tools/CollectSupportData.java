@@ -41,7 +41,7 @@ import java.util.logging.Level;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
@@ -54,6 +54,10 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             CollectSupportDataExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             DurationCollectSupportDataLogCaptureWindow;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            StartAdministrativeSessionExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            StartAdministrativeSessionPostConnectProcessor;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             TimeWindowCollectSupportDataLogCaptureWindow;
 import com.unboundid.ldap.sdk.unboundidds.tasks.CollectSupportDataSecurityLevel;
@@ -155,6 +159,7 @@ public final class CollectSupportData
   private BooleanArgument noPromptArg;
   private BooleanArgument scriptFriendlyArg;
   private BooleanArgument sequentialArg;
+  private BooleanArgument useAdministrativeSessionArg;
   private BooleanArgument useRemoteServerArg;
   private DurationArgument logDurationArg;
   private FileArgument decryptArg;
@@ -576,6 +581,24 @@ public final class CollectSupportData
          INFO_CSD_ARG_GROUP_COMMUNICATION.get());
     parser.addArgument(useRemoteServerArg);
 
+    useAdministrativeSessionArg = new BooleanArgument(null,
+         "useAdministrativeSession", 1,
+         INFO_CSD_ARG_DESC_USE_ADMIN_SESSION.get());
+    useAdministrativeSessionArg.addLongIdentifier("use-administrative-session",
+         true);
+    useAdministrativeSessionArg.addLongIdentifier("useAdminSession", true);
+    useAdministrativeSessionArg.addLongIdentifier("use-admin-session",
+         true);
+    useAdministrativeSessionArg.addLongIdentifier("administrativeSession",
+         true);
+    useAdministrativeSessionArg.addLongIdentifier("administrative-session",
+         true);
+    useAdministrativeSessionArg.addLongIdentifier("adminSession", true);
+    useAdministrativeSessionArg.addLongIdentifier("admin-session", true);
+    useAdministrativeSessionArg.setArgumentGroupName(
+         INFO_CSD_ARG_GROUP_COMMUNICATION.get());
+    parser.addArgument(useAdministrativeSessionArg);
+
     proxyToServerAddressArg = new StringArgument(null, "proxyToServerAddress",
          false, 1, INFO_CSD_ARG_PLACEHOLDER_ADDRESS.get(),
          INFO_CSD_ARG_DESC_PROXY_TO_ADDRESS.get());
@@ -625,16 +648,17 @@ public final class CollectSupportData
     parser.addArgument(scriptFriendlyArg);
 
 
-    // If the --useRemoteServer argument is provided, then the --outputPath
-    // argument must also be provided.
-    parser.addDependentArgumentSet(useRemoteServerArg, outputPathArg);
-
     // If the --useRemoteServer argument is provided, then none of the --pid,
     // --decrypt, --noLDAP, or --scriptFriendly arguments may be given.
     parser.addExclusiveArgumentSet(useRemoteServerArg, pidArg);
     parser.addExclusiveArgumentSet(useRemoteServerArg, decryptArg);
     parser.addExclusiveArgumentSet(useRemoteServerArg, noLDAPArg);
     parser.addExclusiveArgumentSet(useRemoteServerArg, scriptFriendlyArg);
+
+    // The --useAdministrativeSession argument can only be provided if the
+    // --useRemoteServer argument is also given.
+    parser.addDependentArgumentSet(useAdministrativeSessionArg,
+         useRemoteServerArg);
 
     // If the --proxyToServerAddress or --proxyToServerPort argument is given,
     // then the other must be provided as well.
@@ -873,11 +897,26 @@ public final class CollectSupportData
    */
   private ResultCode doExtendedOperationProcessing()
   {
-    // Establish a connection to the target server.
-    final LDAPConnection conn;
+    // Create a connection pool that will be used to communicate with the
+    // server.  Use an administrative session if appropriate.
+    final StartAdministrativeSessionPostConnectProcessor p;
+    if (useAdministrativeSessionArg.isPresent())
+    {
+      p = new StartAdministrativeSessionPostConnectProcessor(
+           new StartAdministrativeSessionExtendedRequest(getToolName(),
+                true));
+    }
+    else
+    {
+      p = null;
+    }
+
+    final LDAPConnectionPool pool;
     try
     {
-      conn = getConnection();
+      pool = getConnectionPool(1, 1, 0, p, null, true,
+           new ReportBindResultLDAPConnectionPoolHealthCheck(this, true,
+                false));
     }
     catch (final LDAPException e)
     {
@@ -886,6 +925,7 @@ public final class CollectSupportData
       toolCompletionMessage.set(e.getMessage());
       return e.getResultCode();
     }
+
 
     try
     {
@@ -1016,7 +1056,7 @@ public final class CollectSupportData
         try
         {
           result = (CollectSupportDataExtendedResult)
-               conn.processExtendedOperation(request);
+               pool.processExtendedOperation(request);
         }
         catch (final LDAPException e)
         {
@@ -1066,7 +1106,7 @@ public final class CollectSupportData
     }
     finally
     {
-      conn.close();
+      pool.close();
     }
   }
 

@@ -195,6 +195,7 @@ public final class CollectSupportDataTestCase
 
     final ResultCode resultCode = tool.runTool(
          "--useRemoteServer",
+         "--useAdministrativeSession",
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
          "--outputPath", outputFile.getAbsolutePath(),
