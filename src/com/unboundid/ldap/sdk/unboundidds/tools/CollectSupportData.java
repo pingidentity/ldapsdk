@@ -893,6 +893,15 @@ public final class CollectSupportData
       final CollectSupportDataExtendedRequestProperties properties =
            new CollectSupportDataExtendedRequestProperties();
 
+      final File outputPath = outputPathArg.getValue();
+      if (outputPath != null)
+      {
+        if (! (outputPath.exists() && outputPath.isDirectory()))
+        {
+          properties.setArchiveFileName(outputPath.getName());
+        }
+      }
+
       try
       {
         properties.setEncryptionPassphrase(
