@@ -74,6 +74,9 @@ final class CollectSupportDataIRListener
 
 
 
+  // A reference to the output file that is being written.
+  private final AtomicReference<File> outputFileReference;
+
   // A reference to the first IOException caught while attempting to write the
   // support data archive.
   private final AtomicReference<IOException> firstIOExceptionReference;
@@ -84,8 +87,9 @@ final class CollectSupportDataIRListener
   // The associated collect-support-data command-line tool.
   private final CollectSupportData collectSupportData;
 
-  // The output file to which the support data archive will be written.
-  private final File outputFile;
+  // The output path that should be used when writing the support data archive
+  // file.
+  private final File outputPath;
 
   // The total number of bytes of the support data archive that have been
   // written to the output file.
@@ -98,16 +102,29 @@ final class CollectSupportDataIRListener
    * handle intermediate response messages for the provided tool.
    *
    * @param  collectSupportData  The associated collect-support-data tool
-   *                             instance.
-   * @param  outputFile          The output file to which the support data
-   *                             archive fragments will be written.
+   *                             instance.  It must not be {@code null}.
+   * @param  outputPath          The output path that should be used when
+   *                             writing the support data archive.  It may be
+   *                             {@code null} if the archive should be written
+   *                             into the current working directory with a
+   *                             server-generated filename.  It if it is
+   *                             provided, then it may specify the path to a
+   *                             directory (in which case the file will be
+   *                             written into that directory with a
+   *                             server-generated filename) or the path to a
+   *                             file (in which case that path will be used).
+   *                             If it is the path to a directory, then that
+   *                             directory must already exist.  If it is the
+   *                             path to a file, then at least the parent
+   *                             directory must already exist.
    */
   CollectSupportDataIRListener(final CollectSupportData collectSupportData,
-                               final File outputFile)
+                               final File outputPath)
   {
     this.collectSupportData = collectSupportData;
-    this.outputFile = outputFile;
+    this.outputPath = outputPath;
 
+    outputFileReference = new AtomicReference<>();
     firstIOExceptionReference = new AtomicReference<>();
     outputStreamReference = new AtomicReference<>();
     totalArchiveBytesWritten = 0L;
@@ -142,6 +159,33 @@ final class CollectSupportDataIRListener
   public synchronized void handleArchiveFragmentIntermediateResponse(
        final CollectSupportDataArchiveFragmentIntermediateResponse response)
   {
+    File outputFile = outputFileReference.get();
+    if (outputFile == null)
+    {
+      if (outputPath == null)
+      {
+        outputFile = new File(response.getArchiveFileName()).getAbsoluteFile();
+      }
+      else if (outputPath.exists())
+      {
+        if (outputPath.isDirectory())
+        {
+          outputFile = new File(outputPath,
+               response.getArchiveFileName()).getAbsoluteFile();
+        }
+        else
+        {
+          outputFile = outputPath.getAbsoluteFile();
+        }
+      }
+      else
+      {
+        outputFile = outputPath.getAbsoluteFile();
+      }
+
+      outputFileReference.set(outputFile);
+    }
+
     OutputStream outputStream = outputStreamReference.get();
     if (outputStream == null)
     {
@@ -241,7 +285,7 @@ final class CollectSupportDataIRListener
         if (firstIOExceptionReference.get() == null)
         {
           final String message = ERR_CSD_LISTENER_CLOSE_ERROR.get(
-               outputFile.getAbsolutePath(),
+               outputFileReference.get().getAbsolutePath(),
                StaticUtils.getExceptionMessage(e));
           final IOException ioe = new IOException(message, e);
           if (firstIOExceptionReference.compareAndSet(null, ioe))

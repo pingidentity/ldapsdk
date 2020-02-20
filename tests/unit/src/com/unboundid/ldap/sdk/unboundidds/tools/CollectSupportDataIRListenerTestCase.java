@@ -141,8 +141,8 @@ public final class CollectSupportDataIRListenerTestCase
          new CollectSupportDataIRListener(tool, outputFile);
 
     listener.handleArchiveFragmentIntermediateResponse(
-         new CollectSupportDataArchiveFragmentIntermediateResponse(10L, true,
-              StaticUtils.getBytes("Hello")));
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd.zip",
+              10L, true, StaticUtils.getBytes("Hello")));
 
     assertTrue(out.size() > 0);
     assertEquals(err.size(), 0);
@@ -156,8 +156,8 @@ public final class CollectSupportDataIRListenerTestCase
 
     out.reset();
     listener.handleArchiveFragmentIntermediateResponse(
-         new CollectSupportDataArchiveFragmentIntermediateResponse(10L, false,
-              StaticUtils.getBytes("There")));
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd.zip",
+              10L, false, StaticUtils.getBytes("There")));
 
     assertTrue(out.size() > 0);
     assertEquals(err.size(), 0);
@@ -260,8 +260,8 @@ public final class CollectSupportDataIRListenerTestCase
          new CollectSupportDataIRListener(tool, outputFile);
 
     listener.handleArchiveFragmentIntermediateResponse(
-         new CollectSupportDataArchiveFragmentIntermediateResponse(10L, true,
-              StaticUtils.getBytes("Hello")));
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd.zip",
+              10L, true, StaticUtils.getBytes("Hello")));
 
     assertTrue(out.size() > 0);
     assertEquals(err.size(), 0);
@@ -281,8 +281,8 @@ public final class CollectSupportDataIRListenerTestCase
               0, false));
 
     listener.handleArchiveFragmentIntermediateResponse(
-         new CollectSupportDataArchiveFragmentIntermediateResponse(10L, false,
-              StaticUtils.getBytes("There")));
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd.zip",
+              10L, false, StaticUtils.getBytes("There")));
 
     assertEquals(out.size(), 0);
     assertTrue(err.size() > 0);
@@ -298,8 +298,8 @@ public final class CollectSupportDataIRListenerTestCase
     err.reset();
 
     listener.handleArchiveFragmentIntermediateResponse(
-         new CollectSupportDataArchiveFragmentIntermediateResponse(10L, false,
-              StaticUtils.getBytes("There")));
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd.zip",
+              10L, false, StaticUtils.getBytes("There")));
 
     assertEquals(out.size(), 0);
     assertEquals(err.size(), 0);
@@ -362,8 +362,8 @@ public final class CollectSupportDataIRListenerTestCase
          new CollectSupportDataIRListener(tool, outputFile);
 
     listener.handleArchiveFragmentIntermediateResponse(
-         new CollectSupportDataArchiveFragmentIntermediateResponse(10L, true,
-              StaticUtils.getBytes("Hello")));
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd.zip",
+              10L, true, StaticUtils.getBytes("Hello")));
 
     assertTrue(out.size() > 0);
     assertEquals(err.size(), 0);
@@ -383,8 +383,8 @@ public final class CollectSupportDataIRListenerTestCase
               Integer.MAX_VALUE, true));
 
     listener.handleArchiveFragmentIntermediateResponse(
-         new CollectSupportDataArchiveFragmentIntermediateResponse(10L, false,
-              StaticUtils.getBytes("There")));
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd.zip",
+              10L, false, StaticUtils.getBytes("There")));
 
     assertTrue(out.size() > 0L);
     assertEquals(err.size(), 0);

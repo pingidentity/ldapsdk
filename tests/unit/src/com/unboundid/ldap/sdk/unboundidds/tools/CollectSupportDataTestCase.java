@@ -270,39 +270,6 @@ public final class CollectSupportDataTestCase
 
 
   /**
-   * Tests the behavior when trying to invoke the extended operation with an
-   * output path that is a directory rather than a file.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test()
-  public void testInvokeExtendedOperationOutputPathIsDirectory()
-         throws Exception
-  {
-    final InMemoryDirectoryServer ds = getTestDS();
-
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    final ByteArrayOutputStream err = new ByteArrayOutputStream();
-    final CollectSupportData tool = new CollectSupportData(out, err);
-
-    final File outputDir = createTempDir();
-
-    final ResultCode resultCode = tool.runTool(
-         "--useRemoteServer",
-         "--hostname", "localhost",
-         "--port", String.valueOf(ds.getListenPort()),
-         "--outputPath", outputDir.getAbsolutePath());
-
-    assertEquals(resultCode, ResultCode.PARAM_ERROR);
-
-    assertTrue(tool.defaultToPromptForBindPassword());
-
-    assertNotNull(tool.getToolCompletionMessage());
-  }
-
-
-
-  /**
    * Tests the behavior when trying to invoke the extended operation when
    * reading the encryption passphrase from a file.
    *

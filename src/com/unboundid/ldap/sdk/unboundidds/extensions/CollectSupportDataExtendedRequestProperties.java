@@ -104,6 +104,10 @@ public final class CollectSupportDataExtendedRequestProperties
   // The report interval in seconds to use for sampled metrics.
   private Integer reportIntervalSeconds;
 
+  // The name (without any path information) the client intends to use for the
+  // support data archive file.
+  private String archiveFileName;
+
   // A comment to include in the support data archive.
   private String comment;
 
@@ -133,6 +137,7 @@ public final class CollectSupportDataExtendedRequestProperties
     proxyToServerPort = null;
     reportCount = null;
     reportIntervalSeconds = null;
+    archiveFileName = null;
     comment = null;
     proxyToServerAddress = null;
   }
@@ -161,6 +166,7 @@ public final class CollectSupportDataExtendedRequestProperties
     proxyToServerPort = properties.getProxyToServerPort();
     reportCount = properties.getReportCount();
     reportIntervalSeconds = properties.getReportIntervalSeconds();
+    archiveFileName = properties.getArchiveFileName();
     comment = properties.getComment();
     proxyToServerAddress = properties.getProxyToServerAddress();
   }
@@ -190,8 +196,40 @@ public final class CollectSupportDataExtendedRequestProperties
     proxyToServerPort = request.getProxyToServerPort();
     reportCount = request.getReportCount();
     reportIntervalSeconds = request.getReportIntervalSeconds();
+    archiveFileName = request.getArchiveFileName();
     comment = request.getComment();
     proxyToServerAddress = request.getProxyToServerAddress();
+  }
+
+
+
+  /**
+   * Retrieves the name (without any path information) that the client intends
+   * to use for the support data archive file.
+   *
+   * @return  The name (without any path information) that the client intends to
+   *          use for the support data archive file, or {@code null} if the
+   *          server should generate an archive file name.
+   */
+  public String getArchiveFileName()
+  {
+    return archiveFileName;
+  }
+
+
+
+  /**
+   * Specifies the name (without any path information) that the client intends
+   * to use for the support data archive file.
+   *
+   * @param  archiveFileName  The name (without any path information) that the
+   *                          client intends to use for the support data archive
+   *                          file.  It may be {@code null} if the server
+   *                          should generate an archive file name.
+   */
+  public void setArchiveFileName(final String archiveFileName)
+  {
+    this.archiveFileName = archiveFileName;
   }
 
 
@@ -865,6 +903,7 @@ public final class CollectSupportDataExtendedRequestProperties
   public void toString(final StringBuilder buffer)
   {
     buffer.append("CollectSupportDataArchiveProperties(");
+    appendNameValuePair(buffer, "archiveFileName", archiveFileName);
 
     if (encryptionPassphrase != null)
     {

@@ -51,6 +51,135 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
+    assertNull(p.getEncryptionPassphrase());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getLogCaptureWindow());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getProxyToServerAddress());
+
+    assertNull(p.getProxyToServerPort());
+
+    assertNull(p.getMaximumFragmentSizeBytes());
+
+    assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior for the archive file name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testArchiveFileName()
+         throws Exception
+  {
+    CollectSupportDataExtendedRequestProperties p =
+         new CollectSupportDataExtendedRequestProperties();
+    p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
+
+    assertNull(p.getEncryptionPassphrase());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getLogCaptureWindow());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getProxyToServerAddress());
+
+    assertNull(p.getProxyToServerPort());
+
+    assertNull(p.getMaximumFragmentSizeBytes());
+
+    assertNotNull(p.toString());
+
+
+    p.setArchiveFileName("csd.zip");
+    p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNotNull(p.getArchiveFileName());
+    assertEquals(p.getArchiveFileName(), "csd.zip");
+
+    assertNull(p.getEncryptionPassphrase());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getLogCaptureWindow());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getProxyToServerAddress());
+
+    assertNull(p.getProxyToServerPort());
+
+    assertNull(p.getMaximumFragmentSizeBytes());
+
+    assertNotNull(p.toString());
+
+
+    p.setArchiveFileName(null);
+    p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -99,6 +228,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -135,9 +266,11 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setEncryptionPassphrase("string");
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNotNull(p.getEncryptionPassphrase());
     assertEquals(p.getEncryptionPassphrase(),
-         new ASN1OctetString((byte) 0x80, "string"));
+         new ASN1OctetString((byte) 0x81, "string"));
 
     assertNull(p.getIncludeExpensiveData());
 
@@ -172,6 +305,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setEncryptionPassphrase((String) null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -209,9 +344,11 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setEncryptionPassphrase("bytes".getBytes());
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNotNull(p.getEncryptionPassphrase());
     assertEquals(p.getEncryptionPassphrase(),
-         new ASN1OctetString((byte) 0x80, "bytes"));
+         new ASN1OctetString((byte) 0x81, "bytes"));
 
     assertNull(p.getIncludeExpensiveData());
 
@@ -246,6 +383,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setEncryptionPassphrase((byte[]) null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -283,9 +422,11 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setEncryptionPassphrase(new ASN1OctetString("octetString"));
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNotNull(p.getEncryptionPassphrase());
     assertEquals(p.getEncryptionPassphrase(),
-         new ASN1OctetString((byte) 0x80, "octetString"));
+         new ASN1OctetString((byte) 0x81, "octetString"));
 
     assertNull(p.getIncludeExpensiveData());
 
@@ -320,6 +461,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setEncryptionPassphrase((ASN1OctetString) null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -369,6 +512,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -404,6 +549,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setIncludeExpensiveData(true);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -442,6 +589,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setIncludeExpensiveData(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -477,6 +626,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setIncludeExpensiveData(false);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -527,6 +678,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -562,6 +715,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setIncludeReplicationStateDump(true);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -600,6 +755,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setIncludeReplicationStateDump(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -635,6 +792,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setIncludeReplicationStateDump(false);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -685,6 +844,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -720,6 +881,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setIncludeBinaryFiles(true);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -758,6 +921,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setIncludeBinaryFiles(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -793,6 +958,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setIncludeBinaryFiles(false);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -843,6 +1010,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -878,6 +1047,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setIncludeExtensionSource(true);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -916,6 +1087,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setIncludeExtensionSource(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -951,6 +1124,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setIncludeExtensionSource(false);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1001,6 +1176,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1036,6 +1213,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setUseSequentialMode(true);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1074,6 +1253,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setUseSequentialMode(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1109,6 +1290,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setUseSequentialMode(false);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1159,6 +1342,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1198,7 +1383,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
       p.setSecurityLevel(level);
       p = new CollectSupportDataExtendedRequestProperties(p);
 
-      assertNull(p.getEncryptionPassphrase());
+      assertNull(p.getArchiveFileName());
+
+    assertNull(p.getEncryptionPassphrase());
 
       assertNull(p.getIncludeExpensiveData());
 
@@ -1235,6 +1422,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setSecurityLevel(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1284,6 +1473,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1319,6 +1510,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setJStackCount(5);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1356,6 +1549,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setJStackCount(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1415,6 +1610,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1450,6 +1647,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setReportCount(4);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1487,6 +1686,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setReportCount(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1546,6 +1747,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1581,6 +1784,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setReportIntervalSeconds(3);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1618,6 +1823,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setReportIntervalSeconds(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1677,6 +1884,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1713,6 +1922,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setLogCaptureWindow(
          ToolDefaultCollectSupportDataLogCaptureWindow.getInstance());
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1751,6 +1962,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setLogCaptureWindow(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1800,6 +2013,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1835,6 +2050,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setComment("foo");
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1872,6 +2089,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setComment(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1921,6 +2140,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -1956,6 +2177,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setProxyToServer("ds.example.com", 636);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -1994,6 +2217,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setProxyToServer(null, null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -2093,6 +2318,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -2128,6 +2355,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setMaximumFragmentSizeBytes(12_345_678);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -2165,6 +2394,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
 
     p.setMaximumFragmentSizeBytes(null);
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNull(p.getArchiveFileName());
 
     assertNull(p.getEncryptionPassphrase());
 
@@ -2214,6 +2445,8 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
          new CollectSupportDataExtendedRequestProperties();
     p = new CollectSupportDataExtendedRequestProperties(p);
 
+    assertNull(p.getArchiveFileName());
+
     assertNull(p.getEncryptionPassphrase());
 
     assertNull(p.getIncludeExpensiveData());
@@ -2247,6 +2480,7 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     assertNotNull(p.toString());
 
 
+    p.setArchiveFileName("csd.zip");
     p.setEncryptionPassphrase("password");
     p.setIncludeExpensiveData(true);
     p.setIncludeReplicationStateDump(true);
@@ -2264,6 +2498,9 @@ public final class CollectSupportDataExtendedRequestPropertiesTestCase
     p.setMaximumFragmentSizeBytes(12_345_678);
 
     p = new CollectSupportDataExtendedRequestProperties(p);
+
+    assertNotNull(p.getArchiveFileName());
+    assertEquals(p.getArchiveFileName(), "csd.zip");
 
     assertNotNull(p.getEncryptionPassphrase());
     assertEquals(p.getEncryptionPassphrase().stringValue(), "password");

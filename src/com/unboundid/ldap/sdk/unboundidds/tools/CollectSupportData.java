@@ -681,24 +681,6 @@ public final class CollectSupportData
   public void doExtendedNonLDAPArgumentValidation()
          throws ArgumentException
   {
-    // If the --useRemoteServer argument is provided, then the
-    // --outputPath argument value must specify a file rather than a
-    // directory.
-    if (useRemoteServerArg.isPresent())
-    {
-      final File outputPath = outputPathArg.getValue();
-      if (outputPath.exists() && outputPath.isDirectory())
-      {
-        final String message =
-             ERR_CSD_OUTPUT_PATH_MUST_BE_FILE_WITH_REMOTE_SERVER.get(
-                  useRemoteServerArg.getIdentifierString(),
-                  outputPathArg.getIdentifierString());
-        toolCompletionMessage.set(message);
-        throw new ArgumentException(message);
-      }
-    }
-
-
     // If the --logTimeRange argument was provided, then make sure we can
     // parse each of the values and that the end time is greater than or equal
     // to the start time.
@@ -1470,7 +1452,7 @@ public final class CollectSupportData
               "-zip-encrypted",
            "--passphraseFile", "encryption-passphrase.txt"
          },
-         INFO_CSD_EXAMPLE_1.get());
+         INFO_CSD_EXAMPLE_3.get());
 
     return examples;
   }

@@ -77,32 +77,34 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * <BR>
  * <PRE>
  *   CollectSupportDataRequest ::= SEQUENCE {
- *      encryptionPassphrase            [0]  OCTET STRING OPTIONAL,
- *      includeExpensiveData            [1]  BOOLEAN DEFAULT FALSE,
- *      includeReplicationStateDump     [2]  BOOLEAN DEFAULT FALSE,
- *      includeBinaryFiles              [3]  BOOLEAN DEFAULT FALSE,
- *      includeExtensionSource          [4]  BOOLEAN DEFAULT FALSE,
- *      useSequentialMode               [5]  BOOLEAN DEFAULT FALSE,
- *      securityLevel                   [6]  ENUMERATED {
+ *      archiveFileName                 [0]  OCTET STRING OPTIONAL,
+ *      encryptionPassphrase            [1]  OCTET STRING OPTIONAL,
+ *      includeExpensiveData            [2]  BOOLEAN DEFAULT FALSE,
+ *      includeReplicationStateDump     [3]  BOOLEAN DEFAULT FALSE,
+ *      includeBinaryFiles              [4]  BOOLEAN DEFAULT FALSE,
+ *      includeExtensionSource          [5]  BOOLEAN DEFAULT FALSE,
+ *      useSequentialMode               [6]  BOOLEAN DEFAULT FALSE,
+ *      securityLevel                   [7]  ENUMERATED {
  *           none                            (0),
  *           obscureSecrets                  (1),
  *           maximum                         (2),
  *           ... } DEFAULT obscureSecrets,
- *      jstackCount                     [7]  INTEGER (0..MAX) DEFAULT 10,
- *      reportCount                     [8]  INTEGER (0..MAX) DEFAULT 10,
- *      reportIntervalSeconds           [9]  INTEGER (1..MAX) DEFAULT 1,
- *      logCaptureWindow                [10] CHOICE {
+ *      jstackCount                     [8]  INTEGER (0..MAX) DEFAULT 10,
+ *      reportCount                     [9]  INTEGER (0..MAX) DEFAULT 10,
+ *      reportIntervalSeconds           [10] INTEGER (1..MAX) DEFAULT 1,
+ *      logCaptureWindow                [11] CHOICE {
  *           toolDefault                     [0] NULL,
  *           durationMillis                  [1] INTEGER (0..MAX),
  *           timeWindow                      [2] SEQUENCE {
  *                startTime                       OCTET STRING,
  *                endTime                         OCTET STRING OPTIONAL },
  *           ... } DEFAULT default,
- *      comment                         [11] OCTET STRING OPTIONAL,
- *      proxyToServer                   [12] SEQUENCE OF {
+ *      comment                         [12] OCTET STRING OPTIONAL,
+ *      proxyToServer                   [13] SEQUENCE OF {
  *           address                         OCTET STRING,
- *           port                            INTEGER (1..65535) } OPTIONAL,
- *      maximumFragmentSize             [13] INTEGER DEFAULT 1048576,
+ *           port                            INTEGER (1..65535),
+ *           ... } OPTIONAL,
+ *      maximumFragmentSizeBytes        [1] INTEGER DEFAULT 1048576,
  *      ... }
  * </PRE>
  * <BR><BR>
@@ -133,10 +135,18 @@ public final class CollectSupportDataExtendedRequest
 
 
   /**
+   * The BER type for the request element that specifies the name to use for the
+   * archive file.
+   */
+  private static final byte TYPE_ARCHIVE_FILE_NAME = (byte) 0x80;
+
+
+
+  /**
    * The BER type for the request element that specifies the passphrase to use
    * to encrypt the contents of the support data archive.
    */
-  static final byte TYPE_ENCRYPTION_PASSPHRASE = (byte) 0x80;
+  static final byte TYPE_ENCRYPTION_PASSPHRASE = (byte) 0x81;
 
 
 
@@ -144,7 +154,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that indicates whether to include
    * data that may be expensive to collect.
    */
-  private static final byte TYPE_INCLUDE_EXPENSIVE_DATA = (byte) 0x81;
+  private static final byte TYPE_INCLUDE_EXPENSIVE_DATA = (byte) 0x82;
 
 
 
@@ -152,7 +162,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that indicates whether to include a
    * replication state dump.
    */
-  private static final byte TYPE_INCLUDE_REPLICATION_STATE_DUMP = (byte) 0x82;
+  private static final byte TYPE_INCLUDE_REPLICATION_STATE_DUMP = (byte) 0x83;
 
 
 
@@ -160,7 +170,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that indicates whether to include
    * binary files.
    */
-  private static final byte TYPE_INCLUDE_BINARY_FILES = (byte) 0x83;
+  private static final byte TYPE_INCLUDE_BINARY_FILES = (byte) 0x84;
 
 
 
@@ -168,7 +178,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that indicates whether to include
    * extension source code.
    */
-  private static final byte TYPE_INCLUDE_EXTENSION_SOURCE = (byte) 0x84;
+  private static final byte TYPE_INCLUDE_EXTENSION_SOURCE = (byte) 0x85;
 
 
 
@@ -176,14 +186,14 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that indicates whether to collect
    * information in sequential mode.
    */
-  private static final byte TYPE_USE_SEQUENTIAL_MODE = (byte) 0x85;
+  private static final byte TYPE_USE_SEQUENTIAL_MODE = (byte) 0x86;
 
 
 
   /**
    * The BER type for the request element that specifies the security level.
    */
-  private static final byte TYPE_SECURITY_LEVEL = (byte) 0x86;
+  private static final byte TYPE_SECURITY_LEVEL = (byte) 0x87;
 
 
 
@@ -191,7 +201,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that specifies the number of jstack
    * stack traces to include.
    */
-  private static final byte TYPE_JSTACK_COUNT = (byte) 0x87;
+  private static final byte TYPE_JSTACK_COUNT = (byte) 0x88;
 
 
 
@@ -199,7 +209,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that specifies the number intervals
    * to collect from interval-based sampling tools.
    */
-  private static final byte TYPE_REPORT_COUNT = (byte) 0x88;
+  private static final byte TYPE_REPORT_COUNT = (byte) 0x89;
 
 
 
@@ -207,7 +217,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that specifies the interval duration
    * to use for interval-based sampling tools.
    */
-  private static final byte TYPE_REPORT_INTERVAL_SECONDS = (byte) 0x89;
+  private static final byte TYPE_REPORT_INTERVAL_SECONDS = (byte) 0x8A;
 
 
 
@@ -215,7 +225,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that specifies the log capture window
    * for the request.
    */
-  private static final byte TYPE_LOG_CAPTURE_WINDOW = (byte) 0xAA;
+  private static final byte TYPE_LOG_CAPTURE_WINDOW = (byte) 0xAB;
 
 
 
@@ -223,7 +233,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that specifies a comment to include in
    * the archive.
    */
-  private static final byte TYPE_COMMENT = (byte) 0x8B;
+  private static final byte TYPE_COMMENT = (byte) 0x8C;
 
 
 
@@ -231,7 +241,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that specifies the address and port
    * to which the request should be forwarded.
    */
-  private static final byte TYPE_PROXY_TO_SERVER = (byte) 0xAC;
+  private static final byte TYPE_PROXY_TO_SERVER = (byte) 0xAD;
 
 
 
@@ -239,7 +249,7 @@ public final class CollectSupportDataExtendedRequest
    * The BER type for the request element that specifies the maximum archive
    * fragment size.
    */
-  private static final byte TYPE_MAXIMUM_FRAGMENT_SIZE_BYTES = (byte) 0x8D;
+  private static final byte TYPE_MAXIMUM_FRAGMENT_SIZE_BYTES = (byte) 0x8E;
 
 
 
@@ -323,6 +333,10 @@ public final class CollectSupportDataExtendedRequest
   // The report interval in seconds to use for sampled metrics.
   private final Integer reportIntervalSeconds;
 
+  // The name (without any path information) the client intends to use for the
+  // support data archive file.
+  private final String archiveFileName;
+
   // A comment to include in the support data archive.
   private final String comment;
 
@@ -364,6 +378,7 @@ public final class CollectSupportDataExtendedRequest
               "must not be null.");
     this.intermediateResponseListener = intermediateResponseListener;
 
+    archiveFileName = properties.getArchiveFileName();
     encryptionPassphrase = properties.getEncryptionPassphrase();
     includeBinaryFiles = properties.getIncludeBinaryFiles();
     includeExpensiveData = properties.getIncludeExpensiveData();
@@ -397,7 +412,14 @@ public final class CollectSupportDataExtendedRequest
   private static ASN1OctetString encodeValue(
                final CollectSupportDataExtendedRequestProperties properties)
   {
-    final List<ASN1Element> elements = new ArrayList<>(15);
+    final List<ASN1Element> elements = new ArrayList<>(20);
+
+    final String archiveFileName = properties.getArchiveFileName();
+    if (archiveFileName != null)
+    {
+      elements.add(new ASN1OctetString(TYPE_ARCHIVE_FILE_NAME,
+           archiveFileName));
+    }
 
     final ASN1OctetString encryptionPassphrase =
          properties.getEncryptionPassphrase();
@@ -575,6 +597,7 @@ public final class CollectSupportDataExtendedRequest
       Integer rCount = null;
       Integer rInterval = null;
       CollectSupportDataLogCaptureWindow lcw = null;
+      String archiveName = null;
       String commentStr = null;
       String proxyToAddress = null;
       Integer proxyToPort = null;
@@ -587,6 +610,9 @@ public final class CollectSupportDataExtendedRequest
       {
         switch (e.getType())
         {
+          case TYPE_ARCHIVE_FILE_NAME:
+            archiveName = ASN1OctetString.decodeAsOctetString(e).stringValue();
+            break;
           case TYPE_ENCRYPTION_PASSPHRASE:
             encPassphrase = ASN1OctetString.decodeAsOctetString(e);
             break;
@@ -666,6 +692,7 @@ public final class CollectSupportDataExtendedRequest
         }
       }
 
+      archiveFileName = archiveName;
       encryptionPassphrase = encPassphrase;
       includeExpensiveData = includeExpensive;
       includeReplicationStateDump = includeReplication;
@@ -712,6 +739,21 @@ public final class CollectSupportDataExtendedRequest
               getCollectSupportDataIntermediateResponseListener()
   {
     return intermediateResponseListener;
+  }
+
+
+
+  /**
+   * Retrieves the name (without any path information) that the client intends
+   * to use for the support data archive file.
+   *
+   * @return  The name (without any path information) that the client intends to
+   *          use for the support data archive file, or {@code null} if the
+   *          server should generate an archive file name.
+   */
+  public String getArchiveFileName()
+  {
+    return archiveFileName;
   }
 
 
@@ -1085,6 +1127,13 @@ public final class CollectSupportDataExtendedRequest
     buffer.append("CollectSupportDataExtendedRequest(oid='");
     buffer.append(getOID());
     buffer.append('\'');
+
+    if (archiveFileName != null)
+    {
+      buffer.append(", archiveFileName='");
+      buffer.append(archiveFileName);
+      buffer.append('\'');
+    }
 
     if (encryptionPassphrase != null)
     {

@@ -61,9 +61,10 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * <BR>
  * <PRE>
  *   CollectSupportDataArchiveDataIntermediateResponse ::= SEQUENCE {
- *      totalArchiveSizeBytes     [0] INTEGER,
- *      moreDataToReturn          [1] BOOLEAN,
- *      fragmentData              [2] OCTET STRING,
+ *      archiveFileName           [0] OCTET STRING,
+ *      totalArchiveSizeBytes     [1] INTEGER,
+ *      moreDataToReturn          [2] BOOLEAN,
+ *      fragmentData              [3] OCTET STRING,
  *      ... }
  * </PRE>
  *
@@ -87,10 +88,18 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
 
 
   /**
+   * The BER type for the value element that holds the name (without any path
+   * information) that the server used for the support data archive.
+   */
+  private static final byte TYPE_ARCHIVE_FILE_NAME = (byte) 0x80;
+
+
+
+  /**
    * The BER type for the value element that holds the total size of the
    * support data archive, in bytes.
    */
-  private static final byte TYPE_TOTAL_ARCHIVE_SIZE_BYTES = (byte) 0x80;
+  private static final byte TYPE_TOTAL_ARCHIVE_SIZE_BYTES = (byte) 0x81;
 
 
 
@@ -98,7 +107,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    * The BER type for the value element that indicates whether there is still
    * more of the support data archive to be returned.
    */
-  private static final byte TYPE_MORE_DATA_TO_RETURN = (byte) 0x81;
+  private static final byte TYPE_MORE_DATA_TO_RETURN = (byte) 0x82;
 
 
 
@@ -106,7 +115,7 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    * The BER type for the value element that holds the data for this fragment of
    * the support data archive.
    */
-  private static final byte TYPE_FRAGMENT_DATA = (byte) 0x82;
+  private static final byte TYPE_FRAGMENT_DATA = (byte) 0x83;
 
 
   /**
@@ -126,12 +135,19 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
   // The total size of the support data archive, in bytes.
   private final long totalArchiveSizeBytes;
 
+  // The name (without any path information) that the server used for the
+  // support data archive file.
+  private final String archiveFileName;
+
 
 
   /**
    * Creates a new collect support data archive fragment intermediate response
    * object with the provided information.
    *
+   * @param  archiveFileName        The name (without any path information) that
+   *                                the server used for the support data archive
+   *                                file.  It must not be {@code null}.
    * @param  totalArchiveSizeBytes  The size, in bytes, of the complete
    *                                support data archive.
    * @param  moreDataToReturn       Indicates whether there are more fragments
@@ -146,13 +162,16 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    *                                be included.
    */
   public CollectSupportDataArchiveFragmentIntermediateResponse(
-              final long totalArchiveSizeBytes, final boolean moreDataToReturn,
-              final byte[] fragmentData, final Control... controls)
+              final String archiveFileName, final long totalArchiveSizeBytes,
+              final boolean moreDataToReturn, final byte[] fragmentData,
+              final Control... controls)
   {
     super(COLLECT_SUPPORT_DATA_ARCHIVE_FRAGMENT_INTERMEDIATE_RESPONSE_OID,
-         encodeValue(totalArchiveSizeBytes, moreDataToReturn, fragmentData),
+         encodeValue(archiveFileName, totalArchiveSizeBytes, moreDataToReturn,
+              fragmentData),
          controls);
 
+    this.archiveFileName = archiveFileName;
     this.totalArchiveSizeBytes = totalArchiveSizeBytes;
     this.moreDataToReturn = moreDataToReturn;
     this.fragmentData = fragmentData;
@@ -164,6 +183,9 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    * Constructs an ASN.1 octet string suitable for use as the value of this
    * collect support data archive fragment intermediate response.
    *
+   * @param  archiveFileName        The name (without any path information) that
+   *                                the server used for the support data archive
+   *                                file.  It must not be {@code null}.
    * @param  totalArchiveSizeBytes  The size, in bytes, of the complete
    *                                support data archive.
    * @param  moreDataToReturn       Indicates whether there are more fragments
@@ -175,11 +197,13 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
    *
    * @return  The ASN.1 octet string containing the encoded value.
    */
-  private static ASN1OctetString encodeValue(final long totalArchiveSizeBytes,
+  private static ASN1OctetString encodeValue(final String archiveFileName,
+                                             final long totalArchiveSizeBytes,
                                              final boolean moreDataToReturn,
                                              final byte[] fragmentData)
   {
     final ASN1Sequence valueSequence = new ASN1Sequence(
+         new ASN1OctetString(TYPE_ARCHIVE_FILE_NAME, archiveFileName),
          new ASN1Long(TYPE_TOTAL_ARCHIVE_SIZE_BYTES, totalArchiveSizeBytes),
          new ASN1Boolean(TYPE_MORE_DATA_TO_RETURN, moreDataToReturn),
          new ASN1OctetString(TYPE_FRAGMENT_DATA, fragmentData));
@@ -219,11 +243,13 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
       final ASN1Sequence valueSequence =
            ASN1Sequence.decodeAsSequence(value.getValue());
       final ASN1Element[] elements = valueSequence.elements();
-      totalArchiveSizeBytes = ASN1Long.decodeAsLong(elements[0]).longValue();
+      archiveFileName =
+           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
+      totalArchiveSizeBytes = ASN1Long.decodeAsLong(elements[1]).longValue();
       moreDataToReturn =
-           ASN1Boolean.decodeAsBoolean(elements[1]).booleanValue();
+           ASN1Boolean.decodeAsBoolean(elements[2]).booleanValue();
       fragmentData =
-           ASN1OctetString.decodeAsOctetString(elements[2]).getValue();
+           ASN1OctetString.decodeAsOctetString(elements[3]).getValue();
     }
     catch (final Exception e)
     {
@@ -233,6 +259,20 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
                 StaticUtils.getExceptionMessage(e)),
            e);
     }
+  }
+
+
+
+  /**
+   * Retrieves the name (without any path information) that the server used for
+   * the support data archive file.
+   *
+   * @return  The name (without any path information) that the server used for
+   *          the support data archive file.
+   */
+  public String getArchiveFileName()
+  {
+    return archiveFileName;
   }
 
 
@@ -296,7 +336,9 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
   {
     final StringBuilder buffer = new StringBuilder();
 
-    buffer.append("totalArchiveSizeBytes=");
+    buffer.append("archiveFileName='");
+    buffer.append(archiveFileName);
+    buffer.append("' totalArchiveSizeBytes=");
     buffer.append(totalArchiveSizeBytes);
     buffer.append(" moreDataToReturn=");
     buffer.append(moreDataToReturn);
@@ -317,6 +359,8 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponse
     buffer.append(
          "CollectSupportDataArchiveFragmentIntermediateResponse(oid='");
     buffer.append(getOID());
+    buffer.append("', archiveFileName='");
+    buffer.append(archiveFileName);
     buffer.append("', totalArchiveSizeBytes=");
     buffer.append(totalArchiveSizeBytes);
     buffer.append(", moreDataToReturn=");

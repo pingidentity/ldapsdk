@@ -82,6 +82,8 @@ public final class CollectSupportDataExtendedRequestTestCase
     assertTrue(r.getCollectSupportDataIntermediateResponseListener() instanceof
          TestCollectSupportDataIntermediateResponseListener);
 
+    assertNull(r.getArchiveFileName());
+
     assertNull(r.getEncryptionPassphrase());
 
     assertNull(r.getIncludeExpensiveData());
@@ -138,6 +140,7 @@ public final class CollectSupportDataExtendedRequestTestCase
 
     final CollectSupportDataExtendedRequestProperties properties =
          new CollectSupportDataExtendedRequestProperties();
+    properties.setArchiveFileName("csd.zip");
     properties.setEncryptionPassphrase("password");
     properties.setIncludeExpensiveData(true);
     properties.setIncludeReplicationStateDump(false);
@@ -173,6 +176,9 @@ public final class CollectSupportDataExtendedRequestTestCase
     assertNotNull(r.getCollectSupportDataIntermediateResponseListener());
     assertTrue(r.getCollectSupportDataIntermediateResponseListener() instanceof
          TestCollectSupportDataIntermediateResponseListener);
+
+    assertNotNull(r.getArchiveFileName());
+    assertEquals(r.getArchiveFileName(), "csd.zip");
 
     assertNotNull(r.getEncryptionPassphrase());
     assertEquals(r.getEncryptionPassphrase().stringValue(), "password");
@@ -268,6 +274,8 @@ public final class CollectSupportDataExtendedRequestTestCase
       assertTrue(r.getCollectSupportDataIntermediateResponseListener()
            instanceof TestCollectSupportDataIntermediateResponseListener);
 
+      assertNull(r.getArchiveFileName());
+
       assertNull(r.getEncryptionPassphrase());
 
       assertNull(r.getIncludeExpensiveData());
@@ -354,6 +362,8 @@ public final class CollectSupportDataExtendedRequestTestCase
       assertNotNull(r.getCollectSupportDataIntermediateResponseListener());
       assertTrue(r.getCollectSupportDataIntermediateResponseListener()
            instanceof TestCollectSupportDataIntermediateResponseListener);
+
+      assertNull(r.getArchiveFileName());
 
       assertNull(r.getEncryptionPassphrase());
 
@@ -480,7 +490,7 @@ public final class CollectSupportDataExtendedRequestTestCase
 
     r.intermediateResponseReturned(
          new CollectSupportDataArchiveFragmentIntermediateResponse(
-              123_456L, true, StaticUtils.byteArray(1, 2, 3, 4, 5)));
+              "csd.zip", 123_456L, true, StaticUtils.byteArray(1, 2, 3, 4, 5)));
 
     assertNotNull(listener.getStandardOutputMessages());
     assertEquals(listener.getStandardOutputMessages().size(), 0);
@@ -644,7 +654,7 @@ public final class CollectSupportDataExtendedRequestTestCase
          new TestCollectSupportDataIntermediateResponseListener();
 
     final ASN1Sequence valueSequence = new ASN1Sequence(
-         new ASN1Element((byte) 0xAA,
+         new ASN1Element((byte) 0xAB,
               new ASN1OctetString("malformed").encode()));
 
     new CollectSupportDataExtendedRequest(

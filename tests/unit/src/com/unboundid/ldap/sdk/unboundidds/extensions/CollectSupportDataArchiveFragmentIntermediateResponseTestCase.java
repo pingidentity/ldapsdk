@@ -51,8 +51,8 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponseTestCase
          throws Exception
   {
     CollectSupportDataArchiveFragmentIntermediateResponse r =
-         new CollectSupportDataArchiveFragmentIntermediateResponse(123_456L,
-              true, StaticUtils.byteArray(1, 2, 3, 4, 5, 6, 7));
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd.zip",
+              123_456L, true, StaticUtils.byteArray(1, 2, 3, 4, 5, 6, 7));
 
     r = new CollectSupportDataArchiveFragmentIntermediateResponse(r);
 
@@ -63,6 +63,9 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponseTestCase
 
     assertNotNull(r.getControls());
     assertEquals(r.getControls().length, 0);
+
+    assertNotNull(r.getArchiveFileName());
+    assertEquals(r.getArchiveFileName(), "csd.zip");
 
     assertEquals(r.getTotalArchiveSizeBytes(), 123_456L);
 
@@ -95,8 +98,8 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponseTestCase
          throws Exception
   {
     CollectSupportDataArchiveFragmentIntermediateResponse r =
-         new CollectSupportDataArchiveFragmentIntermediateResponse(987_654L,
-              false, StaticUtils.byteArray(1, 2, 3, 4, 5),
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd2.zip",
+              987_654L, false, StaticUtils.byteArray(1, 2, 3, 4, 5),
               new Control("1.2.3.4"));
 
     r = new CollectSupportDataArchiveFragmentIntermediateResponse(r);
@@ -108,6 +111,9 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponseTestCase
 
     assertNotNull(r.getControls());
     assertEquals(r.getControls().length, 1);
+
+    assertNotNull(r.getArchiveFileName());
+    assertEquals(r.getArchiveFileName(), "csd2.zip");
 
     assertEquals(r.getTotalArchiveSizeBytes(), 987_654L);
 
@@ -140,8 +146,8 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponseTestCase
          throws Exception
   {
     CollectSupportDataArchiveFragmentIntermediateResponse r =
-         new CollectSupportDataArchiveFragmentIntermediateResponse(987_654L,
-              false, StaticUtils.byteArray(1, 2, 3, 4, 5),
+         new CollectSupportDataArchiveFragmentIntermediateResponse("csd3.zip",
+              987_654L, false, StaticUtils.byteArray(1, 2, 3, 4, 5),
               new Control("1.2.3.4"), new Control("1.2.3.5"));
 
     r = new CollectSupportDataArchiveFragmentIntermediateResponse(r);
@@ -153,6 +159,9 @@ public final class CollectSupportDataArchiveFragmentIntermediateResponseTestCase
 
     assertNotNull(r.getControls());
     assertEquals(r.getControls().length, 2);
+
+    assertNotNull(r.getArchiveFileName());
+    assertEquals(r.getArchiveFileName(), "csd3.zip");
 
     assertEquals(r.getTotalArchiveSizeBytes(), 987_654L);
 
