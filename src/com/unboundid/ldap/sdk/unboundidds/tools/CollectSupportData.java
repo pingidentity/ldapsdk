@@ -1323,6 +1323,7 @@ public final class CollectSupportData
     if (decryptArg.isPresent())
     {
       argList.add("--decrypt");
+      argList.add(decryptArg.getValue().getAbsolutePath());
     }
 
     if (logTimeRangeArg.isPresent())
