@@ -712,7 +712,8 @@ public final class CollectSupportData
     {
       try
       {
-        parseTimeRange(logTimeRangeArg.getValue());
+        parseTimeRange(logTimeRangeArg.getValue(),
+             useRemoteServerArg.isPresent());
       }
       catch (final LDAPException e)
       {
@@ -762,36 +763,66 @@ public final class CollectSupportData
    *
    * @param  timeRangeStr  The string to be parsed as a time range.  It must not
    *                       be {@code null}.
+   * @param  strict        Indicates whether to require strict compliance with
+   *                       the timestamp format.  This should be {@code true}
+   *                       when the useRemoteServer argument was provided, and
+   *                       {@code false} otherwise.
    *
    * @return  An object pair in which the first value is the start time for
    *          the range and the second value is the end time for the range.  The
    *          first element will always be non-{@code null}, but the second
    *          element may be {@code null} if the time range did not specify an
-   *          end time.
+   *          end time.  The entire return value may be {@code null} if the
+   *          time range string could not be parsed and {@code strict} is
+   *          {@code false}.
    *
    * @throws  LDAPException  If a problem is encountered while parsing the
    *                         provided string as a time range, or if the start
    *                         time is greater than the end time.
    */
-  static ObjectPair<Date,Date> parseTimeRange(final String timeRangeStr)
+  static ObjectPair<Date,Date> parseTimeRange(final String timeRangeStr,
+                                              final boolean strict)
          throws LDAPException
   {
     final Date startTime;
     final Date endTime;
 
-    // See if there is a comma to separate the before and after times.  If so,
-    // then parse each value separately.  Otherwise, the value will be just the
-    // start time and the current time will be used as the end time.
-    final int commaPos = timeRangeStr.indexOf(',');
-    if (commaPos > 0)
+    try
     {
-      startTime = parseTimestamp(timeRangeStr.substring(0, commaPos).trim());
-      endTime = parseTimestamp(timeRangeStr.substring(commaPos+1).trim());
+      // See if there is a comma to separate the before and after times.  If so,
+      // then parse each value separately.  Otherwise, the value will be just
+      // the start time and the current time will be used as the end time.
+      final int commaPos = timeRangeStr.indexOf(',');
+      if (commaPos > 0)
+      {
+        startTime = parseTimestamp(timeRangeStr.substring(0, commaPos).trim());
+        endTime = parseTimestamp(timeRangeStr.substring(commaPos+1).trim());
+      }
+      else
+      {
+        startTime = parseTimestamp(timeRangeStr);
+        endTime = null;
+      }
     }
-    else
+    catch (final LDAPException e)
     {
-      startTime = parseTimestamp(timeRangeStr);
-      endTime = null;
+      Debug.debugException(e);
+
+      // NOTE:  The server-side version of the collect-support-data tool has a
+      // not-so-documented feature in which you can provide rotated file names
+      // as an alternative to an actual time range.  We can't handle that
+      // when operating against a remote server, so we'll require strict
+      // timestamp compliance when --useRemoteServer is provided, but we'll just
+      // return null and let the argument value be passed through to the
+      // server-side code otherwise.
+      if (strict)
+      {
+        throw e;
+      }
+      else
+      {
+        return null;
+      }
     }
 
     if ((endTime != null) && (startTime.getTime() > endTime.getTime()))
@@ -991,7 +1022,7 @@ public final class CollectSupportData
         try
         {
           final ObjectPair<Date,Date> timeRange =
-               parseTimeRange(logTimeRangeArg.getValue());
+               parseTimeRange(logTimeRangeArg.getValue(), true);
           properties.setLogCaptureWindow(
                new TimeWindowCollectSupportDataLogCaptureWindow(
                     timeRange.getFirst(), timeRange.getSecond()));
@@ -1331,7 +1362,7 @@ public final class CollectSupportData
       final ObjectPair<Date,Date> timeRange;
       try
       {
-        timeRange = parseTimeRange(logTimeRangeArg.getValue());
+        timeRange = parseTimeRange(logTimeRangeArg.getValue(), false);
       }
       catch (final LDAPException e)
       {
@@ -1342,19 +1373,30 @@ public final class CollectSupportData
         return e.getResultCode();
       }
 
-      final Date startTime = timeRange.getFirst();
-      Date endTime = timeRange.getSecond();
-      if (endTime == null)
+      if (timeRange == null)
       {
-        endTime = new Date(Math.max(System.currentTimeMillis(),
-             startTime.getTime()));
+        // We'll assume that this means the time range was specified using
+        // rotated log filenames, which we can't handle in the LDAP SDK code so
+        // we'll just pass the argument value through to the server code.
+        argList.add("--timeRange");
+        argList.add(logTimeRangeArg.getValue());
       }
+      else
+      {
+        final Date startTime = timeRange.getFirst();
+        Date endTime = timeRange.getSecond();
+        if (endTime == null)
+        {
+          endTime = new Date(Math.max(System.currentTimeMillis(),
+               startTime.getTime()));
+        }
 
-      final SimpleDateFormat timestampFormatter =
-           new SimpleDateFormat(SERVER_LOG_TIMESTAMP_FORMAT_WITH_MILLIS);
-      argList.add("--timeRange");
-      argList.add(timestampFormatter.format(startTime) + ',' +
-           timestampFormatter.format(endTime));
+        final SimpleDateFormat timestampFormatter =
+             new SimpleDateFormat(SERVER_LOG_TIMESTAMP_FORMAT_WITH_MILLIS);
+        argList.add("--timeRange");
+        argList.add(timestampFormatter.format(startTime) + ',' +
+             timestampFormatter.format(endTime));
+      }
     }
 
     if (logDurationArg.isPresent())

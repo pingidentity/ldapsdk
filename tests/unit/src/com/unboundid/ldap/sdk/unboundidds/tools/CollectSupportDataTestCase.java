@@ -663,14 +663,16 @@ public final class CollectSupportDataTestCase
     // Test with two generalized time values.
     ObjectPair<Date,Date> pair = CollectSupportData.parseTimeRange(
          StaticUtils.encodeGeneralizedTime(tenMinutesAgoTime) + ',' +
-              StaticUtils.encodeGeneralizedTime(nowTime));
+              StaticUtils.encodeGeneralizedTime(nowTime),
+         true);
     assertEquals(pair.getFirst(), tenMinutesAgoDate);
     assertEquals(pair.getSecond(), nowDate);
 
 
     // Test with just one generalized time value.
     pair = CollectSupportData.parseTimeRange(
-         StaticUtils.encodeGeneralizedTime(tenMinutesAgoTime));
+         StaticUtils.encodeGeneralizedTime(tenMinutesAgoTime),
+         true);
     assertEquals(pair.getFirst(), tenMinutesAgoDate);
     assertNull(pair.getSecond());
 
@@ -682,7 +684,8 @@ public final class CollectSupportDataTestCase
          new SimpleDateFormat("yyyyMMddHHmmss");
     pair = CollectSupportData.parseTimeRange(
          timestampFormatter.format(tenMinutesAgoDate) + ',' +
-              timestampFormatter.format(nowDate));
+              timestampFormatter.format(nowDate),
+         true);
     assertEquals(pair.getFirst(), tenMinutesAgoDate);
     assertEquals(pair.getSecond(), nowDate);
 
@@ -693,7 +696,8 @@ public final class CollectSupportDataTestCase
          CollectSupportData.SERVER_LOG_TIMESTAMP_FORMAT_WITH_MILLIS);
     pair = CollectSupportData.parseTimeRange(
          timestampFormatter.format(tenMinutesAgoDate) + ',' +
-              timestampFormatter.format(nowDate));
+              timestampFormatter.format(nowDate),
+         true);
     assertEquals(pair.getFirst(), tenMinutesAgoDate);
     assertEquals(pair.getSecond(), nowDate);
 
@@ -704,7 +708,8 @@ public final class CollectSupportDataTestCase
          CollectSupportData.SERVER_LOG_TIMESTAMP_FORMAT_WITHOUT_MILLIS);
     pair = CollectSupportData.parseTimeRange(
          timestampFormatter.format(tenMinutesAgoDate) + ',' +
-              timestampFormatter.format(nowDate));
+              timestampFormatter.format(nowDate),
+         true);
     assertEquals(pair.getFirst(), tenMinutesAgoDate);
     assertEquals(pair.getSecond(), nowDate);
 
@@ -714,7 +719,8 @@ public final class CollectSupportDataTestCase
     {
       CollectSupportData.parseTimeRange(
            StaticUtils.encodeGeneralizedTime(nowTime) + ',' +
-                StaticUtils.encodeGeneralizedTime(tenMinutesAgoTime));
+                StaticUtils.encodeGeneralizedTime(tenMinutesAgoTime),
+           true);
       fail("Expected an exception with startTime > endTime");
     }
     catch (final LDAPException e)
@@ -723,16 +729,20 @@ public final class CollectSupportDataTestCase
     }
 
 
-    // Test with a malformed time range.
+    // Test with a malformed time range when using strict mode.
     try
     {
-      CollectSupportData.parseTimeRange("malformed");
+      CollectSupportData.parseTimeRange("malformed", true);
       fail("Expected an exception with a malformed time range");
     }
     catch (final LDAPException e)
     {
       assertEquals(e.getResultCode(), ResultCode.PARAM_ERROR);
     }
+
+
+    // Test with a malformed time range when using nonstrict mode.
+    assertNull(CollectSupportData.parseTimeRange("malformed", false));
 
 
     // Test when trying to invoke the tool with a malformed time range.
@@ -958,12 +968,39 @@ public final class CollectSupportDataTestCase
 
   /**
    * Tests the behavior when trying to invoke the tool in local mode with a
-   * malformed log time range.
+   * malformed log time range when using a remote server.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testLocalModeMalformedTimeRange()
+  public void testLocalModeMalformedTimeRangeWithRemoteServer()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ByteArrayOutputStream err = new ByteArrayOutputStream();
+    final CollectSupportData tool = new CollectSupportData(out, err);
+
+    final ResultCode resultCode = tool.runTool(
+         "--useRemoteServer",
+         "--logTimeRange", "malformed");
+
+    assertEquals(resultCode, ResultCode.PARAM_ERROR);
+
+    assertTrue(tool.defaultToPromptForBindPassword());
+
+    assertNotNull(tool.getToolCompletionMessage());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to invoke the tool in local mode with a
+   * malformed log time range when not using a remote server.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLocalModeMalformedTimeRangeWithoutRemoteServer()
          throws Exception
   {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -973,7 +1010,7 @@ public final class CollectSupportDataTestCase
     final ResultCode resultCode = tool.runTool(
          "--logTimeRange", "malformed");
 
-    assertEquals(resultCode, ResultCode.PARAM_ERROR);
+    assertEquals(resultCode, LOCAL_MODE_NOT_AVAILABLE);
 
     assertTrue(tool.defaultToPromptForBindPassword());
 
