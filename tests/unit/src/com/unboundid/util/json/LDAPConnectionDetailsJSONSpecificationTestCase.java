@@ -359,6 +359,7 @@ public final class LDAPConnectionDetailsJSONSpecificationTestCase
                    new JSONField("port", ds.getListenPort("LDAPS")))))),
          new JSONField("communication-security", new JSONObject(
               new JSONField("security-type", "SSL"),
+              new JSONField("use-jvm-default-trust-store", true),
               new JSONField("trust-store-file", trustStore.getAbsolutePath()),
               new JSONField("key-store-file", keyStore.getAbsolutePath()),
               new JSONField("key-store-pin-file", pinFile.getAbsolutePath()))));
@@ -457,6 +458,7 @@ public final class LDAPConnectionDetailsJSONSpecificationTestCase
                    new JSONField("port", ds.getListenPort("LDAP")))))),
          new JSONField("communication-security", new JSONObject(
               new JSONField("security-type", "StartTLS"),
+              new JSONField("use-jvm-default-trust-store", false),
               new JSONField("trust-store-file", trustStore.getAbsolutePath()),
               new JSONField("key-store-file", keyStore.getAbsolutePath()),
               new JSONField("key-store-pin-file", pinFile.getAbsolutePath()))));

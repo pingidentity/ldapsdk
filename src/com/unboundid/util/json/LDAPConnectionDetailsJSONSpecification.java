@@ -408,8 +408,16 @@ import static com.unboundid.util.json.JSONMessages.*;
  *     susceptible to man-in-the-middle attacks.  If this field is present, then
  *     it should have a boolean value.  If it is not present, a default value
  *     of {@code false} will be assumed.  If it is present with a value of
- *     {@code true}, then the "trust-store-file", "trust-store-type",
- *     "trust-store-pin", and "trust-store-pin-file" fields should not be used.
+ *     {@code true}, then the "use-jvm-default-trust-store", "trust-store-file",
+ *     "trust-store-type", "trust-store-pin", and "trust-store-pin-file" fields
+ *     should not be used.
+ *   </LI>
+ *   <LI>
+ *     "use-jvm-default-trust-store" -- Indicates that certificates signed by an
+ *     authority listed in the JVM's default set of trusted issuers should be
+ *     trusted.  If this field is present, it should have a boolean value.  The
+ *     JVM-default trust store may be used on its own or in conjunction with a
+ *     trust store file.
  *   </LI>
  *   <LI>
  *     "trust-store-file" -- Specifies the path to a trust store file (in JKS
@@ -520,9 +528,11 @@ import static com.unboundid.util.json.JSONMessages.*;
  * present a certificate to the server.
  * <BR><BR>
  * The following example demonstrates a simple specification that can be used to
- * establish SSL-based connections to a single server.  The client will use a
- * trust store to determine whether to trust the certificate presented by the
- * server, and will not attempt to present its own certificate to the server.
+ * establish SSL-based connections to a single server.  The client will trust
+ * any certificates signed by one of the JVM's default issuers, or any
+ * certificate contained in or signed by a certificate contained in the
+ * specified trust store file.  As no key store is provided, the client will not
+ * attempt to present its own certificate to the server.
  * <PRE>
  *   {
  *     "server-details":
@@ -536,6 +546,7 @@ import static com.unboundid.util.json.JSONMessages.*;
  *     "communication-security":
  *     {
  *       "security-type":"SSL",
+ *       "use-jvm-default-trust-store":true,
  *       "trust-store-file":"/path/to/trust-store.jks",
  *       "trust-store-type":"JKS",
  *       "verify-address-in-certificate":true
@@ -828,6 +839,7 @@ import static com.unboundid.util.json.JSONMessages.*;
  *     "communication-security":
  *     {
  *       "security-type":"SSL",
+ *       "use-jvm-default-trust-store":true,
  *       "trust-store-file":"/path/to/trust-store.jks",
  *       "trust-store-type":"JKS",
  *       "verify-address-in-certificate":true

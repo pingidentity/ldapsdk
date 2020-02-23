@@ -35,6 +35,8 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.ssl.AggregateTrustManager;
+import com.unboundid.util.ssl.JVMDefaultTrustManager;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.PKCS11KeyManager;
 import com.unboundid.util.ssl.SSLUtil;
@@ -136,9 +138,9 @@ final class SecurityOptions
    * purposes, but is not recommended for production use because it does not
    * provide any protection against man-in-the-middle attacks.  If present, the
    * value should be a boolean, and if the value is {@code true} then the
-   * trust-store-file, trust-store-pin, trust-store-pin-file, and
-   * trust-store-type fields must not be provided.  If it is absent, then a
-   * default of {@code false} will be used.
+   * trust-jvm-default-issuers, trust-store-file, trust-store-pin,
+   * trust-store-pin-file, and trust-store-type fields must not be provided.  If
+   * it is absent, then a default of {@code false} will be used.
    */
   private static final String FIELD_TRUST_ALL_CERTS = "trust-all-certificates";
 
@@ -158,6 +160,16 @@ final class SecurityOptions
    */
   private static final String FIELD_TRUST_EXPIRED_CERTS =
        "trust-expired-certificates";
+
+
+
+  /**
+   * The name of the field that indicates whether to trust any certificate
+   * signed by one of the JVM's default trusted issuers.  If present, the value
+   * should be a boolean.
+   */
+  private static final String FIELD_USE_JVM_DEFAULT_TRUST_STORE =
+       "use-jvm-default-trust-store";
 
 
 
@@ -248,17 +260,18 @@ final class SecurityOptions
   SecurityOptions(final JSONObject connectionDetailsObject)
        throws LDAPException
   {
-    boolean useSSL         = false;
-    boolean useStartTLS    = false;
-    boolean trustAll       = false;
-    boolean trustExpired   = false;
-    boolean verifyAddress  = false;
-    String  certAlias      = null;
-    String  keyStoreFile   = null;
-    String  keyStorePIN    = null;
-    String  keyStoreType   = null;
+    boolean useSSL = false;
+    boolean useStartTLS = false;
+    boolean trustAll = false;
+    boolean trustExpired = false;
+    boolean useJVMDefaultTrustStore = false;
+    boolean verifyAddress = false;
+    String  certAlias = null;
+    String  keyStoreFile = null;
+    String  keyStorePIN = null;
+    String  keyStoreType = null;
     String  trustStoreFile = null;
-    String  trustStorePIN  = null;
+    String  trustStorePIN = null;
     String  trustStoreType = null;
 
     final JSONObject o = LDAPConnectionDetailsJSONSpecification.getObject(
@@ -280,6 +293,7 @@ final class SecurityOptions
            FIELD_TRUST_STORE_PIN,
            FIELD_TRUST_STORE_PIN_FILE,
            FIELD_TRUST_STORE_TYPE,
+           FIELD_USE_JVM_DEFAULT_TRUST_STORE,
            FIELD_VERIFY_ADDRESS);
 
       final String type = StaticUtils.toLowerCase(
@@ -326,7 +340,8 @@ final class SecurityOptions
              FIELD_TRUST_STORE_FILE,
              FIELD_TRUST_STORE_PIN,
              FIELD_TRUST_STORE_PIN_FILE,
-             FIELD_TRUST_STORE_TYPE);
+             FIELD_TRUST_STORE_TYPE,
+             FIELD_USE_JVM_DEFAULT_TRUST_STORE);
       }
       else
       {
@@ -373,6 +388,10 @@ final class SecurityOptions
                  FIELD_TRUST_STORE_PIN_FILE);
           }
         }
+
+        useJVMDefaultTrustStore =
+             LDAPConnectionDetailsJSONSpecification.getBoolean(o,
+                  FIELD_USE_JVM_DEFAULT_TRUST_STORE, false);
       }
 
       verifyAddress = LDAPConnectionDetailsJSONSpecification.getBoolean(o,
@@ -463,24 +482,45 @@ final class SecurityOptions
         {
           trustManager = new TrustAllTrustManager(! trustExpired);
         }
-        else if (trustStoreFile != null)
+        else
         {
-          final char[] trustStorePINArray;
-          if (trustStorePIN == null)
+          if (trustStoreFile == null)
           {
-            trustStorePINArray = null;
+            if (useJVMDefaultTrustStore)
+            {
+              trustManager = JVMDefaultTrustManager.getInstance();
+            }
+            else
+            {
+              trustManager = null;
+            }
           }
           else
           {
-            trustStorePINArray = trustStorePIN.toCharArray();
-          }
+            final char[] trustStorePINArray;
+            if (trustStorePIN == null)
+            {
+              trustStorePINArray = null;
+            }
+            else
+            {
+              trustStorePINArray = trustStorePIN.toCharArray();
+            }
 
-          trustManager = new TrustStoreTrustManager(trustStoreFile,
-               trustStorePINArray, trustStoreType, ! trustExpired);
-        }
-        else
-        {
-          trustManager = null;
+            final TrustStoreTrustManager trustStoreTrustManager =
+                 new TrustStoreTrustManager(trustStoreFile, trustStorePINArray,
+                      trustStoreType, ! trustExpired);
+            if (useJVMDefaultTrustStore)
+            {
+              trustManager = new AggregateTrustManager(false,
+                   trustStoreTrustManager,
+                   JVMDefaultTrustManager.getInstance());
+            }
+            else
+            {
+              trustManager = trustStoreTrustManager;
+            }
+          }
         }
       }
       catch (final Exception e)

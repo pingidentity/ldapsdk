@@ -153,7 +153,7 @@ public final class SecurityOptionsTestCase
 
   /**
    * Tests the behavior for the case in which the spec is configured to use SSL
-   * in a manner that trust all certificates.
+   * in a manner that trusts all certificates.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -172,6 +172,38 @@ public final class SecurityOptionsTestCase
               new JSONField("security-type", "SSL"),
               new JSONField("trust-all-certificates", true),
               new JSONField("trust-expired-certificates", true))));
+
+    final SecurityOptions securityOptions = new SecurityOptions(o);
+
+    assertFalse(securityOptions.verifyAddressInCertificate());
+
+    assertTrue(securityOptions.getSocketFactory() instanceof SSLSocketFactory);
+
+    assertNull(securityOptions.getPostConnectProcessor());
+  }
+
+
+
+  /**
+   * Tests the behavior for the case in which the spec is configured to use SSL
+   * in a manner that trust certificates signed by a JVM-default isseur.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSecurityTypeSSLJVMDefaultIssuer()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDSWithSSL();
+
+    final JSONObject o = new JSONObject(
+         new JSONField("server-details", new JSONObject(
+              new JSONField("single-server", new JSONObject(
+                   new JSONField("address", "localhost"),
+                   new JSONField("port", ds.getListenPort()))))),
+         new JSONField("communication-security", new JSONObject(
+              new JSONField("security-type", "SSL"),
+              new JSONField("use-jvm-default-trust-store", true))));
 
     final SecurityOptions securityOptions = new SecurityOptions(o);
 
@@ -396,6 +428,45 @@ public final class SecurityOptionsTestCase
       // An attempt to create a trust store may not fail if the trust store file
       // does not exist.
     }
+  }
+
+
+
+  /**
+   * Tests the behavior for the case in which the spec is configured to use SSL
+   * in a manner that uses both a trust store file and the JVM-default trust
+   * store.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSecurityTypeSSLTrustStoreFileAndJVMDefaultTrust()
+         throws Exception
+  {
+    final File resourceDir = new File(System.getProperty("unit.resource.dir"));
+    final File trustStore  = new File(resourceDir, "client.truststore");
+
+    final InMemoryDirectoryServer ds = getTestDSWithSSL();
+
+    final JSONObject o = new JSONObject(
+         new JSONField("server-details", new JSONObject(
+              new JSONField("single-server", new JSONObject(
+                   new JSONField("address", "localhost"),
+                   new JSONField("port", ds.getListenPort()))))),
+         new JSONField("communication-security", new JSONObject(
+              new JSONField("security-type", "SSL"),
+              new JSONField("use-jvm-default-trust-store", true),
+              new JSONField("trust-store-file", trustStore.getAbsolutePath()),
+              new JSONField("trust-store-type", "JKS"),
+              new JSONField("verify-address-in-certificate", true))));
+
+    final SecurityOptions securityOptions = new SecurityOptions(o);
+
+    assertTrue(securityOptions.verifyAddressInCertificate());
+
+    assertTrue(securityOptions.getSocketFactory() instanceof SSLSocketFactory);
+
+    assertNull(securityOptions.getPostConnectProcessor());
   }
 
 
@@ -745,6 +816,39 @@ public final class SecurityOptionsTestCase
 
   /**
    * Tests the behavior for the case in which the spec is configured to use
+   * StartTLS in a manner that trusts certificates signed by one of the JVM's
+   * default trusted issuers.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSecurityTypeStartTLSUseJVMDefaultTrustStore()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS();
+
+    final JSONObject o = new JSONObject(
+         new JSONField("server-details", new JSONObject(
+              new JSONField("single-server", new JSONObject(
+                   new JSONField("address", "localhost"),
+                   new JSONField("port", ds.getListenPort()))))),
+         new JSONField("communication-security", new JSONObject(
+              new JSONField("security-type", "StartTLS"),
+              new JSONField("use-jvm-default-trust-store", true))));
+
+    final SecurityOptions securityOptions = new SecurityOptions(o);
+
+    assertFalse(securityOptions.verifyAddressInCertificate());
+
+    assertFalse(securityOptions.getSocketFactory() instanceof SSLSocketFactory);
+
+    assertNotNull(securityOptions.getPostConnectProcessor());
+  }
+
+
+
+  /**
+   * Tests the behavior for the case in which the spec is configured to use
    * StartTLS in a manner that trust all certificates but also includes a trust
    * store path.
    *
@@ -955,6 +1059,45 @@ public final class SecurityOptionsTestCase
       // An attempt to create a trust store may not fail if the trust store file
       // does not exist.
     }
+  }
+
+
+
+  /**
+   * Tests the behavior for the case in which the spec is configured to use
+   * StartTLS in a manner that uses a trust store file and the JVM-default trust
+   * store.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSecurityTypeStartTLSTrustStoreFileAndJVMDefaultTrust()
+         throws Exception
+  {
+    final File resourceDir = new File(System.getProperty("unit.resource.dir"));
+    final File trustStore  = new File(resourceDir, "client.truststore");
+
+    final InMemoryDirectoryServer ds = getTestDS();
+
+    final JSONObject o = new JSONObject(
+         new JSONField("server-details", new JSONObject(
+              new JSONField("single-server", new JSONObject(
+                   new JSONField("address", "localhost"),
+                   new JSONField("port", ds.getListenPort()))))),
+         new JSONField("communication-security", new JSONObject(
+              new JSONField("security-type", "StartTLS"),
+              new JSONField("use-jvm-default-trust-store", true),
+              new JSONField("trust-store-file", trustStore.getAbsolutePath()),
+              new JSONField("trust-store-type", "JKS"),
+              new JSONField("verify-address-in-certificate", true))));
+
+    final SecurityOptions securityOptions = new SecurityOptions(o);
+
+    assertTrue(securityOptions.verifyAddressInCertificate());
+
+    assertFalse(securityOptions.getSocketFactory() instanceof SSLSocketFactory);
+
+    assertNotNull(securityOptions.getPostConnectProcessor());
   }
 
 
