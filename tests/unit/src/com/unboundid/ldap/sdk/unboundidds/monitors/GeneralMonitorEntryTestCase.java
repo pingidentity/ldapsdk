@@ -56,8 +56,12 @@ public class GeneralMonitorEntryTestCase
          "objectClass: extensibleObject",
          "cn: monitor",
          "productName: UnboundID Directory Server",
+         "clusterName: Test Cluster",
          "instanceName: server.example.com:389",
+         "locationName: Test Location",
+         "locationDN: cn=Test Location,cn=Locations,cn=config",
          "startTime: 20080101010101Z",
+         "serverUUID: 11111111-2222-3333-4444-555555555555",
          "startupID: abcdefg",
          "startupUUID: 12345678-1234-1234-1234-1234567890ab",
          "currentTime: 20080102020202Z",
@@ -88,10 +92,23 @@ public class GeneralMonitorEntryTestCase
     assertNotNull(me.getTotalConnections());
     assertEquals(me.getTotalConnections().longValue(), 789L);
 
+    assertNotNull(me.getClusterName());
+    assertEquals(me.getClusterName(), "Test Cluster");
+
     assertNotNull(me.getInstanceName());
     assertEquals(me.getInstanceName(), "server.example.com:389");
 
+    assertNotNull(me.getLocationName());
+    assertEquals(me.getLocationName(), "Test Location");
+
+    assertNotNull(me.getLocationDN());
+    assertDNsEqual(me.getLocationDN(),
+         "cn=Test Location,cn=Locations,cn=config");
+
     assertNotNull(me.getStartTime());
+
+    assertNotNull(me.getServerUUID());
+    assertEquals(me.getServerUUID(), "11111111-2222-3333-4444-555555555555");
 
     assertNotNull(me.getStartupID());
     assertEquals(me.getStartupID(), "abcdefg");
@@ -231,9 +248,17 @@ public class GeneralMonitorEntryTestCase
 
     assertNull(me.getTotalConnections());
 
+    assertNull(me.getClusterName());
+
     assertNull(me.getInstanceName());
 
+    assertNull(me.getLocationName());
+
+    assertNull(me.getLocationDN());
+
     assertNull(me.getStartTime());
+
+    assertNull(me.getServerUUID());
 
     assertNull(me.getStartupID());
 

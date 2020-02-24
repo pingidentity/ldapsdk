@@ -47,6 +47,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDAP SDK's support for parsing information in the Ping Identity
+                  Directory Server's general monitor entry to include support for the clusterName,
+                  locationName, locationDN, and serverUUID attributes.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue that prevented the LDAP SDK from properly decoding 384-bit
                   elliptic curve public keys in X.509 certificates.  This did not affect the
                   LDAP SDK's ability to use such certificates for TLS communication, but it

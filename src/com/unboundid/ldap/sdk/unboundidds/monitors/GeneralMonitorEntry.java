@@ -96,6 +96,14 @@ public final class GeneralMonitorEntry
 
 
   /**
+   * The name of the attribute that contains the name of the cluster in which
+   * the server is a member.
+   */
+  private static final String ATTR_CLUSTER_NAME = "clusterName";
+
+
+
+  /**
    * The name of the attribute that contains the number of connections currently
    * established to the server.
    */
@@ -128,6 +136,22 @@ public final class GeneralMonitorEntry
 
 
   /**
+   * The name of the attribute that contains the DN of the server's location
+   * config entry.
+   */
+  private static final String ATTR_LOCATION_DN = "locationDN";
+
+
+
+  /**
+   * The name of the attribute that contains the name of the server's location
+   * config entry.
+   */
+  private static final String ATTR_LOCATION_NAME = "locationName";
+
+
+
+  /**
    * The name of the attribute that contains the maximum number of concurrent
    * client connections established since startup.
    */
@@ -139,6 +163,14 @@ public final class GeneralMonitorEntry
    * The name of the attribute that contains the Directory Server product name.
    */
   private static final String ATTR_PRODUCT_NAME = "productName";
+
+
+
+  /**
+   * The name of the attribute that contains the UUID value that was generated
+   * when the server instance was initially created.
+   */
+  private static final String ATTR_SERVER_UUID = "serverUUID";
 
 
 
@@ -245,11 +277,24 @@ public final class GeneralMonitorEntry
   // The total number of connections that have been established since startup.
   private final Long totalConnections;
 
+  // The Directory Server cluster name.
+  private final String clusterName;
+
   // The Directory Server instance name.
   private final String instanceName;
 
+  // The DN of the Directory Server's location config entry.
+  private final String locationDN;
+
+  // The name of the Directory Server's location config entry.
+  private final String locationName;
+
   // The Directory Server product name.
   private final String productName;
+
+  // The UUID value that was generated when the server instance was initially
+  // created.
+  private final String serverUUID;
 
   // The Directory Server startup ID.
   private final String startupID;
@@ -283,7 +328,11 @@ public final class GeneralMonitorEntry
     maxConnections         = getLong(ATTR_MAX_CONNECTIONS);
     productName            = getString(ATTR_PRODUCT_NAME);
     startTime              = getDate(ATTR_START_TIME);
+    clusterName            = getString(ATTR_CLUSTER_NAME);
     instanceName           = getString(ATTR_INSTANCE_NAME);
+    locationDN             = getString(ATTR_LOCATION_DN);
+    locationName           = getString(ATTR_LOCATION_NAME);
+    serverUUID             = getString(ATTR_SERVER_UUID);
     startupID              = getString(ATTR_STARTUP_ID);
     startupUUID            = getString(ATTR_STARTUP_UUID);
     totalConnections       = getLong(ATTR_TOTAL_CONNECTIONS);
@@ -365,6 +414,19 @@ public final class GeneralMonitorEntry
 
 
   /**
+   * Retrieves the name of the cluster in which the server is a member.
+   *
+   * @return  The name of the cluster in which the server is a member, or
+   *          {@code null} if it was not included in the monitor entry.
+   */
+  public String getClusterName()
+  {
+    return clusterName;
+  }
+
+
+
+  /**
    * Retrieves the name assigned to the Directory Server instance.
    *
    * @return  The name assigned to the Directory Server instance, or
@@ -373,6 +435,51 @@ public final class GeneralMonitorEntry
   public String getInstanceName()
   {
     return instanceName;
+  }
+
+
+
+  /**
+   * Retrieves the name of the configuration entry that defines the server's
+   * location.
+   *
+   * @return  The name of the configuration entry that defines the server's
+   *          location, or {@code null} if it was not included in the monitor
+   *          entry.
+   */
+  public String getLocationName()
+  {
+    return locationName;
+  }
+
+
+
+  /**
+   * Retrieves the DN of the configuration entry that defines the server's
+   * location.
+   *
+   * @return  The DN of the configuration entry that defines the server's
+   *          location, or {@code null} if it was not included in the monitor
+   *          entry.
+   */
+  public String getLocationDN()
+  {
+    return locationDN;
+  }
+
+
+
+  /**
+   * Retrieves the UUID value that was generated when the server instance was
+   * initially created.
+   *
+   * @return  The UUID value that was generated when the server instance was
+   *          initially created, or {@code null} if it was not included in the
+   *          monitor entry.
+   */
+  public String getServerUUID()
+  {
+    return serverUUID;
   }
 
 
@@ -583,6 +690,15 @@ public final class GeneralMonitorEntry
            versionString);
     }
 
+    if (clusterName != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_CLUSTER_NAME,
+           INFO_GENERAL_DISPNAME_CLUSTER_NAME.get(),
+           INFO_GENERAL_DESC_CLUSTER_NAME.get(),
+           clusterName);
+    }
+
     if (instanceName != null)
     {
       addMonitorAttribute(attrs,
@@ -592,6 +708,24 @@ public final class GeneralMonitorEntry
            instanceName);
     }
 
+    if (locationName != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_LOCATION_NAME,
+           INFO_GENERAL_DISPNAME_LOCATION_NAME.get(),
+           INFO_GENERAL_DESC_LOCATION_NAME.get(),
+           locationName);
+    }
+
+    if (locationDN != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_LOCATION_DN,
+           INFO_GENERAL_DISPNAME_LOCATION_DN.get(),
+           INFO_GENERAL_DESC_LOCATION_DN.get(),
+           locationDN);
+    }
+
     if (startTime != null)
     {
       addMonitorAttribute(attrs,
@@ -599,6 +733,15 @@ public final class GeneralMonitorEntry
            INFO_GENERAL_DISPNAME_START_TIME.get(),
            INFO_GENERAL_DESC_START_TIME.get(),
            startTime);
+    }
+
+    if (serverUUID != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_SERVER_UUID,
+           INFO_GENERAL_DISPNAME_SERVER_UUID.get(),
+           INFO_GENERAL_DESC_SERVER_UUID.get(),
+           serverUUID);
     }
 
     if (startupID != null)
