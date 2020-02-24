@@ -237,8 +237,7 @@ public final class TrustStoreTrustManager
    * @throws  CertificateException  If the provided client certificate chain
    *                                should not be trusted.
    */
-  private synchronized X509TrustManager[] getTrustManagers(
-                                               final X509Certificate[] chain)
+  private X509TrustManager[] getTrustManagers(final X509Certificate[] chain)
           throws CertificateException
   {
     if (examineValidityDates)
@@ -270,10 +269,8 @@ public final class TrustStoreTrustManager
            ERR_TRUSTSTORE_UNSUPPORTED_FORMAT.get(trustStoreFormat), e);
     }
 
-    FileInputStream inputStream = null;
-    try
+    try (FileInputStream inputStream = new FileInputStream(f))
     {
-      inputStream = new FileInputStream(f);
       ks.load(inputStream, trustStorePIN);
     }
     catch (final Exception e)
@@ -284,20 +281,6 @@ public final class TrustStoreTrustManager
            ERR_TRUSTSTORE_CANNOT_LOAD.get(trustStoreFile, trustStoreFormat,
                 StaticUtils.getExceptionMessage(e)),
            e);
-    }
-    finally
-    {
-      if (inputStream != null)
-      {
-        try
-        {
-          inputStream.close();
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-        }
-      }
     }
 
     try
@@ -339,8 +322,8 @@ public final class TrustStoreTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public synchronized void checkClientTrusted(final X509Certificate[] chain,
-                                final String authType)
+  public void checkClientTrusted(final X509Certificate[] chain,
+                                 final String authType)
          throws CertificateException
   {
     for (final X509TrustManager m : getTrustManagers(chain))
@@ -363,8 +346,8 @@ public final class TrustStoreTrustManager
    *                                should not be trusted.
    */
   @Override()
-  public synchronized void checkServerTrusted(final X509Certificate[] chain,
-                                final String authType)
+  public void checkServerTrusted(final X509Certificate[] chain,
+                                 final String authType)
          throws CertificateException
   {
     for (final X509TrustManager m : getTrustManagers(chain))
@@ -382,7 +365,7 @@ public final class TrustStoreTrustManager
    * @return  The accepted issuer certificates for this trust manager.
    */
   @Override()
-  public synchronized X509Certificate[] getAcceptedIssuers()
+  public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;
   }
