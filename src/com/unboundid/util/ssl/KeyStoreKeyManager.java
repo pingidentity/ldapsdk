@@ -27,8 +27,13 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Enumeration;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.security.auth.x500.X500Principal;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
@@ -166,7 +171,90 @@ public final class KeyStoreKeyManager
                             final String certificateAlias)
          throws KeyStoreException
   {
-    super(getKeyManagers(keyStoreFile, keyStorePIN, keyStoreFormat),
+    this(keyStoreFile, keyStorePIN, keyStoreFormat, certificateAlias, false);
+  }
+
+
+
+  /**
+   * Creates a new instance of this key store key manager that provides the
+   * ability to retrieve certificates from the specified key store file.
+   *
+   * @param  keyStoreFile      The path to the key store file to use.  It must
+   *                           not be {@code null}.
+   * @param  keyStorePIN       The PIN to use to access the contents of the key
+   *                           store.  It may be {@code null} if no PIN is
+   *                           required.
+   * @param  keyStoreFormat    The format to use for the key store.  It may be
+   *                           {@code null} if the default format should be
+   *                           used.
+   * @param  certificateAlias  The nickname of the certificate that should be
+   *                           selected.  It may be {@code null} if any
+   *                           acceptable certificate found in the keystore may
+   *                           be used.
+   * @param  validateKeyStore  Indicates whether to validate that the provided
+   *                           key store is acceptable and can actually be used
+   *                           to obtain a valid certificate.  If a certificate
+   *                           alias was specified, then this will ensure that
+   *                           the key store contains a valid private key entry
+   *                           with that alias.  If no certificate alias was
+   *                           specified, then this will ensure that the key
+   *                           store contains at least one valid private key
+   *                           entry.
+   *
+   * @throws  KeyStoreException  If a problem occurs while initializing this key
+   *                             manager, or if validation fails.
+   */
+  public KeyStoreKeyManager(final File keyStoreFile, final char[] keyStorePIN,
+                            final String keyStoreFormat,
+                            final String certificateAlias,
+                            final boolean validateKeyStore)
+         throws KeyStoreException
+  {
+    this(keyStoreFile.getAbsolutePath(), keyStorePIN, keyStoreFormat,
+         certificateAlias, validateKeyStore);
+  }
+
+
+
+  /**
+   * Creates a new instance of this key store key manager that provides the
+   * ability to retrieve certificates from the specified key store file.
+   *
+   * @param  keyStoreFile      The path to the key store file to use.  It must
+   *                           not be {@code null}.
+   * @param  keyStorePIN       The PIN to use to access the contents of the key
+   *                           store.  It may be {@code null} if no PIN is
+   *                           required.
+   * @param  keyStoreFormat    The format to use for the key store.  It may be
+   *                           {@code null} if the default format should be
+   *                           used.
+   * @param  certificateAlias  The nickname of the certificate that should be
+   *                           selected.  It may be {@code null} if any
+   *                           acceptable certificate found in the keystore may
+   *                           be used.
+   * @param  validateKeyStore  Indicates whether to validate that the provided
+   *                           key store is acceptable and can actually be used
+   *                           to obtain a valid certificate.  If a certificate
+   *                           alias was specified, then this will ensure that
+   *                           the key store contains a valid private key entry
+   *                           with that alias.  If no certificate alias was
+   *                           specified, then this will ensure that the key
+   *                           store contains at least one valid private key
+   *                           entry.
+   *
+   * @throws  KeyStoreException  If a problem occurs while initializing this key
+   *                             manager, or if validation fails.
+   */
+  public KeyStoreKeyManager(final String keyStoreFile, final char[] keyStorePIN,
+                            final String keyStoreFormat,
+                            final String certificateAlias,
+                            final boolean validateKeyStore)
+         throws KeyStoreException
+  {
+    super(
+         getKeyManagers(keyStoreFile, keyStorePIN, keyStoreFormat,
+              certificateAlias, validateKeyStore),
           certificateAlias);
 
     this.keyStoreFile     = keyStoreFile;
@@ -194,15 +282,30 @@ public final class KeyStoreKeyManager
    * @param  keyStoreFormat    The format to use for the key store.  It may be
    *                           {@code null} if the default format should be
    *                           used.
+   * @param  certificateAlias  The nickname of the certificate that should be
+   *                           selected.  It may be {@code null} if any
+   *                           acceptable certificate found in the keystore may
+   *                           be used.
+   * @param  validateKeyStore  Indicates whether to validate that the provided
+   *                           key store is acceptable and can actually be used
+   *                           to obtain a valid certificate.  If a certificate
+   *                           alias was specified, then this will ensure that
+   *                           the key store contains a valid private key entry
+   *                           with that alias.  If no certificate alias was
+   *                           specified, then this will ensure that the key
+   *                           store contains at least one valid private key
+   *                           entry.
    *
    * @return  The set of key managers that will be wrapped by this key manager.
    *
    * @throws  KeyStoreException  If a problem occurs while initializing this key
-   *                             manager.
+   *                             manager, or if validation fails.
    */
   private static KeyManager[] getKeyManagers(final String keyStoreFile,
                                              final char[] keyStorePIN,
-                                             final String keyStoreFormat)
+                                             final String keyStoreFormat,
+                                             final String certificateAlias,
+                                             final boolean validateKeyStore)
           throws KeyStoreException
   {
     Validator.ensureNotNull(keyStoreFile);
@@ -249,6 +352,11 @@ public final class KeyStoreKeyManager
       }
     }
 
+    if (validateKeyStore)
+    {
+      validateKeyStore(ks, f, keyStorePIN, certificateAlias);
+    }
+
     try
     {
       final KeyManagerFactory factory = KeyManagerFactory.getInstance(
@@ -264,6 +372,175 @@ public final class KeyStoreKeyManager
            ERR_KEYSTORE_CANNOT_GET_KEY_MANAGERS.get(keyStoreFile,
                 keyStoreFormat, StaticUtils.getExceptionMessage(e)),
            e);
+    }
+  }
+
+
+
+  /**
+   * Validates that the provided key store has an appropriate private key entry
+   * in which all certificates in the chain are currently within the validity
+   * window.
+   *
+   * @param  keyStore          The key store to examine.  It must not be
+   *                           {@code null}.
+   * @param  keyStoreFile      The file that backs the key store.  It must not
+   *                           be {@code null}.
+   * @param  keyStorePIN       The PIN to use to access the contents of the key
+   *                           store.  It may be {@code null} if no PIN is
+   *                           required.
+   * @param  certificateAlias  The nickname of the certificate that should be
+   *                           selected.  It may be {@code null} if any
+   *                           acceptable certificate found in the keystore may
+   *                           be used.
+   *
+   * @throws  KeyStoreException  If a validation error was encountered.
+   */
+  private static void validateKeyStore(final KeyStore keyStore,
+                                       final File keyStoreFile,
+                                       final char[] keyStorePIN,
+                                       final String certificateAlias)
+          throws KeyStoreException
+  {
+    final KeyStore.ProtectionParameter protectionParameter;
+    if (keyStorePIN == null)
+    {
+      protectionParameter = null;
+    }
+    else
+    {
+      protectionParameter = new KeyStore.PasswordProtection(keyStorePIN);
+    }
+
+    try
+    {
+      if (certificateAlias == null)
+      {
+        final StringBuilder invalidMessages = new StringBuilder();
+        final Enumeration<String> aliases = keyStore.aliases();
+        while (aliases.hasMoreElements())
+        {
+          final String alias = aliases.nextElement();
+          if (! keyStore.isKeyEntry(alias))
+          {
+            continue;
+          }
+
+          try
+          {
+            final KeyStore.PrivateKeyEntry entry =
+                 (KeyStore.PrivateKeyEntry)
+                 keyStore.getEntry(alias, protectionParameter);
+            ensureAllCertificatesInChainAreValid(alias, entry);
+
+            // We found a private key entry in which all certificates in the
+            // chain are within their validity window, so we'll assume that
+            // it's acceptable.
+            return;
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            if (invalidMessages.length() > 0)
+            {
+              invalidMessages.append("  ");
+            }
+            invalidMessages.append(e.getMessage());
+          }
+        }
+
+        if ( invalidMessages.length() > 0)
+        {
+          // The key store has at least one private key entry, but none of
+          // them are currently valid.
+          throw new KeyStoreException(
+               ERR_KEYSTORE_NO_VALID_PRIVATE_KEY_ENTRIES.get(
+                    keyStoreFile.getAbsolutePath(),
+                    invalidMessages.toString()));
+        }
+        else
+        {
+          // The key store doesn't have any private key entries.
+          throw new KeyStoreException(ERR_KEYSTORE_NO_PRIVATE_KEY_ENTRIES.get(
+               keyStoreFile.getAbsolutePath()));
+        }
+      }
+      else
+      {
+        if (! keyStore.containsAlias(certificateAlias))
+        {
+          throw new KeyStoreException(ERR_KEYSTORE_NO_ENTRY_WITH_ALIAS.get(
+               keyStoreFile.getAbsolutePath(), certificateAlias));
+        }
+
+        if (! keyStore.isKeyEntry(certificateAlias))
+        {
+          throw new KeyStoreException(ERR_KEYSTORE_ENTRY_NOT_PRIVATE_KEY.get(
+               certificateAlias, keyStoreFile.getAbsolutePath()));
+        }
+
+        final KeyStore.PrivateKeyEntry entry =
+             (KeyStore.PrivateKeyEntry)
+             keyStore.getEntry(certificateAlias, protectionParameter);
+        ensureAllCertificatesInChainAreValid(certificateAlias, entry);
+      }
+    }
+    catch (final KeyStoreException e)
+    {
+      Debug.debugException(e);
+      throw e;
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new KeyStoreException(
+           ERR_KEYSTORE_CANNOT_VALIDATE.get(keyStoreFile.getAbsolutePath(),
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+  }
+
+
+
+  /**
+   * Ensures that all certificates in the provided private key entry's chain are
+   * currently within their validity window.
+   *
+   * @param  alias  The alias from which the entry was read.  It must not be
+   *                {@code null}.
+   * @param  entry  The private key entry to examine.  It must not be
+   *                {@code null}.
+   *
+   * @throws  KeyStoreException  If any certificate in the chain is expired or
+   *                             not yet valid.
+   */
+  private static void ensureAllCertificatesInChainAreValid(final String alias,
+                           final KeyStore.PrivateKeyEntry entry)
+          throws KeyStoreException
+  {
+    final Date currentTime = new Date();
+    for (final Certificate cert : entry.getCertificateChain())
+    {
+      if (cert instanceof X509Certificate)
+      {
+        final X509Certificate c = (X509Certificate) cert;
+        if (currentTime.before(c.getNotBefore()))
+        {
+          throw new KeyStoreException(
+               ERR_KEYSTORE_CERT_NOT_YET_VALID.get(alias,
+                    c.getSubjectX500Principal().getName(
+                         X500Principal.RFC2253),
+                    String.valueOf(c.getNotBefore())));
+        }
+        else if (currentTime.after(c.getNotAfter()))
+        {
+          throw new KeyStoreException(
+               ERR_KEYSTORE_CERT_EXPIRED.get(alias,
+                    c.getSubjectX500Principal().getName(
+                         X500Principal.RFC2253),
+                    String.valueOf(c.getNotAfter())));
+        }
+      }
     }
   }
 

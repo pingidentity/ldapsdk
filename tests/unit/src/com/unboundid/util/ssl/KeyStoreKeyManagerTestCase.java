@@ -22,14 +22,19 @@ package com.unboundid.util.ssl;
 
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.Socket;
 import java.security.KeyStoreException;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.LDAPSDKUsageException;
+import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ssl.cert.ManageCertificates;
 
 
 
@@ -390,5 +395,325 @@ public class KeyStoreKeyManagerTestCase
   {
     new KeyStoreKeyManager(getJKSKeyStorePath(), getJKSKeyStorePIN(), "invalid",
                            null);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to validate a key store under various
+   * conditions.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testValidateKeyStore()
+         throws Exception
+  {
+    final File keyStoreFile = createTempFile();
+    assertTrue(keyStoreFile.delete());
+
+    // Create a key store with a self-signed certificate.
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "generate-self-signed-certificate",
+              "--keystore", keyStoreFile.getAbsolutePath(),
+              "--keystore-password", "password",
+              "--keystore-type", "JKS",
+              "--alias", "server-cert",
+              "--subject-dn", "CN=ds.example.com,O=Example Corp,C=US"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Make sure that an attempt to create a key manager from the key store
+    // succeeds both with and without validation, both when and when not using
+    // a valid alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", null, false);
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", null, true);
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "server-cert", false);
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "server-cert", true);
+
+
+    // Make sure that an attempt using an invalid alias fails when requesting
+    // validation.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "invalid", false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", "invalid", true);
+      fail("Expected an exception when trying to validate a key store when " +
+           "using an invalid alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Export the certificate to a PEM file.
+    final File exportedCertificate = createTempFile();
+    assertTrue(exportedCertificate.delete());
+
+    out.reset();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "export-certificate",
+              "--keystore", keyStoreFile.getAbsolutePath(),
+              "--keystore-password", "password",
+              "--alias", "server-cert",
+              "--output-file", exportedCertificate.getAbsolutePath(),
+              "--output-format", "PEM"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Remove that self-signed certificate, leaving an empty key store.
+    out.reset();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "delete-certificate",
+              "--keystore", keyStoreFile.getAbsolutePath(),
+              "--keystore-password", "password",
+              "--alias", "server-cert",
+              "--no-prompt"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Verify that an attempt to create a key manager fails if validation is
+    // requested when not using an alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", null, false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", null, true);
+      fail("Expected an exception when trying to validate an empty key store " +
+           "when not using a alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Verify that an attempt to create a key manager from the key store
+    // fails if validation is requested when using an alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "server-cert", false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", "server-cert", true);
+      fail("Expected an exception when trying to validate an empty key store " +
+           "when using a alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Import the exported certificate into the key store.  Since we don't have
+    // a private key, this will create a trusted certificate entry rather than
+    // a private key entry.
+    out.reset();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "import-certificate",
+              "--keystore", keyStoreFile.getAbsolutePath(),
+              "--keystore-password", "password",
+              "--certificate-file", exportedCertificate.getAbsolutePath(),
+              "--alias", "server-cert",
+              "--no-prompt"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Verify that an attempt to create a key manager fails if validation is
+    // requested when not using an alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", null, false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", null, true);
+      fail("Expected an exception when trying to validate a key store with " +
+           "only a trusted certificate entry when not using an alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Verify that an attempt to create a key manager from the key store
+    // fails if validation is requested when using an alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "server-cert", false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", "server-cert", true);
+      fail("Expected an exception when trying to validate a key store with " +
+           "only a trusted certificate entry when using an alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Generate a self-signed certificate with a notBefore time that is in the
+    // future.
+    final long tomorrowMillis =
+         System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
+    final String tomorrowTimestamp =
+         StaticUtils.encodeGeneralizedTime(tomorrowMillis);
+
+    out.reset();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "generate-self-signed-certificate",
+              "--keystore", keyStoreFile.getAbsolutePath(),
+              "--keystore-password", "password",
+              "--keystore-type", "JKS",
+              "--alias", "cert-not-yet-valid",
+              "--subject-dn", "CN=ds.example.com,O=Example Corp,C=US",
+              "--validity-start-time", tomorrowTimestamp),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Verify that an attempt to create a key manager fails if validation is
+    // requested when not using an alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", null, false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", null, true);
+      fail("Expected an exception when trying to validate a key store with " +
+           "a not-yet-valid key entry when not using an alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Verify that an attempt to create a key manager from the key store
+    // fails if validation is requested when using an alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "cert-not-yet-valid", false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", "cert-not-yet-valid", true);
+      fail("Expected an exception when trying to validate a key store with " +
+           "a not-yet-valid key entry when using an alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Generate a self-signed certificate with a notAfter time that is in the
+    // past.
+    final long aYearAndADayAgoMillis =
+         System.currentTimeMillis() - TimeUnit.DAYS.toMillis(366);
+    final String aYearAndADayAgoTimestamp =
+         StaticUtils.encodeGeneralizedTime(aYearAndADayAgoMillis);
+
+    out.reset();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "generate-self-signed-certificate",
+              "--keystore", keyStoreFile.getAbsolutePath(),
+              "--keystore-password", "password",
+              "--keystore-type", "JKS",
+              "--alias", "cert-expired",
+              "--subject-dn", "CN=ds.example.com,O=Example Corp,C=US",
+              "--validity-start-time", aYearAndADayAgoTimestamp,
+              "--days-valid", "365"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Verify that an attempt to create a key manager fails if validation is
+    // requested when not using an alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", null, false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", null, true);
+      fail("Expected an exception when trying to validate a key store with " +
+           "an expired key entry when not using an alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Verify that an attempt to create a key manager from the key store
+    // fails if validation is requested when using an alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "cert-expired", false);
+
+    try
+    {
+      new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+           "password".toCharArray(), "JKS", "cert-expired", true);
+      fail("Expected an exception when trying to validate a key store with " +
+           "an expired key entry when using an alias.");
+    }
+    catch (final KeyStoreException e)
+    {
+      // This was expected.
+    }
+
+
+    // Add another valid self-signed certificate.
+    out.reset();
+    assertEquals(
+         ManageCertificates.main(null, out, out,
+              "generate-self-signed-certificate",
+              "--keystore", keyStoreFile.getAbsolutePath(),
+              "--keystore-password", "password",
+              "--keystore-type", "JKS",
+              "--alias", "valid",
+              "--subject-dn", "CN=ds.example.com,O=Example Corp,C=US"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+
+    // Make sure that an attempt to create a key manager from the key store
+    // succeeds both with and without validation, both when and when not using
+    // a valid alias.
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", null, false);
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", null, true);
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "valid", false);
+    new KeyStoreKeyManager(keyStoreFile.getAbsolutePath(),
+         "password".toCharArray(), "JKS", "valid", true);
   }
 }

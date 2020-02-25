@@ -24,9 +24,21 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Updated the LDAP SDK's support for defining the properties needed to create LDAP
-                  connections or connection pools to add an option to use the JVM-default trust
-                  store.  It may be used either on its own or in conjunction with a trust store
-                  file.
+                  connections or connection pools in a JSON file to add an option to use the
+                  JVM-default trust store.  It may be used either on its own or in conjunction
+                  with a trust store file.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the key store key manager to provide support for validating that the
+                  provided key store can actually be used.  If enabled and no alias is provided,
+                  this validation will ensure that the key store contains at least one private key
+                  entry in which all certificates in the chain are currently within their validity
+                  window.  If an alias is provided, then that alias must reference a private key
+                  entry in which all certificates in the chain are within their validity window.
+                  The LDAP command-line tool framework has been updated so that validation will be
+                  performed if the keyStorePath argument is provided.
                   <br><br>
                 </li>
 

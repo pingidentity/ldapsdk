@@ -952,7 +952,7 @@ final class CommandLineToolInteractiveModeProcessor
           try
           {
             keyManager = new KeyStoreKeyManager(keyStorePath, pinChars,
-                 keyStoreFormat, certificateNickname);
+                 keyStoreFormat, certificateNickname, true);
           }
           catch (final Exception e)
           {

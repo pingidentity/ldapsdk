@@ -167,7 +167,7 @@ public final class MultiServerLDAPCommandLineToolTestCase
          "--trustStorePath2", trustStoreFile2.getAbsolutePath(),
          "--trustStorePassword2", "password",
          "--trustStoreFormat2", "JKS",
-         "--certNickname2", "test",
+         "--certNickname2", "client-cert",
 
          "--hostname3", "ds3.example.com",
          "--port3", "3389",

@@ -1442,7 +1442,7 @@ public final class InMemoryDirectoryServerTool
       try
       {
         final KeyManager keyManager = new KeyStoreKeyManager(keyStorePath,
-             keyStorePIN, keyStoreType, null);
+             keyStorePIN, keyStoreType, null, true);
 
         final TrustManager trustManager;
         if (trustStorePathArgument.isPresent())

@@ -1283,7 +1283,7 @@ public abstract class LDAPCommandLineTool
         try
         {
           keyManager = new KeyStoreKeyManager(keyStorePath.getValue(), pw,
-               keyStoreFormat.getValue(), certificateNickname.getValue());
+               keyStoreFormat.getValue(), certificateNickname.getValue(), true);
         }
         catch (final Exception e)
         {

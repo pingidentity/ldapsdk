@@ -553,7 +553,7 @@ public final class LDAPDebugger
 
           sslUtil = new SSLUtil(
                new KeyStoreKeyManager(keyStoreInfo.getFirst(),
-                    keyStoreInfo.getSecond(), "JKS", null),
+                    keyStoreInfo.getSecond(), "JKS", null, true),
                new TrustAllTrustManager(false));
         }
         else

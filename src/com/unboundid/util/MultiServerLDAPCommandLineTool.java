@@ -773,7 +773,7 @@ public abstract class MultiServerLDAPCommandLineTool
           keyManager = new KeyStoreKeyManager(
                keyStorePath[serverIndex].getValue(), pw,
                keyStoreFormat[serverIndex].getValue(),
-               certificateNickname[serverIndex].getValue());
+               certificateNickname[serverIndex].getValue(), true);
         }
         catch (final Exception e)
         {
