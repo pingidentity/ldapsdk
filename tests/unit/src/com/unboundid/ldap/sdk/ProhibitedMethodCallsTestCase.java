@@ -3,6 +3,21 @@
  * All Rights Reserved.
  */
 /*
+ * Copyright 2019-2020 Ping Identity Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
  * Copyright (C) 2019-2020 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -57,7 +72,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4064, 4066, 4079, 4088, 4104));
+         "StaticUtils.java", StaticUtils.setOf(4079, 4081, 4094, 4103, 4119));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -102,7 +117,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4119, 4146, 4150, 4165, 4179));
+         "StaticUtils.java", StaticUtils.setOf(4134, 4161, 4165, 4180, 4194));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -147,7 +162,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4217, 4222));
+         "StaticUtils.java", StaticUtils.setOf(4232, 4237));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -192,7 +207,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4213, 4223, 4249, 4253));
+         "StaticUtils.java", StaticUtils.setOf(4228, 4238, 4264, 4268));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -237,7 +252,7 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "StaticUtils.java", StaticUtils.setOf(4275, 4279, 4303, 4307));
+         "StaticUtils.java", StaticUtils.setOf(4290, 4294, 4318, 4322));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));
@@ -283,8 +298,8 @@ public final class ProhibitedMethodCallsTestCase
          throws Exception
   {
     final Map<String,Set<Integer>> allowedExceptions = StaticUtils.mapOf(
-         "Debug.java", StaticUtils.setOf(76),
-         "StaticUtils.java", StaticUtils.setOf(4329, 4352));
+         "Debug.java", StaticUtils.setOf(91),
+         "StaticUtils.java", StaticUtils.setOf(4344, 4367));
 
     final Map<Integer,String> unwrappedLines =
          unwrapSourceLines(readFileLines(f));

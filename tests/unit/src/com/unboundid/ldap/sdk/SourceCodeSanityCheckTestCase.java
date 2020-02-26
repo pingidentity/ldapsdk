@@ -3,6 +3,21 @@
  * All Rights Reserved.
  */
 /*
+ * Copyright 2017-2020 Ping Identity Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
  * Copyright (C) 2017-2020 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -206,41 +221,68 @@ public final class SourceCodeSanityCheckTestCase
          hasHeaderLine(f, fileLines, errorMessages, 2,
               " * All Rights Reserved.") &&
          hasHeaderLine(f, fileLines, errorMessages, 3, " */") &&
+
          hasHeaderLine(f, fileLines, errorMessages, 4, "/*") &&
-         hasHeaderLine(f, fileLines, errorMessages, 5, " * Copyright (C) ",
+         hasHeaderLine(f, fileLines, errorMessages, 5, " * Copyright ",
               YEAR + " Ping Identity Corporation") &&
          hasHeaderLine(f, fileLines, errorMessages, 6, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 7,
+         hasHeaderLine(f, fileLines, errorMessages, 7, " * Licensed under " +
+              "the Apache License, Version 2.0 (the \"License\");") &&
+         hasHeaderLine(f, fileLines, errorMessages, 8, " * you may not use " +
+              "this file except in compliance with the License.") &&
+         hasHeaderLine(f, fileLines, errorMessages, 9, " * You may obtain a " +
+              "copy of the License at") &&
+         hasHeaderLine(f, fileLines, errorMessages, 10, " *") &&
+         hasHeaderLine(f, fileLines, errorMessages, 11, " *    " +
+              "http://www.apache.org/licenses/LICENSE-2.0") &&
+         hasHeaderLine(f, fileLines, errorMessages, 12, " *") &&
+         hasHeaderLine(f, fileLines, errorMessages, 13, " * Unless " +
+              "required by applicable law or agreed to in writing, software") &&
+         hasHeaderLine(f, fileLines, errorMessages, 14, " * distributed " +
+              "under the License is distributed on an \"AS IS\" BASIS,") &&
+         hasHeaderLine(f, fileLines, errorMessages, 15, " * WITHOUT " +
+              "WARRANTIES OR CONDITIONS OF ANY KIND, either express or " +
+              "implied.") &&
+         hasHeaderLine(f, fileLines, errorMessages, 16, " * See the License " +
+              "for the specific language governing permissions and") &&
+         hasHeaderLine(f, fileLines, errorMessages, 17, " * limitations " +
+              "under the License.") &&
+         hasHeaderLine(f, fileLines, errorMessages, 18, " */") &&
+         hasHeaderLine(f, fileLines, errorMessages, 19, "/*") &&
+         hasHeaderLine(f, fileLines, errorMessages, 20, " * Copyright (C) ",
+              YEAR + " Ping Identity Corporation") &&
+         hasHeaderLine(f, fileLines, errorMessages, 21, " *") &&
+         hasHeaderLine(f, fileLines, errorMessages, 22,
               " * This program is free software; you can redistribute it " +
                    "and/or modify") &&
-         hasHeaderLine(f, fileLines, errorMessages, 8,
+         hasHeaderLine(f, fileLines, errorMessages, 23,
               " * it under the terms of the GNU General Public License " +
                    "(GPLv2 only)") &&
-         hasHeaderLine(f, fileLines, errorMessages, 9,
+         hasHeaderLine(f, fileLines, errorMessages, 24,
               " * or the terms of the GNU Lesser General Public License " +
                    "(LGPLv2.1 only)") &&
-         hasHeaderLine(f, fileLines, errorMessages, 10,
+         hasHeaderLine(f, fileLines, errorMessages, 25,
               " * as published by the Free Software Foundation.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 11, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 12,
+         hasHeaderLine(f, fileLines, errorMessages, 26, " *") &&
+         hasHeaderLine(f, fileLines, errorMessages, 27,
               " * This program is distributed in the hope that it will be " +
                    "useful,") &&
-         hasHeaderLine(f, fileLines, errorMessages, 13,
+         hasHeaderLine(f, fileLines, errorMessages, 28,
               " * but WITHOUT ANY WARRANTY; without even the implied " +
                    "warranty of") &&
-         hasHeaderLine(f, fileLines, errorMessages, 14,
+         hasHeaderLine(f, fileLines, errorMessages, 29,
               " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See " +
                    "the") &&
-         hasHeaderLine(f, fileLines, errorMessages, 15,
+         hasHeaderLine(f, fileLines, errorMessages, 30,
               " * GNU General Public License for more details.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 16, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 17,
+         hasHeaderLine(f, fileLines, errorMessages, 31, " *") &&
+         hasHeaderLine(f, fileLines, errorMessages, 32,
               " * You should have received a copy of the GNU General Public " +
                    "License") &&
-         hasHeaderLine(f, fileLines, errorMessages, 18,
+         hasHeaderLine(f, fileLines, errorMessages, 33,
               " * along with this program; if not, see " +
                    "<http://www.gnu.org/licenses>.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 19, " */");
+         hasHeaderLine(f, fileLines, errorMessages, 34, " */");
   }
 
 

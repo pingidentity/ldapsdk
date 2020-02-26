@@ -295,11 +295,10 @@ ${TARGET="offline"}                <br>
 
               <p>
                 Yes.  The UnboundID LDAP SDK is completely free to use and redistribute by itself
-                or under the terms of the <a href="LICENSE-GPLv2.txt">GPLv2</a>, the
+                or in a larger work under the terms of the <a href="LICENSE.txt">Apache License,
+              Version 2.0</a>, the <a href="LICENSE-GPLv2.txt">GPLv2</a>, the
                 <a href="LICENSE-LGPLv2.1.txt">LGPLv2.1</a>, or the
                 <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>.
-                Commercial support and indemnification are available for a fee, but are not
-                required to be able to use the SDK.
               </p>
 
               <hr>
@@ -324,7 +323,9 @@ ${TARGET="offline"}                <br>
               <h3>What license does the LDAP SDK use?</h3>
 
               <p>
-                The UnboundID LDAP SDK for Java is available under three licenses:  the
+                The UnboundID LDAP SDK for Java is available under the terms of the OSI-approved,
+                open source, and very permissive <a href="LICENSE.txt">Apache License, Verison
+                2.0</a>.  For legacy purposes, it is also available under the terms of the
                 <a href="LICENSE-GPLv2.txt">GNU General Public License version 2 (GPLv2)</a>, the
                 <a href="LICENSE-LGPLv2.1.txt">GNU Lesser General Public License version 2.1 (LGPLv2.1)</a>,
                 and the <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>.
@@ -338,40 +339,43 @@ ${TARGET="offline"}                <br>
 
               <p>
                 We want to make it as easy and painless as possible to use the UnboundID LDAP SDK,
-                so we have three licenses that should cover a broad range of possible use cases.
+                so we have chosen licenses that should cover as broad a range of possible use
+                cases as possible.
              </p>
 
               <p>
-                The <a href="LICENSE-GPLv2.txt">GPLv2</a> is a popular OSI-approved open source
-                license, and if your application is licensed under GPLv2 or a compatible license,
-                then you should choose this license.
+                As of the 5.0.0 release, the LDAP SDK is available under the terms of the
+                <a href="LICENSE.txt">Apache License, Version 2.0</a>.  This is a very permissive
+                OSI-approved open source license that should be suitable for just about any
+                use case.  We strongly recommend that all new users of the LDAP SDK choose this
+                license.
+             </p>
+
+              <p>
+                Prior to the 5.0.0 release, the LDAP SDK was available under a couple of other
+                open source licenses, including <a href="LICENSE-GPLv2.txt">GPLv2</a> and
+                <a href="LICENSE-LGPLv2.1.txt">LGPLv2.1</a>.  The GPLv2 license may be a good
+                choice if you're using the LDAP SDK in an application that is itself licensed
+                under the terms of the GPLv2 or a compatible license, but compatibility issues
+                mean that it's not a very good choice for software under other licenses.
+                The LGPLv2.1 is much more permissive than the GPLv2, but not quite as permissive
+                as the Apache License.
               </p>
 
               <p>
-                The <a href="LICENSE-LGPLv2.1.txt">LGPLv2.1</a> is similar to the GPLv2, but it is
-                designed to be compatible with a wider range of licenses, including those for
-                proprietary or closed-source applications.  If you wish to use the LDAP SDK under
-                an OSI-approved open source license but your license is not compatible with the
-                terms of the GPLv2, then you should choose this license.
+                The LDAP SDK is also available under the terms of the
+                <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>.
+                This is not an open source license, but it was designed to be compatible with a
+                very broad range of applications (as long as you don't need to alter the LDAP SDK
+                itself).  However, given that this is a non-standard license, and given that the
+                Apache License should be much more friendly for just about all desired use cases,
+                we recommend using the Apache License over the UnboundID LDAP SDK Free Use License
+                unless you're already using the LDAP SDK under those terms.
               </p>
 
               <p>
-                The <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>
-                is not an OSI-approved open source license, but has been designed to be compatible
-                with a very broad range of applications.  If you wish to use the LDAP SDK with a
-                license that is not open source and has fewer requirements than the GPLv2 or
-                LGPLv2.1, then you should choose this license.  Note that you may not distribute a
-                modified version of the LDAP SDK under the terms of this license, although you may
-                create your own classes which extend classes or implement interfaces defined in
-                the LDAP SDK that have been marked with the "<tt>@Extensible</tt>" annotation
-                type.
-              </p>
-
-              <p>
-                If you do not believe that any of these licenses are suitable for your
-                application, then send an e-mail message to
-                <a HREF="mailto:ldapsdk-support@pingidentity.com">ldapsdk-support@pingidentity.com</a>
-                to inquire about other options.
+                If you have licensed Ping Identity server products that include the LDAP SDK, then
+                you may also use the LDAP SDK under the terms of that license agreement.
               </p>
 
               <hr>
@@ -415,9 +419,9 @@ ${TARGET="offline"}                <br>
               <p>
                 Yes.  There are no restrictions on the use of the LDAP SDK in an application that
                 is for internal use only and will not be redistributed outside of your
-                organization.  If you later decide to redistribute the application, then you may
-                only do so under the terms of the GPLv2, LGPLv2.1, or the UnboundID LDAP SDK Free
-                Use License.
+                organization.  If you do redistribute the LDAP SDK itself or an application that
+                uses the LDAP SDK, then you need to comply with the terms of the license that you
+                have selected.
               </p>
 
               <hr>
@@ -440,33 +444,41 @@ ${TARGET="offline"}                <br>
               <h3>How can I ask questions, report bugs, or provide feedback?</h3>
 
               <p>
-                The following options are available for submitting questions, comments, bug
-                reports, feature requests, or any other feedback for the LDAP SDK:
+                If you have questions, comments, problem reports, or any other feedback regarding
+                the LDAP SDK, then you may provide it using one of the following options:
               </p>
 
               <ul>
                 <li>
-                  Use the <a href="https://sourceforge.net/p/ldap-sdk/discussion/1001257/">online
-                  discussion forum</a>
+                  For bug reports and feature requests, please use the GitHub issue tracker at
+                  <a href="https://github.com/pingidentity/ldapsdk/issues">https://github.com/pingidentity/ldapsdk/issues</a>.
+                  <br><br>
                 </li>
 
                 <li>
-                  Join the
-                  <a href="http://sourceforge.net/mail/?group_id=275998">ldap-sdk-discuss@lists.sourceforge.net</a>
-                  mailing list and participate there.
+                  For questions, feedback, and other discussions, use the online discussion forum at
+                  <a href="http://sourceforge.net/p/ldap-sdk/discussion/">http://sourceforge.net/p/ldap-sdk/discussion/</a>
+                  or the <a href="mailto:ldap-sdk-discuss@lists.sourceforge.net">ldap-sdk-discuss@lists.sourceforge.net</a>
+                  mailing list.  See
+                  <a href="https://sourceforge.net/p/ldap-sdk/mailman/ldap-sdk-discuss/">https://sourceforge.net/p/ldap-sdk/mailman/ldap-sdk-discuss/</a>
+                  for more information about this mailing list, including an archive and
+                  information about how to subscribe.
+                  <br><br>
                 </li>
 
                 <li>
-                  Purchase a support contract for the LDAP SDK.  See the
-                  <a href="${LDAP_SDK_HOME_URL}">LDAP SDK home page</a> for
-                  more information
+                  If you'd rather not have the communication in public, send an email message to
+                  <a href="mailto:ldapsdk-support@pingidentity.com">ldapsdk-support@pingidentity.com</a>.
+                  <br><br>
+                </li>
+
+                <li>
+                  If you have a support contract for Ping Identity server products, then you may
+                  get assistance with the LDAP SDK through the same avenue used to obtain support
+                  for those server products.
+                  <br><br>
                 </li>
               </ul>
-
-              <p>
-                Assistance will be on a best-effort basis, and priority will be given to customers
-                with commercial support contracts.
-              </p>
 
               <hr>
 

@@ -3,13 +3,18 @@ UnboundID LDAP SDK for Java
 The UnboundID LDAP SDK for Java is a fast, powerful, user-friendly, and
 completely free Java library for communicating with LDAP directory servers. It
 offers better performance, better ease of use, and more features than other
-Java-based LDAP APIs. It is actively being developed and enhanced, and
-commercial support is available.
+Java-based LDAP APIs. It is developed by Ping Identity Corporation is actively
+being maintained and enhanced as a critical component of Ping Identity client
+and server software.
 
 The UnboundID LDAP SDK for Java is free to use and redistribute in open source
-or proprietary applications under the terms of any of the open source GPLv2 or
+or proprietary applications under the terms of the Apache License, Version 2.0,
+which is a very permissive OSI-approved open source license.  For legacy
+purposes, the software is also available under the terms of the GNU GPLv2 or
 LGPLv2.1 licenses, or the not-open-source-but-still-free-to-use UnboundID Free
-Use License. It does not have any third-party dependencies beyond a Java 7 or
+Use License.
+
+The LDAP SDK does not have any third-party dependencies beyond a Java 7 or
 higher Java Runtime Environment, so a single jar file is all you need to add
 top-notch LDAP support to your Java application. It can also be used in
 conjunction with most other JVM-based languages, as well as on the Android
@@ -69,8 +74,6 @@ Some of the key advantages of the UnboundID LDAP SDK for Java include:
 
 * The LDAP SDK is provided as a single self-contained jar file with no
   dependencies on anything outside of Java SE version 7 or later.
-
-* Commercial Support is available from Ping Identity.
 
 
 

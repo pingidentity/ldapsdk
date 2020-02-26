@@ -3,6 +3,21 @@
  * All Rights Reserved.
  */
 /*
+ * Copyright 2008-2020 Ping Identity Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
  * Copyright (C) 2008-2020 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -258,7 +273,7 @@ public class SanityCheck
 
 
       // Make sure that the examples directory exists and that all files
-      // contained it it have the GPLv2/LGPLv2.1license header.
+      // contained it it have the Apache and GPLv2/LGPLv2.1license headers.
       final File examplesDir = new File(docsDir, "examples");
       if (! examplesDir.exists())
       {
@@ -270,6 +285,7 @@ public class SanityCheck
       {
         if (f.getName().endsWith(".java"))
         {
+          ensureFileContains(f, "Apache License, Version 2.0");
           ensureFileContains(f, "GNU General Public License (GPLv2 only)");
           ensureFileContains(f,
                "GNU Lesser General Public License (LGPLv2.1 only)");
@@ -277,14 +293,14 @@ public class SanityCheck
       }
 
 
-      // Make sure that a src.zip file exists, that it only contains files which
+      // Make sure that a src.zip file exists, that it only contains files that
       // are supposed to be part of the release, and that all of those files
-      // contain the GPLv2/LGPLv2.1 license header.
+      // contain the Apache and GPLv2/LGPLv2.1 license headers.
       final File srcZipFile = new File(baseDir, "src.zip");
       if (! srcZipFile.exists())
       {
         throw new BuildException("ERROR:  Could not find src.zip file " +
-                                 srcZipFile.getAbsolutePath());
+             srcZipFile.getAbsolutePath());
       }
 
       validateSrcZipFile(srcZipFile);
@@ -461,9 +477,9 @@ public class SanityCheck
   /**
    * Validates the contents of the src.zip file to ensure that it doesn't
    * contain anything that isn't supposed to be there, that all of the files
-   * that it does contain have the GPLv2/LGPLv2.1 license header, and that none
-   * of those files import any content from an UnboundID package that isn't
-   * contained in an expected package.
+   * that it does contain the Apache and GPLv2/LGPLv2.1 license headers, and
+   * that none of those files import any content from an UnboundID package that
+   * isn't contained in an expected package.
    *
    * @param  srcZipFile  The src.zip file to be examined.
    *
@@ -511,12 +527,18 @@ public class SanityCheck
                  new InputStreamReader(zipFile.getInputStream(zipEntry)));
             try
             {
+              boolean apacheHeaderFound = false;
               boolean gplHeaderFound = false;
               boolean lgplHeaderFound = false;
               String line = reader.readLine();
               while (line != null)
               {
-                if (line.contains("GNU General Public License (GPLv2 only)"))
+                if (line.contains("Apache License, Version 2.0"))
+                {
+                  apacheHeaderFound = true;
+                }
+                else if (line.contains(
+                     "GNU General Public License (GPLv2 only)"))
                 {
                   gplHeaderFound = true;
                 }
@@ -531,6 +553,12 @@ public class SanityCheck
                 }
 
                 line = reader.readLine();
+              }
+
+              if (! apacheHeaderFound)
+              {
+                throw new BuildException("ERROR:  src.zip file " +
+                     zipEntry.getName() + " is missing Apache License header.");
               }
 
               if (! gplHeaderFound)
@@ -556,8 +584,7 @@ public class SanityCheck
     catch (final IOException ioe)
     {
       throw new BuildException("ERROR:  I/O error encountered while reading " +
-                               "src.zip file " + srcZipFile.getAbsolutePath() +
-                               ":  " + ioe);
+           "src.zip file " + srcZipFile.getAbsolutePath() + ":  " + ioe);
     }
     finally
     {

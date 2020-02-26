@@ -3,6 +3,21 @@
  * All Rights Reserved.
  */
 /*
+ * Copyright 2008-2020 Ping Identity Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
  * Copyright (C) 2008-2020 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
@@ -199,6 +214,27 @@ public class GenerateMessages
         w("/*");
         w(" * Copyright ", year, " Ping Identity Corporation");
         w(" * All Rights Reserved.");
+        w(" */");
+        w("/*");
+        w(" * Copyright 2020 Ping Identity Corporation");
+        w(" *");
+        w(" * Licensed under the Apache License, Version 2.0 (the " +
+             "\"License\");");
+        w(" * you may not use this file except in compliance with the " +
+             "License.");
+        w(" * You may obtain a copy of the License at");
+        w(" *");
+        w(" *    http://www.apache.org/licenses/LICENSE-2.0");
+        w(" *");
+        w(" * Unless required by applicable law or agreed to in writing, " +
+             "software");
+        w(" * distributed under the License is distributed on an \"AS IS\" " +
+             "BASIS,");
+        w(" * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express " +
+             "or implied.");
+        w(" * See the License for the specific language governing " +
+             "permissions and");
+        w(" * limitations under the License.");
         w(" */");
         w("/*");
         w(" * Copyright (C) ", year, " Ping Identity Corporation");
