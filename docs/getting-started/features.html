@@ -21,7 +21,8 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
 
                 <li>
                   Support for encrypted communication via SSL/TLS, as well as the StartTLS
-                  extended operation
+                  extended operation.  SASL integrity and confidentiality are supported for the
+                  DIGEST-MD5 and GSSAPI mechanisms.
                 </li>
 
                 <li>
@@ -41,7 +42,7 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
                 </li>
 
                 <li>
-                  Support for parsing changelog entries
+                  Support for parsing  entries
                 </li>
 
                 <li>
@@ -65,7 +66,7 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
                 </li>
               </ul>
 
-              <b>Supported SASL Mechanisms</b>
+              <b>Supported Standard SASL Mechanisms</b>
               <ul>
                 <li>ANONYMOUS (RFC 4505)</li>
                 <li>CRAM-MD5 (draft-ietf-sasl-crammd5)</li>
@@ -73,6 +74,9 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
                 <li>EXTERNAL (RFC 4422)</li>
                 <li>GSSAPI (RFC 4752)</li>
                 <li>PLAIN (RFC 4616)</li>
+                <li>SCRAM-SHA-1 (RFC 5802)</li>
+                <li>SCRAM-SHA-256 (RFC 7677)</li>
+                <li>SCRAM-SHA-512</li>
               </ul>
 
               <b>Supported Standard Controls</b>
@@ -81,12 +85,15 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
                 <li>LDAP Assertions (RFC 4528)</li>
                 <li>LDAP Content Synchronization (RFC 4533)</li>
                 <li>LDAP Don't Use Copy (RFC 6171)</li>
+                <li>LDAP No-Op (draft-zeilenga-ldap-noop)</li>
                 <li>LDAP Subentries (draft-ietf-ldup-subentry)</li>
                 <li>ManageDsaIT (RFC 3296)</li>
                 <li>Matched Values (RFC 3876)</li>
                 <li>Password Expired (draft-vchu-ldap-pwd-policy)</li>
                 <li>Password Expiring (draft-vchu-ldap-pwd-policy)</li>
-                <li>Persistent Search and Entry Change Notification (draft-ietf-ldapext-psearch)</li>
+                <li>Password Policy (draft-behera-ldap-password-policy)</li>
+                <li>Persistent Search and Entry Change Notification
+                  (draft-ietf-ldapext-psearch)</li>
                 <li>Pre-Read and Post-Read (RFC 4527)</li>
                 <li>Proxied Authorization V1 (draft-weltman-ldapv3-proxy)</li>
                 <li>Proxied Authorization V2 (RFC 4370)</li>
@@ -110,12 +117,132 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
 
               <b>Additional Server-Independent Features</b>
               <ul>
-                <li>LDIF processing:  reading and writing entries and change records in LDIF form</li>
-               <li>ASN.1 BER processing:  Boolean, enumerated, integer, null, octet string, sequence, set, and general ASN.1 elements</li>
-               <li>Base64 encoding and decoding</li>
-               <li>Command-line argument parsing</li>
+                <li>LDAP persistence framework for interacting with LDAP entries as Java
+                    objects</li>
+                <li>LDIF processing:  reading and writing entries and change records in LDIF
+                    form, LDIF transformations</li>
+               <li>ASN.1 BER processing:  Boolean, enumerated, generalized time, IA5 string,
+                   integer, null, numeric string, object identifier, octet string, printable
+                   string, sequence, set, UTC time, UTF-8 string, and general ASN.1 elements</li>
+               <li>Base32, Base64, and Base64URL encoding and decoding</li>
+               <li>Command-line argument parsing and command-line tool framework</li>
+               <li>Numerous LDAP-related command-line tools, including ldapsearch, ldapmodify,
+                   ldapcompare, searchrate, modrate, authrate, search-and-mod-rate, ldap-debugger,
+                   identify-references-to-missing-entries, identify-unique-attribute-conflicts,
+                   indent-ldap-filter, base64, manage-certifiates, move-subtree, split-ldif,
+                   transform-ldif, and validate-ldif</li>
                <li>Client-side entry sorting</li>
+               <li>Client-side subtree deletes</li>
                <li>Client-side filter evaluation</li>
                <li>Localization support</li>
                <li>Debugging support</li>
+               <li>Simplified TLS support</li>
+               <li>X.509 certificate management</li>
+               <li>LDAP-related unit testing support</li>
+               <li>LDAP listener support, including an n-memory directory server</li>
+               <li>Rate-limiting support</li>
+               <li>JSON support</li>
              </ul>
+
+              <p></p>
+              <h3>Enhanced Functionality for the Ping Identity Directory Server</h3>
+
+              <b>Additional SASL Mechanisms</b>
+              <ul>
+                <li>UNBOUNDID-CERTIFICATE-PLUS-PASSWORD</li>
+                <li>UNBOUNDID-DELIVERED-OTP</li>
+                <li>UNBOUNDID-TOTP</li>
+                <li>UNBOUNDID-YUBIKEY-OTP</li>
+              </ul>
+
+              <b>Additional Controls</b>
+              <ul>
+                <li>Account Usable</li>
+                <li>Administrative Operation</li>
+                <li>Assured Replication</li>
+                <li>Exclude Branch</li>
+                <li>Extended Schema Info</li>
+                <li>Generate Password</li>
+                <li>Get Authorization Entry</li>
+                <li>Get Backend Set ID</li>
+                <li>Get Effective Rights</li>
+                <li>Get Password Policy State Issues</li>
+                <li>Get Server ID</li>
+                <li>Get User Resource Limits</li>
+                <li>Hard Delete</li>
+                <li>Ignore NO-USER-MODIFICATION</li>
+                <li>Intermediate Client</li>
+                <li>LDAP Join</li>
+                <li>Matching Entry Count</li>
+                <li>Name With entryUUID</li>
+                <li>Operation Purpose</li>
+                <li>Password Update Behavior</li>
+                <li>Password Validation Details</li>
+                <li>Permit Unindexed Search</li>
+                <li>Purge Password</li>
+                <li>Real Attributes Only</li>
+                <li>Reject Unindexed Search</li>
+                <li>Replication Repair</li>
+                <li>Retain Identity</li>
+                <li>Retire Password</li>
+                <li>Return Conflict Entries</li>
+                <li>Route To Backend Set</li>
+                <li>Route To Server</li>
+                <li>Soft Delete</li>
+                <li>Soft Deleted Entry Access</li>
+                <li>Suppress Operational Attribute Update</li>
+                <li>Suppress Referential Integrity Updates</li>
+                <li>Transaction Settings</li>
+                <li>Undelete</li>
+                <li>Uniqueness</li>
+                <li>Virtual Attributes Only</li>
+              </ul>
+
+              <b>Additional Extended Operations</b>
+              <ul>
+                <li>Clear Missed Notification Changes Alarm</li>
+                <li>Collect Support Data</li>
+                <li>Consume Single-Use Token</li>
+                <li>Delete Notification Destination</li>
+                <li>Delete Notification Subscription</li>
+                <li>Deliver One-Time Password</li>
+                <li>Deliver Password Reset Token</li>
+                <li>Deliver Single-Use Toekn</li>
+                <li>Deregister YubiKey OTP Device</li>
+                <li>End Administrative Session</li>
+                <li>Generate Password</li>
+                <li>Generate TOTP Shared Secret</li>
+                <li>Get Backup Compatibility Descriptor</li>
+                <li>Get Changelog Batch</li>
+                <li>Get Configuration</li>
+                <li>Get Connection ID</li>
+                <li>Get Password Quality Requirements</li>
+                <li>Get Subtree Accessibility</li>
+                <li>Get Supported OTP Delivery Mechanisms</li>
+                <li>Identify Backup Compatibility Problems</li>
+                <li>List Configurations</li>
+                <li>List Notification Subscriptions</li>
+                <li>Multi-Update</li>
+                <li>Password Policy State</li>
+                <li>Register YubiKey OTP Device</li>
+                <li>Revoke TOTP Shared Secret</li>
+                <li>Set Notification Destination</li>
+                <li>Set Notification Subscription</li>
+                <li>Set Subtree Accessibility</li>
+                <li>Start Administrative Session</li>
+                <li>Stream Directory Values</li>
+                <li>Stream Proxy Values</li>
+                <li>Validate TOTP Password</li>
+              </ul>
+
+              <b>Additional Ping Identity-Proprietary Features</b>
+              <ul>
+                <li>Interacting with administrative alerts and alarms</li>
+                <li>Enhanced changelog entry support</li>
+                <li>Enhanced root DSE support</li>
+                <li>Soft-deleted entry support</li>
+                <li>JSON object filter support</li>
+                <li>Log parsing support</li>
+                <li>Monitor entry support</li>
+                <li>Administrative task support</li>
+              </ul>

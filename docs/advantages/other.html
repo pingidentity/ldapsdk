@@ -232,48 +232,80 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
-                  <tt>LDAPCompare</tt> -- Provides a tool that demonstrates the process for
-                  performing LDAP compare operations.  It also demonstrates the command-line
-                  argument parsing and LDAP command-line tool APIs.
+                  <tt>ldapsearch</tt> -- A tool for performing LDAP search operations.  It is also
+                  useful for diagnosing problems related to establishing and authenticating
+                  connections.
                   <br><br>
                 </li>
 
                 <li>
-                  <tt>LDAPModify</tt> -- Provides a tool that demonstrates the process for reading
-                  changes from LDIF and processing them as add, delete, modify, or modify DN
-                  operations.  It also demonstrates the command-line argument parsing and LDAP
-                  command-line tool APIs.
+                  <tt>ldapmodify</tt> -- A tool for performing add, delete modify, and modify DN
+                  operations, whether read from an LDIF file or via standard input.
                   <br><br>
                 </li>
 
                 <li>
-                  <tt>LDAPSearch</tt> -- Provides a tool that demonstrates the process for
-                  performing LDAP search operations.  It also demonstrates the command-line
-                  argument parsing and LDAP command-line tool APIs.
+                  <tt>ldapcompare</tt> -- A tool for performing LDAP compare operations.
                   <br><br>
                 </li>
 
                 <li>
-                  <tt>ModRate</tt> -- Provides a tool that may be used to perform repeated
-                  modifications against a directory server to measure modify performance.  It
-                  demonstrates the command-line argument parsing, LDAP command-line tool, and
-                  value pattern APIs.
+                  <tt>searchrate</tt> -- A tool that may be used to perform repeated searches
+                  against a directory server to measure performance.
                   <br><br>
                 </li>
 
                 <li>
-                  <tt>SearchRate</tt> -- Provides a tool that may be used to perform repeated
-                  searches against a directory server to measure search performance.  It
-                  demonstrates the command-line argument parsing, LDAP command-line tool, and
-                  value pattern APIs.
+                  <tt>modrate</tt> -- A tool that may be used to perform repeated modify
+                  operations against a directory server to measure performance.
                   <br><br>
                 </li>
 
                 <li>
-                  <tt>ValidateLDIF</tt> -- Provides a tool that may be used to validate that the
-                  contents of an LDIF file are valid in accordance with a server schema.  It
-                  demonstrates the LDIF reading and writing, command-line argument parsing, LDAP
-                  command-line tool, and schema processing APIs.
+                  <tt>authrate</tt> -- A tool that may be used to perform repeated search and bind
+                  operations against a directory server to measure authentication performance.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>search-and-mod-rate</tt> -- A tool that may be used to perform repeated
+                  search and modify operations against a directory server to measure performance.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>validate-ldif</tt> -- A tool that may be used to validate that the contents
+                  of an LDIF file are valid in accordance with a server schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>transform-ldif</tt> -- A tool that may be used to apply a number of
+                  transformations to entries and change records read from an LDIF file.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>split-ldif</tt> -- A tool that may be used to split a single LDIF file into
+                  multiple files based on a variety of types of criteria.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>base64</tt> -- A tool that may be used to perform base64 encoding and
+                  decoding.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>indent-ldap-filter</tt> -- A tool that may be used make it easier to
+                  understand and simplify complex LDAP search filters.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>manage-certificates</tt> -- A tool that may be used make it easier to
+                  interact with certificate key and trust stores.
                   <br><br>
                 </li>
               </ul>

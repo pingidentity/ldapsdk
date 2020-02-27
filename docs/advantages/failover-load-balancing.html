@@ -30,6 +30,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  A fewest connections server set, in which each subsequent connection will be
+                  established to the server with the smallest number of established connections.
+                  If a given server isn't available, then it wil be skipped and the server with
+                  the next fewest connections will be used instead.
+                  <br><br>
+                </li>
+
+                <li>
                   A round robin server set, in which each subsequent connection will be established
                   to the next server in the specified list.  If a given server isn't available,
                   then it will be skipped and the server set will move to the next server in the
@@ -44,12 +52,26 @@ ${TARGET="offline"}                <br>
                   unavailable, etc.
                   <br><br>
                 </li>
-              </ul>
 
-              <p>
-                Additional implementations are planned for the future, and developers can create
-                their own custom implementations as well.
-              </p>
+                <li>
+                  A fastest connect server set, in which the LDAP SDK will attempt to create
+                  connections to multiple servers concurrently and will use the first one to be
+                  established.
+                  <br><br>
+                </li>
+
+                <li>
+                  A round robin DNS server set, which can handle cases in which a single DNS name
+                  is associated with multiple IP addresses.
+                  <br><br>
+                </li>
+
+                <li>
+                  A DNS SRV record server set, in which the set of available directory servers can
+                  be discovered from DNS through SRV records.
+                  <br><br>
+                </li>
+              </ul>
 
               <p>
                 Note that the failover server set can also provide failover across server sets, so
@@ -57,4 +79,9 @@ ${TARGET="offline"}                <br>
                 round-robin load balancing across servers in the local data center, but if none of
                 them are available then fail over to a round-robin set of servers in a remote data
                 center).
+              </p>
+
+              <p>
+                The server set API is extensible, and developers are free to create their own
+                implementations if none of the existing options is ideal for a given deployment.
               </p>

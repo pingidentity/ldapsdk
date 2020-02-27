@@ -37,6 +37,14 @@ ${TARGET="offline"}                <br>
                 and whether server certificates are trusted.
               </p>
 
+              <p>
+                Although it's not used as often as SSL/TLS, LDAP communication may also be secured
+                through the use of SASL integrity and confidentiality.  Both JNDI and the
+                UnboundID LDAP SDK for Java support the use of SASL integrity and confidentiality
+                when using the DIGEST-MD5 or GSSAPI mechanisms.  The Netscape Directory SDK for
+                Java does not support this functionality.
+              </p>
+
               <p></p>
               <h3>Authentication and Authorization</h3>
 
@@ -152,6 +160,18 @@ ${TARGET="offline"}                <br>
                   complex than the API exposed by the UnboundID LDAP SDK for Java.
                   <br><br>
                 </li>
+
+                <li>
+                  <b>SCRAM-SHA-1, SCRAM-SHA-256, and SCRAM-SHA-512</b> -- Like CRAM-MD5 and
+                  DIGEST-MD%, these mechanisms permit password-based authentication in a manner
+                  that does not directly transmit the password from the client to the server,
+                  but rather transmits a digest that proves the client knows the user's password.
+                  However, the SCRAM-based mechanisms benefit from stronger algorithms, support
+                  for multiple rounds of cryptographic processing, and the ability to store the
+                  password in an encoded format that does not require the server to have access
+                  to the clear-text password itself.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
@@ -217,6 +237,24 @@ ${TARGET="offline"}                <br>
                   information for a user.
                   <br><br>
                 </li>
+
+                <li>
+                  Support for the generating passwords in the server on behalf of the client.
+                  <br><br>
+                </li>
+
+                <li>
+                  Support for obtaining information about the quality requirements that passwords
+                  will be required to meet, and about which requirements were and were not
+                  satisfied in an attempt to change a user's password.
+                  <br><br>
+                </li>
+
+                <li>
+                  Support for a password update behavior control that can customize the server's
+                  password policy processing during a password update operation.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
@@ -279,6 +317,14 @@ ${TARGET="offline"}                <br>
                   be processed using the same transaction and therefore applied atomically.
                   Neither JNDI nor the Netscape Directory SDK for Java include support for this
                   capability.
+                  <br><br>
+                </li>
+
+                <li>
+                  Multi-update extended operation -- This is a proprietary extended operation that
+                  may be used to request multiple operations in a single request to eliminate the
+                  need for additional network latency between requests.  The operations may
+                  optionally be processed as a single atomic unit.
                   <br><br>
                 </li>
               </ul>

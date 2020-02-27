@@ -40,12 +40,25 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
                 </li>
 
                 <li>
+                  <tt>FewestConnections</tt> -- This server set implementation can hold
+                  information about multiple servers and each subsequent call to the
+                  <tt>getConnection</tt> method will attempt to retrieve a connection to the
+                  server with the smallest number of established connections (if any of the
+                  servers is available, then it will be skipped).  This can be used to try to
+                  evenly spread load across a group of servers, and it is generally recommended
+                  over the round-robin server set for more even distribution of connections over
+                  the long term.
+                  <br><br>
+                </li>
+
+                <li>
                   <tt>RoundRobinServerSet</tt> -- This server set implementation can hold
                   information about multiple servers and each subsequent call to the
                   <tt>getConnection</tt> method will attempt to retrieve a connection to the next
                   server in the list (if any of the servers is unavailable, then it will be
                   skipped).  This can be used to try to evenly spread load across a group of
-                  servers.
+                  servers, although this may not always work as intended if any of the servers
+                  becomes unavailable.
                   <br><br>
                 </li>
 
@@ -59,6 +72,31 @@ ${TARGET="offline"}                <a href="${LDAP_SDK_HOME_URL}" style="font-si
                   policies, like always using round-robin to balance requests across servers in the
                   local data center, but if none of them are available then it can attempt to use a
                   round-robin set containing servers in a remote data center.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>FastestConnectServerSet</tt> -- This server set implementation attempts to
+                  establish a connection to multiple servers simultaneously, and uses the
+                  connection that is established most quickly.  This may increase the load against
+                  all servers when establishing large numbers of connections at the same time, but
+                  it can reduce the amount of time required to establish a connection when any of
+                  the servers is unavailable or slow to respond.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>RoundRobinDNSServerSet</tt> -- This server set implementation can handle
+                  round-robin DNS configurations, in which the same name may be associated with
+                  multiple IP addresses.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>DNSSRVRecordServerSet</tt> -- This server set implementation can discover
+                  the set of available directory servers using DNS SRV records as described in RFC
+                  2782.  This can be useful when you do not wish to explicitly configure an
+                  application with information about the available directory servers.
                   <br><br>
                 </li>
               </ul>

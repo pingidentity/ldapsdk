@@ -39,6 +39,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Assured Replication Control</b> -- May be used to indicate that the server
+                  should delay the response to the associated write operation until it receives
+                  confirmation that the change has been replicated to other local or remote
+                  servers in the topology, in accordance with the desired asurance criteria.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Batched Transaction Specification Control</b> -- Indicates that the associated
                   operation is part of a batched transaction.  This must be used in conjunction
                   with the start batched transaction and end batched transaction extended
@@ -61,9 +69,25 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Generate Password Control</b> -- May be included in an add request to
+                  indicate that the server should generate a password for the new entry and
+                  return it to the client in a corresponding response control.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Get Authorization Entry Control</b> -- Provides the ability to retrieve the
                   entries for the authentication and/or authorization entries for the user in the
                   bind response received from the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Backend Set ID Control</b> -- Provides a way for the client to request
+                  information from a Directory Proxy Server about the entry balancing backend sets
+                  in which an operation was processed.  It may be used in conjunction with the
+                  route to backend set request control to request that subsequent operations be
+                  processed within specified backend sets.
                   <br><br>
                 </li>
 
@@ -74,11 +98,37 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Get Password Policy State Issues Control</b> -- May be included in a bind
+                  request (that meets additional security criteria) to request that the server
+                  return extended information about password policy-related issues that may
+                  affect the user's ability to authenticate, either now or in the near future.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Get Server ID Control</b> -- Provides a way for the client to request
                   information about which server was actually used to process a request (including
                   the ability to make that determination through a Directory Proxy Server).  It
                   may be used in conjunction with the route to server request control to request
                   that an operation be processed by a specific server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get User Resource Limits Control</b> -- May be included in a bind request to
+                  indicate that the server should return information about resource limits that
+                  will be enforced for the authenticated user, including size limit, time limit,
+                  lookthrough limit, and idle time limit.  Other information returned may include
+                  the name of the selected client connection policy, the DNs of the groups in
+                  which the user is a member, and the names of any privileges assigned to that
+                  user.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Hard Delete Control</b> -- May be included in a delete request to indicate
+                  that the target entry should be completely removed from the server, even if it
+                  would have otherwise been soft-deleted.
                   <br><br>
                 </li>
 
@@ -111,6 +161,22 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Matching Entry Count Control</b> -- May be included in a search request to
+                  indicate that the server should merely return an estimate of the number of
+                  entries that match the search criteria rather than actually returning the
+                  matching entries themselves.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Name With entryUUID Control</b> -- May be included in an add request to
+                  indicate that the resulting entry should use the server-generated entryUUID
+                  attribute as its naming (RDN) attribute, rather than using the RDN that was
+                  provided in the add request.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>No Operation Control</b> -- Provides the ability to request that the server
                   validate that a write operation would likely succeed, but without making any
                   changes to data in the server.
@@ -125,14 +191,59 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Override Search Limits Control</b> -- May be included in a search request
+                  to indicate that the server should use client-specified values for certain
+                  resource limits rather than the limits that would normally be imposed.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Password Policy Control</b> -- Provides password policy-related information
                   for a user account.
                   <br><br>
                 </li>
 
                 <li>
+                  <b>Password Update Behavior Control</b> -- May be included in an add, modify, or
+                  password modify request to provide additional control over the way the server
+                  will handle any passwords included in the request.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Password Validation Details Control</b> -- May be included in an add, modify,
+                  or password modify request to obtain information about the requirements that a
+                  user's password will be required to satisfy, and which of those requirements were
+                  actually satisfied by the provided password.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Permit Unindexed Search Control</b> -- May be included in a search request to
+                  indicate that the server should attempt to process the request even if it would
+                  have otherwise been rejected because it could not be efficiently processed using
+                  the defined set of indexes.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Purge Password Control</b> -- May be included in a modify or password modify
+                  request to indicate that the user's former password should be purged from the
+                  server, even if it would have otherwise been converted to a retired password.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Real Attributes Only Control</b> -- Indicates that search entries returned
                   should not include any virtual attributes.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Reject Unindexed Search Control</b> -- May be included in a search request to
+                  indicate that the server should reject the requested operation if it cannot be
+                  efficiently processed using the defined set of indexes, even if the server would
+                  have otherwise permitted the search for the requester.
                   <br><br>
                 </li>
 
@@ -151,9 +262,74 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Retire Password Control</b> -- May be included in a modify or password modify
+                  request to indicate that the user's former password should be retired, allowing
+                  it to be used as an alternative to the new password for a limited period of
+                  time.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Return Conflict Entries Control</b> -- May be included in a search request to
+                  indicate that the server should include replication conflict entries in the set
+                  of search results.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Route to Backend Set Control</b> -- May be used to request that the operation
+                  be routed to a particular set of entry balancing backend sets.  This is only
+                  intended for use when the request is to be sent through a Directory Proxy Server.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Route to Server Control</b> -- May be used to request that the operation be
                   routed to a particular backend server.  This is primarily intended for use when
                   the request is to be sent through a Directory Proxy Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Soft-Delete Control</b> -- May be included in a delete request to indicate
+                  that the server should process the operation as a soft delete, in which the
+                  entry will be hidden rather than immediately removed from the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Soft-Deleted Entry Access Control</b> -- May be included in a search request
+                  to indicate that the server should include soft-deleted entries in the set of
+                  search results.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Suppress Operational Attribute Update Control</b> -- May be used to indicate
+                  that the server should not alter one or more operational attributes (e.g.,
+                  modifiers name, modify timestamp, last access time, last login time, or last
+                  login IP address) that would otherwise be updated by the request.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Suppress Referential Integrity Updates Control</b> -- May be included in a
+                  delete or modify DN request to indicate that the server should not make any
+                  referential integrity updates that would normally be performed as part of the
+                  operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Transaction Settings Control</b> -- May be used to override a number of
+                  settings that would otherwise be used for transaction-related processing
+                  involving the operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Undelete Control</b> -- May be included in an add request to indicate that
+                  the specified soft-deleted entry should be un-deleted.
                   <br><br>
                 </li>
 
@@ -183,6 +359,61 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  <b>Clear Missed Notification Changes Alarm</b> -- Clears a server alarm
+                  condition about missed notification changes.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Collect Support Data</b> -- Invokes the collect-support-data utility on the
+                  server and streams the output and support data archive back to the client.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Consume Single-Use Token</b> -- Indicates that a single-use token has been
+                  received and consumed by the client.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Delete Notification Destination</b> -- Removes a notification destination
+                  from the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Delete Notification Subscription</b> -- Removes a notification subscription
+                  from the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Deliver One-Time Password</b> -- Generates and sends a one-time password to a
+                  user for use in conjunction with the UNBOUNDID-DELIVERED-OTP SASL mechanism.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Deliver Password Reset Token</b> -- Generates and sends a password reset token
+                  to a user for use in conjunction with the password modify extended operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Deliver Single-Use Token</b> -- Generates and sends a single-use token to a
+                  user for use in conjunction with the consume single-use token extended operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Deregister YubiKey OTP Device</b> -- Deregisters a YubiKey OTP device from
+                  the server so it may no longer be used to authenticate via the
+                  UNBOUNDID-YUBIKEY-OTP SASL mechanism.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>End Administrative Session</b> -- Indicates that the server should end an
                   active administrative session for the connection.
                   <br><br>
@@ -201,10 +432,38 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Generate Password</b> -- Generates one or more passwords to suggest to a
+                  user (e.g., when they are choosing a new password).
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Generate TOTP Shared Secret</b> -- Generates a TOTP shared secret and stores
+                  it in a user's entry to allow that user to authenticate using the UNBOUNDID-TOTP
+                  SASL mechanism.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Backup Compatibility Descriptor</b> -- Requests that the server provide a
+                  backup compatibility descriptor, which may be used in conjunction with the
+                  identify backup compatibility problems operation operation to determine if a
+                  backup from one server instance may be restored in another.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Get Changelog Batch</b> -- Allows the client to request a batch of changelog
                   entries from the server.  This may be used to retrieve information about changes
                   in a manner that works across multiple servers (and through a Directory Proxy
                   Server) and can resume where the last batch ended.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Configuration</b> -- Retrieves a version of a server's configuration,
+                  which may be the currently active configuration, a baseline configuration for the
+                  installed version, or any of the archived former configurations.
                   <br><br>
                 </li>
 
@@ -215,8 +474,85 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Get Password Quality Requirements</b> -- Retrieves the requirements that a
+                  proposed password must satisfy for a user.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Subtree Accessibility</b> -- Retrieves information about any subtree
+                  accessibility restrictions currently set in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Supported OTP Delivery Mechanisms</b> -- Retrieves a list of the
+                  one-time password delivery mechanisms that are supported by the server and
+                  available for a specified user.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Identify Backup Compatibility Problems</b> -- Identifies any potential
+                  problems that may prevent a backup taken on one server instance from being
+                  properly restored in another server instance.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>List Configurations</b> -- Retrieves a list of the configurations that may
+                  be retrieved using the get configuration extended operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>List Notification Subscriptions</b> -- Retrieves a list of the notification
+                  subscriptions configured in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Multi-Update</b> -- Sends multiple update requests to the server in a single
+                  request so that they may be processed in sequence without requiring multiple
+                  network round trips for each request.  The operations may be processed
+                  individually or as a single atomic unit.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Password Policy State</b> -- Allows the client to get and set a number of
                   properties related to a user's password policy state.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Register YubiKey OTP Device</b> -- Registers a YubiKey OTP device with the
+                  server for a specified user so that it may be used to authenticate via the
+                  UNBOUNDID-YUBIKEY-OTP SASL mechanism.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Revoke TOTP Shared Secret</b> -- Revokes a TOTP shared secret that has been
+                  generated for a user so that it may no longer be used to authenticate.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Set Notification Destination</b> -- Creates or updates a notification
+                  destination in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Set Notification Subscription</b> -- Creates or updates a notification
+                  subscription in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Set Subtree Accessibility</b> -- Creates or removes an accessibility
+                  restriction for a specified subtree within the server.
                   <br><br>
                 </li>
 
@@ -243,6 +579,20 @@ ${TARGET="offline"}                <br>
                   <b>Stream Directory Values</b> -- Provides the ability to obtain a list of entry
                   DNs and/or the values of specified attributes for all entries in a specified
                   portion of the DIT.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Stream Proxy Values</b> -- Retrieves a list of entry DNs and/or the values
+                  for one or more attributes from the Directory Proxy Server.  This is primarily
+                  intended for use in populating another Directory Proxy Server's global index.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Validate TOTP Password</b> -- Validates a TOTP password for a user.  This may
+                  be used as an alternative to the UNBOUNDID-TOTP SASL mechanism if the user is
+                  already authenticated and wishes to step up their existing authentication.
                   <br><br>
                 </li>
               </ul>
@@ -298,7 +648,25 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Gauge</b> -- Provides information about a gauge defined in the server that may
+                  be used to trigger an alarm.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>General</b> -- General information about the state of the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Group Cache</b> -- Information about the number and types of groups
+                  available in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Host System Recent CPU and Memory</b> -- Information about recent CPU and
+                  memory utilization for the underlying system.
                   <br><br>
                 </li>
 
@@ -333,6 +701,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Per-Application Processing Time Histogram</b> -- Information about the time
+                  required for the server to process various types of operation requested on a
+                  per-application basis.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Processing Time Histogram</b> -- Information about the time required for the
                   server to process various types of operations.
                   <br><br>
@@ -353,6 +728,12 @@ ${TARGET="offline"}                <br>
                 <li>
                   <b>Replication Summary</b> -- Information about the replication state for a
                   specified portion of the server DIT.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Result Code</b> -- Information about the number of result codes of
+                  different types returned for each type of operation.
                   <br><br>
                 </li>
 
@@ -420,6 +801,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Collect Support Data</b> -- Invoke the collect-support-data tool for the
+                  server instance.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Delay</b> -- Sleeps for a specified period of time, or until the work queue
+                  becomes idle.  This is primarily intended for inserting a delay between other
+                  types of tasks.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Disconnect Client</b> -- Terminate a specified client connection.
                   <br><br>
                 </li>
@@ -437,7 +831,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Exec</b> -- Executes a specified command on the system (if all of the
+                  necessary security preconditions are satisfied).
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Export</b> -- Export the contents of a Directory Server backend to LDIF.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>File Retention</b> -- Cleans up old versions of sets of files named with a
+                  given pattern, leaving a specified number or files younger than a given age.
                   <br><br>
                 </li>
 
@@ -472,7 +878,19 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Reload Global Index</b> -- Causes the Directory Proxy Server to reload its
+                  global index from backend Directory Server or Directory Proxy Server instances.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Restore</b> -- Restore a backup for a specified Directory Server backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Rotate Log</b> -- Triggers an immediate rotation of one or more server log
+                  files.
                   <br><br>
                 </li>
 
@@ -488,8 +906,51 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  <b>Synchronize Encryption Settings</b> -- Ensures that two servers have a common
+                  set of encrpytion settings definitions.
+                  <br><br>
+                </li>
+
+                <li>
                   <b>Third-Party</b> -- Invokes a custom Java-based task written with the
                   UnboundID Server SDK.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Support for SASL Mechanisms</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides support for the following SASL
+                mechanisms that are proprietary to the Ping Identity Directory Server:
+              </p>
+
+              <ul>
+                <li>
+                  <b>UNBOUNDID-CERTIFICATE-PLUS-PASSWORD</b> -- Authenticates to the server using
+                  both a certificate and a password.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>UNBOUNDID-DELIVERED-OTP</b> -- Authenticates to the server using a one-time
+                  password that has been delivered to the user through an out-of-band mechanism
+                  (e.g., email, SMS, voice call, app notification, etc.) using the deliver
+                  one-time password extended operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>UNBOUNDID-TOTP</b> -- Authenticates to the server using a time-based one-time
+                  password, optionally in conjunction with a static password.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>UNBOUNDID-YUBIKEY-OTP</b> -- Authenticates to the server using a one-time
+                  password generated by a YubiKey device, optionally in conjunction with a static
+                  password.
                   <br><br>
                 </li>
               </ul>
@@ -516,6 +977,13 @@ ${TARGET="offline"}                <br>
                   UnboundID-proprietary attributes contained in changelog entries, including
                   information about values of updated attributes before and after the change, and
                   also about key attributes from the entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>JSON Object Filter Handling</b> -- The LDAP SDK provides support for
+                  generating and evaluating JSON object filters, which can be used to search for
+                  entries containing JSON objects matching a given set of criteria.
                   <br><br>
                 </li>
 
