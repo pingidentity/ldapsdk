@@ -1438,7 +1438,8 @@ public class APITestCase
       new Object[] { new File(resourceDir, "public-api-4.0.11.txt")  },
       new Object[] { new File(resourceDir, "public-api-4.0.12.txt")  },
       new Object[] { new File(resourceDir, "public-api-4.0.13.txt")  },
-      new Object[] { new File(resourceDir, "public-api-4.0.14.txt")  }
+      new Object[] { new File(resourceDir, "public-api-4.0.14.txt")  },
+      new Object[] { new File(resourceDir, "public-api-5.0.0.txt")  }
     };
   }
 
