@@ -1453,7 +1453,10 @@ public final class CollectSupportData
         for (final String value : arg.getValueStringRepresentations(false))
         {
           argList.add("--" + argumentIdentifier);
-          argList.add(value);
+          if (arg.takesValue())
+          {
+            argList.add(value);
+          }
         }
       }
     }
