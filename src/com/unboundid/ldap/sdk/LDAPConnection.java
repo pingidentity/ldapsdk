@@ -40,7 +40,9 @@ package com.unboundid.ldap.sdk;
 import java.io.Closeable;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -213,7 +215,8 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.MOSTLY_THREADSAFE)
 public final class LDAPConnection
-       implements FullLDAPInterface, ReferralConnector, Closeable
+       implements FullLDAPInterface, LDAPConnectionInfo, ReferralConnector,
+                  Closeable
 {
   /**
    * The counter that will be used when assigning connection IDs to connections.
@@ -771,9 +774,20 @@ public final class LDAPConnection
     catch (final Exception e)
     {
       Debug.debugException(e);
-      throw new LDAPException(ResultCode.CONNECT_ERROR,
+
+      final LDAPException connectException = new LDAPException(
+           ResultCode.CONNECT_ERROR,
            ERR_CONN_RESOLVE_ERROR.get(host, StaticUtils.getExceptionMessage(e)),
            e);
+
+      final LDAPConnectionLogger logger =
+           connectionOptions.getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logConnectFailure(this, host, port, connectException);
+      }
+
+      throw connectException;
     }
 
     connect(host, inetAddress, port, timeout);
@@ -887,10 +901,21 @@ public final class LDAPConnection
       Debug.debugException(e);
       setDisconnectInfo(DisconnectType.LOCAL_ERROR, null, e);
       connectionInternals = null;
-      throw new LDAPException(ResultCode.CONNECT_ERROR,
+
+      final LDAPException connectException = new LDAPException(
+           ResultCode.CONNECT_ERROR,
            ERR_CONN_CONNECT_ERROR.get(getHostPort(),
                 StaticUtils.getExceptionMessage(e)),
            e);
+
+      final LDAPConnectionLogger logger =
+           connectionOptions.getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logConnectFailure(this, host, port, connectException);
+      }
+
+      throw connectException;
     }
 
     if (connectionOptions.useSchema())
@@ -1015,11 +1040,9 @@ public final class LDAPConnection
 
 
   /**
-   * Indicates whether this connection is currently established.
-   *
-   * @return  {@code true} if this connection is currently established, or
-   *          {@code false} if it is not.
+   * {@inheritDoc}
    */
+  @Override()
   public boolean isConnected()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -1158,14 +1181,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the socket factory that was used when creating the socket for the
-   * last connection attempt (whether successful or unsuccessful) for this LDAP
-   * connection.
-   *
-   * @return  The socket factory that was used when creating the socket for the
-   *          last connection attempt for this LDAP connection, or {@code null}
-   *          if no attempt has yet been made to establish this connection.
+   * {@inheritDoc}
    */
+  @Override()
   public SocketFactory getLastUsedSocketFactory()
   {
     return lastUsedSocketFactory;
@@ -1174,13 +1192,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the socket factory to use to create the socket for subsequent
-   * connection attempts.  This may or may not be the socket factory that was
-   * used to create the current established connection.
-   *
-   * @return  The socket factory to use to create the socket for subsequent
-   *          connection attempts.
+   * {@inheritDoc}
    */
+  @Override()
   public SocketFactory getSocketFactory()
   {
     return socketFactory;
@@ -1210,18 +1224,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the {@code SSLSession} currently being used to secure
-   * communication on this connection.  This may be available for connections
-   * that were secured at the time they were created (via an
-   * {@code SSLSocketFactory}), or for connections secured after their creation
-   * (via the StartTLS extended operation).  This will not be available for
-   * unencrypted connections, or connections secured in other ways (e.g., via
-   * SASL QoP).
-   *
-   * @return  The {@code SSLSession} currently being used to secure
-   *          communication on this connection, or {@code null} if no
-   *          {@code SSLSession} is available.
+   * {@inheritDoc}
    */
+  @Override()
   public SSLSession getSSLSession()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -1246,14 +1251,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves a value that uniquely identifies this connection within the JVM
-   * Each {@code LDAPConnection} object will be assigned a different connection
-   * ID, and that connection ID will not change over the life of the object,
-   * even if the connection is closed and re-established (whether re-established
-   * to the same server or a different server).
-   *
-   * @return  A value that uniquely identifies this connection within the JVM.
+   * {@inheritDoc}
    */
+  @Override()
   public long getConnectionID()
   {
     return connectionID;
@@ -1262,11 +1262,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the user-friendly name that has been assigned to this connection.
-   *
-   * @return  The user-friendly name that has been assigned to this connection,
-   *          or {@code null} if none has been assigned.
+   * {@inheritDoc}
    */
+  @Override()
   public String getConnectionName()
   {
     return connectionName;
@@ -1314,14 +1312,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the user-friendly name that has been assigned to the connection
-   * pool with which this connection is associated.
-   *
-   * @return  The user-friendly name that has been assigned to the connection
-   *          pool with which this connection is associated, or {@code null} if
-   *          none has been assigned or this connection is not associated with a
-   *          connection pool.
+   * {@inheritDoc}
    */
+  @Override()
   public String getConnectionPoolName()
   {
     return connectionPoolName;
@@ -1377,16 +1370,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves a string representation of the host and port for the server to
-   * to which the last connection attempt was made.  It does not matter whether
-   * the connection attempt was successful, nor does it matter whether it is
-   * still established.  This is primarily intended for internal use in error
-   * messages.
-   *
-   * @return  A string representation of the host and port for the server to
-   *          which the last connection attempt was made, or an empty string if
-   *          no connection attempt has yet been made on this connection.
+   * {@inheritDoc}
    */
+  @Override()
   public String getHostPort()
   {
     if (hostPort == null)
@@ -1402,13 +1388,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the address of the directory server to which this connection is
-   * currently established.
-   *
-   * @return  The address of the directory server to which this connection is
-   *          currently established, or {@code null} if the connection is not
-   *          established.
+   * {@inheritDoc}
    */
+  @Override()
   public String getConnectedAddress()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -1425,13 +1407,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the string representation of the IP address to which this
-   * connection is currently established.
-   *
-   * @return  The string representation of the IP address to which this
-   *          connection is currently established, or {@code null} if the
-   *          connection is not established.
+   * {@inheritDoc}
    */
+  @Override()
   public String getConnectedIPAddress()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -1448,13 +1426,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves an {@code InetAddress} object that represents the address of the
-   * server to which this  connection is currently established.
-   *
-   * @return  An {@code InetAddress} that represents the address of the server
-   *          to which this connection is currently established, or {@code null}
-   *          if the connection is not established.
+   * {@inheritDoc}
    */
+  @Override()
   public InetAddress getConnectedInetAddress()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -1471,12 +1445,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the port of the directory server to which this connection is
-   * currently established.
-   *
-   * @return  The port of the directory server to which this connection is
-   *          currently established, or -1 if the connection is not established.
+   * {@inheritDoc}
    */
+  @Override()
   public int getConnectedPort()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -1493,16 +1464,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves a stack trace of the thread that last attempted to establish this
-   * connection.  Note that this will only be available if an attempt has been
-   * made to establish this connection and the
-   * {@link LDAPConnectionOptions#captureConnectStackTrace()} method for the
-   * associated connection options returns {@code true}.
-   *
-   * @return  A stack trace of the thread that last attempted to establish this
-   *          connection, or {@code null} connect stack traces are not enabled,
-   *          or if no attempt has been made to establish this connection.
+   * {@inheritDoc}
    */
+  @Override()
   public StackTraceElement[] getConnectStackTrace()
   {
     return connectStackTrace;
@@ -1631,6 +1595,23 @@ public final class LDAPConnection
         {
           Debug.debugLDAPRequest(Level.INFO,
                createUnbindRequestString(controls), messageID, this);
+        }
+
+        final LDAPConnectionLogger logger =
+             connectionOptions.getConnectionLogger();
+        if (logger != null)
+        {
+          final List<Control> controlList;
+          if (controls == null)
+          {
+            controlList = Collections.emptyList();
+          }
+          else
+          {
+            controlList = Arrays.asList(controls);
+          }
+
+          logger.logUnbindRequest(this, messageID, controlList);
         }
 
         connectionStatistics.incrementNumUnbindRequests();
@@ -1933,6 +1914,23 @@ public final class LDAPConnection
            createAbandonRequestString(messageID, controls), abandonMessageID,
            this);
     }
+
+    final LDAPConnectionLogger logger = connectionOptions.getConnectionLogger();
+    if (logger != null)
+    {
+      final List<Control> controlList;
+      if (controls == null)
+      {
+        controlList = Collections.emptyList();
+      }
+      else
+      {
+        controlList = Arrays.asList(controls);
+      }
+
+      logger.logAbandonRequest(this, abandonMessageID, messageID, controlList);
+    }
+
     sendMessage(
          new LDAPMessage(abandonMessageID,
               new AbandonRequestProtocolOp(messageID), controls),
@@ -1973,6 +1971,23 @@ public final class LDAPConnection
            createAbandonRequestString(messageID, controls), abandonMessageID,
            this);
     }
+
+    final LDAPConnectionLogger logger = connectionOptions.getConnectionLogger();
+    if (logger != null)
+    {
+      final List<Control> controlList;
+      if (controls == null)
+      {
+        controlList = Collections.emptyList();
+      }
+      else
+      {
+        controlList = Arrays.asList(controls);
+      }
+
+      logger.logAbandonRequest(this, abandonMessageID, messageID, controlList);
+    }
+
     sendMessage(
          new LDAPMessage(abandonMessageID,
               new AbandonRequestProtocolOp(messageID), controls),
@@ -4580,11 +4595,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the disconnect type for this connection, if available.
-   *
-   * @return  The disconnect type for this connection, or {@code null} if no
-   *          disconnect type has been set.
+   * {@inheritDoc}
    */
+  @Override()
   public DisconnectType getDisconnectType()
   {
     final DisconnectInfo di = disconnectInfo.get();
@@ -4601,12 +4614,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the disconnect message for this connection, which may provide
-   * additional information about the reason for the disconnect, if available.
-   *
-   * @return  The disconnect message for this connection, or {@code null} if
-   *          no disconnect message has been set.
+   * {@inheritDoc}
    */
+  @Override()
   public String getDisconnectMessage()
   {
     final DisconnectInfo di = disconnectInfo.get();
@@ -4623,12 +4633,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the disconnect cause for this connection, which is an exception
-   * or error that triggered the connection termination, if available.
-   *
-   * @return  The disconnect cause for this connection, or {@code null} if no
-   *          disconnect cause has been set.
+   * {@inheritDoc}
    */
+  @Override()
   public Throwable getDisconnectCause()
   {
     final DisconnectInfo di = disconnectInfo.get();
@@ -4837,12 +4844,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the last successful bind request processed on this connection.
-   *
-   * @return  The last successful bind request processed on this connection.  It
-   *          may be {@code null} if no bind has been performed, or if the last
-   *          bind attempt was not successful.
+   * {@inheritDoc}
    */
+  @Override()
   public BindRequest getLastBindRequest()
   {
     return lastBindRequest;
@@ -4851,12 +4855,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the StartTLS request used to secure this connection.
-   *
-   * @return  The StartTLS request used to secure this connection, or
-   *          {@code null} if StartTLS has not been used to secure this
-   *          connection.
+   * {@inheritDoc}
    */
+  @Override()
   public ExtendedRequest getStartTLSRequest()
   {
     return startTLSRequest;
@@ -4926,11 +4927,9 @@ public final class LDAPConnection
 
 
   /**
-   * Indicates whether this connection is operating in synchronous mode.
-   *
-   * @return  {@code true} if this connection is operating in synchronous mode,
-   *          or {@code false} if not.
+   * {@inheritDoc}
    */
+  @Override()
   public boolean synchronousMode()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -4970,6 +4969,7 @@ public final class LDAPConnection
       final LDAPResponse response =
            internals.getConnectionReader().readResponse(messageID);
       Debug.debugLDAPResult(response, this);
+      internals.getConnectionReader().logResponse(response);
       return response;
     }
     else
@@ -4991,13 +4991,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the time that this connection was established in the number of
-   * milliseconds since January 1, 1970 UTC (the same format used by
-   * {@code System.currentTimeMillis}.
-   *
-   * @return  The time that this connection was established, or -1 if the
-   *          connection is not currently established.
+   * {@inheritDoc}
    */
+  @Override()
   public long getConnectTime()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -5014,18 +5010,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the time that this connection was last used to send or receive an
-   * LDAP message.  The value will represent the number of milliseconds since
-   * January 1, 1970 UTC (the same format used by
-   * {@code System.currentTimeMillis}.
-   *
-   * @return  The time that this connection was last used to send or receive an
-   *          LDAP message.  If the connection is not established, then -1 will
-   *          be returned.  If the connection is established but no
-   *          communication has been performed over the connection since it was
-   *          established, then the value of {@link #getConnectTime()} will be
-   *          returned.
+   * {@inheritDoc}
    */
+  @Override()
   public long getLastCommunicationTime()
   {
     if (lastCommunicationTime > 0L)
@@ -5052,10 +5039,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the connection statistics for this LDAP connection.
-   *
-   * @return  The connection statistics for this LDAP connection.
+   * {@inheritDoc}
    */
+  @Override()
   public LDAPConnectionStatistics getConnectionStatistics()
   {
     return connectionStatistics;
@@ -5064,14 +5050,9 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the number of outstanding operations on this LDAP connection
-   * (i.e., the number of operations currently in progress).  The value will
-   * only be valid for connections not configured to use synchronous mode.
-   *
-   * @return  The number of outstanding operations on this LDAP connection, or
-   *          -1 if it cannot be determined (e.g., because the connection is not
-   *          established or is operating in synchronous mode).
+   * {@inheritDoc}
    */
+  @Override()
   public int getActiveOperationCount()
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -5191,9 +5172,7 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves a string representation of this LDAP connection.
-   *
-   * @return  A string representation of this LDAP connection.
+   * {@inheritDoc}
    */
   @Override()
   public String toString()
@@ -5206,12 +5185,9 @@ public final class LDAPConnection
 
 
   /**
-   * Appends a string representation of this LDAP connection to the provided
-   * buffer.
-   *
-   * @param  buffer  The buffer to which to append a string representation of
-   *                 this LDAP connection.
+   * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("LDAPConnection(");

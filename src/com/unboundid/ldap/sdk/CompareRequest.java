@@ -701,6 +701,14 @@ public final class CompareRequest
     try
     {
       Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logCompareRequest(connection, messageID, this);
+      }
+
       connection.getConnectionStatistics().incrementNumCompareRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
@@ -749,6 +757,14 @@ public final class CompareRequest
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logCompareRequest(connection, messageID, this);
+    }
+
     connection.getConnectionStatistics().incrementNumCompareRequests();
     try
     {

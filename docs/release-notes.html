@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added an LDAP connection logger API that can be used to keep a record of
+                  processing performed by the LDAP SDK, including successful and failed connection
+                  attempts, operation requests and responses (including search result entries,
+                  search result references, and intermediate responses), and disconnects.  The
+                  LDAP SDK includes a logger capable of formatting these messages as JSON objects,
+                  but the API is extensible, so custom implementations may be created to use
+                  alternate formats if desired.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue that prevented the collect-support-data tool from running
                   properly in local mode when using a secure connection.
                   <br><br>

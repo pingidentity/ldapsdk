@@ -227,6 +227,14 @@ public final class InternalSDKHelper
     final CancelExtendedRequest cancelRequest =
          new CancelExtendedRequest(targetMessageID);
     Debug.debugLDAPRequest(Level.INFO, cancelRequest, messageID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logExtendedRequest(connection, messageID, cancelRequest);
+    }
+
     connection.sendMessage(
          new LDAPMessage(messageID, new ExtendedRequest(cancelRequest),
               controls),

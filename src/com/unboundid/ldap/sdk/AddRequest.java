@@ -1132,6 +1132,14 @@ public final class AddRequest
     try
     {
       Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logAddRequest(connection, messageID, this);
+      }
+
       connection.getConnectionStatistics().incrementNumAddRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
@@ -1180,6 +1188,14 @@ public final class AddRequest
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logAddRequest(connection, messageID, this);
+    }
+
     connection.getConnectionStatistics().incrementNumAddRequests();
     try
     {

@@ -357,6 +357,14 @@ public class ExtendedRequest
       // Send the request to the server.
       final long responseTimeout = getResponseTimeoutMillis(connection);
       Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logExtendedRequest(connection, messageID, this);
+      }
+
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumExtendedRequests();
       if (this instanceof StartTLSExtendedRequest)
@@ -424,6 +432,14 @@ public class ExtendedRequest
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logExtendedRequest(connection, messageID, this);
+    }
+
     connection.getConnectionStatistics().incrementNumExtendedRequests();
     connection.sendMessage(message, getResponseTimeoutMillis(connection));
 

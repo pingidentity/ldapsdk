@@ -149,6 +149,10 @@ import com.unboundid.util.ssl.TrustAllSSLSocketVerifier;
  *       encounters a message that may be larger than the maximum allowed
  *       message size, then the SDK will terminate the connection to the
  *       server.</LI>
+ *   <LI>The {@link LDAPConnectionLogger} that should be used to record
+ *       information about requests sent and responses received over
+ *       connections with this set of options.  By default, no
+ *       {@code LDAPConnectionLogger} will be used.</LI>
  *   <LI>The {@link DisconnectHandler} that should be used to receive
  *       notification if connection is disconnected for any reason.  By default,
  *       no {@code DisconnectHandler} will be used.</LI>
@@ -1232,6 +1236,11 @@ public final class LDAPConnectionOptions
   // The socket send buffer size to request.
   private int sendBufferSizeBytes;
 
+  // The connection logger that should be used to record information about
+  // requests sent and responses received over connections with this set of
+  // options.
+  private LDAPConnectionLogger connectionLogger;
+
   // The pooled schema timeout, in milliseconds.
   private long pooledSchemaTimeoutMillis;
 
@@ -1284,6 +1293,7 @@ public final class LDAPConnectionOptions
     responseTimeoutMillis          = DEFAULT_RESPONSE_TIMEOUT_MILLIS;
     receiveBufferSizeBytes         = DEFAULT_RECEIVE_BUFFER_SIZE_BYTES;
     sendBufferSizeBytes            = DEFAULT_SEND_BUFFER_SIZE_BYTES;
+    connectionLogger               = null;
     disconnectHandler              = null;
     referralConnector              = null;
     sslSocketVerifier              = DEFAULT_SSL_SOCKET_VERIFIER;
@@ -1331,6 +1341,7 @@ public final class LDAPConnectionOptions
     o.responseTimeoutMillis           = responseTimeoutMillis;
     o.referralConnector               = referralConnector;
     o.referralHopLimit                = referralHopLimit;
+    o.connectionLogger                = connectionLogger;
     o.disconnectHandler               = disconnectHandler;
     o.unsolicitedNotificationHandler  = unsolicitedNotificationHandler;
     o.receiveBufferSizeBytes          = receiveBufferSizeBytes;
@@ -2233,6 +2244,40 @@ public final class LDAPConnectionOptions
 
 
   /**
+   * Retrieves the logger that should be used to record information about
+   * requests sent and responses received over connections with this set of
+   * connection options.
+   *
+   * @return  The logger that should be used to record information about the
+   *          requests sent and responses received over connection with this set
+   *          of options, or {@code null} if no logging should be performed.
+   */
+  public LDAPConnectionLogger getConnectionLogger()
+  {
+    return connectionLogger;
+  }
+
+
+
+  /**
+   * Specifies the logger that should be used to record information about
+   * requests sent and responses received over connections with this set of
+   * connection options.
+   *
+   * @param  connectionLogger  The logger that should be used to record
+   *                           information about the requests sent and
+   *                           responses received over connection with this set
+   *                           of options.  It may be {@code null} if no logging
+   *                           should be performed.
+   */
+  public void setConnectionLogger(final LDAPConnectionLogger connectionLogger)
+  {
+    this.connectionLogger = connectionLogger;
+  }
+
+
+
+  /**
    * Retrieves the disconnect handler to use for associated connections.
    *
    * @return  the disconnect handler to use for associated connections, or
@@ -2725,11 +2770,19 @@ public final class LDAPConnectionOptions
     buffer.append(sendBufferSizeBytes);
     buffer.append(", allowConcurrentSocketFactoryUse=");
     buffer.append(allowConcurrentSocketFactoryUse);
+
+    if (connectionLogger != null)
+    {
+      buffer.append(", connectionLoggerClass=");
+      buffer.append(connectionLogger.getClass().getName());
+    }
+
     if (disconnectHandler != null)
     {
       buffer.append(", disconnectHandlerClass=");
       buffer.append(disconnectHandler.getClass().getName());
     }
+
     if (unsolicitedNotificationHandler != null)
     {
       buffer.append(", unsolicitedNotificationHandlerClass=");

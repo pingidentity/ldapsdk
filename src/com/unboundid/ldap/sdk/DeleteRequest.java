@@ -385,6 +385,14 @@ public final class DeleteRequest
     try
     {
       Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logDeleteRequest(connection, messageID, this);
+      }
+
       connection.getConnectionStatistics().incrementNumDeleteRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
@@ -433,6 +441,14 @@ public final class DeleteRequest
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logDeleteRequest(connection, messageID, this);
+    }
+
     connection.getConnectionStatistics().incrementNumDeleteRequests();
     try
     {

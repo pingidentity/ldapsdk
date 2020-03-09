@@ -116,6 +116,7 @@ public class LDAPConnectionOptionsTestCase
     assertEquals(opts.getResponseTimeoutMillis(), 300_000L);
     assertFalse(opts.abandonOnTimeout());
     assertEquals(opts.getMaxMessageSize(), (20 * 1024 * 1024));
+    assertNull(opts.getConnectionLogger());
     assertNull(opts.getDisconnectHandler());
     assertNull(opts.getUnsolicitedNotificationHandler());
     assertFalse(opts.captureConnectStackTrace());
@@ -199,6 +200,7 @@ public class LDAPConnectionOptionsTestCase
     opts.setReferralConnector(new TestReferralConnector());
     opts.setResponseTimeoutMillis(1234L);
     opts.setAbandonOnTimeout(true);
+    opts.setConnectionLogger(new TestLDAPConnectionLogger());
     opts.setDisconnectHandler(new TestDisconnectHandler());
     opts.setUnsolicitedNotificationHandler(
          new TestUnsolicitedNotificationHandler());
@@ -228,6 +230,7 @@ public class LDAPConnectionOptionsTestCase
     assertEquals(dup.getResponseTimeoutMillis(),
                  opts.getResponseTimeoutMillis());
     assertEquals(dup.abandonOnTimeout(), opts.abandonOnTimeout());
+    assertEquals(dup.getConnectionLogger(), opts.getConnectionLogger());
     assertEquals(dup.getDisconnectHandler(), opts.getDisconnectHandler());
     assertEquals(dup.getUnsolicitedNotificationHandler(),
                  opts.getUnsolicitedNotificationHandler());
@@ -880,6 +883,28 @@ public class LDAPConnectionOptionsTestCase
 
     opts.setMaxMessageSize(-1);
     assertEquals(opts.getMaxMessageSize(), 0);
+    assertNotNull(opts.toString());
+  }
+
+
+
+  /**
+   * Tests connection logger functionality.
+   */
+  @Test()
+  public void testConnectionLogger()
+  {
+    final LDAPConnectionOptions opts = new LDAPConnectionOptions();
+
+    assertNull(opts.getConnectionLogger());
+    assertNotNull(opts.toString());
+
+    opts.setConnectionLogger(new TestLDAPConnectionLogger());
+    assertNotNull(opts.getConnectionLogger());
+    assertNotNull(opts.toString());
+
+    opts.setConnectionLogger(null);
+    assertNull(opts.getConnectionLogger());
     assertNotNull(opts.toString());
   }
 

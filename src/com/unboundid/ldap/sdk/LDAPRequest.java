@@ -132,11 +132,9 @@ public abstract class LDAPRequest
 
 
   /**
-   * Retrieves the set of controls for this request.  The caller must not alter
-   * this set of controls.
-   *
-   * @return  The set of controls for this request.
+   * {@inheritDoc}
    */
+  @Override()
   public final Control[] getControls()
   {
     return controls;

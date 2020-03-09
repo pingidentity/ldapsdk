@@ -65,6 +65,16 @@ public interface ReadOnlyLDAPRequest
        extends Serializable
 {
   /**
+   * Retrieves the set of controls for this request.  The caller must not alter
+   * this set of controls.
+   *
+   * @return  The set of controls for this request.
+   */
+  Control[] getControls();
+
+
+
+  /**
    * Retrieves a list containing the set of controls for this request.
    *
    * @return  A list containing the set of controls for this request.

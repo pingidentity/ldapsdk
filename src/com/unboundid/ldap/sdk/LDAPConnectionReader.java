@@ -421,8 +421,9 @@ final class LDAPConnectionReader
           }
         }
 
-        Debug.debugLDAPResult(response, connection);
         connection.setLastCommunicationTime();
+        Debug.debugLDAPResult(response, connection);
+        logResponse(response);
 
         final ResponseAcceptor responseAcceptor;
         if ((response instanceof SearchResultEntry) ||
@@ -806,6 +807,80 @@ final class LDAPConnectionReader
         closeInternal(true, message);
         throw new LDAPException(ResultCode.SERVER_DOWN,  message, e);
       }
+    }
+  }
+
+
+
+  /**
+   * Logs the provided response, if appropriate.
+   *
+   * @param  response  The response to be logged.  It must not be {@code null}.
+   */
+  void logResponse(final LDAPResponse response)
+  {
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger == null)
+    {
+      return;
+    }
+
+    final int messageID = response.getMessageID();
+
+    if (response instanceof BindResult)
+    {
+      logger.logBindResult(connection, messageID, (BindResult) response);
+    }
+    else if (response instanceof ExtendedResult)
+    {
+      logger.logExtendedResult(connection, messageID,
+           (ExtendedResult) response);
+    }
+    else if (response instanceof SearchResult)
+    {
+      logger.logSearchResult(connection, messageID, (SearchResult) response);
+    }
+    else if (response instanceof LDAPResult)
+    {
+      final LDAPResult ldapResult = (LDAPResult) response;
+      final OperationType operationType = ldapResult.getOperationType();
+      if (operationType != null)
+      {
+        switch (operationType)
+        {
+          case ADD:
+            logger.logAddResult(connection, messageID, ldapResult);
+            break;
+          case COMPARE:
+            logger.logCompareResult(connection, messageID, ldapResult);
+            break;
+          case DELETE:
+            logger.logDeleteResult(connection, messageID, ldapResult);
+            break;
+          case MODIFY:
+            logger.logModifyResult(connection, messageID, ldapResult);
+            break;
+          case MODIFY_DN:
+            logger.logModifyDNResult(connection, messageID, ldapResult);
+            break;
+        }
+      }
+    }
+    else if (response instanceof SearchResultEntry)
+    {
+      logger.logSearchEntry(connection, messageID,
+           (SearchResultEntry) response);
+    }
+    else if (response instanceof SearchResultReference)
+    {
+      logger.logSearchReference(connection, messageID,
+           (SearchResultReference) response);
+    }
+    else if (response instanceof IntermediateResponse)
+    {
+      logger.logIntermediateResponse(connection, messageID,
+           (IntermediateResponse) response);
     }
   }
 

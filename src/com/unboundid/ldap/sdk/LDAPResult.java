@@ -430,6 +430,44 @@ public class LDAPResult
 
 
   /**
+   * Retrieves the type of operation that triggered this result, if available.
+   *
+   * @return  The type of operation that triggered this result, or {@code null}
+   *          if the operation type is not available.
+   *
+   * Retrieves the BER type for the LDAP protocol op from which this
+   */
+  public final OperationType getOperationType()
+  {
+    if (protocolOpType != null)
+    {
+      switch (protocolOpType)
+      {
+        case LDAPMessage.PROTOCOL_OP_TYPE_ADD_RESPONSE:
+          return OperationType.ADD;
+        case LDAPMessage.PROTOCOL_OP_TYPE_BIND_RESPONSE:
+          return OperationType.BIND;
+        case LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_RESPONSE:
+          return OperationType.COMPARE;
+        case LDAPMessage.PROTOCOL_OP_TYPE_DELETE_RESPONSE:
+          return OperationType.DELETE;
+        case LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_RESPONSE:
+          return OperationType.EXTENDED;
+        case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_RESPONSE:
+          return OperationType.MODIFY;
+        case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_RESPONSE:
+          return OperationType.MODIFY_DN;
+        case LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_DONE:
+          return OperationType.SEARCH;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
    * Retrieves the result code from the response.
    *
    * @return  The result code from the response.

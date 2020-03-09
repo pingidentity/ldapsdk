@@ -566,6 +566,14 @@ public final class SimpleBindRequest
       // Send the request to the server.
       final long responseTimeout = getResponseTimeoutMillis(connection);
       Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logBindRequest(connection, messageID, this);
+      }
+
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumBindRequests();
       connection.sendMessage(message, responseTimeout);
@@ -631,6 +639,14 @@ public final class SimpleBindRequest
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logBindRequest(connection, messageID, this);
+    }
+
     connection.getConnectionStatistics().incrementNumBindRequests();
     try
     {

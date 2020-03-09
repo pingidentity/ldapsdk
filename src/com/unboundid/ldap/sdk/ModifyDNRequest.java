@@ -739,6 +739,14 @@ public final class ModifyDNRequest
     try
     {
       Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logModifyDNRequest(connection, messageID, this);
+      }
+
       connection.getConnectionStatistics().incrementNumModifyDNRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
@@ -788,6 +796,14 @@ public final class ModifyDNRequest
     // Send the request to the server.
     final long requestTime = System.nanoTime();
     Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logModifyDNRequest(connection, messageID, this);
+    }
+
     connection.getConnectionStatistics().incrementNumModifyDNRequests();
     try
     {

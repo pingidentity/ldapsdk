@@ -204,6 +204,12 @@ final class LDAPConnectionInternals
     {
       Debug.debugConnect(host, port, connection);
 
+      final LDAPConnectionLogger logger = options.getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logConnect(connection, host, inetAddress, port);
+      }
+
       if (options.getReceiveBufferSize() > 0)
       {
         socket.setReceiveBufferSize(options.getReceiveBufferSize());
@@ -378,7 +384,7 @@ final class LDAPConnectionInternals
    */
   boolean isConnected()
   {
-    return socket.isConnected();
+    return ((socket != null) && socket.isConnected());
   }
 
 
@@ -686,36 +692,63 @@ final class LDAPConnectionInternals
     // Determine if this connection was closed by a finalizer.
     final boolean closedByFinalizer =
          ((disconnectInfo.getType() == DisconnectType.CLOSED_BY_FINALIZER) &&
-          socket.isConnected());
+              (socket != null) && socket.isConnected());
 
     writeTimeoutHandler.destroy();
 
-    try
+    final boolean alreadyClosed;
+    if (socket == null)
     {
-      socket.close();
+      alreadyClosed = true;
     }
-    catch (final Exception e)
+    else
     {
-      Debug.debugException(e);
-    }
+      alreadyClosed = false;
 
-    // Make sure that the connection reader is no longer running.
-    try
-    {
-      connectionReader.close(false);
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
+      try
+      {
+        try
+        {
+          outputStream.close();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
 
-    try
-    {
-      outputStream.close();
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
+        try
+        {
+          socket.close();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+      finally
+      {
+        outputStream = null;
+        socket = null;
+      }
+
+      // Make sure that the connection reader is no longer running.
+      try
+      {
+        connectionReader.close(false);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+
+      try
+      {
+        outputStream.close();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
     }
 
     if (saslClient != null)
@@ -734,8 +767,20 @@ final class LDAPConnectionInternals
       }
     }
 
-    Debug.debugDisconnect(host, port, connection, disconnectInfo.getType(),
-         disconnectInfo.getMessage(), disconnectInfo.getCause());
+    if (! alreadyClosed)
+    {
+      Debug.debugDisconnect(host, port, connection, disconnectInfo.getType(),
+           disconnectInfo.getMessage(), disconnectInfo.getCause());
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logDisconnect(connection, host, port, disconnectInfo.getType(),
+             disconnectInfo.getMessage(), disconnectInfo.getCause());
+      }
+    }
+
     if (closedByFinalizer && Debug.debugEnabled(DebugType.LDAP))
     {
       Debug.debug(Level.WARNING, DebugType.LDAP,
@@ -821,7 +866,7 @@ final class LDAPConnectionInternals
     buffer.append("', port=");
     buffer.append(port);
     buffer.append(", connected=");
-    buffer.append(socket.isConnected());
+    buffer.append((socket != null) && socket.isConnected());
     buffer.append(", nextMessageID=");
     buffer.append(nextMessageID.get());
     buffer.append(')');

@@ -211,6 +211,14 @@ public abstract class SASLBindRequest
     try
     {
       Debug.debugLDAPRequest(Level.INFO, this, msgID, connection);
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logBindRequest(connection, messageID, this);
+      }
+
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumBindRequests();
       connection.sendMessage(requestMessage, timeoutMillis);
@@ -269,6 +277,14 @@ public abstract class SASLBindRequest
   {
     final int msgID = requestMessage.getMessageID();
     Debug.debugLDAPRequest(Level.INFO, this, msgID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logBindRequest(connection, messageID, this);
+    }
+
     final long requestTime = System.nanoTime();
     connection.getConnectionStatistics().incrementNumBindRequests();
     connection.sendMessage(requestMessage, timeoutMillis);

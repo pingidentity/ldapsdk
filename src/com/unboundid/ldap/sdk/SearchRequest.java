@@ -1424,6 +1424,14 @@ public final class SearchRequest
     try
     {
       Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+      final LDAPConnectionLogger logger =
+           connection.getConnectionOptions().getConnectionLogger();
+      if (logger != null)
+      {
+        logger.logSearchRequest(connection, messageID, this);
+      }
+
       connection.getConnectionStatistics().incrementNumSearchRequests();
       connection.sendMessage(message, timeout);
       return asyncRequestID;
@@ -1473,6 +1481,14 @@ public final class SearchRequest
     final long responseTimeout = getResponseTimeoutMillis(connection);
     final long requestTime = System.nanoTime();
     Debug.debugLDAPRequest(Level.INFO, this, messageID, connection);
+
+    final LDAPConnectionLogger logger =
+         connection.getConnectionOptions().getConnectionLogger();
+    if (logger != null)
+    {
+      logger.logSearchRequest(connection, messageID, this);
+    }
+
     connection.getConnectionStatistics().incrementNumSearchRequests();
     try
     {
