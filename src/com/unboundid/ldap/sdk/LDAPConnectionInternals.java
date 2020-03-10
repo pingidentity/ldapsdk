@@ -740,15 +740,6 @@ final class LDAPConnectionInternals
       {
         Debug.debugException(e);
       }
-
-      try
-      {
-        outputStream.close();
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
     }
 
     if (saslClient != null)
