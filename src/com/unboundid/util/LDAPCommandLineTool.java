@@ -393,6 +393,11 @@ public abstract class LDAPCommandLineTool
          "hostname", true, (supportsMultipleServers() ? 0 : 1),
          INFO_LDAP_TOOL_PLACEHOLDER_HOST.get(),
          INFO_LDAP_TOOL_DESCRIPTION_HOST.get(), "localhost");
+    if (includeAlternateLongIdentifiers())
+    {
+      host.addLongIdentifier("host", true);
+      host.addLongIdentifier("address", true);
+    }
     host.setArgumentGroupName(argumentGroup);
     parser.addArgument(host);
 

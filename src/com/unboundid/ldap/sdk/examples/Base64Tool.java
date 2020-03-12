@@ -273,10 +273,8 @@ public final class Base64Tool
   @Override()
   public String getToolDescription()
   {
-    return "Base64 encode raw data, or base64-decode encoded data.  The data " +
-         "to encode or decode may be provided via an argument value, in a " +
-         "file, or read from standard input.  The output may be written to a " +
-         "file or standard output.";
+    return "Encode raw data using the base64 algorithm or decode " +
+         "base64-encoded data back to its raw representation.";
   }
 
 

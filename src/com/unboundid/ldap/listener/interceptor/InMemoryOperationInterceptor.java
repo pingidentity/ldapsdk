@@ -373,7 +373,7 @@ public abstract class InMemoryOperationInterceptor
    * Invokes any processing that should be performed for the provided search
    * result entry before it is returned to the client.
    *
-   * @param  entry  Information about the search result entry to be returned
+   * @param  entry  Information about the search result entry to be returned.
    */
   public void processSearchEntry(final InMemoryInterceptedSearchEntry entry)
   {
@@ -387,7 +387,7 @@ public abstract class InMemoryOperationInterceptor
    * result reference before it is returned to the client.
    *
    * @param  reference  Information about the search result reference to be
-   *                    returned
+   *                    returned.
    */
   public void processSearchReference(
                    final InMemoryInterceptedSearchReference reference)

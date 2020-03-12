@@ -189,7 +189,7 @@ public final class LDAPCompare
   @Override()
   public String getToolDescription()
   {
-    return "Process compare operations in LDAP directory server.";
+    return "Perform LDAP compare operations in an LDAP directory server.";
   }
 
 
