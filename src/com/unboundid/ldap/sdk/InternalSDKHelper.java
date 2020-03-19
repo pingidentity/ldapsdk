@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.io.File;
 import java.util.logging.Level;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -563,5 +564,58 @@ public final class InternalSDKHelper
   public static Schema getEntrySchema(final Entry entry)
   {
     return entry.getSchema();
+  }
+
+
+
+  /**
+   * Retrieves the path to the instance root directory for the Ping Identity
+   * Directory Server (or related Ping Identity server product) with which this
+   * instance of the LDAP SDK is associated.
+   *
+   * @return  The path to the associated Ping Identity server instance root, or
+   *          {@code null} if the LDAP SDK is not running with knowledge of an
+   *          associated Ping Identity server instance.
+   */
+  @InternalUseOnly()
+  public static File getPingIdentityServerRoot()
+  {
+    final String propertyValue = StaticUtils.getSystemProperty(
+         "com.unboundid.directory.server.ServerRoot");
+    if (propertyValue != null)
+    {
+      try
+      {
+        final File f = new File(propertyValue);
+        if (f.exists() && f.isDirectory())
+        {
+          return f;
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    final String environmentVariableValue =
+         StaticUtils.getEnvironmentVariable("INSTANCE_ROOT");
+    if (environmentVariableValue != null)
+    {
+      try
+      {
+        final File f = new File(environmentVariableValue);
+        if (f.exists() && f.isDirectory())
+        {
+          return f;
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    return null;
   }
 }

@@ -1084,9 +1084,7 @@ public final class LDAPConnectionOptions
     NameResolver defaultNameResolver = DefaultNameResolver.getInstance();
     try
     {
-      if ((StaticUtils.getSystemProperty(
-           "com.unboundid.directory.server.ServerRoot") != null) ||
-           (StaticUtils.getEnvironmentVariable("INSTANCE_ROOT") != null))
+      if (InternalSDKHelper.getPingIdentityServerRoot() != null)
       {
         final Class<?> nrClass = Class.forName(
              "com.unboundid.directory.server.util.OutageSafeDnsCache");
