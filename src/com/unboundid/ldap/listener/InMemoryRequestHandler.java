@@ -5370,6 +5370,11 @@ findEntriesAndRefs:
            IntegerMatchingRule.getInstance(), lastChangeNumber.toString()));
     }
 
+    for (final Attribute customAttribute : config.getCustomRootDSEAttributes())
+    {
+      rootDSEEntry.setAttribute(customAttribute);
+    }
+
     return new ReadOnlyEntry(rootDSEEntry);
   }
 

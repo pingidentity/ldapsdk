@@ -38,10 +38,13 @@ package com.unboundid.ldap.listener;
 
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -1224,5 +1227,56 @@ public final class InMemoryDirectoryServerConfigTestCase
 
     cfg.setRootDSEEntry(null);
     assertNull(cfg.getRootDSEEntry());
+  }
+
+
+
+  /**
+   * Tests the behavior of the methods that make it possible to get and set
+   * custom root DSE attributes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCustomRootDSEAttributes()
+         throws Exception
+  {
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+
+    assertNotNull(cfg.getCustomRootDSEAttributes());
+    assertTrue(cfg.getCustomRootDSEAttributes().isEmpty());
+
+    cfg.setCustomRootDSEAttributes(
+         Collections.singletonList(new Attribute("description", "foo")));
+
+    assertNotNull(cfg.getCustomRootDSEAttributes());
+    assertFalse(cfg.getCustomRootDSEAttributes().isEmpty());
+    assertEquals(cfg.getCustomRootDSEAttributes().size(), 1);
+    assertEquals(cfg.getCustomRootDSEAttributes(),
+         Collections.singletonList(new Attribute("description", "foo")));
+
+    cfg.setCustomRootDSEAttributes(Collections.<Attribute>emptyList());
+
+    assertNotNull(cfg.getCustomRootDSEAttributes());
+    assertTrue(cfg.getCustomRootDSEAttributes().isEmpty());
+
+    cfg.setCustomRootDSEAttributes(
+         Arrays.asList(
+              new Attribute("description", "bar", "baz"),
+              new Attribute("displayName", "Root DSE")));
+
+    assertNotNull(cfg.getCustomRootDSEAttributes());
+    assertFalse(cfg.getCustomRootDSEAttributes().isEmpty());
+    assertEquals(cfg.getCustomRootDSEAttributes().size(), 2);
+    assertEquals(cfg.getCustomRootDSEAttributes(),
+         Arrays.asList(
+              new Attribute("description", "bar", "baz"),
+              new Attribute("displayName", "Root DSE")));
+
+    cfg.setCustomRootDSEAttributes(null);
+
+    assertNotNull(cfg.getCustomRootDSEAttributes());
+    assertTrue(cfg.getCustomRootDSEAttributes().isEmpty());
   }
 }

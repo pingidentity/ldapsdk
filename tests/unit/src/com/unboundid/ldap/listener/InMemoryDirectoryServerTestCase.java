@@ -40,6 +40,7 @@ package com.unboundid.ldap.listener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
@@ -6268,7 +6269,7 @@ public final class InMemoryDirectoryServerTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testCustomRootDSE()
+  public void testCustomRootDSEEntry()
          throws Exception
   {
     final InMemoryDirectoryServerConfig cfg =
@@ -6291,6 +6292,219 @@ public final class InMemoryDirectoryServerTestCase
     ds.startListening();
 
     assertTrue(ds.getRootDSE().hasAttribute("description"));
+    ds.shutDown(true);
+  }
+
+
+
+  /**
+   * Tests the ability of the directory server to present a dynamically
+   * generated root DSE that includes custom static attributes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCustomRootDSEAttributes()
+         throws Exception
+  {
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    cfg.setMaxChangeLogEntries(Integer.MAX_VALUE);
+
+    InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+    ds.add(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+
+    RootDSE rootDSE = ds.getRootDSE();
+    assertNotNull(rootDSE);
+
+    assertNotNull(rootDSE.getChangelogDN());
+    assertDNsEqual(rootDSE.getChangelogDN(), "cn=changelog");
+
+    assertNotNull(rootDSE.getFirstChangeNumber());
+    assertEquals(rootDSE.getFirstChangeNumber().longValue(), 1L);
+
+    assertNotNull(rootDSE.getLastChangeNumber());
+    assertEquals(rootDSE.getLastChangeNumber().longValue(), 1L);
+
+    assertFalse(rootDSE.hasAttribute("description"));
+
+    ds.add(
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People");
+
+    rootDSE = ds.getRootDSE();
+    assertNotNull(rootDSE);
+
+    assertNotNull(rootDSE.getChangelogDN());
+    assertDNsEqual(rootDSE.getChangelogDN(), "cn=changelog");
+
+    assertNotNull(rootDSE.getFirstChangeNumber());
+    assertEquals(rootDSE.getFirstChangeNumber().longValue(), 1L);
+
+    assertNotNull(rootDSE.getLastChangeNumber());
+    assertEquals(rootDSE.getLastChangeNumber().longValue(), 2L);
+
+    assertFalse(rootDSE.hasAttribute("description"));
+
+
+    ds.shutDown(true);
+    cfg.setCustomRootDSEAttributes(Collections.singletonList(
+         new Attribute("description", "custom description 1")));
+    ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+    ds.add(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+
+    rootDSE = ds.getRootDSE();
+    assertNotNull(rootDSE);
+
+    assertNotNull(rootDSE.getChangelogDN());
+    assertDNsEqual(rootDSE.getChangelogDN(), "cn=changelog");
+
+    assertNotNull(rootDSE.getFirstChangeNumber());
+    assertEquals(rootDSE.getFirstChangeNumber().longValue(), 1L);
+
+    assertNotNull(rootDSE.getLastChangeNumber());
+    assertEquals(rootDSE.getLastChangeNumber().longValue(), 1L);
+
+    assertTrue(rootDSE.hasAttribute("description"));
+    assertEquals(rootDSE.getAttributeValue("description"),
+         "custom description 1");
+
+    ds.add(
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People");
+
+    rootDSE = ds.getRootDSE();
+    assertNotNull(rootDSE);
+
+    assertNotNull(rootDSE.getChangelogDN());
+    assertDNsEqual(rootDSE.getChangelogDN(), "cn=changelog");
+
+    assertNotNull(rootDSE.getFirstChangeNumber());
+    assertEquals(rootDSE.getFirstChangeNumber().longValue(), 1L);
+
+    assertNotNull(rootDSE.getLastChangeNumber());
+    assertEquals(rootDSE.getLastChangeNumber().longValue(), 2L);
+
+    assertTrue(rootDSE.hasAttribute("description"));
+    assertEquals(rootDSE.getAttributeValue("description"),
+         "custom description 1");
+
+
+    ds.shutDown(true);
+    cfg.setCustomRootDSEAttributes(Arrays.asList(
+         new Attribute("description", "custom description 2"),
+         new Attribute("firstChangeNumber", "123"),
+         new Attribute("lastChangeNumber", "456")));
+    ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+    ds.add(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+
+    rootDSE = ds.getRootDSE();
+    assertNotNull(rootDSE);
+
+    assertNotNull(rootDSE.getChangelogDN());
+    assertDNsEqual(rootDSE.getChangelogDN(), "cn=changelog");
+
+    assertNotNull(rootDSE.getFirstChangeNumber());
+    assertEquals(rootDSE.getFirstChangeNumber().longValue(), 123L);
+
+    assertNotNull(rootDSE.getLastChangeNumber());
+    assertEquals(rootDSE.getLastChangeNumber().longValue(), 456L);
+
+    assertTrue(rootDSE.hasAttribute("description"));
+    assertEquals(rootDSE.getAttributeValue("description"),
+         "custom description 2");
+
+    ds.add(
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People");
+
+    rootDSE = ds.getRootDSE();
+    assertNotNull(rootDSE);
+
+    assertNotNull(rootDSE.getChangelogDN());
+    assertDNsEqual(rootDSE.getChangelogDN(), "cn=changelog");
+
+    assertNotNull(rootDSE.getFirstChangeNumber());
+    assertEquals(rootDSE.getFirstChangeNumber().longValue(), 123L);
+
+    assertNotNull(rootDSE.getLastChangeNumber());
+    assertEquals(rootDSE.getLastChangeNumber().longValue(), 456L);
+
+    assertTrue(rootDSE.hasAttribute("description"));
+    assertEquals(rootDSE.getAttributeValue("description"),
+         "custom description 2");
+
+
+    ds.shutDown(true);
+    cfg.setCustomRootDSEAttributes(null);
+    ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+    ds.add(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+
+
+    rootDSE = ds.getRootDSE();
+    assertNotNull(rootDSE);
+
+    assertNotNull(rootDSE.getChangelogDN());
+    assertDNsEqual(rootDSE.getChangelogDN(), "cn=changelog");
+
+    assertNotNull(rootDSE.getFirstChangeNumber());
+    assertEquals(rootDSE.getFirstChangeNumber().longValue(), 1L);
+
+    assertNotNull(rootDSE.getLastChangeNumber());
+    assertEquals(rootDSE.getLastChangeNumber().longValue(), 1L);
+
+    assertFalse(rootDSE.hasAttribute("description"));
+
+    ds.add(
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People");
+
+    rootDSE = ds.getRootDSE();
+    assertNotNull(rootDSE);
+
+    assertNotNull(rootDSE.getChangelogDN());
+    assertDNsEqual(rootDSE.getChangelogDN(), "cn=changelog");
+
+    assertNotNull(rootDSE.getFirstChangeNumber());
+    assertEquals(rootDSE.getFirstChangeNumber().longValue(), 1L);
+
+    assertNotNull(rootDSE.getLastChangeNumber());
+    assertEquals(rootDSE.getLastChangeNumber().longValue(), 2L);
+
+    assertFalse(rootDSE.hasAttribute("description"));
+
     ds.shutDown(true);
   }
 

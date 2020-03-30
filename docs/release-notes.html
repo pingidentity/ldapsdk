@@ -14,6 +14,21 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the in-memory directory server to allow adding custom attributes to the
+                  otherwise dynamically generated root DSE.  It was already possible to override
+                  the root DSE entry with a static entry provided in the configuration, but that
+                  would prevent certain state-maintaining attributes (for example,
+                  firstChangeNumber and lastChangeNumber) from being accurately reflected.  It is
+                  now possible to provide a set of custom attributes to include in the root DSE
+                  while allowing the server to dynamically generate any other attributes that the
+                  server normally maintains.  Note that if the server is configured with any
+                  custom root DSE attribute that has the same name as an attribute that would
+                  normally be dynamically generated, the custom attribute will take precedence
+                  over the dynamically generated version.
+                  <br><br>
+                </li>
+
+                <li>
                   Added an ldif-diff tool that can be used to compare the contents of two LDIF
                   files.  The differences will be written as the set of LDIF add, delete, and
                   modify change records needed to convert the set of entries in the source LDIF
