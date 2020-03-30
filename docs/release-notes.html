@@ -29,6 +29,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added an IA5 string argument value validator that can be used to ensure that
+                  values for associated arguments are only allowed to contain ASCII characters
+                  (that is, characters from the IA5 character set).  It may optionally be
+                  configured to accept or reject empty strings.
+                  <br><br>
+                </li>
+
+                <li>
                   Added an ldif-diff tool that can be used to compare the contents of two LDIF
                   files.  The differences will be written as the set of LDIF add, delete, and
                   modify change records needed to convert the set of entries in the source LDIF
