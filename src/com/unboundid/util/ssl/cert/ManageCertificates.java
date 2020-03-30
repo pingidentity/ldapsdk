@@ -97,6 +97,7 @@ import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.BooleanValueArgument;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.IA5StringArgumentValueValidator;
 import com.unboundid.util.args.IPAddressArgumentValueValidator;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.OIDArgumentValueValidator;
@@ -1494,6 +1495,8 @@ public final class ManageCertificates
     genCertSubjectAltDNS.addLongIdentifier("subjectAltDNS", true);
     genCertSubjectAltDNS.addLongIdentifier("san-dns", true);
     genCertSubjectAltDNS.addLongIdentifier("sanDNS", true);
+    genCertSubjectAltDNS.addValueValidator(
+         new IA5StringArgumentValueValidator(false));
     genCertParser.addArgument(genCertSubjectAltDNS);
 
     final StringArgument genCertSubjectAltIP = new StringArgument(null,
@@ -1555,6 +1558,8 @@ public final class ManageCertificates
     genCertSubjectAltEmail.addLongIdentifier("sanEmailAddress", true);
     genCertSubjectAltEmail.addLongIdentifier("san-email", true);
     genCertSubjectAltEmail.addLongIdentifier("sanEmail", true);
+    genCertSubjectAltEmail.addValueValidator(
+         new IA5StringArgumentValueValidator(false));
     genCertParser.addArgument(genCertSubjectAltEmail);
 
     final StringArgument genCertSubjectAltURI = new StringArgument(null,
@@ -1977,6 +1982,8 @@ public final class ManageCertificates
     genCSRSubjectAltDNS.addLongIdentifier("subjectAltDNS", true);
     genCSRSubjectAltDNS.addLongIdentifier("san-dns", true);
     genCSRSubjectAltDNS.addLongIdentifier("sanDNS", true);
+    genCSRSubjectAltDNS.addValueValidator(
+         new IA5StringArgumentValueValidator(false));
     genCSRParser.addArgument(genCSRSubjectAltDNS);
 
     final StringArgument genCSRSubjectAltIP = new StringArgument(null,
@@ -2038,6 +2045,8 @@ public final class ManageCertificates
     genCSRSubjectAltEmail.addLongIdentifier("sanEmailAddress", true);
     genCSRSubjectAltEmail.addLongIdentifier("san-email", true);
     genCSRSubjectAltEmail.addLongIdentifier("sanEmail", true);
+    genCSRSubjectAltEmail.addValueValidator(
+         new IA5StringArgumentValueValidator(false));
     genCSRParser.addArgument(genCSRSubjectAltEmail);
 
     final StringArgument genCSRSubjectAltURI = new StringArgument(null,
@@ -2435,6 +2444,8 @@ public final class ManageCertificates
     signCSRSubjectAltDNS.addLongIdentifier("subjectAltDNS", true);
     signCSRSubjectAltDNS.addLongIdentifier("san-dns", true);
     signCSRSubjectAltDNS.addLongIdentifier("sanDNS", true);
+    signCSRSubjectAltDNS.addValueValidator(
+         new IA5StringArgumentValueValidator(false));
     signCSRParser.addArgument(signCSRSubjectAltDNS);
 
     final StringArgument signCSRSubjectAltIP = new StringArgument(null,
@@ -2496,6 +2507,8 @@ public final class ManageCertificates
     signCSRSubjectAltEmail.addLongIdentifier("sanEmailAddress", true);
     signCSRSubjectAltEmail.addLongIdentifier("san-email", true);
     signCSRSubjectAltEmail.addLongIdentifier("sanEmail", true);
+    signCSRSubjectAltEmail.addValueValidator(
+         new IA5StringArgumentValueValidator(false));
     signCSRParser.addArgument(signCSRSubjectAltEmail);
 
     final StringArgument signCSRSubjectAltURI = new StringArgument(null,
@@ -2542,6 +2555,8 @@ public final class ManageCertificates
     signCSRIssuerAltDNS.addLongIdentifier("issuerAltDNS", true);
     signCSRIssuerAltDNS.addLongIdentifier("ian-dns", true);
     signCSRIssuerAltDNS.addLongIdentifier("ianDNS", true);
+    signCSRIssuerAltDNS.addValueValidator(
+         new IA5StringArgumentValueValidator(false));
     signCSRParser.addArgument(signCSRIssuerAltDNS);
 
     final StringArgument signCSRIssuerAltIP = new StringArgument(null,
@@ -2603,6 +2618,8 @@ public final class ManageCertificates
     signCSRIssuerAltEmail.addLongIdentifier("ianEmailAddress", true);
     signCSRIssuerAltEmail.addLongIdentifier("ian-email", true);
     signCSRIssuerAltEmail.addLongIdentifier("ianEmail", true);
+    signCSRIssuerAltEmail.addValueValidator(
+         new IA5StringArgumentValueValidator(false));
     signCSRParser.addArgument(signCSRIssuerAltEmail);
 
     final StringArgument signCSRIssuerAltURI = new StringArgument(null,

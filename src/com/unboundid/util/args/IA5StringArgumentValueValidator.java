@@ -111,13 +111,14 @@ public final class IA5StringArgumentValueValidator
 
     for (int i=0; i < length; i++)
     {
-      final int c = valueString.charAt(i);
-      final int fullByte = (c & 0xFF);
-      final int asciiByte = (c & 0x7F);
+      final char c = valueString.charAt(i);
+      final int fullByte = ((int) c & 0xFF);
+      final int asciiByte = ((int) c & 0x7F);
       if (fullByte != asciiByte)
       {
         throw new ArgumentException(ERR_IA5_STRING_VALIDATOR_ILLEGAL_CHAR.get(
-             valueString, argument.getIdentifierString(), String.valueOf(c),
+             valueString, argument.getIdentifierString(),
+             String.valueOf(c),
              i));
       }
     }

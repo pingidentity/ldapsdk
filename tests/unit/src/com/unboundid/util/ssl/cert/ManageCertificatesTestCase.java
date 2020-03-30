@@ -8103,6 +8103,60 @@ public final class ManageCertificatesTestCase
 
 
   /**
+   * Tests to ensure that the manage-certificates tool will properly reject
+   * subject alternative name values that are DNS names and IP addresses if they
+   * are not valid IA5 strings.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSubjectAlternativeNameIA5Validation()
+         throws Exception
+  {
+    // Tests with a minimal set of arguments for a new certificate using a
+    // JKS keystore that doesn't already exist.
+    File ksFile = createTempFile();
+    assertTrue(ksFile.exists());
+    assertTrue(ksFile.delete());
+    assertFalse(ksFile.exists());
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "generate-self-signed-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--subject-alternative-name-dns", "");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "generate-self-signed-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--subject-alternative-name-email-address", "");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "generate-self-signed-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--subject-alternative-name-dns", "jalape\u00f1o.example.com");
+
+    manageCertificates(ResultCode.PARAM_ERROR, null,
+         "generate-self-signed-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--alias", "server-cert",
+         "--subject-dn", "CN=ldap.example.com,O=Example Corporation,C=US",
+         "--subject-alternative-name-email-address",
+         "jalape\u00f1o@example.com");
+  }
+
+
+
+  /**
    * Runs the manage-certificates tool with the provided arguments and expects
    * a success result code.
    *
