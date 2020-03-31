@@ -1,0 +1,672 @@
+
+
+
+
+Network Working Group                                          L. Howard
+Internet-Draft                                                      PADL
+Intended status: Experimental                             March 30, 2020
+Expires: October 1, 2020
+
+
+             A Simple Anonymous SASL and GSS-API Mechanism
+                       draft-howard-gss-sanon-00
+
+Abstract
+
+   This document defines protocols, procedures and conventions for a
+   Generic Security Service Application Program Interface (GSS-API)
+   security mechanism that provides key agreement without authentication
+   of either party.  Through the GS2 family of mechanisms defined in RFC
+   5801, these protocols also define how Simple Authentication and
+   Security Layer (SASL, RFC 4422) applications may use this mechanism.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on October 1, 2020.
+
+Copyright Notice
+
+   Copyright (c) 2020 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+
+
+
+
+Howard                   Expires October 1, 2020                [Page 1]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   1.1.  Authentication  . . . . . . . . . . . . . . . . . . . . . .   3
+   1.2.  Application Services  . . . . . . . . . . . . . . . . . . .   3
+   2.  Requirements notation . . . . . . . . . . . . . . . . . . . .   3
+   3.  Discovery and Negotiation . . . . . . . . . . . . . . . . . .   3
+   4.  Naming  . . . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   4.1.  GSS Name Types  . . . . . . . . . . . . . . . . . . . . . .   4
+   4.1.1.  GSS_C_NT_USER_NAME  . . . . . . . . . . . . . . . . . . .   4
+   4.1.2.  GSS_C_NT_HOSTBASED_SERVICE  . . . . . . . . . . . . . . .   4
+   4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE  . . . . . . . . . . . . . .   4
+   4.1.4.  GSS_C_NT_ANONYMOUS  . . . . . . . . . . . . . . . . . . .   5
+   4.2.  Canonicalization  . . . . . . . . . . . . . . . . . . . . .   5
+   5.  Mechanism Attributes  . . . . . . . . . . . . . . . . . . . .   5
+   6.  Definitions and Token Formats . . . . . . . . . . . . . . . .   6
+   6.1.  Context Establishment Tokens  . . . . . . . . . . . . . . .   6
+   6.1.1.  Initial context token . . . . . . . . . . . . . . . . . .   6
+   6.1.2.  Acceptor context token  . . . . . . . . . . . . . . . . .   6
+   6.1.3.  Initiator context completion  . . . . . . . . . . . . . .   7
+   6.2.  Per-Message Tokens  . . . . . . . . . . . . . . . . . . . .   7
+   6.3.  Context Deletion Tokens . . . . . . . . . . . . . . . . . .   7
+   6.4.  Exported Name Tokens  . . . . . . . . . . . . . . . . . . .   7
+   7.  Key derivation  . . . . . . . . . . . . . . . . . . . . . . .   7
+   8.  Pseudo-Random Function  . . . . . . . . . . . . . . . . . . .   8
+   9.  NegoEx  . . . . . . . . . . . . . . . . . . . . . . . . . . .   8
+   10. Example . . . . . . . . . . . . . . . . . . . . . . . . . . .   8
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .   9
+   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
+   12.1.  OID Registry . . . . . . . . . . . . . . . . . . . . . . .   9
+   12.2.  SASL Registry  . . . . . . . . . . . . . . . . . . . . . .   9
+   13. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
+   14. Normative References  . . . . . . . . . . . . . . . . . . . .  10
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  12
+
+1.  Introduction
+
+   The Simple Authentication and Security Layer (SASL) [RFC4422] is a
+   framework for providing authentication and message protection
+   services via arbitrary mechanisms.  Protocols that support it include
+   IMAP, SMTP, and XMPP.  The Generic Security Service Application
+   Program Interface (GSS-API) [RFC2743] provides a framework for
+   authentication and message protection services through a common
+   programming interface.  This document conforms to the SASL and GSS-
+
+
+
+
+Howard                   Expires October 1, 2020                [Page 2]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+   API bridge specified in [RFC5801], so it defines both a SASL and GSS-
+   API mechanism.
+
+   The Simple Anonymous mechanism described in this document (hereafter
+   SAnon) is a simple protocol based on the X25519 elliptic curve
+   Diffie-Hellman (ECDH) key agreement scheme defined in [RFC7748].  No
+   authentication of initiator or acceptor is provided.  A potential use
+   of SAnon is to provide a degree of privacy when bootstrapping unkeyed
+   entities.
+
+1.1.  Authentication
+
+   The GSS-API protocol involves a client, known as the initiator,
+   sending an initial security context token of a chosen GSS-API
+   security mechanism to a peer, known as the acceptor.  The two peers
+   subsequently exchange, synchronously, as many security context tokens
+   as necessary to complete the authentication or fail.  The specific
+   number of context tokens exchanged varies by security mechanism: in
+   the case of the SAnon mechanism, it is two (i.e. a single round
+   trip).  Once authentication is complete, the initiator and acceptor
+   share a security context which can be used for integrity or
+   confidentiality, protecting subsequent application messages.
+
+1.2.  Application Services
+
+   GSS-API provides a number of a services to the calling application:
+
+   GSS_Wrap()  integrity and optional confidentiality for a message
+
+   GSS_GetMIC()  integrity for a message sent separately
+
+   GSS_Pseudo_random()  shared key derivation (e.g., for keying external
+      confidentiality and integrity layers)
+
+   These services are used with security contexts having a shared
+   session key, to protect application-layer messages.
+
+2.  Requirements notation
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [RFC2119].
+
+3.  Discovery and Negotiation
+
+   The means of discovering GSS-API peers and their supported mechanisms
+   is out of this specification's scope.  However, when the Simple and
+   Protected Negotiation mechanism (SPNEGO) defined in [RFC4178] is
+
+
+
+Howard                   Expires October 1, 2020                [Page 3]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+   used, the mechanism MUST be negotiated under [I-D.zhu-negoex].  This
+   provides improved interoperability with Microsoft Windows, which has
+   limited support for negotiating new mechanisms directly under SPNEGO.
+
+   SAnon may also be negotiated using SASL [RFC4422] or by a GSS-API
+   peer that requests it explicitly.  To avoid multiple negotiation
+   layers and implementation complexity, this specification is
+   deliberately not crypto-agile.  A future variant using a different
+   key exchange algorithm would be assigned a different mechanism OID
+   and authentication scheme identifier.
+
+   [[CREF1: How do we reconcile the fact that RFC5801 requires
+   GSS_C_MUTUAL_FLAG to be set, which we cannot do because the acceptor
+   is not authenticated.  Is it possible for this mechanism to support
+   SASL GS2? --LH]]
+
+4.  Naming
+
+   The GSS-API provides a rich security principal naming model.  At its
+   most basic the query forms of names consist of a user-entered/
+   displayable string and a "name-type".  Name-types are constants with
+   names prefixed with "GSS_C_NT_" in the GSS-API.
+
+4.1.  GSS Name Types
+
+4.1.1.  GSS_C_NT_USER_NAME
+
+   This name type is supported when the input name string is the well
+   known anonymous name string, WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS.
+   In all other cases, importing the name SHOULD fail.  The acquisition
+   of initiator credentials for any identity other than the well known
+   anonymous one MUST fail.
+
+4.1.2.  GSS_C_NT_HOSTBASED_SERVICE
+
+   This name type is supported so that existing applications can use
+   mechanism without changes, providing they already support
+   GSS_C_ANON_FLAG.  When importing a name of this type the name string
+   MUST be ignored, as the SAnon mechanism does not authenticate the
+   acceptor (service) to the initiator.
+
+4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE
+
+   The [RFC5179] name type is treated identically to
+   GSS_C_NT_HOSTBASED_SERVICE.
+
+
+
+
+
+
+Howard                   Expires October 1, 2020                [Page 4]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+4.1.4.  GSS_C_NT_ANONYMOUS
+
+   When importing a name of this type the name string MUST be ignored,
+   as this mechanism recognizes a single level of anonymity.  Functions
+   that return a name type to the caller SHOULD always return this name
+   type.
+
+   The display form is the well known anonymous name string, WELLKNOWN/
+   ANONYMOUS@WELLKNOWN:ANONYMOUS.  This representation is consistent
+   with [RFC8062], permitting acceptors which perform name-based
+   authorization to do so in a mechanism-agnostic manner.
+
+4.2.  Canonicalization
+
+   The SAnon GSS-API mechanism has a single anonymous identity, the well
+   known anonymous name.  The canonical form is the well known anonymous
+   name string with the GSS_C_NT_ANONYMOUS name type.
+
+5.  Mechanism Attributes
+
+   The [RFC5587] mechanism attributes for this mechanism are:
+
+      GSS_C_MA_MECH_CONCRETE
+
+      GSS_C_MA_ITOK_FRAMED
+
+      GSS_C_MA_AUTH_INIT_ANON
+
+      GSS_C_MA_AUTH_TARG_ANON
+
+      GSS_C_MA_INTEG_PROT
+
+      GSS_C_MA_CONF_PROT
+
+      GSS_C_MA_MIC
+
+      GSS_C_MA_WRAP
+
+      GSS_C_MA_REPLAY_DET
+
+      GSS_C_MA_OOS_DET
+
+      GSS_C_MA_CBINDINGS
+
+      GSS_C_MA_PFS
+
+      GSS_C_MA_CTX_TRANS
+
+
+
+
+Howard                   Expires October 1, 2020                [Page 5]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+6.  Definitions and Token Formats
+
+6.1.  Context Establishment Tokens
+
+6.1.1.  Initial context token
+
+   The initial context token is framed per Section 1 of [RFC2743]:
+
+   GSS-API DEFINITIONS ::=
+        BEGIN
+
+        MechType ::= OBJECT IDENTIFIER
+        -- representing SAnon mechanism
+        GSSAPI-Token ::=
+        [APPLICATION 0] IMPLICIT SEQUENCE {
+            thisMech MechType,
+            innerToken ANY DEFINED BY thisMech
+                -- 32 byte initiator public key
+        }
+        END
+
+   Unlike many other GSS-API mechanisms such as Kerberos, this token
+   framing is not used by subsequent context tokens.  As such pure SASL
+   implementations of this mechanism do not need to deal with DER
+   encoding the mechanism object identifier.
+
+   On the first call to GSS_Init_sec_context(), the mechanism checks
+   whether the caller set anon_req_flag (GSS_C_ANON_FLAG), or if the
+   claimant_cred_handle identity is the well known anonymous name.  If
+   neither is the case then the call MUST fail with GSS_S_UNAVAILABLE,
+   so that anonymous context establishment is not attempted without the
+   initiator explicitly requesting it.
+
+   If proceeding, the initiator generates a secret and public key per
+   Section 6.1 of [RFC7748] and returns GSS_S_CONTINUE_NEEDED indicating
+   that a subsequent context token from the acceptor is expected.  The
+   innerToken field of the output_token contains the initiator's 32 byte
+   public key.
+
+6.1.2.  Acceptor context token
+
+   Upon receiving a context token from the initiator, the acceptor
+   validates that the token is well formed and contains a public key of
+   the requisite length.  The acceptor generates its own public key, to
+   be be sent to the initiator in the output token without any
+   additional framing.  A session key is computed as specified in
+   Section 7.
+
+
+
+
+Howard                   Expires October 1, 2020                [Page 6]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+   The acceptor then returns GSS_S_COMPLETE, setting src_name to the
+   well known anonymous name.  The reply_det_state (GSS_C_REPLAY_FLAG),
+   sequence_state (GSS_C_SEQUENCE_FLAG), conf_avail (GSS_C_CONF_FLAG),
+   integ_avail (GSS_C_INTEG_FLAG) and anon_state (GSS_C_ANON_FLAG)
+   security context flags are set to TRUE.  The context is ready to use.
+
+6.1.3.  Initiator context completion
+
+   Upon receiving the acceptor context token and verifying it is well
+   formed, the initiator computes the session key per Section 7.  The
+   initiator returns GSS_S_COMPLETE to the caller, to indicate the
+   initiator is authenticated and the context is ready for use.  No
+   output token is emitted.  Security context flags are set as for the
+   acceptor context.
+
+6.2.  Per-Message Tokens
+
+   The per-message tokens definitions are imported from [RFC4121]
+   Section 4.2.  The base key used to derive specific keys for signing
+   and sealing messages is the session key defined in Section 7.  The
+   [RFC3961] encryption and checksum algorithms use the aes128-cts-hmac-
+   sha256-128 encryption type defined in [RFC8009].
+
+6.3.  Context Deletion Tokens
+
+   Context deletion tokens are empty in this mechanism.  The behavior of
+   GSS_Delete_sec_context() [RFC2743] is as specified in [RFC4121]
+   Section 4.3.
+
+6.4.  Exported Name Tokens
+
+   The exported name token format for the SAnon GSS-API mechanism is the
+   same as the display form, plus the standard exported name token
+   format header mandated by the GSS-API [RFC2743].
+
+7.  Key derivation
+
+   The ECDH shared secret k is computed by calling the X25519 function
+   with the initiator (or acceptor's) secret key and the acceptor (or
+   initiator's) public key, as specified in Section 6.1 of [RFC7748].
+   The context session key K1 is computed using a key derivation
+   function from Section 5.1 of [SP800-108] with HMAC as the PRF:
+
+      K1 = HMAC-SHA-256(key, 0x00000001 | label | 0x00 | context | k)
+
+   where:
+
+   k             the X25519 shared secret computed above
+
+
+
+Howard                   Expires October 1, 2020                [Page 7]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+   0x00000001    the iteration count from Section 5.1 of [SP800-108]
+
+   label         the string "sanon-x25519" (without quotation marks)
+
+   context       the concatenation of the initiator and acceptor public
+                 keys, along with the channel binding application data
+                 (if present)
+
+   The inclusion of channel bindings in the key derivation function
+   means that the acceptor cannot ignore initiator channel bindings;
+   this differs from some other mechanisms.
+
+   The session key K1 is used as the base key for the generation of per-
+   message tokens and the GSS-API PRF.  The encryption type of K1 is
+   aes128-cts-hmac-sha256-128 as defined in [RFC8009].
+
+8.  Pseudo-Random Function
+
+   The [RFC4401] GSS-API pseudo-random function for this mechanism
+   imports the definitions from [RFC8009], using the context session key
+   as the base key for both GSS_C_PRF_KEY_FULL and GSS_C_PRF_KEY_PARTIAL
+   usages.
+
+9.  NegoEx
+
+   The NegoEx authentication scheme identifier for this mechanism is
+   DEE384FF-1086-4E86-BE78-B94170BFD376.
+
+   The initiator and acceptor keys for NegoEx checksum generation and
+   verification are derived using the PRF from the previous section,
+   with the input data "sanon-x25519-initiator-negoex-key" and "sanon-
+   x25519-acceptor-negoex-key" (without quotation marks).
+
+   No NegoEx metadata is specified.  Any metadata present MUST be
+   ignored.
+
+10.  Example
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Howard                   Expires October 1, 2020                [Page 8]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+   C: <connects to IMAP port>
+   S: * OK
+   C: C001 CAPABILITY
+   S: * CAPABILITY IMAP4rev1 SASL-IR SORT [...] AUTH=SANON-X25519
+   S: C001 OK Capability Completed
+   C: A001 AUTHENTICATE SANON-X25519
+      biwst6I3typTZgzjssjrE2kLCbeneQ3RlmceZsmYK7wQIKI=
+   S: +
+      Q9e/5jDPX0J/RhPylw2XdxFh473bPUdI3FMvwjeydr8=
+   C:
+   S: A001 OK SANON-X25519 authentication successful
+
+11.  Security Considerations
+
+   This document defines a GSS-API security mechanism, and therefore
+   deals in security and has security considerations text embedded
+   throughout.  This section only addresses security considerations
+   associated with the SAnon GSS mechanism described in this document.
+   It does not address security considerations associated with the GSS-
+   API itself.
+
+   This mechanism provides only for key agreement.  It does not
+   authenticate or identify either party.
+
+12.  IANA Considerations
+
+   This specification creates a number of IANA registries.
+
+12.1.  OID Registry
+
+   OID: iso.org.dod.internet.private.enterprise.padl.sanonMech.mechanism
+   s.x25519 (1.3.6.1.4.1.5322.26.1.110)
+
+12.2.  SASL Registry
+
+   Subject: Registration of SASL mechanisms SANON-X25519 and SANON-
+   X25519-PLUS
+
+   SASL mechanism names: SANON-X25519 and SANON-X25519-PLUS
+
+   Security considerations: See RFC 5801 and draft-howard-gss-sanon
+
+   Published specification (recommended): draft-howard-gss-sanon
+
+   Person & email address to contact for further information:
+
+   Luke Howard lukeh@padl.com
+
+
+
+
+Howard                   Expires October 1, 2020                [Page 9]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+   Intended usage: common
+
+   Owner/Change controller: iesg@ietf.org
+
+13.  Acknowledgements
+
+   AuriStor, Inc funded the design of this protocol, along with an
+   implementation for the Heimdal GSS-API library.
+
+   Jeffrey Altman, Greg Hudson and Nicolas Williams provided valuable
+   feedback on this document.
+
+14.  Normative References
+
+   [I-D.zhu-negoex]
+              Short, M., Zhu, L., Damour, K., and D. McPherson, "SPNEGO
+              Extended Negotiation (NEGOEX) Security Mechanism", draft-
+              zhu-negoex-04 (work in progress), January 2011.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC2743]  Linn, J., "Generic Security Service Application Program
+              Interface Version 2, Update 1", RFC 2743,
+              DOI 10.17487/RFC2743, January 2000,
+              <https://www.rfc-editor.org/info/rfc2743>.
+
+   [RFC3961]  Raeburn, K., "Encryption and Checksum Specifications for
+              Kerberos 5", RFC 3961, DOI 10.17487/RFC3961, February
+              2005, <https://www.rfc-editor.org/info/rfc3961>.
+
+   [RFC4121]  Zhu, L., Jaganathan, K., and S. Hartman, "The Kerberos
+              Version 5 Generic Security Service Application Program
+              Interface (GSS-API) Mechanism: Version 2", RFC 4121,
+              DOI 10.17487/RFC4121, July 2005,
+              <https://www.rfc-editor.org/info/rfc4121>.
+
+   [RFC4178]  Zhu, L., Leach, P., Jaganathan, K., and W. Ingersoll, "The
+              Simple and Protected Generic Security Service Application
+              Program Interface (GSS-API) Negotiation Mechanism",
+              RFC 4178, DOI 10.17487/RFC4178, October 2005,
+              <https://www.rfc-editor.org/info/rfc4178>.
+
+
+
+
+
+
+
+Howard                   Expires October 1, 2020               [Page 10]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+   [RFC4401]  Williams, N., "A Pseudo-Random Function (PRF) API
+              Extension for the Generic Security Service Application
+              Program Interface (GSS-API)", RFC 4401,
+              DOI 10.17487/RFC4401, February 2006,
+              <https://www.rfc-editor.org/info/rfc4401>.
+
+   [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
+              Authentication and Security Layer (SASL)", RFC 4422,
+              DOI 10.17487/RFC4422, June 2006,
+              <https://www.rfc-editor.org/info/rfc4422>.
+
+   [RFC5179]  Williams, N., "Generic Security Service Application
+              Program Interface (GSS-API) Domain-Based Service Names
+              Mapping for the Kerberos V GSS Mechanism", RFC 5179,
+              DOI 10.17487/RFC5179, May 2008,
+              <https://www.rfc-editor.org/info/rfc5179>.
+
+   [RFC5587]  Williams, N., "Extended Generic Security Service Mechanism
+              Inquiry APIs", RFC 5587, DOI 10.17487/RFC5587, July 2009,
+              <https://www.rfc-editor.org/info/rfc5587>.
+
+   [RFC5801]  Josefsson, S. and N. Williams, "Using Generic Security
+              Service Application Program Interface (GSS-API) Mechanisms
+              in Simple Authentication and Security Layer (SASL): The
+              GS2 Mechanism Family", RFC 5801, DOI 10.17487/RFC5801,
+              July 2010, <https://www.rfc-editor.org/info/rfc5801>.
+
+   [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
+              for Security", RFC 7748, DOI 10.17487/RFC7748, January
+              2016, <https://www.rfc-editor.org/info/rfc7748>.
+
+   [RFC8009]  Jenkins, M., Peck, M., and K. Burgin, "AES Encryption with
+              HMAC-SHA2 for Kerberos 5", RFC 8009, DOI 10.17487/RFC8009,
+              October 2016, <https://www.rfc-editor.org/info/rfc8009>.
+
+   [RFC8062]  Zhu, L., Leach, P., Hartman, S., and S. Emery, Ed.,
+              "Anonymity Support for Kerberos", RFC 8062,
+              DOI 10.17487/RFC8062, February 2017,
+              <https://www.rfc-editor.org/info/rfc8062>.
+
+   [SP800-108]
+              Chen, L., "Recommendation for Key Derivation Using
+              Pseudorandom Functions (Revised)", October 2009.
+
+
+
+
+
+
+
+
+Howard                   Expires October 1, 2020               [Page 11]
+
+Internet-Draft            SAnon SASL & GSS-API                March 2020
+
+
+Author's Address
+
+   Luke Howard
+   PADL Software Pty Ltd
+   PO Box 59
+   Central Park, VIC  3145
+   Australia
+
+   Email: lukeh@padl.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Howard                   Expires October 1, 2020               [Page 12]
