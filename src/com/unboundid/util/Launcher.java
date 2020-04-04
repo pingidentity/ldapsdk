@@ -59,6 +59,8 @@ import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
 import com.unboundid.ldap.sdk.transformations.TransformLDIF;
+import com.unboundid.ldif.LDIFDiff;
+import com.unboundid.ldif.LDIFSearch;
 import com.unboundid.util.ssl.TLSCipherSuiteSelector;
 import com.unboundid.util.ssl.cert.ManageCertificates;
 
@@ -92,6 +94,8 @@ import com.unboundid.util.ssl.cert.ManageCertificates;
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
+ *   <LI>ldifsearch -- Launch the {@link LDIFSearch} tool.</LI>
+ *   <LI>ldif-diff -- Launch the {@link LDIFDiff} tool.</LI>
  *   <LI>manage-certificates -- Launch the {@link ManageCertificates} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
@@ -219,6 +223,14 @@ public final class Launcher
     {
       return LDAPDebugger.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("ldifsearch"))
+    {
+      return LDIFSearch.main(outStream, errStream, remainingArgs);
+    }
+    else if (firstArg.equals("ldif-diff"))
+    {
+      return LDIFDiff.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("manage-certificates"))
     {
       return ManageCertificates.main(System.in, outStream, errStream,
@@ -267,6 +279,8 @@ public final class Launcher
         err.println("     ldapmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
+        err.println("     ldifsearch");
+        err.println("     ldif-diff");
         err.println("     manage-certificates");
         err.println("     modrate");
         err.println("     searchrate");

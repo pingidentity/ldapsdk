@@ -287,7 +287,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Abandon
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 4);
+    assertEquals(logHandler.getMessageCount(), 4,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -341,7 +342,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Add result
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 5);
+    assertEquals(logHandler.getMessageCount(), 5,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -392,7 +394,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Bind result
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 5);
+    assertEquals(logHandler.getMessageCount(), 5,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -444,7 +447,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Bind result
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 5);
+    assertEquals(logHandler.getMessageCount(), 5,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -496,7 +500,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Compare result
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 5);
+    assertEquals(logHandler.getMessageCount(), 5,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -547,7 +552,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Delete result
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 5);
+    assertEquals(logHandler.getMessageCount(), 5,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -611,7 +617,8 @@ public final class JSONLDAPConnectionLoggerTestCase
       // - Extended result
       // - Unbind
       // - Disconnect
-      assertEquals(logHandler.getMessageCount(), 7);
+      assertEquals(logHandler.getMessageCount(), 7,
+           logHandler.getMessagesString());
 
       final List<JSONObject> logMessages = parseLogMessages(logHandler);
       assertMessageIs(logMessages.get(0), "connect", null);
@@ -673,7 +680,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Modify result
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 5);
+    assertEquals(logHandler.getMessageCount(), 5,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -729,7 +737,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Modify DN result
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 5);
+    assertEquals(logHandler.getMessageCount(), 5,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -797,7 +806,8 @@ public final class JSONLDAPConnectionLoggerTestCase
     // - Search result done
     // - Unbind
     // - Disconnect
-    assertEquals(logHandler.getMessageCount(), 9);
+    assertEquals(logHandler.getMessageCount(), 9,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "connect", null);
@@ -852,7 +862,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "disconnect", null);
@@ -899,7 +910,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "request", OperationType.COMPARE);
@@ -975,7 +987,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "request", OperationType.MODIFY);
@@ -1023,7 +1036,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "request", OperationType.ABANDON);
@@ -1077,7 +1091,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "request", OperationType.ADD);
@@ -1137,7 +1152,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "request", OperationType.ADD);
@@ -1197,7 +1213,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "request", OperationType.ADD);
@@ -1289,7 +1306,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "request", OperationType.SEARCH);
@@ -1348,7 +1366,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "result", OperationType.ADD);
@@ -1396,7 +1415,8 @@ public final class JSONLDAPConnectionLoggerTestCase
 
 
     // Make sure that we can decode the message.
-    assertEquals(logHandler.getMessageCount(), 1);
+    assertEquals(logHandler.getMessageCount(), 1,
+         logHandler.getMessagesString());
 
     final List<JSONObject> logMessages = parseLogMessages(logHandler);
     assertMessageIs(logMessages.get(0), "result", OperationType.BIND);

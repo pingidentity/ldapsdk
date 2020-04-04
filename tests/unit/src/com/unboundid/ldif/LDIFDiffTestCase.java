@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2020 Ping Identity Corporation
+ * Copyright 2020 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * Copyright (C) 2007-2020 Ping Identity Corporation
+ * Copyright (C) 2020 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -2556,10 +2556,6 @@ public final class LDIFDiffTestCase
 
 
 
-
-  // Single-value changes
-
-
   /**
    * Reads the LDIF change records from the specified file.
    *
@@ -2582,7 +2578,8 @@ public final class LDIFDiffTestCase
    * Reads the LDIF change records from the specified file.
    *
    * @param  ldifFile   The file from which to read the change records.  It may
-   *                    optionally be compressed, but it must not be encrypted.
+   *                    optionally be compressed, and it may be encrypted if a
+   *                    password file is provided.
    * @param  encPWFile  A file containing the encryption passphrase needed to
    *                    read the file.  It may be {@code null} if the file is
    *                    not encrypted.

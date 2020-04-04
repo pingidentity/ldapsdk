@@ -71,6 +71,8 @@ import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
 import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
+import com.unboundid.ldif.LDIFDiff;
+import com.unboundid.ldif.LDIFSearch;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.StaticUtils;
@@ -131,6 +133,8 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
+ *   <LI>ldifsearch -- Launch the {@link LDIFSearch} tool.</LI>
+ *   <LI>ldif-diff -- Launch the {@link LDIFDiff} tool.</LI>
  *   <LI>manage-account -- Launch the {@link ManageAccount} tool.</LI>
  *   <LI>manage-certificates -- Launch the {@link ManageCertificates} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
@@ -290,6 +294,14 @@ public final class Launcher
     {
       return LDAPDebugger.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("ldifsearch"))
+    {
+      return LDIFSearch.main(outStream, errStream, remainingArgs);
+    }
+    else if (firstArg.equals("ldif-diff"))
+    {
+      return LDIFDiff.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("manage-account"))
     {
       return ManageAccount.main(outStream, errStream, remainingArgs);
@@ -368,6 +380,8 @@ public final class Launcher
         err.println("     ldapmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
+        err.println("     ldifsearch");
+        err.println("     ldif-diff");
         err.println("     manage-account");
         err.println("     manage-certificates");
         err.println("     modrate");
@@ -418,6 +432,8 @@ public final class Launcher
          LDAPDelete.class,
          LDAPModify.class,
          LDAPSearch.class,
+         LDIFDiff.class,
+         LDIFSearch.class,
          ManageAccount.class,
          ManageCertificates.class,
          ModRate.class,

@@ -53,7 +53,6 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -4017,12 +4016,8 @@ findEntriesAndRefs:
 
       // Process the set of requested attributes so that we can pare down the
       // entries.
-      final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
-      final AtomicBoolean allOpAttrs = new AtomicBoolean(false);
-      final Map<String,List<List<String>>> returnAttrs =
-           processRequestedAttributes(request.getAttributes(), allUserAttrs,
-                allOpAttrs);
-
+      final SearchEntryParer parer = new SearchEntryParer(
+           request.getAttributes(), schema);
       final int sizeLimit;
       if (request.getSizeLimit() > 0)
       {
@@ -4046,8 +4041,7 @@ findEntriesAndRefs:
                responseControls);
         }
 
-        final Entry trimmedEntry = trimForRequestedAttributes(e,
-             allUserAttrs.get(), allOpAttrs.get(), returnAttrs);
+        final Entry trimmedEntry = parer.pareEntry(e);
         if (request.typesOnly())
         {
           final Entry typesOnlyEntry = new Entry(trimmedEntry.getDN(), schema);
@@ -5425,228 +5419,6 @@ findEntriesAndRefs:
 
 
   /**
-   * Processes the set of requested attributes from the given search request.
-   *
-   * @param  attrList      The list of requested attributes to examine.
-   * @param  allUserAttrs  Indicates whether to return all user attributes.  It
-   *                       should have an initial value of {@code false}.
-   * @param  allOpAttrs    Indicates whether to return all operational
-   *                       attributes.  It should have an initial value of
-   *                       {@code false}.
-   *
-   * @return  A map of specific attribute types to be returned.  The keys of the
-   *          map will be the lowercase OID and names of the attribute types,
-   *          and the values will be a list of option sets for the associated
-   *          attribute type.
-   */
-  private Map<String,List<List<String>>> processRequestedAttributes(
-               final List<String> attrList, final AtomicBoolean allUserAttrs,
-               final AtomicBoolean allOpAttrs)
-  {
-    if (attrList.isEmpty())
-    {
-      allUserAttrs.set(true);
-      return Collections.emptyMap();
-    }
-
-    final Schema schema = schemaRef.get();
-    final HashMap<String,List<List<String>>> m =
-         new HashMap<>(StaticUtils.computeMapCapacity(attrList.size() * 2));
-    for (final String s : attrList)
-    {
-      if (s.equals("*"))
-      {
-        // All user attributes.
-        allUserAttrs.set(true);
-      }
-      else if (s.equals("+"))
-      {
-        // All operational attributes.
-        allOpAttrs.set(true);
-      }
-      else if (s.startsWith("@"))
-      {
-        // Return attributes by object class.  This can only be supported if a
-        // schema has been defined.
-        if (schema != null)
-        {
-          final String ocName = s.substring(1);
-          final ObjectClassDefinition oc = schema.getObjectClass(ocName);
-          if (oc != null)
-          {
-            for (final AttributeTypeDefinition at :
-                 oc.getRequiredAttributes(schema, true))
-            {
-              addAttributeOIDAndNames(at, m, Collections.<String>emptyList());
-            }
-            for (final AttributeTypeDefinition at :
-                 oc.getOptionalAttributes(schema, true))
-            {
-              addAttributeOIDAndNames(at, m, Collections.<String>emptyList());
-            }
-          }
-        }
-      }
-      else
-      {
-        final ObjectPair<String,List<String>> nameWithOptions =
-             getNameWithOptions(s);
-        if (nameWithOptions == null)
-        {
-          continue;
-        }
-
-        final String name = nameWithOptions.getFirst();
-        final List<String> options = nameWithOptions.getSecond();
-
-        if (schema == null)
-        {
-          // Just use the name as provided.
-          List<List<String>> optionLists = m.get(name);
-          if (optionLists == null)
-          {
-            optionLists = new ArrayList<>(1);
-            m.put(name, optionLists);
-          }
-          optionLists.add(options);
-        }
-        else
-        {
-          // If the attribute type is defined in the schema, then use it to get
-          // all names and the OID.  Otherwise, just use the name as provided.
-          final AttributeTypeDefinition at = schema.getAttributeType(name);
-          if (at == null)
-          {
-            List<List<String>> optionLists = m.get(name);
-            if (optionLists == null)
-            {
-              optionLists = new ArrayList<>(1);
-              m.put(name, optionLists);
-            }
-            optionLists.add(options);
-          }
-          else
-          {
-            addAttributeOIDAndNames(at, m, options);
-          }
-        }
-      }
-    }
-
-    return m;
-  }
-
-
-
-  /**
-   * Parses the provided string into an attribute type and set of options.
-   *
-   * @param  s  The string to be parsed.
-   *
-   * @return  An {@code ObjectPair} in which the first element is the attribute
-   *          type name and the second is the list of options (or an empty
-   *          list if there are no options).  Alternately, a value of
-   *          {@code null} may be returned if the provided string does not
-   *          represent a valid attribute type description.
-   */
-  private static ObjectPair<String,List<String>> getNameWithOptions(
-                                                      final String s)
-  {
-    if (! Attribute.nameIsValid(s, true))
-    {
-      return null;
-    }
-
-    final String l = StaticUtils.toLowerCase(s);
-
-    int semicolonPos = l.indexOf(';');
-    if (semicolonPos < 0)
-    {
-      return new ObjectPair<>(l, Collections.<String>emptyList());
-    }
-
-    final String name = l.substring(0, semicolonPos);
-    final ArrayList<String> optionList = new ArrayList<>(1);
-    while (true)
-    {
-      final int nextSemicolonPos = l.indexOf(';', semicolonPos+1);
-      if (nextSemicolonPos < 0)
-      {
-        optionList.add(l.substring(semicolonPos+1));
-        break;
-      }
-      else
-      {
-        optionList.add(l.substring(semicolonPos+1, nextSemicolonPos));
-        semicolonPos = nextSemicolonPos;
-      }
-    }
-
-    return new ObjectPair<String,List<String>>(name, optionList);
-  }
-
-
-
-  /**
-   * Adds all-lowercase versions of the OID and all names for the provided
-   * attribute type definition to the given map with the given options.
-   *
-   * @param  d  The attribute type definition to process.
-   * @param  m  The map to which the OID and names should be added.
-   * @param  o  The array of attribute options to use in the map.  It should be
-   *            empty if no options are needed, and must not be {@code null}.
-   */
-  private void addAttributeOIDAndNames(final AttributeTypeDefinition d,
-                                       final Map<String,List<List<String>>> m,
-                                       final List<String> o)
-  {
-    if (d == null)
-    {
-      return;
-    }
-
-    final String lowerOID = StaticUtils.toLowerCase(d.getOID());
-    if (lowerOID != null)
-    {
-      List<List<String>> l = m.get(lowerOID);
-      if (l == null)
-      {
-        l = new ArrayList<>(1);
-        m.put(lowerOID, l);
-      }
-
-      l.add(o);
-    }
-
-    for (final String name : d.getNames())
-    {
-      final String lowerName = StaticUtils.toLowerCase(name);
-      List<List<String>> l = m.get(lowerName);
-      if (l == null)
-      {
-        l = new ArrayList<>(1);
-        m.put(lowerName, l);
-      }
-
-      l.add(o);
-    }
-
-    // If a schema is available, then see if the attribute type has any
-    // subordinate types.  If so, then add them.
-    final Schema schema = schemaRef.get();
-    if (schema != null)
-    {
-      for (final AttributeTypeDefinition subordinateType :
-           schema.getSubordinateAttributeTypes(d))
-      {
-        addAttributeOIDAndNames(subordinateType, m, o);
-      }
-    }
-  }
-
-
-
-  /**
    * Performs the necessary processing to determine whether the given entry
    * should be returned as a search result entry or reference, or if it should
    * not be returned at all.
@@ -5718,125 +5490,6 @@ findEntriesAndRefs:
     }
 
     entryList.add(entry);
-  }
-
-
-
-  /**
-   * Retrieves a copy of the provided entry that includes only the appropriate
-   * set of requested attributes.
-   *
-   * @param  entry         The entry to be returned.
-   * @param  allUserAttrs  Indicates whether to return all user attributes.
-   * @param  allOpAttrs    Indicates whether to return all operational
-   *                       attributes.
-   * @param  returnAttrs   A map with information about the specific attribute
-   *                       types to return.
-   *
-   * @return  A copy of the provided entry that includes only the appropriate
-   *          set of requested attributes.
-   */
-  private Entry trimForRequestedAttributes(final Entry entry,
-                     final boolean allUserAttrs, final boolean allOpAttrs,
-                     final Map<String,List<List<String>>> returnAttrs)
-  {
-    // See if we can return the entry without paring it down.
-    final Schema schema = schemaRef.get();
-    if (allUserAttrs)
-    {
-      if (allOpAttrs || (schema == null))
-      {
-        return entry;
-      }
-    }
-
-
-    // If we've gotten here, then we may only need to return a partial entry.
-    final Entry copy = new Entry(entry.getDN(), schema);
-
-    for (final Attribute a : entry.getAttributes())
-    {
-      final ObjectPair<String,List<String>> nameWithOptions =
-           getNameWithOptions(a.getName());
-      final String name = nameWithOptions.getFirst();
-      final List<String> options = nameWithOptions.getSecond();
-
-      // If there is a schema, then see if it is an operational attribute, since
-      // that needs to be handled in a manner different from user attributes
-      if (schema != null)
-      {
-        final AttributeTypeDefinition at = schema.getAttributeType(name);
-        if ((at != null) && at.isOperational())
-        {
-          if (allOpAttrs)
-          {
-            copy.addAttribute(a);
-            continue;
-          }
-
-          final List<List<String>> optionLists = returnAttrs.get(name);
-          if (optionLists == null)
-          {
-            continue;
-          }
-
-          for (final List<String> optionList : optionLists)
-          {
-            boolean matchAll = true;
-            for (final String option : optionList)
-            {
-              if (! options.contains(option))
-              {
-                matchAll = false;
-                break;
-              }
-            }
-
-            if (matchAll)
-            {
-              copy.addAttribute(a);
-              break;
-            }
-          }
-          continue;
-        }
-      }
-
-      // We'll assume that it's a user attribute, and we'll look for an exact
-      // match on the base name.
-      if (allUserAttrs)
-      {
-        copy.addAttribute(a);
-        continue;
-      }
-
-      final List<List<String>> optionLists = returnAttrs.get(name);
-      if (optionLists == null)
-      {
-        continue;
-      }
-
-      for (final List<String> optionList : optionLists)
-      {
-        boolean matchAll = true;
-        for (final String option : optionList)
-        {
-          if (! options.contains(option))
-          {
-            matchAll = false;
-            break;
-          }
-        }
-
-        if (matchAll)
-        {
-          copy.addAttribute(a);
-          break;
-        }
-      }
-    }
-
-    return copy;
   }
 
 
@@ -6304,14 +5957,9 @@ findEntriesAndRefs:
       return null;
     }
 
-    final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
-    final AtomicBoolean allOpAttrs = new AtomicBoolean(false);
-    final Map<String,List<List<String>>> returnAttrs =
-         processRequestedAttributes(Arrays.asList(c.getAttributes()),
-              allUserAttrs, allOpAttrs);
-
-    final Entry trimmedEntry = trimForRequestedAttributes(e, allUserAttrs.get(),
-         allOpAttrs.get(), returnAttrs);
+    final SearchEntryParer parer = new SearchEntryParer(
+         Arrays.asList(c.getAttributes()), schemaRef.get());
+    final Entry trimmedEntry = parer.pareEntry(e);
     return new PreReadResponseControl(new ReadOnlyEntry(trimmedEntry));
   }
 
@@ -6338,14 +5986,9 @@ findEntriesAndRefs:
       return null;
     }
 
-    final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
-    final AtomicBoolean allOpAttrs = new AtomicBoolean(false);
-    final Map<String,List<List<String>>> returnAttrs =
-         processRequestedAttributes(Arrays.asList(c.getAttributes()),
-              allUserAttrs, allOpAttrs);
-
-    final Entry trimmedEntry = trimForRequestedAttributes(e, allUserAttrs.get(),
-         allOpAttrs.get(), returnAttrs);
+    final SearchEntryParer parer = new SearchEntryParer(
+         Arrays.asList(c.getAttributes()), schemaRef.get());
+    final Entry trimmedEntry = parer.pareEntry(e);
     return new PostReadResponseControl(new ReadOnlyEntry(trimmedEntry));
   }
 

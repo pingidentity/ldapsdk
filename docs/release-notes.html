@@ -14,6 +14,20 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added an ldifsearch tool that can be used to find entries in one or more LDIF
+                  files that match given sets of criteria.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added an ldif-diff tool that can be used to compare the contents of two LDIF
+                  files.  The differences will be written as the set of LDIF add, delete, and
+                  modify change records needed to convert the set of entries in the source LDIF
+                  file into the set of entries contained in the target LDIF file.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the in-memory directory server to allow adding custom attributes to the
                   otherwise dynamically generated root DSE.  It was already possible to override
                   the root DSE entry with a static entry provided in the configuration, but that
@@ -44,14 +58,6 @@ ${TARGET="offline"}                <br>
                   ASCII characters.  Previously, attempts to use a value with a non-ASCII
                   character would fail with an internal error when attempting to create the
                   extension.  The tool will now report a more user-friendly error message.
-                  <br><br>
-                </li>
-
-                <li>
-                  Added an ldif-diff tool that can be used to compare the contents of two LDIF
-                  files.  The differences will be written as the set of LDIF add, delete, and
-                  modify change records needed to convert the set of entries in the source LDIF
-                  file into the set of entries contained in the target LDIF file.
                   <br><br>
                 </li>
 

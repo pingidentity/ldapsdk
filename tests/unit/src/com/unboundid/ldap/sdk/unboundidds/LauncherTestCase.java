@@ -38,11 +38,15 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.CommandLineTool;
+import com.unboundid.util.StaticUtils;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -152,6 +156,8 @@ public final class LauncherTestCase
       new Object[] { "ldapmodify" },
       new Object[] { "ldapsearch" },
       new Object[] { "ldap-debugger" },
+      new Object[] { "ldifsearch" },
+      new Object[] { "ldif-diff" },
       new Object[] { "manage-account" },
       new Object[] { "manage-certificates" },
       new Object[] { "modrate" },
@@ -206,6 +212,101 @@ public final class LauncherTestCase
 
       final CommandLineTool tool = Launcher.getToolInstance(c, out, err);
       assertNotNull(tool);
+    }
+  }
+
+
+
+  /**
+   * Ensures that all tools we distribute with the LDAP SDK can be invoked
+   * through the launcher.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void ensureAllDistributedToolsIncluded()
+         throws Exception
+  {
+    final Set<String> expectedToolNames = new HashSet<>();
+    for (final Object[] toolNamesArray : getValidToolNames())
+    {
+      final String toolName = (String) toolNamesArray[0];
+      if (toolName.equals("version"))
+      {
+        // This isn't really a tool.
+        continue;
+      }
+
+      if (toolName.equals("tls-cipher-suite-selector"))
+      {
+        // This is an internal tool that we don't intend to ship directly but
+        // can still be invoked using the launcher.
+        continue;
+      }
+
+      expectedToolNames.add((String) toolNamesArray[0]);
+    }
+
+    final Set<String> foundToolShellScripts = new HashSet<>();
+    final Set<String> foundToolBatchFiles = new HashSet<>();
+    final File baseDir = new File(System.getProperty("basedir"));
+    final File toolsDir =
+         StaticUtils.constructPath(baseDir, "dist-root", "tools");
+    for (final File f : toolsDir.listFiles())
+    {
+      if (f.isDirectory())
+      {
+        fail("Unexpected directory '" + f.getAbsolutePath() +
+             "' found in tools directory");
+      }
+
+      final String name = f.getName();
+      if (name.startsWith("."))
+      {
+        // This is a script or batch file meant to support other tools rather
+        // than one that is intended to be used directly.
+        continue;
+      }
+
+      if (name.endsWith(".bat"))
+      {
+        foundToolBatchFiles.add(name);
+      }
+      else
+      {
+        foundToolShellScripts.add(name);
+      }
+    }
+
+    for (final String scriptName : foundToolShellScripts)
+    {
+      assertTrue(foundToolBatchFiles.contains(scriptName + ".bat"),
+           "Missing batch file corresponding to shell script " + scriptName);
+    }
+
+    for (final String batchFile : foundToolBatchFiles)
+    {
+      final String scriptName =
+           batchFile.substring(0, (batchFile.length() - 4));
+      assertTrue(foundToolShellScripts.contains(scriptName),
+           "Missing shell script " + scriptName +
+                "corresponding to batch file " + batchFile);
+    }
+
+    assertEquals(foundToolShellScripts.size(), foundToolBatchFiles.size(),
+         "Size mismatch between shell scripts " + foundToolShellScripts +
+              " and batch files " + foundToolBatchFiles);
+
+    for (final String scriptName : foundToolShellScripts)
+    {
+      assertTrue(expectedToolNames.contains(scriptName),
+           "Missing launcher support for script " + scriptName);
+    }
+
+    for (final String scriptName : expectedToolNames)
+    {
+      assertTrue(foundToolShellScripts.contains(scriptName),
+           "Missing script for launcher tool " + scriptName);
     }
   }
 }

@@ -421,7 +421,7 @@ public final class LDIFDiff
     outputLDIF.addLongIdentifier("output-file", true);
     outputLDIF.addLongIdentifier("outputLDIFFile", true);
     outputLDIF.addLongIdentifier("output-ldif-file", true);
-    outputLDIF.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_OUTUPT.get());
+    outputLDIF.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_OUTPUT.get());
     parser.addArgument(outputLDIF);
 
 
@@ -429,7 +429,7 @@ public final class LDIFDiff
          INFO_LDIF_DIFF_ARG_DESC_COMPRESS_OUTPUT.get());
     compressOutput.addLongIdentifier("compress-output", true);
     compressOutput.addLongIdentifier("compress", true);
-    compressOutput.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_OUTUPT.get());
+    compressOutput.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_OUTPUT.get());
     parser.addArgument(compressOutput);
 
 
@@ -437,7 +437,7 @@ public final class LDIFDiff
          INFO_LDIF_DIFF_ARG_DESC_ENCRYPT_OUTPUT.get());
     encryptOutput.addLongIdentifier("encrypt-output", true);
     encryptOutput.addLongIdentifier("encrypt", true);
-    encryptOutput.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_OUTUPT.get());
+    encryptOutput.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_OUTPUT.get());
     parser.addArgument(encryptOutput);
 
 
@@ -459,7 +459,7 @@ public final class LDIFDiff
     outputEncryptionPassphraseFile.addLongIdentifier("output-password-file",
          true);
     outputEncryptionPassphraseFile.setArgumentGroupName(
-         INFO_LDIF_DIFF_ARG_GROUP_OUTUPT.get());
+         INFO_LDIF_DIFF_ARG_GROUP_OUTPUT.get());
     parser.addArgument(outputEncryptionPassphraseFile);
 
 
@@ -488,7 +488,7 @@ public final class LDIFDiff
     overwriteExistingOutputLDIF.addLongIdentifier("overwrite-output", true);
     overwriteExistingOutputLDIF.addLongIdentifier("overwrite", true);
     overwriteExistingOutputLDIF.setArgumentGroupName(
-         INFO_LDIF_DIFF_ARG_GROUP_OUTUPT.get());
+         INFO_LDIF_DIFF_ARG_GROUP_OUTPUT.get());
     parser.addArgument(overwriteExistingOutputLDIF);
 
 
