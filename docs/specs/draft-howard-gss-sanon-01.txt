@@ -4,21 +4,19 @@
 
 Network Working Group                                          L. Howard
 Internet-Draft                                                      PADL
-Intended status: Experimental                             March 30, 2020
-Expires: October 1, 2020
+Intended status: Experimental                              April 5, 2020
+Expires: October 7, 2020
 
 
-             A Simple Anonymous SASL and GSS-API Mechanism
-                       draft-howard-gss-sanon-00
+                  A Simple Anonymous GSS-API Mechanism
+                       draft-howard-gss-sanon-01
 
 Abstract
 
    This document defines protocols, procedures and conventions for a
    Generic Security Service Application Program Interface (GSS-API)
    security mechanism that provides key agreement without authentication
-   of either party.  Through the GS2 family of mechanisms defined in RFC
-   5801, these protocols also define how Simple Authentication and
-   Security Layer (SASL, RFC 4422) applications may use this mechanism.
+   of either party.
 
 Status of This Memo
 
@@ -35,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 1, 2020.
+   This Internet-Draft will expire on October 7, 2020.
 
 Copyright Notice
 
@@ -49,17 +47,16 @@ Copyright Notice
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
    include Simplified BSD License text as described in Section 4.e of
-
-
-
-
-Howard                   Expires October 1, 2020                [Page 1]
-
-Internet-Draft            SAnon SASL & GSS-API                March 2020
-
-
    the Trust Legal Provisions and are provided without warranty as
    described in the Simplified BSD License.
+
+
+
+
+Howard                   Expires October 7, 2020                [Page 1]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
 
 Table of Contents
 
@@ -72,7 +69,7 @@ Table of Contents
    4.1.  GSS Name Types  . . . . . . . . . . . . . . . . . . . . . .   4
    4.1.1.  GSS_C_NT_USER_NAME  . . . . . . . . . . . . . . . . . . .   4
    4.1.2.  GSS_C_NT_HOSTBASED_SERVICE  . . . . . . . . . . . . . . .   4
-   4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE  . . . . . . . . . . . . . .   4
+   4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE  . . . . . . . . . . . . . .   5
    4.1.4.  GSS_C_NT_ANONYMOUS  . . . . . . . . . . . . . . . . . . .   5
    4.2.  Canonicalization  . . . . . . . . . . . . . . . . . . . . .   5
    5.  Mechanism Attributes  . . . . . . . . . . . . . . . . . . . .   5
@@ -87,35 +84,17 @@ Table of Contents
    7.  Key derivation  . . . . . . . . . . . . . . . . . . . . . . .   7
    8.  Pseudo-Random Function  . . . . . . . . . . . . . . . . . . .   8
    9.  NegoEx  . . . . . . . . . . . . . . . . . . . . . . . . . . .   8
-   10. Example . . . . . . . . . . . . . . . . . . . . . . . . . . .   8
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .   9
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
-   12.1.  OID Registry . . . . . . . . . . . . . . . . . . . . . . .   9
-   12.2.  SASL Registry  . . . . . . . . . . . . . . . . . . . . . .   9
-   13. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
-   14. Normative References  . . . . . . . . . . . . . . . . . . . .  10
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  12
+   10. Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   11. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
+   12. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
+   13. Normative References  . . . . . . . . . . . . . . . . . . . .   9
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  10
 
 1.  Introduction
 
-   The Simple Authentication and Security Layer (SASL) [RFC4422] is a
-   framework for providing authentication and message protection
-   services via arbitrary mechanisms.  Protocols that support it include
-   IMAP, SMTP, and XMPP.  The Generic Security Service Application
-   Program Interface (GSS-API) [RFC2743] provides a framework for
-   authentication and message protection services through a common
-   programming interface.  This document conforms to the SASL and GSS-
-
-
-
-
-Howard                   Expires October 1, 2020                [Page 2]
-
-Internet-Draft            SAnon SASL & GSS-API                March 2020
-
-
-   API bridge specified in [RFC5801], so it defines both a SASL and GSS-
-   API mechanism.
+   The Generic Security Service Application Program Interface (GSS-API)
+   [RFC2743] provides a framework for authentication and message
+   protection services through a common programming interface.
 
    The Simple Anonymous mechanism described in this document (hereafter
    SAnon) is a simple protocol based on the X25519 elliptic curve
@@ -123,6 +102,17 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
    authentication of initiator or acceptor is provided.  A potential use
    of SAnon is to provide a degree of privacy when bootstrapping unkeyed
    entities.
+
+
+
+
+
+
+
+Howard                   Expires October 7, 2020                [Page 2]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
 
 1.1.  Authentication
 
@@ -149,7 +139,7 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
       confidentiality and integrity layers)
 
    These services are used with security contexts having a shared
-   session key, to protect application-layer messages.
+   session key to protect application-layer messages.
 
 2.  Requirements notation
 
@@ -162,29 +152,30 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
    The means of discovering GSS-API peers and their supported mechanisms
    is out of this specification's scope.  However, when the Simple and
    Protected Negotiation mechanism (SPNEGO) defined in [RFC4178] is
-
-
-
-Howard                   Expires October 1, 2020                [Page 3]
-
-Internet-Draft            SAnon SASL & GSS-API                March 2020
-
-
    used, the mechanism MUST be negotiated under [I-D.zhu-negoex].  This
    provides improved interoperability with Microsoft Windows, which has
    limited support for negotiating new mechanisms directly under SPNEGO.
+   SAnon may also be negotiated by a GSS-API peer that requests it
+   explicitly.
 
-   SAnon may also be negotiated using SASL [RFC4422] or by a GSS-API
-   peer that requests it explicitly.  To avoid multiple negotiation
-   layers and implementation complexity, this specification is
-   deliberately not crypto-agile.  A future variant using a different
-   key exchange algorithm would be assigned a different mechanism OID
-   and authentication scheme identifier.
+   To avoid multiple negotiation layers and implementation complexity,
+   this specification is deliberately not crypto-agile.  A future
+   variant using a different key exchange algorithm would be assigned a
+   different mechanism OID and authentication scheme identifier.
 
-   [[CREF1: How do we reconcile the fact that RFC5801 requires
-   GSS_C_MUTUAL_FLAG to be set, which we cannot do because the acceptor
-   is not authenticated.  Is it possible for this mechanism to support
-   SASL GS2? --LH]]
+
+
+Howard                   Expires October 7, 2020                [Page 3]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
+
+   The selection of SAnon is subject to local policy.  If anonymity is
+   not desired, mechanisms that provide authentication SHOULD be
+   preferred.  Initiators use GSS_C_ANON_FLAG or the well known
+   anonymous credential to indicate that anonymous authentication is
+   desired.  Either party can test for the presence of GSS_C_ANON_FLAG
+   to check if anonymous authentication was performed.
 
 4.  Naming
 
@@ -193,50 +184,59 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
    displayable string and a "name-type".  Name-types are constants with
    names prefixed with "GSS_C_NT_" in the GSS-API.
 
+   Many deployed applications do not have explicit support for anonymous
+   authentication.  To ease deployment, we recommend allowing anonymous
+   authentication to be requested by the initiator acquiring a
+   credential with a well known anonymous name.  This may allow the end-
+   user to request anonymous authentication directly, without requiring
+   the application be modified to support GSS_C_ANON_FLAG.  The well
+   known anonymous name has the same display form as in Kerberos
+   [RFC8062], allowing acceptors to perform name-based authorization in
+   a mechanism-agnostic manner.
+
+   This approach may, however, disadvantage applications that wish to
+   use GSS_C_ANON_FLAG to select anonymous authentication, as importing
+   a non-anonymous initiator name will fail with this approach.  We
+   consider this an acceptable compromise given the limited deployment
+   of GSS_C_ANON_FLAG in existing implementations.
+
 4.1.  GSS Name Types
 
 4.1.1.  GSS_C_NT_USER_NAME
 
    This name type is supported when the input name string is the well
    known anonymous name string, WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS.
-   In all other cases, importing the name SHOULD fail.  The acquisition
-   of initiator credentials for any identity other than the well known
-   anonymous one MUST fail.
+   In all other cases, importing the name SHOULD fail.
 
 4.1.2.  GSS_C_NT_HOSTBASED_SERVICE
 
-   This name type is supported so that existing applications can use
-   mechanism without changes, providing they already support
-   GSS_C_ANON_FLAG.  When importing a name of this type the name string
-   MUST be ignored, as the SAnon mechanism does not authenticate the
-   acceptor (service) to the initiator.
+   This name type identifies a host-based service and is generally used
+   by acceptors.  To allow existing applications to work unmodified with
+   SAnon, it is useful to allow anonymous acceptor credentials to be
+   acquired regardless of the service name.  (It follows from SAnon not
+   authenticating the acceptor that the acceptor identity is
+   meaningless.)  When importing a name of this type the name string
+   SHOULD be ignored.
+
+
+
+
+Howard                   Expires October 7, 2020                [Page 4]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
 
 4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE
 
    The [RFC5179] name type is treated identically to
    GSS_C_NT_HOSTBASED_SERVICE.
 
-
-
-
-
-
-Howard                   Expires October 1, 2020                [Page 4]
-
-Internet-Draft            SAnon SASL & GSS-API                March 2020
-
-
 4.1.4.  GSS_C_NT_ANONYMOUS
 
-   When importing a name of this type the name string MUST be ignored,
-   as this mechanism recognizes a single level of anonymity.  Functions
-   that return a name type to the caller SHOULD always return this name
-   type.
-
-   The display form is the well known anonymous name string, WELLKNOWN/
-   ANONYMOUS@WELLKNOWN:ANONYMOUS.  This representation is consistent
-   with [RFC8062], permitting acceptors which perform name-based
-   authorization to do so in a mechanism-agnostic manner.
+   When importing a name of this type the name string MUST be ignored.
+   Functions that return a name type to the caller MUST always return
+   this name type.  The display form is the well known anonymous name
+   string, WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS.
 
 4.2.  Canonicalization
 
@@ -277,9 +277,9 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
 
 
 
-Howard                   Expires October 1, 2020                [Page 5]
+Howard                   Expires October 7, 2020                [Page 5]
 
-Internet-Draft            SAnon SASL & GSS-API                March 2020
+Internet-Draft                SAnon GSS-API                   April 2020
 
 
 6.  Definitions and Token Formats
@@ -303,17 +303,12 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
         }
         END
 
-   Unlike many other GSS-API mechanisms such as Kerberos, this token
-   framing is not used by subsequent context tokens.  As such pure SASL
-   implementations of this mechanism do not need to deal with DER
-   encoding the mechanism object identifier.
-
    On the first call to GSS_Init_sec_context(), the mechanism checks
    whether the caller set anon_req_flag (GSS_C_ANON_FLAG), or if the
    claimant_cred_handle identity is the well known anonymous name.  If
    neither is the case then the call MUST fail with GSS_S_UNAVAILABLE,
    so that anonymous context establishment is not attempted without the
-   initiator explicitly requesting it.
+   initiator requesting it.
 
    If proceeding, the initiator generates a secret and public key per
    Section 6.1 of [RFC7748] and returns GSS_S_CONTINUE_NEEDED indicating
@@ -330,19 +325,18 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
    additional framing.  A session key is computed as specified in
    Section 7.
 
-
-
-
-Howard                   Expires October 1, 2020                [Page 6]
-
-Internet-Draft            SAnon SASL & GSS-API                March 2020
-
-
    The acceptor then returns GSS_S_COMPLETE, setting src_name to the
    well known anonymous name.  The reply_det_state (GSS_C_REPLAY_FLAG),
    sequence_state (GSS_C_SEQUENCE_FLAG), conf_avail (GSS_C_CONF_FLAG),
    integ_avail (GSS_C_INTEG_FLAG) and anon_state (GSS_C_ANON_FLAG)
    security context flags are set to TRUE.  The context is ready to use.
+
+
+
+Howard                   Expires October 7, 2020                [Page 6]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
 
 6.1.3.  Initiator context completion
 
@@ -387,16 +381,18 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
 
    k             the X25519 shared secret computed above
 
-
-
-Howard                   Expires October 1, 2020                [Page 7]
-
-Internet-Draft            SAnon SASL & GSS-API                March 2020
-
-
    0x00000001    the iteration count from Section 5.1 of [SP800-108]
 
    label         the string "sanon-x25519" (without quotation marks)
+
+
+
+
+
+Howard                   Expires October 7, 2020                [Page 7]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
 
    context       the concatenation of the initiator and acceptor public
                  keys, along with the channel binding application data
@@ -430,95 +426,46 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
    No NegoEx metadata is specified.  Any metadata present MUST be
    ignored.
 
-10.  Example
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Howard                   Expires October 1, 2020                [Page 8]
-
-Internet-Draft            SAnon SASL & GSS-API                March 2020
-
-
-   C: <connects to IMAP port>
-   S: * OK
-   C: C001 CAPABILITY
-   S: * CAPABILITY IMAP4rev1 SASL-IR SORT [...] AUTH=SANON-X25519
-   S: C001 OK Capability Completed
-   C: A001 AUTHENTICATE SANON-X25519
-      biwst6I3typTZgzjssjrE2kLCbeneQ3RlmceZsmYK7wQIKI=
-   S: +
-      Q9e/5jDPX0J/RhPylw2XdxFh473bPUdI3FMvwjeydr8=
-   C:
-   S: A001 OK SANON-X25519 authentication successful
-
-11.  Security Considerations
+10.  Security Considerations
 
    This document defines a GSS-API security mechanism, and therefore
    deals in security and has security considerations text embedded
    throughout.  This section only addresses security considerations
-   associated with the SAnon GSS mechanism described in this document.
-   It does not address security considerations associated with the GSS-
-   API itself.
+   associated with the SAnon mechanism described in this document.  It
+   does not address security considerations associated with the GSS-API
+   itself.
 
    This mechanism provides only for key agreement.  It does not
    authenticate or identify either party.
 
-12.  IANA Considerations
-
-   This specification creates a number of IANA registries.
-
-12.1.  OID Registry
-
-   OID: iso.org.dod.internet.private.enterprise.padl.sanonMech.mechanism
-   s.x25519 (1.3.6.1.4.1.5322.26.1.110)
-
-12.2.  SASL Registry
-
-   Subject: Registration of SASL mechanisms SANON-X25519 and SANON-
-   X25519-PLUS
-
-   SASL mechanism names: SANON-X25519 and SANON-X25519-PLUS
-
-   Security considerations: See RFC 5801 and draft-howard-gss-sanon
-
-   Published specification (recommended): draft-howard-gss-sanon
-
-   Person & email address to contact for further information:
-
-   Luke Howard lukeh@padl.com
 
 
 
 
-Howard                   Expires October 1, 2020                [Page 9]
+
+
+
+Howard                   Expires October 7, 2020                [Page 8]
 
-Internet-Draft            SAnon SASL & GSS-API                March 2020
+Internet-Draft                SAnon GSS-API                   April 2020
 
 
-   Intended usage: common
+11.  IANA Considerations
 
-   Owner/Change controller: iesg@ietf.org
+   IANA is requested to assign an OID for this GSS-API mechanism in the
+   SMI numbers registry, with the prefix of
+   iso.org.dod.internet.security.mechanisms (1.3.6.1.5.5) and to
+   reference this specification in the registry.
 
-13.  Acknowledgements
+12.  Acknowledgements
 
    AuriStor, Inc funded the design of this protocol, along with an
    implementation for the Heimdal GSS-API library.
 
-   Jeffrey Altman, Greg Hudson and Nicolas Williams provided valuable
-   feedback on this document.
+   Jeffrey Altman, Greg Hudson, Simon Josefsson, and Nicolas Williams
+   provided valuable feedback on this document.
 
-14.  Normative References
+13.  Normative References
 
    [I-D.zhu-negoex]
               Short, M., Zhu, L., Damour, K., and D. McPherson, "SPNEGO
@@ -554,12 +501,9 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
 
 
 
-
-
-
-Howard                   Expires October 1, 2020               [Page 10]
+Howard                   Expires October 7, 2020                [Page 9]
 
-Internet-Draft            SAnon SASL & GSS-API                March 2020
+Internet-Draft                SAnon GSS-API                   April 2020
 
 
    [RFC4401]  Williams, N., "A Pseudo-Random Function (PRF) API
@@ -567,11 +511,6 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
               Program Interface (GSS-API)", RFC 4401,
               DOI 10.17487/RFC4401, February 2006,
               <https://www.rfc-editor.org/info/rfc4401>.
-
-   [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
-              Authentication and Security Layer (SASL)", RFC 4422,
-              DOI 10.17487/RFC4422, June 2006,
-              <https://www.rfc-editor.org/info/rfc4422>.
 
    [RFC5179]  Williams, N., "Generic Security Service Application
               Program Interface (GSS-API) Domain-Based Service Names
@@ -582,12 +521,6 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
    [RFC5587]  Williams, N., "Extended Generic Security Service Mechanism
               Inquiry APIs", RFC 5587, DOI 10.17487/RFC5587, July 2009,
               <https://www.rfc-editor.org/info/rfc5587>.
-
-   [RFC5801]  Josefsson, S. and N. Williams, "Using Generic Security
-              Service Application Program Interface (GSS-API) Mechanisms
-              in Simple Authentication and Security Layer (SASL): The
-              GS2 Mechanism Family", RFC 5801, DOI 10.17487/RFC5801,
-              July 2010, <https://www.rfc-editor.org/info/rfc5801>.
 
    [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
@@ -605,18 +538,6 @@ Internet-Draft            SAnon SASL & GSS-API                March 2020
    [SP800-108]
               Chen, L., "Recommendation for Key Derivation Using
               Pseudorandom Functions (Revised)", October 2009.
-
-
-
-
-
-
-
-
-Howard                   Expires October 1, 2020               [Page 11]
-
-Internet-Draft            SAnon SASL & GSS-API                March 2020
-
 
 Author's Address
 
@@ -636,37 +557,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Howard                   Expires October 1, 2020               [Page 12]
+Howard                   Expires October 7, 2020               [Page 10]
