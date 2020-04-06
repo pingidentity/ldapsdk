@@ -2054,7 +2054,8 @@ public class StaticUtilsTestCase
 
 
   /**
-   * Provides a set of test cases for the isASCIIString method.
+   * Provides a set of test cases for the isASCIIString method that takes a byte
+   * array argument.
    *
    * @param  b        The array to be examined.
    * @param  isASCII  Indicates whether the contents of the provided array
@@ -2063,10 +2064,30 @@ public class StaticUtilsTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test(dataProvider = "testIsASCII")
-  public void testIsASCIIString(final byte[] b, final boolean isASCII)
+  public void testIsByteArrayASCIIString(final byte[] b, final boolean isASCII)
          throws Exception
   {
     assertEquals(StaticUtils.isASCIIString(b), isASCII);
+  }
+
+
+
+  /**
+   * Provides a set of test cases for the isASCIIString method that takes a
+   * string argument.
+   *
+   * @param  b        The array to be examined.
+   * @param  isASCII  Indicates whether the contents of the provided array
+   *                  represent a valid ASCII string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "testIsASCII")
+  public void testIsStringASCIIString(final byte[] b, final boolean isASCII)
+         throws Exception
+  {
+    assertEquals(StaticUtils.isASCIIString(StaticUtils.toUTF8String(b)),
+         isASCII);
   }
 
 
@@ -2194,7 +2215,8 @@ public class StaticUtilsTestCase
 
 
   /**
-   * Provides a set of test cases for the isPrintableString method.
+   * Provides a set of test cases for the isPrintableString method that takes a
+   * byte array argument.
    *
    * @param  b            The array to be examined.
    * @param  isPrintable  Indicates whether the contents of the provided array
@@ -2203,10 +2225,32 @@ public class StaticUtilsTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test(dataProvider = "testIsPrintable")
-  public void testIsPrintableString(final byte[] b, final boolean isPrintable)
+  public void testByteArrayIsPrintableString(final byte[] b,
+                                             final boolean isPrintable)
          throws Exception
   {
     assertEquals(StaticUtils.isPrintableString(b), isPrintable);
+  }
+
+
+
+  /**
+   * Provides a set of test cases for the isPrintableString method that takes a
+   * string argument.
+   *
+   * @param  b            The array to be examined.
+   * @param  isPrintable  Indicates whether the provided string represents a
+   *                      valid LDAP printable string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "testIsPrintable")
+  public void testStringIsPrintableString(final byte[] b,
+                                          final boolean isPrintable)
+         throws Exception
+  {
+    assertEquals(StaticUtils.isPrintableString(StaticUtils.toUTF8String(b)),
+         isPrintable);
   }
 
 
