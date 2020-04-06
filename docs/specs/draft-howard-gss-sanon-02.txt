@@ -4,12 +4,12 @@
 
 Network Working Group                                          L. Howard
 Internet-Draft                                                      PADL
-Intended status: Experimental                              April 5, 2020
-Expires: October 7, 2020
+Intended status: Experimental                              April 6, 2020
+Expires: October 8, 2020
 
 
                   A Simple Anonymous GSS-API Mechanism
-                       draft-howard-gss-sanon-01
+                       draft-howard-gss-sanon-02
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 7, 2020.
+   This Internet-Draft will expire on October 8, 2020.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Howard                   Expires October 7, 2020                [Page 1]
+Howard                   Expires October 8, 2020                [Page 1]
 
 Internet-Draft                SAnon GSS-API                   April 2020
 
@@ -69,9 +69,10 @@ Table of Contents
    4.1.  GSS Name Types  . . . . . . . . . . . . . . . . . . . . . .   4
    4.1.1.  GSS_C_NT_USER_NAME  . . . . . . . . . . . . . . . . . . .   4
    4.1.2.  GSS_C_NT_HOSTBASED_SERVICE  . . . . . . . . . . . . . . .   4
-   4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE  . . . . . . . . . . . . . .   5
-   4.1.4.  GSS_C_NT_ANONYMOUS  . . . . . . . . . . . . . . . . . . .   5
-   4.2.  Canonicalization  . . . . . . . . . . . . . . . . . . . . .   5
+   4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE  . . . . . . . . . . . . . .   4
+   4.1.4.  GSS_C_NT_ANONYMOUS  . . . . . . . . . . . . . . . . . . .   4
+   4.2.  Canonicalization  . . . . . . . . . . . . . . . . . . . . .   4
+   4.3.  Mechanism Selection Hints . . . . . . . . . . . . . . . . .   5
    5.  Mechanism Attributes  . . . . . . . . . . . . . . . . . . . .   5
    6.  Definitions and Token Formats . . . . . . . . . . . . . . . .   6
    6.1.  Context Establishment Tokens  . . . . . . . . . . . . . . .   6
@@ -84,11 +85,12 @@ Table of Contents
    7.  Key derivation  . . . . . . . . . . . . . . . . . . . . . . .   7
    8.  Pseudo-Random Function  . . . . . . . . . . . . . . . . . . .   8
    9.  NegoEx  . . . . . . . . . . . . . . . . . . . . . . . . . . .   8
-   10. Security Considerations . . . . . . . . . . . . . . . . . . .   8
-   11. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
-   12. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
-   13. Normative References  . . . . . . . . . . . . . . . . . . . .   9
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  10
+   10. Test Vectors  . . . . . . . . . . . . . . . . . . . . . . . .   9
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .   9
+   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
+   13. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
+   14. Normative References  . . . . . . . . . . . . . . . . . . . .  10
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  11
 
 1.  Introduction
 
@@ -107,9 +109,7 @@ Table of Contents
 
 
 
-
-
-Howard                   Expires October 7, 2020                [Page 2]
+Howard                   Expires October 8, 2020                [Page 2]
 
 Internet-Draft                SAnon GSS-API                   April 2020
 
@@ -150,13 +150,13 @@ Internet-Draft                SAnon GSS-API                   April 2020
 3.  Discovery and Negotiation
 
    The means of discovering GSS-API peers and their supported mechanisms
-   is out of this specification's scope.  However, when the Simple and
-   Protected Negotiation mechanism (SPNEGO) defined in [RFC4178] is
-   used, the mechanism MUST be negotiated under [I-D.zhu-negoex].  This
-   provides improved interoperability with Microsoft Windows, which has
-   limited support for negotiating new mechanisms directly under SPNEGO.
-   SAnon may also be negotiated by a GSS-API peer that requests it
-   explicitly.
+   is out of this specification's scope.  Mechanisms are typically
+   explicitly selected by the initiator, or selected from a set of
+   common mechanisms using the Simple and Protected Negotiation
+   mechanism (SPNEGO) defined in [RFC4178].  An initiator that that
+   supports the [I-D.zhu-negoex] protocol MUST negotiate SAnon using
+   NegoEx rather than using SPNEGO directly.  Initiators that do not
+   support NegoEx MAY negotiate SAnon directly under SPNEGO.
 
    To avoid multiple negotiation layers and implementation complexity,
    this specification is deliberately not crypto-agile.  A future
@@ -165,17 +165,14 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
 
 
-Howard                   Expires October 7, 2020                [Page 3]
+Howard                   Expires October 8, 2020                [Page 3]
 
 Internet-Draft                SAnon GSS-API                   April 2020
 
 
-   The selection of SAnon is subject to local policy.  If anonymity is
-   not desired, mechanisms that provide authentication SHOULD be
-   preferred.  Initiators use GSS_C_ANON_FLAG or the well known
-   anonymous credential to indicate that anonymous authentication is
-   desired.  Either party can test for the presence of GSS_C_ANON_FLAG
-   to check if anonymous authentication was performed.
+   If anonymity is not desired then SAnon MUST NOT be used.  Either
+   party can test for the presence of GSS_C_ANON_FLAG to check if
+   anonymous authentication was performed.
 
 4.  Naming
 
@@ -183,6 +180,53 @@ Internet-Draft                SAnon GSS-API                   April 2020
    most basic the query forms of names consist of a user-entered/
    displayable string and a "name-type".  Name-types are constants with
    names prefixed with "GSS_C_NT_" in the GSS-API.
+
+4.1.  GSS Name Types
+
+4.1.1.  GSS_C_NT_USER_NAME
+
+   This name type is supported when the input name string is the well
+   known anonymous name string, WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS.
+   In all other cases, importing the name MUST fail.
+
+4.1.2.  GSS_C_NT_HOSTBASED_SERVICE
+
+   This name type identifies a host-based service and is generally used
+   by acceptors.  To allow existing applications to work unmodified with
+   SAnon, it is useful to allow anonymous acceptor credentials to be
+   acquired regardless of the service name.  (It follows from SAnon not
+   performing mutual authentication that the acceptor identity is
+   meaningless.)  When importing a name of this type the name string
+   SHOULD be ignored.
+
+4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE
+
+   The [RFC5179] name type, along with all other acceptor name types,
+   are treated identically to GSS_C_NT_HOSTBASED_SERVICE.
+
+4.1.4.  GSS_C_NT_ANONYMOUS
+
+   When importing a name of this type the name string MUST be ignored.
+   Functions that return a name type to the caller MUST always return
+   this name type.  The display form is the well known anonymous name
+   string, WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS.  This is always the
+   name observed by a SAnon peer.
+
+4.2.  Canonicalization
+
+   The SAnon GSS-API mechanism has a single anonymous identity, the well
+   known anonymous name.  The canonical form is the well known anonymous
+   name string with the GSS_C_NT_ANONYMOUS name type.
+
+
+
+
+Howard                   Expires October 8, 2020                [Page 4]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
+
+4.3.  Mechanism Selection Hints
 
    Many deployed applications do not have explicit support for anonymous
    authentication.  To ease deployment, we recommend allowing anonymous
@@ -196,53 +240,9 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
    This approach may, however, disadvantage applications that wish to
    use GSS_C_ANON_FLAG to select anonymous authentication, as importing
-   a non-anonymous initiator name will fail with this approach.  We
+   a non-anonymous initiator name would fail with this approach.  We
    consider this an acceptable compromise given the limited deployment
    of GSS_C_ANON_FLAG in existing implementations.
-
-4.1.  GSS Name Types
-
-4.1.1.  GSS_C_NT_USER_NAME
-
-   This name type is supported when the input name string is the well
-   known anonymous name string, WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS.
-   In all other cases, importing the name SHOULD fail.
-
-4.1.2.  GSS_C_NT_HOSTBASED_SERVICE
-
-   This name type identifies a host-based service and is generally used
-   by acceptors.  To allow existing applications to work unmodified with
-   SAnon, it is useful to allow anonymous acceptor credentials to be
-   acquired regardless of the service name.  (It follows from SAnon not
-   authenticating the acceptor that the acceptor identity is
-   meaningless.)  When importing a name of this type the name string
-   SHOULD be ignored.
-
-
-
-
-Howard                   Expires October 7, 2020                [Page 4]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
-
-4.1.3.  GSS_C_NT_DOMAINBASED_SERVICE
-
-   The [RFC5179] name type is treated identically to
-   GSS_C_NT_HOSTBASED_SERVICE.
-
-4.1.4.  GSS_C_NT_ANONYMOUS
-
-   When importing a name of this type the name string MUST be ignored.
-   Functions that return a name type to the caller MUST always return
-   this name type.  The display form is the well known anonymous name
-   string, WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS.
-
-4.2.  Canonicalization
-
-   The SAnon GSS-API mechanism has a single anonymous identity, the well
-   known anonymous name.  The canonical form is the well known anonymous
-   name string with the GSS_C_NT_ANONYMOUS name type.
 
 5.  Mechanism Attributes
 
@@ -277,7 +277,7 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
 
 
-Howard                   Expires October 7, 2020                [Page 5]
+Howard                   Expires October 8, 2020                [Page 5]
 
 Internet-Draft                SAnon GSS-API                   April 2020
 
@@ -303,27 +303,45 @@ Internet-Draft                SAnon GSS-API                   April 2020
         }
         END
 
-   On the first call to GSS_Init_sec_context(), the mechanism checks
-   whether the caller set anon_req_flag (GSS_C_ANON_FLAG), or if the
-   claimant_cred_handle identity is the well known anonymous name.  If
-   neither is the case then the call MUST fail with GSS_S_UNAVAILABLE,
-   so that anonymous context establishment is not attempted without the
-   initiator requesting it.
+   On the first call to GSS_Init_sec_context(), the mechanism checks for
+   one of the following:
 
-   If proceeding, the initiator generates a secret and public key per
-   Section 6.1 of [RFC7748] and returns GSS_S_CONTINUE_NEEDED indicating
-   that a subsequent context token from the acceptor is expected.  The
-   innerToken field of the output_token contains the initiator's 32 byte
-   public key.
+      The caller set anon_req_flag (GSS_C_ANON_FLAG); or
+
+      The claimant_cred_handle identity is the well known anonymous
+      name; or
+
+      The claimant_cred_handle is the default credential and targ_name
+      an anonymous name.
+
+   If none of the above are the case, the call MUST fail with
+   GSS_S_UNAVAILABLE.
+
+   If proceeding, the initiator generates a fresh secret and public key
+   pair per Section 6.1 of [RFC7748] and returns GSS_S_CONTINUE_NEEDED
+   indicating that a subsequent context token from the acceptor is
+   expected.  The innerToken field of the output_token contains the
+   initiator's 32 byte public key.
 
 6.1.2.  Acceptor context token
 
    Upon receiving a context token from the initiator, the acceptor
    validates that the token is well formed and contains a public key of
-   the requisite length.  The acceptor generates its own public key, to
-   be be sent to the initiator in the output token without any
-   additional framing.  A session key is computed as specified in
+   the requisite length.  The acceptor generates a fresh secret and
+   public key pair.  A session key is computed as specified in
    Section 7.
+
+
+
+Howard                   Expires October 8, 2020                [Page 6]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
+
+   The acceptor constructs an output_token by concatenating its public
+   key with the token emitted by calling GSS_GetMIC() with the default
+   QOP and zero-length octet string.  The output token is sent to the
+   initiator without additional framing.
 
    The acceptor then returns GSS_S_COMPLETE, setting src_name to the
    well known anonymous name.  The reply_det_state (GSS_C_REPLAY_FLAG),
@@ -331,21 +349,16 @@ Internet-Draft                SAnon GSS-API                   April 2020
    integ_avail (GSS_C_INTEG_FLAG) and anon_state (GSS_C_ANON_FLAG)
    security context flags are set to TRUE.  The context is ready to use.
 
-
-
-Howard                   Expires October 7, 2020                [Page 6]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
-
 6.1.3.  Initiator context completion
 
    Upon receiving the acceptor context token and verifying it is well
-   formed, the initiator computes the session key per Section 7.  The
-   initiator returns GSS_S_COMPLETE to the caller, to indicate the
-   initiator is authenticated and the context is ready for use.  No
-   output token is emitted.  Security context flags are set as for the
-   acceptor context.
+   formed, the initiator extracts the acceptor's public key (being the
+   first 32 bytes of the input token) and computes the session key per
+   Section 7.  The initiator then calls GSS_VerifyMIC() with the default
+   QOP and zero-length octet string.  If successful, the initiator
+   returns GSS_S_COMPLETE to the caller, to indicate the initiator is
+   authenticated and the context is ready for use.  No output token is
+   emitted.  Security context flags are set as for the acceptor context.
 
 6.2.  Per-Message Tokens
 
@@ -353,7 +366,8 @@ Internet-Draft                SAnon GSS-API                   April 2020
    Section 4.2.  The base key used to derive specific keys for signing
    and sealing messages is the session key defined in Section 7.  The
    [RFC3961] encryption and checksum algorithms use the aes128-cts-hmac-
-   sha256-128 encryption type defined in [RFC8009].
+   sha256-128 encryption type defined in [RFC8009].  The AcceptorSubkey
+   flag as defined in [RFC4121] Section 4.2.2 MUST be set.
 
 6.3.  Context Deletion Tokens
 
@@ -370,10 +384,18 @@ Internet-Draft                SAnon GSS-API                   April 2020
 7.  Key derivation
 
    The ECDH shared secret k is computed by calling the X25519 function
-   with the initiator (or acceptor's) secret key and the acceptor (or
-   initiator's) public key, as specified in Section 6.1 of [RFC7748].
-   The context session key K1 is computed using a key derivation
-   function from Section 5.1 of [SP800-108] with HMAC as the PRF:
+   with the local secret key and the peer's public key, as specified in
+   Section 6.1 of [RFC7748].  The context session key (K1) is computed
+
+
+
+Howard                   Expires October 8, 2020                [Page 7]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
+
+   using a key derivation function from Section 5.1 of [SP800-108] with
+   HMAC as the PRF:
 
       K1 = HMAC-SHA-256(key, 0x00000001 | label | 0x00 | context | k)
 
@@ -385,26 +407,21 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
    label         the string "sanon-x25519" (without quotation marks)
 
-
-
-
-
-Howard                   Expires October 7, 2020                [Page 7]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
-
    context       the concatenation of the initiator and acceptor public
                  keys, along with the channel binding application data
-                 (if present)
+                 (if present), in that order
 
    The inclusion of channel bindings in the key derivation function
    means that the acceptor cannot ignore initiator channel bindings;
    this differs from some other mechanisms.
 
-   The session key K1 is used as the base key for the generation of per-
-   message tokens and the GSS-API PRF.  The encryption type of K1 is
-   aes128-cts-hmac-sha256-128 as defined in [RFC8009].
+   This session key is equivalent to the acceptor-asserted subkey
+   defined in [RFC4121] Section 2 and is used as the base key for
+   generating keys for per-message tokens and the GSS-API PRF.
+
+   The session key encryption type is aes128-cts-hmac-sha256-128 as
+   defined in [RFC8009].  The [RFC3961] algorithm protocol parameters
+   are as given in [RFC8009] Section 5.
 
 8.  Pseudo-Random Function
 
@@ -421,12 +438,44 @@ Internet-Draft                SAnon GSS-API                   April 2020
    The initiator and acceptor keys for NegoEx checksum generation and
    verification are derived using the PRF from the previous section,
    with the input data "sanon-x25519-initiator-negoex-key" and "sanon-
-   x25519-acceptor-negoex-key" (without quotation marks).
+   x25519-acceptor-negoex-key" respectively (without quotation marks).
 
    No NegoEx metadata is specified.  Any metadata present MUST be
    ignored.
 
-10.  Security Considerations
+
+
+Howard                   Expires October 8, 2020                [Page 8]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
+
+10.  Test Vectors
+
+   initiator secret key  69 df cc 04 2b 7a 33 f8 1a 43 fb f0 33 0a b5 3f
+                         bc 20 e6 c1 4f f8 26 ce 6a 4d bc 8c 6e e4 2b a9
+
+   initiator public key  d2 1e 3e 58 60 b0 16 6c d1 cb 38 1a aa 89 62 93
+                         07 13 ae e1 76 86 93 10 46 57 a7 a1 9c 1d 76 2e
+
+   initiator token       60 2c 06 0a 2b 06 01 04 01 a9 4a 1a 01 6e d2 1e
+                         3e 58 60 b0 16 6c d1 cb 38 1a aa 89 62 93 07 13
+                         ae e1 76 86 93 10 46 57 a7 a1 9c 1d 76 2e
+
+   acceptor secret key   3e 4f e6 5b ea 85 94 3b 5a a2 b7 83 f6 26 84 1a
+                         10 39 d5 d3 6d af 85 aa a1 6f 12 97 57 99 6c ff
+
+   acceptor public key   a8 32 14 9d 58 33 13 ce 1c 55 7b 2b d1 8a e7 a5
+                         59 8c a6 4b 02 20 83 5e 16 be 09 ca 2f 90 60 31
+
+   context session key   af f1 8d b7 45 c6 27 cd a8 da d4 9b d7 e7 01 25
+
+   acceptor token        a8 32 14 9d 58 33 13 ce 1c 55 7b 2b d1 8a e7 a5
+                         59 8c a6 4b 02 20 83 5e 16 be 09 ca 2f 90 60 31
+                         04 04 05 ff ff ff ff ff 00 00 00 00 00 00 00 00
+                         45 02 7b a8 15 1c 33 05 22 bb c4 36 84 d2 e1 8c
+
+11.  Security Considerations
 
    This document defines a GSS-API security mechanism, and therefore
    deals in security and has security considerations text embedded
@@ -436,28 +485,28 @@ Internet-Draft                SAnon GSS-API                   April 2020
    itself.
 
    This mechanism provides only for key agreement.  It does not
-   authenticate or identify either party.
+   authenticate or identify either party.  It MUST not be selected if
+   either party requires identification of its peer.
 
-
-
-
-
-
-
-
-Howard                   Expires October 7, 2020                [Page 8]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
-
-11.  IANA Considerations
+12.  IANA Considerations
 
    IANA is requested to assign an OID for this GSS-API mechanism in the
    SMI numbers registry, with the prefix of
    iso.org.dod.internet.security.mechanisms (1.3.6.1.5.5) and to
    reference this specification in the registry.
 
-12.  Acknowledgements
+
+
+
+
+
+
+Howard                   Expires October 8, 2020                [Page 9]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
+
+13.  Acknowledgements
 
    AuriStor, Inc funded the design of this protocol, along with an
    implementation for the Heimdal GSS-API library.
@@ -465,7 +514,7 @@ Internet-Draft                SAnon GSS-API                   April 2020
    Jeffrey Altman, Greg Hudson, Simon Josefsson, and Nicolas Williams
    provided valuable feedback on this document.
 
-13.  Normative References
+14.  Normative References
 
    [I-D.zhu-negoex]
               Short, M., Zhu, L., Damour, K., and D. McPherson, "SPNEGO
@@ -498,19 +547,20 @@ Internet-Draft                SAnon GSS-API                   April 2020
               RFC 4178, DOI 10.17487/RFC4178, October 2005,
               <https://www.rfc-editor.org/info/rfc4178>.
 
-
-
-
-Howard                   Expires October 7, 2020                [Page 9]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
-
    [RFC4401]  Williams, N., "A Pseudo-Random Function (PRF) API
               Extension for the Generic Security Service Application
               Program Interface (GSS-API)", RFC 4401,
               DOI 10.17487/RFC4401, February 2006,
               <https://www.rfc-editor.org/info/rfc4401>.
+
+
+
+
+
+Howard                   Expires October 8, 2020               [Page 10]
+
+Internet-Draft                SAnon GSS-API                   April 2020
+
 
    [RFC5179]  Williams, N., "Generic Security Service Application
               Program Interface (GSS-API) Domain-Based Service Names
@@ -557,4 +607,10 @@ Author's Address
 
 
 
-Howard                   Expires October 7, 2020               [Page 10]
+
+
+
+
+
+
+Howard                   Expires October 8, 2020               [Page 11]
