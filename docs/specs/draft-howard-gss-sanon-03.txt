@@ -4,12 +4,12 @@
 
 Network Working Group                                          L. Howard
 Internet-Draft                                                      PADL
-Intended status: Experimental                              April 6, 2020
-Expires: October 8, 2020
+Intended status: Informational                             April 7, 2020
+Expires: October 9, 2020
 
 
                   A Simple Anonymous GSS-API Mechanism
-                       draft-howard-gss-sanon-02
+                       draft-howard-gss-sanon-03
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 8, 2020.
+   This Internet-Draft will expire on October 9, 2020.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Howard                   Expires October 8, 2020                [Page 1]
+Howard                   Expires October 9, 2020                [Page 1]
 
-Internet-Draft                SAnon GSS-API                   April 2020
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 Table of Contents
@@ -82,12 +82,12 @@ Table of Contents
    6.2.  Per-Message Tokens  . . . . . . . . . . . . . . . . . . . .   7
    6.3.  Context Deletion Tokens . . . . . . . . . . . . . . . . . .   7
    6.4.  Exported Name Tokens  . . . . . . . . . . . . . . . . . . .   7
-   7.  Key derivation  . . . . . . . . . . . . . . . . . . . . . . .   7
+   7.  Key derivation  . . . . . . . . . . . . . . . . . . . . . . .   8
    8.  Pseudo-Random Function  . . . . . . . . . . . . . . . . . . .   8
    9.  NegoEx  . . . . . . . . . . . . . . . . . . . . . . . . . . .   8
-   10. Test Vectors  . . . . . . . . . . . . . . . . . . . . . . . .   9
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .   9
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
+   10. OID Registry  . . . . . . . . . . . . . . . . . . . . . . . .   9
+   11. Test Vectors  . . . . . . . . . . . . . . . . . . . . . . . .   9
+   12. Security Considerations . . . . . . . . . . . . . . . . . . .   9
    13. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
    14. Normative References  . . . . . . . . . . . . . . . . . . . .  10
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  11
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Howard                   Expires October 8, 2020                [Page 2]
+Howard                   Expires October 9, 2020                [Page 2]
 
-Internet-Draft                SAnon GSS-API                   April 2020
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 1.1.  Authentication
@@ -150,29 +150,25 @@ Internet-Draft                SAnon GSS-API                   April 2020
 3.  Discovery and Negotiation
 
    The means of discovering GSS-API peers and their supported mechanisms
-   is out of this specification's scope.  Mechanisms are typically
-   explicitly selected by the initiator, or selected from a set of
-   common mechanisms using the Simple and Protected Negotiation
-   mechanism (SPNEGO) defined in [RFC4178].  An initiator that that
-   supports the [I-D.zhu-negoex] protocol MUST negotiate SAnon using
-   NegoEx rather than using SPNEGO directly.  Initiators that do not
-   support NegoEx MAY negotiate SAnon directly under SPNEGO.
+   is out of this specification's scope.
 
    To avoid multiple negotiation layers and implementation complexity,
    this specification is deliberately not crypto-agile.  A future
    variant using a different key exchange algorithm would be assigned a
-   different mechanism OID and authentication scheme identifier.
-
-
-
-Howard                   Expires October 8, 2020                [Page 3]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
+   different mechanism OID.
 
    If anonymity is not desired then SAnon MUST NOT be used.  Either
    party can test for the presence of GSS_C_ANON_FLAG to check if
    anonymous authentication was performed.
+
+
+
+
+
+Howard                   Expires October 9, 2020                [Page 3]
+
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
+
 
 4.  Naming
 
@@ -221,9 +217,13 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
 
 
-Howard                   Expires October 8, 2020                [Page 4]
+
+
+
+
+Howard                   Expires October 9, 2020                [Page 4]
 
-Internet-Draft                SAnon GSS-API                   April 2020
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 4.3.  Mechanism Selection Hints
@@ -277,9 +277,9 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
 
 
-Howard                   Expires October 8, 2020                [Page 5]
+Howard                   Expires October 9, 2020                [Page 5]
 
-Internet-Draft                SAnon GSS-API                   April 2020
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 6.  Definitions and Token Formats
@@ -333,9 +333,9 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
 
 
-Howard                   Expires October 8, 2020                [Page 6]
+Howard                   Expires October 9, 2020                [Page 6]
 
-Internet-Draft                SAnon GSS-API                   April 2020
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
    The acceptor constructs an output_token by concatenating its public
@@ -354,11 +354,12 @@ Internet-Draft                SAnon GSS-API                   April 2020
    Upon receiving the acceptor context token and verifying it is well
    formed, the initiator extracts the acceptor's public key (being the
    first 32 bytes of the input token) and computes the session key per
-   Section 7.  The initiator then calls GSS_VerifyMIC() with the default
-   QOP and zero-length octet string.  If successful, the initiator
-   returns GSS_S_COMPLETE to the caller, to indicate the initiator is
-   authenticated and the context is ready for use.  No output token is
-   emitted.  Security context flags are set as for the acceptor context.
+   Section 7.  The initiator then calls GSS_VerifyMIC() with the MIC
+   sent by the acceptor and the zero-length octet string.  If
+   successful, the initiator returns GSS_S_COMPLETE to the caller, to
+   indicate the initiator is authenticated and the context is ready for
+   use.  No output token is emitted.  Security context flags are set as
+   for the acceptor context.
 
 6.2.  Per-Message Tokens
 
@@ -381,19 +382,23 @@ Internet-Draft                SAnon GSS-API                   April 2020
    same as the display form, plus the standard exported name token
    format header mandated by the GSS-API [RFC2743].
 
+
+
+
+
+
+
+
+Howard                   Expires October 9, 2020                [Page 7]
+
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
+
+
 7.  Key derivation
 
    The ECDH shared secret k is computed by calling the X25519 function
    with the local secret key and the peer's public key, as specified in
    Section 6.1 of [RFC7748].  The context session key (K1) is computed
-
-
-
-Howard                   Expires October 8, 2020                [Page 7]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
-
    using a key derivation function from Section 5.1 of [SP800-108] with
    HMAC as the PRF:
 
@@ -401,7 +406,7 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
    where:
 
-   k             the X25519 shared secret computed above
+   k             the ECDH shared secret computed previously
 
    0x00000001    the iteration count from Section 5.1 of [SP800-108]
 
@@ -432,25 +437,30 @@ Internet-Draft                SAnon GSS-API                   April 2020
 
 9.  NegoEx
 
-   The NegoEx authentication scheme identifier for this mechanism is
-   DEE384FF-1086-4E86-BE78-B94170BFD376.
+   When SAnon is negotiated by [I-D.zhu-negoex], the authentication
+   scheme identifier is DEE384FF-1086-4E86-BE78-B94170BFD376.
 
    The initiator and acceptor keys for NegoEx checksum generation and
    verification are derived using the PRF from the previous section,
+
+
+
+Howard                   Expires October 9, 2020                [Page 8]
+
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
+
+
    with the input data "sanon-x25519-initiator-negoex-key" and "sanon-
    x25519-acceptor-negoex-key" respectively (without quotation marks).
 
    No NegoEx metadata is specified.  Any metadata present MUST be
    ignored.
 
+10.  OID Registry
 
+   The mechanism OID for SAnon is 1.3.6.1.4.1.5322.26.1.110.
 
-Howard                   Expires October 8, 2020                [Page 8]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
-
-10.  Test Vectors
+11.  Test Vectors
 
    initiator secret key  69 df cc 04 2b 7a 33 f8 1a 43 fb f0 33 0a b5 3f
                          bc 20 e6 c1 4f f8 26 ce 6a 4d bc 8c 6e e4 2b a9
@@ -475,7 +485,7 @@ Internet-Draft                SAnon GSS-API                   April 2020
                          04 04 05 ff ff ff ff ff 00 00 00 00 00 00 00 00
                          45 02 7b a8 15 1c 33 05 22 bb c4 36 84 d2 e1 8c
 
-11.  Security Considerations
+12.  Security Considerations
 
    This document defines a GSS-API security mechanism, and therefore
    deals in security and has security considerations text embedded
@@ -485,25 +495,15 @@ Internet-Draft                SAnon GSS-API                   April 2020
    itself.
 
    This mechanism provides only for key agreement.  It does not
-   authenticate or identify either party.  It MUST not be selected if
-   either party requires identification of its peer.
-
-12.  IANA Considerations
-
-   IANA is requested to assign an OID for this GSS-API mechanism in the
-   SMI numbers registry, with the prefix of
-   iso.org.dod.internet.security.mechanisms (1.3.6.1.5.5) and to
-   reference this specification in the registry.
+   authenticate the identity of either party.  It MUST not be selected
+   if either party requires identification of its peer.
 
 
 
 
-
-
-
-Howard                   Expires October 8, 2020                [Page 9]
+Howard                   Expires October 9, 2020                [Page 9]
 
-Internet-Draft                SAnon GSS-API                   April 2020
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 13.  Acknowledgements
@@ -541,32 +541,26 @@ Internet-Draft                SAnon GSS-API                   April 2020
               DOI 10.17487/RFC4121, July 2005,
               <https://www.rfc-editor.org/info/rfc4121>.
 
-   [RFC4178]  Zhu, L., Leach, P., Jaganathan, K., and W. Ingersoll, "The
-              Simple and Protected Generic Security Service Application
-              Program Interface (GSS-API) Negotiation Mechanism",
-              RFC 4178, DOI 10.17487/RFC4178, October 2005,
-              <https://www.rfc-editor.org/info/rfc4178>.
-
    [RFC4401]  Williams, N., "A Pseudo-Random Function (PRF) API
               Extension for the Generic Security Service Application
               Program Interface (GSS-API)", RFC 4401,
               DOI 10.17487/RFC4401, February 2006,
               <https://www.rfc-editor.org/info/rfc4401>.
 
-
-
-
-
-Howard                   Expires October 8, 2020               [Page 10]
-
-Internet-Draft                SAnon GSS-API                   April 2020
-
-
    [RFC5179]  Williams, N., "Generic Security Service Application
               Program Interface (GSS-API) Domain-Based Service Names
               Mapping for the Kerberos V GSS Mechanism", RFC 5179,
               DOI 10.17487/RFC5179, May 2008,
               <https://www.rfc-editor.org/info/rfc5179>.
+
+
+
+
+
+Howard                   Expires October 9, 2020               [Page 10]
+
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
+
 
    [RFC5587]  Williams, N., "Extended Generic Security Service Mechanism
               Inquiry APIs", RFC 5587, DOI 10.17487/RFC5587, July 2009,
@@ -613,4 +607,10 @@ Author's Address
 
 
 
-Howard                   Expires October 8, 2020               [Page 11]
+
+
+
+
+
+
+Howard                   Expires October 9, 2020               [Page 11]
