@@ -54,6 +54,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -140,8 +141,16 @@ public final class StaticUtils
   /**
    * The thread-local date formatter used to encode generalized time values.
    */
-  private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
-       new ThreadLocal<>();
+  private static final ThreadLocal<SimpleDateFormat>
+       GENERALIZED_TIME_FORMATTERS = new ThreadLocal<>();
+
+
+
+  /**
+   * The thread-local date formatter used to encode RFC 3339 time values.
+   */
+  private static final ThreadLocal<SimpleDateFormat>
+       RFC_3339_TIME_FORMATTERS = new ThreadLocal<>();
 
 
 
@@ -2197,12 +2206,12 @@ public final class StaticUtils
    */
   public static String encodeGeneralizedTime(final Date d)
   {
-    SimpleDateFormat dateFormat = DATE_FORMATTERS.get();
+    SimpleDateFormat dateFormat = GENERALIZED_TIME_FORMATTERS.get();
     if (dateFormat == null)
     {
       dateFormat = new SimpleDateFormat("yyyyMMddHHmmss.SSS'Z'");
       dateFormat.setTimeZone(UTC_TIME_ZONE);
-      DATE_FORMATTERS.set(dateFormat);
+      GENERALIZED_TIME_FORMATTERS.set(dateFormat);
     }
 
     return dateFormat.format(d);
@@ -2326,6 +2335,420 @@ public final class StaticUtils
     dateFormat.setTimeZone(tz);
     dateFormat.setLenient(false);
     return dateFormat.parse(trimmedTimestamp);
+  }
+
+
+
+  /**
+   * Encodes the provided timestamp to the ISO 8601 format described in RFC
+   * 3339.
+   *
+   * @param  timestamp  The timestamp to be encoded in the RFC 3339 format.
+   *                    It should use the same format as the
+   *                    {@code System.currentTimeMillis()} method (i.e., the
+   *                    number of milliseconds since 12:00am UTC on January 1,
+   *                    1970).
+   *
+   * @return  The RFC 3339 representation of the provided date.
+   */
+  public static String encodeRFC3339Time(final long timestamp)
+  {
+    return encodeRFC3339Time(new Date(timestamp));
+  }
+
+
+
+  /**
+   * Encodes the provided timestamp to the ISO 8601 format described in RFC
+   * 3339.
+   *
+   * @param  d  The date to be encoded in the RFC 3339 format.
+   *
+   * @return  The RFC 3339 representation of the provided date.
+   */
+  public static String encodeRFC3339Time(final Date d)
+  {
+    SimpleDateFormat dateFormat = RFC_3339_TIME_FORMATTERS.get();
+    if (dateFormat == null)
+    {
+      dateFormat = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
+      dateFormat.setTimeZone(UTC_TIME_ZONE);
+      RFC_3339_TIME_FORMATTERS.set(dateFormat);
+    }
+
+    return dateFormat.format(d);
+  }
+
+
+
+  /**
+   * Decodes the provided string as a timestamp encoded in the ISO 8601 format
+   * described in RFC 3339.
+   *
+   * @param  timestamp  The timestamp to be decoded in the RFC 3339 format.
+   *
+   * @return  The {@code Date} object decoded from the provided timestamp.
+   *
+   * @throws  ParseException  If the provided string could not be decoded as a
+   *                          timestamp in the RFC 3339 time format.
+   */
+  public static Date decodeRFC3339Time(final String timestamp)
+         throws ParseException
+  {
+    // Make sure that the string representation has the minimum acceptable
+    // length.
+    if (timestamp.length() < 20)
+    {
+      throw new ParseException(ERR_RFC_3339_TIME_TOO_SHORT.get(timestamp), 0);
+    }
+
+
+    // Parse the year, month, day, hour, minute, and second components from the
+    // timestamp, and make sure the appropriate separator characters are between
+    // those components.
+    final int year = parseRFC3339Number(timestamp, 0, 4);
+    validateRFC3339TimestampSeparatorCharacter(timestamp, 4, '-');
+    final int month = parseRFC3339Number(timestamp, 5, 2);
+    validateRFC3339TimestampSeparatorCharacter(timestamp, 7, '-');
+    final int day = parseRFC3339Number(timestamp, 8, 2);
+    validateRFC3339TimestampSeparatorCharacter(timestamp, 10, 'T');
+    final int hour = parseRFC3339Number(timestamp, 11, 2);
+    validateRFC3339TimestampSeparatorCharacter(timestamp, 13, ':');
+    final int minute = parseRFC3339Number(timestamp, 14, 2);
+    validateRFC3339TimestampSeparatorCharacter(timestamp, 16, ':');
+    final int second = parseRFC3339Number(timestamp, 17, 2);
+
+
+    // Make sure that the month and day values are acceptable.
+    switch (month)
+    {
+      case 1:
+      case 3:
+      case 5:
+      case 7:
+      case 8:
+      case 10:
+      case 12:
+        // January, March, May, July, August, October, and December all have 31
+        // days.
+        if ((day < 1) || (day > 31))
+        {
+          throw new ParseException(
+               ERR_RFC_3339_TIME_INVALID_DAY_FOR_MONTH.get(timestamp, day,
+                    month),
+               8);
+        }
+        break;
+
+      case 4:
+      case 6:
+      case 9:
+      case 11:
+        // April, June, September, and November all have 30 days.
+        if ((day < 1) || (day > 30))
+        {
+          throw new ParseException(
+               ERR_RFC_3339_TIME_INVALID_DAY_FOR_MONTH.get(timestamp, day,
+                    month),
+               8);
+        }
+        break;
+
+      case 2:
+        // February can have 28 or 29 days, depending on whether it's a leap
+        // year.  Although we could determine whether the provided year is a
+        // leap year, we'll just always accept up to 29 days for February.
+        if ((day < 1) || (day > 29))
+        {
+          throw new ParseException(
+               ERR_RFC_3339_TIME_INVALID_DAY_FOR_MONTH.get(timestamp, day,
+                    month),
+               8);
+        }
+        break;
+
+      default:
+        throw new ParseException(
+             ERR_RFC_3339_TIME_INVALID_MONTH.get(timestamp, month), 5);
+    }
+
+
+    // Make sure that the hour, minute, and second values are acceptable.  Note
+    // that while ISO 8601 permits a value of 24 for the hour, RFC 3339 only
+    // permits hour values between 0 and 23.  Also note that some minutes can
+    // have up to 61 seconds for leap seconds, so we'll always account for that.
+    if ((hour < 0) || (hour > 23))
+    {
+      throw new ParseException(
+           ERR_RFC_3339_TIME_INVALID_HOUR.get(timestamp, hour), 11);
+    }
+
+    if ((minute < 0) || (minute > 59))
+    {
+      throw new ParseException(
+           ERR_RFC_3339_TIME_INVALID_MINUTE.get(timestamp, minute), 14);
+    }
+
+    if ((second < 0) || (second > 60))
+    {
+      throw new ParseException(
+           ERR_RFC_3339_TIME_INVALID_SECOND.get(timestamp, second), 17);
+    }
+
+
+    // See if there is a sub-second portion.  If so, then there will be a
+    // period at position 19 followed by at least one digit.  This
+    // implementation will only support timestamps with no more than three
+    // sub-second digits.
+    int milliseconds = 0;
+    int timeZoneStartPos = -1;
+    if (timestamp.charAt(19) == '.')
+    {
+      int numDigits = 0;
+      final StringBuilder subSecondString = new StringBuilder(3);
+      for (int pos=20; pos < timestamp.length(); pos++)
+      {
+        final char c = timestamp.charAt(pos);
+        switch (c)
+        {
+          case '0':
+            numDigits++;
+            if (subSecondString.length() > 0)
+            {
+              // Only add a zero if it's not the first digit.
+              subSecondString.append(c);
+            }
+            break;
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            numDigits++;
+            subSecondString.append(c);
+            break;
+          case 'Z':
+          case '+':
+          case '-':
+            timeZoneStartPos = pos;
+            break;
+          default:
+            throw new ParseException(
+                 ERR_RFC_3339_TIME_INVALID_SUB_SECOND_CHAR.get(timestamp, c,
+                      pos),
+                 pos);
+        }
+
+        if (timeZoneStartPos > 0)
+        {
+          break;
+        }
+
+        if (numDigits > 3)
+        {
+          throw new ParseException(
+               ERR_RFC_3339_TIME_TOO_MANY_SUB_SECOND_DIGITS.get(timestamp),
+               20);
+        }
+      }
+
+      if (timeZoneStartPos < 0)
+      {
+        throw new ParseException(
+             ERR_RFC_3339_TIME_MISSING_TIME_ZONE_AFTER_SUB_SECOND.get(
+                  timestamp),
+             (timestamp.length() - 1));
+      }
+
+      if (numDigits == 0)
+      {
+        throw new ParseException(
+             ERR_RFC_3339_TIME_NO_SUB_SECOND_DIGITS.get(timestamp), 19);
+      }
+
+      if (subSecondString.length() == 0)
+      {
+        // This is possible if the sub-second portion is all zeroes.
+        subSecondString.append('0');
+      }
+
+      milliseconds = Integer.parseInt(subSecondString.toString());
+      if (numDigits == 1)
+      {
+        milliseconds *= 100;
+      }
+      else if (numDigits == 2)
+      {
+        milliseconds *= 10;
+      }
+    }
+    else
+    {
+      timeZoneStartPos = 19;
+    }
+
+
+    // The remainder of the timestamp should be the time zone.
+    final TimeZone timeZone;
+    if (timestamp.substring(timeZoneStartPos).equals("Z"))
+    {
+      // This is shorthand for the UTC time zone.
+      timeZone = UTC_TIME_ZONE;
+    }
+    else
+    {
+      // This is an offset from UTC, which should be in the form "+HH:MM" or
+      // "-HH:MM".  Make sure it has the expected length.
+      if ((timestamp.length() - timeZoneStartPos) != 6)
+      {
+        throw new ParseException(
+             ERR_RFC_3339_TIME_INVALID_TZ.get(timestamp), timeZoneStartPos);
+      }
+
+      // Make sure it starts with "+" or "-".
+      final int firstChar = timestamp.charAt(timeZoneStartPos);
+      if ((firstChar != '+') && (firstChar != '-'))
+      {
+        throw new ParseException(
+             ERR_RFC_3339_TIME_INVALID_TZ.get(timestamp), timeZoneStartPos);
+      }
+
+
+      // Make sure the hour offset is valid.
+      final int timeZoneHourOffset =
+           parseRFC3339Number(timestamp, (timeZoneStartPos+1), 2);
+      if ((timeZoneHourOffset < 0) || (timeZoneHourOffset > 23))
+      {
+        throw new ParseException(
+             ERR_RFC_3339_TIME_INVALID_TZ.get(timestamp), timeZoneStartPos);
+      }
+
+
+      // Make sure there is a colon between the hour and the minute portions of
+      // the offset.
+      if (timestamp.charAt(timeZoneStartPos+3) != ':')
+      {
+        throw new ParseException(
+             ERR_RFC_3339_TIME_INVALID_TZ.get(timestamp), timeZoneStartPos);
+      }
+
+      final int timeZoneMinuteOffset =
+           parseRFC3339Number(timestamp, (timeZoneStartPos+4), 2);
+      if ((timeZoneMinuteOffset < 0) || (timeZoneMinuteOffset > 59))
+      {
+        throw new ParseException(
+             ERR_RFC_3339_TIME_INVALID_TZ.get(timestamp), timeZoneStartPos);
+      }
+
+      timeZone = TimeZone.getTimeZone(
+           "GMT" + timestamp.substring(timeZoneStartPos));
+    }
+
+
+    // Put everything together to construct the appropriate date.
+    final GregorianCalendar calendar =
+         new GregorianCalendar(year,
+              (month-1), // NOTE:  Calendar stupidly uses zero-indexed months.
+              day, hour, minute, second);
+    calendar.set(GregorianCalendar.MILLISECOND, milliseconds);
+    calendar.setTimeZone(timeZone);
+    return calendar.getTime();
+  }
+
+
+
+  /**
+   * Ensures that the provided timestamp string has the expected character at
+   * the specified position.
+   *
+   * @param  timestamp     The timestamp to examine.
+   *                       It must not be {@code null}.
+   * @param  pos           The position of the character to examine.
+   * @param  expectedChar  The character expected at the specified position.
+   *
+   * @throws  ParseException  If the provided timestamp does not have the
+   * expected
+   */
+  private static void validateRFC3339TimestampSeparatorCharacter(
+                           final String timestamp, final int pos,
+                           final char expectedChar)
+          throws ParseException
+  {
+    if (timestamp.charAt(pos) != expectedChar)
+    {
+      throw new ParseException(
+           ERR_RFC_3339_INVALID_SEPARATOR.get(timestamp, timestamp.charAt(pos),
+                pos, expectedChar),
+           pos);
+    }
+  }
+
+
+
+  /**
+   * Parses the number at the specified location in the timestamp.
+   *
+   * @param  timestamp  The timestamp to examine.  It must not be {@code null}.
+   * @param  pos        The position at which to begin parsing the number.
+   * @param  numDigits  The number of digits in the number.
+   *
+   * @return  The number parsed from the provided timestamp.
+   *
+   * @throws  ParseException  If a problem is encountered while trying to parse
+   *                          the number from the timestamp.
+   */
+  private static int parseRFC3339Number(final String timestamp, final int pos,
+                                        final int numDigits)
+          throws ParseException
+  {
+    int value = 0;
+    for (int i=0; i < numDigits; i++)
+    {
+      value *= 10;
+      switch (timestamp.charAt(pos+i))
+      {
+        case '0':
+          break;
+        case '1':
+          value += 1;
+          break;
+        case '2':
+          value += 2;
+          break;
+        case '3':
+          value += 3;
+          break;
+        case '4':
+          value += 4;
+          break;
+        case '5':
+          value += 5;
+          break;
+        case '6':
+          value += 6;
+          break;
+        case '7':
+          value += 7;
+          break;
+        case '8':
+          value += 8;
+          break;
+        case '9':
+          value += 9;
+          break;
+        default:
+          throw new ParseException(
+               ERR_RFC_3339_INVALID_DIGIT.get(timestamp,
+                    timestamp.charAt(pos+i), (pos+i)),
+               (pos+i));
+      }
+    }
+
+    return value;
   }
 
 

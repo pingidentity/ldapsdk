@@ -635,27 +635,69 @@ public class StaticUtilsTestCase
   private static Date getDate(int year, int month, int day, int hour, int min,
                               int sec, int msec, int offset)
   {
-    GregorianCalendar gc =
+    return getDate(year, month, day, hour, min, sec, msec, offset, 0);
+  }
+
+
+
+  /**
+   * Retrieves a {@code Date} object that corresponds to the specified time.
+   *
+   * @param  year          The year to use for the date.
+   * @param  month         The month of the year to use for the date.  Note that
+   *                       this is zero-based (so January is 0, February is 1,
+   *                       ..., and December is 11).
+   * @param  day           The day of the month to use for the date.  Note that
+   *                       this is 1-based, so values should be between 1 and 31
+   *                       (or less in months with fewer days).
+   * @param  hour          The hour of the day to use for the date.  It should
+   *                       be between 0 and 23.
+   * @param  min           The minute of the hour to use for the date.  It
+   *                       should be between 0 and 59.
+   * @param  sec           The second of the hour to use for the date.  It
+   *                       should be between 0 and 61.
+   * @param  msec          The millisecond value to use for the date.  It should
+   *                       be between 0 and 999.
+   * @param  hourOffset    The number of hours to be offset from GMT.
+   * @param  minuteOffset  The number of minutes to be offset from GMT.
+   *
+   * @return  A {@code Date} object that corresponds to the specified time.
+   */
+  private static Date getDate(int year, int month, int day, int hour, int min,
+                              int sec, int msec, int hourOffset,
+                              int minuteOffset)
+  {
+    final GregorianCalendar gc =
          new GregorianCalendar(year, month, day, hour, min, sec);
     gc.set(GregorianCalendar.MILLISECOND, msec);
 
     String tzID;
-    if (offset >= 10)
+    if (hourOffset >= 10)
     {
-      tzID = "GMT+" + offset + "00";
+      tzID = "GMT+" + hourOffset;
     }
-    else if (offset >= 0)
+    else if (hourOffset >= 0)
     {
-      tzID = "GMT+0" + offset + "00";
+      tzID = "GMT+0" + hourOffset;
     }
-    else if (offset >= -9)
+    else if (hourOffset >= -9)
     {
-      tzID = "GMT-0" + Math.abs(offset) + "00";
+      tzID = "GMT-0" + Math.abs(hourOffset);
     }
     else
     {
-      tzID = "GMT" + offset + "00";
+      tzID = "GMT" + hourOffset;
     }
+
+    if (minuteOffset >= 10)
+    {
+      tzID += ":" + minuteOffset;
+    }
+    else
+    {
+      tzID += ":0" + minuteOffset;
+    }
+
     gc.setTimeZone(TimeZone.getTimeZone(tzID));
 
     return gc.getTime();
@@ -3196,5 +3238,402 @@ public class StaticUtilsTestCase
         break;
       }
     }
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the current time
+   * in the ISO 8601 format described in RFC 3339.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCurrentTimeAsRFC3339Timestamps()
+         throws Exception
+  {
+    final long currentTime = System.currentTimeMillis();
+    final String timestamp = StaticUtils.encodeRFC3339Time(currentTime);
+    final Date decodedDate = StaticUtils.decodeRFC3339Time(timestamp);
+    assertEquals(decodedDate.getTime(), currentTime);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to encode and decode the current time (as a
+   * Date) in the ISO 8601 format described in RFC 3339.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCurrentDateAsRFC3339Timestamps()
+         throws Exception
+  {
+    final Date currentDate = new Date();
+    final String timestamp = StaticUtils.encodeRFC3339Time(currentDate);
+    final Date decodedDate = StaticUtils.decodeRFC3339Time(timestamp);
+    assertEquals(decodedDate, currentDate);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode the example timestamps provided in
+   * RFC 3339.
+   *
+   * @param  timestamp     The timestamp to decode.
+   * @param  expectedDate  The date expected from decoding the timestamp.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="rfc3339Examples")
+  public void testDecodeRFC3339Examples(final String timestamp,
+                                        final Date expectedDate)
+         throws Exception
+  {
+    final Date decodedDate = StaticUtils.decodeRFC3339Time(timestamp);
+    assertEquals(decodedDate, expectedDate);
+  }
+
+
+
+  /**
+   * Retrieves test data based on the examples provided in RFC 3339 section 5.8.
+   *
+   * @return  Test data based on the examples provided in RFC 3339 section 5.8.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @DataProvider(name="rfc3339Examples")
+  public Object[][] getRFC3339Examples()
+         throws Exception
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        "1985-04-12T23:20:50.52Z",
+        getDate(1985, 3, 12, 23, 20, 50, 520, 0)
+      },
+
+      new Object[]
+      {
+        "1996-12-19T16:39:57-08:00",
+        getDate(1996, 11, 19, 16, 39, 57, 0, -8)
+      },
+
+      new Object[]
+      {
+        "1990-12-31T23:59:60Z",
+        getDate(1990, 11, 31, 23, 59, 60, 0, 0)
+      },
+
+      new Object[]
+      {
+        "1990-12-31T15:59:60-08:00",
+        getDate(1990, 11, 31, 15, 59, 60, 0, -8)
+      },
+
+      new Object[]
+      {
+        "1937-01-01T12:00:27.87+00:20",
+        getDate(1937, 0, 1, 12, 0, 27, 870, 0, 20)
+      }
+    };
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode malformed RFC 3339 timestamps.
+   *
+   * @param  timestamp      The timestamp to decode.
+   * @param  invalidReason  The reason that the provided timestamp is invalid.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="malformedRFC3339Timestamps",
+       expectedExceptions = { ParseException.class })
+  public void testDecodeMalformedRFC3339Timestamps(final String timestamp,
+                                                   final String invalidReason)
+         throws Exception
+  {
+    StaticUtils.decodeRFC3339Time(timestamp);
+  }
+
+
+
+  /**
+   * Retrieves data used to test decoding with malformed RFC 3339 timestamps.
+   *
+   * @return  Data used to test decoding with malformed RFC 3339 timestamps.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @DataProvider(name="malformedRFC3339Timestamps")
+  public Object[][] getMalformedRFC3339Timestamps()
+         throws Exception
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        "",
+        "An empty string"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00",
+        "Missing time zone after seconds"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.000",
+        "Missing time zone after sub-seconds"
+      },
+
+      new Object[]
+      {
+        "2o20-01-01T00:00:00.000Z",
+        "Non-numeric character in the year"
+      },
+
+      new Object[]
+      {
+        "2020_01-01T00:00:00.000Z",
+        "Incorrect separator between the year and month"
+      },
+
+      new Object[]
+      {
+        "2020-o1-01T00:00:00.000Z",
+        "Non-numeric character in the month"
+      },
+
+      new Object[]
+      {
+        "2020-00-01T00:00:00.000Z",
+        "Invalid month -- zero"
+      },
+
+      new Object[]
+      {
+        "2020-13-01T00:00:00.000Z",
+        "Invalid month -- too large"
+      },
+
+      new Object[]
+      {
+        "2020-01_01T00:00:00.000Z",
+        "Incorrect separator between the month and the day"
+      },
+
+      new Object[]
+      {
+        "2020-01-o1T00:00:00.000Z",
+        "Non-numeric character in the day"
+      },
+
+      new Object[]
+      {
+        "2020-01-00T00:00:00.000Z",
+        "Invalid day -- zero"
+      },
+
+      new Object[]
+      {
+        "2020-01-32T00:00:00.000Z",
+        "Invalid day -- too large for January"
+      },
+
+      new Object[]
+      {
+        "2020-02-30T00:00:00.000Z",
+        "Invalid day -- too large for February"
+      },
+
+      new Object[]
+      {
+        "2020-03-32T00:00:00.000Z",
+        "Invalid day -- too large for March"
+      },
+
+      new Object[]
+      {
+        "2020-04-31T00:00:00.000Z",
+        "Invalid day -- too large for April"
+      },
+
+      new Object[]
+      {
+        "2020-05-32T00:00:00.000Z",
+        "Invalid day -- too large for May"
+      },
+
+      new Object[]
+      {
+        "2020-06-31T00:00:00.000Z",
+        "Invalid day -- too large for June"
+      },
+
+      new Object[]
+      {
+        "2020-07-32T00:00:00.000Z",
+        "Invalid day -- too large for July"
+      },
+
+      new Object[]
+      {
+        "2020-08-32T00:00:00.000Z",
+        "Invalid day -- too large for August"
+      },
+
+      new Object[]
+      {
+        "2020-09-31T00:00:00.000Z",
+        "Invalid day -- too large for September"
+      },
+
+      new Object[]
+      {
+        "2020-10-32T00:00:00.000Z",
+        "Invalid day -- too large for October"
+      },
+
+      new Object[]
+      {
+        "2020-11-31T00:00:00.000Z",
+        "Invalid day -- too large for November"
+      },
+
+      new Object[]
+      {
+        "2020-12-32T00:00:00.000Z",
+        "Invalid day -- too large for December"
+      },
+
+      new Object[]
+      {
+        "2020-01-01t00:00:00.000Z",
+        "Invalid separator between day and hour"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T0o:00:00.000Z",
+        "Non-numeric character in hour"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T24:00:00.000Z",
+        "Invalid hour"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00;00:00.000Z",
+        "Invalid separator between hour and minute"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:0o:00.000Z",
+        "Non-numeric character in minute"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:60:00.000Z",
+        "Invalid minute"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00;00.000Z",
+        "Invalid separator between minute and second"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:o0.000Z",
+        "Non-numeric character in second"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:61.000Z",
+        "Invalid second"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.Z",
+        "No sub-second digits"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.0000Z",
+        "Too many sub-second digits"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.oooZ",
+        "Non-numeric character in sub-second"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.0+00",
+        "Time zone offset too short"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.010_00:00",
+        "Invalid time zone offset first character with sub-seconds"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00_00:00",
+        "Invalid time zone offset first character without sub-seconds"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.000+0o:00",
+        "Non-numeric character in time zone hour offset"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.000+24:00",
+        "Invalid time zone hour offset"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.000+00;00",
+        "Invalid separator between time zone offset hour and minute"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.000+00:0o",
+        "Non-numeric character in time zone minute offset"
+      },
+
+      new Object[]
+      {
+        "2020-01-01T00:00:00.000+00:60",
+        "Invalid time zone minute offset"
+      },
+    };
   }
 }
