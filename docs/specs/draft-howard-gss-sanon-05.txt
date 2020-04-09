@@ -4,12 +4,12 @@
 
 Network Working Group                                          L. Howard
 Internet-Draft                                                      PADL
-Intended status: Informational                             April 8, 2020
-Expires: October 10, 2020
+Intended status: Informational                            April 10, 2020
+Expires: October 12, 2020
 
 
                   A Simple Anonymous GSS-API Mechanism
-                       draft-howard-gss-sanon-04
+                       draft-howard-gss-sanon-05
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 10, 2020.
+   This Internet-Draft will expire on October 12, 2020.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Howard                  Expires October 10, 2020                [Page 1]
+Howard                  Expires October 12, 2020                [Page 1]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Howard                  Expires October 10, 2020                [Page 2]
+Howard                  Expires October 12, 2020                [Page 2]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -151,10 +151,10 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
    The GSS_API mechanism OID for the SAnon mechanism is:
 
-   sanon-x25519 OBJECT IDENTIFIER ::=
-      {iso(1)identified-organization(3)dod(6)internet(1)
-       private(4)enterprise(1)padl(5322)gss-sanon(26)
-       mechanisms(1)sanon-x25519(110)}
+       sanon-x25519 OBJECT IDENTIFIER ::=
+           {iso(1)identified-organization(3)dod(6)internet(1)
+            private(4)enterprise(1)padl(5322)gss-sanon(26)
+            mechanisms(1)sanon-x25519(110)}
 
    The means of discovering GSS-API peers and their supported mechanisms
    is out of this specification's scope.  To avoid multiple negotiation
@@ -165,7 +165,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 10, 2020                [Page 3]
+Howard                  Expires October 12, 2020                [Page 3]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -221,7 +221,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 10, 2020                [Page 4]
+Howard                  Expires October 12, 2020                [Page 4]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -277,7 +277,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 10, 2020                [Page 5]
+Howard                  Expires October 12, 2020                [Page 5]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -295,17 +295,16 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    The initial context token is framed per Section 1 of [RFC2743]:
 
    GSS-API DEFINITIONS ::=
-        BEGIN
+       BEGIN
 
-        MechType ::= OBJECT IDENTIFIER
-        -- representing SAnon mechanism
-        GSSAPI-Token ::=
-        [APPLICATION 0] IMPLICIT SEQUENCE {
+       MechType ::= OBJECT IDENTIFIER -- 1.3.6.1.4.1.5322.26.1.110
+       GSSAPI-Token ::=
+       [APPLICATION 0] IMPLICIT SEQUENCE {
             thisMech MechType,
             innerToken ANY DEFINED BY thisMech
                 -- 32 byte initiator public key
-        }
-        END
+       }
+       END
 
    On the first call to GSS_Init_sec_context(), the mechanism checks for
    one of the following:
@@ -333,7 +332,8 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 10, 2020                [Page 6]
+
+Howard                  Expires October 12, 2020                [Page 6]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -343,7 +343,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    Upon receiving a context token from the initiator, the acceptor
    validates that the token is well formed and contains a public key of
    the requisite length.  The acceptor generates a fresh secret and
-   public key pair.  A session key is computed as specified in
+   public key pair.  The context session key is computed as specified in
    Section 7.
 
    The acceptor constructs an output_token by concatenating its public
@@ -361,8 +361,8 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
    Upon receiving the acceptor context token and verifying it is well
    formed, the initiator extracts the acceptor's public key (being the
-   first 32 bytes of the input token) and computes the session key per
-   Section 7.
+   first 32 bytes of the input token) and computes the context session
+   key per Section 7.
 
    The initiator calls GSS_VerifyMIC() with the MIC extracted from the
    context token and the zero-length octet string.  If successful, the
@@ -375,10 +375,10 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
    The per-message tokens definitions are imported from [RFC4121]
    Section 4.2.  The base key used to derive specific keys for signing
-   and sealing messages is the session key defined in Section 7.  The
-   [RFC3961] encryption and checksum algorithms use the aes128-cts-hmac-
-   sha256-128 encryption type defined in [RFC8009].  The AcceptorSubkey
-   flag as defined in [RFC4121] Section 4.2.2 MUST be set.
+   and sealing messages is defined in Section 7.  The [RFC3961]
+   encryption and checksum algorithms use the aes128-cts-hmac-sha256-128
+   encryption type defined in [RFC8009].  The AcceptorSubkey flag as
+   defined in [RFC4121] Section 4.2.2 MUST be set.
 
 6.3.  Context Deletion Tokens
 
@@ -389,31 +389,31 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 10, 2020                [Page 7]
+Howard                  Expires October 12, 2020                [Page 7]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 6.4.  Exported Name Tokens
 
-   The exported name token format mechanism is the standard exported
-   name format specified by [RFC2743] Section 3.2, where MECH_OID is the
-   mechanism OID given in Section 3 and NAME is the well known anonymous
-   name string.
+   The exported name token format is the standard exported name format
+   specified by [RFC2743] Section 3.2, where MECH_OID is the mechanism
+   OID given in Section 3 and NAME is the well known anonymous name
+   string.
 
 7.  Key derivation
 
-   The ECDH shared secret k is computed by calling the X25519 function
-   with the local secret key and the peer's public key, as specified in
-   Section 6.1 of [RFC7748].  The context session key (K1) is computed
-   using a key derivation function from Section 5.1 of [SP800-108] with
-   HMAC as the PRF:
+   The context session key is known as the base key, and is computed
+   using a key derivation function from [SP800-108] Section 5.1 (using
+   HMAC as the PRF):
 
-      K1 = HMAC-SHA-256(key, 0x00000001 | label | 0x00 | context | k)
+       base key = HMAC-SHA-256(shared, 0x00000001 | label | 0x00 |
+                                       context | 0x00000080)
 
    where:
 
-   k             the ECDH shared secret computed previously
+   shared        the output of X25519(local secret key, peer public key)
+                 as specified in [RFC7748] Section 6.1
 
    0x00000001    the iteration count from Section 5.1 of [SP800-108]
 
@@ -423,29 +423,29 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
                  keys, along with the channel binding application data
                  (if present), in that order
 
+   0x00000080    length in bits of the key to be outputted, expressed in
+                 big-endian binary representation of 4 bytes (called "L"
+                 in [SP800-108])
+
    The inclusion of channel bindings in the key derivation function
    means that the acceptor cannot ignore initiator channel bindings;
    this differs from some other mechanisms.
 
-   This session key is equivalent to the acceptor-asserted subkey
-   defined in [RFC4121] Section 2 and is used as the base key for
-   generating keys for per-message tokens and the GSS-API PRF.
-
-   The session key encryption type is aes128-cts-hmac-sha256-128 as
-   defined in [RFC8009].  The [RFC3961] algorithm protocol parameters
-   are as given in [RFC8009] Section 5.
+   The base key provides the acceptor-asserted subkey defined in
+   [RFC4121] Section 2 and is used to generate keys for per-message
+   tokens and the GSS-API PRF.  Its encryption type is aes128-cts-hmac-
+   sha256-128 per [RFC8009].  The [RFC3961] algorithm protocol
+   parameters are as given in [RFC8009] Section 5.
 
 8.  Pseudo-Random Function
 
    The [RFC4401] GSS-API pseudo-random function for this mechanism
-   imports the definitions from [RFC8009], using the context session key
-   as the base key for both GSS_C_PRF_KEY_FULL and GSS_C_PRF_KEY_PARTIAL
-   usages.
+   imports the definitions from [RFC8009], using the base key for both
+   GSS_C_PRF_KEY_FULL and GSS_C_PRF_KEY_PARTIAL usages.
 
 
 
-
-Howard                  Expires October 10, 2020                [Page 8]
+Howard                  Expires October 12, 2020                [Page 8]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -483,7 +483,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    acceptor public key   a8 32 14 9d 58 33 13 ce 1c 55 7b 2b d1 8a e7 a5
                          59 8c a6 4b 02 20 83 5e 16 be 09 ca 2f 90 60 31
 
-   context session key   af f1 8d b7 45 c6 27 cd a8 da d4 9b d7 e7 01 25
+   base key              af f1 8d b7 45 c6 27 cd a8 da d4 9b d7 e7 01 25
 
    acceptor token        a8 32 14 9d 58 33 13 ce 1c 55 7b 2b d1 8a e7 a5
                          59 8c a6 4b 02 20 83 5e 16 be 09 ca 2f 90 60 31
@@ -501,7 +501,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 10, 2020                [Page 9]
+Howard                  Expires October 12, 2020                [Page 9]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -557,7 +557,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 10, 2020               [Page 10]
+Howard                  Expires October 12, 2020               [Page 10]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -613,4 +613,4 @@ Author's Address
 
 
 
-Howard                  Expires October 10, 2020               [Page 11]
+Howard                  Expires October 12, 2020               [Page 11]
