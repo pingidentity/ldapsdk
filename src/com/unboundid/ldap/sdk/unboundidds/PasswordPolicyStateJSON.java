@@ -98,6 +98,30 @@ public final class PasswordPolicyStateJSON
 
 
   /**
+   * The name of the field that will be used to hold the message component of an
+   * account usability error, warning, or notice.
+   */
+  private static final String USABILITY_FIELD_MESSAGE = "message";
+
+
+
+  /**
+   * The name of the field that will be used to hold the integer version of
+   * the identifier for of an account usability error, warning, or notice.
+   */
+  private static final String USABILITY_FIELD_TYPE_ID = "type-id";
+
+
+
+  /**
+   * The name of the field that will be used to hold the name of the identifier
+   * for of an account usability error, warning, or notice.
+   */
+  private static final String USABILITY_FIELD_TYPE_NAME = "type-name";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -3953182526241789456L;
@@ -273,12 +297,12 @@ public final class PasswordPolicyStateJSON
         if (v instanceof JSONObject)
         {
           final JSONObject o = (JSONObject) v;
-          final String typeName = o.getFieldAsString("type-name");
-          final Integer typeValue = o.getFieldAsInteger("type-value");
-          final String message = o.getFieldAsString("message");
-          if ((typeName != null) && (typeValue != null))
+          final String typeName = o.getFieldAsString(USABILITY_FIELD_TYPE_NAME);
+          final Integer typeID = o.getFieldAsInteger(USABILITY_FIELD_TYPE_ID);
+          final String message = o.getFieldAsString(USABILITY_FIELD_MESSAGE);
+          if ((typeName != null) && (typeID != null))
           {
-            errors.add(new PasswordPolicyStateAccountUsabilityError(typeValue,
+            errors.add(new PasswordPolicyStateAccountUsabilityError(typeID,
                  typeName, message));
           }
         }
@@ -313,13 +337,13 @@ public final class PasswordPolicyStateJSON
         if (v instanceof JSONObject)
         {
           final JSONObject o = (JSONObject) v;
-          final String typeName = o.getFieldAsString("type-name");
-          final Integer typeValue = o.getFieldAsInteger("type-value");
-          final String message = o.getFieldAsString("message");
-          if ((typeName != null) && (typeValue != null))
+          final String typeName = o.getFieldAsString(USABILITY_FIELD_TYPE_NAME);
+          final Integer typeID = o.getFieldAsInteger(USABILITY_FIELD_TYPE_ID);
+          final String message = o.getFieldAsString(USABILITY_FIELD_MESSAGE);
+          if ((typeName != null) && (typeID != null))
           {
-            warnings.add(new PasswordPolicyStateAccountUsabilityWarning(
-                 typeValue, typeName, message));
+            warnings.add(new PasswordPolicyStateAccountUsabilityWarning(typeID,
+                 typeName, message));
           }
         }
       }
@@ -353,12 +377,12 @@ public final class PasswordPolicyStateJSON
         if (v instanceof JSONObject)
         {
           final JSONObject o = (JSONObject) v;
-          final String typeName = o.getFieldAsString("type-name");
-          final Integer typeValue = o.getFieldAsInteger("type-value");
-          final String message = o.getFieldAsString("message");
-          if ((typeName != null) && (typeValue != null))
+          final String typeName = o.getFieldAsString(USABILITY_FIELD_TYPE_NAME);
+          final Integer typeID = o.getFieldAsInteger(USABILITY_FIELD_TYPE_ID);
+          final String message = o.getFieldAsString(USABILITY_FIELD_MESSAGE);
+          if ((typeName != null) && (typeID != null))
           {
-            notices.add(new PasswordPolicyStateAccountUsabilityNotice(typeValue,
+            notices.add(new PasswordPolicyStateAccountUsabilityNotice(typeID,
                  typeName, message));
           }
         }

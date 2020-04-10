@@ -1712,13 +1712,13 @@ public final class PasswordPolicyStateJSONTestCase
             {
               arrayValues.add(new JSONObject(
                    new JSONField("type-name", e.getName()),
-                   new JSONField("type-value", e.getIntValue())));
+                   new JSONField("type-id", e.getIntValue())));
             }
             else
             {
               arrayValues.add(new JSONObject(
                    new JSONField("type-name", e.getName()),
-                   new JSONField("type-value", e.getIntValue()),
+                   new JSONField("type-id", e.getIntValue()),
                    new JSONField("message", e.getMessage())));
             }
           }
@@ -1730,13 +1730,13 @@ public final class PasswordPolicyStateJSONTestCase
             {
               arrayValues.add(new JSONObject(
                    new JSONField("type-name", w.getName()),
-                   new JSONField("type-value", w.getIntValue())));
+                   new JSONField("type-id", w.getIntValue())));
             }
             else
             {
               arrayValues.add(new JSONObject(
                    new JSONField("type-name", w.getName()),
-                   new JSONField("type-value", w.getIntValue()),
+                   new JSONField("type-id", w.getIntValue()),
                    new JSONField("message", w.getMessage())));
             }
           }
@@ -1748,13 +1748,13 @@ public final class PasswordPolicyStateJSONTestCase
             {
               arrayValues.add(new JSONObject(
                    new JSONField("type-name", n.getName()),
-                   new JSONField("type-value", n.getIntValue())));
+                   new JSONField("type-id", n.getIntValue())));
             }
             else
             {
               arrayValues.add(new JSONObject(
                    new JSONField("type-name", n.getName()),
-                   new JSONField("type-value", n.getIntValue()),
+                   new JSONField("type-id", n.getIntValue()),
                    new JSONField("message", n.getMessage())));
             }
           }
