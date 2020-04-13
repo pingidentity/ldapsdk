@@ -69,7 +69,7 @@ public class ReloadGlobalIndexTaskTestCase
     t = new ReloadGlobalIndexTask(t.getTaskPropertyValues());
     assertNotNull(t);
 
-    t = new ReloadGlobalIndexTask(t.createTaskEntry());
+    t = (ReloadGlobalIndexTask) Task.decodeTask(t.createTaskEntry());
     assertNotNull(t);
 
     assertNotNull(t.getTaskName());
@@ -120,7 +120,7 @@ public class ReloadGlobalIndexTaskTestCase
     t = new ReloadGlobalIndexTask(t.getTaskPropertyValues());
     assertNotNull(t);
 
-    t = new ReloadGlobalIndexTask(t.createTaskEntry());
+    t = (ReloadGlobalIndexTask) Task.decodeTask(t.createTaskEntry());
     assertNotNull(t);
 
     assertNotNull(t.getTaskName());

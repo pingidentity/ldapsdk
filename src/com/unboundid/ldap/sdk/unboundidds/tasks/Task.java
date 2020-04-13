@@ -991,6 +991,7 @@ public class Task
          new GroovyScriptedTask(),
          new ImportTask(),
          new LeaveLockdownModeTask(),
+         new PopulateComposedAttributeValuesTask(),
          new RebuildTask(),
          new ReEncodeEntriesTask(),
          new RefreshEncryptionSettingsTask(),
@@ -2049,6 +2050,12 @@ public class Task
                     LeaveLockdownModeTask.LEAVE_LOCKDOWN_MODE_TASK_CLASS))
       {
         return new LeaveLockdownModeTask(entry);
+      }
+      else if (taskClass.equals(
+                    PopulateComposedAttributeValuesTask.
+                         POPULATE_COMPOSED_ATTRIBUTE_VALUES_TASK_CLASS))
+      {
+        return new PopulateComposedAttributeValuesTask(entry);
       }
       else if (taskClass.equals(RebuildTask.REBUILD_TASK_CLASS))
       {
