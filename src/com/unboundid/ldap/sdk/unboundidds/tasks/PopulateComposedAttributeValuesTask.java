@@ -86,8 +86,8 @@ public final class PopulateComposedAttributeValuesTask
        extends Task
 {
   /**
-   * The fully-qualified name of the Java class that is used for the add schema
-   * file task.
+   * The fully-qualified name of the Java class that is used for the populate
+   * composed attribute values task.
    */
   static final String POPULATE_COMPOSED_ATTRIBUTE_VALUES_TASK_CLASS =
        "com.unboundid.directory.server.tasks." +
@@ -138,7 +138,7 @@ public final class PopulateComposedAttributeValuesTask
    */
   private static final TaskProperty PROPERTY_BACKEND_ID =
      new TaskProperty(ATTR_BACKEND_ID,
-          INFO_POPULATE_COMPSED_ATTR_DISPLAY_NAME_BACKEND_ID.get(),
+          INFO_POPULATE_COMPOSED_ATTR_DISPLAY_NAME_BACKEND_ID.get(),
           INFO_POPULATE_COMPOSED_ATTR_DESCRIPTION_BACKEND_ID.get(),
           String.class, false, true, false);
 
@@ -149,7 +149,7 @@ public final class PopulateComposedAttributeValuesTask
    */
   private static final TaskProperty PROPERTY_MAX_RATE_PER_SECOND =
      new TaskProperty(ATTR_MAX_RATE_PER_SECOND,
-          INFO_POPULATE_COMPSED_ATTR_DISPLAY_NAME_MAX_RATE.get(),
+          INFO_POPULATE_COMPOSED_ATTR_DISPLAY_NAME_MAX_RATE.get(),
           INFO_POPULATE_COMPOSED_ATTR_DESCRIPTION_MAX_RATE.get(), Long.class,
           false, false, false);
 
@@ -161,7 +161,7 @@ public final class PopulateComposedAttributeValuesTask
    */
   private static final TaskProperty PROPERTY_PLUGIN_CONFIG =
      new TaskProperty(ATTR_PLUGIN_CONFIG,
-          INFO_POPULATE_COMPSED_ATTR_DISPLAY_NAME_PLUGIN_CONFIG.get(),
+          INFO_POPULATE_COMPOSED_ATTR_DISPLAY_NAME_PLUGIN_CONFIG.get(),
           INFO_POPULATE_COMPOSED_ATTR_DESCRIPTION_PLUGIN_CONFIG.get(),
           String.class, false, true, false);
 

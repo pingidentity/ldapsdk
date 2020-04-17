@@ -988,6 +988,7 @@ public class Task
          new ExecTask(),
          new ExportTask(),
          new FileRetentionTask(),
+         new GenerateServerProfileTask(),
          new GroovyScriptedTask(),
          new ImportTask(),
          new LeaveLockdownModeTask(),
@@ -2037,6 +2038,11 @@ public class Task
       else if (taskClass.equals(FileRetentionTask.FILE_RETENTION_TASK_CLASS))
       {
         return new FileRetentionTask(entry);
+      }
+      else if (taskClass.equals(
+           GenerateServerProfileTask.GENERATE_SERVER_PROFILE_TASK_CLASS))
+      {
+        return new GenerateServerProfileTask(entry);
       }
       else if (taskClass.equals(GroovyScriptedTask.GROOVY_SCRIPTED_TASK_CLASS))
       {
