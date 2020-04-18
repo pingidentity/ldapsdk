@@ -736,10 +736,10 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(teeResultsToStandardOut);
 
-    final Set<String> outputFormatAllowedValues =
-         StaticUtils.setOf("ldif", "json", "csv", "tab-delimited");
+    final Set<String> outputFormatAllowedValues = StaticUtils.setOf("ldif",
+         "json", "csv", "tab-delimited", "values-only");
     outputFormat = new StringArgument(null, "outputFormat", false, 1,
-         "{ldif|json|csv|tab-delimited}",
+         "{ldif|json|csv|tab-delimited|values-only}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_OUTPUT_FORMAT.get(
               requestedAttribute.getIdentifierString(),
               ldapURLFile.getIdentifierString()),
@@ -2199,6 +2199,10 @@ public final class LDAPSearch
                 : OutputFormat.TAB_DELIMITED_TEXT),
            requestedAttributes, WRAP_COLUMN);
     }
+    else if (outputFormatStr.equals("values-only"))
+    {
+      outputHandler = new ValuesOnlyLDAPSearchOutputHandler(this);
+    }
     else
     {
       outputHandler = new LDIFLDAPSearchOutputHandler(this, WRAP_COLUMN);
@@ -3324,6 +3328,44 @@ public final class LDAPSearch
     for (final String line : StaticUtils.wrapLine(message, (WRAP_COLUMN - 2)))
     {
       writeErr("# " + line);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the tool's output stream.
+   *
+   * @return  The tool's output stream.
+   */
+  PrintStream getOutStream()
+  {
+    if (outStream == null)
+    {
+      return getOut();
+    }
+    else
+    {
+      return outStream;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the tool's error stream.
+   *
+   * @return  The tool's error stream.
+   */
+  PrintStream getErrStream()
+  {
+    if (errStream == null)
+    {
+      return getErr();
+    }
+    else
+    {
+      return errStream;
     }
   }
 

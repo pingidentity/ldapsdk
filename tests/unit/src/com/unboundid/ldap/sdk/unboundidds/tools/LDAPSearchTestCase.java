@@ -37,8 +37,13 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 
@@ -195,6 +200,9 @@ public final class LDAPSearchTestCase
 
     assertNotNull(ldapSearch.getExampleUsages());
     assertFalse(ldapSearch.getExampleUsages().isEmpty());
+
+    ldapSearch.getOutStream();
+    ldapSearch.getErrStream();
   }
 
 
@@ -1470,6 +1478,82 @@ public final class LDAPSearchTestCase
               "givenName",
               "sn"),
          ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
+   * Provides test coverage for the tool when configured to use the values-only
+   * output format and an output file is used.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testVaulesOnlyOutputFormatWithOutputFile()
+         throws Exception
+  {
+    final File outputFile = createTempFile();
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "values-only",
+              "--requestedAttribute", "uid",
+              "--outputFile", outputFile.getAbsolutePath(),
+              "(objectClass=person)"),
+         ResultCode.SUCCESS);
+
+    try (FileReader fileReader = new FileReader(outputFile);
+         BufferedReader bufferedReader = new BufferedReader(fileReader))
+    {
+      assertEquals(bufferedReader.readLine(), "aaron.adams");
+      assertEquals(bufferedReader.readLine(), "brenda.brown");
+      assertEquals(bufferedReader.readLine(), "chester.cooper");
+      assertEquals(bufferedReader.readLine(), "dolly.duke");
+      assertEquals(bufferedReader.readLine(), "ezra.edwards");
+      assertNull(bufferedReader.readLine());
+    }
+  }
+
+
+
+  /**
+   * Provides test coverage for the tool when configured to use the values-only
+   * output format and no output file is used.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testVaulesOnlyOutputFormatWithoutOutputFile()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDAPSearch.main(out, out,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "values-only",
+              "--requestedAttribute", "uid",
+              "(objectClass=person)"),
+         ResultCode.SUCCESS);
+
+    try (InputStreamReader inputStreamReader = new InputStreamReader(
+              new ByteArrayInputStream(out.toByteArray()));
+         BufferedReader bufferedReader = new BufferedReader(inputStreamReader))
+    {
+      assertEquals(bufferedReader.readLine(), "aaron.adams");
+      assertEquals(bufferedReader.readLine(), "brenda.brown");
+      assertEquals(bufferedReader.readLine(), "chester.cooper");
+      assertEquals(bufferedReader.readLine(), "dolly.duke");
+      assertEquals(bufferedReader.readLine(), "ezra.edwards");
+      assertNull(bufferedReader.readLine());
+    }
   }
 
 

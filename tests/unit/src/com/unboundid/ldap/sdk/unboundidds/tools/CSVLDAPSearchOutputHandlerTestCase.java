@@ -66,7 +66,7 @@ import com.unboundid.util.OutputFormat;
 
 /**
  * Provides test coverage for the column-formatted LDAPSearch output handler
- * when using the .
+ * when using the CSV format.
  */
 public final class CSVLDAPSearchOutputHandlerTestCase
        extends LDAPSDKTestCase

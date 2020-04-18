@@ -66,7 +66,7 @@ import com.unboundid.util.OutputFormat;
 
 /**
  * Provides test coverage for the column-formatted LDAPSearch output handler
- * when using the .
+ * when using the tab-delimited format.
  */
 public final class TabDelimitedLDAPSearchOutputHandlerTestCase
        extends LDAPSDKTestCase
