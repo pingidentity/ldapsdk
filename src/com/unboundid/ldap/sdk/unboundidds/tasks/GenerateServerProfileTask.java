@@ -51,7 +51,6 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
 
@@ -75,11 +74,24 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
  * <BR>
  * The properties that are available for use with this type of task include:
  * <UL>
- *   <LI>The absolute path to the directory or zip file to which the server
- *       profile is to be written.</LI>
- *   <LI>An optional set of additional paths within the server root that should
- *       be included in the server profile.</LI>
- *   <LI>A flag indicating whether to package the profile in a zip file.</LI>
+ *   <LI>
+ *     The path to the zip file (if the profile is to be packaged into a zip
+ *     file) or directory (if it is not to be packaged into a zip file) to which
+ *     the server profile will be written.  This may be an absolute path or a
+ *     relative path that will be interpreted as relative to the instance root.
+ *     If this is omitted, then a zip file or directory will be created within
+ *     the instance root directory with a generated name.
+ *   </LI>
+ *   <LI>
+ *     An optional set of additional paths to files or directories within the
+ *     instance root that should be included in the server profile.  If this is
+ *     omitted, then no additional include paths will be used.
+ *   </LI>
+ *   <LI>
+ *     A flag indicating whether the generated server profile should be packaged
+ *     into a zip file.  If this is omitted, then the server will determine
+ *     whether to package the profile into a zip file.
+ *   </LI>
  * </UL>
  */
 @NotMutable()
@@ -98,7 +110,7 @@ public final class GenerateServerProfileTask
 
   /**
    * The name of the attribute used to specify additional paths within the
-   * server root that should be included in the server profile.
+   * instance root that should be included in the generated server profile.
    */
   private static final String ATTR_INCLUDE_PATH =
        "ds-task-generate-server-profile-include-path";
@@ -106,8 +118,8 @@ public final class GenerateServerProfileTask
 
 
   /**
-   * The name of the attribute used to specify the path to which the profile
-   * should be written.
+   * The name of the attribute used to specify the path to which the generated
+   * profile should be written.
    */
   private static final String ATTR_PROFILE_ROOT =
        "ds-task-generate-server-profile-root";
@@ -115,8 +127,8 @@ public final class GenerateServerProfileTask
 
 
   /**
-   * The name of the attribute used to indicate whether the server profile
-   * should be packaged as a zip file.
+   * The name of the attribute used to indicate whether the generated server
+   * profile should be packaged into a zip file.
    */
   private static final String ATTR_ZIP =
        "ds-task-generate-server-profile-zip";
@@ -149,7 +161,7 @@ public final class GenerateServerProfileTask
        ATTR_PROFILE_ROOT,
        INFO_GENERATE_SERVER_PROFILE_ATTR_DISPLAY_NAME_PROFILE_ROOT.get(),
        INFO_GENERATE_SERVER_PROFILE_ATTR_DESCRIPTION_PROFILE_ROOT.get(),
-       String.class, true, false, false);
+       String.class, false, false, false);
 
 
 
@@ -171,14 +183,15 @@ public final class GenerateServerProfileTask
 
 
 
-  // Indicates whether to package the generated server profile in a zip file.
+  // Indicates whether to package the generated server profile into a zip file.
   private final Boolean zipProfile;
 
-  // The list of additional paths within the server root that should be included
-  // in the generated profile.
+  // The list of additional paths within the instance root that should be
+  // included in the generated server profile.
   private final List<String> includePaths;
 
-  // The path to the profile directory or zip file to be written.
+  // The path to the zip file or directory to which the generated server profile
+  // will be written.
   private final String profileRoot;
 
 
@@ -207,23 +220,25 @@ public final class GenerateServerProfileTask
    * @param  taskID        The task ID to use for this task.  If it is
    *                       {@code null} then a UUID will be generated for use as
    *                       the task ID.
-   * @param  profileRoot   The absolute path on the server filesystem to the
-   *                       file or directory to which the generated server
-   *                       profile will be written.  If the generated profile
-   *                       will be zipped, then this must be the absolute path
-   *                       to the target zip file, which must not exist but its
-   *                       parent directory must exist.  If the profile will not
-   *                       be zipped, then this must be the absolute path to the
-   *                       directory in which the profile will be written,
-   *                       which must either exist and be empty or it must not
-   *                       exist but its parent directory must exist.  This must
-   *                       not be {@code null}.
-   * @param  includePaths  An optional list of paths to additional files within
-   *                       the server root that should be included in the
-   *                       generated server profile.  Each path must be a
-   *                       relative path that is relative to the server root.
-   *                       This may be {@code null} or empty if no additional
-   *                       include paths should be included.
+   * @param  profileRoot   The path on the server filesystem to the zip file or
+   *                       directory to which the generated server profile will
+   *                       be written.  This may be an absolute path or a
+   *                       relative path that will be interpreted as relative to
+   *                       the instance root.  If the generated server profile
+   *                       will be packaged into a zip file, then this must be
+   *                       the path to a file that does not yet exist in a
+   *                       parent directory that does exist.  If the server
+   *                       profile will not be zipped, then this must be the
+   *                       path to an empty or nonexistent directory in a parent
+   *                       directory that does exist.  If this is not provided,
+   *                       the server will create the zip file or profile
+   *                       directory in the instance root with a generated name.
+   * @param  includePaths  An optional list of paths to additional files or
+   *                       directories that exist within the instance root that
+   *                       should be included in the generated server profile.
+   *                       Relative paths will be interpreted as relative to the
+   *                       instance root.  This may be {@code null} or empty if
+   *                       no additional include paths should be used.
    * @param  zipProfile    Indicates whether the generated server profile should
    *                       be packaged into a zip file.  If this is
    *                       {@code Boolean.TRUE}, then the profile will be
@@ -231,7 +246,7 @@ public final class GenerateServerProfileTask
    *                       {@code Boolean.FALSE}, then the profile will be
    *                       written as a directory structure.  It may be
    *                       {@code null} if the server should choose whether to
-   *                       zip the package.
+   *                       package the profile into a zip file.
    */
   public GenerateServerProfileTask(final String taskID,
                                    final String profileRoot,
@@ -250,26 +265,31 @@ public final class GenerateServerProfileTask
    * @param  taskID                  The task ID to use for this task.  If it is
    *                                 {@code null} then a UUID will be generated
    *                                 for use as the task ID.
-   * @param  profileRoot             The absolute path on the server filesystem
-   *                                 to the file or directory to which the
+   * @param  profileRoot             The path on the server filesystem to the
+   *                                 zip file or directory to which the
    *                                 generated server profile will be written.
-   *                                 If the generated profile will be zipped,
-   *                                 then this must be the absolute path to the
-   *                                 target zip file, which must not exist but
-   *                                 its parent directory must exist.  If the
+   *                                 This may be an absolute path or a relative
+   *                                 path that will be interpreted as relative
+   *                                 to the instance root.  If the generated
+   *                                 server profile will be packaged into a zip
+   *                                 file, then this must be the path to a file
+   *                                 that does not yet exist in a parent
+   *                                 directory that does exist.  If the server
    *                                 profile will not be zipped, then this must
-   *                                 be the absolute path to the directory in
-   *                                 which the profile will be written, which
-   *                                 must either exist and be empty or it must
-   *                                 not exist but its parent directory must
-   *                                 exist.  This must not be {@code null}.
+   *                                 be the path to an empty or nonexistent
+   *                                 directory in a parent directory that does
+   *                                 exist.  If this is not provided, the
+   *                                 server will create the zip file or profile
+   *                                 directory in the instance root with a
+   *                                 generated name.
    * @param  includePaths            An optional list of paths to additional
-   *                                 files within the server root that should be
-   *                                 included in the generated server profile.
-   *                                 Each path must be a relative path that is
-   *                                 relative to the server root.  This may be
+   *                                 files or directories that exist within the
+   *                                 instance root that should be included in
+   *                                 the generated server profile.  Relative
+   *                                 paths will be interpreted as relative to
+   *                                 the instance root.  This may be
    *                                 {@code null} or empty if no additional
-   *                                 include paths should be included.
+   *                                 include paths should be used.
    * @param  zipProfile              Indicates whether the generated server
    *                                 profile should be packaged into a zip file.
    *                                 If this is {@code Boolean.TRUE}, then the
@@ -277,8 +297,8 @@ public final class GenerateServerProfileTask
    *                                 If this is {@code Boolean.FALSE}, then the
    *                                 profile will be written as a directory
    *                                 structure.  It may be {@code null} if the
-   *                                 server should choose whether to zip the
-   *                                 package.
+   *                                 server should choose whether to package the
+   *                                 profile into a zip file.
    * @param  scheduledStartTime      The time that this task should start
    *                                 running.
    * @param  dependencyIDs           The list of task IDs that will be required
@@ -328,9 +348,6 @@ public final class GenerateServerProfileTask
          notifyOnCompletion, notifyOnSuccess, notifyOnError, alertOnStart,
          alertOnSuccess, alertOnError);
 
-    Validator.ensureNotNullWithMessage(profileRoot,
-         "GenerateServerProfileTask.profileRoot must not be null.");
-
     this.profileRoot = profileRoot;
     this.zipProfile = zipProfile;
 
@@ -362,13 +379,7 @@ public final class GenerateServerProfileTask
     super(entry);
 
     profileRoot = entry.getAttributeValue(ATTR_PROFILE_ROOT);
-    if (profileRoot == null)
-    {
-      throw new TaskException(
-           ERR_GENERATE_SERVER_PROFILE_ENTRY_MISSING_PROFILE_ROOT.get(
-                entry.getDN(), ATTR_PROFILE_ROOT));
-    }
-
+    zipProfile = entry.getAttributeValueAsBoolean(ATTR_ZIP);
 
     final String[] includePathValues =
          entry.getAttributeValues(ATTR_INCLUDE_PATH);
@@ -381,9 +392,6 @@ public final class GenerateServerProfileTask
       includePaths =
            Collections.unmodifiableList(Arrays.asList(includePathValues));
     }
-
-
-    zipProfile = entry.getAttributeValueAsBoolean(ATTR_ZIP);
   }
 
 
@@ -433,13 +441,6 @@ public final class GenerateServerProfileTask
       }
     }
 
-    if (profRoot == null)
-    {
-      throw new TaskException(
-           ERR_GENERATE_SERVER_PROFILE_PROPS_MISSING_PROFILE_ROOT.get(
-                ATTR_INCLUDE_PATH));
-    }
-
     profileRoot = profRoot;
     includePaths = incPaths;
     zipProfile = zip;
@@ -470,11 +471,15 @@ public final class GenerateServerProfileTask
 
 
   /**
-   * Retrieves the path to the directory or zip file to which the generated
-   * server profile will be written.
+   * Retrieves the path on the server filesystem to the zip file or directory to
+   * which the generated server profile will be written.  It may be an absolute
+   * path or a relative path that will be interpreted as relative to the
+   * instance root.
    *
-   * @return  The path to the directory or zip file to which the generated
-   *          server profile will be written.
+   * @return  The path on the server filesystem to the zip file or directory to
+   *          which the generated server profile will be written, or
+   *          {@code null} if the server will create the zip file or profile
+   *          directory in the instance root with a generated name.
    */
   public String getProfileRoot()
   {
@@ -485,10 +490,10 @@ public final class GenerateServerProfileTask
 
   /**
    * Retrieves a list of additional paths to files or directories within the
-   * server root that should be included in the generated server profile.
+   * instance root that should be included in the generated server profile.
    *
    * @return  A list of additional paths to files or directories within the
-   *          server root that should be included in the generated server
+   *          instance root that should be included in the generated server
    *          profile, or an empty list if no additional paths should be
    *          included.
    */
@@ -535,7 +540,11 @@ public final class GenerateServerProfileTask
   protected List<Attribute> getAdditionalAttributes()
   {
     final List<Attribute> attrList = new ArrayList<>(3);
-    attrList.add(new Attribute(ATTR_PROFILE_ROOT, profileRoot));
+
+    if (profileRoot != null)
+    {
+      attrList.add(new Attribute(ATTR_PROFILE_ROOT, profileRoot));
+    }
 
     if (! includePaths.isEmpty())
     {
@@ -575,8 +584,11 @@ public final class GenerateServerProfileTask
     final LinkedHashMap<TaskProperty,List<Object>> props =
          new LinkedHashMap<>(StaticUtils.computeMapCapacity(10));
 
-    props.put(PROPERTY_PROFILE_ROOT,
-         Collections.<Object>singletonList(profileRoot));
+    if (profileRoot != null)
+    {
+      props.put(PROPERTY_PROFILE_ROOT,
+           Collections.<Object>singletonList(profileRoot));
+    }
 
     if (! includePaths.isEmpty())
     {

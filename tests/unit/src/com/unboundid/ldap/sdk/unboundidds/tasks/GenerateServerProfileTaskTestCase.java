@@ -38,14 +38,11 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.testng.annotations.Test;
 
-import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 
 
@@ -88,18 +85,16 @@ public class GenerateServerProfileTaskTestCase
 
 
   /**
-   * Test with just a profile root argument.
+   * Test with with {@code null} values for all arguments.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testOnlyProfileRoot()
+  public void testNullValuesForAllArguments()
          throws Exception
   {
-    final String profileRoot = createTempDir().getAbsolutePath();
-
     GenerateServerProfileTask t =
-         new GenerateServerProfileTask(null, profileRoot, null, null);
+         new GenerateServerProfileTask(null, null, null, null);
 
     t = (GenerateServerProfileTask) Task.decodeTask(t.createTaskEntry());
 
@@ -108,8 +103,7 @@ public class GenerateServerProfileTaskTestCase
     assertNotNull(t.getTaskID());
     assertNotNull(UUID.fromString(t.getTaskID()));
 
-    assertNotNull(t.getProfileRoot());
-    assertEquals(t.getProfileRoot(), profileRoot);
+    assertNull(t.getProfileRoot());
 
     assertNotNull(t.getIncludePaths());
     assertTrue(t.getIncludePaths().isEmpty());
@@ -120,7 +114,7 @@ public class GenerateServerProfileTaskTestCase
 
 
   /**
-   * Test with values for all arguments, with one include path.
+   * Test with non-{@code null} values for all arguments, with one include path.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -157,7 +151,8 @@ public class GenerateServerProfileTaskTestCase
 
 
   /**
-   * Test with values for all arguments, with multiple include paths.
+   * Test with non-{@code null} values for all arguments, with multiple include
+   * paths.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -190,44 +185,5 @@ public class GenerateServerProfileTaskTestCase
 
     assertNotNull(t.getZipProfile());
     assertTrue(t.getZipProfile());
-  }
-
-
-
-  /**
-   * Tests the behavior when trying to create a task instance from an entry that
-   * does not include the required profile root attribute.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(expectedExceptions = { TaskException.class })
-  public void testCreateFromEntryWithoutProfileRoot()
-         throws Exception
-  {
-    new GenerateServerProfileTask(new Entry(
-         "dn: ds-task-id=missing-profile-root,cn=Scheduled Tasks,cn=tasks",
-         "objectClass: top",
-         "objectclass: ds-task",
-         "objectclass: ds-task-generate-server-profile",
-         "ds-task-id: missing-profile-root",
-         "ds-task-class-name: com.unboundid.directory.server.tasks." +
-              "GenerateServerProfileTask",
-         "ds-task-state: waiting_on_start_time"));
-  }
-
-
-
-  /**
-   * Tests the behavior when trying to create a task instance from a set of
-   * properties that does not include the required profile root attribute.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test(expectedExceptions = { TaskException.class })
-  public void testCreateFromPropertiesWithoutProfileRoot()
-         throws Exception
-  {
-    final Map<TaskProperty,List<Object>> properties = new HashMap<>();
-    new GenerateServerProfileTask(properties);
   }
 }
