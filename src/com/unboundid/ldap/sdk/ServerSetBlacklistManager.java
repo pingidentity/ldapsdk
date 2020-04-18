@@ -37,6 +37,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -64,7 +65,7 @@ import com.unboundid.util.Validator;
  */
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-final class ServerSetBlacklistManager
+public final class ServerSetBlacklistManager
 {
   // A reference to a timer that is used to periodically check the status of
   // blacklisted servers.
@@ -168,7 +169,7 @@ final class ServerSetBlacklistManager
    * @return  {@code true} if the blacklist is currently empty, or {@code false}
    *          if it contains at least one server.
    */
-  boolean isEmpty()
+  public boolean isEmpty()
   {
     if (blacklistedServers.isEmpty())
     {
@@ -188,7 +189,7 @@ final class ServerSetBlacklistManager
    *
    * @return  The number of servers currently on the blacklist.
    */
-  int size()
+  public int size()
   {
     if (blacklistedServers.isEmpty())
     {
@@ -208,14 +209,15 @@ final class ServerSetBlacklistManager
    *
    * @return  A list of the servers currently on the blacklist.
    */
-  Set<ObjectPair<String,Integer>> getBlacklistedServers()
+  public Set<ObjectPair<String,Integer>> getBlacklistedServers()
   {
     if (! blacklistedServers.isEmpty())
     {
       ensureTimerIsRunning();
     }
 
-    return new HashSet<>(blacklistedServers.keySet());
+    return Collections.unmodifiableSet(
+         new HashSet<>(blacklistedServers.keySet()));
   }
 
 
@@ -231,7 +233,7 @@ final class ServerSetBlacklistManager
    * @return  {@code true} if the server is on the blacklist, or {@code false}
    *          if not.
    */
-  boolean isBlacklisted(final String host, final int port)
+  public boolean isBlacklisted(final String host, final int port)
   {
     if (blacklistedServers.isEmpty())
     {
@@ -256,7 +258,7 @@ final class ServerSetBlacklistManager
    * @return  {@code true} if the server is on the blacklist, or {@code false}
    *          if not.
    */
-  boolean isBlacklisted(final ObjectPair<String,Integer> hostPort)
+  public boolean isBlacklisted(final ObjectPair<String,Integer> hostPort)
   {
     if (blacklistedServers.isEmpty())
     {
@@ -453,7 +455,7 @@ final class ServerSetBlacklistManager
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  void toString(final StringBuilder buffer)
+  public void toString(final StringBuilder buffer)
   {
     buffer.append("ServerSetBlacklistManager(serverSet='");
     buffer.append(serverSetString);

@@ -596,7 +596,7 @@ public final class RoundRobinServerSet
    * @return  The blacklist manager for this server set, or {@code null} if no
    *          blacklist will be maintained.
    */
-  ServerSetBlacklistManager getBlacklistManager()
+  public ServerSetBlacklistManager getBlacklistManager()
   {
     return blacklistManager;
   }
