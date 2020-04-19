@@ -78,6 +78,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added an OID.parseNumericOID method that can be used to parse a provided string
+                  as a valid numeric object identifier, optionally performing strict validation.
+                  If the provided string is not a valid numeric OID, this method will throw an
+                  exception that provides the reason the string is considered invalid.  While the
+                  LDAP SDK previously made it possible to determine whether a given string
+                  represented a valid numeric OID, that method only returned a boolean value and
+                  did not provide a way to obtain the reason it was invalid.
+                  <br><br>
+                </li>
+
+                <li>
                   Added an IA5 string argument value validator that can be used to ensure that
                   values for associated arguments are only allowed to contain ASCII characters
                   (that is, characters from the IA5 character set).  It may optionally be

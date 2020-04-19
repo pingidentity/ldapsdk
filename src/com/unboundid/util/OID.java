@@ -38,10 +38,13 @@ package com.unboundid.util;
 
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import static com.unboundid.util.UtilityMessages.*;
 
 
 
@@ -140,6 +143,21 @@ public final class OID
 
 
   /**
+   * Creates a new OID object with the provided string representation and set
+   * of components.
+   *
+   * @param  oidString   The string representation of this OID.
+   * @param  components  The numeric components for this OID.
+   */
+  private OID(final String oidString, final List<Integer> components)
+  {
+    this.oidString = oidString;
+    this.components = Collections.unmodifiableList(components);
+  }
+
+
+
+  /**
    * Retrieves a list corresponding to the elements in the provided array.
    *
    * @param  components  The array to convert to a list.
@@ -199,6 +217,169 @@ public final class OID
     }
 
     return Collections.unmodifiableList(compList);
+  }
+
+
+
+  /**
+   * Parses the provided string as a numeric OID, optionally using additional
+   * strict validation.
+   *
+   * @param  oidString  The string to be parsed as a numeric OID.  It must not
+   *                    be {@code null}.
+   * @param  strict     Indicates whether to use strict validation.  If this is
+   *                    {@code false}, then the method will verify that the
+   *                    provided string is made up of a dotted list of numbers
+   *                    that does not start or end with a period and does not
+   *                    contain consecutive periods.  If this is {@code true},
+   *                    then it will additional verify that the OID contains at
+   *                    least two components, that the value of the first
+   *                    component is not greater than two, and that the value of
+   *                    the second component is not greater than 39 if the value
+   *                    of the first component is zero or one.
+   *
+   * @return  The OID that was parsed from the provided string.
+   *
+   * @throws  ParseException  If the provided string cannot be parsed as a valid
+   *                          numeric OID.
+   */
+  public static OID parseNumericOID(final String oidString,
+                                    final boolean strict)
+         throws ParseException
+  {
+    if ((oidString == null) || oidString.isEmpty())
+    {
+      throw new ParseException(ERR_OID_EMPTY.get(), 0);
+    }
+
+    int componentStartPos = 0;
+    final List<Integer> components = new ArrayList<>(oidString.length());
+    final StringBuilder buffer = new StringBuilder(oidString.length());
+    for (int i=0; i < oidString.length(); i++)
+    {
+      final char c = oidString.charAt(i);
+      switch (c)
+      {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          buffer.append(c);
+          break;
+
+        case '.':
+          if (buffer.length() == 0)
+          {
+            if (i == 0)
+            {
+              throw new ParseException(
+                   ERR_OID_STARTS_WITH_PERIOD.get(oidString), i);
+            }
+            else
+            {
+              throw new ParseException(
+                   ERR_OID_CONSECUTIVE_PERIODS.get(oidString, i), i);
+            }
+          }
+
+          if ((buffer.length() > 1) && (buffer.charAt(0) == '0'))
+          {
+            throw new ParseException(
+                 ERR_OID_LEADING_ZERO.get(oidString, buffer.toString()),
+                 componentStartPos);
+          }
+
+          try
+          {
+            components.add(Integer.parseInt(buffer.toString()));
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            throw new ParseException(
+                 ERR_OID_CANNOT_PARSE_AS_INT.get( oidString, buffer.toString(),
+                      componentStartPos),
+                 componentStartPos);
+          }
+          buffer.setLength(0);
+          componentStartPos = (i + 1);
+          break;
+
+        default:
+          throw new ParseException(
+               ERR_OID_ILLEGAL_CHARACTER.get(oidString, c, i), i);
+      }
+    }
+
+    if (buffer.length() == 0)
+    {
+      throw new ParseException(
+           ERR_OID_ENDS_WITH_PERIOD.get(oidString), (oidString.length() - 1));
+    }
+
+    if ((buffer.length() > 1) && (buffer.charAt(0) == '0'))
+    {
+      throw new ParseException(
+           ERR_OID_LEADING_ZERO.get(oidString, buffer.toString()),
+           componentStartPos);
+    }
+
+    try
+    {
+      components.add(Integer.parseInt(buffer.toString()));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new ParseException(
+           ERR_OID_CANNOT_PARSE_AS_INT.get( oidString, buffer.toString(),
+                componentStartPos),
+           componentStartPos);
+    }
+
+
+    if (strict)
+    {
+      if (components.size() < 2)
+      {
+        throw new ParseException(
+             ERR_OID_NOT_ENOUGH_COMPONENTS.get(oidString), 0);
+      }
+
+      final int firstComponent = components.get(0);
+      final int secondComponent = components.get(1);
+      switch (firstComponent)
+      {
+        case 0:
+        case 1:
+          if (secondComponent > 39)
+          {
+            throw new ParseException(
+                 ERR_OID_ILLEGAL_SECOND_COMPONENT.get(oidString,
+                      secondComponent, firstComponent),
+                 0);
+          }
+          break;
+
+        case 2:
+          // We don't need to do any more validation.
+          break;
+
+        default:
+          // Invalid value for the first component.
+          throw new ParseException(
+               ERR_OID_ILLEGAL_FIRST_COMPONENT.get(oidString, firstComponent),
+               0);
+      }
+    }
+
+    return new OID(oidString, components);
   }
 
 

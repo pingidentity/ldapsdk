@@ -38,8 +38,9 @@ package com.unboundid.util.args;
 
 
 import java.io.Serializable;
-import java.util.List;
+import java.text.ParseException;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.OID;
 import com.unboundid.util.ThreadSafety;
@@ -132,70 +133,17 @@ public final class OIDArgumentValueValidator
                                     final String valueString)
          throws ArgumentException
   {
-    if (valueString.isEmpty())
+    try
     {
-      throw new ArgumentException(ERR_OID_VALIDATOR_EMPTY.get(valueString,
-           argument.getIdentifierString()));
+      OID.parseNumericOID(valueString, isStrict);
     }
-
-    if (valueString.startsWith(".") || valueString.endsWith("."))
+    catch (final ParseException e)
     {
+      Debug.debugException(e);
       throw new ArgumentException(
-           ERR_OID_VALIDATOR_STARTS_OR_ENDS_WITH_PERIOD.get(valueString,
-                argument.getIdentifierString()));
-    }
-
-    if (valueString.contains(".."))
-    {
-      throw new ArgumentException(
-           ERR_OID_VALIDATOR_CONSECUTIVE_PERIODS.get(valueString,
-                argument.getIdentifierString()));
-    }
-
-    final OID oid = new OID(valueString);
-    if (! oid.isValidNumericOID())
-    {
-      throw new ArgumentException(
-           ERR_OID_VALIDATOR_ILLEGAL_CHARACTER.get(valueString,
-                argument.getIdentifierString()));
-    }
-
-    if (! isStrict)
-    {
-      return;
-    }
-
-    final List<Integer> components = oid.getComponents();
-    if (components.size() < 2)
-    {
-      throw new ArgumentException(
-           ERR_OID_VALIDATOR_NOT_ENOUGH_COMPONENTS.get(valueString,
-                argument.getIdentifierString()));
-    }
-
-    final int firstComponent = components.get(0);
-    final int secondComponent = components.get(1);
-    switch (firstComponent)
-    {
-      case 0:
-      case 1:
-        if (secondComponent > 39)
-        {
-          throw new ArgumentException(
-               ERR_OID_VALIDATOR_ILLEGAL_SECOND_COMPONENT.get(valueString,
-                    argument.getIdentifierString()));
-        }
-        break;
-
-      case 2:
-        // We don't need to do any more validation.
-        break;
-
-      default:
-        // Invalid value for the first component.
-        throw new ArgumentException(
-             ERR_OID_VALIDATOR_ILLEGAL_FIRST_COMPONENT.get(valueString,
-                  argument.getIdentifierString()));
+           ERR_OID_VALIDATOR_INVALID_VALUE.get(argument.getIdentifierString(),
+                e.getMessage()),
+           e);
     }
   }
 

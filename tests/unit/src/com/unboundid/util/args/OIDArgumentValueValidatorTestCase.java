@@ -279,6 +279,38 @@ public final class OIDArgumentValueValidatorTestCase
         true,
         true
       },
+
+      // An OID with a non-final component that has a leading zero.
+      new Object[]
+      {
+        "1.2.3.04.5.6.7",
+        false,
+        false
+      },
+
+      // An OID with a final component that has a leading zero.
+      new Object[]
+      {
+        "1.2.3.4.5.6.07",
+        false,
+        false
+      },
+
+      // An OID with a non-final component that is out of range.
+      new Object[]
+      {
+        "1.2.3.123456789123456789.5.6.7",
+        false,
+        false
+      },
+
+      // An OID with a final component that is out of range.
+      new Object[]
+      {
+        "1.2.3.4.5.6.123456789123456789",
+        false,
+        false
+      }
     };
   }
 }
