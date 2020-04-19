@@ -1397,4 +1397,46 @@ public class AttributeTypeDefinitionTestCase
               "USAGE dSAOperation X-ONE-SINGLE 'bar' X-TWO-SINGLE 'bar' )");
     assertFalse(at1.equals(at2));
   }
+
+
+
+  /**
+   * Tests to ensure that empty descriptions can be allowed if the LDAP SDK is
+   * configured to permit it.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAllowEmptyDescription()
+         throws Exception
+  {
+    try
+    {
+      assertFalse(SchemaElement.allowEmptyDescription());
+      new AttributeTypeDefinition("( 1.2.3.4 DESC '' )");
+      fail("Expected an exception for a schema element with an empty " +
+           "description");
+    }
+    catch (final LDAPException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      assertFalse(SchemaElement.allowEmptyDescription());
+      SchemaElement.setAllowEmptyDescription(true);
+      assertTrue(SchemaElement.allowEmptyDescription());
+
+      final AttributeTypeDefinition definition =
+           new AttributeTypeDefinition("( 1.2.3.4 DESC '' )");
+      assertNotNull(definition.getDescription());
+      assertEquals(definition.getDescription(), "");
+    }
+    finally
+    {
+      SchemaElement.setAllowEmptyDescription(false);
+      assertFalse(SchemaElement.allowEmptyDescription());
+    }
+  }
 }

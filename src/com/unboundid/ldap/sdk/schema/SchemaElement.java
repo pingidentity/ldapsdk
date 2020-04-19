@@ -65,9 +65,60 @@ public abstract class SchemaElement
        implements Serializable
 {
   /**
+   * Indicates whether schema elements will be permitted to use an empty
+   * quoted string as the value of the {@code DESC} component.
+   */
+  private static boolean allowEmptyDescription = Boolean.getBoolean(
+         "com.unboundid.ldap.sdk.schema.AllowEmptyDescription");
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -8249972237068748580L;
+
+
+
+  /**
+   * Indicates whether to allow schema elements to contain an empty string as
+   * the value for the {@code DESC} component.  Although quoted strings are not
+   * allowed in schema elements as per RFC 4512 section 4.1, some directory
+   * servers allow it, and it may be necessary to support schema definitions
+   * used in conjunction with those servers.
+   * <BR><BR>
+   * The LDAP SDK does not allow empty schema element descriptions by default,
+   * but it may be updated to allow it using either the
+   * {@link #setAllowEmptyDescription} method or by setting the value of the
+   * {@code com.unboundid.ldap.sdk.schema.AllowEmptyDescription} system property
+   * to {@code true} before this class is loaded.
+   *
+   * @return  {@code true} if the LDAP SDK should allow schema elements with
+   *          empty descriptions, or {@code false} if not.
+   */
+  public static boolean allowEmptyDescription()
+  {
+    return allowEmptyDescription;
+  }
+
+
+
+  /**
+   * Specifies whether to allow schema elements to contain an empty string as
+   * the value for the {@code DESC} component.  If specified, this will override
+   * the value of the
+   * {@code com.unboundid.ldap.sdk.schema.AllowEmptyDescription} system
+   * property.
+   *
+   * @param  allowEmptyDescription  Indicates whether to allow schema elements
+   *                                to contain an empty string as the value for
+   *                                the {@code DESC} component.
+   */
+  public static void setAllowEmptyDescription(
+                          final boolean allowEmptyDescription)
+  {
+    SchemaElement.allowEmptyDescription = allowEmptyDescription;
+  }
 
 
 
@@ -355,8 +406,11 @@ public abstract class SchemaElement
 
     if (buffer.length() == 0)
     {
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SCHEMA_ELEM_EMPTY_QUOTES.get(s, componentName));
+      if (! (allowEmptyDescription && componentName.equalsIgnoreCase("DESC")))
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_SCHEMA_ELEM_EMPTY_QUOTES.get(s, componentName));
+      }
     }
 
     return pos;

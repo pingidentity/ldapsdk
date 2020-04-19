@@ -101,6 +101,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the code used to parse schema elements to allow the DESC component to be
+                  an empty string.  While empty quoted strings are not allowed in schema elements
+                  as per RFC 4512 section 4.1, some servers permit the DESC element to violate
+                  this restriction, and it may therefore be necessary to parse schema elements
+                  with empty descriptions.  Empty descriptions are still not allowed by default,
+                  but this can be now overridden with a code change or by setting a system
+                  property.
+                  <br><br>
+                </li>
+
+                <li>
                   Added an IA5 string argument value validator that can be used to ensure that
                   values for associated arguments are only allowed to contain ASCII characters
                   (that is, characters from the IA5 character set).  It may optionally be
