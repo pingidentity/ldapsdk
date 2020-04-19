@@ -194,7 +194,7 @@ public final class NameFormDefinition
         if (nameList.isEmpty())
         {
           pos = skipSpaces(nameFormString, pos, length);
-          pos = readQDStrings(nameFormString, pos, length, nameList);
+          pos = readQDStrings(nameFormString, pos, length, token, nameList);
         }
         else
         {
@@ -210,7 +210,7 @@ public final class NameFormDefinition
           pos = skipSpaces(nameFormString, pos, length);
 
           buffer = new StringBuilder();
-          pos = readQDString(nameFormString, pos, length, buffer);
+          pos = readQDString(nameFormString, pos, length, token, buffer);
           descr = buffer.toString();
         }
         else
@@ -255,7 +255,7 @@ public final class NameFormDefinition
         if (reqAttrs.isEmpty())
         {
           pos = skipSpaces(nameFormString, pos, length);
-          pos = readOIDs(nameFormString, pos, length, reqAttrs);
+          pos = readOIDs(nameFormString, pos, length, token, reqAttrs);
         }
         else
         {
@@ -269,7 +269,7 @@ public final class NameFormDefinition
         if (optAttrs.isEmpty())
         {
           pos = skipSpaces(nameFormString, pos, length);
-          pos = readOIDs(nameFormString, pos, length, optAttrs);
+          pos = readOIDs(nameFormString, pos, length, token, optAttrs);
         }
         else
         {
@@ -283,7 +283,7 @@ public final class NameFormDefinition
         pos = skipSpaces(nameFormString, pos, length);
 
         final ArrayList<String> valueList = new ArrayList<>(5);
-        pos = readQDStrings(nameFormString, pos, length, valueList);
+        pos = readQDStrings(nameFormString, pos, length, token, valueList);
 
         final String[] values = new String[valueList.size()];
         valueList.toArray(values);

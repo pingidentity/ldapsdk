@@ -166,7 +166,7 @@ public final class AttributeSyntaxDefinition
           pos = skipSpaces(attributeSyntaxString, pos, length);
 
           buffer = new StringBuilder();
-          pos = readQDString(attributeSyntaxString, pos, length, buffer);
+          pos = readQDString(attributeSyntaxString, pos, length, token, buffer);
           descr = buffer.toString();
         }
         else
@@ -181,7 +181,8 @@ public final class AttributeSyntaxDefinition
         pos = skipSpaces(attributeSyntaxString, pos, length);
 
         final ArrayList<String> valueList = new ArrayList<>(5);
-        pos = readQDStrings(attributeSyntaxString, pos, length, valueList);
+        pos = readQDStrings(attributeSyntaxString, pos, length, token,
+             valueList);
 
         final String[] values = new String[valueList.size()];
         valueList.toArray(values);

@@ -89,6 +89,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDAP SDK to provide more useful error messages for problems that may
+                  arise while parsing schema definitions.  While the previous error messages
+                  specified what the problem was, the updated message will make it easier to
+                  pinpoint the problem in the schema definition by including the name of the
+                  component in which the problem was identified.  For example, if an attribute
+                  type definition contained an empty description, the previous error message would
+                  simply say that the element was invalid because it contained an empty quoted
+                  string, but it will now say that it was in the value for the DESC element.
+                  <br><br>
+                </li>
+
+                <li>
                   Added an IA5 string argument value validator that can be used to ensure that
                   values for associated arguments are only allowed to contain ASCII characters
                   (that is, characters from the IA5 character set).  It may optionally be

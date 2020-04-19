@@ -199,7 +199,8 @@ public final class DITContentRuleDefinition
         if (nameList.isEmpty())
         {
           pos = skipSpaces(ditContentRuleString, pos, length);
-          pos = readQDStrings(ditContentRuleString, pos, length, nameList);
+          pos = readQDStrings(ditContentRuleString, pos, length, token,
+               nameList);
         }
         else
         {
@@ -215,7 +216,7 @@ public final class DITContentRuleDefinition
           pos = skipSpaces(ditContentRuleString, pos, length);
 
           buffer = new StringBuilder();
-          pos = readQDString(ditContentRuleString, pos, length, buffer);
+          pos = readQDString(ditContentRuleString, pos, length, token, buffer);
           descr = buffer.toString();
         }
         else
@@ -243,7 +244,7 @@ public final class DITContentRuleDefinition
         if (auxOCs.isEmpty())
         {
           pos = skipSpaces(ditContentRuleString, pos, length);
-          pos = readOIDs(ditContentRuleString, pos, length, auxOCs);
+          pos = readOIDs(ditContentRuleString, pos, length, token, auxOCs);
         }
         else
         {
@@ -257,7 +258,7 @@ public final class DITContentRuleDefinition
         if (reqAttrs.isEmpty())
         {
           pos = skipSpaces(ditContentRuleString, pos, length);
-          pos = readOIDs(ditContentRuleString, pos, length, reqAttrs);
+          pos = readOIDs(ditContentRuleString, pos, length, token, reqAttrs);
         }
         else
         {
@@ -271,7 +272,7 @@ public final class DITContentRuleDefinition
         if (optAttrs.isEmpty())
         {
           pos = skipSpaces(ditContentRuleString, pos, length);
-          pos = readOIDs(ditContentRuleString, pos, length, optAttrs);
+          pos = readOIDs(ditContentRuleString, pos, length, token, optAttrs);
         }
         else
         {
@@ -285,7 +286,7 @@ public final class DITContentRuleDefinition
         if (notAttrs.isEmpty())
         {
           pos = skipSpaces(ditContentRuleString, pos, length);
-          pos = readOIDs(ditContentRuleString, pos, length, notAttrs);
+          pos = readOIDs(ditContentRuleString, pos, length, token, notAttrs);
         }
         else
         {
@@ -299,7 +300,8 @@ public final class DITContentRuleDefinition
         pos = skipSpaces(ditContentRuleString, pos, length);
 
         final ArrayList<String> valueList = new ArrayList<>(5);
-        pos = readQDStrings(ditContentRuleString, pos, length, valueList);
+        pos = readQDStrings(ditContentRuleString, pos, length, token,
+             valueList);
 
         final String[] values = new String[valueList.size()];
         valueList.toArray(values);

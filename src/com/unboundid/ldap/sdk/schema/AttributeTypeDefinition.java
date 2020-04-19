@@ -219,7 +219,8 @@ public final class AttributeTypeDefinition
         if (nameList.isEmpty())
         {
           pos = skipSpaces(attributeTypeString, pos, length);
-          pos = readQDStrings(attributeTypeString, pos, length, nameList);
+          pos = readQDStrings(attributeTypeString, pos, length, token,
+               nameList);
         }
         else
         {
@@ -235,7 +236,7 @@ public final class AttributeTypeDefinition
           pos = skipSpaces(attributeTypeString, pos, length);
 
           buffer = new StringBuilder();
-          pos = readQDString(attributeTypeString, pos, length, buffer);
+          pos = readQDString(attributeTypeString, pos, length, token, buffer);
           descr = buffer.toString();
         }
         else
@@ -428,7 +429,7 @@ public final class AttributeTypeDefinition
         pos = skipSpaces(attributeTypeString, pos, length);
 
         final ArrayList<String> valueList = new ArrayList<>(5);
-        pos = readQDStrings(attributeTypeString, pos, length, valueList);
+        pos = readQDStrings(attributeTypeString, pos, length, token, valueList);
 
         final String[] values = new String[valueList.size()];
         valueList.toArray(values);

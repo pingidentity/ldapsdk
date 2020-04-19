@@ -211,7 +211,8 @@ public final class DITStructureRuleDefinition
         if (nameList.isEmpty())
         {
           pos = skipSpaces(ditStructureRuleString, pos, length);
-          pos = readQDStrings(ditStructureRuleString, pos, length, nameList);
+          pos = readQDStrings(ditStructureRuleString, pos, length, token,
+               nameList);
         }
         else
         {
@@ -227,7 +228,8 @@ public final class DITStructureRuleDefinition
           pos = skipSpaces(ditStructureRuleString, pos, length);
 
           buffer = new StringBuilder();
-          pos = readQDString(ditStructureRuleString, pos, length, buffer);
+          pos = readQDString(ditStructureRuleString, pos, length, token,
+               buffer);
           descr = buffer.toString();
         }
         else
@@ -274,7 +276,7 @@ public final class DITStructureRuleDefinition
           final ArrayList<String> supStrs = new ArrayList<>(1);
 
           pos = skipSpaces(ditStructureRuleString, pos, length);
-          pos = readOIDs(ditStructureRuleString, pos, length, supStrs);
+          pos = readOIDs(ditStructureRuleString, pos, length, token, supStrs);
 
           supList.ensureCapacity(supStrs.size());
           for (final String supStr : supStrs)
@@ -305,7 +307,8 @@ public final class DITStructureRuleDefinition
         pos = skipSpaces(ditStructureRuleString, pos, length);
 
         final ArrayList<String> valueList = new ArrayList<>(5);
-        pos = readQDStrings(ditStructureRuleString, pos, length, valueList);
+        pos = readQDStrings(ditStructureRuleString, pos, length, token,
+             valueList);
 
         final String[] values = new String[valueList.size()];
         valueList.toArray(values);

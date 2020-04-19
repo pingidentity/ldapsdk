@@ -185,7 +185,7 @@ public final class MatchingRuleDefinition
         if (nameList.isEmpty())
         {
           pos = skipSpaces(matchingRuleString, pos, length);
-          pos = readQDStrings(matchingRuleString, pos, length, nameList);
+          pos = readQDStrings(matchingRuleString, pos, length, token, nameList);
         }
         else
         {
@@ -201,7 +201,7 @@ public final class MatchingRuleDefinition
           pos = skipSpaces(matchingRuleString, pos, length);
 
           buffer = new StringBuilder();
-          pos = readQDString(matchingRuleString, pos, length, buffer);
+          pos = readQDString(matchingRuleString, pos, length, token, buffer);
           descr = buffer.toString();
         }
         else
@@ -246,7 +246,7 @@ public final class MatchingRuleDefinition
         pos = skipSpaces(matchingRuleString, pos, length);
 
         final ArrayList<String> valueList = new ArrayList<>(5);
-        pos = readQDStrings(matchingRuleString, pos, length, valueList);
+        pos = readQDStrings(matchingRuleString, pos, length, token, valueList);
 
         final String[] values = new String[valueList.size()];
         valueList.toArray(values);

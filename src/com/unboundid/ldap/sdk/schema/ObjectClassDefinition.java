@@ -201,7 +201,7 @@ public final class ObjectClassDefinition
         if (nameList.isEmpty())
         {
           pos = skipSpaces(objectClassString, pos, length);
-          pos = readQDStrings(objectClassString, pos, length, nameList);
+          pos = readQDStrings(objectClassString, pos, length, token, nameList);
         }
         else
         {
@@ -217,7 +217,7 @@ public final class ObjectClassDefinition
           pos = skipSpaces(objectClassString, pos, length);
 
           buffer = new StringBuilder();
-          pos = readQDString(objectClassString, pos, length, buffer);
+          pos = readQDString(objectClassString, pos, length, token, buffer);
           descr = buffer.toString();
         }
         else
@@ -245,7 +245,7 @@ public final class ObjectClassDefinition
         if (supList.isEmpty())
         {
           pos = skipSpaces(objectClassString, pos, length);
-          pos = readOIDs(objectClassString, pos, length, supList);
+          pos = readOIDs(objectClassString, pos, length, token, supList);
         }
         else
         {
@@ -298,7 +298,7 @@ public final class ObjectClassDefinition
         if (reqAttrs.isEmpty())
         {
           pos = skipSpaces(objectClassString, pos, length);
-          pos = readOIDs(objectClassString, pos, length, reqAttrs);
+          pos = readOIDs(objectClassString, pos, length, token, reqAttrs);
         }
         else
         {
@@ -312,7 +312,7 @@ public final class ObjectClassDefinition
         if (optAttrs.isEmpty())
         {
           pos = skipSpaces(objectClassString, pos, length);
-          pos = readOIDs(objectClassString, pos, length, optAttrs);
+          pos = readOIDs(objectClassString, pos, length, token, optAttrs);
         }
         else
         {
@@ -326,7 +326,7 @@ public final class ObjectClassDefinition
         pos = skipSpaces(objectClassString, pos, length);
 
         final ArrayList<String> valueList = new ArrayList<>(5);
-        pos = readQDStrings(objectClassString, pos, length, valueList);
+        pos = readQDStrings(objectClassString, pos, length, token, valueList);
 
         final String[] values = new String[valueList.size()];
         valueList.toArray(values);
