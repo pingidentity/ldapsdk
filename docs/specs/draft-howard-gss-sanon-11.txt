@@ -4,12 +4,12 @@
 
 Network Working Group                                          L. Howard
 Internet-Draft                                                      PADL
-Intended status: Informational                            April 15, 2020
-Expires: October 17, 2020
+Intended status: Informational                            April 20, 2020
+Expires: October 22, 2020
 
 
                   A Simple Anonymous GSS-API Mechanism
-                       draft-howard-gss-sanon-10
+                       draft-howard-gss-sanon-11
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 17, 2020.
+   This Internet-Draft will expire on October 22, 2020.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Howard                  Expires October 17, 2020                [Page 1]
+Howard                  Expires October 22, 2020                [Page 1]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -92,8 +92,8 @@ Table of Contents
    [RFC2743] provides a framework for authentication and message
    protection services through a common programming interface.
 
-   The Simple Anonymous mechanism described in this document (hereafter
-   SAnon) is a simple protocol based on the X25519 elliptic curve
+   The Simple Anonymous mechanism (hereafter SAnon) described in this
+   document is a simple protocol based on the X25519 elliptic curve
    Diffie-Hellman (ECDH) key agreement scheme defined in [RFC7748].  No
    authentication of initiator or acceptor is provided.  A potential use
    of SAnon is to provide a degree of privacy when bootstrapping unkeyed
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Howard                  Expires October 17, 2020                [Page 2]
+Howard                  Expires October 22, 2020                [Page 2]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -125,8 +125,8 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
    The means of discovering GSS-API peers and their supported mechanisms
    is out of this specification's scope.  To avoid multiple layers of
-   negotiation, SAnon is not crypto-agile.  A future variant using a
-   different key exchange algorithm would be assigned a different OID.
+   negotiation, SAnon is not crypto-agile; a future variant using a
+   different algorithm would be assigned a different OID.
 
    If anonymity is not desired then SAnon MUST NOT be used.  Either
    party can test for the presence of GSS_C_ANON_FLAG to check if
@@ -158,14 +158,14 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    Inferring an anonymous identity from a well known name permits
    applications that do not support GSS_C_ANON_FLAG or
    GSS_C_NT_ANONYMOUS, but which permit user-entered names, to use
-   SAnon.
+   SAnon.  However, as noted in [RFC8062], portable initiators are
+   RECOMMENDED to use default credentials whenever possible and request
+   anonymity only through the input anon_req_flag [RFC2743] to
+   GSS_Init_sec_context().
 
 
 
-
-
-
-Howard                  Expires October 17, 2020                [Page 3]
+Howard                  Expires October 22, 2020                [Page 3]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -174,19 +174,19 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
    The canonical form of a SAnon mechanism name is the boolean
    indicating whether it represents an anonymous identity.  When
-   GSS_Display_name() is called on a canonical name, the display string
-   is WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS [RFC8062] and the name
-   type is GSS_C_NT_ANONYMOUS.  This anonymous identity is always the
-   name observed by a SAnon peer; all context APIs that return peer
-   names MUST return this name for both parties if the context is
-   established upon return.
+   GSS_Display_name() is called on an anonymous mechanism name, the
+   display string is WELLKNOWN/ANONYMOUS@WELLKNOWN:ANONYMOUS [RFC8062]
+   and the name type is GSS_C_NT_ANONYMOUS.  This anonymous identity is
+   always the name observed by a SAnon peer.  All context APIs that
+   return peer names MUST return this name for both parties if the
+   context is established.
 
 4.3.  Exported Name Format
 
    SAnon uses the mechanism-independent exported name object format
    defined in [RFC2743] Section 3.2.  All lengths are encoded as big-
-   endian integers.  The export and import of non-anonymous mechanism
-   names MUST fail with GSS_S_BAD_NAME.
+   endian integers.  The export of non-anonymous mechanism names MUST
+   fail with GSS_S_BAD_NAME.
 
      +--------------+--------------+---------------------------------+
      | Length       | Name         | Description                     |
@@ -199,7 +199,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
      |              |              |                                 |
      | 4            | NAME_LEN     | 00 00 00 01                     |
      |              |              |                                 |
-     | 1            | IS_ANONYMOUS | TRUE                            |
+     | 1            | NAME         | 01                              |
      +--------------+--------------+---------------------------------+
 
 5.  Definitions and Token Formats
@@ -221,7 +221,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 17, 2020                [Page 4]
+Howard                  Expires October 22, 2020                [Page 4]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -238,8 +238,8 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
        }
        END
 
-   On the first call to GSS_Init_sec_context(), the mechanism checks for
-   one of the following:
+   On the first call to GSS_Init_sec_context(), the mechanism checks if
+   one or more of the following are true:
 
       The caller set anon_req_flag (GSS_C_ANON_FLAG)
 
@@ -277,7 +277,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 17, 2020                [Page 5]
+Howard                  Expires October 22, 2020                [Page 5]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -333,7 +333,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 17, 2020                [Page 6]
+Howard                  Expires October 22, 2020                [Page 6]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -381,15 +381,15 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    if either party requires identification of its peer.
 
    SAnon mechanism names are not unary.  Implementations MUST ensure
-   that GSS_Compare_name() always name_equal to FALSE when comparing
-   mechanism names.
+   that GSS_Compare_name() always sets name_equal to FALSE when
+   comparing mechanism names.
 
 
 
 
 
 
-Howard                  Expires October 17, 2020                [Page 7]
+Howard                  Expires October 22, 2020                [Page 7]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -445,7 +445,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 17, 2020                [Page 8]
+Howard                  Expires October 22, 2020                [Page 8]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -501,7 +501,7 @@ Appendix A.  Test Vectors
 
 
 
-Howard                  Expires October 17, 2020                [Page 9]
+Howard                  Expires October 22, 2020                [Page 9]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -557,7 +557,7 @@ Appendix C.  NegoEx
 
 
 
-Howard                  Expires October 17, 2020               [Page 10]
+Howard                  Expires October 22, 2020               [Page 10]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -568,8 +568,8 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    Section 7.1).  Other GSS-API flags MUST NOT be present in the
    metadata.
 
-   If the GSS-API implementation supports both SPNEGO [RFC4178] and
-   NegoEx, SAnon SHOULD be advertised by both to maximise
+   It is RECOMMENDED that GSS-API implementations supporting both SPNEGO
+   [RFC4178] and NegoEx advertise SAnon under both to maximise
    interoperability.
 
 Author's Address
@@ -613,4 +613,4 @@ Author's Address
 
 
 
-Howard                  Expires October 17, 2020               [Page 11]
+Howard                  Expires October 22, 2020               [Page 11]
