@@ -38,11 +38,16 @@ package com.unboundid.ldap.sdk.unboundidds.tasks;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 
 
@@ -79,7 +84,7 @@ public class GenerateServerProfileTaskTestCase
 
     assertNotNull(t.getTaskSpecificProperties());
     assertFalse(t.getTaskSpecificProperties().isEmpty());
-    assertEquals(t.getTaskSpecificProperties().size(), 3);
+    assertEquals(t.getTaskSpecificProperties().size(), 5);
   }
 
 
@@ -94,7 +99,7 @@ public class GenerateServerProfileTaskTestCase
          throws Exception
   {
     GenerateServerProfileTask t =
-         new GenerateServerProfileTask(null, null, null, null);
+         new GenerateServerProfileTask(null, null, null, null, null, null);
 
     t = (GenerateServerProfileTask) Task.decodeTask(t.createTaskEntry());
 
@@ -109,17 +114,24 @@ public class GenerateServerProfileTaskTestCase
     assertTrue(t.getIncludePaths().isEmpty());
 
     assertNull(t.getZipProfile());
+
+    assertNull(t.getRetainCount());
+
+    assertNull(t.getRetainAge());
+
+    assertNull(t.getRetainAgeMillis());
   }
 
 
 
   /**
-   * Test with non-{@code null} values for all arguments, with one include path.
+   * Test with non-{@code null} values for all non-retention arguments, with one
+   * include path.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testAllArgsOneIncludePath()
+  public void testAllNonRetentionArgsOneIncludePath()
          throws Exception
   {
     final String profileRoot = createTempDir().getAbsolutePath();
@@ -128,7 +140,8 @@ public class GenerateServerProfileTaskTestCase
     includePaths.add("config/keystore");
 
     GenerateServerProfileTask t =
-         new GenerateServerProfileTask(null, profileRoot, includePaths, false);
+         new GenerateServerProfileTask(null, profileRoot, includePaths, false,
+              null, null);
 
     t = (GenerateServerProfileTask) Task.decodeTask(t.createTaskEntry());
 
@@ -146,12 +159,19 @@ public class GenerateServerProfileTaskTestCase
 
     assertNotNull(t.getZipProfile());
     assertFalse(t.getZipProfile());
+
+    assertNull(t.getRetainCount());
+
+    assertNull(t.getRetainAge());
+
+    assertNull(t.getRetainAgeMillis());
   }
 
 
 
   /**
-   * Test with non-{@code null} values for all arguments, with multiple include
+   * Test with non-{@code null} values for all arguments, including retention
+   * arguments, with multiple include
    * paths.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -167,7 +187,8 @@ public class GenerateServerProfileTaskTestCase
     includePaths.add("config/keystore.pin");
 
     GenerateServerProfileTask t =
-         new GenerateServerProfileTask(null, profileRoot, includePaths, true);
+         new GenerateServerProfileTask(null, profileRoot, includePaths, true,
+              5, TimeUnit.DAYS.toMillis(7L));
 
     t = (GenerateServerProfileTask) Task.decodeTask(t.createTaskEntry());
 
@@ -185,5 +206,60 @@ public class GenerateServerProfileTaskTestCase
 
     assertNotNull(t.getZipProfile());
     assertTrue(t.getZipProfile());
+
+    assertNotNull(t.getRetainCount());
+    assertEquals(t.getRetainCount().intValue(), 5);
+
+    assertNotNull(t.getRetainAge());
+    assertEquals(t.getRetainAge(), "1 week");
+
+    assertNotNull(t.getRetainAgeMillis());
+    assertEquals(t.getRetainAgeMillis().longValue(),
+         TimeUnit.DAYS.toMillis(7L));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode an entry with a malformed retain
+   * age.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = TaskException.class)
+  public void testDecodeEntryWithMalformedRetainAge()
+         throws Exception
+  {
+    final GenerateServerProfileTask t =
+         new GenerateServerProfileTask(null, null, null, true, null, null);
+
+    final Entry taskEntry = t.createTaskEntry();
+    taskEntry.setAttribute("ds-task-generate-server-profile-retain-age",
+         "malformed");
+
+    new GenerateServerProfileTask(taskEntry);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a properties map with a malformed
+   * retain age.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = TaskException.class)
+  public void testDecodePropertiesWithMalformedRetainAge()
+         throws Exception
+  {
+    final GenerateServerProfileTask t =
+         new GenerateServerProfileTask(null, null, null, true, null, null);
+
+    final Map<TaskProperty,List<Object>> properties =
+         new HashMap<>(t.getTaskPropertyValues());
+    properties.put(GenerateServerProfileTask.PROPERTY_RETAIN_AGE,
+         Collections.<Object>singletonList("malformed"));
+
+    new GenerateServerProfileTask(properties);
   }
 }
