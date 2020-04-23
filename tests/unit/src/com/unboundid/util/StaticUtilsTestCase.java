@@ -2250,6 +2250,49 @@ public class StaticUtilsTestCase
       {
         StaticUtils.getBytes("jalape\u00F1o"),
         false
+      },
+
+      new Object[]
+      {
+        StaticUtils.getBytes("regular-hyphen"),
+        true
+      },
+
+      new Object[]
+      {
+        StaticUtils.getBytes("en\u2013dash"),
+        false
+      },
+
+      new Object[]
+      {
+        StaticUtils.getBytes("em\u2014dash"),
+        false
+      },
+
+      new Object[]
+      {
+        StaticUtils.getBytes("\u2018curly single quotes\u2019"),
+        false
+      },
+
+      new Object[]
+      {
+        StaticUtils.getBytes("\u201ccurly double quotes\u201d"),
+        false
+      },
+
+      new Object[]
+      {
+        StaticUtils.getBytes("Smiley Face Emoji \uD83D\uDE00"),
+        false
+      },
+
+      new Object[]
+      {
+        StaticUtils.getBytes(
+             "United States Flag Emoji \uD83C\uDDFA\uD83C\uDDF8"),
+        false
       }
     };
   }

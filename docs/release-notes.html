@@ -145,6 +145,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue with StaticUtils.isASCIIString(String) in which it could fail to
+                  properly identify all non-ASCII characters because it only looked at the lower
+                  byte for each character.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the documentation to include draft-howard-gss-sanon-12 in the set of
                   LDAP-related specifications.
                   <br><br>

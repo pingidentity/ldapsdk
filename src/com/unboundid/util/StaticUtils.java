@@ -615,16 +615,7 @@ public final class StaticUtils
    */
   public static boolean isASCIIString(final String s)
   {
-    final int length = s.length();
-    for (int i=0; i < length; i++)
-    {
-      if ((s.charAt(i) & 0x80) == 0x80)
-      {
-        return false;
-      }
-    }
-
-    return true;
+    return isASCIIString(getBytes(s));
   }
 
 
