@@ -53,6 +53,7 @@ import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
@@ -2373,6 +2374,45 @@ public final class InMemoryDirectoryControlsTestCase
     searchResult = conn.search(searchRequest);
     assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
     assertEquals(searchResult.getEntryCount(), 1);
+    assertNotNull(searchResult.getSearchEntry(
+         "cn=subentry test,dc=example,dc=com"));
+
+
+    // Ensure that only the subentry is returned for a subtree search from the
+    // naming context with a filter of "(objectClass=ldapSubEntry)".
+    searchRequest = new SearchRequest("dc=example,dc=com", SearchScope.SUB,
+         Filter.createEqualityFilter("objectClass", "ldapSubEntry"));
+
+    searchResult = conn.search(searchRequest);
+    assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(searchResult.getEntryCount(), 1);
+    assertNull(searchResult.getSearchEntry(
+         "dc=example,dc=com"));
+    assertNull(searchResult.getSearchEntry(
+         "ou=People,dc=example,dc=com"));
+    assertNull(searchResult.getSearchEntry(
+         "uid=test.user,ou=People,dc=example,dc=com"));
+    assertNotNull(searchResult.getSearchEntry(
+         "cn=subentry test,dc=example,dc=com"));
+
+
+    // Ensure that all entries, including subentry are returned for a subtree
+    // search from the naming context with a filter of
+    // "(|(objectClass=*)(objectClass=ldapSubEntry))".
+    searchRequest = new SearchRequest("dc=example,dc=com", SearchScope.SUB,
+         Filter.createORFilter(
+              Filter.createPresenceFilter("objectClass"),
+              Filter.createEqualityFilter("objectClass", "ldapSubEntry")));
+
+    searchResult = conn.search(searchRequest);
+    assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(searchResult.getEntryCount(), 4);
+    assertNotNull(searchResult.getSearchEntry(
+         "dc=example,dc=com"));
+    assertNotNull(searchResult.getSearchEntry(
+         "ou=People,dc=example,dc=com"));
+    assertNotNull(searchResult.getSearchEntry(
+         "uid=test.user,ou=People,dc=example,dc=com"));
     assertNotNull(searchResult.getSearchEntry(
          "cn=subentry test,dc=example,dc=com"));
 

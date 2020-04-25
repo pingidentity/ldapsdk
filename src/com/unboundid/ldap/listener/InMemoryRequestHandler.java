@@ -3721,6 +3721,11 @@ public final class InMemoryRequestHandler
         includeSubEntries = true;
         includeNonSubEntries = true;
       }
+      else if (filterIncludesLDAPSubEntry(request.getFilter()))
+      {
+        includeSubEntries = true;
+        includeNonSubEntries = true;
+      }
       else
       {
         includeSubEntries = false;
@@ -4116,6 +4121,41 @@ findEntriesAndRefs:
         throw new LDAPException(ResultCode.INAPPROPRIATE_MATCHING,
              ERR_MEM_HANDLER_FILTER_UNRECOGNIZED_FILTER_TYPE.get(
                   StaticUtils.toHex(filter.getFilterType())));
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the provided filter includes a component that targets the
+   * ldapSubEntry object class.
+   *
+   * @param  filter  The filter for which to make the determination.
+   *
+   * @return  {@code true} if the provided filter includes a component that
+   *          targets the ldapSubEntry object class or {@code false} if not.
+   */
+  private static boolean filterIncludesLDAPSubEntry(final Filter filter)
+  {
+    switch (filter.getFilterType())
+    {
+      case Filter.FILTER_TYPE_AND:
+      case Filter.FILTER_TYPE_OR:
+        for (final Filter f : filter.getComponents())
+        {
+          if (filterIncludesLDAPSubEntry(f))
+          {
+            return true;
+          }
+        }
+        return false;
+
+      case Filter.FILTER_TYPE_EQUALITY:
+        return  (filter.getAttributeName().equalsIgnoreCase("objectClass") ||
+             filter.getAttributeName().equals("2.5.4.0"));
+
+      default:
+        return false;
     }
   }
 

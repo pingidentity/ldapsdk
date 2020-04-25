@@ -43,6 +43,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the in-memory directory server so that it can return entries with the
+                  ldapSubEntry object class if the filter includes an "(objectClass=ldapSubEntry)"
+                  component.  The server may also return entries without the ldapSubEntry object
+                  class if the filter matches them.  For example, to return all entries that do
+                  and do not contain the ldapSubEntry object class, you may now search with a
+                  filter of "(|(objectClass=*)(objectClass=ldapSubEntry))".
+                  <br><br>
+                </li>
+
+                <li>
                   Added a "values-only" output format for the ldapsearch command-line tool.  If
                   this output format is selected, only attribute values will be included in the
                   output, without output names, entry DNs, or blank lines between entries.  This
