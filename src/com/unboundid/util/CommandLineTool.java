@@ -274,7 +274,30 @@ public abstract class CommandLineTool
 
       if ((helpSASLArgument != null) && helpSASLArgument.isPresent())
       {
-        out(SASLUtils.getUsageString(StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
+        String mechanism = null;
+        final Argument saslOptionArgument =
+             parser.getNamedArgument("saslOption");
+        if ((saslOptionArgument != null) && saslOptionArgument.isPresent())
+        {
+          for (final String value :
+               saslOptionArgument.getValueStringRepresentations(false))
+          {
+            final String lowerValue = StaticUtils.toLowerCase(value);
+            if (lowerValue.startsWith("mech="))
+            {
+              final String mech = value.substring(5).trim();
+              if (! mech.isEmpty())
+              {
+                mechanism = mech;
+                break;
+              }
+            }
+          }
+        }
+
+
+        out(SASLUtils.getUsageString(mechanism,
+             StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
         return ResultCode.SUCCESS;
       }
 

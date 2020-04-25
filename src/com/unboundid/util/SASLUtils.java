@@ -1568,9 +1568,31 @@ public final class SASLUtils
    */
   public static String getUsageString(final int maxWidth)
   {
+    return getUsageString(null, maxWidth);
+  }
+
+
+
+  /**
+   * Retrieves a string representation of the SASL usage information.  This will
+   * include the supported SASL mechanisms and the properties that may be used
+   * with each.
+   *
+   * @param  mechanism  The name of the SASL mechanism for which to obtain usage
+   *                    information  It may be {@code null} if usage should be
+   *                    displayed for all available mechamisms.
+   * @param  maxWidth   The maximum line width to use for the output.  If this
+   *                    is less than or equal to zero, then no wrapping will be
+   *                    performed.
+   *
+   * @return  A string representation of the usage information
+   */
+  public static String getUsageString(final String mechanism,
+                                      final int maxWidth)
+  {
     final StringBuilder buffer = new StringBuilder();
 
-    for (final String line : getUsage(maxWidth))
+    for (final String line : getUsage(mechanism, maxWidth))
     {
       buffer.append(line);
       buffer.append(StaticUtils.EOL);
@@ -1593,11 +1615,37 @@ public final class SASLUtils
    */
   public static List<String> getUsage(final int maxWidth)
   {
+    return getUsage(null, maxWidth);
+  }
+
+
+
+  /**
+   * Retrieves lines that make up the SASL usage information, optionally
+   * wrapping long lines.
+   *
+   * @param  mechanism  The name of the SASL mechanism for which to obtain usage
+   *                    information  It may be {@code null} if usage should be
+   *                    displayed for all available mechamisms.
+   * @param  maxWidth   The maximum line width to use for the output.  If this
+   *                    is less than or equal to zero, then no wrapping will be
+   *                    performed.
+   *
+   * @return  The lines that make up the SASL usage information.
+   */
+  public static List<String> getUsage(final String mechanism,
+                                      final int maxWidth)
+  {
     final ArrayList<String> lines = new ArrayList<>(100);
 
     boolean first = true;
     for (final SASLMechanismInfo i : getSupportedSASLMechanisms())
     {
+      if ((mechanism != null) && (! i.getName().equalsIgnoreCase(mechanism)))
+      {
+        continue;
+      }
+
       if (first)
       {
         first = false;
@@ -1661,6 +1709,12 @@ public final class SASLUtils
         }
       }
     }
+
+    if ((mechanism != null) && lines.isEmpty())
+    {
+      return getUsage(null, maxWidth);
+    }
+
 
     return lines;
   }

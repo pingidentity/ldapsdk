@@ -62,6 +62,7 @@ import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.PassphraseEncryptedInputStream;
 import com.unboundid.util.PasswordReader;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.json.JSONObject;
 import com.unboundid.util.json.JSONObjectReader;
 
@@ -219,6 +220,180 @@ public final class LDAPSearchTestCase
     assertEquals(
          LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM, "--help"),
          ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Tests the ability to get SASL help information for the tool when no
+   * mechanism was specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSASLHelpWithoutMechanism()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPSearch.main(out, out, "--help-sasl"),
+         ResultCode.SUCCESS);
+
+    boolean externalFound = false;
+    boolean gssapiFound = false;
+    boolean plainFound = false;
+    for (final String line :
+         StaticUtils.stringToLines(StaticUtils.toUTF8String(out.toByteArray())))
+    {
+      if (line.contains("The EXTERNAL SASL Mechanism"))
+      {
+        externalFound = true;
+      }
+      else if (line.contains("The GSSAPI SASL Mechanism"))
+      {
+        gssapiFound = true;
+      }
+      else if (line.contains("The PLAIN SASL Mechanism"))
+      {
+        plainFound = true;
+      }
+    }
+
+    assertTrue(externalFound);
+    assertTrue(gssapiFound);
+    assertTrue(plainFound);
+  }
+
+
+
+  /**
+   * Tests the ability to get SASL help information for the tool when the GSSAPI
+   * mechanism was specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSASLHelpWithGSSAPIMechanism()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPSearch.main(out, out,
+              "--help-sasl",
+              "--saslOption", "mech=GSSAPI"),
+         ResultCode.SUCCESS);
+
+    boolean externalFound = false;
+    boolean gssapiFound = false;
+    boolean plainFound = false;
+    for (final String line :
+         StaticUtils.stringToLines(StaticUtils.toUTF8String(out.toByteArray())))
+    {
+      if (line.contains("The EXTERNAL SASL Mechanism"))
+      {
+        externalFound = true;
+      }
+      else if (line.contains("The GSSAPI SASL Mechanism"))
+      {
+        gssapiFound = true;
+      }
+      else if (line.contains("The PLAIN SASL Mechanism"))
+      {
+        plainFound = true;
+      }
+    }
+
+    assertFalse(externalFound);
+    assertTrue(gssapiFound);
+    assertFalse(plainFound);
+  }
+
+
+
+  /**
+   * Tests the ability to get SASL help information for the tool when an
+   * unsupported mechanism is specified.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSASLHelpWithUnsupportedMechanism()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPSearch.main(out, out,
+              "--help-sasl",
+              "--saslOption", "mech=UNSUPPORTED"),
+         ResultCode.SUCCESS);
+
+    boolean externalFound = false;
+    boolean gssapiFound = false;
+    boolean plainFound = false;
+    for (final String line :
+         StaticUtils.stringToLines(StaticUtils.toUTF8String(out.toByteArray())))
+    {
+      if (line.contains("The EXTERNAL SASL Mechanism"))
+      {
+        externalFound = true;
+      }
+      else if (line.contains("The GSSAPI SASL Mechanism"))
+      {
+        gssapiFound = true;
+      }
+      else if (line.contains("The PLAIN SASL Mechanism"))
+      {
+        plainFound = true;
+      }
+    }
+
+    assertTrue(externalFound);
+    assertTrue(gssapiFound);
+    assertTrue(plainFound);
+  }
+
+
+
+  /**
+   * Tests the ability to get SASL help information for the tool when a SASL
+   * option is specified without a mechanism name.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSASLHelpWithNonMechOption()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    assertEquals(
+         LDAPSearch.main(out, out,
+              "--help-sasl",
+              "--saslOption", "qop=auth"),
+         ResultCode.SUCCESS);
+
+    boolean externalFound = false;
+    boolean gssapiFound = false;
+    boolean plainFound = false;
+    for (final String line :
+         StaticUtils.stringToLines(StaticUtils.toUTF8String(out.toByteArray())))
+    {
+      if (line.contains("The EXTERNAL SASL Mechanism"))
+      {
+        externalFound = true;
+      }
+      else if (line.contains("The GSSAPI SASL Mechanism"))
+      {
+        gssapiFound = true;
+      }
+      else if (line.contains("The PLAIN SASL Mechanism"))
+      {
+        plainFound = true;
+      }
+    }
+
+    assertTrue(externalFound);
+    assertTrue(gssapiFound);
+    assertTrue(plainFound);
   }
 
 

@@ -1547,4 +1547,53 @@ public final class SASLUtilsTestCase
       assertResultCodeEquals(le, ResultCode.PARAM_ERROR);
     }
   }
+
+
+
+  /**
+   * Provides test coverage for the methods that can be used to obtain usage
+   * information for SASL options.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testUsage()
+         throws Exception
+  {
+    assertNotNull(SASLUtils.getUsageString(0));
+    assertFalse(SASLUtils.getUsageString(0).isEmpty());
+
+    assertNotNull(SASLUtils.getUsageString(80));
+    assertFalse(SASLUtils.getUsageString(80).isEmpty());
+
+    assertNotNull(SASLUtils.getUsageString("GSSAPI", 0));
+    assertFalse(SASLUtils.getUsageString("GSSAPI", 0).isEmpty());
+
+    assertNotNull(SASLUtils.getUsageString("GSSAPI", 80));
+    assertFalse(SASLUtils.getUsageString("GSSAPI", 80).isEmpty());
+
+    assertNotNull(SASLUtils.getUsageString("UNKNOWN", 0));
+    assertFalse(SASLUtils.getUsageString("UNKNOWN", 0).isEmpty());
+
+    assertNotNull(SASLUtils.getUsageString("UNKNOWN", 80));
+    assertFalse(SASLUtils.getUsageString("UNKNOWN", 80).isEmpty());
+
+    assertNotNull(SASLUtils.getUsage(0));
+    assertFalse(SASLUtils.getUsage(0).isEmpty());
+
+    assertNotNull(SASLUtils.getUsage(80));
+    assertFalse(SASLUtils.getUsage(80).isEmpty());
+
+    assertNotNull(SASLUtils.getUsage("GSSAPI", 0));
+    assertFalse(SASLUtils.getUsage("GSSAPI", 0).isEmpty());
+
+    assertNotNull(SASLUtils.getUsage("GSSAPI", 80));
+    assertFalse(SASLUtils.getUsage("GSSAPI", 80).isEmpty());
+
+    assertNotNull(SASLUtils.getUsage("UNKNOWN", 0));
+    assertFalse(SASLUtils.getUsage("UNKNOWN", 0).isEmpty());
+
+    assertNotNull(SASLUtils.getUsage("UNKNOWN", 80));
+    assertFalse(SASLUtils.getUsage("UNKNOWN", 80).isEmpty());
+  }
 }
