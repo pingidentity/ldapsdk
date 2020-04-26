@@ -48,15 +48,16 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
 import com.unboundid.ldap.sdk.controls.DontUseCopyRequestControl;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
 import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.RFC3672SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
@@ -196,6 +197,33 @@ final class RequestControlPreProcessor
         }
 
         if (m.put(oid, new DontUseCopyRequestControl(control)) != null)
+        {
+          throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
+               ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
+        }
+      }
+      else if (oid.equals(
+           DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID))
+      {
+        switch (requestOpType)
+        {
+          case LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST:
+            // The control is acceptable for these operations.
+            break;
+
+          default:
+            if (control.isCritical())
+            {
+              throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
+                   ERR_CONTROL_PROCESSOR_UNSUPPORTED_FOR_OP.get(oid));
+            }
+            else
+            {
+              continue;
+            }
+        }
+
+        if (m.put(oid, new DraftLDUPSubentriesRequestControl(control)) != null)
         {
           throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
                ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
@@ -435,7 +463,8 @@ final class RequestControlPreProcessor
                ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
         }
       }
-      else if (oid.equals(SubentriesRequestControl.SUBENTRIES_REQUEST_OID))
+      else if (oid.equals(
+           RFC3672SubentriesRequestControl.SUBENTRIES_REQUEST_OID))
       {
         switch (requestOpType)
         {
@@ -455,7 +484,7 @@ final class RequestControlPreProcessor
             }
         }
 
-        if (m.put(oid, new SubentriesRequestControl(control)) != null)
+        if (m.put(oid, new RFC3672SubentriesRequestControl(control)) != null)
         {
           throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
                ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));

@@ -68,8 +68,8 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -840,8 +840,8 @@ processingBlock:
         searchControls = new Control[]
         {
           sourceTxnControl,
+          new DraftLDUPSubentriesRequestControl(true),
           new ManageDsaITRequestControl(true),
-          new SubentriesRequestControl(true),
           new ReturnConflictEntriesRequestControl(true),
           new SoftDeletedEntryAccessRequestControl(true, true, false),
           new RealAttributesOnlyRequestControl(true)
@@ -852,8 +852,8 @@ processingBlock:
         searchControls = new Control[]
         {
           sourceTxnControl,
+          new DraftLDUPSubentriesRequestControl(true),
           new ManageDsaITRequestControl(true),
-          new SubentriesRequestControl(true),
           new ReturnConflictEntriesRequestControl(true),
           new SoftDeletedEntryAccessRequestControl(true, true, false),
           new RealAttributesOnlyRequestControl(true),
@@ -1622,8 +1622,8 @@ processingBlock:
       {
         searchControls = new Control[]
         {
+          new DraftLDUPSubentriesRequestControl(true),
           new ManageDsaITRequestControl(true),
-          new SubentriesRequestControl(true),
           new ReturnConflictEntriesRequestControl(true),
           new SoftDeletedEntryAccessRequestControl(true, true, false),
           new RealAttributesOnlyRequestControl(true)
@@ -1633,8 +1633,8 @@ processingBlock:
       {
         searchControls = new Control[]
         {
+          new DraftLDUPSubentriesRequestControl(true),
           new ManageDsaITRequestControl(true),
-          new SubentriesRequestControl(true),
           new ReturnConflictEntriesRequestControl(true),
           new SoftDeletedEntryAccessRequestControl(true, true, false),
           new RealAttributesOnlyRequestControl(true),

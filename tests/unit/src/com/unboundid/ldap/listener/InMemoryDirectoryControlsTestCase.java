@@ -72,6 +72,7 @@ import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityResponseControl;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
 import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
@@ -80,11 +81,11 @@ import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadResponseControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.RFC3672SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortResponseControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
@@ -2284,18 +2285,20 @@ public final class InMemoryDirectoryControlsTestCase
 
 
   /**
-   * Provides test coverage for the subentries request control.
+   * Provides test coverage for the subentries request control as described in
+   * draft-ietf-ldup-subentry.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testSubentriesControl()
+  public void testDraftLDUPSubentriesControl()
          throws Exception
   {
     final InMemoryDirectoryServer ds = getTestDS(true, true);
     final LDAPConnection conn = ds.getConnection();
 
-    final SubentriesRequestControl c = new SubentriesRequestControl();
+    final DraftLDUPSubentriesRequestControl c =
+         new DraftLDUPSubentriesRequestControl();
 
     conn.add(
          "dn: cn=subentry test,dc=example,dc=com",
@@ -2403,6 +2406,115 @@ public final class InMemoryDirectoryControlsTestCase
          Filter.createORFilter(
               Filter.createPresenceFilter("objectClass"),
               Filter.createEqualityFilter("objectClass", "ldapSubEntry")));
+
+    searchResult = conn.search(searchRequest);
+    assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(searchResult.getEntryCount(), 4);
+    assertNotNull(searchResult.getSearchEntry(
+         "dc=example,dc=com"));
+    assertNotNull(searchResult.getSearchEntry(
+         "ou=People,dc=example,dc=com"));
+    assertNotNull(searchResult.getSearchEntry(
+         "uid=test.user,ou=People,dc=example,dc=com"));
+    assertNotNull(searchResult.getSearchEntry(
+         "cn=subentry test,dc=example,dc=com"));
+
+
+    conn.close();
+  }
+
+
+
+  /**
+   * Provides test coverage for the subentries request control as described in
+   * RFC 3672.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRFC3672SubentriesControl()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+    final LDAPConnection conn = ds.getConnection();
+
+    RFC3672SubentriesRequestControl returnOnlySubentriesControl =
+         new RFC3672SubentriesRequestControl(true);
+    RFC3672SubentriesRequestControl returnRegularAndSubentriesControl =
+         new RFC3672SubentriesRequestControl(false);
+
+    conn.add(
+         "dn: cn=subentry test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: ldapSubEntry",
+         "cn: subentry test");
+
+
+    // Ensure that the subentry is returned for a base-level search even if the
+    // control is not present.
+    SearchRequest searchRequest = new SearchRequest(
+         "cn=subentry test,dc=example,dc=com", SearchScope.BASE,
+         "(objectClass=*)");
+
+    SearchResult searchResult = conn.search(searchRequest);
+    assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(searchResult.getEntryCount(), 1);
+    assertNotNull(searchResult.getSearchEntry(
+         "cn=subentry test,dc=example,dc=com"));
+
+
+    // Ensure that the entry is also returned for a base-level search if the
+    // control is provided, regardless of whether regular entries are to be
+    // returned.
+    searchRequest.setControls(returnOnlySubentriesControl);
+
+    searchResult = conn.search(searchRequest);
+    assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(searchResult.getEntryCount(), 1);
+    assertNotNull(searchResult.getSearchEntry(
+         "cn=subentry test,dc=example,dc=com"));
+
+    searchRequest.setControls(returnRegularAndSubentriesControl);
+
+    searchResult = conn.search(searchRequest);
+    assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(searchResult.getEntryCount(), 1);
+    assertNotNull(searchResult.getSearchEntry(
+         "cn=subentry test,dc=example,dc=com"));
+
+
+    // Ensure that the subentry is not returned for a non-base search without
+    // the control.
+    searchRequest = new SearchRequest("dc=example,dc=com", SearchScope.SUB,
+         "(objectClass=*)");
+
+    searchResult = conn.search(searchRequest);
+    assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(searchResult.getEntryCount(), 3);
+    assertNotNull(searchResult.getSearchEntry("dc=example,dc=com"));
+    assertNotNull(searchResult.getSearchEntry("ou=People,dc=example,dc=com"));
+    assertNotNull(searchResult.getSearchEntry(
+         "uid=test.user,ou=People,dc=example,dc=com"));
+    assertNull(searchResult.getSearchEntry(
+         "cn=subentry test,dc=example,dc=com"));
+
+
+    // Ensure that only the subentry is returned for the same non-base search if
+    // the subentries control is provided with returnOnlySubnetries flag set to
+    // true.
+    searchRequest.setControls(returnOnlySubentriesControl);
+
+    searchResult = conn.search(searchRequest);
+    assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(searchResult.getEntryCount(), 1);
+    assertNotNull(searchResult.getSearchEntry(
+         "cn=subentry test,dc=example,dc=com"));
+
+
+    // Ensure that all entries, including subentry are returned for a subtree
+    // search from the naming context with a filter of
+    // "(|(objectClass=*)(objectClass=ldapSubEntry))".
+    searchRequest.setControls(returnRegularAndSubentriesControl);
 
     searchResult = conn.search(searchRequest);
     assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);

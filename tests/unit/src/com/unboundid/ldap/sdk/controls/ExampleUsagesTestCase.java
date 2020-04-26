@@ -1047,7 +1047,7 @@ public final class ExampleUsagesTestCase
 
 
   /**
-   * Tests the example in the {@code SubentriesRequestControl} class.
+   * Tests the example in the {@code DraftLDUPSubentriesRequestControl} class.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -1079,7 +1079,7 @@ public final class ExampleUsagesTestCase
     // Update the search request to add a subentries request control so that
     // subentries should be included in search results.  This should cause the
     // subentry to be returned.
-    searchRequest.addControl(new SubentriesRequestControl());
+    searchRequest.addControl(new DraftLDUPSubentriesRequestControl());
     SearchResult resultWithControl = connection.search(searchRequest);
     LDAPTestUtils.assertResultCodeEquals(resultWithControl, ResultCode.SUCCESS);
     LDAPTestUtils.assertEntriesReturnedEquals(resultWithControl, 1);

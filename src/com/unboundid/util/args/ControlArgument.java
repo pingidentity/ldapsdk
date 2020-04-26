@@ -48,9 +48,9 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
 import com.unboundid.ldap.sdk.controls.DontUseCopyRequestControl;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.experimental.
             DraftBeheraLDAPPasswordPolicy10RequestControl;
@@ -142,13 +142,26 @@ public final class ControlArgument
     oidsByName.put("no-operation",
          DraftZeilengaLDAPNoOp12RequestControl.NO_OP_REQUEST_OID);
 
-    // The LDAP subentries request control.
+    // The LDAP subentries request control as described in
+    // draft-ietf-ldup-subentry.
     oidsByName.put("subentries",
-         SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     oidsByName.put("ldapsubentries",
-         SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     oidsByName.put("ldap-subentries",
-         SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+    oidsByName.put("ldupsubentries",
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+    oidsByName.put("ldup-subentries",
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+    oidsByName.put("draftldupsubentries",
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+    oidsByName.put("draft-ldup-subentries",
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+    oidsByName.put("draftietfldupsubentries",
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+    oidsByName.put("draft-ietf-ldup-subentries",
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
 
     // The manage DSA IT request control.
     oidsByName.put("managedsait",

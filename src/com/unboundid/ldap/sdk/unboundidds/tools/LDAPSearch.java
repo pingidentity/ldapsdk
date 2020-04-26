@@ -78,6 +78,7 @@ import com.unboundid.ldap.sdk.UnsolicitedNotificationHandler;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.MatchedValuesFilter;
 import com.unboundid.ldap.sdk.controls.MatchedValuesRequestControl;
@@ -85,10 +86,10 @@ import com.unboundid.ldap.sdk.controls.PersistentSearchChangeType;
 import com.unboundid.ldap.sdk.controls.PersistentSearchRequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.RFC3672SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.persist.PersistUtils;
 import com.unboundid.ldap.sdk.transformations.EntryTransformation;
@@ -155,6 +156,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.BooleanValueArgument;
 import com.unboundid.util.args.ControlArgument;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.FileArgument;
@@ -205,6 +207,7 @@ public final class LDAPSearch
   private BooleanArgument continueOnError = null;
   private BooleanArgument countEntries = null;
   private BooleanArgument dontWrap = null;
+  private BooleanArgument draftLDUPSubentries = null;
   private BooleanArgument dryRun = null;
   private BooleanArgument encryptOutput = null;
   private BooleanArgument followReferrals = null;
@@ -213,7 +216,6 @@ public final class LDAPSearch
   private BooleanArgument getServerID = null;
   private BooleanArgument getUserResourceLimits = null;
   private BooleanArgument includeReplicationConflictEntries = null;
-  private BooleanArgument includeSubentries = null;
   private BooleanArgument joinRequireMatch = null;
   private BooleanArgument manageDsaIT = null;
   private BooleanArgument permitUnindexedSearch = null;
@@ -229,6 +231,7 @@ public final class LDAPSearch
   private BooleanArgument typesOnly = null;
   private BooleanArgument verbose = null;
   private BooleanArgument virtualAttributesOnly = null;
+  private BooleanValueArgument rfc3672Subentries = null;
   private ControlArgument bindControl = null;
   private ControlArgument searchControl = null;
   private DNArgument baseDN = null;
@@ -880,14 +883,28 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(includeSoftDeletedEntries);
 
-    includeSubentries = new BooleanArgument(null, "includeSubentries", 1,
-         INFO_LDAPSEARCH_ARG_DESCRIPTION_INCLUDE_SUBENTRIES.get());
-    includeSubentries.addLongIdentifier("includeLDAPSubentries", true);
-    includeSubentries.addLongIdentifier("include-subentries", true);
-    includeSubentries.addLongIdentifier("include-ldap-subentries", true);
-    includeSubentries.setArgumentGroupName(
+    draftLDUPSubentries = new BooleanArgument(null, "draftLDUPSubentries", 1,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_INCLUDE_DRAFT_LDUP_SUBENTRIES.get());
+    draftLDUPSubentries.addLongIdentifier("draftIETFLDUPSubentries", true);
+    draftLDUPSubentries.addLongIdentifier("includeSubentries", true);
+    draftLDUPSubentries.addLongIdentifier("includeLDAPSubentries", true);
+    draftLDUPSubentries.addLongIdentifier("draft-ldup-subentries", true);
+    draftLDUPSubentries.addLongIdentifier("draft-ietf-ldup-subentries", true);
+    draftLDUPSubentries.addLongIdentifier("include-subentries", true);
+    draftLDUPSubentries.addLongIdentifier("include-ldap-subentries", true);
+    draftLDUPSubentries.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
-    parser.addArgument(includeSubentries);
+    parser.addArgument(draftLDUPSubentries);
+
+    rfc3672Subentries = new BooleanValueArgument(null, "rfc3672Subentries",
+         false,
+         INFO_LDAPSEARCH_ARG_PLACEHOLDER_INCLUDE_RFC_3672_SUBENTRIES.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_INCLUDE_RFC_3672_SUBENTRIES.get());
+    rfc3672Subentries.addLongIdentifier("rfc-3672-subentries", true);
+    rfc3672Subentries.addLongIdentifier("rfc3672-subentries", true);
+    rfc3672Subentries.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(rfc3672Subentries);
 
     joinRule = new StringArgument(null, "joinRule", false, 1,
          "{dn:sourceAttr|reverse-dn:targetAttr|equals:sourceAttr:targetAttr|" +
@@ -1233,6 +1250,10 @@ public final class LDAPSearch
     // or ldapURLFile arguments.
     parser.addExclusiveArgumentSet(persistentSearch, filterFile);
     parser.addExclusiveArgumentSet(persistentSearch, ldapURLFile);
+
+    // The draft-ietf-ldup-subentry and RFC 3672 subentries controls cannot be
+    // used together.
+    parser.addExclusiveArgumentSet(draftLDUPSubentries, rfc3672Subentries);
 
     // The realAttributesOnly and virtualAttributesOnly arguments can't be used
     // together.
@@ -3124,9 +3145,15 @@ public final class LDAPSearch
       }
     }
 
-    if (includeSubentries.isPresent())
+    if (draftLDUPSubentries.isPresent())
     {
-      controls.add(new SubentriesRequestControl(true));
+      controls.add(new DraftLDUPSubentriesRequestControl(true));
+    }
+
+    if (rfc3672Subentries.isPresent())
+    {
+      controls.add(new RFC3672SubentriesRequestControl(
+           rfc3672Subentries.getValue()));
     }
 
     if (manageDsaIT.isPresent())

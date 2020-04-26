@@ -53,6 +53,52 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added support for the LDAP subentries request control as described in RFC 3672.
+                  The LDAP SDK already provided support for the version of the LDAP subentries
+                  request control described in draft-ietf-ldup-subentry, but these are different
+                  controls with different OIDs and slightly different behaviors; the draft version
+                  of the control will cause only matching entries with the ldapSubEntry object
+                  class to be included in search results, while the RFC version of the control
+                  includes a Boolean value indicating whether to only return entries with the
+                  ldapSubEntry object class or to return both regular entries and subentries.
+                  <br><br>
+                </li>
+
+                <li>
+                  The LDAP SDK's previous support for the control described in
+                  draft-ietf-ldup-subentry had been implemented in the SubentriesRequestControl
+                  class.  To avoid confusion and ambiguity between the two versions of the
+                  control, the existing SubentriesRequestControl has been deprecated and two new
+                  classes, DraftLDUPSubentriesRequestControl and RFC3672SubentriesRequestControl,
+                  have been created.  The deprecated class remains a fully functional
+                  implementation of the draft specification and will be retained for the purpose
+                  of backward compatibility, but all new uses should choose either the
+                  DraftLDUPSubentriesRequestControl class or the RFC3672SubentriesRequestControl
+                  class to make it clearer which version of the control should be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  The ldapsearch command-line tool has been updated to include support for the RFC
+                  3672 version of the control.  The existing --includeSubentries argument is still
+                  supported for the purpose of backward compatibility, but the public identifier
+                  for that argument is now --draftLDUPSubentries and the --includeSubentries
+                  identifier has been hidden.  A new --rfc3672Subentries argument is available to
+                  indicate that the RFC version of the control should be used, and this argument
+                  takes a value of either "true" (to indicate that only subentries should be
+                  returned) or "false" (to indicate that both subentries and regular entries
+                  should be returned).
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server with support for the RFC 3672 version of
+                  the subentries request control.  It already provided support for the
+                  draft-ietf-ldup-subentry version of the control.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a "values-only" output format for the ldapsearch command-line tool.  If
                   this output format is selected, only attribute values will be included in the
                   output, without output names, entry DNs, or blank lines between entries.  This

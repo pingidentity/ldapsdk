@@ -51,16 +51,17 @@ import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
 import com.unboundid.ldap.sdk.controls.DontUseCopyRequestControl;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
 import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.RFC3672SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
@@ -808,22 +809,89 @@ public final class RequestControlPreProcessorTestCase
 
 
   /**
-   * Provides test coverage for the subentries control.
+   * Provides test coverage for the subentries control as described in
+   * draft-ietf-ldup-subentry.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testSubentriesControl()
+  public void testDraftLDUPSubentriesControl()
          throws Exception
   {
-    final String oid = SubentriesRequestControl.SUBENTRIES_REQUEST_OID;
+    final String oid = DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID;
 
-    final Control vc = new SubentriesRequestControl(true);
-    final Control vn = new SubentriesRequestControl(false);
+    final Control vc = new DraftLDUPSubentriesRequestControl(true);
+    final Control vn = new DraftLDUPSubentriesRequestControl(false);
     final Control ic = new Control(oid, true, new ASN1OctetString("foo"));
     final Control in = new Control(oid, false, new ASN1OctetString("foo"));
 
-    final Class<?> c = SubentriesRequestControl.class;
+    final Class<?> c = DraftLDUPSubentriesRequestControl.class;
+
+    // Test with acceptable operation types.
+    for (final byte opType : Arrays.asList(
+              LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST))
+    {
+      // A valid critical control.
+      ensureControlHandled(opType, Arrays.asList(vc), oid, c);
+
+      // A valid non-critical control.
+      ensureControlHandled(opType, Arrays.asList(vn), oid, c);
+
+      // Multiple instances of the control.
+      ensureException(opType, Arrays.asList(vc, vn));
+
+      // Malformed critical control.
+      ensureException(opType, Arrays.asList(ic));
+
+      // Malformed non-critical control.
+      ensureException(opType, Arrays.asList(in));
+    }
+
+    // Test with unacceptable operation types.
+    for (final byte opType : Arrays.asList(
+              LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST,
+              LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST,
+              LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST,
+              LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST,
+              LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST,
+              LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST,
+              LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST,
+              LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST,
+              LDAPMessage.PROTOCOL_OP_TYPE_UNBIND_REQUEST))
+    {
+      // A valid critical control.
+      ensureException(opType, Arrays.asList(vc));
+
+      // A valid non-critical control.
+      ensureControlIgnored(opType, Arrays.asList(vn), oid);
+
+      // Malformed critical control.
+      ensureException(opType, Arrays.asList(ic));
+
+      // Malformed non-critical control.
+      ensureControlIgnored(opType, Arrays.asList(in), oid);
+    }
+  }
+
+
+
+  /**
+   * Provides test coverage for the subentries control as described in RFC 3672.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRFC3672LDUPSubentriesControl()
+         throws Exception
+  {
+    final String oid = RFC3672SubentriesRequestControl.SUBENTRIES_REQUEST_OID;
+
+    final Control vc = new RFC3672SubentriesRequestControl(true, true);
+    final Control vn = new RFC3672SubentriesRequestControl(false,false);
+    final Control ic = new Control(oid, true, new ASN1OctetString("foo"));
+    final Control in = new Control(oid, false, new ASN1OctetString("foo"));
+
+    final Class<?> c = RFC3672SubentriesRequestControl.class;
 
     // Test with acceptable operation types.
     for (final byte opType : Arrays.asList(

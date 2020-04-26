@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2020 Ping Identity Corporation
+ * Copyright 2020 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright 2008-2020 Ping Identity Corporation
+ * Copyright 2020 Ping Identity Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * Copyright (C) 2008-2020 Ping Identity Corporation
+ * Copyright (C) 2020 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -49,16 +49,6 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 
 
 /**
- * NOTE:  This class has been deprecated because there are two competing
- * specifications that can affect the visibility of entries with the
- * ldapSubEntry object class:
- * <A HREF="https://docs.ldap.com/specs/rfc3672.txt">RFC 3672</A> and
- * <A HREF="https://docs.ldap.com/specs/draft-ietf-ldup-subentry-08.txt">
- * draft-ietf-ldup-subentry</A>.  This class implements support for the latter
- * and remains fully functional, but you should use either the
- * {@link RFC3672SubentriesRequestControl} class or the
- * {@link DraftLDUPSubentriesRequestControl} class to avoid ambiguity.
- * <BR><BR>
  * This class provides an implementation of the LDAP subentries request control
  * as defined in draft-ietf-ldup-subentry.  It may be included in a search
  * request to indicate that the entries with the {@code ldapSubentry} object
@@ -71,7 +61,11 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  * Because they do not hold user data, it is generally desirable to have them
  * excluded from search results, but for cases in which a client needs to
  * retrieve such an entry, then this subentries request control may be included
- * in the search request.
+ * in the search request.  This control differs from the
+ * {@link RFC3672SubentriesRequestControl} in that it will cause only entries
+ * with the {@code ldapSubEntry} object class to be returned, while the
+ * {@code RFC3672SubentriesRequestControl} may optionally return both regular
+ * entries and subentries.
  * <BR><BR>
  * There is no corresponding response control.
  * <BR><BR>
@@ -92,25 +86,17 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  * // Update the search request to add a subentries request control so that
  * // subentries should be included in search results.  This should cause the
  * // subentry to be returned.
- * searchRequest.addControl(new SubentriesRequestControl());
+ * searchRequest.addControl(new DraftLDUPSubentriesRequestControl());
  * SearchResult resultWithControl = connection.search(searchRequest);
  * LDAPTestUtils.assertResultCodeEquals(resultWithControl, ResultCode.SUCCESS);
  * LDAPTestUtils.assertEntriesReturnedEquals(resultWithControl, 1);
  * </PRE>
  *
- * @deprecated This class has been deprecated because there are two competing
- *             specifications that can affect the visibility of entries with the
- *             ldapSubEntry object class:  RFC 3672 and
- *             draft-ietf-lddup-subentry. This class implements support for the
- *             latter and remains fully functional, but you should use either
- *             the {@link RFC3672SubentriesRequestControl} class or the
- *             {@link DraftLDUPSubentriesRequestControl} class to avoid
- *             ambiguity.
+ * @see  RFC3672SubentriesRequestControl
  */
-@Deprecated()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class SubentriesRequestControl
+public final class DraftLDUPSubentriesRequestControl
        extends Control
 {
   /**
@@ -131,7 +117,7 @@ public final class SubentriesRequestControl
   /**
    * Creates a new subentries request control.  it will not be marked critical.
    */
-  public SubentriesRequestControl()
+  public DraftLDUPSubentriesRequestControl()
   {
     this(false);
   }
@@ -144,7 +130,7 @@ public final class SubentriesRequestControl
    * @param  isCritical  Indicates whether this control should be marked
    *                     critical.
    */
-  public SubentriesRequestControl(final boolean isCritical)
+  public DraftLDUPSubentriesRequestControl(final boolean isCritical)
   {
     super(SUBENTRIES_REQUEST_OID, isCritical, null);
   }
@@ -161,7 +147,7 @@ public final class SubentriesRequestControl
    * @throws  LDAPException  If the provided control cannot be decoded as a
    *                         subentries request control.
    */
-  public SubentriesRequestControl(final Control control)
+  public DraftLDUPSubentriesRequestControl(final Control control)
          throws LDAPException
   {
     super(control);
@@ -192,7 +178,7 @@ public final class SubentriesRequestControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("SubentriesRequestControl(isCritical=");
+    buffer.append("DraftLDUPSubentriesRequestControl(isCritical=");
     buffer.append(isCritical());
     buffer.append(')');
   }

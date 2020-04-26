@@ -68,9 +68,9 @@ import com.unboundid.ldap.sdk.RootDSE;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.controls.HardDeleteRequestControl;
@@ -565,7 +565,7 @@ public final class SubtreeDeleter
 
 
   /**
-   * Indicates whether to use the {@link SubentriesRequestControl} when
+   * Indicates whether to use the {@link DraftLDUPSubentriesRequestControl} when
    * searching for entries to delete if the server root DSE advertises support
    * for it.  The subentries request control allows LDAP subentries to be
    * included in search results.  These entries are normally excluded from
@@ -587,7 +587,7 @@ public final class SubtreeDeleter
 
 
   /**
-   * Specifies whether to use the {@link SubentriesRequestControl} when
+   * Specifies whether to use the {@link DraftLDUPSubentriesRequestControl} when
    * searching for entries to delete if the server root DSE advertises support
    * for it.  The subentries request control allows LDAP subentries to be
    * included in search results.  These entries are normally excluded from
@@ -1002,7 +1002,7 @@ public final class SubtreeDeleter
 
     final boolean useSubentries = useSubentriesControlIfAvailable &&
          supportsControl(connection, rootDSE,
-              SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+              DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
 
     final List<Control> searchControls = new ArrayList<>(10);
     searchControls.addAll(additionalSearchControls);
@@ -1437,7 +1437,7 @@ public final class SubtreeDeleter
     {
       searchRequest.addControl(c);
     }
-    searchRequest.addControl(new SubentriesRequestControl(false));
+    searchRequest.addControl(new DraftLDUPSubentriesRequestControl(false));
 
     return searchRequest;
   }

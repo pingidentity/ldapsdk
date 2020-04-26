@@ -119,6 +119,7 @@ import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityResponseControl;
 import com.unboundid.ldap.sdk.controls.DontUseCopyRequestControl;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
 import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
@@ -127,11 +128,11 @@ import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadResponseControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.RFC3672SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortResponseControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
@@ -3710,10 +3711,20 @@ public final class InMemoryRequestHandler
         includeNonSubEntries = true;
       }
       else if (controlMap.containsKey(
-           SubentriesRequestControl.SUBENTRIES_REQUEST_OID))
+           DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID))
       {
         includeSubEntries = true;
         includeNonSubEntries = false;
+      }
+      else if (controlMap.containsKey(
+           RFC3672SubentriesRequestControl.SUBENTRIES_REQUEST_OID))
+      {
+        includeSubEntries = true;
+
+        final RFC3672SubentriesRequestControl c =
+             (RFC3672SubentriesRequestControl) controlMap.get(
+                  RFC3672SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+        includeNonSubEntries = (! c.returnOnlySubEntries());
       }
       else if (baseEntry.hasObjectClass("ldapSubEntry") ||
                baseEntry.hasObjectClass("inheritableLDAPSubEntry"))
@@ -5338,6 +5349,7 @@ findEntriesAndRefs:
          AUTHORIZATION_IDENTITY_REQUEST_OID);
     ctlSet.add(DontUseCopyRequestControl.DONT_USE_COPY_REQUEST_OID);
     ctlSet.add(ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID);
+    ctlSet.add(DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     ctlSet.add(DraftZeilengaLDAPNoOp12RequestControl.NO_OP_REQUEST_OID);
     ctlSet.add(PermissiveModifyRequestControl.PERMISSIVE_MODIFY_REQUEST_OID);
     ctlSet.add(PostReadRequestControl.POST_READ_REQUEST_OID);
@@ -5346,9 +5358,9 @@ findEntriesAndRefs:
          PROXIED_AUTHORIZATION_V1_REQUEST_OID);
     ctlSet.add(ProxiedAuthorizationV2RequestControl.
          PROXIED_AUTHORIZATION_V2_REQUEST_OID);
+    ctlSet.add(RFC3672SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     ctlSet.add(ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID);
     ctlSet.add(SimplePagedResultsControl.PAGED_RESULTS_OID);
-    ctlSet.add(SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     ctlSet.add(SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
     ctlSet.add(TransactionSpecificationRequestControl.
          TRANSACTION_SPECIFICATION_REQUEST_OID);

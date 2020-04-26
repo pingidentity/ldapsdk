@@ -77,6 +77,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.TestSearchResultListener;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
+import com.unboundid.ldap.sdk.controls.DraftLDUPSubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
 import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
@@ -85,9 +86,9 @@ import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadResponseControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.RFC3672SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
-import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
@@ -198,6 +199,8 @@ public final class InMemoryDirectoryServerLDAPInterfaceTestCase
     assertTrue(rootDSE.supportsControl(AuthorizationIdentityRequestControl.
          AUTHORIZATION_IDENTITY_REQUEST_OID));
     assertTrue(rootDSE.supportsControl(
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID));
+    assertTrue(rootDSE.supportsControl(
          ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID));
     assertTrue(rootDSE.supportsControl(
          PermissiveModifyRequestControl.PERMISSIVE_MODIFY_REQUEST_OID));
@@ -210,11 +213,11 @@ public final class InMemoryDirectoryServerLDAPInterfaceTestCase
     assertTrue(rootDSE.supportsControl(ProxiedAuthorizationV2RequestControl.
          PROXIED_AUTHORIZATION_V2_REQUEST_OID));
     assertTrue(rootDSE.supportsControl(
+         RFC3672SubentriesRequestControl.SUBENTRIES_REQUEST_OID));
+    assertTrue(rootDSE.supportsControl(
          ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID));
     assertTrue(rootDSE.supportsControl(
          SimplePagedResultsControl.PAGED_RESULTS_OID));
-    assertTrue(rootDSE.supportsControl(
-         SubentriesRequestControl.SUBENTRIES_REQUEST_OID));
     assertTrue(rootDSE.supportsControl(
          SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID));
     assertTrue(rootDSE.supportsControl(TransactionSpecificationRequestControl.

@@ -52,11 +52,10 @@ import com.unboundid.ldap.sdk.SearchScope;
 
 
 /**
- * This class provides a set of test cases for the SubentriesRequestControl
- * class.
+ * This class provides a set of test cases for the
+ * DraftLDUPSubentriesRequestControl class.
  */
-@SuppressWarnings("deprecation")
-public class SubentriesRequestControlTestCase
+public class DraftLDUPSubentriesRequestControlTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -68,8 +67,9 @@ public class SubentriesRequestControlTestCase
   public void testConstructor1()
          throws Exception
   {
-    SubentriesRequestControl c = new SubentriesRequestControl();
-    c = new SubentriesRequestControl(c);
+    DraftLDUPSubentriesRequestControl c =
+         new DraftLDUPSubentriesRequestControl();
+    c = new DraftLDUPSubentriesRequestControl(c);
 
     assertFalse(c.isCritical());
 
@@ -88,8 +88,9 @@ public class SubentriesRequestControlTestCase
   public void testConstructor2True()
          throws Exception
   {
-    SubentriesRequestControl c = new SubentriesRequestControl(true);
-    c = new SubentriesRequestControl(c);
+    DraftLDUPSubentriesRequestControl c =
+         new DraftLDUPSubentriesRequestControl(true);
+    c = new DraftLDUPSubentriesRequestControl(c);
 
     assertTrue(c.isCritical());
 
@@ -108,8 +109,9 @@ public class SubentriesRequestControlTestCase
   public void testConstructor2False()
          throws Exception
   {
-    SubentriesRequestControl c = new SubentriesRequestControl(false);
-    c = new SubentriesRequestControl(c);
+    DraftLDUPSubentriesRequestControl c =
+         new DraftLDUPSubentriesRequestControl(false);
+    c = new DraftLDUPSubentriesRequestControl(c);
 
     assertFalse(c.isCritical());
 
@@ -128,9 +130,10 @@ public class SubentriesRequestControlTestCase
   public void testConstructor3WithValue()
          throws Exception
   {
-    Control c = new Control(SubentriesRequestControl.SUBENTRIES_REQUEST_OID,
-                            true, new ASN1OctetString("foo"));
-    new SubentriesRequestControl(c);
+    Control c = new Control(
+         DraftLDUPSubentriesRequestControl.SUBENTRIES_REQUEST_OID, true,
+         new ASN1OctetString("foo"));
+    new DraftLDUPSubentriesRequestControl(c);
   }
 
 
@@ -170,7 +173,7 @@ public class SubentriesRequestControlTestCase
 
     // Verify that the schema subentry is returned when we issue the same
     // search with the subentries control.
-    searchRequest.addControl(new SubentriesRequestControl(true));
+    searchRequest.addControl(new DraftLDUPSubentriesRequestControl(true));
     result = conn.search(searchRequest);
     assertEquals(result.getResultCode(), ResultCode.SUCCESS);
     assertEquals(result.getEntryCount(), 1);
