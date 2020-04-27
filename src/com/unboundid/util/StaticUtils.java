@@ -39,7 +39,10 @@ package com.unboundid.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.Array;
 import java.net.InetAddress;
@@ -116,16 +119,51 @@ public final class StaticUtils
 
 
   /**
-   * The end-of-line marker for this platform.
+   * The end-of-line marker for the platform on which the LDAP SDK is
+   * currently running.
    */
   public static final String EOL = getSystemProperty("line.separator", "\n");
 
 
 
   /**
-   * A byte array containing the end-of-line marker for this platform.
+   * The end-of-line marker that consists of a carriage return character
+   * followed by a line feed character, as used on Windows systems.
+   */
+  public static final String EOL_CR_LF = "\r\n";
+
+
+
+  /**
+   * The end-of-line marker that consists of just the line feed character, as
+   * used on UNIX-based systems.
+   */
+  public static final String EOL_LF = "\n";
+
+
+
+  /**
+   * A byte array containing the end-of-line marker for the platform on which
+   * the LDAP SDK is currently running.
    */
   public static final byte[] EOL_BYTES = getBytes(EOL);
+
+
+
+  /**
+   * A byte array containing the end-of-line marker that consists of a carriage
+   * return character followed by a line feed character, as used on Windows
+   * systems.
+   */
+  public static final byte[] EOL_BYTES_CR_LF = getBytes(EOL_CR_LF);
+
+
+
+  /**
+   * A byte array containing the end-of-line marker that consists of just the
+   * line feed character, as used on UNIX-based systems.
+   */
+  public static final byte[] EOL_BYTES_LF = getBytes(EOL_LF);
 
 
 
@@ -5098,6 +5136,269 @@ public final class StaticUtils
     else
     {
       return hostAddress;
+    }
+  }
+
+
+
+  /**
+   * Reads the bytes that comprise the specified file.
+   *
+   * @param  path  The path to the file to be read.
+   *
+   * @return  The bytes that comprise the specified file.
+   *
+   * @throws  IOException  If a problem occurs while trying to read the file.
+   */
+  public static byte[] readFileBytes(final String path)
+         throws IOException
+  {
+    return readFileBytes(new File(path));
+  }
+
+
+
+  /**
+   * Reads the bytes that comprise the specified file.
+   *
+   * @param  file  The file to be read.
+   *
+   * @return  The bytes that comprise the specified file.
+   *
+   * @throws  IOException  If a problem occurs while trying to read the file.
+   */
+  public static byte[] readFileBytes(final File file)
+         throws IOException
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer((int) file.length());
+    buffer.readFrom(file);
+    return buffer.toByteArray();
+  }
+
+
+
+  /**
+   * Reads the contents of the specified file as a string.  All line breaks in
+   * the file will be preserved, with the possible exception of the one on the
+   * last line.
+   *
+   * @param  path                   The path to the file to be read.
+   * @param  includeFinalLineBreak  Indicates whether the final line break (if
+   *                                there is one) should be preserved.
+   *
+   * @return  The contents of the specified file as a string.
+   *
+   * @throws  IOException  If a problem occurs while trying to read the file.
+   */
+  public static String readFileAsString(final String path,
+                                        final boolean includeFinalLineBreak)
+         throws IOException
+  {
+    return readFileAsString(new File(path), includeFinalLineBreak);
+  }
+
+
+
+  /**
+   * Reads the contents of the specified file as a string.  All line breaks in
+   * the file will be preserved, with the possible exception of the one on the
+   * last line.
+   *
+   * @param  file                   The file to be read.
+   * @param  includeFinalLineBreak  Indicates whether the final line break (if
+   *                                there is one) should be preserved.
+   *
+   * @return  The contents of the specified file as a string.
+   *
+   * @throws  IOException  If a problem occurs while trying to read the file.
+   */
+  public static String readFileAsString(final File file,
+                                        final boolean includeFinalLineBreak)
+         throws IOException
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer((int) file.length());
+    buffer.readFrom(file);
+
+    if (! includeFinalLineBreak)
+    {
+      if (buffer.endsWith(EOL_BYTES_CR_LF))
+      {
+        buffer.setLength(buffer.length() - EOL_BYTES_CR_LF.length);
+      }
+      else if (buffer.endsWith(EOL_BYTES_LF))
+      {
+        buffer.setLength(buffer.length() - EOL_BYTES_LF.length);
+      }
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Reads the lines that comprise the specified file.
+   *
+   * @param  path  The path to the file to be read.
+   *
+   * @return  The lines that comprise the specified file.
+   *
+   * @throws  IOException  If a problem occurs while trying to read the file.
+   */
+  public static List<String> readFileLines(final String path)
+         throws IOException
+  {
+    return readFileLines(new File(path));
+  }
+
+
+
+  /**
+   * Reads the lines that comprise the specified file.
+   *
+   * @param  file  The file to be read.
+   *
+   * @return  The lines that comprise the specified file.
+   *
+   * @throws  IOException  If a problem occurs while trying to read the file.
+   */
+  public static List<String> readFileLines(final File file)
+         throws IOException
+  {
+    try (FileReader fileReader = new FileReader(file);
+         BufferedReader bufferedReader = new BufferedReader(fileReader))
+    {
+      final List<String> lines = new ArrayList<>();
+      while (true)
+      {
+        final String line = bufferedReader.readLine();
+        if (line == null)
+        {
+          return Collections.unmodifiableList(lines);
+        }
+
+        lines.add(line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Writes the provided bytes to the specified file.  If the file already
+   * exists, it will be overwritten.
+   *
+   * @param  path   The path to the file to be written.
+   * @param  bytes  The bytes to be written to the specified file.
+   *
+   * @throws  IOException  If a problem is encountered while writing the file.
+   */
+  public static void writeFile(final String path, final byte[] bytes)
+         throws IOException
+  {
+    writeFile(new File(path), bytes);
+  }
+
+
+
+  /**
+   * Writes the provided bytes to the specified file.  If the file already
+   * exists, it will be overwritten.
+   *
+   * @param  file   The file to be written.
+   * @param  bytes  The bytes to be written to the specified file.
+   *
+   * @throws  IOException  If a problem is encountered while writing the file.
+   */
+  public static void writeFile(final File file, final byte[] bytes)
+         throws IOException
+  {
+    try (FileOutputStream outputStream = new FileOutputStream(file))
+    {
+      outputStream.write(bytes);
+    }
+  }
+
+
+
+  /**
+   * Writes the provided lines to the specified file, with each followed by an
+   * appropriate end-of-line marker for the current platform.  If the file
+   * already exists, it will be overwritten.
+   *
+   * @param  path   The path to the file to be written.
+   * @param  lines  The lines to be written to the specified file.
+   *
+   * @throws  IOException  If a problem is encountered while writing the file.
+   */
+  public static void writeFile(final String path, final CharSequence... lines)
+         throws IOException
+  {
+    writeFile(new File(path), lines);
+  }
+
+
+
+  /**
+   * Writes the provided lines to the specified file, with each followed by an
+   * appropriate end-of-line marker for the current platform.  If the file
+   * already exists, it will be overwritten.
+   *
+   * @param  file   The file to be written.
+   * @param  lines  The lines to be written to the specified file.
+   *
+   * @throws  IOException  If a problem is encountered while writing the file.
+   */
+  public static void writeFile(final File file, final CharSequence... lines)
+         throws IOException
+  {
+    writeFile(file, toList(lines));
+  }
+
+
+
+  /**
+   * Writes the provided lines to the specified file, with each followed by an
+   * appropriate end-of-line marker for the current platform.  If the file
+   * already exists, it will be overwritten.
+   *
+   * @param  path   The path to the file to be written.
+   * @param  lines  The lines to be written to the specified file.
+   *
+   * @throws  IOException  If a problem is encountered while writing the file.
+   */
+  public static void writeFile(final String path,
+                               final List<? extends CharSequence> lines)
+         throws IOException
+  {
+    writeFile(new File(path), lines);
+  }
+
+
+
+  /**
+   * Writes the provided lines to the specified file, with each followed by an
+   * appropriate end-of-line marker for the current platform.  If the file
+   * already exists, it will be overwritten.
+   *
+   * @param  file   The file to be written.
+   * @param  lines  The lines to be written to the specified file.
+   *
+   * @throws  IOException  If a problem is encountered while writing the file.
+   */
+  public static void writeFile(final File file,
+                               final List<? extends CharSequence> lines)
+         throws IOException
+  {
+    try (PrintWriter writer = new PrintWriter(file))
+    {
+      if (lines != null)
+      {
+        for (final CharSequence line : lines)
+        {
+          writer.println(line);
+        }
+      }
     }
   }
 }

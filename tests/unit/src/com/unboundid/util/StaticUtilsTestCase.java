@@ -39,6 +39,7 @@ package com.unboundid.util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.text.ParseException;
@@ -53,6 +54,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.TimeZone;
 import java.util.Set;
 import java.util.TreeSet;
@@ -3678,5 +3680,90 @@ public class StaticUtilsTestCase
         "Invalid time zone minute offset"
       },
     };
+  }
+
+
+
+  /**
+   * Provides coverage for the methods used to read and write the contents of a
+   * file using bytes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReadAndWriteFileBytes()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    StaticUtils.writeFile(f.getAbsolutePath(), StaticUtils.NO_BYTES);
+    assertEquals(StaticUtils.readFileBytes(f.getAbsolutePath()),
+         StaticUtils.NO_BYTES);
+
+    final byte[] randomBytes = new byte[1024];
+    new Random().nextBytes(randomBytes);
+
+    StaticUtils.writeFile(f.getAbsolutePath(), randomBytes);
+    assertEquals(StaticUtils.readFileBytes(f.getAbsolutePath()), randomBytes);
+  }
+
+
+
+  /**
+   * Provides coverage for the methods used to read and write the contents of a
+   * file as a string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReadAndWriteString()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    StaticUtils.writeFile(f.getAbsolutePath(), "");
+    assertEquals(StaticUtils.readFileAsString(f.getAbsolutePath(), true),
+         StaticUtils.EOL);
+    assertEquals(StaticUtils.readFileAsString(f.getAbsolutePath(), false), "");
+
+    StaticUtils.writeFile(f.getAbsolutePath(), "This is a test");
+    assertEquals(StaticUtils.readFileAsString(f.getAbsolutePath(), true),
+         "This is a test" + StaticUtils.EOL);
+    assertEquals(StaticUtils.readFileAsString(f.getAbsolutePath(), false),
+         "This is a test");
+  }
+
+
+
+  /**
+   * Provides coverage for the methods used to read and write the contents of a
+   * file as a set of lines.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReadAndWriteLines()
+         throws Exception
+  {
+    final File f = createTempFile();
+    assertTrue(f.delete());
+
+    StaticUtils.writeFile(f.getAbsolutePath(), (String[]) null);
+    assertEquals(StaticUtils.readFileLines(f.getAbsolutePath()),
+         Collections.emptyList());
+
+    StaticUtils.writeFile(f.getAbsolutePath(), (List<String>) null);
+    assertEquals(StaticUtils.readFileLines(f.getAbsolutePath()),
+         Collections.emptyList());
+
+    StaticUtils.writeFile(f.getAbsolutePath(), "Line 1");
+    assertEquals(StaticUtils.readFileLines(f.getAbsolutePath()),
+         Collections.singletonList("Line 1"));
+
+    StaticUtils.writeFile(f.getAbsolutePath(), "Line 1", "Line 2", "Line 3");
+    assertEquals(StaticUtils.readFileLines(f.getAbsolutePath()),
+         Arrays.asList("Line 1", "Line 2", "Line 3"));
   }
 }

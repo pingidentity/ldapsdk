@@ -1868,10 +1868,11 @@ public final class ByteStringBuffer
     {
       while (true)
       {
-        final int remainingCapacity = capacity - endPos;
+        int remainingCapacity = capacity - endPos;
         if (remainingCapacity <= 100)
         {
-          ensureCapacity(2*capacity);
+          ensureCapacity(Math.max(100, (2*capacity)));
+          remainingCapacity = capacity - endPos;
         }
 
         final int bytesRead =
