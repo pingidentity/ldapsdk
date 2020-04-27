@@ -38,6 +38,8 @@ package com.unboundid.util;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -1654,6 +1656,143 @@ public final class ByteStringBuffer
 
 
   /**
+   * Retrieves the byte at the specified offset in the buffer.
+   *
+   * @param  offset  The offset of the byte to read.  It must be between greater
+   *                 than or equal to zero and less than {@link #length}.
+   *
+   * @return  The byte at the specified offset in the buffer.
+   *
+   * @throws  IndexOutOfBoundsException  If the provided offset is negative or
+   *                                     greater than or equal to the length of
+   *                                     the buffer.
+   */
+  public byte byteAt(final int offset)
+         throws IndexOutOfBoundsException
+  {
+    if (offset < 0)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_OFFSET_NEGATIVE.get(offset));
+    }
+    else if (offset >= endPos)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_OFFSET_TOO_LARGE.get(offset, endPos));
+    }
+    else
+    {
+      return array[offset];
+    }
+  }
+
+
+
+  /**
+   * Retrieves the specified subset of bytes from the buffer.
+   *
+   * @param  offset  The offset of the first byte to retrieve.  It must be
+   *                 greater than or equal to zero and less than
+   *                 {@link #length}.
+   * @param  length  The number of bytes to retrieve.  It must be greater than
+   *                 or equal to zero, and the sum of {@code offset} and
+   *                 {@code length} must be less than or equal to
+   *                 {@link #length}.
+   *
+   * @return  A byte array containing the specified subset of bytes from the
+   *          buffer.
+   *
+   * @throws  IndexOutOfBoundsException  If either the offset or the length is
+   *                                     negative, or if the offsset plus the
+   *                                     length is greater than or equal to the
+   *                                     length of the buffer.
+   */
+  public byte[] bytesAt(final int offset, final int length)
+         throws IndexOutOfBoundsException
+  {
+    if (offset < 0)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_OFFSET_NEGATIVE.get(offset));
+    }
+
+    if (length < 0)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_LENGTH_NEGATIVE.get(length));
+    }
+
+    if ((offset + length) > endPos)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_OFFSET_PLUS_LENGTH_TOO_LARGE.get(offset, length,
+                endPos));
+    }
+
+    final byte[] returnArray = new byte[length];
+    System.arraycopy(array, offset, returnArray, 0, length);
+    return returnArray;
+  }
+
+
+
+  /**
+   * Indicates whether this buffer starts with the specified set of bytes.
+   *
+   * @param  bytes  The bytes for which to make the determination.
+   *
+   * @return  {@code true} if this buffer starts with the specified set of
+   *          bytes, or {@code false} if not.
+   */
+  public boolean startsWith(final byte[] bytes)
+  {
+    if (bytes.length > endPos)
+    {
+      return false;
+    }
+
+    for (int i=0; i < bytes.length; i++)
+    {
+      if (array[i] != bytes[i])
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether this buffer ends with the specified set of bytes.
+   *
+   * @param  bytes  The bytes for which to make the determination.
+   *
+   * @return  {@code true} if this buffer ends with the specified set of bytes,
+   *          or {@code false} if not.
+   */
+  public boolean endsWith(final byte[] bytes)
+  {
+    if (bytes.length > endPos)
+    {
+      return false;
+    }
+
+    for (int i=0; i < bytes.length; i++)
+    {
+      if (array[endPos - bytes.length + i] != bytes[i])
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
    * Returns a new byte array with the content from this buffer.
    *
    * @return  A byte array containing the content from this buffer.
@@ -1688,6 +1827,69 @@ public final class ByteStringBuffer
   public InputStream asInputStream()
   {
     return new ByteArrayInputStream(array, 0, endPos);
+  }
+
+
+
+  /**
+   * Reads the contents of the specified file into this buffer, appending it to
+   * the end of the buffer.
+   *
+   * @param  file  The file to be read.
+   *
+   * @throws  IOException  If an unexpected problem occurs.
+   */
+  public void readFrom(final File file)
+         throws IOException
+  {
+    try (FileInputStream inputStream = new FileInputStream(file))
+    {
+      readFrom(inputStream);
+    }
+  }
+
+
+
+  /**
+   * Reads data from the provided input stream into this buffer, appending it to
+   * the end of the buffer.  The entire content of the input stream will be
+   * read, but the input stream will not be closed.
+   *
+   * @param  inputStream  The input stream from which data is to be read.
+   *
+   * @throws  IOException  If an unexpected problem occurs.
+   */
+  public void readFrom(final InputStream inputStream)
+         throws IOException
+  {
+    final int initialEndPos = endPos;
+
+    try
+    {
+      while (true)
+      {
+        final int remainingCapacity = capacity - endPos;
+        if (remainingCapacity <= 100)
+        {
+          ensureCapacity(2*capacity);
+        }
+
+        final int bytesRead =
+             inputStream.read(array, endPos, remainingCapacity);
+        if (bytesRead < 0)
+        {
+          return;
+        }
+
+        endPos += bytesRead;
+      }
+    }
+    catch (final IOException e)
+    {
+      Debug.debugException(e);
+      endPos = initialEndPos;
+      throw e;
+    }
   }
 
 

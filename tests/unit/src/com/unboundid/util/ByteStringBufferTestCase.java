@@ -37,7 +37,11 @@ package com.unboundid.util;
 
 
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -4950,5 +4954,252 @@ public class ByteStringBufferTestCase
     assertEquals(buffer.length(), 5);
 
     buffer.delete(1, 5);
+  }
+
+
+
+  /**
+   * Tests the behavior of the byteAt method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testByteAt()
+         throws Exception
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+
+    try
+    {
+      buffer.byteAt(-1);
+      fail("Expected an exception with a negative offset");
+    }
+    catch (final IndexOutOfBoundsException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      buffer.byteAt(0);
+      fail("Expected an exception with the offset equal to the length");
+    }
+    catch (final IndexOutOfBoundsException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      buffer.byteAt(1234);
+      fail("Expected an exception with the offset greater than the length");
+    }
+    catch (final IndexOutOfBoundsException e)
+    {
+      // This was expected.
+    }
+
+    final Random random = new Random();
+    final byte[] array = new byte[1234];
+    random.nextBytes(array);
+
+    buffer.append(array);
+    for (int i=0; i < array.length; i ++)
+    {
+      assertEquals(buffer.byteAt(i), array[i]);
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the bytesAt method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testBytesAt()
+         throws Exception
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+
+    try
+    {
+      buffer.bytesAt(-1, 0);
+      fail("Expected an exception with a negative offset");
+    }
+    catch (final IndexOutOfBoundsException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      buffer.bytesAt(0, -1);
+      fail("Expected an exception with a negative length");
+    }
+    catch (final IndexOutOfBoundsException e)
+    {
+      // This was expected.
+    }
+
+    try
+    {
+      buffer.bytesAt(0, 1);
+      fail("Expected an exception with the offset plus length greater than " +
+           "the buffer length");
+    }
+    catch (final IndexOutOfBoundsException e)
+    {
+      // This was expected.
+    }
+
+
+    assertNotNull(buffer.bytesAt(0, 0));
+    assertEquals(buffer.bytesAt(0, 0), StaticUtils.NO_BYTES);
+
+    final Random random = new Random();
+    final byte[] array1 = new byte[123];
+    final byte[] array2 = new byte[456];
+    final byte[] array3 = new byte[789];
+
+    random.nextBytes(array1);
+    random.nextBytes(array2);
+    random.nextBytes(array3);
+
+    buffer.append(array1);
+    buffer.append(array2);
+    buffer.append(array3);
+
+    assertEquals(buffer.bytesAt(0, 123), array1);
+    assertEquals(buffer.bytesAt(123, 456), array2);
+    assertEquals(buffer.bytesAt(579, 789), array3);
+    assertEquals(buffer.bytesAt(0, buffer.length()), buffer.toByteArray());
+  }
+
+
+
+  /**
+   * Tests the behavior of the startsWith and endsWith methods.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testStartsWithAndEndsWith()
+         throws Exception
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+
+    final Random random = new Random();
+    final byte[] array1 = new byte[123];
+    final byte[] array2 = new byte[456];
+    final byte[] array3 = new byte[789];
+
+    random.nextBytes(array1);
+    random.nextBytes(array2);
+    random.nextBytes(array3);
+
+    assertFalse(buffer.startsWith(array1));
+    assertFalse(buffer.startsWith(array2));
+    assertFalse(buffer.startsWith(array3));
+
+    assertFalse(buffer.endsWith(array1));
+    assertFalse(buffer.endsWith(array2));
+    assertFalse(buffer.endsWith(array3));
+
+    buffer.append(array1);
+
+    assertTrue(buffer.startsWith(array1));
+    assertFalse(buffer.startsWith(array2));
+    assertFalse(buffer.startsWith(array3));
+
+    assertTrue(buffer.endsWith(array1));
+    assertFalse(buffer.endsWith(array2));
+    assertFalse(buffer.endsWith(array3));
+
+    assertTrue(buffer.startsWith(buffer.toByteArray()));
+    assertTrue(buffer.endsWith(buffer.toByteArray()));
+
+    buffer.append(array2);
+
+    assertTrue(buffer.startsWith(array1));
+    assertFalse(buffer.startsWith(array2));
+    assertFalse(buffer.startsWith(array3));
+
+    assertFalse(buffer.endsWith(array1));
+    assertTrue(buffer.endsWith(array2));
+    assertFalse(buffer.endsWith(array3));
+
+    assertTrue(buffer.startsWith(buffer.toByteArray()));
+    assertTrue(buffer.endsWith(buffer.toByteArray()));
+
+    buffer.append(array3);
+
+    assertTrue(buffer.startsWith(array1));
+    assertFalse(buffer.startsWith(array2));
+    assertFalse(buffer.startsWith(array3));
+
+    assertFalse(buffer.endsWith(array1));
+    assertFalse(buffer.endsWith(array2));
+    assertTrue(buffer.endsWith(array3));
+
+    assertTrue(buffer.startsWith(buffer.toByteArray()));
+    assertTrue(buffer.endsWith(buffer.toByteArray()));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read the contents of a file into the
+   * buffer.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReadFrom()
+         throws Exception
+  {
+    final File emptyFile = createTempFile();
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.readFrom(emptyFile);
+    assertEquals(buffer.toByteArray(), StaticUtils.NO_BYTES);
+
+    final File testFile = createTempFile(
+         "Line 1",
+         "Line 2",
+         "Line 3");
+
+    buffer.readFrom(testFile);
+    assertEquals(buffer.toString(),
+         "Line 1" + StaticUtils.EOL + "Line 2" + StaticUtils.EOL +
+              "Line 3" + StaticUtils.EOL);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read from an input stream into the buffer
+   * when a read error occurs.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReadFromInputStreamWithIOException()
+         throws Exception
+  {
+    final TestInputStream testInputStream = new TestInputStream(
+         new ByteArrayInputStream(StaticUtils.byteArray(1, 2, 3, 4)),
+         new IOException("Read error"), 1, false);
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    try
+    {
+      buffer.readFrom(testInputStream);
+      fail("Expected an exception when trying to read from the input stream");
+    }
+    catch (final IOException e)
+    {
+      // This was expected.
+    }
   }
 }
