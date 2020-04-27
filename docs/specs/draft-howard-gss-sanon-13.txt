@@ -4,12 +4,12 @@
 
 Network Working Group                                          L. Howard
 Internet-Draft                                                      PADL
-Intended status: Informational                            April 23, 2020
-Expires: October 25, 2020
+Intended status: Informational                            April 27, 2020
+Expires: October 29, 2020
 
 
                   A Simple Anonymous GSS-API Mechanism
-                       draft-howard-gss-sanon-12
+                       draft-howard-gss-sanon-13
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 25, 2020.
+   This Internet-Draft will expire on October 29, 2020.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Howard                  Expires October 25, 2020                [Page 1]
+Howard                  Expires October 29, 2020                [Page 1]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -82,9 +82,9 @@ Table of Contents
    10.1.  Normative References . . . . . . . . . . . . . . . . . . .   7
    10.2.  Informative References . . . . . . . . . . . . . . . . . .   8
    Appendix A.  Test Vectors . . . . . . . . . . . . . . . . . . . .   9
-   Appendix B.  Mechanism Attributes . . . . . . . . . . . . . . . .   9
+   Appendix B.  Mechanism Attributes . . . . . . . . . . . . . . . .  10
    Appendix C.  NegoEx . . . . . . . . . . . . . . . . . . . . . . .  10
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  10
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  11
 
 1.  Introduction
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Howard                  Expires October 25, 2020                [Page 2]
+Howard                  Expires October 29, 2020                [Page 2]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -165,7 +165,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires October 25, 2020                [Page 3]
+Howard                  Expires October 29, 2020                [Page 3]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -201,6 +201,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
             thisMech MechType,
             innerToken ANY DEFINED BY thisMech
                 -- 32 byte initiator public key
+                -- 8 byte protocol flags (optional)
        }
        END
 
@@ -220,8 +221,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-
-Howard                  Expires October 25, 2020                [Page 4]
+Howard                  Expires October 29, 2020                [Page 4]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -230,7 +230,9 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    pair per [RFC7748] Section 6.1 and returns GSS_S_CONTINUE_NEEDED,
    indicating that a subsequent context token from the acceptor is
    expected.  The innerToken field of the output_token contains the
-   initiator's 32 byte public key.
+   initiator's 32 byte public key, optionally concatenated with a 64-bit
+   big-endian integer containing flags the acceptor would be otherwise
+   be unable to infer (such as those defined in [RFC4757] Section 7.1).
 
    Portable initiators are RECOMMENDED to use default credentials
    whenever possible and request anonymity only through anon_req_flag
@@ -253,7 +255,8 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    canonical anonymous name.  The reply_det_state (GSS_C_REPLAY_FLAG),
    sequence_state (GSS_C_SEQUENCE_FLAG), conf_avail (GSS_C_CONF_FLAG),
    integ_avail (GSS_C_INTEG_FLAG) and anon_state (GSS_C_ANON_FLAG)
-   security context flags are set.  The context is ready to use.
+   security context flags are set, along with any additional flags
+   received from the initiator.  The context is ready to use.
 
 5.1.3.  Initiator context completion
 
@@ -274,10 +277,7 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-
-
-
-Howard                  Expires October 25, 2020                [Page 5]
+Howard                  Expires October 29, 2020                [Page 5]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
@@ -316,28 +316,31 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
    label         the string "sanon-x25519" (without quotation marks)
 
-   context       initiator public key | acceptor public key | channel
-                 binding application data (if present)
+   context       initiator public key | acceptor public key | flags |
+                 channel binding application data (if present)
 
    L             the constant 0x00000080, being length in bits of the
                  key to be outputted expressed in big-endian binary
                  representation of 4 bytes
 
+   The flags input to the context contains any flags sent by the
+   initiator, defaulting to zero if none were sent, expressed in big-
+   endian binary representation of 8 bytes.
+
    The inclusion of channel bindings in the key derivation function
    means that the acceptor cannot ignore initiator channel bindings;
    this differs from some other mechanisms.
 
-   The base key provides the acceptor-asserted subkey defined in
-   [RFC4121] Section 2 and is used to generate keys for per-message
-   tokens and the GSS-API PRF.  Its encryption type is aes128-cts-hmac-
 
 
-
-Howard                  Expires October 25, 2020                [Page 6]
+Howard                  Expires October 29, 2020                [Page 6]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
+   The base key provides the acceptor-asserted subkey defined in
+   [RFC4121] Section 2 and is used to generate keys for per-message
+   tokens and the GSS-API PRF.  Its encryption type is aes128-cts-hmac-
    sha256-128 per [RFC8009].  The [RFC3961] algorithm protocol
    parameters are as given in [RFC8009] Section 5.
 
@@ -381,18 +384,20 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
+
+
+
+
+
+Howard                  Expires October 29, 2020                [Page 7]
+
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
+
+
    [RFC2743]  Linn, J., "Generic Security Service Application Program
               Interface Version 2, Update 1", RFC 2743,
               DOI 10.17487/RFC2743, January 2000,
               <https://www.rfc-editor.org/info/rfc2743>.
-
-
-
-
-Howard                  Expires October 25, 2020                [Page 7]
-
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
-
 
    [RFC3961]  Raeburn, K., "Encryption and Checksum Specifications for
               Kerberos 5", RFC 3961, DOI 10.17487/RFC3961, February
@@ -436,19 +441,18 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
               RFC 4757, DOI 10.17487/RFC4757, December 2006,
               <https://www.rfc-editor.org/info/rfc4757>.
 
-   [RFC5587]  Williams, N., "Extended Generic Security Service Mechanism
-              Inquiry APIs", RFC 5587, DOI 10.17487/RFC5587, July 2009,
-              <https://www.rfc-editor.org/info/rfc5587>.
 
 
 
 
-
-
-Howard                  Expires October 25, 2020                [Page 8]
+Howard                  Expires October 29, 2020                [Page 8]
 
 Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
+
+   [RFC5587]  Williams, N., "Extended Generic Security Service Mechanism
+              Inquiry APIs", RFC 5587, DOI 10.17487/RFC5587, July 2009,
+              <https://www.rfc-editor.org/info/rfc5587>.
 
    [RFC8062]  Zhu, L., Leach, P., Hartman, S., and S. Emery, Ed.,
               "Anonymity Support for Kerberos", RFC 8062,
@@ -461,28 +465,46 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 Appendix A.  Test Vectors
 
-   initiator secret key  69 df cc 04 2b 7a 33 f8 1a 43 fb f0 33 0a b5 3f
-                         bc 20 e6 c1 4f f8 26 ce 6a 4d bc 8c 6e e4 2b a9
+   The example exchange below contains no extra flags or channel binding
+   information.
 
-   initiator public key  d2 1e 3e 58 60 b0 16 6c d1 cb 38 1a aa 89 62 93
-                         07 13 ae e1 76 86 93 10 46 57 a7 a1 9c 1d 76 2e
+   initiator secret key  83 33 f2 ea 2a 22 eb aa 05 39 c6 06 1d 6a 99 05
+                         84 24 49 9e 2c 16 c1 b1 34 d9 22 27 f3 f4 5e bd
 
-   initiator token       60 2c 06 0a 2b 06 01 04 01 a9 4a 1a 01 6e d2 1e
-                         3e 58 60 b0 16 6c d1 cb 38 1a aa 89 62 93 07 13
-                         ae e1 76 86 93 10 46 57 a7 a1 9c 1d 76 2e
+   initiator public key  5f 40 66 22 5a 3c fd 72 57 23 c1 8f ae 71 3e 8c
+                         ab 32 a7 2c 93 b9 76 66 04 4b 8f e4 a0 c9 69 19
 
-   acceptor secret key   3e 4f e6 5b ea 85 94 3b 5a a2 b7 83 f6 26 84 1a
-                         10 39 d5 d3 6d af 85 aa a1 6f 12 97 57 99 6c ff
+   initiator token       60 2c 06 0a 2b 06 01 04 01 a9 4a 1a 01 6e 5f 40
+                         66 22 5a 3c fd 72 57 23 c1 8f ae 71 3e 8c ab 32
+                         a7 2c 93 b9 76 66 04 4b 8f e4 a0 c9 69 1
 
-   acceptor public key   a8 32 14 9d 58 33 13 ce 1c 55 7b 2b d1 8a e7 a5
-                         59 8c a6 4b 02 20 83 5e 16 be 09 ca 2f 90 60 31
+   acceptor secret key   b0 db 16 32 39 0a dd 93 1e f7 62 bc d3 c9 1d 03
+                         e8 d9 59 52 48 eb e2 f2 b5 f7 d8 06 ec dd 50 60
 
-   base key              af f1 8d b7 45 c6 27 cd a8 da d4 9b d7 e7 01 25
+   acceptor public key   2f 81 51 9f a8 9c 07 f8 eb b2 95 6c 0c c3 22 77
+                         ae a1 0e 62 0c 79 33 81 ef 9a c5 b2 f0 d9 1e 06
 
-   acceptor token        a8 32 14 9d 58 33 13 ce 1c 55 7b 2b d1 8a e7 a5
-                         59 8c a6 4b 02 20 83 5e 16 be 09 ca 2f 90 60 31
+   base key              80 76 2c 43 32 6a 95 f5 be 30 6d ea 10 ba f3 d0
+
+   acceptor token        2f 81 51 9f a8 9c 07 f8 eb b2 95 6c 0c c3 22 77
+                         ae a1 0e 62 0c 79 33 81 ef 9a c5 b2 f0 d9 1e 06
                          04 04 05 ff ff ff ff ff 00 00 00 00 00 00 00 00
-                         45 02 7b a8 15 1c 33 05 22 bb c4 36 84 d2 e1 8c
+                         4d 5e a9 e0 e1 9c 7a 61 c2 6a 9a c5 e8 17 5f 04
+
+   initiator negoex key  2a c8 f9 d0 31 87 40 42 cb d4 50 07 ce db c2 c2
+
+   acceptor negoex key   73 9f 4d a2 f1 2d f7 f7 d7 ea e4 9d a4 08 62 5b
+
+
+
+
+
+
+
+Howard                  Expires October 29, 2020                [Page 9]
+
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
+
 
 Appendix B.  Mechanism Attributes
 
@@ -497,14 +519,6 @@ Appendix B.  Mechanism Attributes
       GSS_C_MA_AUTH_TARG_ANON
 
       GSS_C_MA_INTEG_PROT
-
-
-
-
-Howard                  Expires October 25, 2020                [Page 9]
-
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
-
 
       GSS_C_MA_CONF_PROT
 
@@ -530,17 +544,23 @@ Appendix C.  NegoEx
    The initiator and acceptor keys for NegoEx checksum generation and
    verification are derived using the GSS-API PRF (see Section 7), with
    the input data "sanon-x25519-initiator-negoex-key" and "sanon-x25519-
-   acceptor-negoex-key" respectively (without quotation marks).
-
-   The initiator metadata, if present, contains a set of GSS-API flags
-   encoded as a 4 byte little endian integer.  This is used to convey to
-   the acceptor any Windows-specific GSS-API flags (see [RFC4757]
-   Section 7.1).  Other GSS-API flags MUST NOT be present in the
-   metadata.
+   acceptor-negoex-key" respectively (without quotation marks).  No
+   metadata is defined and any, if present, SHOULD be ignored.
 
    It is RECOMMENDED that GSS-API implementations supporting both SPNEGO
    [RFC4178] and NegoEx advertise SAnon under both to maximise
    interoperability.
+
+
+
+
+
+
+
+Howard                  Expires October 29, 2020               [Page 10]
+
+Internet-Draft           SAnon GSS-API Mechanism              April 2020
+
 
 Author's Address
 
@@ -557,4 +577,40 @@ Author's Address
 
 
 
-Howard                  Expires October 25, 2020               [Page 10]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Howard                  Expires October 29, 2020               [Page 11]
