@@ -164,6 +164,29 @@ public final class PasswordPolicyStateAccountUsabilityWarning
 
 
   /**
+   * The numeric value for the warning type that indicates that although the
+   * user's account should be locked as a result of too many outstanding
+   * failed authentication attempts, their password policy is configured with a
+   * failure lockout action that will not prevent them from authenticating
+   * (although it may still have an effect on their account's usability).
+   */
+  public static final int WARNING_TYPE_TOO_MANY_OUTSTANDING_BIND_FAILURES = 6;
+
+
+
+  /**
+   * The name for the warning type that indicates that although the user's
+   * account should be locked as a result of too many outstanding failed
+   * authentication attempts, their password policy is configured with a failure
+   * lockout action that will not prevent them from authenticating (although it
+   * may still have an effect on their account's usability).
+   */
+  public static final String WARNING_NAME_TOO_MANY_OUTSTANDING_BIND_FAILURES =
+       "too-many-outstanding-bind-failures";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 4256291819633130578L;

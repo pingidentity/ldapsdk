@@ -222,6 +222,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added new password policy state account usability warning and notice types for
+                  use in conjunction with the Ping Identity Directory Server to indicate that the
+                  user's account has too many outstanding failed authentication attempts, but that
+                  the user will not actually be prevented from authenticating as a result of their
+                  password policy configuration.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated command-line tools so that if the --help-sasl argument is used in
                   conjunction with a --saslOption argument that provides a "mech" option that
                   specifies a mechanism name, then only the options for that mechanism will be
