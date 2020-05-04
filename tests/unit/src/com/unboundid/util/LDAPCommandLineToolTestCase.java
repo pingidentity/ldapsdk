@@ -38,6 +38,7 @@ package com.unboundid.util;
 
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -54,6 +55,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.TestLDAPConnectionPoolHealthCheck;
 import com.unboundid.ldap.sdk.TestPostConnectProcessor;
 import com.unboundid.ldap.sdk.examples.LDAPSearch;
+import com.unboundid.ldap.sdk.unboundidds.MoveSubtree;
 import com.unboundid.util.args.ArgumentParser;
 
 
@@ -1131,6 +1133,29 @@ public class LDAPCommandLineToolTestCase
          "--scope", "base",
          "(objectClass=*)");
     assertFalse(rc == ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Tests the behavior of the command-line tool framework when setting a
+   * usage argument for the case in which the help argument is provided through
+   * a properties file and the usage would otherwise fail without that argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testPropertiesFileSetsUsageArgument()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final MoveSubtree moveSubtree = new MoveSubtree(out, out);
+
+    final File propertiesFile = createTempFile("help=true");
+    final ResultCode rc = moveSubtree.runTool(
+         "--propertiesFilepath", propertiesFile.getAbsolutePath());
+    assertEquals(rc, ResultCode.SUCCESS);
+    assertTrue(out.toByteArray().length > 0);
   }
 
 

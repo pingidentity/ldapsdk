@@ -240,6 +240,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue in the command-line tool framework that could arise when setting
+                  the value of a usage argument through a properties file.  In some cases, the
+                  tool could exit with an error if the usage argument was set through a properties
+                  file even though it would have succeeded if that same argument had been provided
+                  directly on the command line.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the documentation to include draft-howard-gss-sanon and
                   draft-whited-kitten-password-storage in the set of LDAP-related specifications.
                   <br><br>

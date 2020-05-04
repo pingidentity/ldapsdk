@@ -62,6 +62,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
@@ -2051,10 +2052,10 @@ public final class ArgumentParser
          throws ArgumentException
   {
     // Iterate through the provided args strings and process them.
-    ArgumentParser subCommandParser    = null;
-    boolean        inTrailingArgs      = false;
-    boolean        skipFinalValidation = false;
-    String         subCommandName      = null;
+    ArgumentParser subCommandParser = null;
+    boolean inTrailingArgs = false;
+    String subCommandName = null;
+    final AtomicBoolean skipFinalValidation = new AtomicBoolean(false);
     for (int i=0; i < args.length; i++)
     {
       final String s = args[i];
@@ -2109,7 +2110,10 @@ public final class ArgumentParser
         }
         else if (a.isUsageArgument())
         {
-          skipFinalValidation |= skipFinalValidationBecauseOfArgument(a);
+          if (skipFinalValidationBecauseOfArgument(a))
+          {
+            skipFinalValidation.set(true);
+          }
         }
 
         a.incrementOccurrences();
@@ -2164,7 +2168,10 @@ public final class ArgumentParser
           }
           else if (a.isUsageArgument())
           {
-            skipFinalValidation |= skipFinalValidationBecauseOfArgument(a);
+            if (skipFinalValidationBecauseOfArgument(a))
+            {
+              skipFinalValidation.set(true);
+            }
           }
 
           a.incrementOccurrences();
@@ -2197,7 +2204,10 @@ public final class ArgumentParser
           }
           else if (a.isUsageArgument())
           {
-            skipFinalValidation |= skipFinalValidationBecauseOfArgument(a);
+            if (skipFinalValidationBecauseOfArgument(a))
+            {
+              skipFinalValidation.set(true);
+            }
           }
 
           a.incrementOccurrences();
@@ -2225,7 +2235,10 @@ public final class ArgumentParser
               }
               else if (a.isUsageArgument())
               {
-                skipFinalValidation |= skipFinalValidationBecauseOfArgument(a);
+                if (skipFinalValidationBecauseOfArgument(a))
+                {
+                  skipFinalValidation.set(true);
+                }
               }
 
               a.incrementOccurrences();
@@ -2281,7 +2294,7 @@ public final class ArgumentParser
 
     // Perform any appropriate processing related to the use of a properties
     // file.
-    if (! handlePropertiesFile())
+    if (! handlePropertiesFile(skipFinalValidation))
     {
       return;
     }
@@ -2289,7 +2302,7 @@ public final class ArgumentParser
 
     // If a usage argument was provided, then no further validation should be
     // performed.
-    if (skipFinalValidation)
+    if (skipFinalValidation.get())
     {
       return;
     }
@@ -2505,6 +2518,10 @@ public final class ArgumentParser
    * Performs any appropriate properties file processing for this argument
    * parser.
    *
+   * @param  skipFinalValidation  A flag that indicates whether to skip final
+   *                              validation because a qualifying usage argument
+   *                              was provided.
+   *
    * @return  {@code true} if the tool should continue processing, or
    *          {@code false} if it should return immediately.
    *
@@ -2512,7 +2529,7 @@ public final class ArgumentParser
    *                             to parse a properties file or update arguments
    *                             with the values contained in it.
    */
-  private boolean handlePropertiesFile()
+  private boolean handlePropertiesFile(final AtomicBoolean skipFinalValidation)
           throws ArgumentException
   {
     final BooleanArgument noPropertiesFile;
@@ -2595,7 +2612,8 @@ public final class ArgumentParser
       final File propertiesFile = propertiesFilePath.getValue();
       if (propertiesFile.exists() && propertiesFile.isFile())
       {
-        handlePropertiesFile(propertiesFilePath.getValue());
+        handlePropertiesFile(propertiesFilePath.getValue(),
+             skipFinalValidation);
       }
       else
       {
@@ -2625,7 +2643,7 @@ public final class ArgumentParser
       final File propertiesFile = new File(path);
       if (propertiesFile.exists() && propertiesFile.isFile())
       {
-        handlePropertiesFile(propertiesFile);
+        handlePropertiesFile(propertiesFile, skipFinalValidation);
       }
     }
 
@@ -2799,13 +2817,17 @@ public final class ArgumentParser
    * Reads the contents of the specified properties file and updates the
    * configured arguments as appropriate.
    *
-   * @param  propertiesFile  The properties file to process.
+   * @param  propertiesFile       The properties file to process.
+   * @param  skipFinalValidation  A flag that indicates whether to skip final
+   *                              validation because a qualifying usage argument
+   *                              was provided.
    *
    * @throws  ArgumentException  If a problem is encountered while examining the
    *                             properties file, or while trying to assign a
    *                             property value to a corresponding argument.
    */
-  private void handlePropertiesFile(final File propertiesFile)
+  private void handlePropertiesFile(final File propertiesFile,
+                                    final AtomicBoolean skipFinalValidation)
           throws ArgumentException
   {
     final String propertiesFilePath = propertiesFile.getAbsolutePath();
@@ -3102,14 +3124,14 @@ public final class ArgumentParser
       // Iterate through all of the named arguments for the argument parser and
       // see if we should use the properties to assign values to any of the
       // arguments that weren't provided on the command line.
-      setArgsFromPropertiesFile(propertyMap, false);
+      setArgsFromPropertiesFile(propertyMap, false, skipFinalValidation);
 
 
       // If there is a selected subcommand, then iterate through all of its
       // arguments.
       if (selectedSubCommand != null)
       {
-        setArgsFromPropertiesFile(propertyMap, true);
+        setArgsFromPropertiesFile(propertyMap, true, skipFinalValidation);
       }
     }
     finally
@@ -3201,10 +3223,14 @@ public final class ArgumentParser
    * Sets the values of any arguments not provided on the command line but
    * defined in the properties file.
    *
-   * @param  propertyMap    A map of properties read from the properties file.
-   * @param  useSubCommand  Indicates whether to use the argument parser
-   *                        associated with the selected subcommand rather than
-   *                        the global argument parser.
+   * @param  propertyMap          A map of properties read from the properties
+   *                              file.
+   * @param  useSubCommand        Indicates whether to use the argument parser
+   *                              associated with the selected subcommand rather
+   *                              than the global argument parser.
+   * @param  skipFinalValidation  A flag that indicates whether to skip final
+   *                              validation because a qualifying usage argument
+   *                              was provided.
    *
    * @throws  ArgumentException  If a problem is encountered while examining the
    *                             properties file, or while trying to assign a
@@ -3212,7 +3238,8 @@ public final class ArgumentParser
    */
   private void setArgsFromPropertiesFile(
                     final Map<String,ArrayList<String>> propertyMap,
-                    final boolean useSubCommand)
+                    final boolean useSubCommand,
+                    final AtomicBoolean skipFinalValidation)
           throws ArgumentException
   {
     final ArgumentParser p;
@@ -3317,6 +3344,11 @@ exclusiveArgumentLoop:
               argumentsSetFromPropertiesFile.add(value);
             }
           }
+        }
+
+        if (a.isUsageArgument() && skipFinalValidationBecauseOfArgument(a))
+        {
+          skipFinalValidation.set(true);
         }
       }
     }
