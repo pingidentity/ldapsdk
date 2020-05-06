@@ -4,12 +4,12 @@
 
 Network Working Group                                          L. Howard
 Internet-Draft                                                      PADL
-Intended status: Informational                            April 30, 2020
-Expires: November 1, 2020
+Intended status: Standards Track                             May 5, 2020
+Expires: November 6, 2020
 
 
                   A Simple Anonymous GSS-API Mechanism
-                       draft-howard-gss-sanon-14
+                     draft-ietf-kitten-gss-sanon-00
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on November 1, 2020.
+   This Internet-Draft will expire on November 6, 2020.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Howard                  Expires November 1, 2020                [Page 1]
+Howard                  Expires November 6, 2020                [Page 1]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
 Table of Contents
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Howard                  Expires November 1, 2020                [Page 2]
+Howard                  Expires November 6, 2020                [Page 2]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
 3.  Discovery and Negotiation
@@ -165,9 +165,9 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires November 1, 2020                [Page 3]
+Howard                  Expires November 6, 2020                [Page 3]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
      +--------------+--------------+---------------------------------+
@@ -221,9 +221,9 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires November 1, 2020                [Page 4]
+Howard                  Expires November 6, 2020                [Page 4]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
    If proceeding, the initiator generates a fresh secret and public key
@@ -256,7 +256,8 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
    sequence_state (GSS_C_SEQUENCE_FLAG), conf_avail (GSS_C_CONF_FLAG),
    integ_avail (GSS_C_INTEG_FLAG) and anon_state (GSS_C_ANON_FLAG)
    security context flags are set, along with any additional flags
-   received from the initiator.  The context is ready to use.
+   received from the initiator that are supported by the acceptor.  The
+   context is ready to use.
 
 5.1.3.  Initiator context completion
 
@@ -276,10 +277,9 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-
-Howard                  Expires November 1, 2020                [Page 5]
+Howard                  Expires November 6, 2020                [Page 5]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
 5.2.  Per-Message Tokens
@@ -333,9 +333,9 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires November 1, 2020                [Page 6]
+Howard                  Expires November 6, 2020                [Page 6]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
    length input to the key derivation function, the length is not
@@ -389,9 +389,9 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires November 1, 2020                [Page 7]
+Howard                  Expires November 6, 2020                [Page 7]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
 10.1.  Normative References
@@ -445,9 +445,9 @@ Internet-Draft           SAnon GSS-API Mechanism              April 2020
 
 
 
-Howard                  Expires November 1, 2020                [Page 8]
+Howard                  Expires November 6, 2020                [Page 8]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
    [RFC4757]  Jaganathan, K., Zhu, L., and J. Brezak, "The RC4-HMAC
@@ -501,9 +501,9 @@ Appendix A.  Test Vectors
 
 
 
-Howard                  Expires November 1, 2020                [Page 9]
+Howard                  Expires November 6, 2020                [Page 9]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
    acceptor negoex key   73 9f 4d a2 f1 2d f7 f7 d7 ea e4 9d a4 08 62 5b
@@ -557,9 +557,9 @@ Appendix C.  NegoEx
 
 
 
-Howard                  Expires November 1, 2020               [Page 10]
+Howard                  Expires November 6, 2020               [Page 10]
 
-Internet-Draft           SAnon GSS-API Mechanism              April 2020
+Internet-Draft           SAnon GSS-API Mechanism                May 2020
 
 
 Author's Address
@@ -613,4 +613,4 @@ Author's Address
 
 
 
-Howard                  Expires November 1, 2020               [Page 11]
+Howard                  Expires November 6, 2020               [Page 11]
