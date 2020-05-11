@@ -103,6 +103,10 @@ public class DITContentRuleDefinitionTestCase
 
     assertNotNull(dcr.getExtensions());
     assertTrue(dcr.getExtensions().isEmpty());
+
+    assertNotNull(dcr.getSchemaElementType());
+    assertEquals(dcr.getSchemaElementType(),
+         SchemaElementType.DIT_CONTENT_RULE);
   }
 
 

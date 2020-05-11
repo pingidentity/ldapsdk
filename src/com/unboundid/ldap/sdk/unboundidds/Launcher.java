@@ -60,6 +60,7 @@ import com.unboundid.ldap.sdk.examples.SearchAndModRate;
 import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
+import com.unboundid.ldap.sdk.schema.ValidateLDAPSchema;
 import com.unboundid.ldap.sdk.transformations.TransformLDIF;
 import com.unboundid.ldap.sdk.unboundidds.examples.DumpDNs;
 import com.unboundid.ldap.sdk.unboundidds.examples.SubtreeAccessibility;
@@ -151,6 +152,8 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>tls-cipher-suite-selector -- Launch the {@link TLSCipherSuiteSelector}
  *       tool.</LI>
  *   <LI>transform-ldif -- Launch the {@link TransformLDIF} tool.</LI>
+ *   <LI>validate-ldap-schema -- Launch the {@link ValidateLDAPSchema}
+ *       tool.</LI>
  *   <LI>validate-ldif -- Launch the {@link ValidateLDIF} tool.</LI>
  *   <LI>version -- Display version information for the LDAP SDK.</LI>
  * </UL>
@@ -351,6 +354,10 @@ public final class Launcher
     {
       return TransformLDIF.main(outStream, errStream, remainingArgs);
     }
+    else if (firstArg.equals("validate-ldap-schema"))
+    {
+      return ValidateLDAPSchema.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("validate-ldif"))
     {
       return ValidateLDIF.main(remainingArgs, outStream, errStream);
@@ -394,6 +401,7 @@ public final class Launcher
         err.println("     summarize-access-log");
         err.println("     tls-cipher-suite-selector");
         err.println("     transform-ldif");
+        err.println("     validate-ldap-schema");
         err.println("     validate-ldif");
         err.println("     version");
       }
@@ -446,6 +454,7 @@ public final class Launcher
          SummarizeAccessLog.class,
          TLSCipherSuiteSelector.class,
          TransformLDIF.class,
+         ValidateLDAPSchema.class,
          ValidateLDIF.class);
   }
 

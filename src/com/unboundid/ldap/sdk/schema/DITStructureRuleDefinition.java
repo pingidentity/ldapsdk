@@ -694,6 +694,17 @@ public final class DITStructureRuleDefinition
    * {@inheritDoc}
    */
   @Override()
+  public SchemaElementType getSchemaElementType()
+  {
+    return SchemaElementType.DIT_STRUCTURE_RULE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public int hashCode()
   {
     return ruleID;

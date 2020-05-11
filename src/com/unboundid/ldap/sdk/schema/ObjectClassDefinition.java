@@ -1139,6 +1139,17 @@ public final class ObjectClassDefinition
    * {@inheritDoc}
    */
   @Override()
+  public SchemaElementType getSchemaElementType()
+  {
+    return SchemaElementType.OBJECT_CLASS;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public int hashCode()
   {
     return oid.hashCode();

@@ -95,6 +95,10 @@ public class DITStructureRuleDefinitionTestCase
 
     assertNotNull(dsr.getExtensions());
     assertTrue(dsr.getExtensions().isEmpty());
+
+    assertNotNull(dsr.getSchemaElementType());
+    assertEquals(dsr.getSchemaElementType(),
+         SchemaElementType.DIT_STRUCTURE_RULE);
   }
 
 

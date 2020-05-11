@@ -103,6 +103,9 @@ public class ObjectClassDefinitionTestCase
 
     assertNotNull(oc.getExtensions());
     assertTrue(oc.getExtensions().isEmpty());
+
+    assertNotNull(oc.getSchemaElementType());
+    assertEquals(oc.getSchemaElementType(), SchemaElementType.OBJECT_CLASS);
   }
 
 

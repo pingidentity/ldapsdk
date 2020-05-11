@@ -892,6 +892,17 @@ public final class DITContentRuleDefinition
    * {@inheritDoc}
    */
   @Override()
+  public SchemaElementType getSchemaElementType()
+  {
+    return SchemaElementType.DIT_CONTENT_RULE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public int hashCode()
   {
     return oid.hashCode();

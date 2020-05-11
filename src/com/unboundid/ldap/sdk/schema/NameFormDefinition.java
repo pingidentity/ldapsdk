@@ -730,6 +730,17 @@ public final class NameFormDefinition
    * {@inheritDoc}
    */
   @Override()
+  public SchemaElementType getSchemaElementType()
+  {
+    return SchemaElementType.NAME_FORM;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public int hashCode()
   {
     return oid.hashCode();

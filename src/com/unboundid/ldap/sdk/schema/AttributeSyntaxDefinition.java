@@ -339,6 +339,17 @@ public final class AttributeSyntaxDefinition
    * {@inheritDoc}
    */
   @Override()
+  public SchemaElementType getSchemaElementType()
+  {
+    return SchemaElementType.ATTRIBUTE_SYNTAX;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public int hashCode()
   {
     return oid.hashCode();

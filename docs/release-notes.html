@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added a new SchemaValidator class and an accompanying validate-ldap-schema
+                  command-line tool that can examine schema definitions in one or more LDIF files
+                  to identify potential issues like unparseable definitions, elements with
+                  references to other elements that aren't defined in the schema, invalid names or
+                  OIDs, empty descriptions, and invalid object class inheritance.  The types of
+                  validation to perform can be customized to allow the validator to be more strict
+                  or lenient as desired.
+                  <br><br>
+                </li>
+
+                <li>
                   Added an ldifsearch tool that can be used to find entries in one or more LDIF
                   files that match given sets of criteria.
                   <br><br>

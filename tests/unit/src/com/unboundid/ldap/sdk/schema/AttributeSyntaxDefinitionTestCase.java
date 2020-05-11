@@ -92,6 +92,9 @@ public class AttributeSyntaxDefinitionTestCase
     assertTrue(s.equals(s));
 
     assertEquals(s.toString(), syntaxString.trim());
+
+    assertNotNull(s.getSchemaElementType());
+    assertEquals(s.getSchemaElementType(), SchemaElementType.ATTRIBUTE_SYNTAX);
   }
 
 

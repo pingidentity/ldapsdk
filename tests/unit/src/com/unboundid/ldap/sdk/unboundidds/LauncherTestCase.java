@@ -170,6 +170,7 @@ public final class LauncherTestCase
       new Object[] { "summarize-access-log" },
       new Object[] { "tls-cipher-suite-selector" },
       new Object[] { "transform-ldif" },
+      new Object[] { "validate-ldap-schema" },
       new Object[] { "validate-ldif" },
       new Object[] { "version" }
     };

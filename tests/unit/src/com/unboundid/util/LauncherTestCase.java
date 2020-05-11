@@ -148,6 +148,7 @@ public final class LauncherTestCase
       new Object[] { "searchrate" },
       new Object[] { "search-and-mod-rate" },
       new Object[] { "transform-ldif" },
+      new Object[] { "validate-ldap-schema" },
       new Object[] { "validate-ldif" },
       new Object[] { "version" }
     };

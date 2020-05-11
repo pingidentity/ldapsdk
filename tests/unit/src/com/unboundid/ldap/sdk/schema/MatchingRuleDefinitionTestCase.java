@@ -93,6 +93,9 @@ public class MatchingRuleDefinitionTestCase
 
     assertNotNull(mr.getExtensions());
     assertTrue(mr.getExtensions().isEmpty());
+
+    assertNotNull(mr.getSchemaElementType());
+    assertEquals(mr.getSchemaElementType(), SchemaElementType.MATCHING_RULE);
   }
 
 

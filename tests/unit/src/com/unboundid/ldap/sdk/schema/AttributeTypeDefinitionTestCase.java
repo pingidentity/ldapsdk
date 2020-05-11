@@ -115,6 +115,9 @@ public class AttributeTypeDefinitionTestCase
 
     assertNotNull(at.getExtensions());
     assertTrue(at.getExtensions().isEmpty());
+
+    assertNotNull(at.getSchemaElementType());
+    assertEquals(at.getSchemaElementType(), SchemaElementType.ATTRIBUTE_TYPE);
   }
 
 

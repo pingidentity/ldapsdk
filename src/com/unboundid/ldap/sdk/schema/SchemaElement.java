@@ -705,6 +705,15 @@ public abstract class SchemaElement
 
 
   /**
+   * Retrieves the type of schema element that this object represents.
+   *
+   * @return  The type of schema element that this object represents.
+   */
+  public abstract SchemaElementType getSchemaElementType();
+
+
+
+  /**
    * Retrieves a hash code for this schema element.
    *
    * @return  A hash code for this schema element.

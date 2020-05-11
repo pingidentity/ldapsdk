@@ -98,6 +98,9 @@ public class NameFormDefinitionTestCase
 
     assertNotNull(nf.getExtensions());
     assertTrue(nf.getExtensions().isEmpty());
+
+    assertNotNull(nf.getSchemaElementType());
+    assertEquals(nf.getSchemaElementType(), SchemaElementType.NAME_FORM);
   }
 
 
