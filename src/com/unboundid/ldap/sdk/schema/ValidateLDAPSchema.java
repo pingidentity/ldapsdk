@@ -223,7 +223,7 @@ public final class ValidateLDAPSchema
   @Override()
   public boolean defaultsToInteractiveMode()
   {
-    return true;
+    return (! SchemaValidator.PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE);
   }
 
 
@@ -279,9 +279,21 @@ public final class ValidateLDAPSchema
   public void addToolArguments(final ArgumentParser parser)
          throws ArgumentException
   {
+    final boolean pingIdentityDSAvailable =
+         SchemaValidator.PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE;
+
+
+    final List<File> defaultSchemaPaths = new ArrayList<>(1);
+    if (pingIdentityDSAvailable &&
+         (SchemaValidator.PING_IDENTITY_DIRECTORY_SERVER_SCHEMA_DIR != null))
+    {
+      defaultSchemaPaths.add(
+           SchemaValidator.PING_IDENTITY_DIRECTORY_SERVER_SCHEMA_DIR);
+    }
+
     schemaPath = new FileArgument(null, "schema-path", true, 0, null,
          INFO_VALIDATE_SCHEMA_ARG_DESC_SCHEMA_PATH.get(), true, true, false,
-         false);
+         false, defaultSchemaPaths);
     schemaPath.addLongIdentifier("schemaPath", true);
     schemaPath.addLongIdentifier("schema-file", true);
     schemaPath.addLongIdentifier("schemaFile", true);
@@ -592,6 +604,10 @@ public final class ValidateLDAPSchema
          "rejectObjectClassWithMultipleSuperiorClasses", true);
     rejectObjectClassesWithMultipleSuperiors.setArgumentGroupName(
          INFO_VALIDATE_SCHEMA_ARG_GROUP_VALIDATION.get());
+    if (pingIdentityDSAvailable)
+    {
+      rejectObjectClassesWithMultipleSuperiors.setHidden(true);
+    }
     parser.addArgument(rejectObjectClassesWithMultipleSuperiors);
 
 

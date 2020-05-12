@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,6 +104,61 @@ import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class SchemaValidator
 {
+  /**
+   * Indicates whether an instance of the Ping Identity Directory Server is
+   * available.
+   */
+  static final boolean PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE;
+
+
+
+  /**
+   * The path to the schema directory for the available Ping Identity Directory
+   * Server instance.
+   */
+  static final File PING_IDENTITY_DIRECTORY_SERVER_SCHEMA_DIR;
+
+
+
+  static
+  {
+    boolean pingIdentityDSAvailable = false;
+    File schemaDir = null;
+
+    try
+    {
+      final String instanceRootPath =
+           StaticUtils.getEnvironmentVariable("INSTANCE_ROOT");
+      if (instanceRootPath != null)
+      {
+        final File instanceRoot = new File(instanceRootPath);
+        final File instanceRootSchemaDir =
+             StaticUtils.constructPath(instanceRoot, "config", "schema");
+        if (new File(instanceRootSchemaDir, "00-core.ldif").exists())
+        {
+          // Try to see if we can load the server's schema class.  If so, then
+          // we'll assume that we are running with access to a Ping Identity
+          // Directory Server, and we'll tailor the defaults accordingly.
+          // If this fails, we'll just go with the defaults.
+          Class.forName("com.unboundid.directory.server.types.Schema");
+
+          pingIdentityDSAvailable = true;
+          schemaDir = instanceRootSchemaDir;
+        }
+      }
+    }
+    catch (final Throwable t)
+    {
+      // This is fine.  We're just not running with access to a Ping Identity
+      // Directory Server.
+    }
+
+    PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE = pingIdentityDSAvailable;
+    PING_IDENTITY_DIRECTORY_SERVER_SCHEMA_DIR = schemaDir;
+  }
+
+
+
   // Indicates whether to allow attribute type definitions that do not include
   // an equality matching rule and do not include a superior type.
   private boolean allowAttributeTypesWithoutEqualityMatchingRule;
@@ -213,13 +269,14 @@ public final class SchemaValidator
   public SchemaValidator()
   {
     allowAttributeTypesWithoutEqualityMatchingRule = true;
-    allowAttributeTypesWithoutSyntax = false;
-    allowCollectiveAttributes = true;
+    allowAttributeTypesWithoutSyntax = PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE;
+    allowCollectiveAttributes = (! PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE);
     allowElementsWithoutNames = true;
     allowEmptyDescription = false;
     allowInvalidObjectClassInheritance = false;
     allowMultipleEntriesPerFile = false;
-    allowMultipleSuperiorObjectClasses = true;
+    allowMultipleSuperiorObjectClasses =
+         (! PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE);
     allowNamesWithInitialDigit = false;
     allowNamesWithInitialHyphen = false;
     allowNamesWithUnderscore = false;
@@ -230,7 +287,8 @@ public final class SchemaValidator
     allowSchemaFilesInSubDirectories = false;
     allowStructuralObjectClassWithoutSuperior = false;
     ensureSchemaEntryIsValid = true;
-    ignoreSchemaFilesNotMatchingFileNamePattern = true;
+    ignoreSchemaFilesNotMatchingFileNamePattern =
+         (! PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE);
     useStrictOIDValidation = true;
     attributeSyntaxMap = new LinkedHashMap<>();
     attributeSyntaxList = new ArrayList<>();
@@ -240,6 +298,14 @@ public final class SchemaValidator
     allowedSchemaElementTypes = EnumSet.allOf(SchemaElementType.class);
     allowReferencesToUndefinedElementTypes =
          EnumSet.noneOf(SchemaElementType.class);
+
+    if (PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE)
+    {
+      configureLDAPSDKDefaultAttributeSyntaxes();
+      configureLDAPSDKDefaultMatchingRules();
+
+      schemaFileNamePattern = Pattern.compile("^\\d\\d-.+\\.ldif$");
+    }
   }
 
 
@@ -921,11 +987,37 @@ public final class SchemaValidator
    */
   public void configureLDAPSDKDefaultAttributeSyntaxes()
   {
-
     try
     {
+      final Set<AttributeSyntaxDefinition> defaultSyntaxes =
+           new LinkedHashSet<>();
       final Schema schema = Schema.getDefaultStandardSchema();
-      setAttributeSyntaxes(schema.getAttributeSyntaxes());
+      defaultSyntaxes.addAll(schema.getAttributeSyntaxes());
+
+      if (PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE)
+      {
+        defaultSyntaxes.add(new AttributeSyntaxDefinition(
+             "( 1.3.6.1.4.1.30221.1.3.1 DESC 'User Password Syntax' )"));
+        defaultSyntaxes.add(new AttributeSyntaxDefinition(
+             "( 1.3.6.1.4.1.30221.1.3.2 " +
+                  "DESC 'Relative Subtree Specification' )"));
+        defaultSyntaxes.add(new AttributeSyntaxDefinition(
+             "( 1.3.6.1.4.1.30221.1.3.3 " +
+                  "DESC 'Absolute Subtree Specification' )"));
+        defaultSyntaxes.add(new AttributeSyntaxDefinition(
+             "( 1.3.6.1.4.1.30221.1.3.4 " +
+                  "DESC 'Sun-defined Access Control Information' )"));
+        defaultSyntaxes.add(new AttributeSyntaxDefinition(
+             "( 1.3.6.1.4.1.30221.2.3.1 DESC 'Compact Timestamp' )"));
+        defaultSyntaxes.add(new AttributeSyntaxDefinition(
+             "( 1.3.6.1.4.1.30221.2.3.2 DESC 'LDAP URL' )"));
+        defaultSyntaxes.add(new AttributeSyntaxDefinition(
+             "( 1.3.6.1.4.1.30221.2.3.3 DESC 'Hex String' )"));
+        defaultSyntaxes.add(new AttributeSyntaxDefinition(
+             "( 1.3.6.1.4.1.30221.2.3.4 DESC 'JSON Object' )"));
+      }
+
+      setAttributeSyntaxes(defaultSyntaxes);
     }
     catch (final Exception e)
     {
@@ -1047,8 +1139,71 @@ public final class SchemaValidator
   {
     try
     {
+      final Set<MatchingRuleDefinition> defaultMatchingRules =
+           new LinkedHashSet<>();
       final Schema schema = Schema.getDefaultStandardSchema();
-      setMatchingRules(schema.getMatchingRules());
+      defaultMatchingRules.addAll(schema.getMatchingRules());
+
+      if (PING_IDENTITY_DIRECTORY_SERVER_AVAILABLE)
+      {
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.1.4.1 NAME 'ds-mr-double-metaphone-approx' " +
+                  "DESC 'Double Metaphone Approximate Match' " +
+                  "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.1.4.2 NAME 'ds-mr-user-password-exact' " +
+                  "DESC 'user password exact matching rule' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.1.3.1 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.1.4.3 NAME 'ds-mr-user-password-equality' " +
+                  "DESC 'user password matching rule' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.1.3.1 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.1.4.4 NAME 'historicalCsnOrderingMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.1.4.902 NAME 'caseExactIA5SubstringsMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.1 NAME 'compactTimestampMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.1 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.2 NAME 'compactTimestampOrderingMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.1 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.3 NAME 'ldapURLMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.2 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.4 NAME 'hexStringMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.3 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.5 NAME 'hexStringOrderingMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.3 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.12 NAME 'jsonObjectExactMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.4 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.13 " +
+                  "NAME 'jsonObjectFilterExtensibleMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.4 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.14 NAME 'relativeTimeExtensibleMatch' " +
+                  "SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.15 " +
+                  "NAME 'jsonObjectCaseSensitiveNamesCaseSensitiveValues' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.4 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.16 " +
+                  "NAME 'jsonObjectCaseInsensitiveNamesCaseSensitiveValues' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.4 )"));
+        defaultMatchingRules.add(new MatchingRuleDefinition(
+             "( 1.3.6.1.4.1.30221.2.4.17 NAME " +
+                  "'jsonObjectCaseInsensitiveNamesCaseInsensitiveValues' " +
+                  "SYNTAX 1.3.6.1.4.1.30221.2.3.4 )"));
+      }
+
+      setMatchingRules(defaultMatchingRules);
     }
     catch (final Exception e)
     {
