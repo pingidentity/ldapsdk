@@ -57,6 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
@@ -127,11 +128,9 @@ public final class SchemaValidator
 
     try
     {
-      final String instanceRootPath =
-           StaticUtils.getEnvironmentVariable("INSTANCE_ROOT");
-      if (instanceRootPath != null)
+      final File instanceRoot = InternalSDKHelper.getPingIdentityServerRoot();
+      if (instanceRoot != null)
       {
-        final File instanceRoot = new File(instanceRootPath);
         final File instanceRootSchemaDir =
              StaticUtils.constructPath(instanceRoot, "config", "schema");
         if (new File(instanceRootSchemaDir, "00-core.ldif").exists())
