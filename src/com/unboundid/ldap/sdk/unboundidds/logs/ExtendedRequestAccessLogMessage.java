@@ -75,6 +75,9 @@ public class ExtendedRequestAccessLogMessage
   // The OID for the extended request.
   private final String requestOID;
 
+  // The name for the extended request.
+  private final String requestType;
+
 
 
   /**
@@ -107,6 +110,7 @@ public class ExtendedRequestAccessLogMessage
     super(m);
 
     requestOID = getNamedValue("requestOID");
+    requestType = getNamedValue("requestType");
   }
 
 
@@ -120,6 +124,20 @@ public class ExtendedRequestAccessLogMessage
   public final String getRequestOID()
   {
     return requestOID;
+  }
+
+
+
+  /**
+   * Retrieves the type of extended operation being processed.  This is
+   * generally a human-readable name for the oepration.
+   *
+   * @return  The type of extended operation, or {@code null} if it is not
+   *          included in the log message.
+   */
+  public final String getRequestType()
+  {
+    return requestType;
   }
 
 

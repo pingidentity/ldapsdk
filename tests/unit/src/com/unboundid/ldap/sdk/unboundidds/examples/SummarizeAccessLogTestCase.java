@@ -192,6 +192,49 @@ public class SummarizeAccessLogTestCase
                "authDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
                "authzDN=\"uid=someone,ou=People,dc=example,dc=com\" " +
                "clientConnectionPolicy=\"bind\" uncachedDataAccessed=true",
+         ts() + " BIND RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "requesterDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" version=3 " +
+               "dn=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "authType=\"SASL\" saslMechanism=\"PLAIN\" resultCode=0 " +
+               "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
+               "etime=0.123 referralURLs=\"ldap://server1.example.com:389/," +
+               "ldap://server2.example.com:389/\" " +
+               "from=\"app='UnboundID Directory Server'\" " +
+               "authDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "authzDN=\"uid=someone,ou=People,dc=example,dc=com\" " +
+               "clientConnectionPolicy=\"bind\" uncachedDataAccessed=true",
+         ts() + " BIND RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "requesterDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" version=3 " +
+               "dn=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "authType=\"SASL\" resultCode=0 " +
+               "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
+               "etime=0.123 referralURLs=\"ldap://server1.example.com:389/," +
+               "ldap://server2.example.com:389/\" " +
+               "from=\"app='UnboundID Directory Server'\" " +
+               "authDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "clientConnectionPolicy=\"bind\" uncachedDataAccessed=true",
+         ts() + " BIND RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "requesterDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" version=3 " +
+               "dn=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "authType=\"INTERNAL\" resultCode=49 " +
+               "message=\"Invalid credentials\" " +
+               "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
+               "etime=0.123 referralURLs=\"ldap://server1.example.com:389/," +
+               "ldap://server2.example.com:389/\" " +
+               "from=\"app='UnboundID Directory Server'\" " +
+               "authFailureID=1234 authFailureReason=\"Wrong password\" " +
+               "authDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "authzDN=\"unparsable\" " +
+               "clientConnectionPolicy=\"bind\" uncachedDataAccessed=true",
          ts() + " COMPARE REQUEST instanceName=\"server.example.com:389\" " +
                "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
                "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
@@ -216,7 +259,7 @@ public class SummarizeAccessLogTestCase
                "etime=0.123 referralURLs=\"ldap://server1.example.com:389/," +
                "ldap://server2.example.com:389/\" " +
                "from=\"app='UnboundID Directory Server'\" " +
-               "authzDN=\"uid=someone,ou=People,dc=example,dc=com\" " +
+               "authzDN=\"givenName=a+sn=b,ou=People,dc=example,dc=com\" " +
                "uncachedDataAccessed=true",
          ts() + " DELETE REQUEST instanceName=\"server.example.com:389\" " +
                "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
@@ -269,6 +312,19 @@ public class SummarizeAccessLogTestCase
                "ldap://server2.example.com:389/\" " +
                "from=\"app='UnboundID Directory Server'\" " +
                "responseOID=\"8.7.6.5\" clientConnectionPolicy=\"extended\" " +
+               "uncachedDataAccessed=true",
+         ts() + " EXTENDED RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "requesterDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" " +
+               "requestOID=\"2.3.4.5\" requestType=\"Test ExtOp\" " +
+              "resultCode=0 additionalInfo=\"foo\" " +
+              "matchedDN=\"dc=example,dc=com\" " +
+               "etime=0.456 referralURLs=\"ldap://server1.example.com:389/," +
+               "ldap://server2.example.com:389/\" " +
+               "from=\"app='UnboundID Directory Server'\" " +
+               "responseOID=\"3.4.5.6\" clientConnectionPolicy=\"extended\" " +
                "uncachedDataAccessed=true",
          ts() + " MODIFY REQUEST instanceName=\"server.example.com:389\" " +
                "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
@@ -364,6 +420,34 @@ public class SummarizeAccessLogTestCase
                "etime=0.123 referralURLs=\"ldap://server1.example.com:389/," +
                "ldap://server2.example.com:389/\" " +
                "from=\"app='UnboundID Directory Server'\" entriesReturned=1 " +
+               "unindexed=true " +
+               "authzDN=\"uid=someone,ou=People,dc=example,dc=com\" " +
+               "uncachedDataAccessed=true",
+         ts() + " SEARCH RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "requesterDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" " +
+               "base=\"ou=People,dc=example,dc=com\" scope=0 " +
+               "filter=\"(objectClass=*)\" attrs=\"ALL\" resultCode=0 " +
+               "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
+               "etime=0.123 referralURLs=\"ldap://server1.example.com:389/," +
+               "ldap://server2.example.com:389/\" " +
+               "from=\"app='UnboundID Directory Server'\" entriesReturned=0 " +
+               "unindexed=true " +
+               "authzDN=\"uid=someone,ou=People,dc=example,dc=com\" " +
+               "uncachedDataAccessed=true",
+         ts() + " SEARCH RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "requesterDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" " +
+               "base=\"ou=People,dc=example,dc=com\" scope=0 " +
+               "filter=\"(objectClass=*)\" attrs=\"ALL\" resultCode=0 " +
+               "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
+               "etime=0.456 referralURLs=\"ldap://server1.example.com:389/," +
+               "ldap://server2.example.com:389/\" " +
+               "from=\"app='UnboundID Directory Server'\" entriesReturned=5 " +
                "unindexed=true " +
                "authzDN=\"uid=someone,ou=People,dc=example,dc=com\" " +
                "uncachedDataAccessed=true",
@@ -514,6 +598,28 @@ public class SummarizeAccessLogTestCase
 
     ResultCode rc = SummarizeAccessLog.main(args, null, null);
     assertEquals(rc, ResultCode.SUCCESS);
+
+
+    args = new String[]
+    {
+      "--reportCount", "0",
+      "--doNotAnonymize",
+      dataFile1.getAbsolutePath()
+    };
+
+    rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.SUCCESS);
+
+
+    args = new String[]
+    {
+      "--reportCount", "1",
+      "--doNotAnonymize",
+      dataFile1.getAbsolutePath()
+    };
+
+    rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.SUCCESS);
   }
 
 
@@ -557,6 +663,32 @@ public class SummarizeAccessLogTestCase
     };
 
     ResultCode rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.SUCCESS);
+
+
+    args = new String[]
+    {
+      "--reportCount", "0",
+      "--doNotAnonymize",
+      dataFile1.getAbsolutePath(),
+      dataFile2.getAbsolutePath()
+    };
+
+
+    rc = SummarizeAccessLog.main(args, null, null);
+    assertEquals(rc, ResultCode.SUCCESS);
+
+
+    args = new String[]
+    {
+      "--reportCount", "1",
+      "--doNotAnonymize",
+      dataFile1.getAbsolutePath(),
+      dataFile2.getAbsolutePath()
+    };
+
+
+    rc = SummarizeAccessLog.main(args, null, null);
     assertEquals(rc, ResultCode.SUCCESS);
   }
 
