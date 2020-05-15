@@ -1462,7 +1462,7 @@ public class MonitorManagerTestCase
 
     assertNotNull(e.getProductName());
 
-    assertNotNull(e.getRevisionNumber());
+    assertNotNull(e.getRevisionID());
 
     assertNotNull(e.getShortProductName());
 

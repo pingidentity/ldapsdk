@@ -1543,7 +1543,7 @@ public final class Debug
 
     buffer.beginObject(fieldName);
 
-    String message = t.getMessage();
+    final String message = t.getMessage();
     if (message != null)
     {
       buffer.appendString("message", t.getMessage());
@@ -1556,25 +1556,10 @@ public final class Debug
     }
     buffer.endArray();
 
-    Throwable cause = t.getCause();
-    while (cause != null)
+    final Throwable cause = t.getCause();
+    if (cause != null)
     {
-      buffer.beginObject("cause");
-
-      message = cause.getMessage();
-      if (message != null)
-      {
-        buffer.appendString("message", cause.getMessage());
-      }
-
-      buffer.beginArray("stack-trace");
-      for (final StackTraceElement e : cause.getStackTrace())
-      {
-        buffer.appendString(formatStackTraceFrame(e));
-      }
-      buffer.endArray();
-
-      cause = cause.getCause();
+      addCaughtException(buffer, "cause", cause);
     }
 
     buffer.endObject();

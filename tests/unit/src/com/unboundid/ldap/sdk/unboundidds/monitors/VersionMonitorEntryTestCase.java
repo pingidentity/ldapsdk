@@ -59,6 +59,7 @@ public class VersionMonitorEntryTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  @SuppressWarnings("deprecation")
   public void testConstructorAllValues()
          throws Exception
   {
@@ -79,6 +80,7 @@ public class VersionMonitorEntryTestCase
          "pointVersion: 3",
          "productName: UnboundID Directory Server",
          "revisionNumber: 123",
+         "revisionID: 123",
          "shortName: UnboundID-DS",
          "versionQualifier: -beta1",
          "groovyVersion: groovy-1.2.3.4",
@@ -128,6 +130,9 @@ public class VersionMonitorEntryTestCase
 
     assertNotNull(me.getRevisionNumber());
     assertEquals(me.getRevisionNumber().longValue(), 123L);
+
+    assertNotNull(me.getRevisionID());
+    assertEquals(me.getRevisionID(), "123");
 
     assertNotNull(me.getShortProductName());
     assertEquals(me.getShortProductName(), "UnboundID-DS");
@@ -265,6 +270,7 @@ public class VersionMonitorEntryTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
+  @SuppressWarnings("deprecation")
   public void testConstructorNoValues()
          throws Exception
   {
@@ -303,6 +309,8 @@ public class VersionMonitorEntryTestCase
     assertNull(me.getProductName());
 
     assertNull(me.getRevisionNumber());
+
+    assertNull(me.getRevisionID());
 
     assertNull(me.getShortProductName());
 

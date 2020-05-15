@@ -261,6 +261,21 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the support for the version monitor entry in the Ping Identity Directory
+                  Server to provide a getRevisionID method that can be used to retrieve a string
+                  that identifies the source revision from which the server was built.  The former
+                  getRevisionNumber method has been deprecated, as the server may not have been
+                  checked out from a version control system that uses numeric revision IDs.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed an issue in debug logging that could prevent a debug message including an
+                  exception with an underlying cause from being parsed as a valid JSON object.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated command-line tools so that if the --help-sasl argument is used in
                   conjunction with a --saslOption argument that provides a "mech" option that
                   specifies a mechanism name, then only the options for that mechanism will be

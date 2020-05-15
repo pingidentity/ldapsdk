@@ -200,6 +200,13 @@ public final class VersionMonitorEntry
 
 
   /**
+   * The name of the attribute used to provide the source revision identifier.
+   */
+  private static final String ATTR_REVISION_ID = "revisionID";
+
+
+
+  /**
    * The name of the attribute used to provide the source revision number.
    */
   private static final String ATTR_REVISION_NUMBER = "revisionNumber";
@@ -300,6 +307,10 @@ public final class VersionMonitorEntry
   // The server product name.
   private final String productName;
 
+  // A string that identifies the source revision from which the server was
+  // built.
+  private final String revisionID;
+
   // The server SDK library version.
   private final String serverSDKVersion;
 
@@ -344,6 +355,7 @@ public final class VersionMonitorEntry
     jzlibVersion        = getString(ATTR_JZLIB_VERSION);
     ldapSDKVersion      = getString(ATTR_LDAP_SDK_VERSION);
     productName         = getString(ATTR_PRODUCT_NAME);
+    revisionID          = getString(ATTR_REVISION_ID);
     serverSDKVersion    = getString(ATTR_SERVER_SDK_VERSION);
     shortName           = getString(ATTR_SHORT_NAME);
     snmp4jVersion       = getString(ATTR_SNMP4J_VERSION);
@@ -533,11 +545,29 @@ public final class VersionMonitorEntry
    *
    * @return  The source revision number from which the Directory Server was
    *          built, or {@code null} if it was not included in the monitor
-   *          entry.
+   *          entry or if it was not numeric.
+   *
+   * @deprecated   Use {@link #getRevisionID} instead, as the version control
+   *               system might not use numeric revision identifiers.
    */
+  @Deprecated()
   public Long getRevisionNumber()
   {
     return revisionNumber;
+  }
+
+
+
+  /**
+   * Retrieves a string that identifies the source revision from which the
+   * server was built.
+   *
+   * @return  A string that identifies the source revision from which the server
+   *          was built.
+   */
+  public String getRevisionID()
+  {
+    return revisionID;
   }
 
 
@@ -749,6 +779,15 @@ public final class VersionMonitorEntry
            INFO_VERSION_DISPNAME_REVISION_NUMBER.get(),
            INFO_VERSION_DESC_REVISION_NUMBER.get(),
            revisionNumber);
+    }
+
+    if (revisionID != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_REVISION_ID,
+           INFO_VERSION_DISPNAME_REVISION_ID.get(),
+           INFO_VERSION_DESC_REVISION_ID.get(),
+           revisionID);
     }
 
     if (fixIDs != null)
