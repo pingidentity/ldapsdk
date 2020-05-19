@@ -1651,24 +1651,9 @@ public final class SummarizeAccessLog
           filterCount.incrementAndGet();
 
 
-          String baseDN = m.getBaseDN();
+          final String baseDN = getDNString(m.getBaseDN());
           if (baseDN != null)
           {
-            try
-            {
-              baseDN = DN.normalize(baseDN);
-            }
-            catch (final Exception e)
-            {
-              Debug.debugException(e);
-              baseDN = StaticUtils.toLowerCase(baseDN);
-            }
-
-            if (baseDN.isEmpty())
-            {
-              baseDN = "{Null DN}";
-            }
-
             AtomicLong baseDNCount = searchBaseDNs.get(baseDN);
             if (baseDNCount == null)
             {
@@ -1773,11 +1758,6 @@ public final class SummarizeAccessLog
          doubleValue(m.getProcessingTimeMillis(), bindProcessingTimes);
 
     String authenticationDN = getDNString(m.getAuthenticationDN());
-    if ((authenticationDN != null) && authenticationDN.isEmpty())
-    {
-      authenticationDN = "{anonymous}";
-    }
-
     if (m.getResultCode() == ResultCode.SUCCESS)
     {
       if (authenticationDN != null)
@@ -1808,11 +1788,7 @@ public final class SummarizeAccessLog
     {
       if (authenticationDN == null)
       {
-        authenticationDN = m.getDN();
-        if ((authenticationDN != null) && authenticationDN.isEmpty())
-        {
-          authenticationDN = "{anonymous}";
-        }
+        authenticationDN = getDNString(m.getDN());
       }
 
       if (authenticationDN != null)
@@ -2282,6 +2258,11 @@ public final class SummarizeAccessLog
     {
       Debug.debugException(e);
       return dn.toLowerCase();
+    }
+
+    if (parsedDN.isNullDN())
+    {
+      return "{Null DN}";
     }
 
     if (doNotAnonymize.isPresent())
