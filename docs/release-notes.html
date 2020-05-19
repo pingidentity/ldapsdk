@@ -134,13 +134,14 @@ ${TARGET="offline"}                <br>
                   can also choose to de-anonymize the output to obtain more specific values,
                   whereas filters and DNs were previously always generified by replacing attribute
                   values with question marks.  The summary will now also include information about
-                  the most common bind DNs and alternate authorization DNs, the most common
+                  the most common TLS protocols and cipher suites, the most common successful and
+                  failed bind DNs, the most common alternate authorization DNs, the most common
                   authentication mechanisms, the most common filters used for unindexed searches,
-                  the filters used for the searches taking the longest to complete, and the most
-                  common filters for searches returning zero, one, and multiple entries.  Finally,
-                  when summarizing the most commonly invoked types of extended operations, the
-                  tool will now try to provide a human-readable name for the extended operation in
-                  addition to its OID.
+                  the most common base DNs for searches with non-base scopes, the filters used for
+                  the searches taking the longest to complete, and the most common filters for
+                  searches returning zero, one, and multiple entries.  Finally, when summarizing
+                  the most commonly invoked types of extended operations, the tool will now try to
+                  provide a human-readable name for the extended operation in addition to its OID.
                   <br><br>
                 </li>
 

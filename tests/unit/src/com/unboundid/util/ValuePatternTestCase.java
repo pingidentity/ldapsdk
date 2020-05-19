@@ -1558,10 +1558,13 @@ public class ValuePatternTestCase
    * <BR><BR>
    * To help tests run quickly, this will only be invoked if a Directory Server
    * instance is available for testing.
+   * <BR><BR>
+   * NOTE:  This test is currently disabled because files.unboundid.com is no
+   * longer available.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  @Test()
+  @Test(enabled = false)
   public void testHTTPURLEmptyFile()
          throws Exception
   {

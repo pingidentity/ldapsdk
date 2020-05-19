@@ -235,6 +235,24 @@ public class SummarizeAccessLogTestCase
                "authDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
                "authzDN=\"unparsable\" " +
                "clientConnectionPolicy=\"bind\" uncachedDataAccessed=true",
+         ts() + " BIND RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" version=3 " +
+               "dn=\"\" " + "authType=\"INTERNAL\" resultCode=0 " +
+               "etime=0.123 from=\"app='UnboundID Directory Server'\" " +
+               "authFailureID=1234 authFailureReason=\"Wrong password\" " +
+               "authDN=\"\" authzDN=\"\" " +
+               "clientConnectionPolicy=\"bind\" uncachedDataAccessed=true",
+         ts() + " BIND RESULT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
+               "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
+               "via=\"app='UnboundID Directory Proxy Server'\" version=3 " +
+               "dn=\"\" " + "authType=\"SIMPLE\" resultCode=53 " +
+               "message=\"Anonymous binds are not allowed\" " +
+               "etime=0.123 from=\"app='UnboundID Directory Server'\" " +
+               "authFailureID=1234 authFailureReason=\"Wrong password\" " +
+               "clientConnectionPolicy=\"bind\" uncachedDataAccessed=true",
          ts() + " COMPARE REQUEST instanceName=\"server.example.com:389\" " +
                "startupID=\"ABCDEFG\" conn=1 op=2 msgID=3 " +
                "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
@@ -442,10 +460,10 @@ public class SummarizeAccessLogTestCase
                "origin=\"internal\" requesterIP=\"1.2.3.4\" " +
                "requesterDN=\"uid=test.user,ou=People,dc=example,dc=com\" " +
                "via=\"app='UnboundID Directory Proxy Server'\" " +
-               "base=\"ou=People,dc=example,dc=com\" scope=0 " +
-               "filter=\"(objectClass=*)\" attrs=\"ALL\" resultCode=0 " +
-               "additionalInfo=\"foo\" matchedDN=\"dc=example,dc=com\" " +
-               "etime=0.456 referralURLs=\"ldap://server1.example.com:389/," +
+               "base=\"\" scope=2 filter=\"(objectClass=*)\" " +
+              "attrs=\"ALL\" resultCode=0 additionalInfo=\"foo\" " +
+              "matchedDN=\"dc=example,dc=com\" etime=0.456 " +
+              "referralURLs=\"ldap://server1.example.com:389/," +
                "ldap://server2.example.com:389/\" " +
                "from=\"app='UnboundID Directory Server'\" entriesReturned=5 " +
                "unindexed=true " +
@@ -508,6 +526,15 @@ public class SummarizeAccessLogTestCase
                "from=\"app='UnboundID Directory Server'\" entriesReturned=1 " +
                "unindexed=true " +
                "authzDN=\"uid=someone,ou=People,dc=example,dc=com\"",
+         ts() + " CONNECT instanceName=\"server.example.com:389\" " +
+               "startupID=\"ABCDEFG\" conn=1 from=\"1.2.3.4\" to=\"5.6.7.8\" " +
+               "protocol=\"LDAPS\" clientConnectionPolicy=\"default\"",
+         ts() + " SECURITY-NEGOTIATION " +
+              "instanceName=\"server.example.com:389\" threadID=115 " +
+              "conn=1945 protocol=\"TLSv1.2\" " +
+              "cipher=\"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384\"" +
+              "clientServerHandshakeTimeMillis=\"5.614\" " +
+              "serverOnlyHandshakeTimeMillis=\"4.296\""
     };
 
     String[] longFilterLines = {

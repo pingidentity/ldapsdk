@@ -81,6 +81,8 @@ import com.unboundid.ldap.sdk.unboundidds.logs.ModifyResultAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.OperationAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.SearchRequestAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.SearchResultAccessLogMessage;
+import com.unboundid.ldap.sdk.unboundidds.logs.
+            SecurityNegotiationAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.logs.UnbindRequestAccessLogMessage;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
@@ -240,7 +242,8 @@ public final class SummarizeAccessLog
   private final HashMap<SearchScope,AtomicLong> searchScopes;
   private final HashMap<String,AtomicLong> authenticationTypes;
   private final HashMap<String,AtomicLong> authzDNs;
-  private final HashMap<String,AtomicLong> bindDNs;
+  private final HashMap<String,AtomicLong> failedBindDNs;
+  private final HashMap<String,AtomicLong> successfulBindDNs;
   private final HashMap<String,AtomicLong> clientAddresses;
   private final HashMap<String,AtomicLong> clientConnectionPolicies;
   private final HashMap<String,AtomicLong> disconnectReasons;
@@ -250,6 +253,9 @@ public final class SummarizeAccessLog
   private final HashMap<String,AtomicLong> multiEntryFilters;
   private final HashMap<String,AtomicLong> noEntryFilters;
   private final HashMap<String,AtomicLong> oneEntryFilters;
+  private final HashMap<String,AtomicLong> searchBaseDNs;
+  private final HashMap<String,AtomicLong> tlsCipherSuites;
+  private final HashMap<String,AtomicLong> tlsProtocols;
   private final HashMap<String,AtomicLong> unindexedFilters;
   private final HashMap<String,String> extendedOperationOIDsToNames;
   private final HashSet<String> processedRequests;
@@ -378,7 +384,8 @@ public final class SummarizeAccessLog
     searchScopes = new HashMap<>(StaticUtils.computeMapCapacity(4));
     authenticationTypes = new HashMap<>(StaticUtils.computeMapCapacity(100));
     authzDNs = new HashMap<>(StaticUtils.computeMapCapacity(100));
-    bindDNs = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    failedBindDNs = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    successfulBindDNs = new HashMap<>(StaticUtils.computeMapCapacity(100));
     clientAddresses = new HashMap<>(StaticUtils.computeMapCapacity(100));
     clientConnectionPolicies =
          new HashMap<>(StaticUtils.computeMapCapacity(100));
@@ -389,6 +396,9 @@ public final class SummarizeAccessLog
     multiEntryFilters = new HashMap<>(StaticUtils.computeMapCapacity(100));
     noEntryFilters = new HashMap<>(StaticUtils.computeMapCapacity(100));
     oneEntryFilters = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    searchBaseDNs = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    tlsCipherSuites = new HashMap<>(StaticUtils.computeMapCapacity(100));
+    tlsProtocols = new HashMap<>(StaticUtils.computeMapCapacity(100));
     unindexedFilters = new HashMap<>(StaticUtils.computeMapCapacity(100));
     extendedOperationOIDsToNames =
          new HashMap<>(StaticUtils.computeMapCapacity(100));
@@ -839,6 +849,10 @@ public final class SummarizeAccessLog
           case CONNECT:
             processConnect((ConnectAccessLogMessage) msg);
             break;
+          case SECURITY_NEGOTIATION:
+            processSecurityNegotiation(
+                 (SecurityNegotiationAccessLogMessage) msg);
+            break;
           case DISCONNECT:
             processDisconnect((DisconnectAccessLogMessage) msg);
             break;
@@ -941,6 +955,12 @@ public final class SummarizeAccessLog
 
     printCounts(clientConnectionPolicies,
          "Most common client connection policies:", "policy", "policies");
+
+    printCounts(tlsProtocols, "Most common TLS protocol versions:", "version",
+         "versions");
+
+    printCounts(tlsCipherSuites, "Most common TLS cipher suites:",
+         "cipher suite", "cipher suites");
 
     printCounts(disconnectReasons, "Most common disconnect reasons:", "reason",
          "reasons");
@@ -1089,7 +1109,12 @@ public final class SummarizeAccessLog
       printResultCodeCounts(modifyDNResultCodes, "modify DN");
       printResultCodeCounts(searchResultCodes, "search");
 
-      printCounts(bindDNs, "Most common bind DNs:", "DN", "DNs");
+      printCounts(successfulBindDNs,
+           "Most common bind DNs used in successful authentication attempts:",
+           "DN", "DNs");
+      printCounts(failedBindDNs,
+           "Most common bind DNs used in failed authentication attempts:",
+           "DN", "DNs");
       printCounts(authenticationTypes, "Most common authentication types:",
            "authentication type", "authentication types");
 
@@ -1245,6 +1270,10 @@ public final class SummarizeAccessLog
                " with a count that is less than " + count + " }");
         }
       }
+
+      printCounts(searchBaseDNs,
+           "Most common base DNs for searches with a non-base scope:",
+           "base DN", "base DNs");
 
       printCounts(filterTypes,
            "Most common filters for searches with a non-base scope:",
@@ -1463,6 +1492,41 @@ public final class SummarizeAccessLog
 
 
   /**
+   * Performs any necessary processing for a security negotiation message.
+   *
+   * @param  m  The log message to be processed.
+   */
+  private void processSecurityNegotiation(
+                    final SecurityNegotiationAccessLogMessage m)
+  {
+    final String protocol = m.getProtocol();
+    if (protocol != null)
+    {
+      AtomicLong l = tlsProtocols.get(protocol);
+      if (l == null)
+      {
+        l = new AtomicLong(0L);
+        tlsProtocols.put(protocol, l);
+      }
+      l.incrementAndGet();
+    }
+
+    final String cipherSuite = m.getCipher();
+    if (cipherSuite != null)
+    {
+      AtomicLong l = tlsCipherSuites.get(cipherSuite);
+      if (l == null)
+      {
+        l = new AtomicLong(0L);
+        tlsCipherSuites.put(cipherSuite, l);
+      }
+      l.incrementAndGet();
+    }
+  }
+
+
+
+  /**
    * Performs any necessary processing for a disconnect message.
    *
    * @param  m  The log message to be processed.
@@ -1585,6 +1649,34 @@ public final class SummarizeAccessLog
             filterTypes.put(filterString, filterCount);
           }
           filterCount.incrementAndGet();
+
+
+          String baseDN = m.getBaseDN();
+          if (baseDN != null)
+          {
+            try
+            {
+              baseDN = DN.normalize(baseDN);
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+              baseDN = StaticUtils.toLowerCase(baseDN);
+            }
+
+            if (baseDN.isEmpty())
+            {
+              baseDN = "{Null DN}";
+            }
+
+            AtomicLong baseDNCount = searchBaseDNs.get(baseDN);
+            if (baseDNCount == null)
+            {
+              baseDNCount = new AtomicLong(0L);
+              searchBaseDNs.put(baseDN, baseDNCount);
+            }
+            baseDNCount.incrementAndGet();
+          }
         }
       }
     }
@@ -1680,16 +1772,21 @@ public final class SummarizeAccessLog
     bindProcessingDuration +=
          doubleValue(m.getProcessingTimeMillis(), bindProcessingTimes);
 
+    String authenticationDN = getDNString(m.getAuthenticationDN());
+    if ((authenticationDN != null) && authenticationDN.isEmpty())
+    {
+      authenticationDN = "{anonymous}";
+    }
+
     if (m.getResultCode() == ResultCode.SUCCESS)
     {
-      final String authenticationDN = getDNString(m.getAuthenticationDN());
       if (authenticationDN != null)
       {
-        AtomicLong l = bindDNs.get(authenticationDN);
+        AtomicLong l = successfulBindDNs.get(authenticationDN);
         if (l == null)
         {
           l = new AtomicLong(0L);
-          bindDNs.put(authenticationDN, l);
+          successfulBindDNs.put(authenticationDN, l);
         }
         l.incrementAndGet();
       }
@@ -1702,6 +1799,29 @@ public final class SummarizeAccessLog
         {
           l = new AtomicLong(0L);
           clientConnectionPolicies.put(ccp, l);
+        }
+        l.incrementAndGet();
+      }
+    }
+    else if ((m.getResultCode() != ResultCode.SASL_BIND_IN_PROGRESS) &&
+         (m.getResultCode() != ResultCode.REFERRAL))
+    {
+      if (authenticationDN == null)
+      {
+        authenticationDN = m.getDN();
+        if ((authenticationDN != null) && authenticationDN.isEmpty())
+        {
+          authenticationDN = "{anonymous}";
+        }
+      }
+
+      if (authenticationDN != null)
+      {
+        AtomicLong l = failedBindDNs.get(authenticationDN);
+        if (l == null)
+        {
+          l = new AtomicLong(0L);
+          failedBindDNs.put(authenticationDN, l);
         }
         l.incrementAndGet();
       }
@@ -1864,7 +1984,7 @@ public final class SummarizeAccessLog
     numSearches++;
 
     final String id = m.getConnectionID() + "-" + m.getOperationID();
-    if (!processedRequests.remove(id))
+    if (! processedRequests.remove(id))
     {
       processSearchRequestInternal(m);
     }
@@ -2471,7 +2591,7 @@ public final class SummarizeAccessLog
    *
    * @param  count     The count that will be used to determine whether to
    *                   retrieve the singular or plural form.
-   * @param  singular  The signular form for the value to return.
+   * @param  singular  The singular form for the value to return.
    * @param  plural    The plural form for the value to return.
    *
    * @return  The singular form if the count is 1, or the plural form if the
