@@ -31,6 +31,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added an ldifmodify tool that can be used to apply add, delete, modify, and
+                  modify DN updates read from a changes file to entries read from a source LDIF
+                  file, writing the updated entries to a target LDIF file.
+                  <br><br>
+                </li>
+
+                <li>
                   Added an ldif-diff tool that can be used to compare the contents of two LDIF
                   files.  The differences will be written as the set of LDIF add, delete, and
                   modify change records needed to convert the set of entries in the source LDIF

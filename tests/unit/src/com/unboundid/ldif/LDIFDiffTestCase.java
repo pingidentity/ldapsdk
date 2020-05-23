@@ -1326,7 +1326,8 @@ public final class LDIFDiffTestCase
 
     assertTrue(output.exists());
 
-    final List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    final List<LDIFChangeRecord> changeRecords =
+         readChangeRecords(output, encPWFile);
     assertNotNull(changeRecords);
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
@@ -1467,7 +1468,10 @@ public final class LDIFDiffTestCase
 
     assertTrue(output.exists());
 
-    final List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    final File encPWFile = createTempFile("encryption-passphrase");
+
+    final List<LDIFChangeRecord> changeRecords =
+         readChangeRecords(output, encPWFile);
     assertNotNull(changeRecords);
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,

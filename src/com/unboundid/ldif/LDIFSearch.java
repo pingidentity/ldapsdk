@@ -75,6 +75,7 @@ import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -1534,6 +1535,9 @@ public final class LDIFSearch
                  INFO_LDIFSEARCH_CONFIRM_OUTPUT_FILE_ENC_PW.get(), getOut(),
                  getErr()).toCharArray();
           }
+
+          outputStream = new PassphraseEncryptedOutputStream(passphrase,
+               outputStream, null, true, true);
         }
         catch (final Exception e)
         {

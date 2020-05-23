@@ -73,6 +73,7 @@ import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
 import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
 import com.unboundid.ldif.LDIFDiff;
+import com.unboundid.ldif.LDIFModify;
 import com.unboundid.ldif.LDIFSearch;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
@@ -134,6 +135,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
+ *   <LI>ldifmodify -- Launch the {@link LDIFModify} tool.</LI>
  *   <LI>ldifsearch -- Launch the {@link LDIFSearch} tool.</LI>
  *   <LI>ldif-diff -- Launch the {@link LDIFDiff} tool.</LI>
  *   <LI>manage-account -- Launch the {@link ManageAccount} tool.</LI>
@@ -297,6 +299,10 @@ public final class Launcher
     {
       return LDAPDebugger.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("ldifmodify"))
+    {
+      return LDIFModify.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("ldifsearch"))
     {
       return LDIFSearch.main(outStream, errStream, remainingArgs);
@@ -387,6 +393,7 @@ public final class Launcher
         err.println("     ldapmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
+        err.println("     ldifmodify");
         err.println("     ldifsearch");
         err.println("     ldif-diff");
         err.println("     manage-account");
@@ -441,6 +448,7 @@ public final class Launcher
          LDAPModify.class,
          LDAPSearch.class,
          LDIFDiff.class,
+         LDIFModify.class,
          LDIFSearch.class,
          ManageAccount.class,
          ManageCertificates.class,
