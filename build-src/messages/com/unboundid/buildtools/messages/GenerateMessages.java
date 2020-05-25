@@ -288,16 +288,16 @@ public class GenerateMessages
         while (propertyNames.hasNext())
         {
           final String propertyName = String.valueOf(propertyNames.next());
-          final String message      = p.getProperty(propertyName);
+          final String formatString      = p.getProperty(propertyName);
 
-          if (message.contains("%s"))
+          if (formatString.contains("%s"))
           {
             throw new BuildException("The message string for property " +
                  propertyName + " in file " + propertiesFileName +
                  " appears to contain %s instead of a positional indicator " +
                  "like {0}.");
           }
-          else if (message.contains("%d"))
+          else if (formatString.contains("%d"))
           {
             throw new BuildException("The message string for property " +
                  propertyName + " in file " + propertiesFileName +
@@ -305,72 +305,176 @@ public class GenerateMessages
                  "like {0}.");
           }
 
-          int pos = message.indexOf("'{");
-          while (pos >= 0)
-          {
-            final int closePos = message.indexOf('}', pos);
-            if (closePos > 0)
-            {
-              try
-              {
-                final int value =
-                     Integer.parseInt(message.substring(pos+2, closePos));
-                if ((pos == 0) || (message.charAt(pos-1) != '\''))
-                {
-                  throw new BuildException("The message string for property " +
-                       propertyName + " in file " + propertiesFileName +
-                       " appears to contain '{" + value +
-                       "}' rather than ''{" + value + "}''.  This will cause " +
-                       "the raw string {" + value + "} to appear in the " +
-                       "message rather than the expected replacement value.");
-                }
-              }
-              catch (final NumberFormatException nfe)
-              {
-                // This is acceptable.
-              }
-            }
 
-            pos = message.indexOf("'{", pos+1);
+          // Validate the property name.
+          if (! (propertyName.startsWith("ERR_") ||
+               propertyName.startsWith("WARN_") ||
+               propertyName.startsWith("INFO_")))
+          {
+            throw new BuildException("Properties file " + propertiesFileName +
+                 " contains a property named '" + propertyName +
+                 "' that does not start with one of ERR_, WARN_, or INFO_.  " +
+                 "All property names must start with one of those prefixes.");
           }
 
-          pos = message.indexOf('{');
+          if (propertyName.contains("__"))
+          {
+            throw new BuildException("Properties file " + propertiesFileName +
+                 " contains a property named '" + propertyName +
+                 "' that has a double underscore.");
+          }
+
+          for (final char c : propertyName.toCharArray())
+          {
+            if (! (((c >= 'A') && (c <= 'Z')) ||
+                 ((c >= '0') && (c <= '9')) ||
+                 (c == '_')))
+            {
+              throw new BuildException("Properties file " + propertiesFileName +
+                   " contains a property named '" + propertyName +
+                   " that contains illegal character '" + c + "'.  Property " +
+                   "names can only contain uppercase letters, digits, or " +
+                   "underscores.");
+            }
+          }
+
+
+          // Validate argument references in the format string.
+          int pos = formatString.indexOf('{');
           while (pos >= 0)
           {
-            final int closePos = message.indexOf('}', pos);
+            if ((pos > 0) && (formatString.charAt(pos-1) == '\'') &&
+                 (pos < (formatString.length()-2)) &&
+                 (formatString.charAt(pos+1) == '\''))
+            {
+              pos = formatString.indexOf('{', pos+2);
+              continue;
+            }
+
+            final int closePos = formatString.indexOf('}', pos);
             if (closePos > 0)
             {
               try
               {
-                final int value =
-                     Integer.parseInt(message.substring(pos+1, closePos));
+                final int value;
+                final int commaPos = formatString.indexOf(",number,0}", pos+1);
+                if ((commaPos > 0) && (commaPos < closePos))
+                {
+                  value = Integer.parseInt(
+                       formatString.substring(pos+1, commaPos));
+                }
+                else
+                {
+                  value = Integer.parseInt(formatString.substring(pos+1,
+                       closePos));
+                }
+
                 for (int i=0; i < value; i++)
                 {
-                  if (! (message.contains("{" + i + '}') ||
-                         message.contains("{" + i + ",number,0}")))
+                  if (! (formatString.contains("{" + i + '}') ||
+                         formatString.contains("{" + i + ",number,0}")))
                   {
                     throw new BuildException("The message string for " +
                          "property " + propertyName + " in file " +
                          propertiesFileName + " appears to contain {" + value +
-                         "} but not {" + i + "}.  The message string is " +
-                         message);
+                         "} but not {" + i + "}.  The format string is " +
+                         formatString);
                   }
                 }
               }
               catch (final NumberFormatException nfe)
               {
-                // This is acceptable.
+                throw new BuildException("The message string for property " +
+                     propertyName + " in file " + propertiesFileName +
+                     " appears to contain " +
+                     formatString.substring(pos, closePos+1) +
+                     " with a non-numeric value within unquoted braces.  If " +
+                     "you want to have curly braces containing static text " +
+                     "(rather than a reference to a message parameter), " +
+                     "place single quotes before and after each of the " +
+                     "braces.  The format string is " + formatString);
               }
             }
+            else
+            {
+              throw new BuildException("The message string for property " +
+                   propertyName + " in file " + propertiesFileName +
+                   " has an open curly brace without a corresponding " +
+                   "close curly brace.  The format string is " + formatString);
+            }
 
-            pos = message.indexOf('{', pos+1);
+            pos = formatString.indexOf('{', pos+1);
           }
 
+
+          // Validate single quote usage in the format string.
+          pos = formatString.indexOf("'");
+          while (pos >= 0)
+          {
+            if (pos == (formatString.length() - 1))
+            {
+              throw new BuildException("The message string for property " +
+                   propertyName + " in file " + propertiesFileName +
+                   " has a stray trailing single quote.  If you want the " +
+                   "quote to be there, then use two consecutive single " +
+                   "quote characters.  Otherwise, remove it.  The format " +
+                   "string is " + formatString);
+            }
+
+            final int numToSkip;
+            final char nextChar = formatString.charAt(pos+1);
+            if (nextChar == '\'')
+            {
+              // This is fine.  It's a single quote literal.
+              numToSkip = 2;
+            }
+            else if ((nextChar == '{') || (nextChar == '}'))
+            {
+              if (formatString.charAt(pos+2) != '\'')
+              {
+                throw new BuildException("The message string for property " +
+                     propertyName + " in file " + propertiesFileName +
+                     " has a curly brace that is preceded by a single quote " +
+                     "but is not followed by one.  Curly braces that you " +
+                     "want to actually appear in the formatted message must " +
+                     "be enclosed in single quotes.  The format string is " +
+                     formatString);
+              }
+              numToSkip = 3;
+            }
+            else
+            {
+              throw new BuildException("The message string for property " +
+                   propertyName + " in file " + propertiesFileName +
+                   " has a single quote that is not followed by another " +
+                   "single quote or an open or close curly brace.  If you " +
+                   "want a single quote to show up in the formatted messge, " +
+                   "you need to use two consecutive quotes in the format " +
+                   "string.  The format string is " + formatString);
+            }
+
+            pos = formatString.indexOf("'", (pos + numToSkip));
+          }
+
+
+          // Validate double quote usage in the format string.
+          if (formatString.contains("\""))
+          {
+            throw new BuildException("The message string for property " +
+                 propertyName + " in file " + propertiesFileName +
+                 " contains a double quote character.  Message format " +
+                 "strings should only include single quotes so that they can " +
+                 "be enclosed in quoted strings with less hassle.  The " +
+                 "format string is " + formatString);
+          }
+
+
+
           w("  /**");
-          w("   * ", message);
+          w("   * ", formatString);
           w("   */");
 
-          final String quotedMessage = message.replace("\"", "\\\"");
+          final String quotedMessage = formatString.replace("\"", "\\\"");
           if (propertyNames.hasNext())
           {
             w("  ", propertyName, "(\"" + quotedMessage + "\"),");
