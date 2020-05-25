@@ -214,75 +214,94 @@ public final class SourceCodeSanityCheckTestCase
                            final List<String> fileLines,
                            final List<String> errorMessages)
   {
-    final boolean hasHeader =
-         hasHeaderLine(f, fileLines, errorMessages, 0, "/*") &&
-         hasHeaderLine(f, fileLines, errorMessages, 1, " * Copyright ",
-              YEAR + " Ping Identity Corporation") &&
-         hasHeaderLine(f, fileLines, errorMessages, 2,
-              " * All Rights Reserved.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 3, " */") &&
+     ensureHasHeaderLine(f, fileLines, errorMessages, 0, "/*");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 1, " * Copyright ",
+          YEAR + " Ping Identity Corporation");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 2,
+          " * All Rights Reserved.");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 3, " */");
 
-         hasHeaderLine(f, fileLines, errorMessages, 4, "/*") &&
-         hasHeaderLine(f, fileLines, errorMessages, 5, " * Copyright ",
-              YEAR + " Ping Identity Corporation") &&
-         hasHeaderLine(f, fileLines, errorMessages, 6, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 7, " * Licensed under " +
-              "the Apache License, Version 2.0 (the \"License\");") &&
-         hasHeaderLine(f, fileLines, errorMessages, 8, " * you may not use " +
-              "this file except in compliance with the License.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 9, " * You may obtain a " +
-              "copy of the License at") &&
-         hasHeaderLine(f, fileLines, errorMessages, 10, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 11, " *    " +
-              "http://www.apache.org/licenses/LICENSE-2.0") &&
-         hasHeaderLine(f, fileLines, errorMessages, 12, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 13, " * Unless " +
-              "required by applicable law or agreed to in writing, software") &&
-         hasHeaderLine(f, fileLines, errorMessages, 14, " * distributed " +
-              "under the License is distributed on an \"AS IS\" BASIS,") &&
-         hasHeaderLine(f, fileLines, errorMessages, 15, " * WITHOUT " +
-              "WARRANTIES OR CONDITIONS OF ANY KIND, either express or " +
-              "implied.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 16, " * See the License " +
-              "for the specific language governing permissions and") &&
-         hasHeaderLine(f, fileLines, errorMessages, 17, " * limitations " +
-              "under the License.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 18, " */") &&
-         hasHeaderLine(f, fileLines, errorMessages, 19, "/*") &&
-         hasHeaderLine(f, fileLines, errorMessages, 20, " * Copyright (C) ",
-              YEAR + " Ping Identity Corporation") &&
-         hasHeaderLine(f, fileLines, errorMessages, 21, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 22,
-              " * This program is free software; you can redistribute it " +
-                   "and/or modify") &&
-         hasHeaderLine(f, fileLines, errorMessages, 23,
-              " * it under the terms of the GNU General Public License " +
-                   "(GPLv2 only)") &&
-         hasHeaderLine(f, fileLines, errorMessages, 24,
-              " * or the terms of the GNU Lesser General Public License " +
-                   "(LGPLv2.1 only)") &&
-         hasHeaderLine(f, fileLines, errorMessages, 25,
-              " * as published by the Free Software Foundation.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 26, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 27,
-              " * This program is distributed in the hope that it will be " +
-                   "useful,") &&
-         hasHeaderLine(f, fileLines, errorMessages, 28,
-              " * but WITHOUT ANY WARRANTY; without even the implied " +
-                   "warranty of") &&
-         hasHeaderLine(f, fileLines, errorMessages, 29,
-              " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See " +
-                   "the") &&
-         hasHeaderLine(f, fileLines, errorMessages, 30,
-              " * GNU General Public License for more details.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 31, " *") &&
-         hasHeaderLine(f, fileLines, errorMessages, 32,
-              " * You should have received a copy of the GNU General Public " +
-                   "License") &&
-         hasHeaderLine(f, fileLines, errorMessages, 33,
-              " * along with this program; if not, see " +
-                   "<http://www.gnu.org/licenses>.") &&
-         hasHeaderLine(f, fileLines, errorMessages, 34, " */");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 4, "/*");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 5, " * Copyright ",
+          YEAR + " Ping Identity Corporation");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 6, " *");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 7, " * Licensed under " +
+          "the Apache License, Version 2.0 (the \"License\");");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 8, " * you may not use " +
+          "this file except in compliance with the License.");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 9,
+          " * You may obtain a copy of the License at");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 10, " *");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 11, " *    " +
+          "http://www.apache.org/licenses/LICENSE-2.0");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 12, " *");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 13, " * Unless " +
+          "required by applicable law or agreed to in writing, software");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 14, " * distributed " +
+          "under the License is distributed on an \"AS IS\" BASIS,");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 15, " * WITHOUT " +
+          "WARRANTIES OR CONDITIONS OF ANY KIND, either express or " +
+          "implied.");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 16,
+          " * See the License for the specific language governing " +
+               "permissions and");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 17, " * limitations " +
+          "under the License.");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 18, " */");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 19, "/*");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 20, " * Copyright (C) ",
+          YEAR + " Ping Identity Corporation");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 21, " *");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 22,
+          " * This program is free software; you can redistribute it " +
+               "and/or modify");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 23,
+          " * it under the terms of the GNU General Public License " +
+               "(GPLv2 only)");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 24,
+          " * or the terms of the GNU Lesser General Public License " +
+               "(LGPLv2.1 only)");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 25,
+          " * as published by the Free Software Foundation.");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 26, " *");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 27,
+          " * This program is distributed in the hope that it will be " +
+               "useful,");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 28,
+          " * but WITHOUT ANY WARRANTY; without even the implied " +
+               "warranty of");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 29,
+          " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See " +
+               "the");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 30,
+          " * GNU General Public License for more details.");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 31, " *");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 32,
+          " * You should have received a copy of the GNU General Public " +
+               "License");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 33,
+          " * along with this program; if not, see " +
+               "<http://www.gnu.org/licenses>.");
+     ensureHasHeaderLine(f, fileLines, errorMessages, 34, " */");
+
+    final String pingCopyrightRange = extractCopyrightRange(fileLines.get(1));
+    final String apacheCopyrightRange = extractCopyrightRange(fileLines.get(5));
+    final String gplCopyrightRange = extractCopyrightRange(fileLines.get(20));
+
+    if (! pingCopyrightRange.equals(apacheCopyrightRange))
+    {
+      errorMessages.add(f.getAbsolutePath() +
+           " Ping Identity copyright header has a year range of " +
+           pingCopyrightRange + ", which does not match the year range of " +
+           apacheCopyrightRange + " in the Apache copyright header.");
+    }
+    else if (! pingCopyrightRange.equals(gplCopyrightRange))
+    {
+      errorMessages.add(f.getAbsolutePath() +
+           " Ping Identity copyright header has a year range of " +
+           pingCopyrightRange + ", which does not match the year range of " +
+           gplCopyrightRange + " in the GPL copyright header.");
+    }
   }
 
 
@@ -301,29 +320,21 @@ public final class SourceCodeSanityCheckTestCase
    *                          then the line must start with the first string
    *                          and end with the last.  No check will be made for
    *                          what comes between those strings.
-   *
-   * @return  {@code true} if the source file has the specified line, or
-   *          {@code false} if not.
    */
-  private static boolean hasHeaderLine(final File f,
-                                       final List<String> fileLines,
-                                       final List<String> errorMessages,
-                                       final int lineNumber,
-                                       final String... expectedContent)
+  private static void ensureHasHeaderLine(final File f,
+                                          final List<String> fileLines,
+                                          final List<String> errorMessages,
+                                          final int lineNumber,
+                                          final String... expectedContent)
   {
     final String line = fileLines.get(lineNumber);
     if (expectedContent.length == 1)
     {
-      if (line.equals(expectedContent[0]))
-      {
-        return true;
-      }
-      else
+      if (! line.equals(expectedContent[0]))
       {
         errorMessages.add(f.getAbsolutePath() + " line " + (lineNumber + 1) +
              " was expected to be '" + expectedContent[0] + "' but was '" +
              line + '\'');
-        return false;
       }
     }
     else
@@ -333,7 +344,6 @@ public final class SourceCodeSanityCheckTestCase
         errorMessages.add(f.getAbsolutePath() + " line " + (lineNumber + 1) +
              " was expected to start with " + expectedContent[0] +
              "' but was '" + line + '\'');
-        return false;
       }
 
       if (! line.endsWith(expectedContent[1]))
@@ -341,11 +351,33 @@ public final class SourceCodeSanityCheckTestCase
         errorMessages.add(f.getAbsolutePath() + " line " + (lineNumber + 1) +
              " was expected to emd with " + expectedContent[1] +
              "' but was '" + line + '\'');
-        return false;
       }
-
-      return true;
     }
+  }
+
+
+  /**
+   * Extract the copyright year range from the specified line from a source
+   * file's license header.
+   *
+   * @param  s  The line from which to extract the copyright year.
+   *
+   * @return  The extracted copyright year range.
+   */
+  private static String extractCopyrightRange(final String s)
+  {
+    final int rangeStartPos;
+    if (s.startsWith(" * Copyright (C) "))
+    {
+      rangeStartPos = 17;
+    }
+    else
+    {
+      rangeStartPos = 13;
+    }
+
+    final int rangeEndPos = s.indexOf(" Ping Identity Corporation");
+    return s.substring(rangeStartPos, rangeEndPos);
   }
 
 
