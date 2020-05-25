@@ -278,7 +278,8 @@ public final class DiskSpaceUsageMonitorEntry
           addMonitorAttribute(attrs,
                ATTR_PREFIX_CONSUMER_NAME + i,
                INFO_DISK_SPACE_USAGE_DISPNAME_DISK_SPACE_CONSUMER_PREFIX.get() +
-                    i + INFO_DISK_SPACE_USAGE_DISPNAME_NAME_SUFFIX.get(),
+                    ' ' + i + ' ' +
+                    INFO_DISK_SPACE_USAGE_DISPNAME_NAME_SUFFIX.get(),
                INFO_DISK_SPACE_USAGE_DESC_NAME.get(),
                info.getConsumerName());
         }
@@ -288,7 +289,8 @@ public final class DiskSpaceUsageMonitorEntry
           addMonitorAttribute(attrs,
                ATTR_PREFIX_CONSUMER_PATH + i,
                INFO_DISK_SPACE_USAGE_DISPNAME_DISK_SPACE_CONSUMER_PREFIX.get() +
-                    i + INFO_DISK_SPACE_USAGE_DISPNAME_PATH_SUFFIX.get(),
+                    ' ' + i + ' ' +
+                    INFO_DISK_SPACE_USAGE_DISPNAME_PATH_SUFFIX.get(),
                INFO_DISK_SPACE_USAGE_DESC_PATH.get(),
                info.getPath());
         }
@@ -298,7 +300,8 @@ public final class DiskSpaceUsageMonitorEntry
           addMonitorAttribute(attrs,
                ATTR_PREFIX_CONSUMER_TOTAL_BYTES + i,
                INFO_DISK_SPACE_USAGE_DISPNAME_DISK_SPACE_CONSUMER_PREFIX.get() +
-                    i + INFO_DISK_SPACE_USAGE_DISPNAME_TOTAL_BYTES_SUFFIX.get(),
+                    ' ' + i + ' ' +
+                    INFO_DISK_SPACE_USAGE_DISPNAME_TOTAL_BYTES_SUFFIX.get(),
                INFO_DISK_SPACE_USAGE_DESC_TOTAL_BYTES.get(),
                info.getTotalBytes());
         }
@@ -308,7 +311,7 @@ public final class DiskSpaceUsageMonitorEntry
           addMonitorAttribute(attrs,
                ATTR_PREFIX_CONSUMER_USABLE_BYTES + i,
                INFO_DISK_SPACE_USAGE_DISPNAME_DISK_SPACE_CONSUMER_PREFIX.get() +
-                    i +
+                    ' ' + i + ' ' +
                     INFO_DISK_SPACE_USAGE_DISPNAME_USABLE_BYTES_SUFFIX.get(),
                INFO_DISK_SPACE_USAGE_DESC_USABLE_BYTES.get(),
                info.getUsableBytes());
@@ -319,7 +322,7 @@ public final class DiskSpaceUsageMonitorEntry
           addMonitorAttribute(attrs,
                ATTR_PREFIX_CONSUMER_USABLE_PERCENT + i,
                INFO_DISK_SPACE_USAGE_DISPNAME_DISK_SPACE_CONSUMER_PREFIX.get() +
-                    i +
+                    ' ' + i + ' ' +
                     INFO_DISK_SPACE_USAGE_DISPNAME_USABLE_PERCENT_SUFFIX.get(),
                INFO_DISK_SPACE_USAGE_DESC_USABLE_PERCENT.get(),
                info.getUsablePercent());

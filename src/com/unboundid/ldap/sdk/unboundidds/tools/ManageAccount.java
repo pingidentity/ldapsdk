@@ -2327,7 +2327,7 @@ public final class ManageAccount
   public void handleUnsolicitedNotification(final LDAPConnection connection,
                                             final ExtendedResult notification)
   {
-    final String message = NOTE_MANAGE_ACCT_UNSOLICITED_NOTIFICATION.get(
+    final String message = INFO_MANAGE_ACCT_UNSOLICITED_NOTIFICATION.get(
          String.valueOf(connection), String.valueOf(notification));
     if (outputWriter == null)
     {

@@ -8377,7 +8377,7 @@ public final class ManageCertificates
         {
           out();
           wrapOut(0, WRAP_COLUMN,
-               NOTE_MANAGE_CERTS_CHECK_USABILITY_CA_NOT_IN_JVM_DEFAULT_TS.get(
+               INFO_MANAGE_CERTS_CHECK_USABILITY_CA_NOT_IN_JVM_DEFAULT_TS.get(
                     caCert.getSubjectDN()));
         }
       }
