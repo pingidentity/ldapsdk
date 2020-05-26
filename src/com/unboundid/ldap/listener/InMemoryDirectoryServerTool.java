@@ -49,6 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.StreamHandler;
@@ -61,6 +62,7 @@ import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.ldap.sdk.schema.SchemaValidator;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
 import com.unboundid.util.MinimalLogFormatter;
@@ -150,15 +152,21 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *   <LI>"-s" or "--useDefaultSchema" -- Indicates that the server should use
  *       the default standard schema provided as part of the LDAP SDK.  If
  *       neither this argument nor the "--useSchemaFile" argument is provided,
- *       then the server will not perform any schema validation.</LI>
+ *       then the server will not enforce schema compliance.</LI>
  *   <LI>"-S {path}" or "--useSchemaFile {path}" -- specifies the path to a file
  *       or directory containing schema definitions to use for the server.  If
  *       neither this argument nor the "--useDefaultSchema" argument is
- *       provided, then the server will not perform any schema validation.  If
+ *       provided, then the server will not enforce schema compliance.  If
  *       the specified path represents a file, then it must be an LDIF file
  *       containing a valid LDAP subschema subentry.  If the path is a
  *       directory, then its files will be processed in lexicographic order by
  *       name.</LI>
+ *   <LI>"--doNotValidateSchemaDefinitions" -- indicates that the server should
+ *       not perform any validation for the custom schema provided using the
+ *       --useSchemaFile argument.  If this argument is not used and a custom
+ *       schema is configured, then the server will validate that schema and
+ *       report errors or warnings for any issues that it identifies with that
+ *       schema.</LI>
  *   <LI>"-I {attr}" or "--equalityIndex {attr}" -- specifies that an equality
  *       index should be maintained for the specified attribute.  The equality
  *       index may be used to speed up certain kinds of searches, although it
@@ -214,7 +222,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *   <LI>"--maxConcurrentConnections {num}" -- specifies the maximum number of
  *       concurrent connections that the server will allow.</LI>
  *   <LI>"--sizeLimit {num}" -- specifies the maximum number of entries that
- *       the server will reeturn for a single search operation.</LI>
+ *       the server will return for a single search operation.</LI>
  *   <LI>"--passwordAttribute {attr}" -- specifies an attribute that will hold
  *       user passwords.</LI>
  *   <LI>"--defaultPasswordEncoding {scheme}" -- specifies the name of the
@@ -241,6 +249,13 @@ public final class InMemoryDirectoryServerTool
        implements Serializable, LDAPListenerExceptionHandler
 {
   /**
+   * The column at which long lines should be wrapped.
+   */
+  private static final int WRAP_COLUMN = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 6484637038039050412L;
@@ -250,6 +265,10 @@ public final class InMemoryDirectoryServerTool
   // The argument used to indicate that access log information should be written
   // to standard output.
   private BooleanArgument accessLogToStandardOutArgument;
+
+  // Indicates that the should not attempt to validate custom schema definitions
+  // provided by the useSchemaFile argument.
+  private BooleanArgument doNotValidateSchemaDefinitions;
 
   // The argument used to prevent the in-memory server from starting.  This is
   // only intended to be used for internal testing purposes.
@@ -437,6 +456,7 @@ public final class InMemoryDirectoryServerTool
     super(outStream, errStream);
 
     directoryServer = null;
+    doNotValidateSchemaDefinitions = null;
     dontStartArgument = null;
     generateSelfSignedCertificateArgument = null;
     useDefaultSchemaArgument = null;
@@ -696,6 +716,16 @@ public final class InMemoryDirectoryServerTool
     useSchemaFileArgument.addLongIdentifier("use-schema-file", true);
     parser.addArgument(useSchemaFileArgument);
 
+    doNotValidateSchemaDefinitions = new BooleanArgument(null,
+         "doNotValidateSchemaDefinitions", 1,
+         INFO_MEM_DS_TOOL_ARG_DESC_DO_NOT_VALIDATE_SCHEMA.get(
+              useSchemaFileArgument.getIdentifierString()));
+    doNotValidateSchemaDefinitions.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    doNotValidateSchemaDefinitions.addLongIdentifier(
+         "do-not-validate-schema-definitions", true);
+    parser.addArgument(doNotValidateSchemaDefinitions);
+
     equalityIndexArgument = new StringArgument('I', "equalityIndex", false, 0,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_ATTR.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_EQ_INDEX.get());
@@ -877,6 +907,9 @@ public final class InMemoryDirectoryServerTool
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,
          useSchemaFileArgument);
 
+    parser.addDependentArgumentSet(doNotValidateSchemaDefinitions,
+         useSchemaFileArgument);
+
     parser.addExclusiveArgumentSet(useSSLArgument, useStartTLSArgument);
 
     parser.addExclusiveArgumentSet(keyStorePathArgument,
@@ -984,7 +1017,8 @@ public final class InMemoryDirectoryServerTool
     catch (final LDAPException le)
     {
       Debug.debugException(le);
-      err(ERR_MEM_DS_TOOL_ERROR_INITIALIZING_CONFIG.get(le.getMessage()));
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MEM_DS_TOOL_ERROR_INITIALIZING_CONFIG.get(le.getMessage()));
       return le.getResultCode();
     }
 
@@ -998,7 +1032,8 @@ public final class InMemoryDirectoryServerTool
     catch (final LDAPException le)
     {
       Debug.debugException(le);
-      err(ERR_MEM_DS_TOOL_ERROR_CREATING_SERVER_INSTANCE.get(le.getMessage()));
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MEM_DS_TOOL_ERROR_CREATING_SERVER_INSTANCE.get(le.getMessage()));
       return le.getResultCode();
     }
 
@@ -1011,14 +1046,16 @@ public final class InMemoryDirectoryServerTool
       {
         final int numEntries = directoryServer.importFromLDIF(true,
              ldifFile.getAbsolutePath());
-        out(INFO_MEM_DS_TOOL_ADDED_ENTRIES_FROM_LDIF.get(numEntries,
-             ldifFile.getAbsolutePath()));
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MEM_DS_TOOL_ADDED_ENTRIES_FROM_LDIF.get(numEntries,
+                  ldifFile.getAbsolutePath()));
       }
       catch (final LDAPException le)
       {
         Debug.debugException(le);
-        err(ERR_MEM_DS_TOOL_ERROR_POPULATING_SERVER_INSTANCE.get(
-             ldifFile.getAbsolutePath(), le.getMessage()));
+        wrapErr(0, WRAP_COLUMN,
+             ERR_MEM_DS_TOOL_ERROR_POPULATING_SERVER_INSTANCE.get(
+                  ldifFile.getAbsolutePath(), le.getMessage()));
         return le.getResultCode();
       }
     }
@@ -1030,14 +1067,16 @@ public final class InMemoryDirectoryServerTool
       if (! dontStartArgument.isPresent())
       {
         directoryServer.startListening();
-        out(INFO_MEM_DS_TOOL_LISTENING.get(directoryServer.getListenPort()));
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MEM_DS_TOOL_LISTENING.get(directoryServer.getListenPort()));
       }
     }
     catch (final Exception e)
     {
       Debug.debugException(e);
-      err(ERR_MEM_DS_TOOL_ERROR_STARTING_SERVER.get(
-           StaticUtils.getExceptionMessage(e)));
+      wrapErr(0, WRAP_COLUMN,
+           ERR_MEM_DS_TOOL_ERROR_STARTING_SERVER.get(
+                StaticUtils.getExceptionMessage(e)));
       return ResultCode.LOCAL_ERROR;
     }
 
@@ -1081,14 +1120,14 @@ public final class InMemoryDirectoryServerTool
     }
     else if (useSchemaFileArgument.isPresent())
     {
-      final ArrayList<File> schemaFiles = new ArrayList<>(10);
+      final Map<String,File> schemaFiles = new TreeMap<>();
       for (final File f : useSchemaFileArgument.getValues())
       {
         if (f.exists())
         {
           if (f.isFile())
           {
-            schemaFiles.add(f);
+            schemaFiles.put(f.getName(), f);
           }
           else
           {
@@ -1096,7 +1135,7 @@ public final class InMemoryDirectoryServerTool
             {
               if (subFile.isFile())
               {
-                schemaFiles.add(subFile);
+                schemaFiles.put(subFile.getName(), subFile);
               }
             }
           }
@@ -1108,16 +1147,52 @@ public final class InMemoryDirectoryServerTool
         }
       }
 
+      if (! doNotValidateSchemaDefinitions.isPresent())
+      {
+        Schema schema = null;
+        final List<String> errorMessages = new ArrayList<>();
+        final SchemaValidator schemaValidator = new SchemaValidator();
+        for (final File schemaFile : schemaFiles.values())
+        {
+          schema = schemaValidator.validateSchema(schemaFile, schema,
+               errorMessages);
+        }
+
+        if (! errorMessages.isEmpty())
+        {
+          wrapErr(0, WRAP_COLUMN,
+               WARN_MEM_DS_TOOL_SCHEMA_ISSUES_IDENTIFIED.get());
+          for (final String message : errorMessages)
+          {
+            err();
+            final List<String> wrappedLines = StaticUtils.wrapLine(message,
+                 (WRAP_COLUMN - 2));
+            final Iterator<String> iterator = wrappedLines.iterator();
+            err("* " + iterator.next());
+            while (iterator.hasNext())
+            {
+              err("  " + iterator.next());
+            }
+          }
+          err();
+          wrapErr(0, WRAP_COLUMN,
+               WARN_MEM_DS_TOOL_WILL_CONTINUE_WITH_SCHEMA.get(
+                    doNotValidateSchemaDefinitions.getIdentifierString()));
+          err();
+        }
+      }
+
       try
       {
-        serverConfig.setSchema(Schema.getSchema(schemaFiles));
+        serverConfig.setSchema(Schema.getSchema(
+             new ArrayList<File>(schemaFiles.values())));
       }
       catch (final Exception e)
       {
         Debug.debugException(e);
 
         final StringBuilder fileList = new StringBuilder();
-        final Iterator<File> fileIterator = schemaFiles.iterator();
+        final Iterator<File> fileIterator = schemaFiles.values().iterator();
         while (fileIterator.hasNext())
         {
           fileList.append(fileIterator.next().getAbsolutePath());
@@ -1677,8 +1752,9 @@ public final class InMemoryDirectoryServerTool
   public void connectionCreationFailure(final Socket socket,
                                         final Throwable cause)
   {
-    err(ERR_MEM_DS_TOOL_ERROR_ACCEPTING_CONNECTION.get(
-         StaticUtils.getExceptionMessage(cause)));
+    wrapErr(0, WRAP_COLUMN,
+         ERR_MEM_DS_TOOL_ERROR_ACCEPTING_CONNECTION.get(
+              StaticUtils.getExceptionMessage(cause)));
   }
 
 
@@ -1691,7 +1767,8 @@ public final class InMemoryDirectoryServerTool
                    final LDAPListenerClientConnection connection,
                    final LDAPException cause)
   {
-    err(ERR_MEM_DS_TOOL_CONNECTION_TERMINATED_BY_EXCEPTION.get(
-         StaticUtils.getExceptionMessage(cause)));
+    wrapErr(0, WRAP_COLUMN,
+         ERR_MEM_DS_TOOL_CONNECTION_TERMINATED_BY_EXCEPTION.get(
+              StaticUtils.getExceptionMessage(cause)));
   }
 }

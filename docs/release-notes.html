@@ -79,6 +79,20 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the command-line tool that may be used to launch an instance of the
+                  in-memory directory server so that it will validate any schema definitions
+                  provided via the --useSchemaFile argument and report error or warning messages
+                  for any problems that it identifies with those definitions.  Note that other
+                  than potentially displaying additional messages at startup, this will not
+                  actually change the behavior of the server in any way.  It will still attempt
+                  to use those schema definitions to the best of its ability, but it will now be
+                  easier to detect problems that could affect their use whereas such issues had
+                  previously been silently ignored.  These messages may be suppressed using the
+                  new --doNotValidateSchemaDefinitions if they are not wanted.
+                  <br><br>
+                </li>
+
+                <li>
                   Added support for the LDAP subentries request control as described in RFC 3672.
                   The LDAP SDK already provided support for the version of the LDAP subentries
                   request control described in draft-ietf-ldup-subentry, but these are different
