@@ -55,6 +55,7 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedResult;
+import com.unboundid.ldap.sdk.unboundidds.controls.NoOpRequestControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils ;
@@ -117,11 +118,16 @@ public final class PasswordModifyExtendedOperationHandler
                              final InMemoryRequestHandler handler,
                              final int messageID, final ExtendedRequest request)
   {
-    // This extended operation handler does not support any controls.  If the
-    // request has any critical controls, then reject it.
+    // This extended operation handler supports the no operation control.  If
+    // any other control is present, then reject it if it's critical.
+    boolean noOperation = false;
     for (final Control c : request.getControls())
     {
-      if (c.isCritical())
+      if (c.getOID().equalsIgnoreCase(NoOpRequestControl.NO_OP_REQUEST_OID))
+      {
+        noOperation = true;
+      }
+      else if (c.isCritical())
       {
         return new ExtendedResult(messageID,
              ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
@@ -304,6 +310,16 @@ public final class PasswordModifyExtendedOperationHandler
     }
 
 
+    // If the no operation request control was provided, then return an
+    // appropriate result now.
+    if (noOperation)
+    {
+      return new PasswordModifyExtendedResult(messageID,
+           ResultCode.NO_OPERATION, INFO_PW_MOD_EXTOP_NO_OP.get(), null, null,
+           genPW, null);
+    }
+
+
     // Attempt to modify the user password.
     try
     {
@@ -317,7 +333,7 @@ public final class PasswordModifyExtendedOperationHandler
       return new PasswordModifyExtendedResult(messageID, le.getResultCode(),
            ERR_PW_MOD_EXTOP_CANNOT_CHANGE_PW.get(userEntry.getDN(),
                 le.getMessage()),
-           null, null, null, null);
+           le.getMatchedDN(), le.getReferralURLs(), null, null);
     }
   }
 }

@@ -69,6 +69,7 @@ import com.unboundid.ldap.sdk.unboundidds.tools.CollectSupportData;
 import com.unboundid.ldap.sdk.unboundidds.tools.GenerateTOTPSharedSecret;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPDelete;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
+import com.unboundid.ldap.sdk.unboundidds.tools.LDAPPasswordModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
 import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
@@ -133,6 +134,7 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
  *   <LI>ldapcompare -- Launch the {@link LDAPCompare} tool.</LI>
  *   <LI>ldapdelete -- Launch the {@link LDAPDelete} tool.</LI>
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
+ *   <LI>ldappasswordmodify -- Launch the {@link LDAPPasswordModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
  *   <LI>ldifmodify -- Launch the {@link LDIFModify} tool.</LI>
@@ -291,6 +293,10 @@ public final class Launcher
     {
       return LDAPModify.main(System.in, outStream, errStream, remainingArgs);
     }
+    else if (firstArg.equals("ldappasswordmodify"))
+    {
+      return LDAPPasswordModify.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("ldapsearch"))
     {
       return LDAPSearch.main(outStream, errStream, remainingArgs);
@@ -391,6 +397,7 @@ public final class Launcher
         err.println("     ldapcompare");
         err.println("     ldapdelete");
         err.println("     ldapmodify");
+        err.println("     ldappasswordmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
         err.println("     ldifmodify");
@@ -446,6 +453,7 @@ public final class Launcher
          LDAPDebugger.class,
          LDAPDelete.class,
          LDAPModify.class,
+         LDAPPasswordModify.class,
          LDAPSearch.class,
          LDIFDiff.class,
          LDIFModify.class,
