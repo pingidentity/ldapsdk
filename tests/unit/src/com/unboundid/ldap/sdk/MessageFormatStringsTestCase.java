@@ -265,7 +265,8 @@ public final class MessageFormatStringsTestCase
 
   /**
    * Tests to ensure that format strings do not contain two consecutive spaces
-   * unless they immediately follow a colon, period, or question mark.
+   * unless they immediately follow a colon, period, question mark, or closing
+   * curly brace.
    *
    * @param  propertiesFile  The properties file to examine.
    *
@@ -290,17 +291,18 @@ public final class MessageFormatStringsTestCase
                 " contains line " + lineNumber +
                 " that has three consecutive spaces:  " + line);
 
-      int doubleSpacePos = line.indexOf("  ");
+      int doubleSpacePos = line.indexOf("  ",
+           2); // Skip initial spaces on continuation lines.
       while (doubleSpacePos > 0)
       {
         final char previousCharacter = line.charAt(doubleSpacePos-1);
         assertTrue(
              ((previousCharacter == ':') || (previousCharacter == '.') ||
-                  (previousCharacter == '?')),
+                  (previousCharacter == '?') || (previousCharacter == '}')),
              "Message properties file '" + propertiesFile.getName() +
                   " contains line " + lineNumber +
-                  " that has consecutive spaces not following a period or " +
-                  "colon:  " + line);
+                  " that has consecutive spaces not following a colon, " +
+                  "period, question mark, or closing curly brace:  " + line);
 
         doubleSpacePos = line.indexOf("  ", (doubleSpacePos+1));
       }

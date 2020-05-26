@@ -292,14 +292,14 @@ public class GenerateMessages
 
           if (formatString.contains("%s"))
           {
-            throw new BuildException("The message string for property " +
+            throw new BuildException("The format string for property " +
                  propertyName + " in file " + propertiesFileName +
                  " appears to contain %s instead of a positional indicator " +
                  "like {0}.");
           }
           else if (formatString.contains("%d"))
           {
-            throw new BuildException("The message string for property " +
+            throw new BuildException("The format string for property " +
                  propertyName + " in file " + propertiesFileName +
                  " appears to contain %d instead of a positional indicator " +
                  "like {0}.");
@@ -374,7 +374,7 @@ public class GenerateMessages
                   if (! (formatString.contains("{" + i + '}') ||
                          formatString.contains("{" + i + ",number,0}")))
                   {
-                    throw new BuildException("The message string for " +
+                    throw new BuildException("The format string for " +
                          "property " + propertyName + " in file " +
                          propertiesFileName + " appears to contain {" + value +
                          "} but not {" + i + "}.  The format string is " +
@@ -384,7 +384,7 @@ public class GenerateMessages
               }
               catch (final NumberFormatException nfe)
               {
-                throw new BuildException("The message string for property " +
+                throw new BuildException("The format string for property " +
                      propertyName + " in file " + propertiesFileName +
                      " appears to contain " +
                      formatString.substring(pos, closePos+1) +
@@ -397,7 +397,7 @@ public class GenerateMessages
             }
             else
             {
-              throw new BuildException("The message string for property " +
+              throw new BuildException("The format string for property " +
                    propertyName + " in file " + propertiesFileName +
                    " has an open curly brace without a corresponding " +
                    "close curly brace.  The format string is " + formatString);
@@ -413,7 +413,7 @@ public class GenerateMessages
           {
             if (pos == (formatString.length() - 1))
             {
-              throw new BuildException("The message string for property " +
+              throw new BuildException("The format string for property " +
                    propertyName + " in file " + propertiesFileName +
                    " has a stray trailing single quote.  If you want the " +
                    "quote to be there, then use two consecutive single " +
@@ -432,7 +432,7 @@ public class GenerateMessages
             {
               if (formatString.charAt(pos+2) != '\'')
               {
-                throw new BuildException("The message string for property " +
+                throw new BuildException("The format string for property " +
                      propertyName + " in file " + propertiesFileName +
                      " has a curly brace that is preceded by a single quote " +
                      "but is not followed by one.  Curly braces that you " +
@@ -444,7 +444,7 @@ public class GenerateMessages
             }
             else
             {
-              throw new BuildException("The message string for property " +
+              throw new BuildException("The format string for property " +
                    propertyName + " in file " + propertiesFileName +
                    " has a single quote that is not followed by another " +
                    "single quote or an open or close curly brace.  If you " +
@@ -460,12 +460,47 @@ public class GenerateMessages
           // Validate double quote usage in the format string.
           if (formatString.contains("\""))
           {
-            throw new BuildException("The message string for property " +
+            throw new BuildException("The format string for property " +
                  propertyName + " in file " + propertiesFileName +
                  " contains a double quote character.  Message format " +
                  "strings should only include single quotes so that they can " +
                  "be enclosed in quoted strings with less hassle.  The " +
                  "format string is " + formatString);
+          }
+
+
+          // Check space usage in the format string.
+          if (formatString.endsWith(" "))
+          {
+            throw new BuildException("The format string for property " +
+                 propertyName + " in file " + propertiesFileName +
+                 " contains one or more trailing spaces.  The format string " +
+                 "is " + formatString);
+          }
+
+          if (formatString.contains("   "))
+          {
+            throw new BuildException("The format string for property " +
+                 propertyName + " in file " + propertiesFileName +
+                 " contains three or more consecutive spaces.  The format " +
+                 "string is " + formatString);
+          }
+
+          pos = formatString.indexOf("  ");
+          while (pos > 0)
+          {
+            final char previousCharacter = formatString.charAt(pos-1);
+            if (! ((previousCharacter == ':') || (previousCharacter == '.') ||
+               (previousCharacter == '?') || (previousCharacter == '}')))
+            {
+              throw new BuildException("The format string for property " +
+                   propertyName + " in file " + propertiesFileName +
+                   " contains consecutive spaces that do not immediately " +
+                   "follow a colon, period, question mark, or closing curly " +
+                   "brace.  The format string is " + formatString);
+            }
+
+            pos = formatString.indexOf("  ", (pos+1));
           }
 
 
