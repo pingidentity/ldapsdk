@@ -105,29 +105,29 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  The LDAP SDK's previous support for the control described in
-                  draft-ietf-ldup-subentry had been implemented in the SubentriesRequestControl
-                  class.  To avoid confusion and ambiguity between the two versions of the
-                  control, the existing SubentriesRequestControl has been deprecated and two new
-                  classes, DraftLDUPSubentriesRequestControl and RFC3672SubentriesRequestControl,
-                  have been created.  The deprecated class remains a fully functional
-                  implementation of the draft specification and will be retained for the purpose
-                  of backward compatibility, but all new uses should choose either the
-                  DraftLDUPSubentriesRequestControl class or the RFC3672SubentriesRequestControl
-                  class to make it clearer which version of the control should be used.
+                  Deprecated the existing SubentriesRequestControl class (which implemented
+                  support for the control described in draft-ietf-ldup-subentry) in favor of two
+                  new classes, DraftLDUPSubentriesRequestControl and
+                  RFC3672SubentriesRequestControl.  This will help avoid confusion and ambiguity
+                  over which version of the control is to be used.  The deprecated class remains
+                  a fully functional implementation of the draft specification and will be
+                  retained for the purpose of backward compatibility, but all new uses should
+                  choose either the DraftLDUPSubentriesRequestControl class or the
+                  RFC3672SubentriesRequestControl class to make it clearer which version of the
+                  control should be used.
                   <br><br>
                 </li>
 
                 <li>
                   The ldapsearch command-line tool has been updated to include support for the RFC
-                  3672 version of the control.  The existing --includeSubentries argument is still
-                  supported for the purpose of backward compatibility, but the public identifier
-                  for that argument is now --draftLDUPSubentries and the --includeSubentries
-                  identifier has been hidden.  A new --rfc3672Subentries argument is available to
-                  indicate that the RFC version of the control should be used, and this argument
-                  takes a value of either "true" (to indicate that only subentries should be
-                  returned) or "false" (to indicate that both subentries and regular entries
-                  should be returned).
+                  3672 version of the subentries request control.  The existing
+                  --includeSubentries argument is still supported for the purpose of backward
+                  compatibility, but the public identifier for that argument is now
+                  --draftLDUPSubentries and the --includeSubentries identifier has been hidden.  A
+                  new --rfc3672Subentries argument is available to indicate that the RFC version
+                  of the control should be used, and this argument takes a value of either "true"
+                  (to indicate that only subentries should be returned) or "false" (to indicate
+                  that both subentries and regular entries should be returned).
                   <br><br>
                 </li>
 
@@ -151,6 +151,27 @@ ${TARGET="offline"}                <br>
                   Updated the round-robin and fewest connections server sets to expose the
                   blacklist manager.  Clients may use this to obtain information about servers
                   that are temporarily considered unavailable.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new TopologyRegistryTrustManager class that can read the configuration
+                  file for a Ping Identity Directory Server instance to obtain information about
+                  certificates for that instance and other instances in the topology.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP command-line tool framework so that if it detects that the tool
+                  is running as part of a Ping Identity Directory Server installation, and if no
+                  trust-related arguments are provided for that tool, then it will include the
+                  server's default trust store and topology registry in the set of sources that
+                  that it will consider (which already included the JVM-default trust manager)
+                  before resorting to interactively prompting the user about whether to trust the
+                  presented certificate chain.  In most cases, this will allow these tools to
+                  trust the local instance, and other instances in the same topology, for secure
+                  communication without the need for providing trust-related arguments on the
+                  command line.
                   <br><br>
                 </li>
 

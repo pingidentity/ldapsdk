@@ -38,20 +38,30 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
 
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.sdk.extensions.CancelExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.ldap.sdk.unboundidds.TopologyRegistryTrustManager;
 import com.unboundid.util.Debug;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.ssl.AggregateTrustManager;
+import com.unboundid.util.ssl.JVMDefaultTrustManager;
+import com.unboundid.util.ssl.PromptTrustManager;
+import com.unboundid.util.ssl.TrustStoreTrustManager;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 
@@ -617,5 +627,63 @@ public final class InternalSDKHelper
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves an aggregate trust manager that can be used to interactively
+   * prompt the user about whether to trust a presented certificate chain as a
+   * last resort, but will try other alternatives first, including the
+   * JVM-default trust store and, if the tool is run with access to a Ping
+   * Identity Directory Server instance, then it will also try to use the
+   * server's default trust store and information in the topology registry.
+   *
+   * @param  expectedAddresses  An optional collection of the addresses that the
+   *                            client is expected to use to connect to one of
+   *                            the target servers.  This may be {@code null} or
+   *                            empty if no expected addresses are available, if
+   *                            this trust manager is only expected to be used
+   *                            to validate client certificates, or if no server
+   *                            address validation should be performed.  If a
+   *                            non-empty collection is provided, then the trust
+   *                            manager may issue a warning if the certificate
+   *                            does not contain any of these addresses.
+   *
+   * @return  An aggregate trust manager that can be used to interactively
+   *          prompt the user about whether to trust a presented certificate
+   *          chain as a last resort, but will try other alternatives first.
+   */
+  @InternalUseOnly()
+  public static AggregateTrustManager getPreferredPromptTrustManagerChain(
+                     final Collection<String> expectedAddresses)
+  {
+    final List<X509TrustManager> trustManagers = new ArrayList<>(4);
+    trustManagers.add(JVMDefaultTrustManager.getInstance());
+
+    final File pingIdentityServerRoot =
+         InternalSDKHelper.getPingIdentityServerRoot();
+    if (pingIdentityServerRoot != null)
+    {
+      final File serverTrustStore = StaticUtils.constructPath(
+           pingIdentityServerRoot, "config", "truststore");
+      if (serverTrustStore.exists())
+      {
+        trustManagers.add(new TrustStoreTrustManager(serverTrustStore));
+      }
+
+      final File serverConfigFile = StaticUtils.constructPath(
+           pingIdentityServerRoot, "config", "config.ldif");
+      if (serverConfigFile.exists())
+      {
+        trustManagers.add(new TopologyRegistryTrustManager(serverConfigFile,
+             TimeUnit.MINUTES.toMillis(5L)));
+      }
+    }
+
+    trustManagers.add(new PromptTrustManager(null, true, expectedAddresses,
+         null, null));
+
+    return new AggregateTrustManager(false, trustManagers);
   }
 }

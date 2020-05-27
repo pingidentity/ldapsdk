@@ -46,6 +46,7 @@ import javax.net.ssl.TrustManager;
 
 import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
@@ -65,9 +66,7 @@ import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.ssl.AggregateTrustManager;
-import com.unboundid.util.ssl.JVMDefaultTrustManager;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
-import com.unboundid.util.ssl.PromptTrustManager;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 import com.unboundid.util.ssl.TrustStoreTrustManager;
@@ -836,9 +835,8 @@ public abstract class MultiServerLDAPCommandLineTool
         tm = promptTrustManager.get();
         if (tm == null)
         {
-          final AggregateTrustManager atm = new AggregateTrustManager(false,
-               JVMDefaultTrustManager.getInstance(),
-               new PromptTrustManager());
+          final AggregateTrustManager atm =
+               InternalSDKHelper.getPreferredPromptTrustManagerChain(null);
           if (promptTrustManager.compareAndSet(null, atm))
           {
             tm = atm;

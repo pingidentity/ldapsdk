@@ -59,6 +59,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.EXTERNALBindRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.PLAINBindRequest;
@@ -83,10 +84,7 @@ import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.args.SubCommand;
 import com.unboundid.util.args.TimestampArgument;
-import com.unboundid.util.ssl.AggregateTrustManager;
-import com.unboundid.util.ssl.JVMDefaultTrustManager;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
-import com.unboundid.util.ssl.PromptTrustManager;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 import com.unboundid.util.ssl.TrustStoreTrustManager;
@@ -995,9 +993,8 @@ final class CommandLineToolInteractiveModeProcessor
         }
         else if (trustStorePath == null)
         {
-          trustManager = new AggregateTrustManager(false,
-               JVMDefaultTrustManager.getInstance(),
-               new PromptTrustManager());
+          trustManager = InternalSDKHelper.getPreferredPromptTrustManagerChain(
+               null);
         }
         else
         {
