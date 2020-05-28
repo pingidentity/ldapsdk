@@ -155,6 +155,21 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Improved the logic that the LDAP SDK uses when selecting ordering and substring
+                  matching rules for the case in which the attribute type is defined in a schema
+                  that is available to the LDAP SDK, but the attribute type definition does not
+                  specify the ordering or substring rule to use for that attribute.  In such
+                  cases, the LDAP SDK would previously try to determine an appropriate default
+                  based on the attribute syntax, and failing that, just use a default rule with
+                  case-insensitive matching.  It will may now try to select a more appropriate
+                  ordering or substring rule based on the equality matching rule for the attribute
+                  type before checking the syntax.  This can help provide more expected behavior
+                  for an attribute type with an equality matching rule that the LDAP SDK supports
+                  but is not the default rule for its associated syntax.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new TopologyRegistryTrustManager class that can read the configuration
                   file for a Ping Identity Directory Server instance to obtain information about
                   certificates for that instance and other instances in the topology.

@@ -673,6 +673,16 @@ public abstract class MatchingRule
       return selectOrderingMatchingRule(mrName);
     }
 
+    final String emrName = attrType.getEqualityMatchingRule(schema);
+    if (emrName != null)
+    {
+      final MatchingRule mr = selectEqualityMatchingRule(emrName);
+      if ((mr != null) && (mr.getOrderingMatchingRuleOID() != null))
+      {
+        return mr;
+      }
+    }
+
     final String syntaxOID = attrType.getBaseSyntaxOID(schema);
     if (syntaxOID != null)
     {
@@ -827,6 +837,16 @@ public abstract class MatchingRule
     if (mrName != null)
     {
       return selectSubstringMatchingRule(mrName);
+    }
+
+    final String emrName = attrType.getEqualityMatchingRule(schema);
+    if (emrName != null)
+    {
+      final MatchingRule mr = selectEqualityMatchingRule(emrName);
+      if ((mr != null) && (mr.getSubstringMatchingRuleOID() != null))
+      {
+        return mr;
+      }
     }
 
     final String syntaxOID = attrType.getBaseSyntaxOID(schema);
