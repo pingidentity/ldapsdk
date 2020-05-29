@@ -67,6 +67,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.LDAPConnectionHandlerConfiguration;
 import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentHelper;
@@ -307,339 +308,8 @@ final class CommandLineToolInteractiveModeProcessor
     final LDAPCommandLineTool ldapTool = (LDAPCommandLineTool) tool;
     argList.clear();
 
-    // Determine the type of connection security.
-    final BooleanArgument useSSLArgument = parser.getBooleanArgument("useSSL");
-    final BooleanArgument useStartTLSArgument =
-         parser.getBooleanArgument("useStartTLS");
 
-    final String defaultSecurityChoice;
-    if (useSSLArgument.isPresent())
-    {
-      defaultSecurityChoice = "2";
-    }
-    else if (useStartTLSArgument.isPresent())
-    {
-      defaultSecurityChoice = "3";
-    }
-    else
-    {
-      defaultSecurityChoice = "1";
-    }
-
-    ArgumentHelper.reset(useSSLArgument);
-    ArgumentHelper.reset(useStartTLSArgument);
-
-    final boolean useSSL;
-    final boolean useStartTLS;
-    final int securityType = getNumberedMenuChoice(
-         INFO_INTERACTIVE_LDAP_SECURITY_PROMPT.get(),
-         false,
-         defaultSecurityChoice,
-         INFO_INTERACTIVE_LDAP_SECURITY_OPTION_NONE.get(),
-         INFO_INTERACTIVE_LDAP_SECURITY_OPTION_SSL.get(),
-         INFO_INTERACTIVE_LDAP_SECURITY_OPTION_START_TLS.get());
-    switch (securityType)
-    {
-      case 1:
-        useSSL = true;
-        useStartTLS = false;
-        argList.add("--useSSL");
-        ArgumentHelper.incrementOccurrencesSuppressException(useSSLArgument);
-        break;
-      case 2:
-        useSSL = false;
-        useStartTLS = true;
-        argList.add("--useStartTLS");
-        ArgumentHelper.incrementOccurrencesSuppressException(
-             useStartTLSArgument);
-        break;
-      case 0:
-      default:
-        useSSL = false;
-        useStartTLS = false;
-        break;
-    }
-
-
-    // If the user wants to connect securely, then get the appropriate set of
-    // arguments pertaining to key and trust managers.
-    final StringArgument keyStorePasswordArgument =
-         parser.getStringArgument("keyStorePassword");
-    final StringArgument trustStorePasswordArgument =
-         parser.getStringArgument("trustStorePassword");
-    final StringArgument saslOptionArgument =
-         parser.getStringArgument("saslOption");
-
-    ArgumentHelper.reset(keyStorePasswordArgument);
-    ArgumentHelper.reset(trustStorePasswordArgument);
-    ArgumentHelper.reset(parser.getNamedArgument("keyStorePasswordFile"));
-    ArgumentHelper.reset(parser.getNamedArgument(
-         "promptForKeyStorePassword"));
-    ArgumentHelper.reset(parser.getNamedArgument("trustStorePasswordFile"));
-    ArgumentHelper.reset(parser.getNamedArgument(
-         "promptForTrustStorePassword"));
-
-    BindRequest bindRequest = null;
-    boolean trustAll = false;
-    byte[] keyStorePIN = null;
-    byte[] trustStorePIN = null;
-    File keyStorePath = null;
-    File trustStorePath = null;
-    String certificateNickname = null;
-    String keyStoreFormat = null;
-    String trustStoreFormat = null;
-    if (useSSL || useStartTLS)
-    {
-      final StringArgument keyStorePathArgument =
-           parser.getStringArgument("keyStorePath");
-      final StringArgument keyStoreFormatArgument =
-           parser.getStringArgument("keyStoreFormat");
-
-      // Determine if a client certificate should be presented.
-      final String defaultStoreTypeChoice;
-      if (keyStoreFormatArgument.isPresent())
-      {
-        final String format = keyStoreFormatArgument.getValue();
-        if (format.equalsIgnoreCase("PKCS12"))
-        {
-          defaultStoreTypeChoice = "3";
-        }
-        else
-        {
-          defaultStoreTypeChoice = "2";
-        }
-      }
-      else if (keyStorePathArgument.isPresent())
-      {
-        defaultStoreTypeChoice = "2";
-      }
-      else
-      {
-        defaultStoreTypeChoice = "1";
-      }
-
-      final String defaultKeyStorePath;
-      if (keyStorePathArgument.isPresent())
-      {
-        defaultKeyStorePath = keyStorePathArgument.getValue();
-      }
-      else
-      {
-        defaultKeyStorePath = null;
-      }
-
-      final String defaultCertNickname;
-      final StringArgument certNicknameArgument =
-           parser.getStringArgument("certNickname");
-      if (certNicknameArgument.isPresent())
-      {
-        defaultCertNickname = certNicknameArgument.getValue();
-      }
-      else
-      {
-        defaultCertNickname = null;
-      }
-
-      ArgumentHelper.reset(keyStorePathArgument);
-      ArgumentHelper.reset(keyStoreFormatArgument);
-      ArgumentHelper.reset(certNicknameArgument);
-
-      final int keystoreType = getNumberedMenuChoice(
-           INFO_INTERACTIVE_LDAP_CLIENT_CERT_PROMPT.get(),
-           false,
-           defaultStoreTypeChoice,
-           INFO_INTERACTIVE_LDAP_CLIENT_CERT_OPTION_NO.get(),
-           INFO_INTERACTIVE_LDAP_CLIENT_CERT_OPTION_JKS.get(),
-           INFO_INTERACTIVE_LDAP_CLIENT_CERT_OPTION_PKCS12.get());
-      ArgumentHelper.reset(keyStoreFormatArgument);
-
-      switch (keystoreType)
-      {
-        case 1:
-          keyStoreFormat = "JKS";
-          break;
-        case 2:
-          keyStoreFormat = "PKCS12";
-          break;
-        case 0:
-        default:
-          break;
-      }
-
-      if (keyStoreFormat != null)
-      {
-        ArgumentHelper.addValueSuppressException(keyStoreFormatArgument,
-             keyStoreFormat);
-
-        // Get the path to the keystore file.
-        keyStorePath = promptForPath(
-             INFO_INTERACTIVE_LDAP_KEYSTORE_PATH_PROMPT.get(),
-             defaultKeyStorePath, true, true, true, true, false);
-        argList.add("--keyStorePath");
-        argList.add(keyStorePath.getAbsolutePath());
-        ArgumentHelper.addValueSuppressException(keyStorePathArgument,
-             keyStorePath.getAbsolutePath());
-
-        // Get the PIN needed to access the keystore.
-        keyStorePIN = promptForPassword(
-             INFO_INTERACTIVE_LDAP_KEYSTORE_PIN_PROMPT.get(),
-             INFO_INTERACTIVE_PIN_CONFIRM_PROMPT.get(), false);
-        if (keyStorePIN != null)
-        {
-          argList.add("--keyStorePassword");
-          argList.add("***REDACTED***");
-          ArgumentHelper.addValueSuppressException(keyStorePasswordArgument,
-               StaticUtils.toUTF8String(keyStorePIN));
-        }
-
-        argList.add("--keyStoreFormat");
-        argList.add(keyStoreFormat);
-
-        certificateNickname = promptForString(
-             INFO_INTERACTIVE_LDAP_CERT_NICKNAME_PROMPT.get(),
-             defaultCertNickname, false);
-        if (certificateNickname != null)
-        {
-          argList.add("--certNickname");
-          argList.add(certificateNickname);
-          ArgumentHelper.addValueSuppressException(certNicknameArgument,
-               certificateNickname);
-        }
-
-        if (ldapTool.supportsAuthentication() && promptForBoolean(
-             INFO_INTERACTIVE_LDAP_CERT_AUTH_PROMPT.get(), false, true))
-        {
-          bindRequest = new EXTERNALBindRequest();
-          argList.add("--saslOption");
-          argList.add("mech=EXTERNAL");
-
-          ArgumentHelper.reset(saslOptionArgument);
-          ArgumentHelper.addValueSuppressException(saslOptionArgument,
-               "mech=EXTERNAL");
-        }
-      }
-
-      // Determine how to trust the server certificate.
-      final BooleanArgument trustAllArgument =
-           parser.getBooleanArgument("trustAll");
-      final StringArgument trustStorePathArgument =
-           parser.getStringArgument("trustStorePath");
-      final StringArgument trustStoreFormatArgument =
-           parser.getStringArgument("trustStoreFormat");
-
-      final String defaultTrustTypeChoice;
-      if (trustAllArgument.isPresent())
-      {
-        defaultTrustTypeChoice = "4";
-      }
-      else if (trustStoreFormatArgument.isPresent())
-      {
-        final String format = trustStoreFormatArgument.getValue();
-        if (format.equalsIgnoreCase("PKCS12"))
-        {
-          defaultTrustTypeChoice = "3";
-        }
-        else
-        {
-          defaultTrustTypeChoice = "2";
-        }
-      }
-      else if (trustStorePathArgument.isPresent())
-      {
-        defaultTrustTypeChoice = "2";
-      }
-      else
-      {
-        defaultTrustTypeChoice = "1";
-      }
-
-      final String defaultTrustStorePath;
-      if (trustStorePathArgument.isPresent())
-      {
-        defaultTrustStorePath = trustStorePathArgument.getValue();
-      }
-      else
-      {
-        defaultTrustStorePath = null;
-      }
-      ArgumentHelper.reset(trustAllArgument);
-      ArgumentHelper.reset(trustStorePathArgument);
-      ArgumentHelper.reset(trustStoreFormatArgument);
-
-      final int trustType = getNumberedMenuChoice(
-           INFO_INTERACTIVE_LDAP_TRUST_PROMPT.get(),
-           false,
-           defaultTrustTypeChoice,
-           INFO_INTERACTIVE_LDAP_TRUST_OPTION_PROMPT.get(),
-           INFO_INTERACTIVE_LDAP_TRUST_OPTION_JKS.get(),
-           INFO_INTERACTIVE_LDAP_TRUST_OPTION_PKCS12.get(),
-           INFO_INTERACTIVE_LDAP_TRUST_OPTION_BLIND.get());
-      switch (trustType)
-      {
-        case 1:
-          trustStoreFormat = "JKS";
-          break;
-        case 2:
-          trustStoreFormat = "PKCS12";
-          break;
-        case 3:
-          trustAll = true;
-          argList.add("--trustAll");
-          ArgumentHelper.incrementOccurrencesSuppressException(
-               trustAllArgument);
-          break;
-        case 0:
-        default:
-          // We will interactively prompt the user about whether to trust the
-          // certificate in the test section below.  However, to avoid prompting
-          // the user twice, we will configure the tool behind the scenes to
-          // trust all certificates.
-          ArgumentHelper.incrementOccurrencesSuppressException(
-               trustAllArgument);
-          break;
-      }
-
-      if (trustStoreFormat != null)
-      {
-        ArgumentHelper.addValueSuppressException(trustStoreFormatArgument,
-             trustStoreFormat);
-
-        // Get the path to the truststore file.
-        trustStorePath = promptForPath(
-             INFO_INTERACTIVE_LDAP_TRUSTSTORE_PATH_PROMPT.get(),
-             defaultTrustStorePath, true, true, true, true, false);
-        argList.add("--trustStorePath");
-        argList.add(trustStorePath.getAbsolutePath());
-        ArgumentHelper.addValueSuppressException(trustStorePathArgument,
-             trustStorePath.getAbsolutePath());
-
-        // Get the PIN needed to access the truststore.
-        trustStorePIN = promptForPassword(
-             INFO_INTERACTIVE_LDAP_TRUSTSTORE_PIN_PROMPT.get(),
-             INFO_INTERACTIVE_PIN_CONFIRM_PROMPT.get(), false);
-        if (trustStorePIN != null)
-        {
-          argList.add("--trustStorePassword");
-          argList.add("***REDACTED***");
-          ArgumentHelper.addValueSuppressException(trustStorePasswordArgument,
-               StaticUtils.toUTF8String(trustStorePIN));
-        }
-
-        argList.add("--trustStoreFormat");
-        argList.add(trustStoreFormat);
-      }
-    }
-    else
-    {
-      ArgumentHelper.reset(parser.getNamedArgument("keyStorePath"));
-      ArgumentHelper.reset(parser.getNamedArgument("keyStoreFormat"));
-      ArgumentHelper.reset(parser.getNamedArgument("trustStorePath"));
-      ArgumentHelper.reset(parser.getNamedArgument("trustStoreFormat"));
-      ArgumentHelper.reset(parser.getNamedArgument("certNickname"));
-    }
-
-
-    // Get the address and port of the directory server.
+    // Get the address of the directory server.
     final String defaultHostname;
     final StringArgument hostnameArgument =
          parser.getStringArgument("hostname");
@@ -652,7 +322,415 @@ final class CommandLineToolInteractiveModeProcessor
       defaultHostname = "localhost";
     }
 
-    final int defaultPort;
+    ArgumentHelper.reset(hostnameArgument);
+
+    final String hostname = promptForString(
+         INFO_INTERACTIVE_LDAP_PROMPT_HOST.get(), defaultHostname, true);
+    ArgumentHelper.addValueSuppressException(hostnameArgument, hostname);
+
+    argList.add("--hostname");
+    argList.add(hostname);
+
+
+    // If this tool is running with access to Directory Server data, and if the
+    // selected hostname is "localhost" or a loopback address, then try to load
+    // information about the server's connection handlers.
+    List<LDAPConnectionHandlerConfiguration> serverListenerConfigs = null;
+    final File dsInstanceRoot = InternalSDKHelper.getPingIdentityServerRoot();
+    if (dsInstanceRoot != null)
+    {
+      final File configFile = StaticUtils.constructPath(dsInstanceRoot,
+           "config", "config.ldif");
+      if (configFile.exists() && configFile.isFile())
+      {
+        try
+        {
+          serverListenerConfigs = LDAPConnectionHandlerConfiguration.
+               readConfiguration(configFile, true);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+    }
+
+
+    // Determine the type of connection security to use.
+    final BooleanArgument useSSLArgument = parser.getBooleanArgument("useSSL");
+    final BooleanArgument useStartTLSArgument =
+         parser.getBooleanArgument("useStartTLS");
+
+    final String defaultSecurityChoice;
+    if (useSSLArgument.isPresent())
+    {
+      defaultSecurityChoice = "1";
+    }
+    else if (useStartTLSArgument.isPresent())
+    {
+      defaultSecurityChoice = "3";
+    }
+    else if ((serverListenerConfigs != null) &&
+         (! serverListenerConfigs.isEmpty()))
+    {
+      final LDAPConnectionHandlerConfiguration cfg =
+           serverListenerConfigs.get(0);
+      if (cfg.usesSSL())
+      {
+        defaultSecurityChoice = "1";
+      }
+      else if (cfg.supportsStartTLS())
+      {
+        defaultSecurityChoice = "3";
+      }
+      else
+      {
+        defaultSecurityChoice = "5";
+      }
+    }
+    else
+    {
+      defaultSecurityChoice = "1";
+    }
+
+    ArgumentHelper.reset(useSSLArgument);
+    ArgumentHelper.reset(useStartTLSArgument);
+
+    final boolean useSSL;
+    final boolean useStartTLS;
+    final boolean defaultTrust;
+    final int securityType = getNumberedMenuChoice(
+         INFO_INTERACTIVE_LDAP_SECURITY_PROMPT.get(),
+         false,
+         defaultSecurityChoice,
+         INFO_INTERACTIVE_LDAP_SECURITY_OPTION_SSL_DEFAULT.get(),
+         INFO_INTERACTIVE_LDAP_SECURITY_OPTION_SSL_MANUAL.get(),
+         INFO_INTERACTIVE_LDAP_SECURITY_OPTION_START_TLS_DEFAULT.get(),
+         INFO_INTERACTIVE_LDAP_SECURITY_OPTION_START_TLS_MANUAL.get(),
+         INFO_INTERACTIVE_LDAP_SECURITY_OPTION_NONE.get());
+    switch (securityType)
+    {
+      case 0:
+        useSSL = true;
+        useStartTLS = false;
+        defaultTrust = true;
+        argList.add("--useSSL");
+        ArgumentHelper.incrementOccurrencesSuppressException(useSSLArgument);
+        break;
+      case 1:
+        useSSL = true;
+        useStartTLS = false;
+        defaultTrust = false;
+        argList.add("--useSSL");
+        ArgumentHelper.incrementOccurrencesSuppressException(useSSLArgument);
+        break;
+      case 2:
+        useSSL = false;
+        useStartTLS = true;
+        defaultTrust = true;
+        argList.add("--useStartTLS");
+        ArgumentHelper.incrementOccurrencesSuppressException(
+             useStartTLSArgument);
+        break;
+      case 3:
+        useSSL = false;
+        useStartTLS = true;
+        defaultTrust = false;
+        argList.add("--useStartTLS");
+        ArgumentHelper.incrementOccurrencesSuppressException(
+             useStartTLSArgument);
+        break;
+      case 4:
+      default:
+        useSSL = false;
+        useStartTLS = false;
+        defaultTrust = false;
+        break;
+    }
+
+
+    // If we are to use security without default trust configuration, then
+    // prompt for the appropriate settings.
+    BindRequest bindRequest = null;
+    boolean trustAll = false;
+    byte[] keyStorePIN = null;
+    byte[] trustStorePIN = null;
+    File keyStorePath = null;
+    File trustStorePath = null;
+    String certificateNickname = null;
+    String keyStoreFormat = null;
+    String trustStoreFormat = null;
+    final StringArgument keyStorePasswordArgument =
+         parser.getStringArgument("keyStorePassword");
+    final StringArgument trustStorePasswordArgument =
+         parser.getStringArgument("trustStorePassword");
+    final StringArgument saslOptionArgument =
+         parser.getStringArgument("saslOption");
+    if (! defaultTrust)
+    {
+      // If the user wants to connect securely, then get the appropriate set of
+      // arguments pertaining to key and trust managers.
+      ArgumentHelper.reset(keyStorePasswordArgument);
+      ArgumentHelper.reset(trustStorePasswordArgument);
+      ArgumentHelper.reset(parser.getNamedArgument("keyStorePasswordFile"));
+      ArgumentHelper.reset(parser.getNamedArgument(
+           "promptForKeyStorePassword"));
+      ArgumentHelper.reset(parser.getNamedArgument("trustStorePasswordFile"));
+      ArgumentHelper.reset(parser.getNamedArgument(
+           "promptForTrustStorePassword"));
+
+      if (useSSL || useStartTLS)
+      {
+        final StringArgument keyStorePathArgument =
+             parser.getStringArgument("keyStorePath");
+        final StringArgument keyStoreFormatArgument =
+             parser.getStringArgument("keyStoreFormat");
+
+        // Determine if a client certificate should be presented.
+        final String defaultStoreTypeChoice;
+        if (keyStoreFormatArgument.isPresent())
+        {
+          final String format = keyStoreFormatArgument.getValue();
+          if (format.equalsIgnoreCase("PKCS12"))
+          {
+            defaultStoreTypeChoice = "3";
+          }
+          else
+          {
+            defaultStoreTypeChoice = "2";
+          }
+        }
+        else if (keyStorePathArgument.isPresent())
+        {
+          defaultStoreTypeChoice = "2";
+        }
+        else
+        {
+          defaultStoreTypeChoice = "1";
+        }
+
+        final String defaultKeyStorePath;
+        if (keyStorePathArgument.isPresent())
+        {
+          defaultKeyStorePath = keyStorePathArgument.getValue();
+        }
+        else
+        {
+          defaultKeyStorePath = null;
+        }
+
+        final String defaultCertNickname;
+        final StringArgument certNicknameArgument =
+             parser.getStringArgument("certNickname");
+        if (certNicknameArgument.isPresent())
+        {
+          defaultCertNickname = certNicknameArgument.getValue();
+        }
+        else
+        {
+          defaultCertNickname = null;
+        }
+
+        ArgumentHelper.reset(keyStorePathArgument);
+        ArgumentHelper.reset(keyStoreFormatArgument);
+        ArgumentHelper.reset(certNicknameArgument);
+
+        final int keystoreType = getNumberedMenuChoice(
+             INFO_INTERACTIVE_LDAP_CLIENT_CERT_PROMPT.get(),
+             false,
+             defaultStoreTypeChoice,
+             INFO_INTERACTIVE_LDAP_CLIENT_CERT_OPTION_NO.get(),
+             INFO_INTERACTIVE_LDAP_CLIENT_CERT_OPTION_JKS.get(),
+             INFO_INTERACTIVE_LDAP_CLIENT_CERT_OPTION_PKCS12.get());
+        ArgumentHelper.reset(keyStoreFormatArgument);
+
+        switch (keystoreType)
+        {
+          case 1:
+            keyStoreFormat = "JKS";
+            break;
+          case 2:
+            keyStoreFormat = "PKCS12";
+            break;
+          case 0:
+          default:
+            break;
+        }
+
+        if (keyStoreFormat != null)
+        {
+          ArgumentHelper.addValueSuppressException(keyStoreFormatArgument,
+               keyStoreFormat);
+
+          // Get the path to the keystore file.
+          keyStorePath = promptForPath(
+               INFO_INTERACTIVE_LDAP_KEYSTORE_PATH_PROMPT.get(),
+               defaultKeyStorePath, true, true, true, true, false);
+          argList.add("--keyStorePath");
+          argList.add(keyStorePath.getAbsolutePath());
+          ArgumentHelper.addValueSuppressException(keyStorePathArgument,
+               keyStorePath.getAbsolutePath());
+
+          // Get the PIN needed to access the keystore.
+          keyStorePIN = promptForPassword(
+               INFO_INTERACTIVE_LDAP_KEYSTORE_PIN_PROMPT.get(), null, false);
+          if (keyStorePIN != null)
+          {
+            argList.add("--keyStorePassword");
+            argList.add("***REDACTED***");
+            ArgumentHelper.addValueSuppressException(keyStorePasswordArgument,
+                 StaticUtils.toUTF8String(keyStorePIN));
+          }
+
+          argList.add("--keyStoreFormat");
+          argList.add(keyStoreFormat);
+
+          certificateNickname = promptForString(
+               INFO_INTERACTIVE_LDAP_CERT_NICKNAME_PROMPT.get(),
+               defaultCertNickname, false);
+          if (certificateNickname != null)
+          {
+            argList.add("--certNickname");
+            argList.add(certificateNickname);
+            ArgumentHelper.addValueSuppressException(certNicknameArgument,
+                 certificateNickname);
+          }
+
+          if (ldapTool.supportsAuthentication() && promptForYesNo(
+               INFO_INTERACTIVE_LDAP_CERT_AUTH_PROMPT.get(), false, true))
+          {
+            bindRequest = new EXTERNALBindRequest();
+            argList.add("--saslOption");
+            argList.add("mech=EXTERNAL");
+
+            ArgumentHelper.reset(saslOptionArgument);
+            ArgumentHelper.addValueSuppressException(saslOptionArgument,
+                 "mech=EXTERNAL");
+          }
+        }
+
+        // Determine how to trust the server certificate.
+        final BooleanArgument trustAllArgument =
+             parser.getBooleanArgument("trustAll");
+        final StringArgument trustStorePathArgument =
+             parser.getStringArgument("trustStorePath");
+        final StringArgument trustStoreFormatArgument =
+             parser.getStringArgument("trustStoreFormat");
+
+        final String defaultTrustTypeChoice;
+        if (trustAllArgument.isPresent())
+        {
+          defaultTrustTypeChoice = "4";
+        }
+        else if (trustStoreFormatArgument.isPresent())
+        {
+          final String format = trustStoreFormatArgument.getValue();
+          if (format.equalsIgnoreCase("PKCS12"))
+          {
+            defaultTrustTypeChoice = "3";
+          }
+          else
+          {
+            defaultTrustTypeChoice = "2";
+          }
+        }
+        else if (trustStorePathArgument.isPresent())
+        {
+          defaultTrustTypeChoice = "2";
+        }
+        else
+        {
+          defaultTrustTypeChoice = "1";
+        }
+
+        final String defaultTrustStorePath;
+        if (trustStorePathArgument.isPresent())
+        {
+          defaultTrustStorePath = trustStorePathArgument.getValue();
+        }
+        else
+        {
+          defaultTrustStorePath = null;
+        }
+        ArgumentHelper.reset(trustAllArgument);
+        ArgumentHelper.reset(trustStorePathArgument);
+        ArgumentHelper.reset(trustStoreFormatArgument);
+
+        final int trustType = getNumberedMenuChoice(
+             INFO_INTERACTIVE_LDAP_TRUST_PROMPT.get(),
+             false,
+             defaultTrustTypeChoice,
+             INFO_INTERACTIVE_LDAP_TRUST_OPTION_PROMPT.get(),
+             INFO_INTERACTIVE_LDAP_TRUST_OPTION_JKS.get(),
+             INFO_INTERACTIVE_LDAP_TRUST_OPTION_PKCS12.get(),
+             INFO_INTERACTIVE_LDAP_TRUST_OPTION_BLIND.get());
+        switch (trustType)
+        {
+          case 1:
+            trustStoreFormat = "JKS";
+            break;
+          case 2:
+            trustStoreFormat = "PKCS12";
+            break;
+          case 3:
+            trustAll = true;
+            argList.add("--trustAll");
+            ArgumentHelper.incrementOccurrencesSuppressException(
+                 trustAllArgument);
+            break;
+          case 0:
+          default:
+            // We will interactively prompt the user about whether to trust the
+            // certificate in the test section below.  However, to avoid
+            // prompting the user twice, we will configure the tool behind the
+            // scenes to trust all certificates.
+            ArgumentHelper.incrementOccurrencesSuppressException(
+                 trustAllArgument);
+            break;
+        }
+
+        if (trustStoreFormat != null)
+        {
+          ArgumentHelper.addValueSuppressException(trustStoreFormatArgument,
+               trustStoreFormat);
+
+          // Get the path to the truststore file.
+          trustStorePath = promptForPath(
+               INFO_INTERACTIVE_LDAP_TRUSTSTORE_PATH_PROMPT.get(),
+               defaultTrustStorePath, true, true, true, true, false);
+          argList.add("--trustStorePath");
+          argList.add(trustStorePath.getAbsolutePath());
+          ArgumentHelper.addValueSuppressException(trustStorePathArgument,
+               trustStorePath.getAbsolutePath());
+
+          // Get the PIN needed to access the truststore.
+          trustStorePIN = promptForPassword(
+               INFO_INTERACTIVE_LDAP_TRUSTSTORE_PIN_PROMPT.get(), null, false);
+          if (trustStorePIN != null)
+          {
+            argList.add("--trustStorePassword");
+            argList.add("***REDACTED***");
+            ArgumentHelper.addValueSuppressException(trustStorePasswordArgument,
+                 StaticUtils.toUTF8String(trustStorePIN));
+          }
+
+          argList.add("--trustStoreFormat");
+          argList.add(trustStoreFormat);
+        }
+      }
+      else
+      {
+        ArgumentHelper.reset(parser.getNamedArgument("keyStorePath"));
+        ArgumentHelper.reset(parser.getNamedArgument("keyStoreFormat"));
+        ArgumentHelper.reset(parser.getNamedArgument("trustStorePath"));
+        ArgumentHelper.reset(parser.getNamedArgument("trustStoreFormat"));
+        ArgumentHelper.reset(parser.getNamedArgument("certNickname"));
+      }
+    }
+
+
+    // Get the port of the directory server.
+    int defaultPort;
     final IntegerArgument portArgument =
          parser.getIntegerArgument("port");
     if (portArgument.getNumOccurrences() > 0)
@@ -665,22 +743,55 @@ final class CommandLineToolInteractiveModeProcessor
     else if (useSSL)
     {
       defaultPort = 636;
+      if (serverListenerConfigs != null)
+      {
+        for (final LDAPConnectionHandlerConfiguration cfg :
+             serverListenerConfigs)
+        {
+          if (cfg.usesSSL())
+          {
+            defaultPort = cfg.getPort();
+            break;
+          }
+        }
+      }
+    }
+    else if (useStartTLS)
+    {
+      defaultPort = 389;
+      if (serverListenerConfigs != null)
+      {
+        for (final LDAPConnectionHandlerConfiguration cfg :
+             serverListenerConfigs)
+        {
+          if (cfg.supportsStartTLS())
+          {
+            defaultPort = cfg.getPort();
+            break;
+          }
+        }
+      }
     }
     else
     {
       defaultPort = 389;
+      if (serverListenerConfigs != null)
+      {
+        for (final LDAPConnectionHandlerConfiguration cfg :
+             serverListenerConfigs)
+        {
+          if (! cfg.usesSSL())
+          {
+            defaultPort = cfg.getPort();
+            break;
+          }
+        }
+      }
     }
-    ArgumentHelper.reset(hostnameArgument);
     ArgumentHelper.reset(portArgument);
-
-    final String hostname = promptForString(
-         INFO_INTERACTIVE_LDAP_PROMPT_HOST.get(), defaultHostname, true);
-    ArgumentHelper.addValueSuppressException(hostnameArgument, hostname);
 
     final int port = promptForInteger(INFO_INTERACTIVE_LDAP_PROMPT_PORT.get(),
          defaultPort, 1, 65_535, true);
-    argList.add("--hostname");
-    argList.add(hostname);
     argList.add("--port");
     argList.add(String.valueOf(port));
     ArgumentHelper.addValueSuppressException(portArgument,
@@ -703,20 +814,22 @@ final class CommandLineToolInteractiveModeProcessor
       {
         final String defaultAuthTypeChoice;
         final String defaultBindDN;
-        if (bindDNArgument.isPresent())
+        if (saslOptionArgument.isPresent())
         {
           defaultAuthTypeChoice = "2";
-          defaultBindDN = bindDNArgument.getValue().toString();
-        }
-        else if (saslOptionArgument.isPresent())
-        {
-          defaultAuthTypeChoice = "3";
           defaultBindDN = null;
         }
         else
         {
           defaultAuthTypeChoice = "1";
-          defaultBindDN = null;
+          if (bindDNArgument.isPresent())
+          {
+            defaultBindDN = bindDNArgument.getStringValue();
+          }
+          else
+          {
+            defaultBindDN = null;
+          }
         }
 
         ArgumentHelper.reset(bindDNArgument);
@@ -727,18 +840,18 @@ final class CommandLineToolInteractiveModeProcessor
              INFO_INTERACTIVE_LDAP_AUTH_PROMPT.get(),
              false,
              defaultAuthTypeChoice,
-             INFO_INTERACTIVE_LDAP_AUTH_OPTION_NONE.get(),
              INFO_INTERACTIVE_LDAP_AUTH_OPTION_SIMPLE.get(),
-             INFO_INTERACTIVE_LDAP_AUTH_OPTION_SASL.get());
+             INFO_INTERACTIVE_LDAP_AUTH_OPTION_SASL.get(),
+             INFO_INTERACTIVE_LDAP_AUTH_OPTION_NONE.get());
         switch (authMethod)
         {
-          case 1:
+          case 0:
             useSimpleAuth = true;
             break;
-          case 2:
+          case 1:
             useSASLAuth = true;
             break;
-          case 0:
+          case 2:
           default:
             break;
         }
@@ -764,8 +877,7 @@ final class CommandLineToolInteractiveModeProcessor
           else
           {
             final byte[] bindPassword = promptForPassword(
-                 INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(),
-                 INFO_INTERACTIVE_PW_CONFIRM_PROMPT.get(), true);
+                 INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(), null, true);
             bindRequest = new SimpleBindRequest(bindDN, bindPassword);
             argList.add("--bindDN");
             argList.add(bindDN.toString());
@@ -831,8 +943,7 @@ final class CommandLineToolInteractiveModeProcessor
                    INFO_INTERACTIVE_LDAP_AUTH_AUTHID_PROMPT.get(),
                    defaultAuthID, true);
               byte[] pw = promptForPassword(
-                   INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(),
-                 INFO_INTERACTIVE_PW_CONFIRM_PROMPT.get(), true);
+                   INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(), null, true);
               bindRequest = new CRAMMD5BindRequest(authID, pw);
 
               argList.add("--saslOption");
@@ -861,7 +972,7 @@ final class CommandLineToolInteractiveModeProcessor
                    INFO_INTERACTIVE_LDAP_AUTH_REALM_PROMPT.get(), defaultRealm,
                    false);
               pw = promptForPassword(INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(),
-                   INFO_INTERACTIVE_PW_CONFIRM_PROMPT.get(), true);
+                   null, true);
               bindRequest = new DIGESTMD5BindRequest(authID, authzID, pw,
                    realm);
 
@@ -904,7 +1015,7 @@ final class CommandLineToolInteractiveModeProcessor
                    INFO_INTERACTIVE_LDAP_AUTH_AUTHZID_PROMPT.get(),
                    defaultAuthzID, false);
               pw = promptForPassword(INFO_INTERACTIVE_LDAP_AUTH_PW_PROMPT.get(),
-                 INFO_INTERACTIVE_PW_CONFIRM_PROMPT.get(), true);
+                 null, true);
               bindRequest = new PLAINBindRequest(authID, authzID, pw);
 
               argList.add("--saslOption");
@@ -973,7 +1084,7 @@ final class CommandLineToolInteractiveModeProcessor
             tool.wrapErr(0, wrapColumn,
                  ERR_INTERACTIVE_LDAP_CANNOT_CREATE_KEY_MANAGER.get(
                       StaticUtils.getExceptionMessage(e)));
-            if (promptForBoolean(
+            if (promptForYesNo(
                  INFO_INTERACTIVE_LDAP_RETRY_PROMPT.get(), true, true))
             {
               promptForLDAPArguments(argList, test);
@@ -1020,7 +1131,7 @@ final class CommandLineToolInteractiveModeProcessor
             tool.wrapErr(0, wrapColumn,
                  ERR_INTERACTIVE_LDAP_CANNOT_CREATE_TRUST_MANAGER.get(
                       StaticUtils.getExceptionMessage(e)));
-            if (promptForBoolean(
+            if (promptForYesNo(
                  INFO_INTERACTIVE_LDAP_RETRY_PROMPT.get(), true, true))
             {
               promptForLDAPArguments(argList, test);
@@ -1056,7 +1167,7 @@ final class CommandLineToolInteractiveModeProcessor
                ERR_INTERACTIVE_LDAP_CANNOT_CREATE_SOCKET_FACTORY.get(
                     StaticUtils.getExceptionMessage(e)),
                e);
-          if (promptForBoolean(
+          if (promptForYesNo(
                INFO_INTERACTIVE_LDAP_RETRY_PROMPT.get(), true, true))
           {
             promptForLDAPArguments(argList, test);
@@ -1085,7 +1196,7 @@ final class CommandLineToolInteractiveModeProcessor
           tool.wrapErr(0, wrapColumn,
                ERR_INTERACTIVE_LDAP_CANNOT_CONNECT.get(hostname, port,
                     le.getResultString()));
-          if (promptForBoolean(
+          if (promptForYesNo(
                INFO_INTERACTIVE_LDAP_RETRY_PROMPT.get(), true, true))
           {
             promptForLDAPArguments(argList, test);
@@ -1126,7 +1237,7 @@ final class CommandLineToolInteractiveModeProcessor
 
             tool.wrapErr(0, wrapColumn,
                  ERR_INTERACTIVE_LDAP_CANNOT_PERFORM_STARTTLS.get(msg));
-            if (promptForBoolean(
+            if (promptForYesNo(
                  INFO_INTERACTIVE_LDAP_RETRY_PROMPT.get(), true, true))
             {
               promptForLDAPArguments(argList, test);
@@ -1153,7 +1264,7 @@ final class CommandLineToolInteractiveModeProcessor
             tool.wrapErr(0, wrapColumn,
                  ERR_INTERACTIVE_LDAP_CANNOT_AUTHENTICATE.get(
                       le.getResultString()));
-            if (promptForBoolean(
+            if (promptForYesNo(
                  INFO_INTERACTIVE_LDAP_RETRY_PROMPT.get(), true, true))
             {
               promptForLDAPArguments(argList, test);
@@ -1437,7 +1548,7 @@ argsLoop:
              wrapColumn, true, "q - ", INFO_INTERACTIVE_MENU_OPTION_QUIT.get());
         tool.out();
         tool.getOut().print(
-             INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITHOUT_DEFAULT.get());
+             INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITHOUT_DEFAULT.get() + ' ');
 
         final Argument selectedArg;
         try
@@ -1466,7 +1577,8 @@ argsLoop:
                 tool.wrapErr(0, wrapColumn,
                      ERR_INTERACTIVE_ARG_MENU_INVALID_CHOICE.get());
                 tool.getOut().print(
-                     INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITHOUT_DEFAULT.get());
+                     INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITHOUT_DEFAULT.get() +
+                     ' ');
               }
 
               continue argsLoop;
@@ -1575,7 +1687,8 @@ argsLoop:
               tool.wrapErr(0, wrapColumn,
                    ERR_INTERACTIVE_ARG_MENU_INVALID_CHOICE.get());
               tool.getOut().print(
-                   INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITHOUT_DEFAULT.get());
+                   INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITHOUT_DEFAULT.get() +
+                        ' ');
             }
             else
             {
@@ -2848,12 +2961,12 @@ argsLoop:
     final String message;
     if (defaultOptionString == null)
     {
-      message = INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITHOUT_DEFAULT.get();
+      message = INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITHOUT_DEFAULT.get() + ' ';
     }
     else
     {
       message = INFO_INTERACTIVE_MENU_ENTER_CHOICE_WITH_DEFAULT.get(
-           defaultOptionString);
+           defaultOptionString) + ' ';
     }
 
     try
@@ -3021,6 +3134,67 @@ argsLoop:
 
     final int newIntValue = getNumberedMenuChoice(prompt, (! requireValue),
          null, choices);
+    switch (newIntValue)
+    {
+      case 0:
+        return Boolean.TRUE;
+      case 1:
+        return Boolean.FALSE;
+      default:
+        return null;
+    }
+  }
+
+
+
+  /**
+   * Prompts the user to enter a yes or no value.
+   *
+   * @param  prompt        The prompt to display to the user.
+   * @param  defaultValue  The value that should be selected if the user
+   *                       presses ENTER without entering a value.
+   * @param  requireValue  Indicates whether a value is required.
+   *
+   * @return  The Boolean value obtained from the user, or {@code null} if the
+   *          user did not provide a value, there is no default value, and no
+   *          value is required.
+   *
+   * @throws  LDAPException  If an error occurs while obtaining the value from
+   *                         the user.
+   */
+  private Boolean promptForYesNo(final String prompt,
+                                 final Boolean defaultValue,
+                                 final boolean requireValue)
+          throws LDAPException
+  {
+    final String[] choices =
+    {
+      INFO_INTERACTIVE_CHOICE_YES.get(),
+      INFO_INTERACTIVE_CHOICE_NO.get()
+    };
+
+    tool.out();
+    String defaultOptionString = null;
+    if (defaultValue != null)
+    {
+      tool.wrapStandardOut(0, 0, wrapColumn, true,
+           INFO_INTERACTIVE_ARG_DESC_CURRENT_VALUE.get());
+      if (defaultValue)
+      {
+        tool.wrapStandardOut(5, 10, wrapColumn, true,
+             INFO_INTERACTIVE_CHOICE_YES.get());
+        defaultOptionString = "1";
+      }
+      else
+      {
+        tool.wrapStandardOut(5, 10, wrapColumn, true,
+             INFO_INTERACTIVE_CHOICE_NO.get());
+        defaultOptionString = "2";
+      }
+    }
+
+    final int newIntValue = getNumberedMenuChoice(prompt, (! requireValue),
+         defaultOptionString, choices);
     switch (newIntValue)
     {
       case 0:

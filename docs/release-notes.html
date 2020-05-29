@@ -201,6 +201,24 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Streamlined and improved the behavior that LDAP command-line tools exhibit when
+                  run in interactive mode.  The interactive process will now prefer secure
+                  communication over unencrypted connections, with LDAPS preferred over LDAP with
+                  StartTLS.  It will no longer prompt for trust-related arguments by default,
+                  automatically trusting certificates signed by an issuer in the JVM's default
+                  trust store or falling back to interactive confirmation, although it is still
+                  possible to specify an alternate trust configuration if desired.  It will now
+                  prefer LDAP simple authentication over unauthenticated connections, and it will
+                  no longer ask you to confirm the bind password (although it will allow you to
+                  re-enter settings if it can't authenticate with the given password).  Finally,
+                  if the tool is part of a Ping Identity Directory Server installation, it will
+                  now select the default port and communication security type based on options
+                  defined in the server configuration, and it can automatically trust certificates
+                  that the server considers trusted.
+                  <br><br>
+                </li>
+
+                <li>
                   Made several improvements to the summarize-access-log tool, which may be used to
                   analyze and provide a summary of the contents of Ping Identity, UnboundID, or
                   Nokia/Alcatel-Lucent 8661 server access logs.  You can now customize the maximum
