@@ -472,6 +472,12 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications")),
+
               new LDIFModifyChangeRecord(new ModifyRequest(
                    "dn: dc=example,dc=com",
                    "changetype: modify",
@@ -499,12 +505,7 @@ public final class LDIFDiffTestCase
                    "add: description",
                    "description: target",
                    "-")),
-              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com"),
-              new LDIFAddChangeRecord(new AddRequest(
-                   "dn: ou=Applications,dc=example,dc=com",
-                   "objectClass: top",
-                   "objectClass: organizationalUnit",
-                   "ou: Applications"))));
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -608,6 +609,11 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications")),
               new LDIFModifyChangeRecord(new ModifyRequest(
                    "dn: dc=example,dc=com",
                    "changetype: modify",
@@ -635,12 +641,7 @@ public final class LDIFDiffTestCase
                    "add: description",
                    "description: target",
                    "-")),
-              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com"),
-              new LDIFAddChangeRecord(new AddRequest(
-                   "dn: ou=Applications,dc=example,dc=com",
-                   "objectClass: top",
-                   "objectClass: organizationalUnit",
-                   "ou: Applications"))));
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
   }
 
 
@@ -875,12 +876,12 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
-              new LDIFDeleteChangeRecord("ou=People,dc=example,dc=com"),
               new LDIFAddChangeRecord(new AddRequest(
                    "dn: ou=Users,dc=example,dc=com",
                    "objectClass: top",
                    "objectClass: organizationalUnit",
-                   "ou: Users"))));
+                   "ou: Users")),
+              new LDIFDeleteChangeRecord("ou=People,dc=example,dc=com")));
 
     assertTrue(out.size() > 0);
 
@@ -905,6 +906,12 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Users,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Users",
+                   "entryUUID: 44444444-4444-4444-4444-444444444444")),
               new LDIFModifyChangeRecord(new ModifyRequest(
                    "dn: dc=example,dc=com",
                    "changetype: modify",
@@ -913,13 +920,7 @@ public final class LDIFDiffTestCase
                    "-",
                    "add: entryUUID",
                    "entryUUID: 33333333-3333-3333-3333-333333333333")),
-              new LDIFDeleteChangeRecord("ou=People,dc=example,dc=com"),
-              new LDIFAddChangeRecord(new AddRequest(
-                   "dn: ou=Users,dc=example,dc=com",
-                   "objectClass: top",
-                   "objectClass: organizationalUnit",
-                   "ou: Users",
-                   "entryUUID: 44444444-4444-4444-4444-444444444444"))));
+              new LDIFDeleteChangeRecord("ou=People,dc=example,dc=com")));
 
     assertTrue(out.size() > 0);
 
@@ -946,12 +947,13 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
-              new LDIFDeleteChangeRecord("ou=People,dc=example,dc=com"),
+
               new LDIFAddChangeRecord(new AddRequest(
                    "dn: ou=Users,dc=example,dc=com",
                    "objectClass: top",
                    "objectClass: organizationalUnit",
-                   "ou: Users"))));
+                   "ou: Users")),
+              new LDIFDeleteChangeRecord("ou=People,dc=example,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -1047,6 +1049,11 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications")),
               new LDIFModifyChangeRecord(new ModifyRequest(
                    "dn: dc=example,dc=com",
                    "changetype: modify",
@@ -1074,12 +1081,7 @@ public final class LDIFDiffTestCase
                    "add: description",
                    "description: target",
                    "-")),
-              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com"),
-              new LDIFAddChangeRecord(new AddRequest(
-                   "dn: ou=Applications,dc=example,dc=com",
-                   "objectClass: top",
-                   "objectClass: organizationalUnit",
-                   "ou: Applications"))));
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -1178,6 +1180,11 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications")),
               new LDIFModifyChangeRecord(new ModifyRequest(
                    "dn: dc=example,dc=com",
                    "changetype: modify",
@@ -1205,12 +1212,7 @@ public final class LDIFDiffTestCase
                    "add: description",
                    "description: target",
                    "-")),
-              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com"),
-              new LDIFAddChangeRecord(new AddRequest(
-                   "dn: ou=Applications,dc=example,dc=com",
-                   "objectClass: top",
-                   "objectClass: organizationalUnit",
-                   "ou: Applications"))));
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -1332,6 +1334,11 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications")),
               new LDIFModifyChangeRecord(new ModifyRequest(
                    "dn: dc=example,dc=com",
                    "changetype: modify",
@@ -1359,12 +1366,7 @@ public final class LDIFDiffTestCase
                    "add: description",
                    "description: target",
                    "-")),
-              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com"),
-              new LDIFAddChangeRecord(new AddRequest(
-                   "dn: ou=Applications,dc=example,dc=com",
-                   "objectClass: top",
-                   "objectClass: organizationalUnit",
-                   "ou: Applications"))));
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -1476,6 +1478,11 @@ public final class LDIFDiffTestCase
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
          Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications")),
               new LDIFModifyChangeRecord(new ModifyRequest(
                    "dn: dc=example,dc=com",
                    "changetype: modify",
@@ -1503,12 +1510,7 @@ public final class LDIFDiffTestCase
                    "add: description",
                    "description: target",
                    "-")),
-              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com"),
-              new LDIFAddChangeRecord(new AddRequest(
-                   "dn: ou=Applications,dc=example,dc=com",
-                   "objectClass: top",
-                   "objectClass: organizationalUnit",
-                   "ou: Applications"))));
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -2125,12 +2127,12 @@ public final class LDIFDiffTestCase
 
     assertEquals(changeRecords,
          Arrays.asList(
-              new LDIFDeleteChangeRecord("dc=source,dc=com"),
               new LDIFAddChangeRecord(new AddRequest(
                    "dn: dc=target,dc=com",
                    "objectClass: top",
                    "objectClass: domain",
-                   "dc: target"))));
+                   "dc: target")),
+              new LDIFDeleteChangeRecord("dc=source,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -2248,12 +2250,12 @@ public final class LDIFDiffTestCase
 
     assertEquals(changeRecords,
          Arrays.asList(
-              new LDIFDeleteChangeRecord("dc=source,dc=com"),
               new LDIFAddChangeRecord(new AddRequest(
                    "dn: dc=target,dc=com",
                    "objectClass: top",
                    "objectClass: domain",
-                   "dc: target"))));
+                   "dc: target")),
+              new LDIFDeleteChangeRecord("dc=source,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -2376,12 +2378,12 @@ public final class LDIFDiffTestCase
 
     assertEquals(changeRecords,
          Arrays.asList(
-              new LDIFDeleteChangeRecord("dc=source,dc=com"),
               new LDIFAddChangeRecord(new AddRequest(
                    "dn: dc=target,dc=com",
                    "objectClass: top",
                    "objectClass: domain",
-                   "dc: target"))));
+                   "dc: target")),
+              new LDIFDeleteChangeRecord("dc=source,dc=com")));
 
     assertTrue(out.size() > 0);
   }
@@ -2507,12 +2509,12 @@ public final class LDIFDiffTestCase
 
     assertEquals(changeRecords,
          Arrays.asList(
-              new LDIFDeleteChangeRecord("dc=source,dc=com"),
               new LDIFAddChangeRecord(new AddRequest(
                    "dn: dc=target,dc=com",
                    "objectClass: top",
                    "objectClass: domain",
-                   "dc: target"))));
+                   "dc: target")),
+              new LDIFDeleteChangeRecord("dc=source,dc=com")));
 
     assertTrue(out.size() > 0);
   }

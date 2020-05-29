@@ -707,6 +707,29 @@ public final class LDIFDiff
     try (OutputStream outputStream = openOutputStream();
          LDIFWriter ldifWriter = new LDIFWriter(outputStream))
     {
+      // First, identify any entries that have been added (that is, entries in
+      // the target set that are not in the source set), and write them to the
+      // output file.
+      try
+      {
+        addCount = writeAdds(sourceEntries, targetEntries, ldifWriter, schema);
+      }
+      catch (final LDAPException e)
+      {
+        Debug.debugException(e);
+        logCompletionMessage(true,
+             ERR_LDIF_DIFF_ERROR_WRITING_OUTPUT.get(outputFilePath,
+                  e.getMessage()));
+        return e.getResultCode();
+      }
+
+
+      // Next, identify any entries that have been modified (that is, entries
+      // that exist in both sets, but are different between those sets), and
+      // write them to the output file.  We'll write modifies after adds because
+      // that allows modifications to reference newly created entries, and we'll
+      // write modifies before deletes because that allows modifications to
+      // remove references to entries that will be removed.
       try
       {
         modifyCount = writeModifications(sourceEntries, targetEntries,
@@ -721,22 +744,12 @@ public final class LDIFDiff
         return e.getResultCode();
       }
 
+
+      // Finally, identify any deletes (entries that were only in the set of
+      // source entries) and write them to the output file.
       try
       {
         deleteCount = writeDeletes(sourceEntries, ldifWriter);
-      }
-      catch (final LDAPException e)
-      {
-        Debug.debugException(e);
-        logCompletionMessage(true,
-             ERR_LDIF_DIFF_ERROR_WRITING_OUTPUT.get(outputFilePath,
-                  e.getMessage()));
-        return e.getResultCode();
-      }
-
-      try
-      {
-        addCount = writeAdds(targetEntries, ldifWriter, schema);
       }
       catch (final LDAPException e)
       {
@@ -1090,6 +1103,89 @@ public final class LDIFDiff
 
 
   /**
+   * Writes add change records for all entries contained in the given target
+   * entry map that are not in the source entry map.
+   *
+   * @param  sourceEntries  The map of entries read from the source LDIF file.
+   *                        It must not be {@code null}.
+   * @param  targetEntries  The map of entries read from the target LDIF file.
+   *                        It must not be {@code null}.
+   * @param  writer         The LDIF writer to use to write any changes.  It
+   *                        must not be {@ocde null} and it must be open.
+   * @param  schema         The schema to use to identify operational
+   *                        attributes.  It must not be {@ocde null}.
+   *
+   * @return  The number of added entries that were identified during
+   *          processing.
+   *
+   * @throws  LDAPException  If a problem is encountered while writing the ad
+   *                         change records.
+   */
+  private long writeAdds(final TreeMap<DN,Entry> sourceEntries,
+                         final TreeMap<DN,Entry> targetEntries,
+                         final LDIFWriter writer, final Schema schema)
+          throws LDAPException
+  {
+    long addCount = 0L;
+
+    final Iterator<Map.Entry<DN,Entry>> targetIterator =
+         targetEntries.entrySet().iterator();
+    while (targetIterator.hasNext())
+    {
+      final Map.Entry<DN,Entry> e = targetIterator.next();
+      final DN entryDN = e.getKey();
+      final Entry entry = e.getValue();
+      if (! sourceEntries.containsKey(entryDN))
+      {
+        targetIterator.remove();
+
+        final List<Attribute> attributes =
+             new ArrayList<>(entry.getAttributes());
+        final Iterator<Attribute> attributeIterator = attributes.iterator();
+        while (attributeIterator.hasNext())
+        {
+          final Attribute a = attributeIterator.next();
+          final String baseName = a.getBaseName();
+          final AttributeTypeDefinition at = schema.getAttributeType(baseName);
+          if ((at != null) && at.isOperational())
+          {
+            if (! includeOperationalAttributes.isPresent())
+            {
+              attributeIterator.remove();
+              continue;
+            }
+
+            if (at.isNoUserModification() &&
+                 excludeNoUserModificationAttributes.isPresent())
+            {
+              attributeIterator.remove();
+            }
+          }
+        }
+
+        try
+        {
+          writer.writeChangeRecord(new LDIFAddChangeRecord(entry.getDN(),
+               attributes));
+          addCount++;
+        }
+        catch (final Exception ex)
+        {
+          Debug.debugException(ex);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_LDIF_WRITER_CANNOT_WRITE_ADD_FOR_ENTRY.get(entry.getDN(),
+                  StaticUtils.getExceptionMessage(ex)),
+             ex);
+        }
+      }
+    }
+
+    return addCount;
+  }
+
+
+
+  /**
    * Identifies entries that exist in both the source and target maps and
    * determines whether there are any changes between them.  Any entries that
    * exist in both sets will be removed from those sets, regardless of whether
@@ -1289,76 +1385,6 @@ public final class LDIFDiff
     }
 
     return deleteCount;
-  }
-
-
-
-  /**
-   * Writes add change records for all entries contained in the given target
-   * entry map.
-   *
-   * @param  targetEntries  The map of entries read from the target LDIF file.
-   *                        It must not be {@code null}.
-   * @param  writer         The LDIF writer to use to write any changes.  It
-   *                        must not be {@ocde null} and it must be open.
-   * @param  schema         The schema to use to identify operational
-   *                        attributes.  It must not be {@ocde null}.
-   *
-   * @return  The number of added entries that were identified during
-   *          processing.
-   *
-   * @throws  LDAPException  If a problem is encountered while writing the ad
-   *                         change records.
-   */
-  private long writeAdds(final TreeMap<DN,Entry> targetEntries,
-                         final LDIFWriter writer, final Schema schema)
-          throws LDAPException
-  {
-    // Any entries remaining in the target entry map after removing the common
-    // entries must have been added.
-    long addCount = 0L;
-    for (final Entry entry : targetEntries.values())
-    {
-      final List<Attribute> attributes = new ArrayList<>(entry.getAttributes());
-      final Iterator<Attribute> attributeIterator = attributes.iterator();
-      while (attributeIterator.hasNext())
-      {
-        final Attribute a = attributeIterator.next();
-        final String baseName = a.getBaseName();
-        final AttributeTypeDefinition at = schema.getAttributeType(baseName);
-        if ((at != null) && at.isOperational())
-        {
-          if (! includeOperationalAttributes.isPresent())
-          {
-            attributeIterator.remove();
-            continue;
-          }
-
-          if (at.isNoUserModification() &&
-               excludeNoUserModificationAttributes.isPresent())
-          {
-            attributeIterator.remove();
-          }
-        }
-      }
-
-      try
-      {
-        writer.writeChangeRecord(new LDIFAddChangeRecord(entry.getDN(),
-             attributes));
-        addCount++;
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_LDIF_WRITER_CANNOT_WRITE_ADD_FOR_ENTRY.get(entry.getDN(),
-                StaticUtils.getExceptionMessage(e)),
-           e);
-      }
-    }
-
-    return addCount;
   }
 
 
