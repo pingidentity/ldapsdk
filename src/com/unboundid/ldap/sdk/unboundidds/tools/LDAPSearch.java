@@ -221,6 +221,7 @@ public final class LDAPSearch
   private BooleanArgument permitUnindexedSearch = null;
   private BooleanArgument realAttributesOnly = null;
   private BooleanArgument rejectUnindexedSearch = null;
+  private BooleanArgument requireMatch = null;
   private BooleanArgument retryFailedOperations = null;
   private BooleanArgument separateOutputFilePerSearch = null;
   private BooleanArgument suppressBase64EncodedValueComments = null;
@@ -750,6 +751,22 @@ public final class LDAPSearch
     outputFormat.addLongIdentifier("output-format", true);
     outputFormat.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(outputFormat);
+
+    requireMatch = new BooleanArgument(null, "requireMatch", 1,
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_REQUIRE_MATCH.get(
+              getToolName(),
+              String.valueOf(ResultCode.NO_RESULTS_RETURNED)));
+    requireMatch.addLongIdentifier("require-match", true);
+    requireMatch.addLongIdentifier("requireMatchingEntry", true);
+    requireMatch.addLongIdentifier("require-matching-entry", true);
+    requireMatch.addLongIdentifier("requireMatchingEntries", true);
+    requireMatch.addLongIdentifier("require-matching-entries", true);
+    requireMatch.addLongIdentifier("requireEntry", true);
+    requireMatch.addLongIdentifier("require-entry", true);
+    requireMatch.addLongIdentifier("requireEntries", true);
+    requireMatch.addLongIdentifier("require-entries", true);
+    requireMatch.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
+    parser.addArgument(requireMatch);
 
     terse = new BooleanArgument(null, "terse", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_TERSE.get());
@@ -3021,6 +3038,10 @@ public final class LDAPSearch
       if (countEntries.isPresent())
       {
         return ResultCode.valueOf((int) Math.min(totalEntries, 255));
+      }
+      else if (requireMatch.isPresent() && (totalEntries == 0))
+      {
+        return ResultCode.NO_RESULTS_RETURNED;
       }
       else
       {

@@ -2296,4 +2296,35 @@ public final class LDAPSearchTestCase
          "--scope", "base",
          "(objectClass=*)");
   }
+
+
+
+  /**
+   * Provides test coverage for the --requireMatch argument.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRequireMatch()
+         throws Exception
+  {
+    ResultCode resultCode = LDAPSearch.main(NULL_OUTPUT_STREAM,
+         NULL_OUTPUT_STREAM,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--baseDN", "dc=example,dc=com",
+         "--scope", "sub",
+         "(uid=nonexistent)");
+    assertEquals(resultCode, ResultCode.SUCCESS);
+
+    resultCode = LDAPSearch.main(NULL_OUTPUT_STREAM,
+         NULL_OUTPUT_STREAM,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--baseDN", "dc=example,dc=com",
+         "--scope", "sub",
+         "--requireMatch",
+         "(uid=nonexistent)");
+    assertEquals(resultCode, ResultCode.NO_RESULTS_RETURNED);
+  }
 }

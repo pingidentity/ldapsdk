@@ -119,15 +119,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  The ldapsearch command-line tool has been updated to include support for the RFC
-                  3672 version of the subentries request control.  The existing
-                  --includeSubentries argument is still supported for the purpose of backward
-                  compatibility, but the public identifier for that argument is now
-                  --draftLDUPSubentries and the --includeSubentries identifier has been hidden.  A
-                  new --rfc3672Subentries argument is available to indicate that the RFC version
-                  of the control should be used, and this argument takes a value of either "true"
-                  (to indicate that only subentries should be returned) or "false" (to indicate
-                  that both subentries and regular entries should be returned).
+                  Updated the ldapsearch command-line tool to include support for the RFC 3672
+                  version of the subentries request control.  The existing --includeSubentries
+                  argument is still supported for the purpose of backward compatibility, but the
+                  public identifier for that argument is now --draftLDUPSubentries, and the
+                  --includeSubentries identifier has been hidden.  A new --rfc3672Subentries
+                  argument is available to indicate that the RFC version of the control should
+                  be used, and this argument takes a value of either "true" (to indicate that
+                  only subentries should be returned) or "false" (to indicate that both subentries
+                  and regular entries should be returned).
                   <br><br>
                 </li>
 
@@ -144,6 +144,16 @@ ${TARGET="offline"}                <br>
                   output, without output names, entry DNs, or blank lines between entries.  This
                   output format makes it easier to extract raw attribute values from a directory
                   server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a "--requireMatch" argument to the ldapsearch command-line tool.  If this
+                  argument is provided and the search operation completes successfully but does
+                  not return any matching entries, then the tool will complete with an exit code
+                  of 94 (noResultsReturned), rather than the usual exit code of 0 (success).
+                  This argument only affects the tool exit code; it will not have any visible
+                  effect on the output.
                   <br><br>
                 </li>
 
