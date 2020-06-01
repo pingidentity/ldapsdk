@@ -184,6 +184,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the manage-certificates tool make it easier to list and export
+                  certificates from the JMV's default trust store.  The new
+                  --use-jvm-default-trust-store argument can be used as an alternative to the
+                  existing --keystore argument to indicate that it should use the JVM's default
+                  set of trusted issuer certificates without the need to provide the path to the
+                  appropriate cacerts file.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved the logic that the LDAP SDK uses when selecting ordering and substring
                   matching rules for the case in which the attribute type is defined in a schema
                   that is available to the LDAP SDK, but the attribute type definition does not

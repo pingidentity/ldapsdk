@@ -442,13 +442,31 @@ public final class ManageCertificates
          "list-certificates", INFO_MANAGE_CERTS_SC_LIST_CERTS_DESC.get());
 
     final FileArgument listCertsKeystore = new FileArgument(null, "keystore",
-         true, 1, null, INFO_MANAGE_CERTS_SC_LIST_CERTS_ARG_KS_DESC.get(),
-         true, true,  true, false);
+         (JVM_DEFAULT_CACERTS_FILE == null), 1, null,
+         INFO_MANAGE_CERTS_SC_LIST_CERTS_ARG_KS_DESC.get(), true, true,  true,
+         false);
     listCertsKeystore.addLongIdentifier("keystore-path", true);
     listCertsKeystore.addLongIdentifier("keystorePath", true);
     listCertsKeystore.addLongIdentifier("keystore-file", true);
     listCertsKeystore.addLongIdentifier("keystoreFile", true);
     listCertsParser.addArgument(listCertsKeystore);
+
+    if (JVM_DEFAULT_CACERTS_FILE != null)
+    {
+      final BooleanArgument listCertsUseJVMDefault = new BooleanArgument(null,
+           "use-jvm-default-trust-store", 1,
+           INFO_MANAGE_CERTS_SC_LIST_CERTS_ARG_JVM_DEFAULT_DESC.get(
+                JVM_DEFAULT_CACERTS_FILE.getAbsolutePath()));
+      listCertsUseJVMDefault.addLongIdentifier("useJVMDefaultTrustStore", true);
+      listCertsUseJVMDefault.addLongIdentifier("jvm-default", true);
+      listCertsUseJVMDefault.addLongIdentifier("jvmDefault", true);
+      listCertsParser.addArgument(listCertsUseJVMDefault);
+
+      listCertsParser.addRequiredArgumentSet(listCertsUseJVMDefault,
+           listCertsKeystore);
+      listCertsParser.addExclusiveArgumentSet(listCertsUseJVMDefault,
+           listCertsKeystore);
+    }
 
     final StringArgument listCertsKeystorePassword = new StringArgument(null,
          "keystore-password", false, 1,
@@ -559,7 +577,7 @@ public final class ManageCertificates
            new String[]
            {
              "list-certificates",
-             "--keystore", JVM_DEFAULT_CACERTS_FILE.getAbsolutePath()
+             "--use-jvm-default-trust-store"
            },
            INFO_MANAGE_CERTS_SC_LIST_CERTS_EXAMPLE_3.get());
     }
@@ -580,13 +598,32 @@ public final class ManageCertificates
          "export-certificate", INFO_MANAGE_CERTS_SC_EXPORT_CERT_DESC.get());
 
     final FileArgument exportCertKeystore = new FileArgument(null, "keystore",
-         true, 1, null, INFO_MANAGE_CERTS_SC_EXPORT_CERT_ARG_KS_DESC.get(),
-         true, true,  true, false);
+         (JVM_DEFAULT_CACERTS_FILE == null), 1, null,
+         INFO_MANAGE_CERTS_SC_EXPORT_CERT_ARG_KS_DESC.get(), true, true,  true,
+         false);
     exportCertKeystore.addLongIdentifier("keystore-path", true);
     exportCertKeystore.addLongIdentifier("keystorePath", true);
     exportCertKeystore.addLongIdentifier("keystore-file", true);
     exportCertKeystore.addLongIdentifier("keystoreFile", true);
     exportCertParser.addArgument(exportCertKeystore);
+
+    if (JVM_DEFAULT_CACERTS_FILE != null)
+    {
+      final BooleanArgument exportCertUseJVMDefault = new BooleanArgument(null,
+           "use-jvm-default-trust-store", 1,
+           INFO_MANAGE_CERTS_SC_EXPORT_CERTS_ARG_JVM_DEFAULT_DESC.get(
+                JVM_DEFAULT_CACERTS_FILE.getAbsolutePath()));
+      exportCertUseJVMDefault.addLongIdentifier("useJVMDefaultTrustStore",
+           true);
+      exportCertUseJVMDefault.addLongIdentifier("jvm-default", true);
+      exportCertUseJVMDefault.addLongIdentifier("jvmDefault", true);
+      exportCertParser.addArgument(exportCertUseJVMDefault);
+
+      exportCertParser.addRequiredArgumentSet(exportCertUseJVMDefault,
+           exportCertKeystore);
+      exportCertParser.addExclusiveArgumentSet(exportCertUseJVMDefault,
+           exportCertKeystore);
+    }
 
     final StringArgument exportCertKeystorePassword = new StringArgument(null,
          "keystore-password", false, 1,
@@ -9837,9 +9874,17 @@ public final class ManageCertificates
   {
     final FileArgument keystoreArgument =
          subCommandParser.getFileArgument("keystore");
-    if (keystoreArgument != null)
+    if ((keystoreArgument != null) && keystoreArgument.isPresent())
     {
       return keystoreArgument.getValue();
+    }
+
+    final BooleanArgument useJVMDefaultTrustStoreArgument =
+         subCommandParser.getBooleanArgument("useJVMDefaultTrustStore");
+    if ((useJVMDefaultTrustStoreArgument != null) &&
+         useJVMDefaultTrustStoreArgument.isPresent())
+    {
+      return JVM_DEFAULT_CACERTS_FILE;
     }
 
     return null;

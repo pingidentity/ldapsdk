@@ -690,11 +690,9 @@ public final class ManageCertificatesTestCase
          "--display-keytool-command");
 
     // Make sure that we can list the JVM's default cacerts file.
-    final String caCertsPath = JVMDefaultTrustManager.getInstance().
-         getCACertsFile().getAbsolutePath();
     manageCertificates(
          "list-certificates",
-         "--keystore", caCertsPath,
+         "--use-jvm-default-trust-store",
          "--verbose");
 
     // Test the behavior when specifying a keystore path that is neither a JKS
@@ -785,6 +783,38 @@ public final class ManageCertificatesTestCase
          "--display-keytool-command");
     assertTrue(outputFile.exists());
     assertEquals(countPEMEntries(outputFile.getAbsolutePath()), 1);
+
+
+    // Make sure that we can export a certificate from the JVM's default cacerts
+    // file.
+    final JVMDefaultTrustManager jvmDefaultTrustManager =
+         JVMDefaultTrustManager.getInstance();
+    final KeyStore ks = KeyStore.getInstance("JKS");
+    try (FileInputStream inputStream =
+              new FileInputStream(jvmDefaultTrustManager.getCACertsFile()))
+    {
+      ks.load(inputStream, null);
+    }
+    final Enumeration<String> aliases = ks.aliases();
+    while (aliases.hasMoreElements())
+    {
+      final String alias = aliases.nextElement();
+      if (ks.isCertificateEntry(alias))
+      {
+        assertTrue(outputFile.delete());
+        assertFalse(outputFile.exists());
+        manageCertificates(
+             "export-certificate",
+             "--use-jvm-default-trust-store",
+             "--alias", alias,
+             "--output-format", "PEM",
+             "--output-file", outputFile.getAbsolutePath(),
+             "--display-keytool-command");
+        assertTrue(outputFile.exists());
+        assertEquals(countPEMEntries(outputFile.getAbsolutePath()), 1);
+        break;
+      }
+    }
 
 
     // Test exporting a single DER certificate for a JKS keystore with just a
