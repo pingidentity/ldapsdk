@@ -46,12 +46,16 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.X509TrustManager;
 
@@ -691,30 +695,28 @@ filesInDirectoryLoop:
            ERR_JVM_DEFAULT_TRUST_MANAGER_NO_CERTS_IN_CHAIN.get());
     }
 
+
+    // It is possible that the chain could rely on cross-signed certificates,
+    // and that we need to use a different path than the one presented in the
+    // provided chain.  This could happen if the presented chain relies includes
+    // an issuer certificate that is expired, but the JVM-default trust store
+    // includes a non-expired alternate version of that issuer certificate (with
+    // the same public key, but signed by a different issuer).  Check for that,
+    // which will also involve checking validity dates for certificates in that
+    // chain.  If the chain we get back is different from the one that was
+    // provided to this method, then we should not need to perform any further
+    // validation.
+    final X509Certificate[] chainToValidate = getChainToValidate(chain);
+    if (chainToValidate != chain)
+    {
+      return;
+    }
+
+
     boolean foundIssuer = false;
     final Date currentTime = new Date();
-    for (final X509Certificate cert : chain)
+    for (final X509Certificate cert : chainToValidate)
     {
-      // Make sure that the certificate is currently within its validity window.
-      final Date notBefore = cert.getNotBefore();
-      if (currentTime.before(notBefore))
-      {
-        throw new CertificateNotYetValidException(
-             ERR_JVM_DEFAULT_TRUST_MANAGER_CERT_NOT_YET_VALID.get(
-                  chainToString(chain), String.valueOf(cert.getSubjectDN()),
-                  String.valueOf(notBefore)));
-      }
-
-      final Date notAfter = cert.getNotAfter();
-      if (currentTime.after(notAfter))
-      {
-        throw new CertificateExpiredException(
-             ERR_JVM_DEFAULT_TRUST_MANAGER_CERT_EXPIRED.get(
-                  chainToString(chain),
-                  String.valueOf(cert.getSubjectDN()),
-                  String.valueOf(notAfter)));
-      }
-
       final ASN1OctetString signature =
            new ASN1OctetString(cert.getSignature());
       foundIssuer |= (trustedCertsBySignature.get(signature) != null);
@@ -733,6 +735,305 @@ filesInDirectoryLoop:
            ERR_JVM_DEFAULT_TRUST_MANGER_NO_TRUSTED_ISSUER_FOUND.get(
                 chainToString(chain)));
     }
+  }
+
+
+
+  /**
+   * Retrieves a list containing the certificates in the chain that should
+   * actually be validated.  All certificates in the chain will have been
+   * confirmed to be in their validity window.
+   *
+   * @param  chain  The chain for which to obtain the path to validate.  It
+   *                must not be {@code null} or empty.
+   *
+   * @return  The chain to be validated.  It may be the same as the provided
+   *          chain, or an alternate chain if any certificate in the provided
+   *          chain was outside of its validity window but an alternative trust
+   *          path could be found.
+   *
+   * @throws  CertificateException  If the presented certificate chain included
+   *                                a certificate that is outside of its
+   *                                current validity window and no alternate
+   *                                path could be found.
+   */
+  private X509Certificate[] getChainToValidate(final X509Certificate[] chain)
+          throws CertificateException
+  {
+    final Date currentDate = new Date();
+
+    // Check to see if any certificate in the provided chain is outside the
+    // current validity window.  If not, then just use the provided chain.
+    CertificateException firstException = null;
+    for (int i=0; i < chain.length; i++)
+    {
+      final X509Certificate cert = chain[i];
+
+      final Date notBefore = cert.getNotBefore();
+      if (currentDate.before(notBefore))
+      {
+        if (firstException == null)
+        {
+          firstException = new CertificateNotYetValidException(
+               ERR_JVM_DEFAULT_TRUST_MANAGER_CERT_NOT_YET_VALID.get(
+                    chainToString(chain), String.valueOf(cert.getSubjectDN()),
+                    String.valueOf(notBefore)));
+        }
+
+        if (i == 0)
+        {
+          // If the peer certificate is not yet valid, then the entire chain
+          // must be considered invalid.
+          throw firstException;
+        }
+        else
+        {
+          break;
+        }
+      }
+
+      final Date notAfter = cert.getNotAfter();
+      if (currentDate.after(notAfter))
+      {
+        if (firstException == null)
+        {
+          firstException = new CertificateExpiredException(
+               ERR_JVM_DEFAULT_TRUST_MANAGER_CERT_EXPIRED.get(
+                    chainToString(chain),
+                    String.valueOf(cert.getSubjectDN()),
+                    String.valueOf(notAfter)));
+        }
+
+        if (i == 0)
+        {
+          // If the peer certificate is expired, then the entire chain must be
+          // considered invalid.
+          throw firstException;
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+
+
+    // If all the certificates in the chain were within their validity window,
+    // then just use the provided chain.
+    if (firstException == null)
+    {
+      return chain;
+    }
+
+
+    // Try to find an alternate trusted chain.
+    final Set<X509Certificate> alreadyExamined = new HashSet<>();
+    final List<X509Certificate> alternateChain = new ArrayList<>();
+    for (int i=0; i < chain.length; i++)
+    {
+      if (isCurrentlyValid(chain[i], currentDate))
+      {
+        alternateChain.add(chain[i]);
+      }
+      else
+      {
+        final List<X509Certificate> alt = findAlternateChain(chain[i],
+             chain[i-1], currentDate, alreadyExamined);
+        if (alt == null)
+        {
+          throw firstException;
+        }
+        else
+        {
+          alternateChain.addAll(alt);
+          break;
+        }
+      }
+    }
+
+    return alternateChain.toArray(NO_CERTIFICATES);
+  }
+
+
+
+  /**
+   * Attempts to find an alternate chain that can be used in place of the
+   * provided certificate and its issuers.
+   *
+   * @param  cert             The certificate that should be at the head of the
+   *                          chain that is returned.  It must not be
+   *                          {@code null}.
+   * @param  certIsIssuerOf   A certificate that was issued by the provided
+   *                          certificate.
+   * @param  currentDate      The current date to use when validating
+   *                          timestamps.
+   * @param  alreadyExamined  A set of certificates that have already been
+   *                          examined and should not be re-examined.  It must
+   *                          not be {@code null} (but may be empty) and it must
+   *                          be updatable.
+   *
+   * @return  An alternate chain for the provided certificate, or {@code null}
+   *          if no alternate chain could be found.
+   */
+  private List<X509Certificate> findAlternateChain(final X509Certificate cert,
+                                     final X509Certificate certIsIssuerOf,
+                                     final Date currentDate,
+                                     final Set<X509Certificate> alreadyExamined)
+  {
+    final byte[] publicKeyBytes = cert.getPublicKey().getEncoded();
+    for (final X509Certificate c : trustedCertsBySignature.values())
+    {
+      if (! isCurrentlyValid(c, currentDate))
+      {
+        continue;
+      }
+
+      if (Arrays.equals(publicKeyBytes, c.getPublicKey().getEncoded()))
+      {
+        if (alreadyExamined.contains(c))
+        {
+          continue;
+        }
+        else
+        {
+          alreadyExamined.add(c);
+        }
+
+        try
+        {
+          final com.unboundid.util.ssl.cert.X509Certificate issued =
+               new com.unboundid.util.ssl.cert.X509Certificate(
+                    certIsIssuerOf.getEncoded());
+          final com.unboundid.util.ssl.cert.X509Certificate issuer =
+               new com.unboundid.util.ssl.cert.X509Certificate(
+                    cert.getEncoded());
+          issued.verifySignature(issuer);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          continue;
+        }
+
+        final List<X509Certificate> altChain = new ArrayList<>();
+        altChain.add(c);
+
+        try
+        {
+          X509Certificate issuer = findIssuer(c, currentDate);
+          while (issuer != null)
+          {
+            altChain.add(issuer);
+            issuer = findIssuer(issuer, currentDate);
+          }
+
+          return altChain;
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          continue;
+        }
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
+   * Indicates whether the provided certificate is currently considered valid.
+   *
+   * @param  cert         The certificate to validate.
+   * @param  currentDate  The date to use for validation.
+   *
+   * @return  {@code true} if the certificate is currently valid, or
+   *          {@code false} if not.
+   */
+  private static boolean isCurrentlyValid(final X509Certificate cert,
+                                          final Date currentDate)
+  {
+    final Date notBefore = cert.getNotBefore();
+    if (currentDate.before(notBefore))
+    {
+      return false;
+    }
+
+    final Date notAfter = cert.getNotAfter();
+    if (currentDate.after(notAfter))
+    {
+      return false;
+    }
+
+    return true;
+  }
+
+
+
+  /**
+   * Finds the issuer for the provided certificate, if it is in the JVM-default
+   * trust store.
+   *
+   * @param  cert         The certificate for which to find the issuer.  It must
+   *                      have already been retrieved from the JVM-default trust
+   *                      store.
+   * @param  currentDate  The current date to use when verifying validity.
+   *
+   * @return  The issuer for the provided certificate, or {@code null} if the
+   *          provided certificate is self-signed.
+   *
+   * @throws  CertificateException  If the provided certificate is not
+   *                                self-signed but its issuer could not be
+   *                                found, or if the issuer certificate is
+   *                                not currently valid.
+   */
+  private X509Certificate findIssuer(final X509Certificate cert,
+                                     final Date currentDate)
+          throws CertificateException
+  {
+    try
+    {
+      // More fully decode the provided certificate so that we can better
+      // examine it.
+      final com.unboundid.util.ssl.cert.X509Certificate c =
+           new com.unboundid.util.ssl.cert.X509Certificate(
+                cert.getEncoded());
+
+      // If the certificate is self-signed, then it doesn't have an issuer.
+      if (c.isSelfSigned())
+      {
+        return null;
+      }
+
+      // See if the certificate has an authority key identifier extension.  If
+      // so, then use it to try to find the issuer.
+      for (final X509CertificateExtension e : c.getExtensions())
+      {
+        if (e instanceof AuthorityKeyIdentifierExtension)
+        {
+          final AuthorityKeyIdentifierExtension akie =
+               (AuthorityKeyIdentifierExtension) e;
+          final ASN1OctetString authorityKeyID =
+               new ASN1OctetString(akie.getKeyIdentifier().getValue());
+          final com.unboundid.util.ssl.cert.X509Certificate issuer =
+               trustedCertsByKeyID.get(authorityKeyID);
+          if ((issuer != null) && issuer.isWithinValidityWindow(currentDate))
+          {
+            c.verifySignature(issuer);
+            return (X509Certificate) issuer.toCertificate();
+          }
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    throw new CertificateException(
+         ERR_JVM_DEFAULT_TRUST_MANAGER_CANNOT_FIND_ISSUER.get(
+              String.valueOf(cert.getSubjectDN())));
   }
 
 

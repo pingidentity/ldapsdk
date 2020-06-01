@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed an issue in which the JVM-default trust manager did not always properly
+                  handle cross-signed certificates.  If the presented certificate chain included
+                  an issuer certificate that was outside of its validity window, then that chain
+                  would have always been rejected.  The trust manager will now check to see
+                  whether it is possible to construct an alternate path to a different trusted
+                  root that is currently valid, and if so, then the presented chain will be
+                  considered trusted.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new SchemaValidator class and an accompanying validate-ldap-schema
                   command-line tool that can examine schema definitions in one or more LDIF files
                   to identify potential issues like unparseable definitions, elements with
