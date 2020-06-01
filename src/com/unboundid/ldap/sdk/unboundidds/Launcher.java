@@ -52,7 +52,6 @@ import com.unboundid.ldap.sdk.examples.Base64Tool;
 import com.unboundid.ldap.sdk.examples.IdentifyReferencesToMissingEntries;
 import com.unboundid.ldap.sdk.examples.IdentifyUniqueAttributeConflicts;
 import com.unboundid.ldap.sdk.examples.IndentLDAPFilter;
-import com.unboundid.ldap.sdk.examples.LDAPCompare;
 import com.unboundid.ldap.sdk.examples.LDAPDebugger;
 import com.unboundid.ldap.sdk.examples.ModRate;
 import com.unboundid.ldap.sdk.examples.SearchRate;
@@ -67,6 +66,7 @@ import com.unboundid.ldap.sdk.unboundidds.examples.SubtreeAccessibility;
 import com.unboundid.ldap.sdk.unboundidds.examples.SummarizeAccessLog;
 import com.unboundid.ldap.sdk.unboundidds.tools.CollectSupportData;
 import com.unboundid.ldap.sdk.unboundidds.tools.GenerateTOTPSharedSecret;
+import com.unboundid.ldap.sdk.unboundidds.tools.LDAPCompare;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPDelete;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPPasswordModify;
@@ -283,7 +283,7 @@ public final class Launcher
     }
     else if (firstArg.equals("ldapcompare"))
     {
-      return LDAPCompare.main(remainingArgs, outStream, errStream);
+      return LDAPCompare.main(outStream, errStream, remainingArgs);
     }
     else if (firstArg.equals("ldapdelete"))
     {
