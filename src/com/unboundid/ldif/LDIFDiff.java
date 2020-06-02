@@ -550,6 +550,20 @@ public final class LDIFDiff
     parser.addArgument(changeType);
 
 
+    includeFilter = new FilterArgument(null, "includeFilter", false, 0, null,
+         INFO_LDIF_DIFF_ARG_DESC_INCLUDE_FILTER.get());
+    includeFilter.addLongIdentifier("include-filter", true);
+    includeFilter.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
+    parser.addArgument(includeFilter);
+
+
+    excludeFilter = new FilterArgument(null, "excludeFilter", false, 0, null,
+         INFO_LDIF_DIFF_ARG_DESC_EXCLUDE_FILTER.get());
+    excludeFilter.addLongIdentifier("exclude-filter", true);
+    excludeFilter.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
+    parser.addArgument(excludeFilter);
+
+
     includeAttribute = new StringArgument(null, "includeAttribute", false, 0,
          INFO_LDIF_DIFF_ARG_PLACEHOLDER_ATTRIBUTE.get(),
          INFO_LDIF_DIFF_ARG_DESC_INCLUDE_ATTRIBUTE.get());
@@ -570,20 +584,6 @@ public final class LDIFDiff
     excludeAttribute.setArgumentGroupName(
          INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
     parser.addArgument(excludeAttribute);
-
-
-    includeFilter = new FilterArgument(null, "includeFilter", false, 0, null,
-         INFO_LDIF_DIFF_ARG_DESC_INCLUDE_FILTER.get());
-    includeFilter.addLongIdentifier("include-filter", true);
-    includeFilter.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
-    parser.addArgument(includeFilter);
-
-
-    excludeFilter = new FilterArgument(null, "excludeFilter", false, 0, null,
-         INFO_LDIF_DIFF_ARG_DESC_EXCLUDE_FILTER.get());
-    excludeFilter.addLongIdentifier("exclude-filter", true);
-    excludeFilter.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
-    parser.addArgument(excludeFilter);
 
 
     includeOperationalAttributes = new BooleanArgument('i',
