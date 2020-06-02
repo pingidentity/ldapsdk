@@ -49,12 +49,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
@@ -2853,6 +2856,1473 @@ public final class LDIFDiffTestCase
 
 
   /**
+   * Tests the behavior for the tool when the --includeAttribute argument is
+   * provided and an add operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIncludeAttributeAdd()
+         throws Exception
+  {
+    final File source = createTempFile();
+    final File target = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: target");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "dc: example",
+                   "description: target"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeAttribute", "dc"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "dc: example"))));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeAttribute", "2.5.4.0", // objectClass
+              "--includeAttribute", "dc",
+              "--includeAttribute", "ou"), // ou isn't in the entry.
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "dc: example"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeAttribute", "ou"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --includeAttribute argument is
+   * provided and a modify operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIncludeAttributeModify()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: uid=test,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test",
+         "givenName: Source",
+         "sn: User",
+         "cn: Source User");
+    final File target = createTempFile(
+         "dn: uid=test,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test",
+         "givenName: Target",
+         "sn: User",
+         "cn: Target User");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeAttribute", "givenName"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeAttribute", "givenName",
+              "--includeAttribute", "sn"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeAttribute", "description"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --includeAttribute argument is
+   * provided and a delete operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIncludeAttributeDelete()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: source");
+    final File target = createTempFile();
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("dc=example,dc=com")));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeAttribute", "dc"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("dc=example,dc=com")));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeAttribute", "uid"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --excludeAttribute argument is
+   * provided and an add operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testExcludeAttributeAdd()
+         throws Exception
+  {
+    final File source = createTempFile();
+    final File target = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: target");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "dc: example",
+                   "description: target"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeAttribute", "dc"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "description: target"))));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeAttribute", "2.5.4.0", // objectClass
+              "--excludeAttribute", "dc",
+              "--excludeAttribute", "ou"), // ou isn't in the entry.
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "description: target"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeAttribute", "objectClass",
+              "--excludeAttribute", "dc",
+              "--excludeAttribute", "description"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --excludeAttribute argument is
+   * provided and a modify operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testExcludeAttributeModify()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: uid=test,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test",
+         "givenName: Source",
+         "sn: User",
+         "cn: Source User");
+    final File target = createTempFile(
+         "dn: uid=test,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test",
+         "givenName: Target",
+         "sn: User",
+         "cn: Target User");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeAttribute", "cn"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeAttribute", "givenName",
+              "--excludeAttribute", "sn"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeAttribute", "givenName",
+              "--excludeAttribute", "cn"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --excludeAttribute argument is
+   * provided and a delete operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testExcludeAttributeDelete()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: source");
+    final File target = createTempFile();
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("dc=example,dc=com")));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeAttribute", "dc"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("dc=example,dc=com")));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeAttribute", "objectClass",
+              "--excludeAttribute", "dc",
+              "--excludeAttribute", "description"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --includeFilter argument is
+   * provided and an add operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIncludeFilterAdd()
+         throws Exception
+  {
+    final File source = createTempFile();
+    final File target = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: target");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "dc: example",
+                   "description: target"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(objectClass=domain)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "dc: example",
+                   "description: target"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(objectClass=person)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(objectClass=person)",
+              "--includeFilter", "(objectClass=top)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "dc: example",
+                   "description: target"))));
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --includeFilter argument is
+   * provided and a modify operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIncludeFilterModify()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: uid=test,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test",
+         "givenName: Source",
+         "sn: User",
+         "cn: Source User");
+    final File target = createTempFile(
+         "dn: uid=test,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test",
+         "givenName: Target",
+         "sn: User",
+         "cn: Target User");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(objectClass=person)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(givenName=Source)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(givenName=Target)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(objectClass=domain)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --includeFilter argument is
+   * provided and a delete operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIncludeFilterDelete()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: source");
+    final File target = createTempFile();
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("dc=example,dc=com")));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(objectClass=top)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("dc=example,dc=com")));
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--includeFilter", "(objectClass=person)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --excludeFilter argument is
+   * provided and an add operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testExcludeFilterAdd()
+         throws Exception
+  {
+    final File source = createTempFile();
+    final File target = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: target");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "dc: example",
+                   "description: target"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(objectClass=person)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: domain",
+                   "dc: example",
+                   "description: target"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(objectClass=domain)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(objectClass=person)",
+              "--excludeFilter", "(objectClass=top)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --excludeFilter argument is
+   * provided and a modify operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testExcludeFilterModify()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: uid=test,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test",
+         "givenName: Source",
+         "sn: User",
+         "cn: Source User");
+    final File target = createTempFile(
+         "dn: uid=test,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test",
+         "givenName: Target",
+         "sn: User",
+         "cn: Target User");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(objectClass=person)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(givenName=Source)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(givenName=Target)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(givenName=Source)",
+              "--excludeFilter", "(givenName=Target)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(objectClass=groupOfNames)",
+              "--excludeFilter", "(objectClass=groupOfUniqueNames)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords.size(), 1);
+    assertChangeRecordContainsChanges(changeRecords.get(0),
+         new Modification(ModificationType.DELETE, "givenName", "Source"),
+         new Modification(ModificationType.ADD, "givenName", "Target"),
+         new Modification(ModificationType.DELETE, "cn", "Source User"),
+         new Modification(ModificationType.ADD, "cn", "Target User"));
+  }
+
+
+
+  /**
+   * Tests the behavior for the tool when the --excludeFilter argument is
+   * provided and a delete operation is to be performed.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testExcludeFilterDelete()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: source");
+    final File target = createTempFile();
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath()),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("dc=example,dc=com")));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(objectClass=top)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertTrue(changeRecords.isEmpty());
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--excludeFilter", "(objectClass=person)"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("dc=example,dc=com")));
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
    * Reads the LDIF change records from the specified file.
    *
    * @param  ldifFile  The file from which to read the change records.  It may
@@ -2991,5 +4461,31 @@ public final class LDIFDiffTestCase
         w.println(line);
       }
     }
+  }
+
+
+
+  /**
+   * Ensures that the provided change record is a modify change record and that
+   * it contains all of the provided changes.  Note that the expected
+   * modifications do not necessarily need to be in the same order as the actual
+   * modifications.
+   *
+   * @param  changeRecord           The change record to examine.
+   * @param  expectedModifications  The set of expected modifications.
+   */
+  private static void assertChangeRecordContainsChanges(
+                           final LDIFChangeRecord changeRecord,
+                           final Modification... expectedModifications)
+  {
+    final LDIFModifyChangeRecord modRecord =
+         (LDIFModifyChangeRecord) changeRecord;
+    final Modification[] actualModifications = modRecord.getModifications();
+
+    final Set<Modification> expectedSet =
+         StaticUtils.setOf(expectedModifications);
+    final Set<Modification> actualSet = StaticUtils.setOf(actualModifications);
+
+    assertEquals(actualSet, expectedSet);
   }
 }

@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -60,6 +60,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.ChangeType;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
@@ -79,6 +80,7 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.StringArgument;
 
 import static com.unboundid.ldif.LDIFMessages.*;
@@ -167,7 +169,11 @@ public final class LDIFDiff
   private FileArgument sourceLDIF;
   private FileArgument targetEncryptionPassphraseFile;
   private FileArgument targetLDIF;
+  private FilterArgument excludeFilter;
+  private FilterArgument includeFilter;
   private StringArgument changeType;
+  private StringArgument excludeAttribute;
+  private StringArgument includeAttribute;
 
 
 
@@ -244,6 +250,10 @@ public final class LDIFDiff
     targetEncryptionPassphraseFile = null;
     targetLDIF = null;
     changeType = null;
+    excludeFilter = null;
+    includeFilter = null;
+    excludeAttribute = null;
+    includeAttribute = null;
   }
 
 
@@ -523,7 +533,7 @@ public final class LDIFDiff
 
 
     changeType = new StringArgument(null, "changeType", false, 0,
-         INFO_LDIF_DIFF_ARG_PLACEHOLDER_CHANGE_OPERATION_TYPE.get(),
+         INFO_LDIF_DIFF_ARG_PLACEHOLDER_CHANGE_TYPE.get(),
          INFO_LDIF_DIFF_ARG_DESC_CHANGE_TYPE.get(),
          StaticUtils.setOf(
               CHANGE_TYPE_ADD,
@@ -538,6 +548,42 @@ public final class LDIFDiff
     changeType.addLongIdentifier("operation-type", true);
     changeType.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
     parser.addArgument(changeType);
+
+
+    includeAttribute = new StringArgument(null, "includeAttribute", false, 0,
+         INFO_LDIF_DIFF_ARG_PLACEHOLDER_ATTRIBUTE.get(),
+         INFO_LDIF_DIFF_ARG_DESC_INCLUDE_ATTRIBUTE.get());
+    includeAttribute.addLongIdentifier("include-attribute", true);
+    includeAttribute.addLongIdentifier("includeAttr", true);
+    includeAttribute.addLongIdentifier("include-attr", true);
+    includeAttribute.setArgumentGroupName(
+         INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
+    parser.addArgument(includeAttribute);
+
+
+    excludeAttribute = new StringArgument(null, "excludeAttribute", false, 0,
+         INFO_LDIF_DIFF_ARG_PLACEHOLDER_ATTRIBUTE.get(),
+         INFO_LDIF_DIFF_ARG_DESC_EXCLUDE_ATTRIBUTE.get());
+    excludeAttribute.addLongIdentifier("exclude-attribute", true);
+    excludeAttribute.addLongIdentifier("excludeAttr", true);
+    excludeAttribute.addLongIdentifier("exclude-attr", true);
+    excludeAttribute.setArgumentGroupName(
+         INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
+    parser.addArgument(excludeAttribute);
+
+
+    includeFilter = new FilterArgument(null, "includeFilter", false, 0, null,
+         INFO_LDIF_DIFF_ARG_DESC_INCLUDE_FILTER.get());
+    includeFilter.addLongIdentifier("include-filter", true);
+    includeFilter.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
+    parser.addArgument(includeFilter);
+
+
+    excludeFilter = new FilterArgument(null, "excludeFilter", false, 0, null,
+         INFO_LDIF_DIFF_ARG_DESC_EXCLUDE_FILTER.get());
+    excludeFilter.addLongIdentifier("exclude-filter", true);
+    excludeFilter.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
+    parser.addArgument(excludeFilter);
 
 
     includeOperationalAttributes = new BooleanArgument('i',
@@ -632,6 +678,12 @@ public final class LDIFDiff
     parser.addDependentArgumentSet(outputEncryptionPassphraseFile,
          encryptOutput);
 
+    parser.addExclusiveArgumentSet(includeAttribute, excludeAttribute);
+    parser.addExclusiveArgumentSet(includeAttribute,
+         includeOperationalAttributes);
+
+    parser.addExclusiveArgumentSet(includeFilter, excludeFilter);
+
     parser.addDependentArgumentSet(excludeNoUserModificationAttributes,
          includeOperationalAttributes);
 
@@ -672,29 +724,21 @@ public final class LDIFDiff
   public ResultCode doToolProcessing()
   {
     // Get the change types to use for processing.
-    final Set<ChangeType> changeTypes;
-    if (changeType.isPresent())
+    final Set<ChangeType> changeTypes = EnumSet.noneOf(ChangeType.class);
+    for (final String value : changeType.getValues())
     {
-      changeTypes = EnumSet.noneOf(ChangeType.class);
-      for (final String value : changeType.getValues())
+      switch (StaticUtils.toLowerCase(value))
       {
-        switch (StaticUtils.toLowerCase(value))
-        {
-          case CHANGE_TYPE_ADD:
-            changeTypes.add(ChangeType.ADD);
-            break;
-          case CHANGE_TYPE_DELETE:
-            changeTypes.add(ChangeType.DELETE);
-            break;
-          case CHANGE_TYPE_MODIFY:
-            changeTypes.add(ChangeType.MODIFY);
-            break;
-        }
+        case CHANGE_TYPE_ADD:
+          changeTypes.add(ChangeType.ADD);
+          break;
+        case CHANGE_TYPE_DELETE:
+          changeTypes.add(ChangeType.DELETE);
+          break;
+        case CHANGE_TYPE_MODIFY:
+          changeTypes.add(ChangeType.MODIFY);
+          break;
       }
-    }
-    else
-    {
-      changeTypes = EnumSet.allOf(ChangeType.class);
     }
 
 
@@ -723,6 +767,60 @@ public final class LDIFDiff
            ERR_LDIF_DIFF_CANNOT_GET_SCHEMA.get(
                 StaticUtils.getExceptionMessage(e)));
       return ResultCode.LOCAL_ERROR;
+    }
+
+
+    // Identify the sets of include and exclude attributes.
+    final Set<String> includeAttrs;
+    if (includeAttribute.isPresent())
+    {
+      final Set<String> s = new HashSet<>();
+      for (final String includeAttr : includeAttribute.getValues())
+      {
+        final String lowerName = StaticUtils.toLowerCase(includeAttr);
+        s.add(lowerName);
+
+        final AttributeTypeDefinition at = schema.getAttributeType(lowerName);
+        if (at != null)
+        {
+          s.add(StaticUtils.toLowerCase(at.getOID()));
+          for (final String name : at.getNames())
+          {
+            s.add(StaticUtils.toLowerCase(name));
+          }
+        }
+      }
+      includeAttrs = Collections.unmodifiableSet(s);
+    }
+    else
+    {
+      includeAttrs = Collections.emptySet();
+    }
+
+    final Set<String> excludeAttrs;
+    if (excludeAttribute.isPresent())
+    {
+      final Set<String> s = new HashSet<>();
+      for (final String excludeAttr : excludeAttribute.getValues())
+      {
+        final String lowerName = StaticUtils.toLowerCase(excludeAttr);
+        s.add(lowerName);
+
+        final AttributeTypeDefinition at = schema.getAttributeType(lowerName);
+        if (at != null)
+        {
+          s.add(StaticUtils.toLowerCase(at.getOID()));
+          for (final String name : at.getNames())
+          {
+            s.add(StaticUtils.toLowerCase(name));
+          }
+        }
+      }
+      excludeAttrs = Collections.unmodifiableSet(s);
+    }
+    else
+    {
+      excludeAttrs = Collections.emptySet();
     }
 
 
@@ -789,7 +887,7 @@ public final class LDIFDiff
         try
         {
           addCount = writeAdds(sourceEntries, targetEntries, ldifWriter,
-               schema);
+               schema, includeAttrs, excludeAttrs);
         }
         catch (final LDAPException e)
         {
@@ -813,7 +911,7 @@ public final class LDIFDiff
         try
         {
           modifyCount = writeModifications(sourceEntries, targetEntries,
-               ldifWriter, schema);
+               ldifWriter, schema, includeAttrs, excludeAttrs);
         }
         catch (final LDAPException e)
         {
@@ -832,7 +930,8 @@ public final class LDIFDiff
       {
         try
         {
-          deleteCount = writeDeletes(sourceEntries, targetEntries, ldifWriter);
+          deleteCount = writeDeletes(sourceEntries, targetEntries, ldifWriter,
+               schema, includeAttrs, excludeAttrs);
         }
         catch (final LDAPException e)
         {
@@ -1210,6 +1309,16 @@ public final class LDIFDiff
    *                        must not be {@ocde null} and it must be open.
    * @param  schema         The schema to use to identify operational
    *                        attributes.  It must not be {@ocde null}.
+   * @param  includeAttrs   A set containing all names and OIDs for all
+   *                        attribute types that should be included in the
+   *                        entry.  It must not be {@ocde null} but may be
+   *                        empty.  All values must be formatted entirely in
+   *                        lowercase.
+   * @param  excludeAttrs   A set containing all names and OIDs for all
+   *                        attribute types that should be excluded from the
+   *                        entry.  It must not be {@code null} but may be
+   *                        empty.  All values must be formatted entirely in
+   *                        lowercase.
    *
    * @return  The number of added entries that were identified during
    *          processing.
@@ -1219,7 +1328,9 @@ public final class LDIFDiff
    */
   private long writeAdds(final TreeMap<DN,Entry> sourceEntries,
                          final TreeMap<DN,Entry> targetEntries,
-                         final LDIFWriter writer, final Schema schema)
+                         final LDIFWriter writer, final Schema schema,
+                         final Set<String> includeAttrs,
+                         final Set<String> excludeAttrs)
           throws LDAPException
   {
     long addCount = 0L;
@@ -1230,34 +1341,21 @@ public final class LDIFDiff
       final Entry entry = e.getValue();
       if (! sourceEntries.containsKey(entryDN))
       {
-        final List<Attribute> attributes =
-             new ArrayList<>(entry.getAttributes());
-        final Iterator<Attribute> attributeIterator = attributes.iterator();
-        while (attributeIterator.hasNext())
+        if (! includeEntryByFilter(schema, entry))
         {
-          final Attribute a = attributeIterator.next();
-          final String baseName = a.getBaseName();
-          final AttributeTypeDefinition at = schema.getAttributeType(baseName);
-          if ((at != null) && at.isOperational())
-          {
-            if (! includeOperationalAttributes.isPresent())
-            {
-              attributeIterator.remove();
-              continue;
-            }
+          continue;
+        }
 
-            if (at.isNoUserModification() &&
-                 excludeNoUserModificationAttributes.isPresent())
-            {
-              attributeIterator.remove();
-            }
-          }
+        final Entry paredEntry = pareEntry(entry, schema, includeAttrs,
+             excludeAttrs);
+        if (paredEntry == null)
+        {
+          continue;
         }
 
         try
         {
-          writer.writeChangeRecord(
-               new LDIFAddChangeRecord(entry.getDN(), attributes),
+          writer.writeChangeRecord(new LDIFAddChangeRecord(paredEntry),
                INFO_LDIF_DIFF_ADD_COMMENT.get());
           addCount++;
         }
@@ -1278,6 +1376,133 @@ public final class LDIFDiff
 
 
   /**
+   * Indicates whether the specified entry may be included in the output based
+   * on the include filter and exclude filter configuration.
+   *
+   * @param  schema   The schema to use when making the determination.  It must
+   *                  not be {@code null}.
+   * @param  entries  The entries for which to make the determination.  It must
+   *                  not be {@code null} or empty.
+   *
+   * @return  {@code true} if the entry should be included, or {@code false} if]
+   *          not.
+   */
+  private boolean includeEntryByFilter(final Schema schema,
+                                       final Entry... entries)
+  {
+    for (final Entry entry : entries)
+    {
+      for (final Filter f : excludeFilter.getValues())
+      {
+        try
+        {
+          if (f.matchesEntry(entry, schema))
+          {
+            return false;
+          }
+        }
+        catch (final Exception ex)
+        {
+          Debug.debugException(ex);
+        }
+      }
+    }
+
+    if (includeFilter.isPresent())
+    {
+      for (final Entry entry : entries)
+      {
+        for (final Filter f : includeFilter.getValues())
+        {
+          try
+          {
+            if (f.matchesEntry(entry, schema))
+            {
+              return true;
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+          }
+        }
+      }
+
+      return false;
+    }
+
+    return true;
+  }
+
+
+
+  /**
+   * Creates a pared-down copy of the provided entry based on the requested
+   * set of options.
+   *
+   * @param  entry         The entry to be pared down.  It must not be
+   *                       {@code null}.
+   * @param  schema        The schema to use during processing.  It must not be
+   *                       {@ocde null}.
+   * @param  includeAttrs  A set containing all names and OIDs for all attribute
+   *                       types that should be included in the entry.  It must
+   *                       not be {@ocde null} but may be empty.  All values
+   *                       must be formatted entirely in lowercase.
+   * @param  excludeAttrs  A set containing all names and OIDs for all attribute
+   *                       types that should be excluded from the entry.  It
+   *                       must not be {@code null} but may be empty.  All
+   *                       values must be formatted entirely in lowercase.
+   *
+   * @return  A pared-down copy of the provided entry, or {@code null} if the
+   *          pared-down entry would not include any attributes.
+   */
+  private Entry pareEntry(final Entry entry, final Schema schema,
+                          final Set<String> includeAttrs,
+                          final Set<String> excludeAttrs)
+  {
+    final List<Attribute> paredAttributeList = new ArrayList<>();
+    for (final Attribute a : entry.getAttributes())
+    {
+      final String baseName = StaticUtils.toLowerCase(a.getBaseName());
+      if (excludeAttrs.contains(baseName))
+      {
+        continue;
+      }
+
+      if ((! includeAttrs.isEmpty()) && (! includeAttrs.contains(baseName)))
+      {
+        continue;
+      }
+
+      final AttributeTypeDefinition at = schema.getAttributeType(baseName);
+      if ((at != null) && at.isOperational())
+      {
+        if (! includeOperationalAttributes.isPresent())
+        {
+          continue;
+        }
+
+        if (at.isNoUserModification() &&
+             excludeNoUserModificationAttributes.isPresent())
+        {
+          continue;
+        }
+      }
+
+      paredAttributeList.add(a);
+    }
+
+    if (paredAttributeList.isEmpty())
+    {
+      return null;
+    }
+
+    return new Entry(entry.getDN(), paredAttributeList);
+  }
+
+
+
+  /**
    * Identifies entries that exist in both the source and target maps and
    * determines whether there are any changes between them.
    *
@@ -1289,6 +1514,16 @@ public final class LDIFDiff
    *                        must not be {@ocde null} and it must be open.
    * @param  schema         The schema to use to identify operational
    *                        attributes.  It must not be {@ocde null}.
+   * @param  includeAttrs   A set containing all names and OIDs for all
+   *                        attribute types that should be included in the
+   *                        set of modifications.  It must not be {@ocde null}
+   *                        but may be empty.  All values must be formatted
+   *                        entirely in lowercase.
+   * @param  excludeAttrs   A set containing all names and OIDs for all
+   *                        attribute types that should be excluded from the
+   *                        set of modifications.  It must not be {@ocde null}
+   *                        but may be empty.  All values must be formatted
+   *                        entirely in lowercase.
    *
    * @return  The number of modified entries that were identified during
    *          processing.
@@ -1298,7 +1533,9 @@ public final class LDIFDiff
    */
   private long writeModifications(final TreeMap<DN,Entry> sourceEntries,
                                   final TreeMap<DN,Entry> targetEntries,
-                                  final LDIFWriter writer, final Schema schema)
+                                  final LDIFWriter writer, final Schema schema,
+                                  final Set<String> includeAttrs,
+                                  final Set<String> excludeAttrs)
           throws LDAPException
   {
     long modCount = 0L;
@@ -1314,9 +1551,16 @@ public final class LDIFDiff
       }
 
       final Entry sourceEntry = sourceMapEntry.getValue();
+
+      if (! includeEntryByFilter(schema, sourceEntry, targetEntry))
+      {
+        continue;
+      }
+
       final List<Modification> mods = Entry.diff(sourceEntry, targetEntry,
            false, (! nonReversibleModifications.isPresent()), true);
-      if (writeModifiedEntry(sourceDN, mods, writer, schema))
+      if (writeModifiedEntry(sourceDN, mods, writer, schema, includeAttrs,
+           excludeAttrs))
       {
         modCount++;
       }
@@ -1330,12 +1574,23 @@ public final class LDIFDiff
   /**
    * Writes a modified entry to the LDIF writer.
    *
-   * @param  dn      The DN of the entry to write.  It must not be {@code null}.
-   * @param  mods    The modifications to be written.
-   * @param  writer  The LDIF writer to use to write the modify change
-   *                 record(s).
-   * @param  schema  The schema to use to identify operational attributes.  It
-   *                 must not be {@code null}.
+   * @param  dn            The DN of the entry to write.  It must not be
+   *                       {@code null}.
+   * @param  mods          The modifications to be written.
+   * @param  writer        The LDIF writer to use to write the modify change
+   *                       record(s).
+   * @param  schema        The schema to use to identify operational attributes.
+   *                       It must not be {@code null}.
+   * @param  includeAttrs  A set containing all names and OIDs for all attribute
+   *                       types that should be included in the set of
+   *                       modifications.  It must not be {@ocde null} but may
+   *                       be empty.  All values must be formatted entirely in
+   *                       lowercase.
+   * @param  excludeAttrs  A set containing all names and OIDs for all attribute
+   *                       types that should be excluded from the set of
+   *                       modifications.  It must not be {@ocde null} but may
+   *                       be empty.  All values must be formatted entirely in
+   *                       lowercase.
    *
    * @return  {@code true} if one or more modify change records were written, or
    *          {@code false} if not.
@@ -1345,7 +1600,9 @@ public final class LDIFDiff
    */
   private boolean writeModifiedEntry(final DN dn, final List<Modification> mods,
                                      final LDIFWriter writer,
-                                     final Schema schema)
+                                     final Schema schema,
+                                     final Set<String> includeAttrs,
+                                     final Set<String> excludeAttrs)
           throws LDAPException
   {
     if (mods.isEmpty())
@@ -1357,6 +1614,17 @@ public final class LDIFDiff
     for (final Modification m : mods)
     {
       final Attribute a = m.getAttribute();
+      final String baseName = StaticUtils.toLowerCase(a.getBaseName());
+      if (excludeAttrs.contains(baseName))
+      {
+        continue;
+      }
+
+      if ((! includeAttrs.isEmpty()) && ! includeAttrs.contains(baseName))
+      {
+        continue;
+      }
+
       final AttributeTypeDefinition at =
            schema.getAttributeType(a.getBaseName());
       if ((at != null) && at.isOperational())
@@ -1441,6 +1709,18 @@ public final class LDIFDiff
    *                        It must not be {@code null}.
    * @param  writer         The LDIF writer to use to write any changes.  It
    *                        must not be {@ocde null} and it must be open.
+   * @param  schema         The schema to use to identify operational
+   *                        attributes.  It must not be {@ocde null}.
+   * @param  includeAttrs   A set containing all names and OIDs for all
+   *                        attribute types that should be included in the
+   *                        entry.  It must not be {@ocde null} but may be
+   *                        empty.  All values must be formatted entirely in
+   *                        lowercase.
+   * @param  excludeAttrs   A set containing all names and OIDs for all
+   *                        attribute types that should be excluded from the
+   *                        entry.  It must not be {@code null} but may be
+   *                        empty.  All values must be formatted entirely in
+   *                        lowercase.
    *
    * @return  The number of deleted entries that were identified during
    *          processing.
@@ -1450,7 +1730,9 @@ public final class LDIFDiff
    */
   private long writeDeletes(final TreeMap<DN,Entry> sourceEntries,
                             final TreeMap<DN,Entry> targetEntries,
-                            final LDIFWriter writer)
+                            final LDIFWriter writer, final Schema schema,
+                            final Set<String> includeAttrs,
+                            final Set<String> excludeAttrs)
           throws LDAPException
   {
     long deleteCount = 0L;
@@ -1461,12 +1743,24 @@ public final class LDIFDiff
       final Entry entry = e.getValue();
       if (! targetEntries.containsKey(entryDN))
       {
+        if (! includeEntryByFilter(schema, entry))
+        {
+          continue;
+        }
+
+        final Entry paredEntry = pareEntry(entry, schema, includeAttrs,
+             excludeAttrs);
+        if (paredEntry == null)
+        {
+          continue;
+        }
+
         try
         {
           final String comment = INFO_LDIF_DIFF_DELETE_COMMENT.get() +
-               StaticUtils.EOL + entry.toLDIFString(75);
-          writer.writeChangeRecord(new LDIFDeleteChangeRecord(entry.getDN()),
-               comment);
+               StaticUtils.EOL + paredEntry.toLDIFString(75);
+          writer.writeChangeRecord(
+               new LDIFDeleteChangeRecord(paredEntry.getDN()), comment);
           deleteCount++;
         }
         catch (final Exception ex)
