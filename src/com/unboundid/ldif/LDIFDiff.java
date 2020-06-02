@@ -45,6 +45,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -56,6 +57,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPOutputStream;
 
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.ChangeType;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.InternalSDKHelper;
@@ -77,6 +79,7 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.StringArgument;
 
 import static com.unboundid.ldif.LDIFMessages.*;
 
@@ -118,6 +121,30 @@ public final class LDIFDiff
 
 
 
+  /**
+   * The change type name used to indicate that add operations should be
+   * included in the output.
+   */
+  private static final String CHANGE_TYPE_ADD = "add";
+
+
+
+  /**
+   * The change type name used to indicate that delete operations should be
+   * included in the output.
+   */
+  private static final String CHANGE_TYPE_DELETE = "delete";
+
+
+
+  /**
+   * The change type name used to indicate that modify operations should be
+   * included in the output.
+   */
+  private static final String CHANGE_TYPE_MODIFY = "modify";
+
+
+
   // The completion message for this tool.
   private final AtomicReference<String> completionMessage;
 
@@ -140,6 +167,7 @@ public final class LDIFDiff
   private FileArgument sourceLDIF;
   private FileArgument targetEncryptionPassphraseFile;
   private FileArgument targetLDIF;
+  private StringArgument changeType;
 
 
 
@@ -215,6 +243,7 @@ public final class LDIFDiff
     sourceLDIF = null;
     targetEncryptionPassphraseFile = null;
     targetLDIF = null;
+    changeType = null;
   }
 
 
@@ -493,6 +522,24 @@ public final class LDIFDiff
     parser.addArgument(overwriteExistingOutputLDIF);
 
 
+    changeType = new StringArgument(null, "changeType", false, 0,
+         INFO_LDIF_DIFF_ARG_PLACEHOLDER_CHANGE_OPERATION_TYPE.get(),
+         INFO_LDIF_DIFF_ARG_DESC_CHANGE_TYPE.get(),
+         StaticUtils.setOf(
+              CHANGE_TYPE_ADD,
+              CHANGE_TYPE_DELETE,
+              CHANGE_TYPE_MODIFY),
+         Collections.unmodifiableList(Arrays.asList(
+              CHANGE_TYPE_ADD,
+              CHANGE_TYPE_DELETE,
+              CHANGE_TYPE_MODIFY)));
+    changeType.addLongIdentifier("change-type", true);
+    changeType.addLongIdentifier("operationType", true);
+    changeType.addLongIdentifier("operation-type", true);
+    changeType.setArgumentGroupName(INFO_LDIF_DIFF_ARG_GROUP_CONTENT.get());
+    parser.addArgument(changeType);
+
+
     includeOperationalAttributes = new BooleanArgument('i',
          "includeOperationalAttributes", 1,
          INFO_LDIF_DIFF_ARG_DESC_INCLUDE_OPERATIONAL.get());
@@ -624,6 +671,33 @@ public final class LDIFDiff
   @Override()
   public ResultCode doToolProcessing()
   {
+    // Get the change types to use for processing.
+    final Set<ChangeType> changeTypes;
+    if (changeType.isPresent())
+    {
+      changeTypes = EnumSet.noneOf(ChangeType.class);
+      for (final String value : changeType.getValues())
+      {
+        switch (StaticUtils.toLowerCase(value))
+        {
+          case CHANGE_TYPE_ADD:
+            changeTypes.add(ChangeType.ADD);
+            break;
+          case CHANGE_TYPE_DELETE:
+            changeTypes.add(ChangeType.DELETE);
+            break;
+          case CHANGE_TYPE_MODIFY:
+            changeTypes.add(ChangeType.MODIFY);
+            break;
+        }
+      }
+    }
+    else
+    {
+      changeTypes = EnumSet.allOf(ChangeType.class);
+    }
+
+
     // Get the schema to use when performing LDIF processing.
     final Schema schema;
     try
@@ -701,26 +775,30 @@ public final class LDIFDiff
 
 
     // Open the output file for writing.
-    final long addCount;
-    final long deleteCount;
-    final long modifyCount;
+    long addCount = 0L;
+    long deleteCount = 0L;
+    long modifyCount = 0L;
     try (OutputStream outputStream = openOutputStream();
          LDIFWriter ldifWriter = new LDIFWriter(outputStream))
     {
       // First, identify any entries that have been added (that is, entries in
       // the target set that are not in the source set), and write them to the
       // output file.
-      try
+      if (changeTypes.contains(ChangeType.ADD))
       {
-        addCount = writeAdds(sourceEntries, targetEntries, ldifWriter, schema);
-      }
-      catch (final LDAPException e)
-      {
-        Debug.debugException(e);
-        logCompletionMessage(true,
-             ERR_LDIF_DIFF_ERROR_WRITING_OUTPUT.get(outputFilePath,
-                  e.getMessage()));
-        return e.getResultCode();
+        try
+        {
+          addCount = writeAdds(sourceEntries, targetEntries, ldifWriter,
+               schema);
+        }
+        catch (final LDAPException e)
+        {
+          Debug.debugException(e);
+          logCompletionMessage(true,
+               ERR_LDIF_DIFF_ERROR_WRITING_OUTPUT.get(outputFilePath,
+                    e.getMessage()));
+          return e.getResultCode();
+        }
       }
 
 
@@ -730,43 +808,61 @@ public final class LDIFDiff
       // that allows modifications to reference newly created entries, and we'll
       // write modifies before deletes because that allows modifications to
       // remove references to entries that will be removed.
-      try
+      if (changeTypes.contains(ChangeType.MODIFY))
       {
-        modifyCount = writeModifications(sourceEntries, targetEntries,
-             ldifWriter, schema);
-      }
-      catch (final LDAPException e)
-      {
-        Debug.debugException(e);
-        logCompletionMessage(true,
-             ERR_LDIF_DIFF_ERROR_WRITING_OUTPUT.get(outputFilePath,
-                  e.getMessage()));
-        return e.getResultCode();
+        try
+        {
+          modifyCount = writeModifications(sourceEntries, targetEntries,
+               ldifWriter, schema);
+        }
+        catch (final LDAPException e)
+        {
+          Debug.debugException(e);
+          logCompletionMessage(true,
+               ERR_LDIF_DIFF_ERROR_WRITING_OUTPUT.get(outputFilePath,
+                    e.getMessage()));
+          return e.getResultCode();
+        }
       }
 
 
       // Finally, identify any deletes (entries that were only in the set of
       // source entries) and write them to the output file.
-      try
+      if (changeTypes.contains(ChangeType.DELETE))
       {
-        deleteCount = writeDeletes(sourceEntries, ldifWriter);
-      }
-      catch (final LDAPException e)
-      {
-        Debug.debugException(e);
-        logCompletionMessage(true,
-             ERR_LDIF_DIFF_ERROR_WRITING_OUTPUT.get(outputFilePath,
-                  e.getMessage()));
-        return e.getResultCode();
+        try
+        {
+          deleteCount = writeDeletes(sourceEntries, targetEntries, ldifWriter);
+        }
+        catch (final LDAPException e)
+        {
+          Debug.debugException(e);
+          logCompletionMessage(true,
+               ERR_LDIF_DIFF_ERROR_WRITING_OUTPUT.get(outputFilePath,
+                    e.getMessage()));
+          return e.getResultCode();
+        }
       }
 
 
       // If we've gotten here, then everything was successful.
       ldifWriter.flush();
       logCompletionMessage(false, INFO_LDIF_DIFF_COMPLETED.get());
-      out(INFO_LDIF_DIFF_COMPLETED_ADD_COUNT.get(addCount));
-      out(INFO_LDIF_DIFF_COMPLETED_DELETE_COUNT.get(deleteCount));
-      out(INFO_LDIF_DIFF_COMPLETED_MODIFY_COUNT.get(modifyCount));
+      if (changeTypes.contains(ChangeType.ADD))
+      {
+        out(INFO_LDIF_DIFF_COMPLETED_ADD_COUNT.get(addCount));
+      }
+
+      if (changeTypes.contains(ChangeType.MODIFY))
+      {
+        out(INFO_LDIF_DIFF_COMPLETED_MODIFY_COUNT.get(modifyCount));
+      }
+
+      if (changeTypes.contains(ChangeType.DELETE))
+      {
+        out(INFO_LDIF_DIFF_COMPLETED_DELETE_COUNT.get(deleteCount));
+      }
+
       return ResultCode.SUCCESS;
     }
     catch (final LDAPException e)
@@ -1075,7 +1171,7 @@ public final class LDIFDiff
         {
           Debug.debugException(e);
           throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_LDIF_DIFF_CANNOT_ENRYPT_OUTPUT_FILE.get(
+               ERR_LDIF_DIFF_CANNOT_ENCRYPT_OUTPUT_FILE.get(
                     StaticUtils.getExceptionMessage(e)),
                e);
         }
@@ -1128,17 +1224,12 @@ public final class LDIFDiff
   {
     long addCount = 0L;
 
-    final Iterator<Map.Entry<DN,Entry>> targetIterator =
-         targetEntries.entrySet().iterator();
-    while (targetIterator.hasNext())
+    for (final Map.Entry<DN,Entry> e : targetEntries.entrySet())
     {
-      final Map.Entry<DN,Entry> e = targetIterator.next();
       final DN entryDN = e.getKey();
       final Entry entry = e.getValue();
       if (! sourceEntries.containsKey(entryDN))
       {
-        targetIterator.remove();
-
         final List<Attribute> attributes =
              new ArrayList<>(entry.getAttributes());
         final Iterator<Attribute> attributeIterator = attributes.iterator();
@@ -1165,15 +1256,16 @@ public final class LDIFDiff
 
         try
         {
-          writer.writeChangeRecord(new LDIFAddChangeRecord(entry.getDN(),
-               attributes));
+          writer.writeChangeRecord(
+               new LDIFAddChangeRecord(entry.getDN(), attributes),
+               INFO_LDIF_DIFF_ADD_COMMENT.get());
           addCount++;
         }
         catch (final Exception ex)
         {
           Debug.debugException(ex);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_LDIF_WRITER_CANNOT_WRITE_ADD_FOR_ENTRY.get(entry.getDN(),
+             ERR_LDIF_DIFF_CANNOT_WRITE_ADD_FOR_ENTRY.get(entry.getDN(),
                   StaticUtils.getExceptionMessage(ex)),
              ex);
         }
@@ -1187,9 +1279,7 @@ public final class LDIFDiff
 
   /**
    * Identifies entries that exist in both the source and target maps and
-   * determines whether there are any changes between them.  Any entries that
-   * exist in both sets will be removed from those sets, regardless of whether
-   * they are the same or different.
+   * determines whether there are any changes between them.
    *
    * @param  sourceEntries  The map of entries read from the source LDIF file.
    *                        It must not be {@code null}.
@@ -1212,22 +1302,18 @@ public final class LDIFDiff
           throws LDAPException
   {
     long modCount = 0L;
-    final Iterator<Map.Entry<DN,Entry>> sourceIterator =
-         sourceEntries.entrySet().iterator();
-    while (sourceIterator.hasNext())
+
+    for (final Map.Entry<DN,Entry> sourceMapEntry : sourceEntries.entrySet())
     {
-      final Map.Entry<DN,Entry> sourceMapEntry = sourceIterator.next();
       final DN sourceDN = sourceMapEntry.getKey();
 
-      final Entry targetEntry = targetEntries.remove(sourceDN);
+      final Entry targetEntry = targetEntries.get(sourceDN);
       if (targetEntry == null)
       {
         continue;
       }
 
       final Entry sourceEntry = sourceMapEntry.getValue();
-      sourceIterator.remove();
-
       final List<Modification> mods = Entry.diff(sourceEntry, targetEntry,
            false, (! nonReversibleModifications.isPresent()), true);
       if (writeModifiedEntry(sourceDN, mods, writer, schema))
@@ -1327,14 +1413,15 @@ public final class LDIFDiff
       else
       {
         writer.writeChangeRecord(
-             new LDIFModifyChangeRecord(dn.toString(), paredMods));
+             new LDIFModifyChangeRecord(dn.toString(), paredMods),
+             INFO_LDIF_DIFF_MODIFY_COMMENT.get());
       }
     }
     catch (final Exception e)
     {
       Debug.debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_LDIF_WRITER_CANNOT_WRITE_MODS_TO_ENTRY.get(dn.toString(),
+           ERR_LDIF_DIFF_CANNOT_WRITE_MODS_TO_ENTRY.get(dn.toString(),
                 StaticUtils.getExceptionMessage(e)),
            e);
     }
@@ -1346,9 +1433,11 @@ public final class LDIFDiff
 
   /**
    * Writes delete change records for all entries contained in the given source
-   * entry map.
+   * entry map that are not in the target entry map.
    *
    * @param  sourceEntries  The map of entries read from the source LDIF file.
+   *                        It must not be {@code null}.
+   * @param  targetEntries  The map of entries read from the target LDIF file.
    *                        It must not be {@code null}.
    * @param  writer         The LDIF writer to use to write any changes.  It
    *                        must not be {@ocde null} and it must be open.
@@ -1360,27 +1449,34 @@ public final class LDIFDiff
    *                         delete change records.
    */
   private long writeDeletes(final TreeMap<DN,Entry> sourceEntries,
+                            final TreeMap<DN,Entry> targetEntries,
                             final LDIFWriter writer)
           throws LDAPException
   {
-    // Any entries remaining in the source entry map after removing the common
-    // entries must have been deleted.  Make sure to delete entries in
-    // reverse order.
     long deleteCount = 0L;
-    for (final DN dn : sourceEntries.descendingKeySet())
+
+    for (final Map.Entry<DN,Entry> e : sourceEntries.descendingMap().entrySet())
     {
-      try
+      final DN entryDN = e.getKey();
+      final Entry entry = e.getValue();
+      if (! targetEntries.containsKey(entryDN))
       {
-        writer.writeChangeRecord(new LDIFDeleteChangeRecord(dn.toString()));
-        deleteCount++;
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_LDIF_WRITER_CANNOT_WRITE_DELETE_FOR_ENTRY.get(dn.toString(),
-                StaticUtils.getExceptionMessage(e)),
-           e);
+        try
+        {
+          final String comment = INFO_LDIF_DIFF_DELETE_COMMENT.get() +
+               StaticUtils.EOL + entry.toLDIFString(75);
+          writer.writeChangeRecord(new LDIFDeleteChangeRecord(entry.getDN()),
+               comment);
+          deleteCount++;
+        }
+        catch (final Exception ex)
+        {
+          Debug.debugException(ex);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_LDIF_DIFF_CANNOT_WRITE_DELETE_FOR_ENTRY.get(entry.getDN(),
+                  StaticUtils.getExceptionMessage(ex)),
+             ex);
+        }
       }
     }
 

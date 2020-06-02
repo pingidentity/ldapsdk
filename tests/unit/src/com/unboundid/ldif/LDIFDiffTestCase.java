@@ -73,12 +73,9 @@ public final class LDIFDiffTestCase
 {
   /**
    * Provides coverage for methods that can be invoked without running the tool.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
   public void testToolMethods()
-         throws Exception
   {
     final LDIFDiff tool = new LDIFDiff(null, null);
 
@@ -110,12 +107,9 @@ public final class LDIFDiffTestCase
 
   /**
    * Tests to ensure that it's possible to obtain usage information.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
   public void testUsage()
-         throws Exception
   {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     assertEquals(LDIFDiff.main(out, out, "--help"),
@@ -590,7 +584,7 @@ public final class LDIFDiffTestCase
          ResultCode.SUCCESS,
          StaticUtils.toUTF8String(out.toByteArray()));
 
-    final List<LDIFChangeRecord> changeRecords = new ArrayList<>();
+    final List<LDIFChangeRecord> changeRecords = new ArrayList<>(10);
     try (LDIFReader reader = new
          LDIFReader(new ByteArrayInputStream(out.toByteArray())))
     {
@@ -721,7 +715,7 @@ public final class LDIFDiffTestCase
     assertNotNull(changeRecords);
     assertFalse(changeRecords.isEmpty());
     assertEquals(changeRecords,
-         Arrays.asList(
+         Collections.singletonList(
               new LDIFModifyChangeRecord(new ModifyRequest(
                    "dn: cn=Test Group,ou=Groups,dc=example,dc=com",
                    "changetype: modify",
@@ -1891,7 +1885,7 @@ public final class LDIFDiffTestCase
     assertTrue(out.size() > 0);
 
 
-    // Recreate the original output file and run again with the eoption to
+    // Recreate the original output file and run again with the option to
     // overwrite the existing file.
     output = createTempFile(
          "dn: dc=existing,dc=com",
@@ -2563,6 +2557,302 @@ public final class LDIFDiffTestCase
 
 
   /**
+   * Tests the behavior for the tool when the --changeType argument is provided.
+   *
+   * @throws Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testChangeType()
+         throws Exception
+  {
+    final File source = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: source",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "description: source",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User",
+         "userPassword: password",
+         "description: source",
+         "",
+         "dn: ou=Groups,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: Groups");
+    final File target = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: target",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "description: target",
+         "",
+         "dn: uid=test.user,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: test.user",
+         "givenName: Test",
+         "sn: User",
+         "cn: Test User",
+         "userPassword: password",
+         "description: target",
+         "",
+         "dn: ou=Applications,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: Applications");
+
+    final File output = createTempFile();
+    assertTrue(output.delete());
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--changeType", "add",
+              "--changeType", "modify",
+              "--changeType", "delete"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    List<LDIFChangeRecord> changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications")),
+
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-")),
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: ou=People,dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-")),
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: uid=test.user,ou=People,dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-")),
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--changeType", "add"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--changeType", "modify"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Arrays.asList(
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-")),
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: ou=People,dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-")),
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: uid=test.user,ou=People,dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-"))));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--changeType", "add",
+              "--changeType", "modify",
+              "--changeType", "delete"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Arrays.asList(
+              new LDIFAddChangeRecord(new AddRequest(
+                   "dn: ou=Applications,dc=example,dc=com",
+                   "objectClass: top",
+                   "objectClass: organizationalUnit",
+                   "ou: Applications")),
+
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-")),
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: ou=People,dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-")),
+              new LDIFModifyChangeRecord(new ModifyRequest(
+                   "dn: uid=test.user,ou=People,dc=example,dc=com",
+                   "changetype: modify",
+                   "delete: description",
+                   "description: source",
+                   "-",
+                   "add: description",
+                   "description: target",
+                   "-")),
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
+
+    assertTrue(out.size() > 0);
+
+
+    out.reset();
+    assertTrue(output.delete());
+    assertFalse(output.exists());
+
+    assertEquals(
+         LDIFDiff.main(out, out,
+              "--sourceLDIF", source.getAbsolutePath(),
+              "--targetLDIF", target.getAbsolutePath(),
+              "--outputLDIF", output.getAbsolutePath(),
+              "--changeType", "delete"),
+         ResultCode.SUCCESS,
+         StaticUtils.toUTF8String(out.toByteArray()));
+
+    assertTrue(output.exists());
+
+    changeRecords = readChangeRecords(output);
+    assertNotNull(changeRecords);
+    assertFalse(changeRecords.isEmpty());
+    assertEquals(changeRecords,
+         Collections.singletonList(
+              new LDIFDeleteChangeRecord("ou=Groups,dc=example,dc=com")));
+
+    assertTrue(out.size() > 0);
+  }
+
+
+
+  /**
    * Reads the LDIF change records from the specified file.
    *
    * @param  ldifFile  The file from which to read the change records.  It may
@@ -2610,9 +2900,9 @@ public final class LDIFDiffTestCase
            System.err).getFirst();
     }
 
-    final List<LDIFChangeRecord> changeRecords = new ArrayList<>();
     try (LDIFReader ldifReader = new LDIFReader(inputStream))
     {
+      final List<LDIFChangeRecord> changeRecords = new ArrayList<>(10);
       while (true)
       {
         final LDIFChangeRecord changeRecord = ldifReader.readChangeRecord();
@@ -2647,7 +2937,7 @@ public final class LDIFDiffTestCase
                                      final String... lines)
           throws Exception
   {
-    File f = File.createTempFile("ldapsdk-", ".tmp");
+    final File f = File.createTempFile("ldapsdk-", ".tmp");
     f.deleteOnExit();
 
     OutputStream outputStream = new FileOutputStream(f);
@@ -2691,7 +2981,7 @@ public final class LDIFDiffTestCase
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  private void writeFile(final File file, final String... lines)
+  private static void writeFile(final File file, final String... lines)
           throws Exception
   {
     try (PrintWriter w = new PrintWriter(file))
