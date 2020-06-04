@@ -74,6 +74,7 @@ import com.unboundid.util.PassphraseEncryptedOutputStream;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
@@ -140,6 +141,12 @@ public final class LDIFModify
   private FileArgument targetLDIF;
   private IntegerArgument wrapColumn;
 
+  // Variables that may be used by support for a legacy implementation.
+  private LDIFReader changesReader;
+  private LDIFReader sourceReader;
+  private LDIFWriter targetWriter;
+  private List<String> errorMessages;
+
 
 
   /**
@@ -184,6 +191,81 @@ public final class LDIFModify
 
 
   /**
+   * Invokes this tool with the provided readers and writer.  This method is
+   * primarily intended for legacy backward compatibility with the Ping Identity
+   * Directory Server and does not provide access to all functionality offered
+   * by this tool.
+   *
+   * @param  sourceReader   An LDIF reader that may be used to read the entries
+   *                        to be updated.  It must not be {@code null}.  Note
+   *                        this the reader will be closed when the tool
+   *                        completes.
+   * @param  changesReader  An LDIF reader that may be used to read the changes
+   *                        to apply.  It must not be {@code null}.  Note that
+   *                        this reader will be closed when the tool completes.
+   * @param  targetWriter   An LDIF writer that may be used to write the updated
+   *                        entries.  It must not be {@code null}.  Note that
+   *                        this writer will be closed when the tool completes.
+   * @param  errorMessages  A list that will be updated with any errors
+   *                        encountered during processing.  It must not be
+   *                        {@code null} and must be updatable.
+   *
+   * @return  {@code true} if processing completed successfully, or
+   *          {@code false} if one or more errors were encountered.
+   */
+  public static boolean main(final LDIFReader sourceReader,
+                             final LDIFReader changesReader,
+                             final LDIFWriter targetWriter,
+                             final List<String> errorMessages)
+  {
+    Validator.ensureNotNull(sourceReader, changesReader, targetWriter,
+         errorMessages);
+
+    final LDIFModify tool = new LDIFModify(null, null);
+    tool.sourceReader = sourceReader;
+    tool.changesReader = changesReader;
+    tool.targetWriter = targetWriter;
+    tool.errorMessages = errorMessages;
+
+    try
+    {
+      final ResultCode resultCode = tool.runTool("--suppressComments");
+      return (resultCode == ResultCode.SUCCESS);
+    }
+    finally
+    {
+      try
+      {
+        sourceReader.close();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+
+      try
+      {
+        changesReader.close();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+
+      try
+      {
+        targetWriter.close();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+  }
+
+
+
+  /**
    * Creates a new instance of this tool with the provided output and error
    * streams.
    *
@@ -213,6 +295,11 @@ public final class LDIFModify
     targetEncryptionPassphraseFile = null;
     targetLDIF = null;
     wrapColumn = null;
+
+    changesReader = null;
+    sourceReader = null;
+    targetWriter = null;
+    errorMessages = null;
   }
 
 
@@ -316,8 +403,9 @@ public final class LDIFModify
   public void addToolArguments(final ArgumentParser parser)
          throws ArgumentException
   {
-    sourceLDIF = new FileArgument('s', "sourceLDIF", true, 1, null,
-         INFO_LDIFMODIFY_ARG_DESC_SOURCE_LDIF.get(), true, true, true, false);
+    sourceLDIF = new FileArgument('s', "sourceLDIF", (sourceReader == null), 1,
+         null, INFO_LDIFMODIFY_ARG_DESC_SOURCE_LDIF.get(), true, true, true,
+         false);
     sourceLDIF.addLongIdentifier("source-ldif", true);
     sourceLDIF.addLongIdentifier("sourceFile", true);
     sourceLDIF.addLongIdentifier("source-file", true);
@@ -380,8 +468,9 @@ public final class LDIFModify
     parser.addArgument(sourceEncryptionPassphraseFile);
 
 
-    changesLDIF = new FileArgument('m', "changesLDIF", true, 1, null,
-         INFO_LDIFMODIFY_ARG_DESC_CHANGES_LDIF.get(), true, true, true, false);
+    changesLDIF = new FileArgument('m', "changesLDIF", (changesReader == null),
+         1, null, INFO_LDIFMODIFY_ARG_DESC_CHANGES_LDIF.get(), true, true, true,
+         false);
     changesLDIF.addLongIdentifier("changes-ldif", true);
     changesLDIF.addLongIdentifier("changesFile", true);
     changesLDIF.addLongIdentifier("changes-file", true);
@@ -510,8 +599,9 @@ public final class LDIFModify
     parser.addArgument(lenientModifications);
 
 
-    targetLDIF = new FileArgument('t', "targetLDIF", true, 1, null,
-         INFO_LDIFMODIFY_ARG_DESC_TARGET_LDIF.get(), false, true, true, false);
+    targetLDIF = new FileArgument('t', "targetLDIF", (targetWriter == null), 1,
+         null, INFO_LDIFMODIFY_ARG_DESC_TARGET_LDIF.get(), false, true, true,
+         false);
     targetLDIF.addLongIdentifier("target-ldif", true);
     targetLDIF.addLongIdentifier("targetFile", true);
     targetLDIF.addLongIdentifier("target-file", true);
@@ -668,7 +758,7 @@ public final class LDIFModify
       // Open the source LDIF file for reading.
       try
       {
-        ldifReader = getLDIFReader(sourceLDIF.getValue(),
+        ldifReader = getLDIFReader(sourceReader, sourceLDIF.getValue(),
              sourceEncryptionPassphraseFile.getValue());
       }
       catch (final LDAPException e)
@@ -682,7 +772,7 @@ public final class LDIFModify
       // Open the target LDIF file for writing.
       try
       {
-        ldifWriter = getLDIFWriter();
+        ldifWriter = getLDIFWriter(targetWriter);
       }
       catch (final LDAPException e)
       {
@@ -708,10 +798,8 @@ public final class LDIFModify
           if (e.mayContinueReading())
           {
             resultCode.compareAndSet(null, ResultCode.DECODING_ERROR);
-            wrapErr(0, WRAP_COLUMN,
-                 ERR_LDIFMODIFY_RECOVERABLE_DECODE_ERROR.get(
-                      sourceLDIF.getValue(),
-                      StaticUtils.getExceptionMessage(e)));
+            wrapErr(ERR_LDIFMODIFY_RECOVERABLE_DECODE_ERROR.get(
+                 sourceLDIF.getValue(), StaticUtils.getExceptionMessage(e)));
             continue;
           }
           else
@@ -757,14 +845,18 @@ public final class LDIFModify
         else
         {
           targetRecord = sourceRecord;
-          comment.append(ERR_LDIFMODIFY_COMMENT_SOURCE_RECORD_NOT_ENTRY.get());
+          // NOTE:  We're using false for the isError flag in this case because
+          // a better error will be recorded by the createChangeRecordComment
+          // call below.
+          appendComment(comment,
+               ERR_LDIFMODIFY_COMMENT_SOURCE_RECORD_NOT_ENTRY.get(), false);
 
           final StringBuilder msgBuffer = new StringBuilder();
           createChangeRecordComment(msgBuffer,
                ERR_LDIFMODIFY_OUTPUT_SOURCE_RECORD_NOT_ENTRY.get(
                     sourceLDIF.getValue().getAbsolutePath()),
-               sourceRecord);
-          wrapErr(0, WRAP_COLUMN, msgBuffer.toString());
+               sourceRecord, true);
+          wrapErr(msgBuffer.toString());
           resultCode.compareAndSet(null, ResultCode.DECODING_ERROR);
         }
 
@@ -779,7 +871,7 @@ public final class LDIFModify
           {
             if ((comment.length() > 0) && (! suppressComments.isPresent()))
             {
-              writeLDIFComment(ldifWriter, comment);
+              writeLDIFComment(ldifWriter, comment, false);
             }
           }
           else
@@ -813,7 +905,8 @@ public final class LDIFModify
           if (iterator.hasNext())
           {
             createChangeRecordComment(comment,
-                 INFO_LDIFMODIFY_ADDING_ENTRY_WITH_MODS.get(), addChangeRecord);
+                 INFO_LDIFMODIFY_ADDING_ENTRY_WITH_MODS.get(), addChangeRecord,
+                 false);
             while (iterator.hasNext())
             {
               entry = applyModification(entry,
@@ -823,7 +916,8 @@ public final class LDIFModify
           }
           else
           {
-            comment.append(INFO_LDIFMODIFY_ADDING_ENTRY_NO_MODS.get());
+            appendComment(comment,
+                 INFO_LDIFMODIFY_ADDING_ENTRY_NO_MODS.get(), false);
           }
 
           writeLDIFRecord(ldifWriter, entry, comment);
@@ -840,7 +934,8 @@ public final class LDIFModify
             resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
             writeLDIFComment(ldifWriter,
                  ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_DELETE.get(
-                      e.getKey().toString()));
+                      e.getKey().toString()),
+                 true);
           }
         }
 
@@ -855,8 +950,8 @@ public final class LDIFModify
             resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
             comment.setLength(0);
             createChangeRecordComment(comment,
-                 ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_MODIFY.get(), r);
-            writeLDIFComment(ldifWriter, comment);
+                 ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_MODIFY.get(), r, true);
+            writeLDIFComment(ldifWriter, comment, false);
           }
         }
 
@@ -873,14 +968,14 @@ public final class LDIFModify
             if (r instanceof LDIFModifyDNChangeRecord)
             {
               createChangeRecordComment(comment,
-                   ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_RENAME.get(), r);
+                   ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_RENAME.get(), r, true);
             }
             else
             {
               createChangeRecordComment(comment,
-                   ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_MODIFY.get(), r);
+                   ERR_LDIFMODIFY_NO_SUCH_ENTRY_TO_MODIFY.get(), r, true);
             }
-            writeLDIFComment(ldifWriter, comment);
+            writeLDIFComment(ldifWriter, comment, false);
           }
         }
       }
@@ -888,7 +983,8 @@ public final class LDIFModify
       {
         Debug.debugException(e);
         logCompletionMessage(true,
-             ERR_LDIFMODIFY_WRITE_ERROR.get(targetLDIF.getValue(),
+             ERR_LDIFMODIFY_WRITE_ERROR.get(
+                  targetLDIF.getValue().getAbsolutePath(),
                   StaticUtils.getExceptionMessage(e)));
         return ResultCode.LOCAL_ERROR;
       }
@@ -1025,8 +1121,8 @@ public final class LDIFModify
        throws LDAPException
   {
     LDIFException firstRecoverableException = null;
-    try (LDIFReader ldifReader = getLDIFReader(changesLDIF.getValue(),
-         changesEncryptionPassphraseFile.getValue()))
+    try (LDIFReader ldifReader = getLDIFReader(changesReader,
+         changesLDIF.getValue(), changesEncryptionPassphraseFile.getValue()))
     {
 changeRecordLoop:
       while (true)
@@ -1049,10 +1145,9 @@ changeRecordLoop:
             }
 
             err();
-            wrapErr(0, WRAP_COLUMN,
-                 ERR_LDIFMODIFY_CANNOT_READ_RECORD_CAN_CONTINUE.get(
-                      changesLDIF.getValue().getAbsolutePath(),
-                      StaticUtils.getExceptionMessage(e)));
+            wrapErr(ERR_LDIFMODIFY_CANNOT_READ_RECORD_CAN_CONTINUE.get(
+                 changesLDIF.getValue().getAbsolutePath(),
+                 StaticUtils.getExceptionMessage(e)));
             resultCode.compareAndSet(null, ResultCode.DECODING_ERROR);
             continue changeRecordLoop;
           }
@@ -1084,10 +1179,9 @@ changeRecordLoop:
           Debug.debugException(e);
 
           err();
-          wrapErr(0, WRAP_COLUMN,
-               ERR_LDIFMODIFY_CANNOT_PARSE_CHANGE_RECORD_DN.get(
-                    String.valueOf(ldifRecord),
-                    changesLDIF.getValue().getAbsolutePath(), e.getMessage()));
+          wrapErr(ERR_LDIFMODIFY_CANNOT_PARSE_CHANGE_RECORD_DN.get(
+               String.valueOf(ldifRecord),
+               changesLDIF.getValue().getAbsolutePath(), e.getMessage()));
           resultCode.compareAndSet(null, e.getResultCode());
           continue changeRecordLoop;
         }
@@ -1121,11 +1215,9 @@ changeRecordLoop:
             Debug.debugException(e);
 
             err();
-            wrapErr(0, WRAP_COLUMN,
-                 ERR_LDIFMODIFY_CANNOT_PARSE_NEW_DN.get(
-                      String.valueOf(changeRecord),
-                      changesLDIF.getValue().getAbsolutePath(),
-                      e.getMessage()));
+            wrapErr(ERR_LDIFMODIFY_CANNOT_PARSE_NEW_DN.get(
+                 String.valueOf(changeRecord),
+                 changesLDIF.getValue().getAbsolutePath(), e.getMessage()));
             resultCode.compareAndSet(null, e.getResultCode());
             continue changeRecordLoop;
           }
@@ -1145,10 +1237,9 @@ changeRecordLoop:
             if (addAndSubsequentChangeRecords.containsKey(parsedDN))
             {
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_MULTIPLE_ADDS_FOR_DN.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(ERR_LDIFMODIFY_MULTIPLE_ADDS_FOR_DN.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
               resultCode.compareAndSet(null, ResultCode.ENTRY_ALREADY_EXISTS);
               continue changeRecordLoop;
             }
@@ -1158,10 +1249,9 @@ changeRecordLoop:
             if (modifyChangeRecords.containsKey(parsedDN))
             {
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_ADD_TARGETS_MODIFIED_ENTRY.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(ERR_LDIFMODIFY_ADD_TARGETS_MODIFIED_ENTRY.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
               resultCode.compareAndSet(null, ResultCode.ENTRY_ALREADY_EXISTS);
               continue changeRecordLoop;
             }
@@ -1175,11 +1265,10 @@ changeRecordLoop:
               if (parsedDN.isAncestorOf(newDN, true))
               {
                 err();
-                wrapErr(0, WRAP_COLUMN,
-                     ERR_LDIFMODIFY_ADD_CONFLICTS_WITH_MOD_DN.get(
-                          changesLDIF.getValue().getAbsolutePath(),
-                          parsedDN.toString(), e.getKey().toString(),
-                          newDN.toString()));
+                wrapErr(ERR_LDIFMODIFY_ADD_CONFLICTS_WITH_MOD_DN.get(
+                     changesLDIF.getValue().getAbsolutePath(),
+                     parsedDN.toString(), e.getKey().toString(),
+                     newDN.toString()));
                 resultCode.compareAndSet(null, ResultCode.ENTRY_ALREADY_EXISTS);
                 continue changeRecordLoop;
               }
@@ -1199,10 +1288,9 @@ changeRecordLoop:
             {
               addAndSubsequentChangeRecords.remove(parsedDN);
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   WARN_LDIFMODIFY_DELETE_OF_PREVIOUS_ADD.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(WARN_LDIFMODIFY_DELETE_OF_PREVIOUS_ADD.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
               continue changeRecordLoop;
             }
 
@@ -1214,10 +1302,9 @@ changeRecordLoop:
                    modifyDNAndSubsequentChangeRecords.get(parsedDN).getFirst();
 
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_DELETE_OF_PREVIOUS_RENAME.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN, newDN));
+              wrapErr(ERR_LDIFMODIFY_DELETE_OF_PREVIOUS_RENAME.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString(), newDN.toString()));
               resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
               continue changeRecordLoop;
             }
@@ -1242,11 +1329,10 @@ changeRecordLoop:
                 deletedEntryDNs.put(originalDN, Boolean.FALSE);
 
                 err();
-                wrapErr(0, WRAP_COLUMN,
-                     WARN_LDIFMODIFY_DELETE_OF_PREVIOUSLY_RENAMED.get(
-                          changesLDIF.getValue().getAbsolutePath(),
-                          parsedDN.toString(), originalDN.toString(),
-                          newDN.toString()));
+                wrapErr(WARN_LDIFMODIFY_DELETE_OF_PREVIOUSLY_RENAMED.get(
+                     changesLDIF.getValue().getAbsolutePath(),
+                     parsedDN.toString(), originalDN.toString(),
+                     newDN.toString()));
                 continue changeRecordLoop;
               }
             }
@@ -1256,10 +1342,9 @@ changeRecordLoop:
             if (deletedEntryDNs.containsKey(parsedDN))
             {
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_MULTIPLE_DELETES_FOR_DN.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(ERR_LDIFMODIFY_MULTIPLE_DELETES_FOR_DN.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
               resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
               continue changeRecordLoop;
             }
@@ -1271,10 +1356,9 @@ changeRecordLoop:
             {
               modifyChangeRecords.remove(parsedDN);
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   WARN_LDIFMODIFY_DELETE_OF_PREVIOUSLY_MODIFIED.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(WARN_LDIFMODIFY_DELETE_OF_PREVIOUSLY_MODIFIED.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
             }
 
             deletedEntryDNs.put(parsedDN, Boolean.FALSE);
@@ -1299,10 +1383,9 @@ changeRecordLoop:
                    modifyDNAndSubsequentChangeRecords.get(parsedDN).getFirst();
 
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_MODIFY_OF_RENAMED_ENTRY.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString(), newDN.toString()));
+              wrapErr(ERR_LDIFMODIFY_MODIFY_OF_RENAMED_ENTRY.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString(), newDN.toString()));
               resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
               continue changeRecordLoop;
             }
@@ -1325,10 +1408,9 @@ changeRecordLoop:
             if (deletedEntryDNs.containsKey(parsedDN))
             {
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_MODIFY_OF_DELETED_ENTRY.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(ERR_LDIFMODIFY_MODIFY_OF_DELETED_ENTRY.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
               resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
               continue changeRecordLoop;
             }
@@ -1355,10 +1437,9 @@ changeRecordLoop:
             if (addAndSubsequentChangeRecords.containsKey(parsedDN))
             {
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_MOD_DN_OF_ADDED_ENTRY.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(ERR_LDIFMODIFY_MOD_DN_OF_ADDED_ENTRY.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
               resultCode.compareAndSet(null, ResultCode.UNWILLING_TO_PERFORM);
               continue changeRecordLoop;
             }
@@ -1370,11 +1451,10 @@ changeRecordLoop:
               if (addedDN.isDescendantOf(parsedNewDN, true))
               {
                 err();
-                wrapErr(0, WRAP_COLUMN,
-                     ERR_LDIFMODIFY_MOD_DN_NEW_DN_CONFLICTS_WITH_ADD.get(
-                          changesLDIF.getValue().getAbsolutePath(),
-                          parsedDN.toString(), parsedNewDN.toString(),
-                          addedDN.toString()));
+                wrapErr(ERR_LDIFMODIFY_MOD_DN_NEW_DN_CONFLICTS_WITH_ADD.get(
+                     changesLDIF.getValue().getAbsolutePath(),
+                     parsedDN.toString(), parsedNewDN.toString(),
+                     addedDN.toString()));
                 resultCode.compareAndSet(null, ResultCode.ENTRY_ALREADY_EXISTS);
                 continue changeRecordLoop;
               }
@@ -1385,10 +1465,9 @@ changeRecordLoop:
             if (modifyDNAndSubsequentChangeRecords.containsKey(parsedDN))
             {
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_MULTIPLE_MOD_DN_WITH_DN.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(ERR_LDIFMODIFY_MULTIPLE_MOD_DN_WITH_DN.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
               resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
               continue changeRecordLoop;
             }
@@ -1403,7 +1482,7 @@ changeRecordLoop:
               if (newDN.isDescendantOf(parsedDN, true))
               {
                 err();
-                wrapErr(0, WRAP_COLUMN,
+                wrapErr(
                      ERR_LDIFMODIFY_UNWILLING_TO_MODIFY_DN_MULTIPLE_TIMES.get(
                           changesLDIF.getValue().getAbsolutePath(),
                           parsedDN.toString(), parsedNewDN.toString(),
@@ -1422,11 +1501,10 @@ changeRecordLoop:
               if (newDN.isDescendantOf(parsedNewDN, true))
               {
                 err();
-                wrapErr(0, WRAP_COLUMN,
-                     ERR_LDIFMODIFY_MOD_DN_CONFLICTS_WITH_MOD_DN.get(
-                          changesLDIF.getValue().getAbsolutePath(),
-                          parsedDN.toString(), parsedNewDN.toString(),
-                          e.getKey().toString(), newDN.toString()));
+                wrapErr(ERR_LDIFMODIFY_MOD_DN_CONFLICTS_WITH_MOD_DN.get(
+                     changesLDIF.getValue().getAbsolutePath(),
+                     parsedDN.toString(), parsedNewDN.toString(),
+                     e.getKey().toString(), newDN.toString()));
                 resultCode.compareAndSet(null, ResultCode.ENTRY_ALREADY_EXISTS);
                 continue changeRecordLoop;
               }
@@ -1437,10 +1515,9 @@ changeRecordLoop:
             if (deletedEntryDNs.containsKey(parsedDN))
             {
               err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_LDIFMODIFY_MOD_DN_OF_DELETED_ENTRY.get(
-                        changesLDIF.getValue().getAbsolutePath(),
-                        parsedDN.toString()));
+              wrapErr(ERR_LDIFMODIFY_MOD_DN_OF_DELETED_ENTRY.get(
+                   changesLDIF.getValue().getAbsolutePath(),
+                   parsedDN.toString()));
               resultCode.compareAndSet(null, ResultCode.NO_SUCH_OBJECT);
               continue changeRecordLoop;
             }
@@ -1452,11 +1529,10 @@ changeRecordLoop:
               if (dn.isDescendantOf(parsedNewDN, true))
               {
                 err();
-                wrapErr(0, WRAP_COLUMN,
-                     ERR_LDIFMODIFY_MOD_DN_NEW_DN_CONFLICTS_WITH_MOD.get(
-                          changesLDIF.getValue().getAbsolutePath(),
-                          parsedDN.toString(), parsedNewDN.toString(),
-                          dn.toString()));
+                wrapErr(ERR_LDIFMODIFY_MOD_DN_NEW_DN_CONFLICTS_WITH_MOD.get(
+                     changesLDIF.getValue().getAbsolutePath(),
+                     parsedDN.toString(), parsedNewDN.toString(),
+                     dn.toString()));
                 resultCode.compareAndSet(null, ResultCode.ENTRY_ALREADY_EXISTS);
                 continue changeRecordLoop;
               }
@@ -1515,8 +1591,13 @@ changeRecordLoop:
    * Retrieves an LDIF reader that may be used to read LDIF records (either
    * entries or change records) from the specified LDIF file.
    *
+   * @param  existingReader  An LDIF reader that was already provided to the
+   *                         tool for this purpose.  It may be {@code null} if
+   *                         the LDIF reader should be created with the given
+   *                         LDIF file and passphrase file.
    * @param  ldifFile        The LDIF file for which to create the reader.  It
-   *                         must not be {@code null}.
+   *                         may be {@code null} only if {@code existingReader}
+   *                         is non-{@code null}.
    * @param  passphraseFile  The file containing the encryption passphrase
    *                         needed to decrypt the contents of the provided LDIF
    *                         file.  It may be {@code null} if the LDIF file is
@@ -1527,10 +1608,16 @@ changeRecordLoop:
    *
    * @throws  LDAPException  If a problem occurs while creating the LDIF reader.
    */
-  private LDIFReader getLDIFReader(final File ldifFile,
+  private LDIFReader getLDIFReader(final LDIFReader existingReader,
+                                   final File ldifFile,
                                    final File passphraseFile)
           throws LDAPException
   {
+    if (existingReader != null)
+    {
+      return existingReader;
+    }
+
     if (passphraseFile != null)
     {
       readPassphraseFile(passphraseFile);
@@ -1655,13 +1742,23 @@ changeRecordLoop:
   /**
    * Creates the LDIF writer to use to write the output.
    *
+   * @param  existingWriter  An LDIF writer that was already provided to the
+   *                         tool for this purpose.  It may be {@code null} if
+   *                         the LDIF writer should be created using the
+   *                         provided arguments.
+   *
    * @return  The LDIF writer that was created.
    *
    * @throws  LDAPException  If a problem occurs while creating the LDIF writer.
    */
-  private LDIFWriter getLDIFWriter()
+  private LDIFWriter getLDIFWriter(final LDIFWriter existingWriter)
           throws LDAPException
   {
+    if (existingWriter != null)
+    {
+      return existingWriter;
+    }
+
     final File outputFile = targetLDIF.getValue();
     final File passphraseFile = targetEncryptionPassphraseFile.getValue();
 
@@ -1835,7 +1932,8 @@ changeRecordLoop:
     {
       Debug.debugException(e);
       resultCode.compareAndSet(null, e.getResultCode());
-      comment.append(ERR_LDIFMODIFY_CANNOT_PARSE_ENTRY_DN.get(e.getMessage()));
+      appendComment(comment,
+           ERR_LDIFMODIFY_CANNOT_PARSE_ENTRY_DN.get(e.getMessage()), true);
       return entry;
     }
 
@@ -1846,7 +1944,7 @@ changeRecordLoop:
     {
       deletedEntryDNs.put(entryDN, Boolean.TRUE);
       createChangeRecordComment(comment, INFO_LDIFMODIFY_APPLIED_DELETE.get(),
-           entry);
+           entry, false);
       entriesUpdated.incrementAndGet();
       return null;
     }
@@ -1862,7 +1960,7 @@ changeRecordLoop:
         createChangeRecordComment(comment,
              INFO_LDIFMODIFY_APPLIED_DELETE_OF_ANCESTOR.get(
                   parentDN.toString()),
-             entry);
+             entry, false);
         entriesUpdated.incrementAndGet();
         return null;
       }
@@ -1903,7 +2001,7 @@ changeRecordLoop:
           updatedEntry = applyModifyDN(updatedEntry, entryDN,
                modDNRecords.getFirst(), modDNChangeRecord.deleteOldRDN());
           createChangeRecordComment(comment,
-               INFO_LDIFMODIFY_APPLIED_MODIFY_DN.get(), r);
+               INFO_LDIFMODIFY_APPLIED_MODIFY_DN.get(), r, false);
           isUpdated.set(true);
         }
         else
@@ -1927,7 +2025,7 @@ changeRecordLoop:
         {
           resultCode.compareAndSet(null, ResultCode.ENTRY_ALREADY_EXISTS);
           createChangeRecordComment(comment,
-               ERR_LDIFMODIFY_NOT_ADDING_EXISTING_ENTRY.get(), r);
+               ERR_LDIFMODIFY_NOT_ADDING_EXISTING_ENTRY.get(), r, true);
         }
         else
         {
@@ -1946,10 +2044,10 @@ changeRecordLoop:
     {
       if (comment.length() > 0)
       {
-        comment.append(StaticUtils.EOL);
-        comment.append(StaticUtils.EOL);
+        appendComment(comment, StaticUtils.EOL, false);
+        appendComment(comment, StaticUtils.EOL, false);
       }
-      comment.append(INFO_LDIFMODIFY_ENTRY_NOT_UPDATED.get());
+      appendComment(comment, INFO_LDIFMODIFY_ENTRY_NOT_UPDATED.get(), false);
     }
 
     return updatedEntry;
@@ -1993,7 +2091,7 @@ changeRecordLoop:
            lenientModifications.isPresent(),
            modifyChangeRecord.getModifications());
       createChangeRecordComment(comment, INFO_LDIFMODIFY_APPLIED_MODIFY.get(),
-           modifyChangeRecord);
+           modifyChangeRecord, false);
       isUpdated.set(true);
       return updatedEntry;
     }
@@ -2004,7 +2102,7 @@ changeRecordLoop:
       createChangeRecordComment(comment,
            ERR_LDIFMODIFY_ERROR_APPLYING_MODIFY.get(
                 String.valueOf(e.getResultCode()), e.getMessage()),
-           modifyChangeRecord);
+           modifyChangeRecord, true);
       return entry;
     }
   }
@@ -2094,24 +2192,60 @@ changeRecordLoop:
 
 
   /**
+   * Appends the provided comment to the given buffer.
+   *
+   * @param  buffer   The buffer to which the comment should be appended.
+   * @param  comment  The comment to be appended.
+   * @param  isError  Indicates whether the comment represents an error that
+   *                  should be added to the error list if it exists.  It should
+   *                  be {@code false} if the comment is not an error, or if it
+   *                  is an error but should not be added to the list of error
+   *                  messages (e.g., because a message will be added through
+   *                  some other means).
+   */
+  private void appendComment(final StringBuilder buffer,
+                             final String comment, final boolean isError)
+  {
+    buffer.append(comment);
+    if (isError && (errorMessages != null))
+    {
+      errorMessages.add(comment);
+    }
+  }
+
+
+
+  /**
    * Writes the provided comment to the LDIF writer.
    *
    * @param  ldifWriter  The writer to which the comment should be written.  It
    *                     must not be {@code null}.
    * @param  comment     The comment to be written.  It may be {@code null} or
    *                     empty if no comment should actually be written.
+   * @param  isError     Indicates whether the comment represents an error that
+   *                     should be added to the error list if it exists.  It
+   *                     should be {@code false} if the comment is not an error,
+   *                     or if it is an error but should not be added to the
+   *                     list of error messages (e.g., because a message will be
+   *                     added through some other means).
    *
    * @throws  IOException  If an error occurs while attempting to write to the
    *                       LDIF writer.
    */
   private void writeLDIFComment(final LDIFWriter ldifWriter,
-                                final CharSequence comment)
+                                final CharSequence comment,
+                                final boolean isError)
           throws IOException
   {
     if (! (suppressComments.isPresent() || (comment == null) ||
          (comment.length() == 0)))
     {
       ldifWriter.writeComment(comment.toString(), false, true);
+    }
+
+    if (isError && (errorMessages != null))
+    {
+      errorMessages.add(comment.toString());
     }
   }
 
@@ -2125,12 +2259,20 @@ changeRecordLoop:
    * @param  message  The message to include before the LDIF record.  It must
    *                  not be {@code null}.
    * @param  record   The LDIF record to include in the comment.
+   * @param  isError  Indicates whether the comment represents an error that
+   *                  should be added to the error list if it exists.  It should
+   *                  be {@code false} if the comment is not an error, or if it
+   *                  is an error but should not be added to the list of error
+   *                  messages (e.g., because a message will be added through
+   *                  some other means).
    */
   private void createChangeRecordComment(final StringBuilder buffer,
                                          final String message,
-                                         final LDIFRecord record)
+                                         final LDIFRecord record,
+                                         final boolean isError)
   {
-    if (buffer.length() > 0)
+    final int initialLength = buffer.length();
+    if (initialLength > 0)
     {
       buffer.append(StaticUtils.EOL);
       buffer.append(StaticUtils.EOL);
@@ -2156,6 +2298,36 @@ changeRecordLoop:
       buffer.append(line);
       buffer.append(StaticUtils.EOL);
     }
+
+    if (isError && (errorMessages != null))
+    {
+      if (initialLength == 0)
+      {
+        errorMessages.add(buffer.toString());
+      }
+      else
+      {
+        errorMessages.add(buffer.toString().substring(initialLength));
+      }
+    }
+  }
+
+
+
+  /**
+   * Writes a wrapped version of the provided message to standard error.  If an
+   * {@code errorList} is also available, then the message will also be added to
+   * that list.
+   *
+   * @param  message  The message to be written.  It must not be {@code null].
+   */
+  private void wrapErr(final String message)
+  {
+    wrapErr(0, WRAP_COLUMN, message);
+    if (errorMessages != null)
+    {
+      errorMessages.add(message);
+    }
   }
 
 
@@ -2173,7 +2345,7 @@ changeRecordLoop:
 
     if (isError)
     {
-      wrapErr(0, WRAP_COLUMN, message);
+      wrapErr(message);
     }
     else
     {

@@ -3354,6 +3354,202 @@ public final class LDIFModifyTestCase
 
 
   /**
+   * Test the behavior when using the constructor provided for legacy
+   * compatibility support when there are no errors.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLegacyCompatibilityWithoutErrors()
+         throws Exception
+  {
+    final File sourceLDIF = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "",
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People",
+         "",
+         "dn: uid=user.1,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.1",
+         "givenName: User",
+         "sn: 1",
+         "cn: User 1",
+         "",
+         "dn: uid=user.2,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.2",
+         "givenName: User",
+         "sn: 2",
+         "cn: User 2",
+         "",
+         "dn: uid=user.3,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.3",
+         "givenName: User",
+         "sn: 3",
+         "cn: User 3");
+
+    final File changesLDIF = createTempFile(
+         "dn: uid=user.1,ou=People,dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description: foo",
+         "",
+         "dn: uid=user.2,ou=People,dc=example,dc=com",
+         "changetype: moddn",
+         "newRDN: cn=User 2",
+         "deleteOldRDN: 0",
+         "",
+         "dn: uid=user.3,ou=People,dc=example,dc=com",
+         "changetype: delete",
+         "",
+         "dn: uid=user.4,ou=People,dc=example,dc=com",
+         "changetype: add",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.4",
+         "givenName: User",
+         "sn: 4",
+         "cn: User 4");
+
+    final File targetLDIF = createTempFile();
+    assertTrue(targetLDIF.delete());
+
+    try (LDIFReader sourceReader = new LDIFReader(sourceLDIF);
+         LDIFReader changesReader = new LDIFReader(changesLDIF);
+         LDIFWriter targetWriter = new LDIFWriter(targetLDIF))
+    {
+      final List<String> errorMessages = new ArrayList<>();
+      assertTrue(LDIFModify.main(sourceReader, changesReader, targetWriter,
+           errorMessages));
+      assertTrue(errorMessages.isEmpty());
+    }
+
+    assertTrue(targetLDIF.exists());
+    assertTargetLDIFEquals(targetLDIF,
+         createTempFile(
+              "dn: dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: domain",
+              "dc: example",
+              "",
+              "dn: ou=People,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: organizationalUnit",
+              "ou: People",
+              "",
+              "dn: uid=user.1,ou=People,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: person",
+              "objectClass: organizationalPerson",
+              "objectClass: inetOrgPerson",
+              "uid: user.1",
+              "givenName: User",
+              "sn: 1",
+              "cn: User 1",
+              "description: foo",
+              "",
+              "dn: cn=User 2,ou=People,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: person",
+              "objectClass: organizationalPerson",
+              "objectClass: inetOrgPerson",
+              "uid: user.2",
+              "givenName: User",
+              "sn: 2",
+              "cn: User 2",
+              "",
+              "dn: uid=user.4,ou=People,dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: person",
+              "objectClass: organizationalPerson",
+              "objectClass: inetOrgPerson",
+              "uid: user.4",
+              "givenName: User",
+              "sn: 4",
+              "cn: User 4"));
+
+
+    // Make sure that the target LDIF file does not contain any comment lines.
+    for (final String line : readFileLines(targetLDIF))
+    {
+      if (line.startsWith("#"))
+      {
+        fail("The target LDIF file contained unexpected comment line " + line);
+      }
+    }
+  }
+
+
+
+  /**
+   * Test the behavior when using the constructor provided for legacy
+   * compatibility support when there is an error.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLegacyCompatibilityWithError()
+         throws Exception
+  {
+    final File sourceLDIF = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: foo");
+
+    final File changesLDIF = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: add",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: bar");
+
+    final File targetLDIF = createTempFile();
+    assertTrue(targetLDIF.delete());
+
+    try (LDIFReader sourceReader = new LDIFReader(sourceLDIF);
+         LDIFReader changesReader = new LDIFReader(changesLDIF);
+         LDIFWriter targetWriter = new LDIFWriter(targetLDIF))
+    {
+      final List<String> errorMessages = new ArrayList<>();
+      assertFalse(LDIFModify.main(sourceReader, changesReader, targetWriter,
+           errorMessages));
+      assertFalse(errorMessages.isEmpty());
+    }
+
+    assertTrue(targetLDIF.exists());
+    assertTargetLDIFEquals(targetLDIF,
+         createTempFile(
+              "dn: dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: domain",
+              "dc: example",
+              "description: foo"));
+  }
+
+
+
+  /**
    * Invokes the {@code ldifmodify} tool and ensures that it completes with the
    * expected result code.
    *
