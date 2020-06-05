@@ -1027,9 +1027,9 @@ public final class LDIFModify
     }
 
 
-    // If no entries were read, then we'll consider that an error, regardless of
-    // whether a read error was encountered.
-    if (entriesRead.get() == 0L)
+    // If no entries were read and no updates were applied, then we'll consider
+    // that an error, regardless of whether a read error was encountered.
+    if ((entriesRead.get() == 0L) && (entriesUpdated.get() == 0L))
     {
       if (resultCode.get() == null)
       {
@@ -1061,7 +1061,8 @@ public final class LDIFModify
 
 
     // Create the final completion message that will be used.
-    final long entriesNotUpdated = entriesRead.get() - entriesUpdated.get();
+    final long entriesNotUpdated =
+         Math.max((entriesRead.get() - entriesUpdated.get()), 0);
     if (resultCode.get() == null)
     {
       logCompletionMessage(false,
@@ -2243,7 +2244,7 @@ changeRecordLoop:
       ldifWriter.writeComment(comment.toString(), false, true);
     }
 
-    if (isError && (errorMessages != null))
+    if (isError && (errorMessages != null) && (comment != null))
     {
       errorMessages.add(comment.toString());
     }

@@ -266,12 +266,13 @@ public final class LDIFModifyTestCase
 
 
   /**
-   * Tests the behavior when the source LDIF file is empty.
+   * Tests the behavior when the source LDIF file is empty but the changes LDIF
+   * file adds entries to it.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testSourceLDIFEmpty()
+  public void testSourceLDIFEmptyButEntriesAdded()
          throws Exception
   {
     final File sourceLDIF = createTempFile();
@@ -286,7 +287,41 @@ public final class LDIFModifyTestCase
     final File targetLDIF = createTempFile();
     assertTrue(targetLDIF.delete());
 
-    ldifModify(sourceLDIF, changesLDIF, targetLDIF, ResultCode.PARAM_ERROR);
+    ldifModify(sourceLDIF, changesLDIF, targetLDIF, ResultCode.SUCCESS);
+
+    assertTrue(targetLDIF.exists());
+    assertTargetLDIFEquals(targetLDIF,
+         createTempFile(
+              "dn: dc=example,dc=com",
+              "objectClass: top",
+              "objectClass: domain",
+              "dc: example"));
+  }
+
+
+
+  /**
+   * Tests the behavior when the source LDIF file is empty and the changes LDIF
+   * file does not include any adds.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSourceLDIFEmpty()
+         throws Exception
+  {
+    final File sourceLDIF = createTempFile();
+
+    final File changesLDIF = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description: foo");
+
+    final File targetLDIF = createTempFile();
+    assertTrue(targetLDIF.delete());
+
+    ldifModify(sourceLDIF, changesLDIF, targetLDIF, ResultCode.NO_SUCH_OBJECT);
   }
 
 
