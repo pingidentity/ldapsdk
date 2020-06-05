@@ -3768,8 +3768,6 @@ public final class LDIFModifyTestCase
     InputStream inputStream = new FileInputStream(ldifFile);
     try
     {
-      inputStream = ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
-
       if (encPWFile != null)
       {
         final char[] passphrase =
@@ -3777,6 +3775,8 @@ public final class LDIFModifyTestCase
         inputStream =
              new PassphraseEncryptedInputStream(passphrase, inputStream);
       }
+
+      inputStream = ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
 
       try (LDIFReader reader = new LDIFReader(inputStream))
       {

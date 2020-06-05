@@ -1309,7 +1309,6 @@ public final class LDIFSearchTestCase
           throws Exception
   {
     InputStream inputStream = new FileInputStream(ldifFile);
-    inputStream = ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
 
     if (encPWFile != null)
     {
@@ -1319,6 +1318,8 @@ public final class LDIFSearchTestCase
            "Enter the passphrase:", "confirm the passphrase:", System.out,
            System.err).getFirst();
     }
+
+    inputStream = ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
 
     final List<Entry> entries = new ArrayList<>();
     try (LDIFReader ldifReader = new LDIFReader(inputStream))

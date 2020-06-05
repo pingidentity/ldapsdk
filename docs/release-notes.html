@@ -6,6 +6,28 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 5.1.1</h3>
+
+              <p>
+                The following changes were made between the 5.1.0 and 5.1.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fixed an issue with the ldifsearch, ldifmodify, and ldif-diff tools that could
+                  arise if they were run in a manner that would case the output to be both
+                  compressed and encrypted.  The data should have been compressed before it was
+                  encrypted, but instead the compression was applied after encryption.  This makes
+                  the compression ineffective, and it also makes the output less compatible with
+                  tools that rightfully expect compression to be applied before encryption.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 5.1.0</h3>
 
               <p>

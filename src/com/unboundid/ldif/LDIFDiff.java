@@ -1229,22 +1229,6 @@ public final class LDIFDiff
              e);
       }
 
-      if (compressOutput.isPresent())
-      {
-        try
-        {
-          outputStream = new GZIPOutputStream(outputStream);
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_LDIF_DIFF_CANNOT_COMPRESS_OUTPUT_FILE.get(
-                    StaticUtils.getExceptionMessage(e)),
-               e);
-        }
-      }
-
       if (encryptOutput.isPresent())
       {
         try
@@ -1271,6 +1255,22 @@ public final class LDIFDiff
           Debug.debugException(e);
           throw new LDAPException(ResultCode.LOCAL_ERROR,
                ERR_LDIF_DIFF_CANNOT_ENCRYPT_OUTPUT_FILE.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
+      }
+
+      if (compressOutput.isPresent())
+      {
+        try
+        {
+          outputStream = new GZIPOutputStream(outputStream);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_LDIF_DIFF_CANNOT_COMPRESS_OUTPUT_FILE.get(
                     StaticUtils.getExceptionMessage(e)),
                e);
         }

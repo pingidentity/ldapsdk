@@ -1782,23 +1782,6 @@ changeRecordLoop:
              e);
       }
 
-      if (compressTarget.isPresent())
-      {
-        try
-        {
-          outputStream = new GZIPOutputStream(outputStream);
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_LDIFMODIFY_CANNOT_COMPRESS_OUTPUT_FILE.get(
-                    outputFile.getAbsolutePath(),
-                    StaticUtils.getExceptionMessage(e)),
-               e);
-        }
-      }
-
       if (encryptTarget.isPresent())
       {
         try
@@ -1824,6 +1807,23 @@ changeRecordLoop:
           Debug.debugException(e);
           throw new LDAPException(ResultCode.LOCAL_ERROR,
                ERR_LDIFMODIFY_CANNOT_ENCRYPT_OUTPUT_FILE.get(
+                    outputFile.getAbsolutePath(),
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
+      }
+
+      if (compressTarget.isPresent())
+      {
+        try
+        {
+          outputStream = new GZIPOutputStream(outputStream);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_LDIFMODIFY_CANNOT_COMPRESS_OUTPUT_FILE.get(
                     outputFile.getAbsolutePath(),
                     StaticUtils.getExceptionMessage(e)),
                e);

@@ -4359,7 +4359,6 @@ public final class LDIFDiffTestCase
           throws Exception
   {
     InputStream inputStream = new FileInputStream(ldifFile);
-    inputStream = ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
 
     if (encPWFile != null)
     {
@@ -4369,6 +4368,8 @@ public final class LDIFDiffTestCase
            "Enter the passphrase:", "confirm the passphrase:", System.out,
            System.err).getFirst();
     }
+
+    inputStream = ToolUtils.getPossiblyGZIPCompressedInputStream(inputStream);
 
     try (LDIFReader ldifReader = new LDIFReader(inputStream))
     {
