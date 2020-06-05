@@ -292,7 +292,8 @@ public final class LDIFDiff
 
     if (PING_SERVER_AVAILABLE)
     {
-      messages.add(INFO_LDIF_DIFF_TOOL_DESCRIPTION_4_PING_SERVER.get());
+      messages.add(INFO_LDIF_DIFF_TOOL_DESCRIPTION_4_PING_SERVER.get(
+           getToolName()));
     }
     else
     {
