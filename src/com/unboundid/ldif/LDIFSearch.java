@@ -1050,7 +1050,6 @@ public final class LDIFSearch
         else
         {
           singleWriter = createLDIFWriter(outputFile.getValue(), null);
-          closewriter = false;
         }
       }
       else

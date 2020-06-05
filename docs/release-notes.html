@@ -24,6 +24,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue with the ldifsearch tool in which it could fail to properly
+                  finalize the output file when using compression or encryption, potentially
+                  leaving buffered data unwritten.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the ldifsearch tool that caused its usage output to include
                   example arguments and descriptions from the ldif-diff tool.
                   <br><br>
