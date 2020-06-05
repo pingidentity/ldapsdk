@@ -1658,23 +1658,24 @@ public final class LDIFSearch
     examples.put(
          new String[]
          {
-           "--sourceLDIF", "actual.ldif",
-           "--targetLDIF", "desired.ldif",
-           "--outputLDIF", "diff.ldif"
+           "--ldifFile", "data.ldif",
+           "(uid=jdoe)"
          },
-         INFO_LDIF_DIFF_EXAMPLE_1.get());
+         INFO_LDIFSEARCH_EXAMPLE_1.get());
 
     examples.put(
          new String[]
          {
-           "--sourceLDIF", "actual.ldif",
-           "--targetLDIF", "desired.ldif",
-           "--outputLDIF", "diff.ldif",
-           "--includeOperationalAttributes",
-           "--excludeNoUserModificationAttributes",
-           "--nonReversibleModifications"
+           "--ldifFile", "data.ldif",
+           "--outputFile", "people.ldif",
+           "--baseDN", "dc=example,dc=com",
+           "--scope", "sub",
+           "(objectClass=person)",
+           "givenName",
+           "sn",
+           "cn",
          },
-         INFO_LDIF_DIFF_EXAMPLE_2.get());
+         INFO_LDIFSEARCH_EXAMPLE_2.get());
 
     return examples;
   }
