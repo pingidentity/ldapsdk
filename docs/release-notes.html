@@ -14,6 +14,23 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the ldapcompare tool so that it always uses an exit code of zero
+                  (corresponding to the LDAP SUCCESS result code) by default if all compare
+                  operations are processed successfully, regardless of whether the compare
+                  assertions matched or did not match the target entries.  Previously, the tool
+                  would use an exit code of 5 (corresponding to the COMPARE_FALSE result code) or
+                  6 corresponding to the COMPARE_TRUE result code) if only a single compare
+                  operation was processed and completed with that result code, but this may cause
+                  issues with scripts that invoke the tool and expect that a nonzero exit code
+                  indicates that the tool did not complete successfully.  The
+                  --useCompareResultCodeAsExitCode argument can be used to explicitly indicate
+                  that the tool should use an exit code of 5 or 6 if only a single compare
+                  operation was attempted and it completed with a result code of COMPARE_FALSE or
+                  COMPARE_TRUE, respectively.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the ldifsearch, ldifmodify, and ldif-diff tools that could
                   arise if they were run in a manner that would case the output to be both
                   compressed and encrypted.  The data should have been compressed before it was

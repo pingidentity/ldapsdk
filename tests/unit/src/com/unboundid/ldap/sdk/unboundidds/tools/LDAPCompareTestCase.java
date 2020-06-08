@@ -153,17 +153,18 @@ public final class LDAPCompareTestCase
 
   /**
    * Tests the behavior for a simple compare operation in which the
-   * attribute-value assertion matches the target entry.
+   * attribute-value assertion matches the target entry and the default success
+   * result code should be used as the exit code.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testCompareTrue()
+  public void testCompareTrueDefaultResultCode()
          throws Exception
   {
     final InMemoryDirectoryServer ds = getTestDS(true, true);
 
-    ldapCompare(ResultCode.COMPARE_TRUE, true, false,
+    ldapCompare(ResultCode.SUCCESS, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
          "objectClass:top",
@@ -174,12 +175,58 @@ public final class LDAPCompareTestCase
 
   /**
    * Tests the behavior for a simple compare operation in which the
-   * attribute-value assertion does not match the target entry.
+   * attribute-value assertion matches the target entry and the compare result
+   * code should be used as the exit code.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testCompareFalse()
+  public void testCompareTrueCompareResultCode()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    ldapCompare(ResultCode.COMPARE_TRUE, true, false,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
+         "objectClass:top",
+         "dc=example,dc=com");
+  }
+
+
+
+  /**
+   * Tests the behavior for a simple compare operation in which the
+   * attribute-value assertion does not match the target entry and the default
+   * success result code should be used as the exit code.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCompareFalseDefaultResultCode()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    ldapCompare(ResultCode.SUCCESS, true, false,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "objectClass:organizationalUnit",
+         "dc=example,dc=com");
+  }
+
+
+
+  /**
+   * Tests the behavior for a simple compare operation in which the
+   * attribute-value assertion does not match the target entry and the compare
+   * result code should be used as the exit code.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCompareFalseCompareResultCode()
          throws Exception
   {
     final InMemoryDirectoryServer ds = getTestDS(true, true);
@@ -187,6 +234,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_FALSE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "objectClass:organizationalUnit",
          "dc=example,dc=com");
   }
@@ -407,6 +455,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_TRUE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "objectClass::" + Base64.encode("top"),
          "dc=example,dc=com");
   }
@@ -529,6 +578,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_FALSE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "objectClass:",
          "dc=example,dc=com");
   }
@@ -550,6 +600,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_FALSE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "objectClass::",
          "dc=example,dc=com");
   }
@@ -591,6 +642,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_TRUE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "objectClass:top",
          "");
   }
@@ -636,6 +688,7 @@ public final class LDAPCompareTestCase
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
          "--dnFile", dnFile.getAbsolutePath(),
+         "--useCompareResultCodeAsExitCode",
          "objectClass:top");
   }
 
@@ -809,6 +862,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_TRUE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "--assertionFile", assertionFile.getAbsolutePath());
   }
 
@@ -906,6 +960,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_TRUE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "--assertionFile", assertionFile.getAbsolutePath());
   }
 
@@ -928,6 +983,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_TRUE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "--assertionFile", assertionFile.getAbsolutePath());
   }
 
@@ -1019,6 +1075,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_TRUE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "--assertionFile", assertionFile.getAbsolutePath());
   }
 
@@ -1102,6 +1159,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_TRUE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "--followReferrals",
          "objectClass:organizationalUnit",
          "ou=Users,dc=example,dc=com");
@@ -1134,6 +1192,7 @@ public final class LDAPCompareTestCase
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
          "--manageDsaIT",
+         "--useCompareResultCodeAsExitCode",
          "objectClass:organizationalUnit",
          "ou=Users,dc=example,dc=com");
   }
@@ -1155,6 +1214,7 @@ public final class LDAPCompareTestCase
     ldapCompare(ResultCode.COMPARE_TRUE, true, false,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
          "--assertionFilter", "(objectClass=domain)",
          "objectClass:top",
          "dc=example,dc=com");
@@ -1230,6 +1290,7 @@ public final class LDAPCompareTestCase
         ldapCompare(ResultCode.COMPARE_TRUE, true, false,
              "--hostname", "localhost",
              "--port", String.valueOf(ds2.getListenPort()),
+             "--useCompareResultCodeAsExitCode",
              "--useAdministrativeSession",
              "objectClass:top",
              "dc=example,dc=com");
@@ -1352,6 +1413,7 @@ public final class LDAPCompareTestCase
          "--port", String.valueOf(ds.getListenPort()),
          "--outputFile", outputFile.getAbsolutePath(),
          "--outputFormat", "CSV",
+         "--useCompareResultCodeAsExitCode",
          "objectClass:top",
          "dc=example,dc=com");
   }
@@ -1379,6 +1441,7 @@ public final class LDAPCompareTestCase
          "--outputFile", outputFile.getAbsolutePath(),
          "--outputFormat", "CSV",
          "--verbose",
+         "--useCompareResultCodeAsExitCode",
          "objectClass:top",
          "dc=example,dc=com");
   }
@@ -1406,6 +1469,7 @@ public final class LDAPCompareTestCase
          "--outputFile", outputFile.getAbsolutePath(),
          "--outputFormat", "CSV",
          "--terse",
+         "--useCompareResultCodeAsExitCode",
          "objectClass:top",
          "dc=example,dc=com");
   }
@@ -1512,6 +1576,7 @@ public final class LDAPCompareTestCase
          "--outputFile", outputFile.getAbsolutePath(),
          "--outputFormat", "CSV",
          "--teeOutput",
+         "--useCompareResultCodeAsExitCode",
          "objectClass:top",
          "dc=example,dc=com");
   }

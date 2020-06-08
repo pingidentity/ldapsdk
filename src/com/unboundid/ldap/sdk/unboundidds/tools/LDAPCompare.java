@@ -165,6 +165,7 @@ public final class LDAPCompare
   private BooleanArgument teeOutput;
   private BooleanArgument terse;
   private BooleanArgument useAdministrativeSession;
+  private BooleanArgument useCompareResultCodeAsExitCode;
   private BooleanArgument usePasswordPolicyControl;
   private BooleanArgument verbose;
   private ControlArgument bindControl;
@@ -247,6 +248,7 @@ public final class LDAPCompare
     teeOutput = null;
     terse = null;
     useAdministrativeSession = null;
+    useCompareResultCodeAsExitCode = null;
     usePasswordPolicyControl = null;
     verbose = null;
     bindControl = null;
@@ -738,6 +740,19 @@ public final class LDAPCompare
     terse.setArgumentGroupName(INFO_LDAPCOMPARE_ARG_GROUP_OUTPUT.get());
     parser.addArgument(terse);
 
+    useCompareResultCodeAsExitCode = new BooleanArgument(null,
+         "useCompareResultCodeAsExitCode", 1,
+         INFO_LDAPCOMPARE_ARG_DESC_USE_COMPARE_RESULT_CODE_AS_EXIT_CODE.get());
+    useCompareResultCodeAsExitCode.addLongIdentifier(
+         "use-compare-result-code-as-exit-code", true);
+    useCompareResultCodeAsExitCode.addLongIdentifier(
+         "useCompareResultCode", true);
+    useCompareResultCodeAsExitCode.addLongIdentifier(
+         "use-compare-result-code", true);
+    useCompareResultCodeAsExitCode.setArgumentGroupName(
+         INFO_LDAPCOMPARE_ARG_GROUP_OUTPUT.get());
+    parser.addArgument(useCompareResultCodeAsExitCode);
+
     parser.addExclusiveArgumentSet(dnFile, assertionFile);
 
     parser.addExclusiveArgumentSet(proxyAs, proxyV1As);
@@ -922,6 +937,11 @@ public final class LDAPCompare
           }
           else
           {
+            if (! useCompareResultCodeAsExitCode.isPresent())
+            {
+              resultCode = ResultCode.SUCCESS;
+            }
+
             logCompletionMessage(false,
                  INFO_LDAPCOMPARE_RESULT_COMPARE_MATCHED.get());
           }
@@ -936,6 +956,11 @@ public final class LDAPCompare
           }
           else
           {
+            if (! useCompareResultCodeAsExitCode.isPresent())
+            {
+              resultCode = ResultCode.SUCCESS;
+            }
+
             logCompletionMessage(false,
                  INFO_LDAPCOMPARE_RESULT_COMPARE_DID_NOT_MATCH.get());
           }
