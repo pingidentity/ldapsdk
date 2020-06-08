@@ -1151,6 +1151,38 @@ public final class LDAPCompare
              e);
       }
     }
+    else if (avaString.charAt(colonPos+1) == '<')
+    {
+      // This means that the assertion value should be read from a file.  The
+      // path to that file should immediately follow the less-than symbol, and
+      // the exact bytes contained in that file (including line breaks) will be
+      // used as the assertion value.
+      final String path = avaString.substring(colonPos+2);
+      final File file = new File(path);
+      if (file.exists())
+      {
+        try
+        {
+          final byte[] fileBytes = StaticUtils.readFileBytes(file);
+          return new ObjectPair<>(attributeName, fileBytes);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_LDAPCOMPARE_AVA_CANNOT_READ_FILE.get(avaString,
+                    file.getAbsolutePath(),
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_LDAPCOMPARE_AVA_NO_SUCH_FILE.get(avaString,
+                  file.getAbsolutePath()));
+      }
+    }
 
     return new ObjectPair<>(attributeName,
          StaticUtils.getBytes(avaString.substring(colonPos+1)));

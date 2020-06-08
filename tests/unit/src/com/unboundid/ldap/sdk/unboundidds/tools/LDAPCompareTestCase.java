@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -623,6 +624,90 @@ public final class LDAPCompareTestCase
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
          "objectClass::malformed base64-encoded value",
+         "dc=example,dc=com");
+  }
+
+
+
+  /**
+   * Tests the behavior when the attribute-value assertion has a colon followed
+   * by a less-than sign and the path to a file from which the assertion
+   * value should be read.  The file path will be valid and the assertion will
+   * match.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAVAReadFromValidFile()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    final File assertionValueFile = createTempFile();
+    assertTrue(assertionValueFile.delete());
+    try (FileOutputStream outputStream =
+              new FileOutputStream(assertionValueFile))
+    {
+      outputStream.write(StaticUtils.getBytes("top"));
+    }
+
+    ldapCompare(ResultCode.COMPARE_TRUE, true, false,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
+         "objectClass:<" + assertionValueFile.getAbsolutePath(),
+         "dc=example,dc=com");
+  }
+
+
+
+  /**
+   * Tests the behavior when the attribute-value assertion has a colon followed
+   * by a less-than sign and the path to a file from which the assertion
+   * value should be read.  The path will refer to a file that does not exist.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAVAReadFromNonexistentFile()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    final File assertionValueFile = createTempFile();
+    assertTrue(assertionValueFile.delete());
+
+    ldapCompare(ResultCode.PARAM_ERROR, false, true,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
+         "objectClass:<" + assertionValueFile.getAbsolutePath(),
+         "dc=example,dc=com");
+  }
+
+
+
+  /**
+   * Tests the behavior when the attribute-value assertion has a colon followed
+   * by a less-than sign and the path to a file from which the assertion
+   * value should be read.  The path will refer to a directory rather than a
+   * file.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAVAReadFromPathNotFile()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+    final File assertionValueFile = createTempDir();
+
+    ldapCompare(ResultCode.LOCAL_ERROR, false, true,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--useCompareResultCodeAsExitCode",
+         "objectClass:<" + assertionValueFile.getAbsolutePath(),
          "dc=example,dc=com");
   }
 

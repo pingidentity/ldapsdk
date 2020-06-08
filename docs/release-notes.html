@@ -31,6 +31,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldapcompare tool to allow reading the raw assertion value from a
+                  file.  If this option is used, then the attribute name or OID should be followed
+                  by a single colon, a less-than sign, and the path to the file from which the
+                  value should be read.  Note that if this option is used, then the exact bytes of
+                  the specified file, including any line breaks, will be used as the assertion
+                  value.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the ldifsearch, ldifmodify, and ldif-diff tools that could
                   arise if they were run in a manner that would case the output to be both
                   compressed and encrypted.  The data should have been compressed before it was
