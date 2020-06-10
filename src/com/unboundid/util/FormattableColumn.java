@@ -51,6 +51,40 @@ public final class FormattableColumn
        implements Serializable
 {
   /**
+   * A system property that can be used to specify what character should be used
+   * when escaping quotation marks in the output.  If set, the value of the
+   * property should be a single character, and it is recommended to be either
+   * the double quote character or the backslash character.
+   */
+  public static final String CSV_QUOTE_ESCAPE_CHARACTER_PROPERTY =
+       FormattableColumn.class.getName() + ".csvQuoteEscapeCharacter";
+
+
+
+  /**
+   * The character that should be used to escape quotation marks in
+   * CSV-formatted output.  RFC 4180 says it should be a double quote (so that
+   * '"' will be escaped as '""'), but we have used a backslash for this purpose
+   * in the past.  We'll use the quote to be standards-compliant, but will allow
+   * it to be overridden with a system property.
+   */
+  private static volatile char CSV_QUOTE_ESCAPE_CHARACTER;
+  static
+  {
+    char escapeCharacter = '"';
+    final String propertyValue =
+         StaticUtils.getSystemProperty(CSV_QUOTE_ESCAPE_CHARACTER_PROPERTY);
+    if ((propertyValue != null) && (propertyValue.length() == 1))
+    {
+      escapeCharacter = propertyValue.charAt(0);
+    }
+
+    CSV_QUOTE_ESCAPE_CHARACTER = escapeCharacter;
+  }
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -67186391702592665L;
@@ -172,7 +206,28 @@ public final class FormattableColumn
     switch (format)
     {
       case TAB_DELIMITED_TEXT:
-        buffer.append(text);
+        for (int i=0; i < text.length(); i++)
+        {
+          final char c = text.charAt(i);
+          switch (c)
+          {
+            case '\t':
+              buffer.append("\\t");
+              break;
+            case '\r':
+              buffer.append("\\r");
+              break;
+            case '\n':
+              buffer.append("\\n");
+              break;
+            case '\\':
+              buffer.append("\\\\");
+              break;
+            default:
+              buffer.append(c);
+              break;
+          }
+        }
         break;
 
       case CSV:
@@ -189,12 +244,29 @@ public final class FormattableColumn
           }
           else if (c == '"')
           {
-            buffer.append("\"\"");
+            buffer.append(CSV_QUOTE_ESCAPE_CHARACTER);
+            buffer.append(c);
+            quotesNeeded = true;
+          }
+          else if (c == CSV_QUOTE_ESCAPE_CHARACTER)
+          {
+            buffer.append(c);
+            buffer.append(c);
+            quotesNeeded = true;
+          }
+          else if (c == '\\')
+          {
+            buffer.append(c);
             quotesNeeded = true;
           }
           else if ((c >= ' ') && (c <= '~'))
           {
             buffer.append(c);
+          }
+          else
+          {
+            buffer.append(c);
+            quotesNeeded = true;
           }
         }
 
@@ -209,6 +281,29 @@ public final class FormattableColumn
         alignment.format(buffer, text, width);
         break;
     }
+  }
+
+
+
+  /**
+   * Specifies the character that should be used to escape the double quote
+   * character in CSV-formatted values.  RFC 4180 states that it should be a
+   * double quote character (that is, a single double quote should be formatted
+   * as '""'), and that is now the default behavior, but the LDAP SDK formerly
+   * used a backslash as an escape character (like '\"'), and this method can be
+   * used to restore that behavior if desired.  Alternatively, this can be
+   * accomplished without any change to the application source code by launching
+   * the JVM with the
+   * {@code com.unboundid.util.FormattableColumn.csvQuoteEscapeCharacter} system
+   * property set to a value that contains only the backslash character.
+   *
+   * @param  c  The character to use to escape the double quote character in
+   *            CSV-formatted values.  This is only recommended to be the
+   *            double quote character or the backslash character.
+   */
+  public static void setCSVQuoteEscapeCharacter(final char c)
+  {
+    CSV_QUOTE_ESCAPE_CHARACTER = c;
   }
 
 

@@ -14,6 +14,22 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Fixed issues in the code used to format strings in the comma-separated values
+                  (CSV) format.  Previously, all ASCII control characters and all non-ASCII
+                  characters were silently dropped from the output.  They are now included, but
+                  the value will be in quotes (and may span multiple lines if the value to format
+                  includes line breaks).  Further, it had previously used a backslash to escape
+                  any double quotes in the data (like '\"'), but RFC 4180 states that each double
+                  quote should be escaped by preceding it with another double quote (like '""').
+                  The LDAP SDK now uses the RFC-specified behavior for escaping double quotes, but
+                  the former behavior can be requested by either using the
+                  FormattableColumn.setCSVQuoteEscapeCharacter method, or by setting the
+                  com.unboundid.util.FormattableColumn.csvQuoteEscapeCharacter system property to
+                  a value that contains only the backslash character.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the ldapcompare tool so that it always uses an exit code of zero
                   (corresponding to the LDAP SUCCESS result code) by default if all compare
                   operations are processed successfully, regardless of whether the compare
