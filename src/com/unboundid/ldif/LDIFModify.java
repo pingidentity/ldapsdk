@@ -229,7 +229,8 @@ public final class LDIFModify
 
     try
     {
-      final ResultCode resultCode = tool.runTool("--suppressComments");
+      final ResultCode resultCode =
+           tool.runTool("--suppressComments", "--lenientModifications");
       return (resultCode == ResultCode.SUCCESS);
     }
     finally
