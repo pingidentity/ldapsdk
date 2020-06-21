@@ -90,7 +90,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     outputHandler.formatHeader();
 
@@ -122,7 +122,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     outputHandler.formatSearchResultEntry(new SearchResultEntry(
          new Entry("uid=jdoe,ou=People,dc=example,dc=com")));
@@ -155,7 +155,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: uid=jdoe,ou=People,dc=example,dc=com",
@@ -194,7 +194,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: uid=jdoe,ou=People,dc=example,dc=com",
@@ -237,7 +237,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     outputHandler.formatSearchResultEntry(new SearchResultEntry(
          new Entry(
@@ -283,7 +283,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -318,7 +318,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -354,7 +354,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -396,7 +396,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -439,7 +439,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     outputHandler.formatResult(new SearchResult(2, ResultCode.SUCCESS, null,
          null, null, 123, 456, null));
@@ -469,7 +469,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {
@@ -513,7 +513,7 @@ public final class TabDelimitedLDAPSearchOutputHandlerTestCase
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
               OutputFormat.TAB_DELIMITED_TEXT, requestedAttributes,
-              Integer.MAX_VALUE);
+              Integer.MAX_VALUE, false);
 
     final String[] referralURLs =
     {

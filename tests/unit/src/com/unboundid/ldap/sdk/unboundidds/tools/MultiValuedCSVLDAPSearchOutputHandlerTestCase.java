@@ -66,9 +66,9 @@ import com.unboundid.util.OutputFormat;
 
 /**
  * Provides test coverage for the column-formatted LDAPSearch output handler
- * when using the CSV format.
+ * when using the multi-valued CSV format.
  */
-public final class CSVLDAPSearchOutputHandlerTestCase
+public final class MultiValuedCSVLDAPSearchOutputHandlerTestCase
        extends LDAPSDKTestCase
 {
   /**
@@ -89,7 +89,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     outputHandler.formatHeader();
 
@@ -120,7 +120,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     outputHandler.formatSearchResultEntry(new SearchResultEntry(
          new Entry("uid=jdoe,ou=People,dc=example,dc=com")));
@@ -152,7 +152,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: uid=jdoe,ou=People,dc=example,dc=com",
@@ -190,7 +190,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     outputHandler.formatSearchResultEntry(new SearchResultEntry(new Entry(
          "dn: uid=jdoe,ou=People,dc=example,dc=com",
@@ -207,8 +207,9 @@ public final class CSVLDAPSearchOutputHandlerTestCase
     assertEquals(
          getOutputLines(outputStream),
          Collections.singletonList(
-              "\"uid=jdoe,ou=People,dc=example,dc=com\",top,jdoe,John,Doe,," +
-                   "jdoe@example.com"));
+              "\"uid=jdoe,ou=People,dc=example,dc=com\"," +
+                   "top|person|organizationalPerson|inetOrgPerson,jdoe,John," +
+                   "Doe,,jdoe@example.com"));
   }
 
 
@@ -232,7 +233,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     outputHandler.formatSearchResultEntry(new SearchResultEntry(
          new Entry(
@@ -252,8 +253,9 @@ public final class CSVLDAPSearchOutputHandlerTestCase
     assertEquals(
          getOutputLines(outputStream),
          Collections.singletonList(
-              "\"uid=jdoe,ou=People,dc=example,dc=com\",top,jdoe,John,Doe,," +
-                   "jdoe@example.com"));
+              "\"uid=jdoe,ou=People,dc=example,dc=com\"," +
+                   "top|person|organizationalPerson|inetOrgPerson,jdoe,John," +
+                   "Doe,,jdoe@example.com"));
   }
 
 
@@ -277,7 +279,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -311,7 +313,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -346,7 +348,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -387,7 +389,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -429,7 +431,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     outputHandler.formatResult(new SearchResult(2, ResultCode.SUCCESS, null,
          null, null, 123, 456, null));
@@ -458,7 +460,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {
@@ -501,7 +503,7 @@ public final class CSVLDAPSearchOutputHandlerTestCase
 
     final ColumnFormatterLDAPSearchOutputHandler outputHandler =
          new ColumnFormatterLDAPSearchOutputHandler(ldapSearch,
-              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, false);
+              OutputFormat.CSV, requestedAttributes, Integer.MAX_VALUE, true);
 
     final String[] referralURLs =
     {

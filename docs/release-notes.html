@@ -30,6 +30,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated ldapsearch to add multi-valued-csv and multi-valued-tab-delimited output
+                  formats for ldapsearch.  These are like the existing csv and tab-delimited
+                  output formats, but whereas those formats only include the first value for
+                  multivalued attributes, the new formats include all values with the vertical bar
+                  (|) character as the delimiter between values.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the ldapcompare tool so that it always uses an exit code of zero
                   (corresponding to the LDAP SUCCESS result code) by default if all compare
                   operations are processed successfully, regardless of whether the compare

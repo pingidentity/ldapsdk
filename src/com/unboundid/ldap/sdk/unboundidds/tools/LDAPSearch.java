@@ -741,9 +741,11 @@ public final class LDAPSearch
     parser.addArgument(teeResultsToStandardOut);
 
     final Set<String> outputFormatAllowedValues = StaticUtils.setOf("ldif",
-         "json", "csv", "tab-delimited", "values-only");
+         "json", "csv", "multi-valued-csv", "tab-delimited",
+         "multi-valued-tab-delimited", "values-only");
     outputFormat = new StringArgument(null, "outputFormat", false, 1,
-         "{ldif|json|csv|tab-delimited|values-only}",
+         "{ldif|json|csv|multi-valued-csv|tab-delimited|" +
+              "multi-valued-tab-delimited||values-only}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_OUTPUT_FORMAT.get(
               requestedAttribute.getIdentifierString(),
               ldapURLFile.getIdentifierString()),
@@ -2183,7 +2185,9 @@ public final class LDAPSearch
       outputHandler = new JSONLDAPSearchOutputHandler(this);
     }
     else if (outputFormatStr.equals("csv") ||
-             outputFormatStr.equals("tab-delimited"))
+             outputFormatStr.equals("multi-valued-csv") ||
+             outputFormatStr.equals("tab-delimited") ||
+             outputFormatStr.equals("multi-valued-tab-delimited"))
     {
       // These output formats cannot be used with the --ldapURLFile argument.
       if (ldapURLFile.isPresent())
@@ -2231,11 +2235,32 @@ public final class LDAPSearch
                     requestedAttribute.getIdentifierString()));
       }
 
+      final OutputFormat format;
+      final boolean includeAllValues;
+      switch (outputFormatStr)
+      {
+        case "multi-valued-csv":
+          format = OutputFormat.CSV;
+          includeAllValues = true;
+          break;
+        case "tab-delimited":
+          format = OutputFormat.TAB_DELIMITED_TEXT;
+          includeAllValues = false;
+          break;
+        case "multi-valued-tab-delimited":
+          format = OutputFormat.TAB_DELIMITED_TEXT;
+          includeAllValues = true;
+          break;
+        case "csv":
+        default:
+          format = OutputFormat.CSV;
+          includeAllValues = false;
+          break;
+      }
+
+
       outputHandler = new ColumnFormatterLDAPSearchOutputHandler(this,
-           (outputFormatStr.equals("csv")
-                ? OutputFormat.CSV
-                : OutputFormat.TAB_DELIMITED_TEXT),
-           requestedAttributes, WRAP_COLUMN);
+           format, requestedAttributes, WRAP_COLUMN, includeAllValues);
     }
     else if (outputFormatStr.equals("values-only"))
     {

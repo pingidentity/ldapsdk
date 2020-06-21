@@ -1583,6 +1583,81 @@ public final class LDAPSearchTestCase
 
 
   /**
+   * Provides test coverage for the tool when configured to use the multi-valued
+   * CSV output format.  This method is just intended to get coverage; it
+   * doesn't actually attempt to verify that the output is properly formatted.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMultiValuedCSVOutputFormat()
+         throws Exception
+  {
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-csv",
+              "--requestedAttribute", "uid",
+              "--requestedAttribute", "givenName",
+              "--requestedAttribute", "sn",
+              "(objectClass=person)"),
+         ResultCode.SUCCESS);
+
+    final File urlFile = createTempFile();
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--outputFormat", "multi-valued-csv",
+              "--ldapURLFile", urlFile.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-csv",
+              "--filter", "(objectClass=person)",
+              "uid",
+              "givenName",
+              "sn"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-csv",
+              "--requestedAttribute", "givenName",
+              "--requestedAttribute", "sn",
+              "--filter", "(objectClass=person)",
+              "uid"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-csv",
+              "--requestedAttribute", "uid",
+              "(objectClass=person)",
+              "givenName",
+              "sn"),
+         ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
    * Provides test coverage for the tool when configured to use the
    * tab-delimited text output format.  This method is just intended to get
    * coverage; it doesn't actually attempt to verify that the output is properly
@@ -1649,6 +1724,82 @@ public final class LDAPSearchTestCase
               "--baseDN", "dc=example,dc=com",
               "--scope", "sub",
               "--outputFormat", "tab-delimited",
+              "--requestedAttribute", "uid",
+              "(objectClass=person)",
+              "givenName",
+              "sn"),
+         ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
+   * Provides test coverage for the tool when configured to use the
+   * multi-valued tab-delimited text output format.  This method is just
+   * intended to get coverage; it doesn't actually attempt to verify that the
+   * output is properly formatted.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMultiValuedTabDelimitedOutputFormat()
+         throws Exception
+  {
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-tab-delimited",
+              "--requestedAttribute", "uid",
+              "--requestedAttribute", "givenName",
+              "--requestedAttribute", "sn",
+              "(objectClass=person)"),
+         ResultCode.SUCCESS);
+
+    final File urlFile = createTempFile();
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--outputFormat", "multi-valued-tab-delimited",
+              "--ldapURLFile", urlFile.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-tab-delimited",
+              "--filter", "(objectClass=person)",
+              "uid",
+              "givenName",
+              "sn"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-tab-delimited",
+              "--requestedAttribute", "givenName",
+              "--requestedAttribute", "sn",
+              "--filter", "(objectClass=person)",
+              "uid"),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
+              "--hostname", "localhost",
+              "--port", String.valueOf(ds.getListenPort()),
+              "--baseDN", "dc=example,dc=com",
+              "--scope", "sub",
+              "--outputFormat", "multi-valued-tab-delimited",
               "--requestedAttribute", "uid",
               "(objectClass=person)",
               "givenName",

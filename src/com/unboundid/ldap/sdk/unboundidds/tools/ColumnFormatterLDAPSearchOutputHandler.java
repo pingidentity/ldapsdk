@@ -40,6 +40,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPResult;
@@ -79,6 +80,9 @@ final class ColumnFormatterLDAPSearchOutputHandler
   // result entry or reference.
   private final ArrayList<String> formattedLines;
 
+  // Indicates whether to include all values of a multivalued attribute.
+  private final boolean includeAllValues;
+
   // The column formatter that will be used to generate the output.
   private final ColumnFormatter formatter;
 
@@ -110,14 +114,20 @@ final class ColumnFormatterLDAPSearchOutputHandler
    * @param  maxCommentWidth      The maximum width to use for comments in the
    *                              output.  This will be ignored for information
    *                              about search result entries.
+   * @param  includeAllValues     Indicates whether to include all values of a
+   *                              multivalued attribute.  If this is
+   *                              {@code true}, then a vertical bar (|) will be
+   *                              used to separate the values within each field.
    */
   ColumnFormatterLDAPSearchOutputHandler(final LDAPSearch ldapSearch,
                                          final OutputFormat outputFormat,
                                          final List<String> requestedAttributes,
-                                         final int maxCommentWidth)
+                                         final int maxCommentWidth,
+                                         final boolean includeAllValues)
   {
     this.ldapSearch = ldapSearch;
     this.maxCommentWidth = maxCommentWidth;
+    this.includeAllValues = includeAllValues;
 
     attributes = new String[requestedAttributes.size()];
     requestedAttributes.toArray(attributes);
@@ -165,16 +175,30 @@ final class ColumnFormatterLDAPSearchOutputHandler
     columnValues[0] = entry.getDN();
 
     int i=1;
-    for (final String attribute : attributes)
+    for (final String attributeName : attributes)
     {
-      final String value = entry.getAttributeValue(attribute);
-      if (value == null)
+      final Attribute a = entry.getAttribute(attributeName);
+      if ((a ==  null) || (a.size() == 0))
       {
         columnValues[i] = "";
       }
+      else if (includeAllValues && (a.size() > 1))
+      {
+        final StringBuilder buffer = new StringBuilder();
+        for (final String v : a.getValues())
+        {
+          if (buffer.length() > 0)
+          {
+            buffer.append('|');
+          }
+          buffer.append(v);
+        }
+
+        columnValues[i] = buffer.toString();
+      }
       else
       {
-        columnValues[i] = value;
+        columnValues[i] = a.getValue();
       }
 
       i++;
