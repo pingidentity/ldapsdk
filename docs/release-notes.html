@@ -66,6 +66,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated ldifsearch so that all non-LDIF output is written as LDIF comments so
+                  that output will not interfere with the ability to parse the remaining output as
+                  LDIF.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the ldifsearch, ldifmodify, and ldif-diff tools that could
                   arise if they were run in a manner that would case the output to be both
                   compressed and encrypted.  The data should have been compressed before it was

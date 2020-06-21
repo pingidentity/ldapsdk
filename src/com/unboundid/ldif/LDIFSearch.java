@@ -619,6 +619,7 @@ public final class LDIFSearch
     sizeLimit.addLongIdentifier("searchSizeLimit", true);
     sizeLimit.addLongIdentifier("search-size-limit", true);
     sizeLimit.setArgumentGroupName(INFO_LDIFSEARCH_ARG_GROUP_CRITERIA.get());
+    sizeLimit.setHidden(true);
     parser.addArgument(sizeLimit);
 
 
@@ -629,6 +630,7 @@ public final class LDIFSearch
     timeLimitSeconds.addLongIdentifier("timeLimit", true);
     timeLimitSeconds.setArgumentGroupName(
          INFO_LDIFSEARCH_ARG_GROUP_CRITERIA.get());
+    timeLimitSeconds.setHidden(true);
     parser.addArgument(timeLimitSeconds);
 
 
@@ -1102,10 +1104,8 @@ public final class LDIFSearch
               Debug.debugException(e);
               if (e.mayContinueReading())
               {
-                wrapErr(0, WRAP_COLUMN,
-                     ERR_LDIFSEARCH_RECOVERABLE_READ_ERROR.get(
-                          f.getAbsolutePath(),
-                          StaticUtils.getExceptionMessage(e)));
+                commentToErr(ERR_LDIFSEARCH_RECOVERABLE_READ_ERROR.get(
+                     f.getAbsolutePath(), StaticUtils.getExceptionMessage(e)));
                 errorEncountered = true;
                 continue;
               }
@@ -1137,11 +1137,11 @@ public final class LDIFSearch
               entryInvalidReasons.clear();
               if (! entryValidator.entryIsValid(entry, entryInvalidReasons))
               {
-                wrapErr(0, WRAP_COLUMN,
-                     ERR_LDIFSEARCH_ENTRY_VIOLATES_SCHEMA.get(entry.getDN()));
+                commentToErr(ERR_LDIFSEARCH_ENTRY_VIOLATES_SCHEMA.get(
+                     entry.getDN()));
                 for (final String invalidReason : entryInvalidReasons)
                 {
-                  wrapErr(0, WRAP_COLUMN, "- ", invalidReason);
+                  commentToErr("- " + invalidReason);
                 }
 
                 err();
@@ -1188,6 +1188,11 @@ public final class LDIFSearch
 
                 final Entry paredEntry = singleParer.pareEntry(entry);
                 singleWriter.writeEntry(paredEntry);
+
+                if (! outputFile.isPresent())
+                {
+                  singleWriter.flush();
+                }
               }
               catch (final Exception e)
               {
@@ -1258,7 +1263,7 @@ public final class LDIFSearch
       else
       {
         logCompletionMessage(false,
-             WARN_LDIFSEARCH_COMPLETED_SUCCESSFULLY.get());
+             INFO_LDIFSEARCH_COMPLETED_SUCCESSFULLY.get());
         return ResultCode.SUCCESS;
       }
     }
@@ -1624,6 +1629,42 @@ public final class LDIFSearch
 
 
   /**
+   * Writes a line-wrapped, commented version of the provided message to
+   * standard output.
+   *
+   * @param  message  The message to be written.
+   */
+  private void commentToOut(final String message)
+  {
+    getOut().flush();
+    for (final String line : StaticUtils.wrapLine(message, (WRAP_COLUMN - 2)))
+    {
+      out("# " + line);
+    }
+    getOut().flush();
+  }
+
+
+
+  /**
+   * Writes a line-wrapped, commented version of the provided message to
+   * standard error.
+   *
+   * @param  message  The message to be written.
+   */
+  private void commentToErr(final String message)
+  {
+    getErr().flush();
+    for (final String line : StaticUtils.wrapLine(message, (WRAP_COLUMN - 2)))
+    {
+      err("# " + line);
+    }
+    getErr().flush();
+  }
+
+
+
+  /**
    * Writes the provided message and sets it as the completion message.
    *
    * @param  isError  Indicates whether the message should be written to
@@ -1636,11 +1677,11 @@ public final class LDIFSearch
 
     if (isError)
     {
-      wrapErr(0, WRAP_COLUMN, message);
+      commentToErr(message);
     }
     else
     {
-      wrapOut(0, WRAP_COLUMN, message);
+      commentToOut(message);
     }
   }
 
