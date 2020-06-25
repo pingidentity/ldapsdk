@@ -925,6 +925,101 @@ public class PasswordPolicyStateOperationTestCase
 
 
   /**
+   * Tests the createSetPasswordChangedTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSetPasswordChangedTimeOperation()
+         throws Exception
+  {
+    Date d = new Date();
+
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createSetPasswordChangedTimeOperation(d);
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 9);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.getGeneralizedTimeValue());
+    assertEquals(op.getGeneralizedTimeValue(), d);
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 1);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createClearPasswordChangedTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateClearPasswordChangedTimeOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createClearPasswordChangedTimeOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 10);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
    * Tests the createGetPasswordExpirationWarnedTimeOperation method.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -965,6 +1060,55 @@ public class PasswordPolicyStateOperationTestCase
 
     assertNotNull(op.getGeneralizedTimeValues());
     assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createSetPasswordExpirationWarnedTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSetPasswordExpirationWarnedTimeOperation()
+         throws Exception
+  {
+    Date d = new Date();
+
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createSetPasswordExpirationWarnedTimeOperation(d);
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 12);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.getGeneralizedTimeValue());
+    assertEquals(op.getGeneralizedTimeValue(), d);
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 1);
 
     assertNotNull(op.toString());
   }
@@ -3133,6 +3277,1538 @@ public class PasswordPolicyStateOperationTestCase
     op = PasswordPolicyStateOperation.decode(op.encode());
 
     assertEquals(op.getOperationType(), 54);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetAccountIsUsableOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAccountIsUsableOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createGetAccountIsUsableOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 55);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetAccountIsNotYetActiveOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAccountIsNotYetActiveOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createGetAccountIsNotYetActiveOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 56);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetAccountIsExpiredOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAccountIsExpiredOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createGetAccountIsExpiredOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 57);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetPasswordExpirationTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetPasswordExpirationTimeOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetPasswordExpirationTimeOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 58);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetAccountIsFailureLockedOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAccountIsFailureLockedOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetAccountIsFailureLockedOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 59);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createSetAccountIsFailureLockedOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSetAccountIsFailureLockedOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createSetAccountIsFailureLockedOperation(false);
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 60);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+    assertEquals(op.getStringValue(), "false");
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    assertFalse(op.getBooleanValue());
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValue();
+      fail("Expected an exception when calling getGeneralizedTimeValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValues();
+      fail("Expected an exception when calling getGeneralizedTimeValues()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetFailureLockoutTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetFailureLockoutTimeOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetFailureLockoutTimeOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 61);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetAccountIsIdleLockedOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAccountIsIdleLockedOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetAccountIsIdleLockedOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 62);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetIdleLockoutTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetIdleLockoutTimeOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createGetIdleLockoutTimeOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 63);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetAccountIsResetLockedOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAccountIsResetLockedOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetAccountIsResetLockedOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 64);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetResetLockoutTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetResetLockoutTimeOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createGetResetLockoutTimeOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 65);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetPasswordHistoryCountOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetPasswordHistoryCountOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createGetPasswordHistoryCountOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 66);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetPasswordIsExpiredOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetPasswordIsExpiredOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createGetPasswordIsExpiredOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 67);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetAvailableSASLMechanismsOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAvailableSASLMechanismsOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetAvailableSASLMechanismsOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 68);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetAvailableOTPDeliveryMechanismsOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAvailableOTPDeliveryMechanismsOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetAvailableOTPDeliveryMechanismsOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 69);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createHasTOTPSharedSecret method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  @SuppressWarnings("deprecation")
+  public void testCreateHasTOTPSharedSecret()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createHasTOTPSharedSecret();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 70);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createHasTOTPSharedSecretOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateHasTOTPSharedSecretOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createHasTOTPSharedSecretOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 70);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetRegisteredYubiKeyPublicIDsOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetRegisteredYubiKeyPublicIDsOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetRegisteredYubiKeyPublicIDsOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 71);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createAddRegisteredYubiKeyPublicIDOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateAddRegisteredYubiKeyPublicIDOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createAddRegisteredYubiKeyPublicIDOperation("abcdefg");
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 72);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+    assertEquals(op.getStringValue(), "abcdefg");
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValue();
+      fail("Expected an exception when calling getGeneralizedTimeValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValues();
+      fail("Expected an exception when calling getGeneralizedTimeValues()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createRemoveRegisteredYubiKeyPublicIDOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateRemoveRegisteredYubiKeyPublicIDOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createRemoveRegisteredYubiKeyPublicIDOperation("abcdefg");
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 73);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+    assertEquals(op.getStringValue(), "abcdefg");
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValue();
+      fail("Expected an exception when calling getGeneralizedTimeValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValues();
+      fail("Expected an exception when calling getGeneralizedTimeValues()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createSetRegisteredYubiKeyPublicIDsOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSetRegisteredYubiKeyPublicIDOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createSetRegisteredYubiKeyPublicIDsOperation("abcdefg");
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 74);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+    assertEquals(op.getStringValue(), "abcdefg");
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValue();
+      fail("Expected an exception when calling getGeneralizedTimeValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValues();
+      fail("Expected an exception when calling getGeneralizedTimeValues()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createClearRegisteredYubiKeyPublicIDsOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateClearRegisteredYubiKeyPublicIDsOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createClearRegisteredYubiKeyPublicIDsOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 75);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createAddTOTPSharedSecretOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateAddTOTPSharedSecretOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createAddTOTPSharedSecretOperation("abcdefghijklmnop");
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 76);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+    assertEquals(op.getStringValue(), "abcdefghijklmnop");
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValue();
+      fail("Expected an exception when calling getGeneralizedTimeValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValues();
+      fail("Expected an exception when calling getGeneralizedTimeValues()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createRemoveTOTPSharedSecretOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateRemoveTOTPSharedSecretOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createRemoveTOTPSharedSecretOperation("abcdefghijklmnop");
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 77);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+    assertEquals(op.getStringValue(), "abcdefghijklmnop");
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValue();
+      fail("Expected an exception when calling getGeneralizedTimeValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValues();
+      fail("Expected an exception when calling getGeneralizedTimeValues()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createSetTOTPSharedSecretsOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSetTOTPSharedSecretsOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createSetTOTPSharedSecretsOperation("abcdefghijklmnop");
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 78);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+    assertEquals(op.getStringValue(), "abcdefghijklmnop");
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValue();
+      fail("Expected an exception when calling getGeneralizedTimeValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValues();
+      fail("Expected an exception when calling getGeneralizedTimeValues()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createClearTOTPSharedSecretsOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateClearTOTPSharedSecretsOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createClearTOTPSharedSecretsOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 79);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createHasYubiKeyPublicIDOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateHasYubiKeyPublicIDOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createHasYubiKeyPublicIDOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 80);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createHasStaticPasswordOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateHasStaticPasswordOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createHasStaticPasswordOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 81);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetLastBindPasswordValidationTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetLastBindPasswordValidationTimeOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.
+              createGetLastBindPasswordValidationTimeOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 82);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createGetSecondsSinceLastBindPasswordValidationOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetSecondsSinceLastBindPasswordValidationOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.
+              createGetSecondsSinceLastBindPasswordValidationOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 83);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createSetLastBindPasswordValidationTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSetLastBindPasswordValidationTimeOperation()
+         throws Exception
+  {
+    Date d = new Date();
+
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.
+              createSetLastBindPasswordValidationTimeOperation(d);
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 84);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.getGeneralizedTimeValue());
+    assertEquals(op.getGeneralizedTimeValue(), d);
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 1);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createClearLastBindPasswordValidationTimeOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateClearLastBindPasswordValidationTimeOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.
+              createClearLastBindPasswordValidationTimeOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 85);
 
     assertNotNull(op.getRawValues());
     assertEquals(op.getRawValues().length, 0);

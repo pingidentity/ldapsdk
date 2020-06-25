@@ -1639,6 +1639,61 @@ public final class ManageAccount
     createSubCommand(ManageAccountSubCommandType.GET_HAS_STATIC_PASSWORD,
          INFO_MANAGE_ACCT_SC_GET_HAS_STATIC_PW_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
+
+
+    // Define the subcommand to retrieve the last bind password validation time
+    // for a user.
+    createSubCommand(
+         ManageAccountSubCommandType.GET_LAST_BIND_PASSWORD_VALIDATION_TIME,
+         INFO_MANAGE_ACCT_SC_GET_LAST_BIND_PW_VALIDATION_TIME_EXAMPLE.get(
+              EXAMPLE_TARGET_USER_DN));
+
+
+    // Define the subcommand to retrieve the length of time since the last bind
+    // password validation for a user.
+    createSubCommand(
+         ManageAccountSubCommandType.
+              GET_SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION,
+         INFO_MANAGE_ACCT_SC_GET_SECS_SINCE_LAST_BIND_PW_VALIDATION_EXAMPLE.get(
+              EXAMPLE_TARGET_USER_DN));
+
+
+    // Define the subcommand to set the last bind password validation time for a
+    // user.
+    final ArgumentParser setLastBindPasswordValidationTimeParser =
+         createSubCommandParser(ManageAccountSubCommandType.
+              SET_LAST_BIND_PASSWORD_VALIDATION_TIME);
+
+    final TimestampArgument setLastBindPasswordValidationTimeValueArg =
+         new TimestampArgument('O', "validationTime", false, 1, null,
+              INFO_MANAGE_ACCT_SC_SET_LAST_BIND_PW_VALIDATION_TIME_ARG_VALUE.
+                   get());
+    setLastBindPasswordValidationTimeValueArg.addLongIdentifier(
+         "operationValue", true);
+    setLastBindPasswordValidationTimeValueArg.addLongIdentifier(
+         "validation-time", true);
+    setLastBindPasswordValidationTimeValueArg.addLongIdentifier(
+         "operation-value", true);
+    setLastBindPasswordValidationTimeParser.addArgument(
+         setLastBindPasswordValidationTimeValueArg);
+
+    createSubCommand(
+         ManageAccountSubCommandType.SET_LAST_BIND_PASSWORD_VALIDATION_TIME,
+         setLastBindPasswordValidationTimeParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.
+                   SET_LAST_BIND_PASSWORD_VALIDATION_TIME,
+              INFO_MANAGE_ACCT_SC_SET_LAST_BIND_PW_VALIDATION_TIME_EXAMPLE.get(
+                   EXAMPLE_TARGET_USER_DN, currentGeneralizedTime),
+              "--validationTime", currentGeneralizedTime));
+
+
+    // Define the subcommand to clear the last bind password validation time for
+    // a user.
+    createSubCommand(
+         ManageAccountSubCommandType.CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME,
+         INFO_MANAGE_ACCT_SC_CLEAR_LAST_BIND_PW_VALIDATION_TIME_EXAMPLE.get(
+              EXAMPLE_TARGET_USER_DN));
   }
 
 

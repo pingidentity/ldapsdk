@@ -355,6 +355,14 @@ public final class PasswordPolicyStateJSONTestCase
 
     assertNull(state.getHasRegisteredYubiKeyOTPDevice());
 
+    assertNull(state.getLastBindPasswordValidationTime());
+
+    assertNull(state.getSecondsSinceLastBindPasswordValidation());
+
+    assertNull(state.getMinimumBindPasswordValidationFrequencySeconds());
+
+    assertNull(state.getBindPasswordValidationFailureAction());
+
     assertNotNull(state.toString());
     assertFalse(state.toString().isEmpty());
   }
@@ -1608,6 +1616,44 @@ public final class PasswordPolicyStateJSONTestCase
     assertNull(state.getHasTOTPSharedSecret());
 
     assertNull(state.getHasRegisteredYubiKeyOTPDevice());
+  }
+
+
+
+  /**
+   * Tests the behavior for the properties related to password validation during
+   * bind processing.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testBindPasswordValidation()
+         throws Exception
+  {
+    final Date lastValidationTime = new Date();
+
+    PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         LAST_BIND_PASSWORD_VALIDATION_TIME, lastValidationTime,
+         SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION, 0,
+         MINIMUM_BIND_PASSWORD_VALIDATION_FREQUENCY_SECONDS,
+              (int) TimeUnit.DAYS.toSeconds(30L),
+         BIND_PASSWORD_VALIDATION_FAILURE_ACTION, "force-password-change"));
+
+    assertNotNull(state.getLastBindPasswordValidationTime());
+    assertEquals(state.getLastBindPasswordValidationTime(), lastValidationTime);
+
+    assertNotNull(state.getSecondsSinceLastBindPasswordValidation());
+    assertEquals(state.getSecondsSinceLastBindPasswordValidation().intValue(),
+         0);
+
+    assertNotNull(state.getMinimumBindPasswordValidationFrequencySeconds());
+    assertEquals(
+         state.getMinimumBindPasswordValidationFrequencySeconds().intValue(),
+         TimeUnit.DAYS.toSeconds(30L));
+
+    assertNotNull(state.getBindPasswordValidationFailureAction());
+    assertEquals(state.getBindPasswordValidationFailureAction(),
+         "force-password-change");
   }
 
 

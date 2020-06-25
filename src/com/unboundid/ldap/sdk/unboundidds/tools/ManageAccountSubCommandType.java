@@ -873,7 +873,55 @@ public enum ManageAccountSubCommandType
    */
   GET_HAS_STATIC_PASSWORD("get-has-static-password",
        INFO_MANAGE_ACCT_SC_DESC_GET_HAS_STATIC_PW.get(),
-       PasswordPolicyStateOperation.OP_TYPE_HAS_STATIC_PASSWORD);
+       PasswordPolicyStateOperation.OP_TYPE_HAS_STATIC_PASSWORD),
+
+
+
+  /**
+   * The subcommand used to retrieve the time that the server last invoked
+   * password validators for a bind operation.
+   */
+  GET_LAST_BIND_PASSWORD_VALIDATION_TIME(
+       "get-last-bind-password-validation-time",
+       INFO_MANAGE_ACCT_SC_DESC_GET_LAST_BIND_PW_VALIDATION_TIME.get(),
+       PasswordPolicyStateOperation.
+            OP_TYPE_GET_LAST_BIND_PASSWORD_VALIDATION_TIME),
+
+
+
+  /**
+   * The subcommand used to retrieve the length of time in seconds since the
+   * server last invoked password validators for a bind operation.
+   */
+  GET_SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION(
+       "get-seconds-since-last-bind-password-validation",
+       INFO_MANAGE_ACCT_SC_DESC_GET_SECONDS_SINCE_LAST_BIND_PW_VALIDATION.get(),
+       PasswordPolicyStateOperation.
+            OP_TYPE_GET_SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION),
+
+
+
+  /**
+   * The subcommand used to specify the time that the server last invoked
+   * password validators for a bind operation.
+   */
+  SET_LAST_BIND_PASSWORD_VALIDATION_TIME(
+       "set-last-bind-password-validation-time",
+       INFO_MANAGE_ACCT_SC_DESC_SET_LAST_BIND_PW_VALIDATION_TIME.get(),
+       PasswordPolicyStateOperation.
+            OP_TYPE_SET_LAST_BIND_PASSWORD_VALIDATION_TIME),
+
+
+
+  /**
+   * The subcommand used to clear the time that the server last invoked password
+   * validators for a bind operation.
+   */
+  CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME(
+       "clear-last-bind-password-validation-time",
+       INFO_MANAGE_ACCT_SC_DESC_CLEAR_LAST_BIND_PW_VALIDATION_TIME.get(),
+       PasswordPolicyStateOperation.
+            OP_TYPE_CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME);
 
 
 

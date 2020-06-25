@@ -640,7 +640,43 @@ public enum PasswordPolicyStateJSONField
    * The field used to indicate whether the user has any YubiKey OTP devices
    * registered with the server.
    */
-  HAS_REGISTERED_YUBIKEY_OTP_DEVICE("has-registered-yubikey-otp-device");
+  HAS_REGISTERED_YUBIKEY_OTP_DEVICE("has-registered-yubikey-otp-device"),
+
+
+
+  /**
+   * The field used to hold the most recent time that password validation was
+   * performed during a bind operation for the user.
+   */
+  LAST_BIND_PASSWORD_VALIDATION_TIME("last-bind-password-validation-time"),
+
+
+
+  /**
+   * The field used to hold the length of time in seconds since the most recent
+   * time that password validation was performed during a bind operation for the
+   * user.
+   */
+  SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION(
+       "seconds-since-last-bind-password-validation"),
+
+
+
+  /**
+   * The field used to hold the minimum length of time that should pass between
+   * invoking password validators during a bind operation for the user.
+   */
+  MINIMUM_BIND_PASSWORD_VALIDATION_FREQUENCY_SECONDS(
+       "minimum-bind-password-validation-frequency-seconds"),
+
+
+
+  /**
+   * The field used to indicate the action that the server should take if the
+   * bind password does not satisfy all of the configured password validators.
+   */
+  BIND_PASSWORD_VALIDATION_FAILURE_ACTION(
+       "bind-password-validation-failure-action");
 
 
 

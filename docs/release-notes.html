@@ -73,6 +73,25 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the password policy state extended operation and the manage-account
+                  command-line tool (both of which are specific to the Ping Identity Directory
+                  Server) to provide support for a property that specifies the last time that
+                  password validators were invoked during a bind operation for the user.  The time
+                  can be retrieved, set, and cleared.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated support for the Ping Identity Directory Server's ds-pwp-state-json
+                  virtual attribute to handle additional fields related to password validation for
+                  bind operations.  This includes fields for the time that validation was last
+                  performed, the minimum length of time between validations, and the action the
+                  server should take for a bind operation in which the provided password fails to
+                  satisfy one or more of the configured password validators.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the ldifsearch, ldifmodify, and ldif-diff tools that could
                   arise if they were run in a manner that would case the output to be both
                   compressed and encrypted.  The data should have been compressed before it was

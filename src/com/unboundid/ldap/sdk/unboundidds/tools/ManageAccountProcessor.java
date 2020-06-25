@@ -1073,7 +1073,8 @@ final class ManageAccountProcessor
              createGetAvailableOTPDeliveryMechanismsOperation();
 
       case GET_HAS_TOTP_SHARED_SECRET:
-        return PasswordPolicyStateOperation.createHasTOTPSharedSecret();
+        return PasswordPolicyStateOperation.
+             createHasTOTPSharedSecretOperation();
 
       case ADD_TOTP_SHARED_SECRET:
         return PasswordPolicyStateOperation.createAddTOTPSharedSecretOperation(
@@ -1120,6 +1121,23 @@ final class ManageAccountProcessor
 
       case GET_HAS_STATIC_PASSWORD:
         return PasswordPolicyStateOperation.createHasStaticPasswordOperation();
+
+      case GET_LAST_BIND_PASSWORD_VALIDATION_TIME:
+        return PasswordPolicyStateOperation.
+             createGetLastBindPasswordValidationTimeOperation();
+
+      case GET_SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION:
+        return PasswordPolicyStateOperation.
+             createGetSecondsSinceLastBindPasswordValidationOperation();
+
+      case SET_LAST_BIND_PASSWORD_VALIDATION_TIME:
+        return PasswordPolicyStateOperation.
+             createSetLastBindPasswordValidationTimeOperation(
+                  getDate(subcommand, commandBuffer));
+
+      case CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME:
+        return PasswordPolicyStateOperation.
+             createClearLastBindPasswordValidationTimeOperation();
 
       default:
         // This should never happen.

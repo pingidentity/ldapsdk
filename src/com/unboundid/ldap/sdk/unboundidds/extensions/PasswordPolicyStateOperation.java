@@ -824,6 +824,40 @@ public final class PasswordPolicyStateOperation
 
 
   /**
+   * The operation type that may be used to retrieve the time that the server
+   * last invoked password validation during a bind operation for a user.
+   */
+  public static final int OP_TYPE_GET_LAST_BIND_PASSWORD_VALIDATION_TIME = 82;
+
+
+
+  /**
+   * The operation type that may be used to retrieve the length of time in
+   * seconds since the server last invoked password validation during a bind
+   * operation.
+   */
+  public static final int
+       OP_TYPE_GET_SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION = 83;
+
+
+
+  /**
+   * The operation type that may be used to set the time that the server last
+   * invoked password validation during a bind operation for a user.
+   */
+  public static final int OP_TYPE_SET_LAST_BIND_PASSWORD_VALIDATION_TIME = 84;
+
+
+
+  /**
+   * The operation type that may be used to clear the time that the server last
+   * invoked password validation during a bind operation for a user.
+   */
+  public static final int OP_TYPE_CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME = 85;
+
+
+
+  /**
    * The set of values that will be used if there are no values.
    */
   private static final ASN1OctetString[] NO_VALUES = new ASN1OctetString[0];
@@ -2332,8 +2366,28 @@ public final class PasswordPolicyStateOperation
    * TOTP shared secrets, or {@code false} if not.
    *
    * @return  The created password policy state operation.
+   *
+   * @deprecated  Use {@link #createHasTOTPSharedSecretOperation} instead.
    */
+  @Deprecated()
   public static PasswordPolicyStateOperation createHasTOTPSharedSecret()
+  {
+    return new PasswordPolicyStateOperation(OP_TYPE_HAS_TOTP_SHARED_SECRET);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to determine
+   * whether the user has at least one TOTP shared secret.  The result returned
+   * should include an operation of type {@link #OP_TYPE_HAS_TOTP_SHARED_SECRET}
+   * with a single boolean value of {@code true} if the user has one or more
+   * TOTP shared secrets, or {@code false} if not.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createHasTOTPSharedSecretOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_HAS_TOTP_SHARED_SECRET);
   }
@@ -2604,6 +2658,94 @@ public final class PasswordPolicyStateOperation
   public static PasswordPolicyStateOperation createHasStaticPasswordOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_HAS_STATIC_PASSWORD);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to retrieve
+   * the time that the server last invoked password validators during a bind
+   * operation for the target user.  The result should include an operation of
+   * type {@link #OP_TYPE_GET_LAST_BIND_PASSWORD_VALIDATION_TIME} with a
+   * single string value that is the generalized time representation of the last
+   * bind password validation time, or a {@code null} value if the account does
+   * not have a last bind password validation time.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createGetLastBindPasswordValidationTimeOperation()
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_GET_LAST_BIND_PASSWORD_VALIDATION_TIME);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to determine
+   * the length of time in seconds since the server last invoked password
+   * validators during a bind operation for the target user.  The result should
+   * include an operation of type
+   * {@link #OP_TYPE_GET_SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION} with a
+   * single integer value representing the number of seconds since the last
+   * bind password validation time, or a {@code null} value if the account does
+   * not have a last bind password validation time.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createGetSecondsSinceLastBindPasswordValidationOperation()
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_GET_SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to set the
+   * time that the server last invoked password validators during a bind
+   * operation for the target user.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_LAST_BIND_PASSWORD_VALIDATION_TIME}
+   * with a  single string value that is the generalized time representation of
+   * the last bind password validation time, or a {@code null} value if the
+   * account does not have a last bind password validation time.
+   *
+   * @param  validationTime  The time that the server last invoke password
+   *                         validators during a bind operation for the target
+   *                         user.  It may be {@code null} if the server should
+   *                         use the current time.
+   *
+   * @return The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createSetLastBindPasswordValidationTimeOperation(
+                          final Date validationTime)
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_SET_LAST_BIND_PASSWORD_VALIDATION_TIME,
+         createValues(validationTime));
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to clear the
+   * last bind password validation time in the user's entry.  The result
+   * returned should include an operation of type
+   * {@link #OP_TYPE_GET_LAST_BIND_PASSWORD_VALIDATION_TIME} with a single
+   * string value that is the generalized time representation of the last bind
+   * password validation time, or a {@code null} value if the account does not
+   * have a last bind password validation time.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createClearLastBindPasswordValidationTimeOperation()
+  {
+    return new PasswordPolicyStateOperation(
+                    OP_TYPE_CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME);
   }
 
 

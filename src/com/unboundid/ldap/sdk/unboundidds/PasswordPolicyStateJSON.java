@@ -1673,6 +1673,72 @@ public final class PasswordPolicyStateJSON
 
 
   /**
+   * Retrieves the time that the server last invoked password validators during
+   * a bind operation for the user.
+   *
+   * @return  The time that the server last invoked password validators during a
+   *          bind operation for the user, or {@code null} if this was not
+   *          included in the password policy state JSON object.
+   */
+  public Date getLastBindPasswordValidationTime()
+  {
+    return getDate(LAST_BIND_PASSWORD_VALIDATION_TIME);
+  }
+
+
+
+  /**
+   * Retrieves the length of time in seconds that has passed since the server
+   * last invoked password validators during a bind operation for the user.
+   *
+   * @return  The length of time in seconds that has passed since the server
+   *          last invoked password validators during a bind operation for the
+   *          user, or {@code null} if this was not included in the password
+   *          policy state JSON object.
+   */
+  public Integer getSecondsSinceLastBindPasswordValidation()
+  {
+    return passwordPolicyStateObject.getFieldAsInteger(
+         SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION.getFieldName());
+  }
+
+
+
+  /**
+   * Retrieves the minimum length of time in seconds that should pass between
+   * invocations of password validators during a bind operation for the user.
+   *
+   * @return  The minimum length of time in seconds that should pass between
+   *          invocations of password validators during a bind operation for
+   *          each user, or {@code null} if this was not included in the
+   *          password policy state JSON object.
+   */
+  public Integer getMinimumBindPasswordValidationFrequencySeconds()
+  {
+    return passwordPolicyStateObject.getFieldAsInteger(
+         MINIMUM_BIND_PASSWORD_VALIDATION_FREQUENCY_SECONDS.getFieldName());
+  }
+
+
+
+  /**
+   * Retrieves the name of the action that the server should take if the
+   * password provided during a bind operation fails to satisfy one or more
+   * password validators.
+   *
+   * @return  The name of the action that the server should take if the password
+   *          provided during a bind operation fails to satisfy one or more
+   *          password validators.
+   */
+  public String getBindPasswordValidationFailureAction()
+  {
+    return passwordPolicyStateObject.getFieldAsString(
+         BIND_PASSWORD_VALIDATION_FAILURE_ACTION.getFieldName());
+  }
+
+
+
+  /**
    * Retrieves the value of the specified field as a {@code Date}.
    *
    * @param  field  The field whose value is to be retrieved and parsed as a
