@@ -30,6 +30,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue that prevented command-line tools from performing all necessary
+                  validation when run in interactive mode.  For tools that support subcommands,
+                  the interactive mode processor did not attempt to validate required, dependent,
+                  and exclusive argument sets for the selected subcommand.  This could cause the
+                  tool to run with an inappropriate set of arguments, which may result in
+                  unexpected errors.  This was only an issue for commands run in interactive mode,
+                  and all appropriate validation was already being performed for tools run in
+                  non-interactive mode.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated ldapsearch to add multi-valued-csv and multi-valued-tab-delimited output
                   formats for ldapsearch.  These are like the existing csv and tab-delimited
                   output formats, but whereas those formats only include the first value for

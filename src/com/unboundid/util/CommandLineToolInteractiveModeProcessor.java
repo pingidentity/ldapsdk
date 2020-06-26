@@ -3881,6 +3881,31 @@ argsLoop:
   private void validateRequiredExclusiveAndDependentArgumentSets()
           throws ArgumentException
   {
+    validateRequiredExclusiveAndDependentArgumentSets(parser);
+
+    final SubCommand selectedSubCommand = parser.getSelectedSubCommand();
+    if (selectedSubCommand != null)
+    {
+      validateRequiredExclusiveAndDependentArgumentSets(
+           selectedSubCommand.getArgumentParser());
+    }
+  }
+
+
+
+  /**
+   * Examines the arguments provided to the tool to ensure that all required,
+   * exclusive, and dependent argument set constraints have been satisfied.
+   *
+   * @param  parser The argument parser to examine.
+   *
+   * @throws  ArgumentException  If any required or exclusive argument
+   *                             constraints are not satisfied.
+   */
+  private static void validateRequiredExclusiveAndDependentArgumentSets(
+                           final ArgumentParser parser)
+          throws ArgumentException
+  {
     // Iterate through the required argument sets and make sure that at least
     // one argument from each set is present.
     for (final Set<Argument> requiredArgumentsSet :
