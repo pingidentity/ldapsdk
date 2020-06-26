@@ -164,6 +164,10 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *             clearTOTPSharedSecrets                       (79),
  *             hasRegisteredYubiKeyPublicID                 (80),
  *             hasStaticPassword                            (81),
+ *             getLastBindPasswordValidationTime            (82),
+ *             getSecondsSinceLastBindPasswordValidation    (83),
+ *             setLastBindPasswordValidationTime            (84),
+ *             clearLastBindPasswordValidationTime          (85),
  *             ... },
  *      opValues     SEQUENCE OF OCTET STRING OPTIONAL }
  * </PRE>
