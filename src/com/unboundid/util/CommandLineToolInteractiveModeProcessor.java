@@ -213,7 +213,8 @@ final class CommandLineToolInteractiveModeProcessor
     buffer.append(tool.getToolName());
     if (! args.isEmpty())
     {
-      buffer.append(" \\");
+      buffer.append(' ');
+      buffer.append(StaticUtils.getCommandLineContinuationString());
     }
     tool.out(buffer);
 
@@ -240,7 +241,8 @@ final class CommandLineToolInteractiveModeProcessor
 
       if (i < (args.size() - 1))
       {
-        buffer.append(" \\");
+        buffer.append(' ');
+        buffer.append(StaticUtils.getCommandLineContinuationString());
       }
 
       tool.out(buffer);

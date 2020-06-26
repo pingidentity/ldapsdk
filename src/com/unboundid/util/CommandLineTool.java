@@ -854,7 +854,7 @@ public abstract class CommandLineTool
         }
         else
         {
-          buffer.append('\\');
+          buffer.append(StaticUtils.getCommandLineContinuationString());
           out(buffer.toString());
           buffer.setLength(0);
           buffer.append("         ");

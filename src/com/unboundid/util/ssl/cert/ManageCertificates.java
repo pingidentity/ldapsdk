@@ -9834,7 +9834,8 @@ public final class ManageCertificates
     {
       if (arg.startsWith("-"))
       {
-        buffer.append(" \\");
+        buffer.append(' ');
+        buffer.append(StaticUtils.getCommandLineContinuationString());
         buffer.append(StaticUtils.EOL);
         buffer.append("#           ");
         buffer.append(arg);
@@ -9848,7 +9849,8 @@ public final class ManageCertificates
       }
       else
       {
-        buffer.append(" \\");
+        buffer.append(' ');
+        buffer.append(StaticUtils.getCommandLineContinuationString());
         buffer.append(StaticUtils.EOL);
         buffer.append("#           ");
         buffer.append(arg);

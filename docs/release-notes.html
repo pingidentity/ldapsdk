@@ -115,6 +115,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the LDAP SDK so that when displaying a command that is split across
+                  multiple lines, it will use an appropriate continuation character for the
+                  underlying platform.  It previously always used the backslash character (also
+                  known as a reverse solidus) for this purpose, which is appropriate for Linux and
+                  UNIX-based systems, but it now uses the caret (or circumflex accent) character
+                  on Windows.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the ldifsearch tool that caused its usage output to include
                   example arguments and descriptions from the ldif-diff tool.
                   <br><br>

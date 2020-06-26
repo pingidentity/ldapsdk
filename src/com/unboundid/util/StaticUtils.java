@@ -3536,6 +3536,38 @@ public final class StaticUtils
 
 
   /**
+   * Retrieves the string that should be appended to the end of all but the last
+   * line of a multi-line command to indicate that the command continues onto
+   * the next line.
+   * <BR><BR>
+   * This will be the caret (also called a circumflex accent) character on
+   * Windows systems, and a backslash (also called a reverse solidus) character
+   * on Linux and UNIX-based systems.
+   * <BR><BR>
+   * The string value that is returned will not include a space, but it should
+   * generally be preceded by one or more space to separate it from the previous
+   * component on the command line.
+   *
+   * @return  The string that should be appended (generally after one or more
+   *          spaces to separate it from the previous component) to the end of
+   *          all but the last line of a multi-line command to indicate that the
+   *          command continues onto the next line.
+   */
+  public static String getCommandLineContinuationString()
+  {
+    if (isWindows())
+    {
+      return "^";
+    }
+    else
+    {
+      return "\\";
+    }
+  }
+
+
+
+  /**
    * Attempts to parse the contents of the provided string to an argument list
    * (e.g., converts something like "--arg1 arg1value --arg2 --arg3 arg3value"
    * to a list of "--arg1", "arg1value", "--arg2", "--arg3", "arg3value").
