@@ -104,6 +104,14 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the set of potential authentication failure reasons for the Ping
+                  Identity Directory Server to include an additional failure type for use in cases
+                  in which a password used in a bind request failed to satisfy all of the
+                  configured password validators.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the ldifsearch, ldifmodify, and ldif-diff tools that could
                   arise if they were run in a manner that would case the output to be both
                   compressed and encrypted.  The data should have been compressed before it was

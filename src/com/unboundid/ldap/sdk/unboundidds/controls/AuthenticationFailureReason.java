@@ -290,7 +290,7 @@ public final class AuthenticationFailureReason
 
 
   /**
-   * The numeric value for the failure type that indicates that attempted
+   * The numeric value for the failure type that indicates that the attempted
    * authentication type is not available for the target user.
    */
   public static final int FAILURE_TYPE_UNAVAILABLE_AUTHENTICATION_TYPE = 14;
@@ -298,8 +298,8 @@ public final class AuthenticationFailureReason
 
 
   /**
-   * The name for the failure type that indicates that attempted authentication
-   * type is not available for the target user.
+   * The name for the failure type that indicates that the attempted
+   * authentication type is not available for the target user.
    */
   public static final  String FAILURE_NAME_UNAVAILABLE_AUTHENTICATION_TYPE =
        "unavailable-authentication-type";
@@ -323,9 +323,27 @@ public final class AuthenticationFailureReason
 
 
   /**
+   * The numeric value for the failure type that indicates that the bind request
+   * used a password that did not satisfy the configured set of password
+   * validators.
+   */
+  public static final int FAILURE_TYPE_PASSWORD_FAILED_VALIDATION = 16;
+
+
+
+  /**
+   * The name for the failure type that indicates that the bind request used a
+   * password that did not satisfy the configured set of password validators.
+   */
+  public static final String FAILURE_NAME_PASSWORD_FAILED_VALIDATION =
+       "password-failed-validation";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -5752716527356924347L;
+  private static final long serialVersionUID = -7025888367310006422L;
 
 
 
