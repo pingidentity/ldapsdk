@@ -921,7 +921,26 @@ public enum ManageAccountSubCommandType
        "clear-last-bind-password-validation-time",
        INFO_MANAGE_ACCT_SC_DESC_CLEAR_LAST_BIND_PW_VALIDATION_TIME.get(),
        PasswordPolicyStateOperation.
-            OP_TYPE_CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME);
+            OP_TYPE_CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME),
+
+
+
+  /**
+   * The subcommand used to determine whether a user account is validation
+   * locked.
+   */
+  GET_ACCOUNT_IS_VALIDATION_LOCKED("get-account-is-validation-locked",
+       INFO_MANAGE_ACCT_SC_DESC_GET_ACCT_VALIDATION_LOCKED.get(),
+       PasswordPolicyStateOperation.OP_TYPE_GET_ACCOUNT_IS_VALIDATION_LOCKED),
+
+
+
+  /**
+   * The subcommand used to specify whether a user account is validation locked.
+   */
+  SET_ACCOUNT_IS_VALIDATION_LOCKED("set-account-is-validation-locked",
+       INFO_MANAGE_ACCT_SC_DESC_SET_ACCT_VALIDATION_LOCKED.get(),
+       PasswordPolicyStateOperation.OP_TYPE_SET_ACCOUNT_IS_VALIDATION_LOCKED);
 
 
 

@@ -645,6 +645,15 @@ public enum PasswordPolicyStateJSONField
 
 
   /**
+   * The field used to indicate whether the user's account is currently locked
+   * because it contains a password that does not satisfy all of the configured
+   * password validators.
+   */
+  ACCOUNT_IS_VALIDATION_LOCKED("account-is-validation-locked"),
+
+
+
+  /**
    * The field used to hold the most recent time that password validation was
    * performed during a bind operation for the user.
    */

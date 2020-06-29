@@ -87,9 +87,11 @@ ${TARGET="offline"}                <br>
                 <li>
                   Updated the password policy state extended operation and the manage-account
                   command-line tool (both of which are specific to the Ping Identity Directory
-                  Server) to provide support for a property that specifies the last time that
-                  password validators were invoked during a bind operation for the user.  The time
-                  can be retrieved, set, and cleared.
+                  Server) to provide support for a property (that can be retrieved, set, and
+                  cleared) that specifies the last time that password validators were invoked
+                  during a bind operation for the user, and for a property (that can be retrieved
+                  and set) that indicates whether the account is locked because it contains a
+                  password that does not satisfy all of the configured password validators.
                   <br><br>
                 </li>
 
@@ -97,9 +99,11 @@ ${TARGET="offline"}                <br>
                   Updated support for the Ping Identity Directory Server's ds-pwp-state-json
                   virtual attribute to handle additional fields related to password validation for
                   bind operations.  This includes fields for the time that validation was last
-                  performed, the minimum length of time between validations, and the action the
-                  server should take for a bind operation in which the provided password fails to
-                  satisfy one or more of the configured password validators.
+                  performed, the minimum length of time between validations, the action the server
+                  should take for a bind operation in which the provided password fails to satisfy
+                  one or more of the configured password validators, and whether the account is
+                  currently locked because it contains a password that does not satisfy all of the
+                  configured password validators.
                   <br><br>
                 </li>
 
@@ -108,6 +112,20 @@ ${TARGET="offline"}                <br>
                   Identity Directory Server to include an additional failure type for use in cases
                   in which a password used in a bind request failed to satisfy all of the
                   configured password validators.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new password policy state account usability error that the Ping Identity
+                  Directory Server can use if an account is locked because it contains a password
+                  that does not satisfy all of the configured password validators.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new password policy state account usability warning that the Ping Identity
+                  Directory Server can use if an account is locked because it contains a password
+                  that is encoded with a deprecated password storage scheme.
                   <br><br>
                 </li>
 

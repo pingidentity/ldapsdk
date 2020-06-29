@@ -242,7 +242,7 @@ public final class PasswordPolicyStateAccountUsabilityError
 
 
   /**
-   * The numeric value for the warning type that indicates the user's password
+   * The numeric value for the error type that indicates the user's password
    * has expired, but the user has one or more grace logins remaining.  The
    * user may still authenticate with a grace login, but will not be permitted
    * to submit any other requests until changing the password.
@@ -252,7 +252,7 @@ public final class PasswordPolicyStateAccountUsabilityError
 
 
   /**
-   * The name for the warning type that indicates the user's password has
+   * The name for the error type that indicates the user's password has
    * expired, but the user has one or more grace logins remaining.  The user may
    * still authenticate with a grace login, but will not be permitted to submit
    * any other requests until changing the password.
@@ -263,7 +263,7 @@ public final class PasswordPolicyStateAccountUsabilityError
 
 
   /**
-   * The numeric value for the warning type that indicates the user must change
+   * The numeric value for the error type that indicates the user must change
    * their password after an administrative reset (or for a newly-created
    * account) before they will be submit any requests.  The user's account may
    * be locked if they do not change their password in a timely manner.
@@ -273,7 +273,7 @@ public final class PasswordPolicyStateAccountUsabilityError
 
 
   /**
-   * The name for the warning type that indicates the user must change their
+   * The name for the error type that indicates the user must change their
    * password after an administrative reset (or for a newly-created account)
    * before they will be submit any requests.  The user's account may be locked
    * if they do not change their password in a timely manner.
@@ -284,9 +284,28 @@ public final class PasswordPolicyStateAccountUsabilityError
 
 
   /**
+   * The numeric value for the error type that indicates the user's account is
+   * locked because it contains a password that does not satisfy all of the
+   * configured password validators.
+   */
+  public static final int ERROR_TYPE_ACCOUNT_VALIDATION_LOCKED = 12;
+
+
+
+  /**
+   * The name for the error type that indicates the user's account is locked
+   * because it contains a password that does not satisfy all of the configured
+   * password validators.
+   */
+  public static final String ERROR_NAME_ACCOUNT_VALIDATION_LOCKED =
+       "account-validation-locked";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -2482863468368980580L;
+  private static final long serialVersionUID = -8399539239321392737L;
 
 
 

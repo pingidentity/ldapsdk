@@ -1673,6 +1673,25 @@ public final class PasswordPolicyStateJSON
 
 
   /**
+   * Retrieves the value of a flag that indicates whether the user account is
+   * currently locked because it contains a password that does not satisfy all
+   * of the configured password validators.
+   *
+   * @return  {@code Boolean.TRUE} if the user account is locked because it
+   *          contains a password that does not satisfy all of the configured
+   *          password validators, {@code Boolean.FALSE} if the account is not
+   *          validation-locked, or {@code null} if this flag was not included
+   *          in the password policy state JSON object.
+   */
+  public Boolean getAccountIsValidationLocked()
+  {
+    return passwordPolicyStateObject.getFieldAsBoolean(
+         ACCOUNT_IS_VALIDATION_LOCKED.getFieldName());
+  }
+
+
+
+  /**
    * Retrieves the time that the server last invoked password validators during
    * a bind operation for the user.
    *

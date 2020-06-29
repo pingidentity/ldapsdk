@@ -355,6 +355,8 @@ public final class PasswordPolicyStateJSONTestCase
 
     assertNull(state.getHasRegisteredYubiKeyOTPDevice());
 
+    assertNull(state.getAccountIsValidationLocked());
+
     assertNull(state.getLastBindPasswordValidationTime());
 
     assertNull(state.getSecondsSinceLastBindPasswordValidation());
@@ -1633,11 +1635,15 @@ public final class PasswordPolicyStateJSONTestCase
     final Date lastValidationTime = new Date();
 
     PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         ACCOUNT_IS_VALIDATION_LOCKED, false,
          LAST_BIND_PASSWORD_VALIDATION_TIME, lastValidationTime,
          SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION, 0,
          MINIMUM_BIND_PASSWORD_VALIDATION_FREQUENCY_SECONDS,
               (int) TimeUnit.DAYS.toSeconds(30L),
          BIND_PASSWORD_VALIDATION_FAILURE_ACTION, "force-password-change"));
+
+    assertNotNull(state.getAccountIsValidationLocked());
+    assertFalse(state.getAccountIsValidationLocked().booleanValue());
 
     assertNotNull(state.getLastBindPasswordValidationTime());
     assertEquals(state.getLastBindPasswordValidationTime(), lastValidationTime);

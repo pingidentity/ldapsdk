@@ -1139,6 +1139,15 @@ final class ManageAccountProcessor
         return PasswordPolicyStateOperation.
              createClearLastBindPasswordValidationTimeOperation();
 
+      case GET_ACCOUNT_IS_VALIDATION_LOCKED:
+        return PasswordPolicyStateOperation.
+             createGetAccountIsValidationLockedOperation();
+
+      case SET_ACCOUNT_IS_VALIDATION_LOCKED:
+        return PasswordPolicyStateOperation.
+             createSetAccountIsValidationLockedOperation(
+                  getBoolean(subcommand, commandBuffer));
+
       default:
         // This should never happen.
         throw new LDAPException(ResultCode.LOCAL_ERROR,

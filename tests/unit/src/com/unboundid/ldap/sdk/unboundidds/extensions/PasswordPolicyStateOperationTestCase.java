@@ -4837,4 +4837,100 @@ public class PasswordPolicyStateOperationTestCase
 
     assertNotNull(op.toString());
   }
+
+
+
+  /**
+   * Tests the createGetAccountIsValidationLockedOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetAccountIsValidationLockedOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createGetAccountIsValidationLockedOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 86);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createSetAccountIsValidationLockedOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateSetAccountIsValidationLockedOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op = PasswordPolicyStateOperation.
+         createSetAccountIsValidationLockedOperation(false);
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 87);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 1);
+
+    assertNotNull(op.getStringValue());
+    assertEquals(op.getStringValue(), "false");
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 1);
+
+    assertFalse(op.getBooleanValue());
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValue();
+      fail("Expected an exception when calling getGeneralizedTimeValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getGeneralizedTimeValues();
+      fail("Expected an exception when calling getGeneralizedTimeValues()");
+    } catch (Exception e) {}
+
+    assertNotNull(op.toString());
+  }
 }

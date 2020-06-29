@@ -187,9 +187,28 @@ public final class PasswordPolicyStateAccountUsabilityWarning
 
 
   /**
+   * The numeric value for the warning type that indicates that the user's
+   * account has a password that is encoded with a deprecated password storage
+   * scheme.
+   */
+  public static final int WARNING_TYPE_DEPRECATED_PASSWORD_STORAGE_SCHEME = 7;
+
+
+
+  /**
+   * The numeric value for the warning type that indicates that the user's
+   * account has a password that is encoded with a deprecated password storage
+   * scheme.
+   */
+  public static final String WARNING_NAME_DEPRECATED_PASSWORD_STORAGE_SCHEME =
+       "deprecated-password-storage-scheme";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 4256291819633130578L;
+  private static final long serialVersionUID = -8585936121537239716L;
 
 
 

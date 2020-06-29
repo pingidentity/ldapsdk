@@ -141,6 +141,11 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *   <LI>Get, set, and clear the public IDs of any YubiKey OTP devices
  *       registered for a user.</LI>
  *   <LI>Determine whether the user has a static password.</LI>
+ *   <LI>Get, set, and clear the time that the server last performed validation
+ *       on a password provided in a bind request.</LI>
+ *   <LI>Get and set whether the user's account is locked because it contains a
+ *       password that does not satisfy all of the configured password
+ *       validators.</LI>
  * </UL>
  * Note that many of these methods are dependent upon the password policy
  * configuration for the target user and therefore some of them may not be
@@ -858,6 +863,24 @@ public final class PasswordPolicyStateOperation
 
 
   /**
+   * The operation type that may be used to determine whether a user's account
+   * is locked because it contains a password that does not satisfy all of the
+   * configured password validators.
+   */
+  public static final int OP_TYPE_GET_ACCOUNT_IS_VALIDATION_LOCKED = 86;
+
+
+
+  /**
+   * The operation type that may be used to specify whether a user's account
+   * is locked because it contains a password that does not satsify all of the
+   * configured password validators.
+   */
+  public static final int OP_TYPE_SET_ACCOUNT_IS_VALIDATION_LOCKED = 87;
+
+
+
+  /**
    * The set of values that will be used if there are no values.
    */
   private static final ASN1OctetString[] NO_VALUES = new ASN1OctetString[0];
@@ -867,7 +890,7 @@ public final class PasswordPolicyStateOperation
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -7004621958353828598L;
+  private static final long serialVersionUID = -98496117827434300L;
 
 
 
@@ -2746,6 +2769,55 @@ public final class PasswordPolicyStateOperation
   {
     return new PasswordPolicyStateOperation(
                     OP_TYPE_CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to determine
+   * whether an account has been locked because it contains a password that does
+   * not satisfy all of the configured password validators.  The result returned
+   * should include an operation of type
+   * {@link #OP_TYPE_GET_ACCOUNT_IS_VALIDATION_LOCKED} with a single boolean
+   * value that indicates whether the account is validation locked.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createGetAccountIsValidationLockedOperation()
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_GET_ACCOUNT_IS_VALIDATION_LOCKED);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to specify
+   * whether an account should be locked because it contains a password that
+   * does not satisfy all of the configured password validators.  The result
+   * authentication attempts.  The result returned should include an operation
+   * of type {@link #OP_TYPE_SET_ACCOUNT_IS_VALIDATION_LOCKED} with a single
+   * boolean value that indicates whether the account is validation locked.
+   *
+   * @param  isValidationLocked  Indicates whether the account should be locked
+   *                             because it contains a password that does not
+   *                             satisfy all of the configured password
+   *                             validators.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createSetAccountIsValidationLockedOperation(
+                          final boolean isValidationLocked)
+  {
+    final ASN1OctetString[] values =
+    {
+      new ASN1OctetString(String.valueOf(isValidationLocked))
+    };
+
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_SET_ACCOUNT_IS_VALIDATION_LOCKED, values);
   }
 
 

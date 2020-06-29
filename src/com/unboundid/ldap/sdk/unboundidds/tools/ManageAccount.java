@@ -1694,6 +1694,41 @@ public final class ManageAccount
          ManageAccountSubCommandType.CLEAR_LAST_BIND_PASSWORD_VALIDATION_TIME,
          INFO_MANAGE_ACCT_SC_CLEAR_LAST_BIND_PW_VALIDATION_TIME_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
+
+
+    // Define the subcommand to determine whether an account is locked because
+    // it contains a password that does not satisfy all of the configured
+    // password validators.
+    createSubCommand(
+         ManageAccountSubCommandType.GET_ACCOUNT_IS_VALIDATION_LOCKED,
+         INFO_MANAGE_ACCT_SC_GET_ACCT_VALIDATION_LOCKED_EXAMPLE.get(
+              EXAMPLE_TARGET_USER_DN));
+
+
+    // Define the subcommand to specify whether an account is locked because it
+    // contains a password that does not satisfy all of the configured password
+    // validators.
+    final ArgumentParser setIsValidationLockedParser =
+         createSubCommandParser(
+              ManageAccountSubCommandType.SET_ACCOUNT_IS_VALIDATION_LOCKED);
+
+    final BooleanValueArgument setIsValidationLockedValueArg =
+         new BooleanValueArgument('O', "accountIsValidationLocked", true, null,
+              INFO_MANAGE_ACCT_SC_SET_ACCT_VALIDATION_LOCKED_ARG_VALUE.get());
+    setIsValidationLockedValueArg.addLongIdentifier("operationValue", true);
+    setIsValidationLockedValueArg.addLongIdentifier(
+         "account-is-validation-locked", true);
+    setIsValidationLockedValueArg.addLongIdentifier("operation-value", true);
+    setIsValidationLockedParser.addArgument(setIsValidationLockedValueArg);
+
+    createSubCommand(
+         ManageAccountSubCommandType.SET_ACCOUNT_IS_VALIDATION_LOCKED,
+         setIsValidationLockedParser,
+         createSubCommandExample(
+              ManageAccountSubCommandType.SET_ACCOUNT_IS_VALIDATION_LOCKED,
+              INFO_MANAGE_ACCT_SC_SET_ACCT_VALIDATION_LOCKED_EXAMPLE.get(
+                   EXAMPLE_TARGET_USER_DN),
+              "--accountIsValidationLocked", "true"));
   }
 
 
