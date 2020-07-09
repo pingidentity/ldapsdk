@@ -1148,6 +1148,14 @@ final class ManageAccountProcessor
              createSetAccountIsValidationLockedOperation(
                   getBoolean(subcommand, commandBuffer));
 
+      case GET_RECENT_LOGIN_HISTORY:
+        return PasswordPolicyStateOperation.
+             createGetRecentLoginHistoryOperation();
+
+      case CLEAR_RECENT_LOGIN_HISTORY:
+        return PasswordPolicyStateOperation.
+             createClearRecentLoginHistoryOperation();
+
       default:
         // This should never happen.
         throw new LDAPException(ResultCode.LOCAL_ERROR,

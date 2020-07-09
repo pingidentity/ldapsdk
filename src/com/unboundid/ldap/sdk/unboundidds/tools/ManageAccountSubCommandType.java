@@ -940,7 +940,25 @@ public enum ManageAccountSubCommandType
    */
   SET_ACCOUNT_IS_VALIDATION_LOCKED("set-account-is-validation-locked",
        INFO_MANAGE_ACCT_SC_DESC_SET_ACCT_VALIDATION_LOCKED.get(),
-       PasswordPolicyStateOperation.OP_TYPE_SET_ACCOUNT_IS_VALIDATION_LOCKED);
+       PasswordPolicyStateOperation.OP_TYPE_SET_ACCOUNT_IS_VALIDATION_LOCKED),
+
+
+
+  /**
+   * The subcommand used to retrieve the recent login history for a user.
+   */
+  GET_RECENT_LOGIN_HISTORY("get-recent-login-history",
+       INFO_MANAGE_ACCT_SC_DESC_GET_RECENT_LOGIN_HISTORY.get(),
+       PasswordPolicyStateOperation.OP_TYPE_GET_RECENT_LOGIN_HISTORY),
+
+
+
+  /**
+   * The subcommand used to clear the recent login history for a user.
+   */
+  CLEAR_RECENT_LOGIN_HISTORY("clear-recent-login-history",
+       INFO_MANAGE_ACCT_SC_DESC_CLEAR_RECENT_LOGIN_HISTORY.get(),
+       PasswordPolicyStateOperation.OP_TYPE_CLEAR_RECENT_LOGIN_HISTORY);
 
 
 

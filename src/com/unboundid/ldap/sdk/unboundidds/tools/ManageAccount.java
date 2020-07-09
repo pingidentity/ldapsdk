@@ -1729,6 +1729,20 @@ public final class ManageAccount
               INFO_MANAGE_ACCT_SC_SET_ACCT_VALIDATION_LOCKED_EXAMPLE.get(
                    EXAMPLE_TARGET_USER_DN),
               "--accountIsValidationLocked", "true"));
+
+
+    // Define the subcommand to retrieve a user's recent login history.
+    createSubCommand(
+         ManageAccountSubCommandType.GET_RECENT_LOGIN_HISTORY,
+         INFO_MANAGE_ACCT_SC_GET_RECENT_LOGIN_HISTORY_EXAMPLE.get(
+              EXAMPLE_TARGET_USER_DN));
+
+
+    // Define the subcommand to retrieve a user's recent login history.
+    createSubCommand(
+         ManageAccountSubCommandType.CLEAR_RECENT_LOGIN_HISTORY,
+         INFO_MANAGE_ACCT_SC_CLEAR_RECENT_LOGIN_HISTORY_EXAMPLE.get(
+              EXAMPLE_TARGET_USER_DN));
   }
 
 

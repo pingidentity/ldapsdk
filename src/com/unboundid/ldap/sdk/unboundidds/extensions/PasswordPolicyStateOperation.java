@@ -146,6 +146,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *   <LI>Get and set whether the user's account is locked because it contains a
  *       password that does not satisfy all of the configured password
  *       validators.</LI>
+ *   <LI>Get and clear a user's recent login history.</LI>
  * </UL>
  * Note that many of these methods are dependent upon the password policy
  * configuration for the target user and therefore some of them may not be
@@ -873,10 +874,25 @@ public final class PasswordPolicyStateOperation
 
   /**
    * The operation type that may be used to specify whether a user's account
-   * is locked because it contains a password that does not satsify all of the
+   * is locked because it contains a password that does not satisfy all of the
    * configured password validators.
    */
   public static final int OP_TYPE_SET_ACCOUNT_IS_VALIDATION_LOCKED = 87;
+
+
+
+  /**
+   * The operation type that may be used to retrieve a user's recent login
+   * history.
+   */
+  public static final int OP_TYPE_GET_RECENT_LOGIN_HISTORY = 88;
+
+
+
+  /**
+   * The operation type that may be used to clear a user's recent login history.
+   */
+  public static final int OP_TYPE_CLEAR_RECENT_LOGIN_HISTORY = 89;
 
 
 
@@ -890,7 +906,7 @@ public final class PasswordPolicyStateOperation
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -98496117827434300L;
+  private static final long serialVersionUID = -7711496660183073026L;
 
 
 
@@ -2818,6 +2834,40 @@ public final class PasswordPolicyStateOperation
 
     return new PasswordPolicyStateOperation(
          OP_TYPE_SET_ACCOUNT_IS_VALIDATION_LOCKED, values);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to retrieve
+   * the recent login history for a user.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_RECENT_LOGIN_HISTORY} with a single
+   * string value that is a JSON object that represents the user's recent login
+   * history/
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createGetRecentLoginHistoryOperation()
+  {
+    return new PasswordPolicyStateOperation(OP_TYPE_GET_RECENT_LOGIN_HISTORY);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to clear
+   * the recent login history for a user.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_RECENT_LOGIN_HISTORY} with a single
+   * string value that is a JSON object that represents the user's recent login
+   * history/
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createClearRecentLoginHistoryOperation()
+  {
+    return new PasswordPolicyStateOperation(OP_TYPE_CLEAR_RECENT_LOGIN_HISTORY);
   }
 
 

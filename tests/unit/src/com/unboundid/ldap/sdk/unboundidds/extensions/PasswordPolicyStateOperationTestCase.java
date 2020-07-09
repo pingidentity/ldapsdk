@@ -4933,4 +4933,96 @@ public class PasswordPolicyStateOperationTestCase
 
     assertNotNull(op.toString());
   }
+
+
+
+  /**
+   * Tests the createGetRecentLoginHistoryOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateGetRecentLoginHistoryOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createGetRecentLoginHistoryOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 88);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the createClearRecentLoginHistoryOperation method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCreateClearRecentLoginHistoryOperation()
+         throws Exception
+  {
+    PasswordPolicyStateOperation op =
+         PasswordPolicyStateOperation.createClearRecentLoginHistoryOperation();
+
+    op = PasswordPolicyStateOperation.decode(op.encode());
+
+    assertEquals(op.getOperationType(), 89);
+
+    assertNotNull(op.getRawValues());
+    assertEquals(op.getRawValues().length, 0);
+
+    assertNull(op.getStringValue());
+
+    assertNotNull(op.getStringValues());
+    assertEquals(op.getStringValues().length, 0);
+
+    try
+    {
+      op.getBooleanValue();
+      fail("Expected an exception when calling getBooleanValue()");
+    } catch (Exception e) {}
+
+    try
+    {
+      op.getIntValue();
+      fail("Expected an exception when calling getIntValue()");
+    } catch (Exception e) {}
+
+    assertNull(op.getGeneralizedTimeValue());
+
+    assertNotNull(op.getGeneralizedTimeValues());
+    assertEquals(op.getGeneralizedTimeValues().length, 0);
+
+    assertNotNull(op.toString());
+  }
 }

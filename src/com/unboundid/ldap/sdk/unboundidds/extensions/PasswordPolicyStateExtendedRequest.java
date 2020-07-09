@@ -170,6 +170,8 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *             clearLastBindPasswordValidationTime          (85),
  *             getAccountIsValidationLocked                 (86),
  *             setAccountIsValidationLocked                 (87),
+ *             getRecentLoginHistory                        (88),
+ *             clearRecentLoginHistory                      (89),
  *             ... },
  *      opValues     SEQUENCE OF OCTET STRING OPTIONAL }
  * </PRE>
