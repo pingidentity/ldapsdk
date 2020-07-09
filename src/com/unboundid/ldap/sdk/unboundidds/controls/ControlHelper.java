@@ -110,6 +110,11 @@ public final class ControlHelper
          new GetPasswordPolicyStateIssuesResponseControl());
 
     Control.registerDecodeableControl(
+         GetRecentLoginHistoryResponseControl.
+              GET_RECENT_LOGIN_HISTORY_RESPONSE_OID,
+         new GetRecentLoginHistoryResponseControl());
+
+    Control.registerDecodeableControl(
          GetServerIDResponseControl.GET_SERVER_ID_RESPONSE_OID,
          new GetServerIDResponseControl());
 

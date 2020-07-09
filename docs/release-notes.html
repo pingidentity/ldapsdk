@@ -85,6 +85,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Added support for a new get recent login history control that will be supported
+                  in an upcoming release of the Ping Identity Directory Server.  The request
+                  control may be included in a bind request to indicate that a successful bind
+                  result should include information about other recent successful and failed
+                  authentication attempts for that account.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the password policy state extended operation and the manage-account
                   command-line tool (both of which are specific to the Ping Identity Directory
                   Server) to provide support for a property (that can be retrieved, set, and
