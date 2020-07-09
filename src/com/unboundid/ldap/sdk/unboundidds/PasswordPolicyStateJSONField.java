@@ -685,7 +685,52 @@ public enum PasswordPolicyStateJSONField
    * bind password does not satisfy all of the configured password validators.
    */
   BIND_PASSWORD_VALIDATION_FAILURE_ACTION(
-       "bind-password-validation-failure-action");
+       "bind-password-validation-failure-action"),
+
+
+
+  /**
+   * The field used to provide an encoded representation of the user's recent
+   * login history.
+   */
+  RECENT_LOGIN_HISTORY("recent-login-history"),
+
+
+
+  /**
+   * The field used to hold the maximum number of recent successful login
+   * attempts the server should maintain for a user.
+   */
+  MAXIMUM_RECENT_LOGIN_HISTORY_SUCCESSFUL_AUTHENTICATION_COUNT(
+       "maximum-recent-login-history-successful-authentication-count"),
+
+
+
+  /**
+   * The field used to hold the maximum age in seconds of recent successful
+   * login attempts the server should maintain for a user.
+   */
+  MAXIMUM_RECENT_LOGIN_HISTORY_SUCCESSFUL_AUTHENTICATION_DURATION_SECONDS(
+       "maximum-recent-login-history-successful-authentication-duration-" +
+            "seconds"),
+
+
+
+  /**
+   * The field used to hold the maximum number of recent failed login attempts
+   * the server should maintain for a user.
+   */
+  MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_COUNT(
+       "maximum-recent-login-history-failed-authentication-count"),
+
+
+
+  /**
+   * The field used to hold the maximum age in seconds of recent failed login
+   * attempts the server should maintain for a user.
+   */
+  MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_DURATION_SECONDS(
+       "maximum-recent-login-history-failed-authentication-duration-seconds");
 
 
 

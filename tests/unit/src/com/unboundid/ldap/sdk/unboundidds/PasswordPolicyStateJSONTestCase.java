@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
@@ -54,6 +55,8 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.unboundidds.controls.RecentLoginHistory;
+import com.unboundid.ldap.sdk.unboundidds.controls.RecentLoginHistoryAttempt;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityError;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
@@ -364,6 +367,19 @@ public final class PasswordPolicyStateJSONTestCase
     assertNull(state.getMinimumBindPasswordValidationFrequencySeconds());
 
     assertNull(state.getBindPasswordValidationFailureAction());
+
+    assertNull(state.getRecentLoginHistory());
+
+    assertNull(
+         state.getMaximumRecentLoginHistorySuccessfulAuthenticationCount());
+
+    assertNull(state.
+         getMaximumRecentLoginHistorySuccessfulAuthenticationDurationSeconds());
+
+    assertNull(state.getMaximumRecentLoginHistoryFailedAuthenticationCount());
+
+    assertNull(state.
+         getMaximumRecentLoginHistoryFailedAuthenticationDurationSeconds());
 
     assertNotNull(state.toString());
     assertFalse(state.toString().isEmpty());
@@ -1634,7 +1650,7 @@ public final class PasswordPolicyStateJSONTestCase
   {
     final Date lastValidationTime = new Date();
 
-    PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
          ACCOUNT_IS_VALIDATION_LOCKED, false,
          LAST_BIND_PASSWORD_VALIDATION_TIME, lastValidationTime,
          SECONDS_SINCE_LAST_BIND_PASSWORD_VALIDATION, 0,
@@ -1660,6 +1676,104 @@ public final class PasswordPolicyStateJSONTestCase
     assertNotNull(state.getBindPasswordValidationFailureAction());
     assertEquals(state.getBindPasswordValidationFailureAction(),
          "force-password-change");
+  }
+
+
+
+  /**
+   * Tests the behavior for the properties related to maintaining a recent login
+   * history.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testRecentLoginHistory()
+         throws Exception
+  {
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true,
+         System.currentTimeMillis(), "simple", "1.2.3.4", null, null));
+    successes.add(new RecentLoginHistoryAttempt(true,
+         (System.currentTimeMillis() + 1), "simple", "1.2.3.4", null, null));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false,
+         (System.currentTimeMillis() + 2), "simple", "1.2.3.4",
+         "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false,
+         (System.currentTimeMillis() + 3), "simple", "1.2.3.4",
+         "invalid-credentials", null));
+    failures.add(new RecentLoginHistoryAttempt(false,
+         (System.currentTimeMillis() + 4), "simple", "1.2.3.4",
+         "invalid-credentials", null));
+
+    final RecentLoginHistory h = new RecentLoginHistory(successes, failures);
+
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         RECENT_LOGIN_HISTORY, h.asJSONObject(),
+         MAXIMUM_RECENT_LOGIN_HISTORY_SUCCESSFUL_AUTHENTICATION_COUNT, 50,
+         MAXIMUM_RECENT_LOGIN_HISTORY_SUCCESSFUL_AUTHENTICATION_DURATION_SECONDS
+              , (int) TimeUnit.DAYS.toSeconds(30L),
+         MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_COUNT, 20,
+         MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_DURATION_SECONDS,
+              (int) TimeUnit.DAYS.toSeconds(10L)));
+
+    assertNotNull(state.getRecentLoginHistory());
+
+    assertNotNull(
+         state.getMaximumRecentLoginHistorySuccessfulAuthenticationCount());
+    assertEquals(
+         state.getMaximumRecentLoginHistorySuccessfulAuthenticationCount().
+              intValue(),
+         50);
+
+    assertNotNull(state.
+         getMaximumRecentLoginHistorySuccessfulAuthenticationDurationSeconds());
+    assertEquals(state.
+         getMaximumRecentLoginHistorySuccessfulAuthenticationDurationSeconds().
+              intValue(),
+         TimeUnit.DAYS.toSeconds(30L));
+
+    assertNotNull(
+         state.getMaximumRecentLoginHistoryFailedAuthenticationCount());
+    assertEquals(
+         state.getMaximumRecentLoginHistoryFailedAuthenticationCount().
+              intValue(),
+         20);
+
+    assertNotNull(state.
+         getMaximumRecentLoginHistoryFailedAuthenticationDurationSeconds());
+    assertEquals(state.
+         getMaximumRecentLoginHistoryFailedAuthenticationDurationSeconds()
+              .intValue(),
+         TimeUnit.DAYS.toSeconds(10L));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to retrieve a malformed recent login
+   * history.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testMalformedRecentLoginHistory()
+         throws Exception
+  {
+    final PasswordPolicyStateJSON state = createState(StaticUtils.mapOf(
+         RECENT_LOGIN_HISTORY, new JSONObject(
+              new JSONField("successful-attempts",
+                   new JSONArray(new JSONObject(
+                        new JSONField("malformed", true))))),
+         MAXIMUM_RECENT_LOGIN_HISTORY_SUCCESSFUL_AUTHENTICATION_COUNT, 50,
+         MAXIMUM_RECENT_LOGIN_HISTORY_SUCCESSFUL_AUTHENTICATION_DURATION_SECONDS
+              , (int) TimeUnit.DAYS.toSeconds(30L),
+         MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_COUNT, 20,
+         MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_DURATION_SECONDS,
+              (int) TimeUnit.DAYS.toSeconds(10L)));
+
+    state.getRecentLoginHistory();
   }
 
 
@@ -1818,6 +1932,10 @@ public final class PasswordPolicyStateJSONTestCase
         }
 
         jsonFields.put(name, new JSONArray(arrayValues));
+      }
+      else if ( value instanceof JSONValue)
+      {
+        jsonFields.put(name, (JSONValue) value);
       }
       else
       {

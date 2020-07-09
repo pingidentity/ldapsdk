@@ -94,6 +94,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated support for the Ping Identity Directory Server's ds-pwp-state-json
+                  virtual attribute to handle additional fields related to a user's recent login
+                  history.  This includes fields that can be used to retrieve the history, the
+                  maximum number of successful and failed login attempts the server should
+                  maintain, and the maximum age in seconds of successful and failed login attempts
+                  that the server should maintain.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the password policy state extended operation and the manage-account
                   command-line tool (both of which are specific to the Ping Identity Directory
                   Server) to provide support for a property (that can be retrieved, set, and

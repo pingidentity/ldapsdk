@@ -48,6 +48,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.unboundidds.controls.RecentLoginHistory;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             PasswordPolicyStateAccountUsabilityError;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
@@ -1747,12 +1748,109 @@ public final class PasswordPolicyStateJSON
    *
    * @return  The name of the action that the server should take if the password
    *          provided during a bind operation fails to satisfy one or more
-   *          password validators.
+   *          password validators, or {@code null} if this was not included in
+   *          the password policy state JSON object.
    */
   public String getBindPasswordValidationFailureAction()
   {
     return passwordPolicyStateObject.getFieldAsString(
          BIND_PASSWORD_VALIDATION_FAILURE_ACTION.getFieldName());
+  }
+
+
+
+  /**
+   * Retrieves the recent login history for the user.
+   *
+   * @return  The recent login history for the user, or {@code null} if this was
+   *          not included in the password policy state JSON object.
+   *
+   * @throws  LDAPException  If a problem occurs while trying to parse the
+   *                         recent login history for the user.
+   */
+  public RecentLoginHistory getRecentLoginHistory()
+         throws LDAPException
+  {
+    final JSONObject o = passwordPolicyStateObject.getFieldAsObject(
+         RECENT_LOGIN_HISTORY.getFieldName());
+    if (o == null)
+    {
+      return null;
+    }
+    else
+    {
+      return new RecentLoginHistory(o);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the maximum number of recent successful login attempts the server
+   * should maintain for a user.
+   *
+   * @return  The maximum number of recent successful login attempts the server
+   *          should maintain for a user, or {@code null}if this was not
+   *          included in the password policy state JSON object.
+   */
+  public Integer getMaximumRecentLoginHistorySuccessfulAuthenticationCount()
+  {
+    return passwordPolicyStateObject.getFieldAsInteger(
+         MAXIMUM_RECENT_LOGIN_HISTORY_SUCCESSFUL_AUTHENTICATION_COUNT.
+              getFieldName());
+  }
+
+
+
+  /**
+   * Retrieves the maximum age in seconds of recent successful login attempts
+   * the server should maintain for a user.
+   *
+   * @return  The maximum age in seconds of recent successful login attempts the
+   *          server should maintain for a user, or {@code null}if this was not
+   *          included in the password policy state JSON object.
+   */
+  public Integer
+       getMaximumRecentLoginHistorySuccessfulAuthenticationDurationSeconds()
+  {
+    return passwordPolicyStateObject.getFieldAsInteger(
+         MAXIMUM_RECENT_LOGIN_HISTORY_SUCCESSFUL_AUTHENTICATION_DURATION_SECONDS
+              .getFieldName());
+  }
+
+
+
+  /**
+   * Retrieves the maximum number of recent failed login attempts the server
+   * should maintain for a user.
+   *
+   * @return  The maximum number of recent failed login attempts the server
+   *          should maintain for a user, or {@code null}if this was not
+   *          included in the password policy state JSON object.
+   */
+  public Integer getMaximumRecentLoginHistoryFailedAuthenticationCount()
+  {
+    return passwordPolicyStateObject.getFieldAsInteger(
+         MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_COUNT.
+              getFieldName());
+  }
+
+
+
+  /**
+   * Retrieves the maximum age in seconds of recent failed login attempts
+   * the server should maintain for a user.
+   *
+   * @return  The maximum age in seconds of recent failed login attempts the
+   *          server should maintain for a user, or {@code null}if this was not
+   *          included in the password policy state JSON object.
+   */
+  public Integer
+       getMaximumRecentLoginHistoryFailedAuthenticationDurationSeconds()
+  {
+    return passwordPolicyStateObject.getFieldAsInteger(
+         MAXIMUM_RECENT_LOGIN_HISTORY_FAILED_AUTHENTICATION_DURATION_SECONDS.
+              getFieldName());
   }
 
 
