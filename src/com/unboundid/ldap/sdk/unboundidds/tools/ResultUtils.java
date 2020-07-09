@@ -90,6 +90,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             GetBackendSetIDResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetPasswordPolicyStateIssuesResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetRecentLoginHistoryResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetUserResourceLimitsResponseControl;
@@ -109,6 +111,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             PasswordQualityRequirementValidationResult;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             PasswordValidationDetailsResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.RecentLoginHistory;
+import com.unboundid.ldap.sdk.unboundidds.controls.RecentLoginHistoryAttempt;
 import com.unboundid.ldap.sdk.unboundidds.controls.SoftDeleteResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             TransactionSettingsResponseControl;
@@ -776,6 +780,11 @@ public final class ResultUtils
     {
       addGetPasswordPolicyStateIssuesResponseControl(lines, c, prefix,
            maxWidth);
+    }
+    else if (oid.equals(GetRecentLoginHistoryResponseControl.
+         GET_RECENT_LOGIN_HISTORY_RESPONSE_OID))
+    {
+      addGetRecentLoginHistoryResponseControl(lines, c, prefix, maxWidth);
     }
     else if (oid.equals(GetServerIDResponseControl.GET_SERVER_ID_RESPONSE_OID))
     {
@@ -1954,6 +1963,134 @@ public final class ResultUtils
                     message),
                doubleIndentPrefix, maxWidth);
         }
+      }
+    }
+  }
+
+
+
+  /**
+   * Adds a multi-line string representation of the provided control, which is
+   * expected to be a get recent login history response control, to the given
+   * list.
+   *
+   * @param  lines     The list to which the lines should be added.
+   * @param  c         The control to be formatted.
+   * @param  prefix    The prefix to use for each line.
+   * @param  maxWidth  The maximum length of each line in characters, including
+   *                   the comment prefix and indent.
+   */
+  private static void addGetRecentLoginHistoryResponseControl(
+                           final List<String> lines, final Control c,
+                           final String prefix, final int maxWidth)
+  {
+    final GetRecentLoginHistoryResponseControl decoded;
+    try
+    {
+      decoded = new GetRecentLoginHistoryResponseControl(c.getOID(),
+           c.isCritical(), c.getValue());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      addGenericResponseControl(lines, c, prefix, maxWidth);
+      return;
+    }
+
+    wrap(lines, INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_HEADER.get(), prefix,
+         maxWidth);
+
+    final String indentPrefix = prefix + "     ";
+    wrap(lines, INFO_RESULT_UTILS_RESPONSE_CONTROL_OID.get(c.getOID()),
+         indentPrefix, maxWidth);
+
+    final RecentLoginHistory history = decoded.getRecentLoginHistory();
+    if (history.getSuccessfulAttempts().isEmpty())
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_NO_SUCCESSES.get(),
+           indentPrefix, maxWidth);
+    }
+
+    for (final RecentLoginHistoryAttempt attempt :
+         history.getSuccessfulAttempts())
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_SUCCESS_HEADER.get(),
+           indentPrefix, maxWidth);
+
+      final String doubleIndentPrefix = indentPrefix + "     ";
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_TIMESTAMP.get(
+                StaticUtils.encodeRFC3339Time(attempt.getTimestamp())),
+           doubleIndentPrefix, maxWidth);
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_AUTH_METHOD.get(
+                attempt.getAuthenticationMethod()),
+           doubleIndentPrefix, maxWidth);
+
+      final String clientIP = attempt.getClientIPAddress();
+      if (clientIP != null)
+      {
+        wrap(lines,
+             INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_CLIENT_IP.get(clientIP),
+             doubleIndentPrefix, maxWidth);
+      }
+
+      final Long additionalAttemptCount = attempt.getAdditionalAttemptCount();
+      if (additionalAttemptCount != null)
+      {
+        wrap(lines,
+             INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_ADDITIONAL_COUNT.get(
+                  additionalAttemptCount),
+             doubleIndentPrefix, maxWidth);
+      }
+    }
+
+    if (history.getFailedAttempts().isEmpty())
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_NO_FAILURES.get(),
+           indentPrefix, maxWidth);
+    }
+
+    for (final RecentLoginHistoryAttempt attempt :
+         history.getFailedAttempts())
+    {
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_FAILURE_HEADER.get(),
+           indentPrefix, maxWidth);
+
+      final String doubleIndentPrefix = indentPrefix + "     ";
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_TIMESTAMP.get(
+                StaticUtils.encodeRFC3339Time(attempt.getTimestamp())),
+           doubleIndentPrefix, maxWidth);
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_AUTH_METHOD.get(
+                attempt.getAuthenticationMethod()),
+           doubleIndentPrefix, maxWidth);
+
+      final String clientIP = attempt.getClientIPAddress();
+      if (clientIP != null)
+      {
+        wrap(lines,
+             INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_CLIENT_IP.get(clientIP),
+             doubleIndentPrefix, maxWidth);
+      }
+
+      wrap(lines,
+           INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_FAILURE_REASON.get(
+                attempt.getFailureReason()),
+           doubleIndentPrefix, maxWidth);
+
+      final Long additionalAttemptCount = attempt.getAdditionalAttemptCount();
+      if (additionalAttemptCount != null)
+      {
+        wrap(lines,
+             INFO_RESULT_UTILS_GET_RECENT_LOGIN_HISTORY_ADDITIONAL_COUNT.get(
+                  additionalAttemptCount),
+             doubleIndentPrefix, maxWidth);
       }
     }
   }

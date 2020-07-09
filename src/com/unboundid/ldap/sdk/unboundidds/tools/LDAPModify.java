@@ -104,6 +104,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetBackendSetIDRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetRecentLoginHistoryRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             GetUserResourceLimitsRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.HardDeleteRequestControl;
@@ -289,6 +291,7 @@ public final class LDAPModify
   private BooleanArgument followReferrals = null;
   private BooleanArgument generatePassword = null;
   private BooleanArgument getBackendSetID = null;
+  private BooleanArgument getRecentLoginHistory = null;
   private BooleanArgument getServerID = null;
   private BooleanArgument getUserResourceLimits = null;
   private BooleanArgument hardDelete = null;
@@ -832,6 +835,14 @@ public final class LDAPModify
     getBackendSetID.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getBackendSetID);
+
+
+    getRecentLoginHistory = new BooleanArgument(null, "getRecentLoginHistory",
+         1, INFO_LDAPMODIFY_ARG_DESCRIPTION_GET_RECENT_LOGIN_HISTORY.get());
+    getRecentLoginHistory.addLongIdentifier("get-recent-login-history");
+    getRecentLoginHistory.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(getRecentLoginHistory);
 
 
     getServerID = new BooleanArgument(null, "getServerID",
@@ -1516,6 +1527,11 @@ public final class LDAPModify
     {
       bindControls.add(new GetAuthorizationEntryRequestControl(true, true,
            getAuthorizationEntryAttribute.getValues()));
+    }
+
+    if (getRecentLoginHistory.isPresent())
+    {
+      bindControls.add(new GetRecentLoginHistoryRequestControl());
     }
 
     if (getUserResourceLimits.isPresent())

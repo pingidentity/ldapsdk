@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.testng.annotations.DataProvider;
@@ -95,6 +96,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             GetBackendSetIDResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetPasswordPolicyStateIssuesResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetRecentLoginHistoryResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetUserResourceLimitsResponseControl;
@@ -116,6 +119,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             PasswordValidationDetailsResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             PasswordValidationDetailsResponseType;
+import com.unboundid.ldap.sdk.unboundidds.controls.RecentLoginHistory;
+import com.unboundid.ldap.sdk.unboundidds.controls.RecentLoginHistoryAttempt;
 import com.unboundid.ldap.sdk.unboundidds.controls.SoftDeleteResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             TransactionSettingsResponseControl;
@@ -1422,6 +1427,75 @@ public final class ResultUtilsTestCase
                 "#           OID:  " +
                      GetPasswordPolicyStateIssuesResponseControl.
                           GET_PASSWORD_POLICY_STATE_ISSUES_RESPONSE_OID,
+                "#           Is Critical:  false")
+         });
+
+
+    // A valid get recent login history response control without any successful
+    // or failed attempts.
+    resultList.add(
+         new Object[]
+         {
+           new GetRecentLoginHistoryResponseControl(new RecentLoginHistory(
+                null, null)),
+           Arrays.asList(
+                "#      Get Recent Login History Response Control:",
+                "#           OID:  " + GetRecentLoginHistoryResponseControl.
+                     GET_RECENT_LOGIN_HISTORY_RESPONSE_OID,
+                "#           No Successful Attempts",
+                "#           No Failed Attempts")
+         });
+
+
+    // A valid get recent login history response control with both successful
+    // and failed attempts.
+    final long currentTime = System.currentTimeMillis();
+    final TreeSet<RecentLoginHistoryAttempt> successes = new TreeSet<>();
+    successes.add(new RecentLoginHistoryAttempt(true, currentTime, "simple",
+         "1.2.3.4", null, 0L));
+
+    final TreeSet<RecentLoginHistoryAttempt> failures = new TreeSet<>();
+    failures.add(new RecentLoginHistoryAttempt(false, (currentTime - 5_000L),
+         "simple", "1.2.3.4", "invalid-credentials", 1L));
+
+    RecentLoginHistory recentLoginHistory =
+         new RecentLoginHistory(successes, failures);
+
+    resultList.add(
+         new Object[]
+         {
+           new GetRecentLoginHistoryResponseControl(recentLoginHistory),
+           Arrays.asList(
+                "#      Get Recent Login History Response Control:",
+                "#           OID:  " + GetRecentLoginHistoryResponseControl.
+                     GET_RECENT_LOGIN_HISTORY_RESPONSE_OID,
+                "#           Successful Attempt:",
+                "#                Timestamp:  " +
+                     StaticUtils.encodeRFC3339Time(currentTime),
+                "#                Authentication Method:  simple",
+                "#                Client IP Address:  1.2.3.4",
+                "#                Additional Attempt Count:  0",
+                "#           Failed Attempt:",
+                "#                Timestamp:  " +
+                     StaticUtils.encodeRFC3339Time(currentTime - 5_000L),
+                "#                Authentication Method:  simple",
+                "#                Client IP Address:  1.2.3.4",
+                "#                Failure Reason:  invalid-credentials",
+                "#                Additional Attempt Count:  1")
+         });
+
+
+    // An invalid recent login history response control.
+    resultList.add(
+         new Object[]
+         {
+           new Control(GetRecentLoginHistoryResponseControl.
+                GET_RECENT_LOGIN_HISTORY_RESPONSE_OID),
+           Arrays.asList(
+                "#      Response Control:",
+                "#           OID:  " +
+                     GetRecentLoginHistoryResponseControl.
+                          GET_RECENT_LOGIN_HISTORY_RESPONSE_OID,
                 "#           Is Critical:  false")
          });
 

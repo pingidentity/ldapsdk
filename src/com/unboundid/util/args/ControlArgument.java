@@ -236,6 +236,14 @@ public final class ControlArgument
     oidsByName.put("get-password-policy-state-issues",
          "1.3.6.1.4.1.30221.2.5.46");
 
+    // The get recent login history request control.
+    oidsByName.put("loginhistory", "1.3.6.1.4.1.30221.2.5.61");
+    oidsByName.put("recentloginhistory", "1.3.6.1.4.1.30221.2.5.61");
+    oidsByName.put("getrecentloginhistory", "1.3.6.1.4.1.30221.2.5.61");
+    oidsByName.put("login-history", "1.3.6.1.4.1.30221.2.5.61");
+    oidsByName.put("recent-login-history", "1.3.6.1.4.1.30221.2.5.61");
+    oidsByName.put("get-recent-login-history", "1.3.6.1.4.1.30221.2.5.61");
+
     // The get server ID request control.
     oidsByName.put("serverid", "1.3.6.1.4.1.30221.2.5.14");
     oidsByName.put("getserverid", "1.3.6.1.4.1.30221.2.5.14");

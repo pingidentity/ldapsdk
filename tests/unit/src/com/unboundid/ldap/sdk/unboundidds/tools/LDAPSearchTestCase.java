@@ -446,6 +446,7 @@ public final class LDAPSearchTestCase
          "--bindControl", "1.2.3.4",
          "--authorizationIdentity",
          "--getAuthorizationEntryAttribute", "*",
+         "--getRecentLoginHistory",
          "--getUserResourceLimits",
          "--usePasswordPolicyControl",
          "--suppressOperationalAttributeUpdates", "last-access-time",

@@ -1860,6 +1860,7 @@ public final class LDAPModifyTestCase
          "--authorizationIdentity",
          "--getAuthorizationEntryAttribute", "*",
          "--getAuthorizationEntryAttribute", "+",
+         "--getRecentLoginHistory",
          "--getUserResourceLimits",
          "--usePasswordPolicyControl",
          "--suppressOperationalAttributeUpdates", "last-access-time",

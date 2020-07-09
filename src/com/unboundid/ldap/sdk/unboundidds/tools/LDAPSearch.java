@@ -106,6 +106,8 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             GetBackendSetIDRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetEffectiveRightsRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            GetRecentLoginHistoryRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.GetServerIDRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             GetUserResourceLimitsRequestControl;
@@ -211,9 +213,10 @@ public final class LDAPSearch
   private BooleanArgument dryRun = null;
   private BooleanArgument encryptOutput = null;
   private BooleanArgument followReferrals = null;
-  private BooleanArgument hideRedactedValueCount = null;
   private BooleanArgument getBackendSetID = null;
   private BooleanArgument getServerID = null;
+  private BooleanArgument getRecentLoginHistory = null;
+  private BooleanArgument hideRedactedValueCount = null;
   private BooleanArgument getUserResourceLimits = null;
   private BooleanArgument includeReplicationConflictEntries = null;
   private BooleanArgument joinRequireMatch = null;
@@ -864,6 +867,13 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getEffectiveRightsAttribute);
 
+    getRecentLoginHistory = new BooleanArgument(null, "getRecentLoginHistory",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_RECENT_LOGIN_HISTORY.get());
+    getRecentLoginHistory.addLongIdentifier("get-recent-login-history");
+    getRecentLoginHistory.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(getRecentLoginHistory);
+
     getServerID = new BooleanArgument(null, "getServerID",
          1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_SERVER_ID.get());
     getServerID.addLongIdentifier("get-server-id", true);
@@ -1388,6 +1398,11 @@ public final class LDAPSearch
     {
       bindControls.add(new GetAuthorizationEntryRequestControl(true, true,
            getAuthorizationEntryAttribute.getValues()));
+    }
+
+    if (getRecentLoginHistory.isPresent())
+    {
+      bindControls.add(new GetRecentLoginHistoryRequestControl());
     }
 
     if (getUserResourceLimits.isPresent())
