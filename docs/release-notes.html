@@ -51,6 +51,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldappasswordmodify tool to default to using the password modify
+                  extended operation if the attempt to retrieve the root DSE fails for some reason
+                  (e.g., because of an access control problem, or because the requester's account
+                  is in a "must change password" state).  The tool would previously exit with an
+                  error if it couldn't retrieve the root DSE.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the ldapcompare tool so that it always uses an exit code of zero
                   (corresponding to the LDAP SUCCESS result code) by default if all compare
                   operations are processed successfully, regardless of whether the compare

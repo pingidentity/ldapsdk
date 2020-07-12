@@ -1434,7 +1434,8 @@ public final class LDAPPasswordModify
     }
 
 
-    // Retrieve the root DSE from the directory server.
+    // Retrieve the root DSE from the directory server.  If we can't get the
+    // root DSE, then default to the password modify extended operation.
     final RootDSE rootDSE;
     try
     {
@@ -1443,21 +1444,12 @@ public final class LDAPPasswordModify
     catch (final LDAPException e)
     {
       Debug.debugException(e);
-      throw new LDAPException(e.getResultCode(),
-           ERR_PWMOD_CANNOT_RETRIEVE_ROOT_DSE.get(
-                String.valueOf(e.getResultCode()), e.getMessage(),
-                passwordChangeMethod.getIdentifierString()),
-           e);
+      return PASSWORD_CHANGE_METHOD_PW_MOD_EXTOP;
     }
 
-
-    // If we couldn't retrieve the root DSE, then just go with a default
-    // method of a normal LDAP modify.
     if (rootDSE == null)
     {
-      throw new LDAPException(ResultCode.NO_RESULTS_RETURNED,
-           ERR_PWMOD_CANNOT_RETRIEVE_ROOT_DSE.get(
-                passwordChangeMethod.getIdentifierString()));
+      return PASSWORD_CHANGE_METHOD_PW_MOD_EXTOP;
     }
 
 
