@@ -132,6 +132,10 @@ public final class CollectSupportDataTaskTestCase
 
     assertNull(t.getLogDurationMillis());
 
+    assertNull(t.getLogFileHeadCollectionSizeKB());
+
+    assertNull(t.getLogFileTailCollectionSizeKB());
+
     assertNull(t.getComment());
 
     assertNull(t.getRetainPreviousSupportDataArchiveCount());
@@ -238,6 +242,8 @@ public final class CollectSupportDataTaskTestCase
     p.setReportIntervalSeconds(3);
     p.setJStackCount(4);
     p.setLogDuration("5 minutes");
+    p.setLogFileHeadCollectionSizeKB(123);
+    p.setLogFileTailCollectionSizeKB(456);
     p.setComment("foo");
     p.setRetainPreviousSupportDataArchiveCount(5);
     p.setRetainPreviousSupportDataArchiveAge("1 week");
@@ -312,6 +318,12 @@ public final class CollectSupportDataTaskTestCase
 
     assertNotNull(t.getLogDurationMillis());
     assertEquals(t.getLogDurationMillis().longValue(), 300_000L);
+
+    assertNotNull(t.getLogFileHeadCollectionSizeKB());
+    assertEquals(t.getLogFileHeadCollectionSizeKB().intValue(), 123);
+
+    assertNotNull(t.getLogFileTailCollectionSizeKB());
+    assertEquals(t.getLogFileTailCollectionSizeKB().intValue(), 456);
 
     assertNotNull(t.getComment());
     assertEquals(t.getComment(), "foo");

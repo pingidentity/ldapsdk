@@ -250,16 +250,16 @@ public final class TimeWindowCollectSupportDataLogCaptureWindow
 
 
   /**
-   * Decodes the provided ASN.1 element as a tool-default collect support data
+   * Decodes the provided ASN.1 element as a time window collect support data
    * log capture window object.
    *
    * @param  e  The ASN.1 element to be decoded.  It must not be {@code null}.
    *
-   * @return  The tool-default collect support data log capture window object
+   * @return  The time window collect support data log capture window object
    *          that was decoded.
    *
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a valid tool-default collect support data log
+   *                         a valid time window collect support data log
    *                         capture window object.
    */
   static TimeWindowCollectSupportDataLogCaptureWindow

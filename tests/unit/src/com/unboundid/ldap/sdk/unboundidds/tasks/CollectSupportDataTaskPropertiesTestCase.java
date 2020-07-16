@@ -92,6 +92,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -170,6 +174,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -238,6 +246,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -304,6 +316,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -383,6 +399,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -451,6 +471,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -517,6 +541,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -596,6 +624,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -663,6 +695,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -732,6 +768,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -798,6 +838,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -877,6 +921,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -945,6 +993,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getTaskID());
@@ -1006,6 +1058,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -1073,6 +1129,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -1152,6 +1212,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -1219,6 +1283,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -1288,6 +1356,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -1354,6 +1426,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -1433,6 +1509,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -1500,6 +1580,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -1569,6 +1653,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -1635,6 +1723,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -1714,6 +1806,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -1781,6 +1877,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -1850,6 +1950,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -1916,6 +2020,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -1995,6 +2103,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -2066,6 +2178,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
       assertNull(p.getLogDurationMillis());
 
+      assertNull(p.getLogFileHeadCollectionSizeKB());
+
+      assertNull(p.getLogFileTailCollectionSizeKB());
+
       assertNull(p.getComment());
 
       assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -2133,6 +2249,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -2212,6 +2332,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -2279,6 +2403,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -2348,6 +2476,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -2414,6 +2546,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -2493,6 +2629,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -2560,6 +2700,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -2629,6 +2773,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -2695,6 +2843,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -2774,6 +2926,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -2841,6 +2997,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -2910,6 +3070,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -2976,6 +3140,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -3055,6 +3223,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -3123,6 +3295,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNotNull(p.getLogDurationMillis());
     assertEquals(p.getLogDurationMillis().longValue(), 300_000L);
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -3200,6 +3376,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNotNull(p.getLogDurationMillis());
     assertEquals(p.getLogDurationMillis().longValue(), 300_000L);
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -3266,6 +3446,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -3336,6 +3520,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNotNull(p.getLogDurationMillis());
     assertEquals(p.getLogDurationMillis().longValue(), 3_600_000L);
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -3402,6 +3590,462 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior related to the log file head collection size in
+   * kilobytes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLogFileHeadCollectionSizeKB()
+         throws Exception
+  {
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setLogFileHeadCollectionSizeKB(123);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNotNull(p.getLogFileHeadCollectionSizeKB());
+    assertEquals(p.getLogFileHeadCollectionSizeKB().intValue(), 123);
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setLogFileHeadCollectionSizeKB(null);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior related to the log file tail collection size in
+   * kilobytes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLogFileTailCollectionSizeKB()
+         throws Exception
+  {
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setLogFileTailCollectionSizeKB(456);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNotNull(p.getLogFileTailCollectionSizeKB());
+    assertEquals(p.getLogFileTailCollectionSizeKB().intValue(), 456);
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setLogFileTailCollectionSizeKB(null);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -3481,6 +4125,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -3547,6 +4195,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNotNull(p.getComment());
     assertEquals(p.getComment(), "foo");
@@ -3615,6 +4267,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -3695,6 +4351,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -3761,6 +4421,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -3829,6 +4493,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -3909,6 +4577,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -3975,6 +4647,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -4053,6 +4729,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -4123,6 +4803,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -4189,6 +4873,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -4259,6 +4947,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -4338,6 +5030,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -4404,6 +5100,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -4472,6 +5172,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -4551,6 +5255,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -4619,6 +5327,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -4686,6 +5398,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -4765,6 +5481,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -4831,6 +5551,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -4900,6 +5624,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -4966,6 +5694,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -5034,6 +5766,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -5113,6 +5849,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -5183,6 +5923,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
       assertNull(p.getLogDurationMillis());
 
+      assertNull(p.getLogFileHeadCollectionSizeKB());
+
+      assertNull(p.getLogFileTailCollectionSizeKB());
+
       assertNull(p.getComment());
 
       assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -5251,6 +5995,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -5330,6 +6078,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -5397,6 +6149,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -5467,6 +6223,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -5533,6 +6293,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -5602,6 +6366,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -5681,6 +6449,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -5748,6 +6520,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -5818,6 +6594,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -5884,6 +6664,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -5953,6 +6737,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -6032,6 +6820,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -6099,6 +6891,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -6169,6 +6965,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -6235,6 +7035,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -6304,6 +7108,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -6383,6 +7191,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -6450,6 +7262,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -6520,6 +7336,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -6586,6 +7406,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -6655,6 +7479,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -6734,6 +7562,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -6800,6 +7632,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -6869,6 +7705,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -6936,6 +7776,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -7015,6 +7859,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -7081,6 +7929,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -7150,6 +8002,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -7217,6 +8073,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -7296,6 +8156,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -7362,6 +8226,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -7431,6 +8299,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -7497,6 +8369,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getLogDuration());
 
     assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
 
     assertNull(p.getComment());
 
@@ -7576,6 +8452,10 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getLogDurationMillis());
 
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
     assertNull(p.getComment());
 
     assertNull(p.getRetainPreviousSupportDataArchiveCount());
@@ -7628,6 +8508,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     p.setReportIntervalSeconds(3);
     p.setJStackCount(4);
     p.setLogDuration("5 minutes");
+    p.setLogFileHeadCollectionSizeKB(123);
+    p.setLogFileTailCollectionSizeKB(456);
     p.setComment("foo");
     p.setRetainPreviousSupportDataArchiveCount(5);
     p.setRetainPreviousSupportDataArchiveAge("1 week");
@@ -7688,6 +8570,12 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNotNull(p.getLogDurationMillis());
     assertEquals(p.getLogDurationMillis().longValue(), 300_000L);
+
+    assertNotNull(p.getLogFileHeadCollectionSizeKB());
+    assertEquals(p.getLogFileHeadCollectionSizeKB().intValue(), 123);
+
+    assertNotNull(p.getLogFileTailCollectionSizeKB());
+    assertEquals(p.getLogFileTailCollectionSizeKB().intValue(), 456);
 
     assertNotNull(p.getComment());
     assertEquals(p.getComment(), "foo");

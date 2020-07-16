@@ -122,6 +122,30 @@ public final class CollectSupportDataLogCaptureWindowTestCase
 
 
   /**
+   * Tests the behavior when trying to decode a head and tail size log capture
+   * window.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeHeadAndTailSize()
+         throws Exception
+  {
+    final CollectSupportDataLogCaptureWindow w =
+         CollectSupportDataLogCaptureWindow.decode(
+              new HeadAndTailSizeCollectSupportDataLogCaptureWindow(123,
+                   456).encode());
+
+    assertNotNull(w);
+
+    assertTrue(w instanceof  HeadAndTailSizeCollectSupportDataLogCaptureWindow);
+
+    assertNotNull(w.toString());
+  }
+
+
+
+  /**
    * Tests the behavior when trying to decode a malformed element.
    *
    * @throws  Exception  If an unexpected problem occurs.

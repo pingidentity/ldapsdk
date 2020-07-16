@@ -113,6 +113,9 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *           timeWindow                      [2] SEQUENCE {
  *                startTime                       OCTET STRING,
  *                endTime                         OCTET STRING OPTIONAL },
+ *           headAndTailSize                 [3] SEQUENCE {
+ *                headSizeKB                      [0] INTEGER OPTIONAL,
+ *                tailSizeKB                      [1] INTEGER OPTIONAL },
  *           ... } DEFAULT default,
  *      comment                         [12] OCTET STRING OPTIONAL,
  *      proxyToServer                   [13] SEQUENCE OF {

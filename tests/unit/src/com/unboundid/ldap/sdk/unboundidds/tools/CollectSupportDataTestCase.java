@@ -787,6 +787,45 @@ public final class CollectSupportDataTestCase
 
 
   /**
+   * Tests the behavior when trying to invoke the extended operation with valid
+   * log file head and tail sizes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testInvokeExtendedOperationLogFileHeadAndTailSizes()
+         throws Exception
+  {
+    final InMemoryDirectoryServer ds = getTestDS();
+
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ByteArrayOutputStream err = new ByteArrayOutputStream();
+    final CollectSupportData tool = new CollectSupportData(out, err);
+
+    final File outputFile = createTempFile();
+    assertTrue(outputFile.delete());
+
+    final long now = System.currentTimeMillis();
+    final long tenMinutesAgo = now - 600_000L;
+
+    final ResultCode resultCode = tool.runTool(
+         "--useRemoteServer",
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--outputPath", outputFile.getAbsolutePath(),
+         "--logFileHeadCollectionSizeKB", "123",
+         "--logFileTailCollectionSizeKB", "456");
+
+    assertEquals(resultCode, EXTOP_NOT_SUPPORTED_BY_IN_MEMORY_DS);
+
+    assertTrue(tool.defaultToPromptForBindPassword());
+
+    assertNotNull(tool.getToolCompletionMessage());
+  }
+
+
+
+  /**
    * Tests the behavior when trying to invoke the tool in local mode without
    * any arguments.
    *
@@ -1024,6 +1063,36 @@ public final class CollectSupportDataTestCase
 
     final ResultCode resultCode = tool.runTool(
          "--logTimeRange", "malformed");
+
+    assertEquals(resultCode, LOCAL_MODE_NOT_AVAILABLE);
+
+    assertTrue(tool.defaultToPromptForBindPassword());
+
+    assertNotNull(tool.getToolCompletionMessage());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to invoke the tool in local mode with
+   * head and tail log file capture sizes.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLocalModeLogFileHeadAndTailSizes()
+         throws Exception
+  {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final ByteArrayOutputStream err = new ByteArrayOutputStream();
+    final CollectSupportData tool = new CollectSupportData(out, err);
+
+    final long now = System.currentTimeMillis();
+    final long tenMinutesAgo = now - 600_000L;
+
+    final ResultCode resultCode = tool.runTool(
+         "--logFileHeadCollectionSizeKB", "123",
+         "--logFileTailCollectionSizeKB", "456");
 
     assertEquals(resultCode, LOCAL_MODE_NOT_AVAILABLE);
 

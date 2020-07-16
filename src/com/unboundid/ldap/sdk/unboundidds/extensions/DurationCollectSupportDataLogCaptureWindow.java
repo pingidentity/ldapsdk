@@ -127,17 +127,17 @@ public final class DurationCollectSupportDataLogCaptureWindow
 
 
   /**
-   * Decodes the provided ASN.1 element as a tool-default collect support data
-   * log capture window object.
+   * Decodes the provided ASN.1 element as a duration collect support data log
+   * capture window object.
    *
    * @param  e  The ASN.1 element to be decoded.  It must not be {@code null}.
    *
-   * @return  The tool-default collect support data log capture window object
-   *          that was decoded.
+   * @return  The duration collect support data log capture window object that
+   *          was decoded.
    *
    * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a valid tool-default collect support data log
-   *                         capture window object.
+   *                         a valid duration collect support data log capture
+   *                         window object.
    */
   static DurationCollectSupportDataLogCaptureWindow
               decodeInternal(final ASN1Element e)

@@ -358,7 +358,8 @@ public final class CollectSupportDataExtendedRequestTestCase
                    System.currentTimeMillis()),
               new TimeWindowCollectSupportDataLogCaptureWindow(
                    (System.currentTimeMillis() - 600_000L),
-                   System.currentTimeMillis())))
+                   System.currentTimeMillis()),
+              new HeadAndTailSizeCollectSupportDataLogCaptureWindow(123, 456)))
     {
       properties.setLogCaptureWindow(lcw);
 

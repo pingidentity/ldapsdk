@@ -70,6 +70,8 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             DurationCollectSupportDataLogCaptureWindow;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
+            HeadAndTailSizeCollectSupportDataLogCaptureWindow;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionPostConnectProcessor;
@@ -181,6 +183,8 @@ public final class CollectSupportData
   private FileArgument outputPathArg;
   private FileArgument passphraseFileArg;
   private IntegerArgument jstackCountArg;
+  private IntegerArgument logFileHeadCollectionSizeKBArg;
+  private IntegerArgument logFileTailCollectionSizeKBArg;
   private IntegerArgument reportCountArg;
   private IntegerArgument reportIntervalSecondsArg;
   private IntegerArgument pidArg;
@@ -268,6 +272,8 @@ public final class CollectSupportData
     sequentialArg = null;
     useRemoteServerArg = null;
     logDurationArg = null;
+    logFileHeadCollectionSizeKBArg = null;
+    logFileTailCollectionSizeKBArg = null;
     jstackCountArg = null;
     outputPathArg = null;
     reportCountArg = null;
@@ -577,6 +583,44 @@ public final class CollectSupportData
     logDurationArg.setArgumentGroupName(INFO_CSD_ARG_GROUP_COLLECTION.get());
     parser.addArgument(logDurationArg);
 
+    logFileHeadCollectionSizeKBArg = new IntegerArgument(null,
+         "logFileHeadCollectionSizeKB", false, 1,
+         INFO_CSD_ARG_PLACEHOLDER_SIZE_KB.get(),
+         INFO_CSD_ARG_DESC_LOG_HEAD_SIZE_KB.get(), 0, Integer.MAX_VALUE);
+    logFileHeadCollectionSizeKBArg.addLongIdentifier(
+         "log-file-head-collection-size-kb", true);
+    logFileHeadCollectionSizeKBArg.addLongIdentifier("logFileHeadSizeKB", true);
+    logFileHeadCollectionSizeKBArg.addLongIdentifier("log-file-head-size-kb",
+         true);
+    logFileHeadCollectionSizeKBArg.addLongIdentifier("logHeadCollectionSizeKB",
+         true);
+    logFileHeadCollectionSizeKBArg.addLongIdentifier(
+         "log-head-collection-size-kb", true);
+    logFileHeadCollectionSizeKBArg.addLongIdentifier("logHeadSizeKB", true);
+    logFileHeadCollectionSizeKBArg.addLongIdentifier("log-head-size-kb", true);
+    logFileHeadCollectionSizeKBArg.setArgumentGroupName(
+         INFO_CSD_ARG_GROUP_COLLECTION.get());
+    parser.addArgument(logFileHeadCollectionSizeKBArg);
+
+    logFileTailCollectionSizeKBArg = new IntegerArgument(null,
+         "logFileTailCollectionSizeKB", false, 1,
+         INFO_CSD_ARG_PLACEHOLDER_SIZE_KB.get(),
+         INFO_CSD_ARG_DESC_LOG_TAIL_SIZE_KB.get(), 0, Integer.MAX_VALUE);
+    logFileTailCollectionSizeKBArg.addLongIdentifier(
+         "log-file-tail-collection-size-kb", true);
+    logFileTailCollectionSizeKBArg.addLongIdentifier("logFileTailSizeKB", true);
+    logFileTailCollectionSizeKBArg.addLongIdentifier("log-file-tail-size-kb",
+         true);
+    logFileTailCollectionSizeKBArg.addLongIdentifier("logTailCollectionSizeKB",
+         true);
+    logFileTailCollectionSizeKBArg.addLongIdentifier(
+         "log-tail-collection-size-kb", true);
+    logFileTailCollectionSizeKBArg.addLongIdentifier("logTailSizeKB", true);
+    logFileTailCollectionSizeKBArg.addLongIdentifier("log-tail-size-kb", true);
+    logFileTailCollectionSizeKBArg.setArgumentGroupName(
+         INFO_CSD_ARG_GROUP_COLLECTION.get());
+    parser.addArgument(logFileTailCollectionSizeKBArg);
+
     pidArg = new IntegerArgument(null, "pid", false, 0,
          INFO_CSD_ARG_PLACEHOLDER_PID.get(), INFO_CSD_ARG_DESC_PID.get());
     pidArg.setArgumentGroupName(INFO_CSD_ARG_GROUP_COLLECTION.get());
@@ -687,6 +731,14 @@ public final class CollectSupportData
 
     // The --logTimeRange and --logDuration arguments cannot be used together.
     parser.addExclusiveArgumentSet(logTimeRangeArg, logDurationArg);
+
+    // Neither the --logFileHeadCollectionSizeKB argument nor the
+    // --logFileTailCollectionSizeKB argument can be used in conjunction with
+    // either the --logTimeRange or --logDuration argument.
+    parser.addExclusiveArgumentSet(logFileHeadCollectionSizeKBArg,
+         logTimeRangeArg, logDurationArg);
+    parser.addExclusiveArgumentSet(logFileTailCollectionSizeKBArg,
+         logTimeRangeArg, logDurationArg);
 
     // The --generatePassphrase argument can only be used if both the
     // --encrypt and --passphraseFile arguments are provided.
@@ -1058,6 +1110,14 @@ public final class CollectSupportData
              new DurationCollectSupportDataLogCaptureWindow(
                   logDurationArg.getValue(TimeUnit.MILLISECONDS)));
       }
+      else if (logFileHeadCollectionSizeKBArg.isPresent() ||
+           logFileTailCollectionSizeKBArg.isPresent())
+      {
+        properties.setLogCaptureWindow(
+             new HeadAndTailSizeCollectSupportDataLogCaptureWindow(
+                  logFileHeadCollectionSizeKBArg.getValue(),
+                  logFileTailCollectionSizeKBArg.getValue()));
+      }
 
       if (commentArg.isPresent())
       {
@@ -1419,6 +1479,18 @@ public final class CollectSupportData
       argList.add("--duration");
       argList.add(DurationArgument.nanosToDuration(
            logDurationArg.getValue(TimeUnit.NANOSECONDS)));
+    }
+
+    if (logFileHeadCollectionSizeKBArg.isPresent())
+    {
+      argList.add("--logFileHeadCollectionSizeKB");
+      argList.add(String.valueOf(logFileHeadCollectionSizeKBArg.getValue()));
+    }
+
+    if (logFileTailCollectionSizeKBArg.isPresent())
+    {
+      argList.add("--logFileTailCollectionSizeKB");
+      argList.add(String.valueOf(logFileTailCollectionSizeKBArg.getValue()));
     }
 
     if (archiveExtensionSourceArg.isPresent())

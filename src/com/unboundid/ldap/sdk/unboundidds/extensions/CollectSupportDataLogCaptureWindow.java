@@ -84,6 +84,11 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *     the support data archive should include log messages that fall between
  *     specified start and end times.
  *   </LI>
+ *   <LI>
+ *     {@link HeadAndTailSizeCollectSupportDataLogCaptureWindow} -- Indicates
+ *     that the support data archive should include a specified amount of data
+ *     from the beginning and end of each log file.
+ *   </LI>
  * </UL>
  *
  * @see  CollectSupportDataExtendedRequest
@@ -117,9 +122,17 @@ public abstract class CollectSupportDataLogCaptureWindow
 
 
   /**
+   * The BER type that should be used for head and tail size log capture window
+   * objects.
+   */
+  protected static final byte TYPE_HEAD_AND_TAIL_SIZE = (byte) 0xA3;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -2768992147887456196L;
+  private static final long serialVersionUID = 6491461694423982840L;
 
 
 
@@ -148,6 +161,9 @@ public abstract class CollectSupportDataLogCaptureWindow
         return DurationCollectSupportDataLogCaptureWindow.decodeInternal(e);
       case TYPE_TIME_WINDOW:
         return TimeWindowCollectSupportDataLogCaptureWindow.decodeInternal(e);
+      case TYPE_HEAD_AND_TAIL_SIZE:
+        return HeadAndTailSizeCollectSupportDataLogCaptureWindow.decodeInternal(
+             e);
       default:
         throw new LDAPException(ResultCode.DECODING_ERROR,
              ERR_CSD_LOG_WINDOW_CANNOT_DECODE.get(

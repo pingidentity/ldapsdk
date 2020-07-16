@@ -75,7 +75,7 @@ public final class CollectSupportDataTaskProperties
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -3920803030511838640L;
+  private static final long serialVersionUID = 1424492798476859173L;
 
 
 
@@ -121,6 +121,13 @@ public final class CollectSupportDataTaskProperties
 
   // The number of jstacks to include in the support data archive.
   private Integer jstackCount;
+
+  // The amount of data in kilobytes to capture from the beginning of each log
+  // file.
+  private Integer logFileHeadCollectionSizeKB;
+
+  // The amount of data in kilobytes to capture from the end of each log file.
+  private Integer logFileTailCollectionSizeKB;
 
   // The report count to use for sampled metrics.
   private Integer reportCount;
@@ -188,6 +195,8 @@ public final class CollectSupportDataTaskProperties
     scheduledStartTime = null;
     failedDependencyAction = null;
     jstackCount = null;
+    logFileHeadCollectionSizeKB = null;
+    logFileTailCollectionSizeKB = null;
     reportCount = null;
     reportIntervalSeconds = null;
     retainPreviousSupportDataArchiveCount = null;
@@ -227,6 +236,8 @@ public final class CollectSupportDataTaskProperties
     scheduledStartTime = properties.getScheduledStartTime();
     failedDependencyAction = properties.getFailedDependencyAction();
     jstackCount = properties.getJStackCount();
+    logFileHeadCollectionSizeKB = properties.getLogFileHeadCollectionSizeKB();
+    logFileTailCollectionSizeKB = properties.getLogFileTailCollectionSizeKB();
     reportCount = properties.getReportCount();
     reportIntervalSeconds = properties.getReportIntervalSeconds();
     retainPreviousSupportDataArchiveCount =
@@ -268,6 +279,8 @@ public final class CollectSupportDataTaskProperties
     scheduledStartTime = task.getScheduledStartTime();
     failedDependencyAction = task.getFailedDependencyAction();
     jstackCount = task.getJStackCount();
+    logFileHeadCollectionSizeKB = task.getLogFileHeadCollectionSizeKB();
+    logFileTailCollectionSizeKB = task.getLogFileTailCollectionSizeKB();
     reportCount = task.getReportCount();
     reportIntervalSeconds = task.getReportIntervalSeconds();
     retainPreviousSupportDataArchiveCount =
@@ -815,6 +828,84 @@ public final class CollectSupportDataTaskProperties
       logDuration = DurationArgument.nanosToDuration(
            TimeUnit.MILLISECONDS.toNanos(logDurationMillis));
     }
+  }
+
+
+
+  /**
+   * Retrieves the amount of data in kilobytes to capture from the beginning of
+   * each log file that should be included in the support data archive.
+   *
+   * @return  The amount of data in kilobytes to capture from the beginning of
+   *          each log file that should be included in the support data archive,
+   *          or {@code null} if the property should not be specified when the
+   *          task is created (in which case the server will determine an
+   *          appropriate amount of log content to include).
+   */
+  public Integer getLogFileHeadCollectionSizeKB()
+  {
+    return logFileHeadCollectionSizeKB;
+  }
+
+
+
+  /**
+   * Specifies the amount of data in kilobytes to capture from the beginning of
+   * each log file that should be included in the support data archive.
+   *
+   * @param  logFileHeadCollectionSizeKB  The amount of data in kilobytes to
+   *                                      capture from the beginning of each log
+   *                                      file that should be included in the
+   *                                      support data archive.  This may be
+   *                                      {@code null} if the property should
+   *                                      not be specified when the task is
+   *                                      created (in which case the server will
+   *                                      determine an appropriate amount of log
+   *                                      content to include).
+   */
+  public void setLogFileHeadCollectionSizeKB(
+                   final Integer logFileHeadCollectionSizeKB)
+  {
+    this.logFileHeadCollectionSizeKB = logFileHeadCollectionSizeKB;
+  }
+
+
+
+  /**
+   * Retrieves the amount of data in kilobytes to capture from the end of each
+   * log file that should be included in the support data archive.
+   *
+   * @return  The amount of data in kilobytes to capture from the end of each
+   *          log file that should be included in the support data archive, or
+   *          {@code null} if the property should not be specified when the task
+   *          is created (in which case the server will determine an
+   *          appropriate amount of log content to include).
+   */
+  public Integer getLogFileTailCollectionSizeKB()
+  {
+    return logFileTailCollectionSizeKB;
+  }
+
+
+
+  /**
+   * Specifies the amount of data in kilobytes to capture from the end of each
+   * log file that should be included in the support data archive.
+   *
+   * @param  logFileTailCollectionSizeKB  The amount of data in kilobytes to
+   *                                      capture from the end of each log file
+   *                                      that should be included in the
+   *                                      support data archive.  This may be
+   *                                      {@code null} if the property should
+   *                                      not be specified when the task is
+   *                                      created (in which case the server will
+   *                                      determine an appropriate amount of log
+   *                                      content to include).
+   */
+  public void setLogFileTailCollectionSizeKB(
+                   final Integer logFileTailCollectionSizeKB)
+  {
+    this.logFileTailCollectionSizeKB = logFileTailCollectionSizeKB;
   }
 
 
@@ -1459,6 +1550,10 @@ public final class CollectSupportDataTaskProperties
     appendNameValuePair(buffer, "reportIntervalSeconds", reportIntervalSeconds);
     appendNameValuePair(buffer, "jstackCount", jstackCount);
     appendNameValuePair(buffer, "logDuration", logDuration);
+    appendNameValuePair(buffer, "logFileHeadCollectionSizeKB",
+         logFileHeadCollectionSizeKB);
+    appendNameValuePair(buffer, "logFileTailCollectionSizeKB",
+         logFileTailCollectionSizeKB);
     appendNameValuePair(buffer, "comment", comment);
     appendNameValuePair(buffer, "retainPreviousSupportDataArchiveCount",
          retainPreviousSupportDataArchiveCount);

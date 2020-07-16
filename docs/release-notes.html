@@ -167,6 +167,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated support for the collect-support-data functionality offered by the Ping
+                  Identity Directory Server to include the ability to specify the amount of data
+                  to capture from the beginning and end of each log file.  This includes the
+                  collect-support-data command-line tool as well as the administrative task and
+                  extended operation that can be used to invoke the tool.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed an issue with the ldifsearch, ldifmodify, and ldif-diff tools that could
                   arise if they were run in a manner that would case the output to be both
                   compressed and encrypted.  The data should have been compressed before it was

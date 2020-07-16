@@ -117,6 +117,9 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
  *       for log messages to be included in the support data archive.  If this
  *       is not provided, the server will automatically select the amount of
  *       log content to include.</LI>
+ *   <LI>The amount of data in kilobytes to capture from the beginning or end of
+ *       each log file.  If this is not provided, the server will automatically
+ *       select the amount of log content to include.</LI>
  *   <LI>An optional comment to include in the support data archive.</LI>
  * </UL>
  */
@@ -210,6 +213,26 @@ public final class CollectSupportDataTask
    * covered by the log data included in the support data archive.
    */
   public static final String ATTR_LOG_DURATION = ATTR_PREFIX + "log-duration";
+
+
+
+  /**
+   * The name of the attribute used to specify the amount of data in kilobytes
+   * to capture from the beginning of each log file included in the support data
+   * archive.
+   */
+  public static final String ATTR_LOG_FILE_HEAD_COLLECTION_SIZE_KB =
+       ATTR_PREFIX + "log-file-head-collection-size-kb";
+
+
+
+  /**
+   * The name of the attribute used to specify the amount of data in kilobytes
+   * to capture from the end of each log file included in the support data
+   * archive.
+   */
+  public static final String ATTR_LOG_FILE_TAIL_COLLECTION_SIZE_KB =
+       ATTR_PREFIX + "log-file-tail-collection-size-kb";
 
 
 
@@ -371,6 +394,28 @@ public final class CollectSupportDataTask
 
 
   /**
+   * The task property that will be used for the log head size.
+   */
+  static final TaskProperty PROPERTY_LOG_FILE_HEAD_COLLECTION_SIZE_KB =
+     new TaskProperty(ATTR_LOG_FILE_HEAD_COLLECTION_SIZE_KB,
+          INFO_CSD_DISPLAY_NAME_LOG_HEAD_SIZE_KB.get(),
+          INFO_CSD_DESCRIPTION_LOG_HEAD_SIZE_KB.get(),
+          Long.class, false, false, false);
+
+
+
+  /**
+   * The task property that will be used for the log tail size.
+   */
+  static final TaskProperty PROPERTY_LOG_FILE_TAIL_COLLECTION_SIZE_KB =
+     new TaskProperty(ATTR_LOG_FILE_TAIL_COLLECTION_SIZE_KB,
+          INFO_CSD_DISPLAY_NAME_LOG_TAIL_SIZE_KB.get(),
+          INFO_CSD_DESCRIPTION_LOG_TAIL_SIZE_KB.get(),
+          Long.class, false, false, false);
+
+
+
+  /**
    * The task property that will be used for the output path.
    */
   static final TaskProperty PROPERTY_OUTPUT_PATH =
@@ -461,7 +506,7 @@ public final class CollectSupportDataTask
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -2568906018686907596L;
+  private static final long serialVersionUID = -3414981969721886291L;
 
 
 
@@ -488,6 +533,13 @@ public final class CollectSupportDataTask
 
   // The number of jstacks to include in the support data archive.
   private final Integer jstackCount;
+
+  // The amount of data in kilobytes to capture from the beginning of each log
+  // file.
+  private final Integer logFileHeadCollectionSizeKB;
+
+  // The amount of data in kilobytes to capture from the end of each log file.
+  private final Integer logFileTailCollectionSizeKB;
 
   // The report count to use for sampled metrics.
   private final Integer reportCount;
@@ -553,6 +605,8 @@ public final class CollectSupportDataTask
     useSequentialMode = properties.getUseSequentialMode();
     securityLevel = properties.getSecurityLevel();
     jstackCount = properties.getJStackCount();
+    logFileHeadCollectionSizeKB = properties.getLogFileHeadCollectionSizeKB();
+    logFileTailCollectionSizeKB = properties.getLogFileTailCollectionSizeKB();
     reportCount = properties.getReportCount();
     reportIntervalSeconds = properties.getReportIntervalSeconds();
     retainPreviousSupportDataArchiveCount =
@@ -592,6 +646,10 @@ public final class CollectSupportDataTask
          entry.getAttributeValueAsBoolean(ATTR_USE_SEQUENTIAL_MODE);
 
     jstackCount = entry.getAttributeValueAsInteger(ATTR_JSTACK_COUNT);
+    logFileHeadCollectionSizeKB = entry.getAttributeValueAsInteger(
+         ATTR_LOG_FILE_HEAD_COLLECTION_SIZE_KB);
+    logFileTailCollectionSizeKB = entry.getAttributeValueAsInteger(
+         ATTR_LOG_FILE_TAIL_COLLECTION_SIZE_KB);
     reportCount = entry.getAttributeValueAsInteger(ATTR_REPORT_COUNT);
     reportIntervalSeconds =
          entry.getAttributeValueAsInteger(ATTR_REPORT_INTERVAL_SECONDS);
@@ -684,6 +742,8 @@ public final class CollectSupportDataTask
     Boolean includeSource = null;
     Boolean sequentialMode = null;
     CollectSupportDataSecurityLevel secLevel = null;
+    Integer logHeadSizeKB = null;
+    Integer logTailSizeKB = null;
     Integer numJStacks = null;
     Integer numReports = null;
     Integer reportIntervalSecs = null;
@@ -732,6 +792,16 @@ public final class CollectSupportDataTask
       {
         numJStacks = parseLong(p, values,
              getIntegerAsLong(numJStacks)).intValue();
+      }
+      else if (attrName.equals(ATTR_LOG_FILE_HEAD_COLLECTION_SIZE_KB))
+      {
+        logHeadSizeKB = parseLong(p, values,
+             getIntegerAsLong(logHeadSizeKB)).intValue();
+      }
+      else if (attrName.equals(ATTR_LOG_FILE_TAIL_COLLECTION_SIZE_KB))
+      {
+        logTailSizeKB = parseLong(p, values,
+             getIntegerAsLong(logTailSizeKB)).intValue();
       }
       else if (attrName.equals(ATTR_REPORT_COUNT))
       {
@@ -801,6 +871,8 @@ public final class CollectSupportDataTask
     useSequentialMode = sequentialMode;
     securityLevel = secLevel;
     jstackCount = numJStacks;
+    logFileHeadCollectionSizeKB = logHeadSizeKB;
+    logFileTailCollectionSizeKB = logTailSizeKB;
     reportCount = numReports;
     reportIntervalSeconds = reportIntervalSecs;
     retainPreviousSupportDataArchiveCount = retainCount;
@@ -1089,6 +1161,40 @@ public final class CollectSupportDataTask
 
 
   /**
+   * Retrieves the amount of data in kilobytes to capture from the beginning of
+   * each log file that should be included in the support data archive.
+   *
+   * @return  The amount of data in kilobytes to capture from the beginning of
+   *          each log file that should be included in the support data archive,
+   *          or {@code null} if the property should not be specified when the
+   *          task is created (in which case the server will determine an
+   *          appropriate amount of log content to include).
+   */
+  public Integer getLogFileHeadCollectionSizeKB()
+  {
+    return logFileHeadCollectionSizeKB;
+  }
+
+
+
+  /**
+   * Retrieves the amount of data in kilobytes to capture from the end of each
+   * log file that should be included in the support data archive.
+   *
+   * @return  The amount of data in kilobytes to capture from the end of each
+   *          log file that should be included in the support data archive, or
+   *          {@code null} if the property should not be specified when the task
+   *          is created (in which case the server will determine an
+   *          appropriate amount of log content to include).
+   */
+  public Integer getLogFileTailCollectionSizeKB()
+  {
+    return logFileTailCollectionSizeKB;
+  }
+
+
+
+  /**
    * Retrieves a parsed value of the log duration in milliseconds.
    *
    * @return  A parsed value of the log duration in milliseconds or {@code null}
@@ -1280,6 +1386,18 @@ public final class CollectSupportDataTask
       attrList.add(new Attribute(ATTR_LOG_DURATION, logDuration));
     }
 
+    if (logFileHeadCollectionSizeKB != null)
+    {
+      attrList.add(new Attribute(ATTR_LOG_FILE_HEAD_COLLECTION_SIZE_KB,
+           String.valueOf(logFileHeadCollectionSizeKB)));
+    }
+
+    if (logFileTailCollectionSizeKB != null)
+    {
+      attrList.add(new Attribute(ATTR_LOG_FILE_TAIL_COLLECTION_SIZE_KB,
+           String.valueOf(logFileTailCollectionSizeKB)));
+    }
+
     if (comment != null)
     {
       attrList.add(new Attribute(ATTR_COMMENT, comment));
@@ -1321,6 +1439,8 @@ public final class CollectSupportDataTask
          PROPERTY_REPORT_COUNT,
          PROPERTY_REPORT_INTERVAL_SECONDS,
          PROPERTY_LOG_DURATION,
+         PROPERTY_LOG_FILE_HEAD_COLLECTION_SIZE_KB,
+         PROPERTY_LOG_FILE_TAIL_COLLECTION_SIZE_KB,
          PROPERTY_COMMENT,
          PROPERTY_RETAIN_PREVIOUS_ARCHIVE_COUNT,
          PROPERTY_RETAIN_PREVIOUS_ARCHIVE_AGE));
@@ -1408,6 +1528,20 @@ public final class CollectSupportDataTask
     {
       props.put(PROPERTY_LOG_DURATION,
            Collections.<Object>singletonList(logDuration));
+    }
+
+    if (logFileHeadCollectionSizeKB != null)
+    {
+      props.put(PROPERTY_LOG_FILE_HEAD_COLLECTION_SIZE_KB,
+           Collections.<Object>singletonList(
+                logFileHeadCollectionSizeKB.longValue()));
+    }
+
+    if (logFileTailCollectionSizeKB != null)
+    {
+      props.put(PROPERTY_LOG_FILE_TAIL_COLLECTION_SIZE_KB,
+           Collections.<Object>singletonList(
+                logFileTailCollectionSizeKB.longValue()));
     }
 
     if (comment != null)
