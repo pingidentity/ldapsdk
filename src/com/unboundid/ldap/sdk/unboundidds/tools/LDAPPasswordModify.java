@@ -682,7 +682,7 @@ public final class LDAPPasswordModify
 
     // Authorization identity arguments.
     userIdentity = new StringArgument('a', "userIdentity", false, 1,
-         INFO_PWMOD_ARG_PLACEHOLDER_AUTHZID.get(),
+         INFO_PWMOD_ARG_PLACEHOLDER_DN_OR_AUTHZID.get(),
          INFO_PWMOD_ARG_DESC_USER_IDENTITY.get());
     userIdentity.addLongIdentifier("user-identity", true);
     userIdentity.addLongIdentifier("userDN", true);
