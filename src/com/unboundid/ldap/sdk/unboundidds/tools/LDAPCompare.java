@@ -649,20 +649,20 @@ public final class LDAPCompare
     proxyAs = new StringArgument('Y', "proxyAs", false, 1,
          INFO_LDAPCOMPARE_ARG_PLACEHOLDER_AUTHZ_ID.get(),
          INFO_LDAPCOMPARE_ARG_DESCRIPTION_PROXY_AS.get());
-    proxyAs.addLongIdentifier("proxy-as");
-    proxyAs.addLongIdentifier("proxyV2As");
-    proxyAs.addLongIdentifier("proxy-v2-as");
-    proxyAs.addLongIdentifier("proxyV2");
-    proxyAs.addLongIdentifier("proxy-v2");
+    proxyAs.addLongIdentifier("proxy-as", true);
+    proxyAs.addLongIdentifier("proxyV2As", true);
+    proxyAs.addLongIdentifier("proxy-v2-as", true);
+    proxyAs.addLongIdentifier("proxyV2", true);
+    proxyAs.addLongIdentifier("proxy-v2", true);
     proxyAs.setArgumentGroupName(
          INFO_LDAPCOMPARE_ARG_GROUP_COMPARE_CONTROLS.get());
     parser.addArgument(proxyAs);
 
     proxyV1As = new DNArgument(null, "proxyV1As", false, 1, null,
          INFO_LDAPCOMPARE_ARG_DESCRIPTION_PROXY_V1_AS.get());
-    proxyV1As.addLongIdentifier("proxy-v1-as");
-    proxyV1As.addLongIdentifier("proxyV1");
-    proxyV1As.addLongIdentifier("proxy-v1");
+    proxyV1As.addLongIdentifier("proxy-v1-as", true);
+    proxyV1As.addLongIdentifier("proxyV1", true);
+    proxyV1As.addLongIdentifier("proxy-v1", true);
     proxyV1As.setArgumentGroupName(
          INFO_LDAPCOMPARE_ARG_GROUP_COMPARE_CONTROLS.get());
     parser.addArgument(proxyV1As);

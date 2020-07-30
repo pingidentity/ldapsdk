@@ -839,7 +839,7 @@ public final class LDAPModify
 
     getRecentLoginHistory = new BooleanArgument(null, "getRecentLoginHistory",
          1, INFO_LDAPMODIFY_ARG_DESCRIPTION_GET_RECENT_LOGIN_HISTORY.get());
-    getRecentLoginHistory.addLongIdentifier("get-recent-login-history");
+    getRecentLoginHistory.addLongIdentifier("get-recent-login-history", true);
     getRecentLoginHistory.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getRecentLoginHistory);

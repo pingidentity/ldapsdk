@@ -665,7 +665,7 @@ public final class LDAPDelete
 
     followReferrals = new BooleanArgument(null, "followReferrals", 1,
          INFO_LDAPDELETE_ARG_DESC_FOLLOW_REFERRALS.get());
-    followReferrals.addLongIdentifier("follow-referrals");
+    followReferrals.addLongIdentifier("follow-referrals", true);
     followReferrals.setArgumentGroupName(argGroupOp);
     parser.addArgument(followReferrals);
 

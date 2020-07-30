@@ -691,7 +691,7 @@ public final class ManageCertificates
          "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
          INFO_MANAGE_CERTS_SC_EXPORT_CERT_ARG_FORMAT_DESC.get(),
          exportCertOutputFormatAllowedValues, "PEM");
-    exportCertOutputFormat.addLongIdentifier("outputFormat");
+    exportCertOutputFormat.addLongIdentifier("outputFormat", true);
     exportCertParser.addArgument(exportCertOutputFormat);
 
     final FileArgument exportCertOutputFile = new FileArgument(null,
@@ -902,7 +902,7 @@ public final class ManageCertificates
          "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
          INFO_MANAGE_CERTS_SC_EXPORT_KEY_ARG_FORMAT_DESC.get(),
          exportKeyOutputFormatAllowedValues, "PEM");
-    exportKeyOutputFormat.addLongIdentifier("outputFormat");
+    exportKeyOutputFormat.addLongIdentifier("outputFormat", true);
     exportKeyParser.addArgument(exportKeyOutputFormat);
 
     final FileArgument exportKeyOutputFile = new FileArgument(null,
@@ -1799,7 +1799,7 @@ public final class ManageCertificates
          "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
          INFO_MANAGE_CERTS_SC_GEN_CSR_ARG_FORMAT_DESC.get(),
          genCSROutputFormatAllowedValues, "PEM");
-    genCSROutputFormat.addLongIdentifier("outputFormat");
+    genCSROutputFormat.addLongIdentifier("outputFormat", true);
     genCSRParser.addArgument(genCSROutputFormat);
 
     final FileArgument genCSROutputFile = new FileArgument(null, "output-file",
@@ -2291,7 +2291,7 @@ public final class ManageCertificates
          "output-format", false, 1, INFO_MANAGE_CERTS_PLACEHOLDER_FORMAT.get(),
          INFO_MANAGE_CERTS_SC_SIGN_CSR_ARG_FORMAT_DESC.get(),
          signCSROutputFormatAllowedValues, "PEM");
-    signCSROutputFormat.addLongIdentifier("outputFormat");
+    signCSROutputFormat.addLongIdentifier("outputFormat", true);
     signCSRParser.addArgument(signCSROutputFormat);
 
     final FileArgument signCSRKeystore = new FileArgument(null, "keystore",
