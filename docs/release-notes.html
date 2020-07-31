@@ -14,6 +14,24 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Improved the logic used to validate certificate hostnames.  The previous
+                  implementation handled certificates that used wildcards in hostnames, but only
+                  in the CN attribute of the subject DN or in the dNSName element of a subject
+                  alternative name extension, and only for cases in which the leftmost component
+                  of the hostname was comprised entirely of a wildcard.  It now handles the case
+                  in which the wildcard is combined with additional text, and it also handles
+                  wildcards in hostnames in uniformResourceIndicator elements of a subject
+                  alternative name extension.  It also does a better job of handling IP address
+                  matching in URI elements of the subject alternative name extension or in the CN
+                  attribute of the subject DN.  Further, there is now an option that allows you to
+                  indicate whether to match a hostname against the CN attribute of a certificate
+                  even if that certificate has a subject alternative name extension with at least
+                  one dNSName, iPAddress, or uniformResourceIdentifier element.  Even though this
+                  is not permitted by RFC 6125, some clients may expect this behavior.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed issues in the code used to format strings in the comma-separated values
                   (CSV) format.  Previously, all ASCII control characters and all non-ASCII
                   characters were silently dropped from the output.  They are now included, but

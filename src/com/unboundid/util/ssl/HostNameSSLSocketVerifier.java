@@ -47,16 +47,21 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.security.auth.x500.X500Principal;
 
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.args.IPAddressArgumentValueValidator;
 
 import static com.unboundid.util.ssl.SSLMessages.*;
 
@@ -74,10 +79,54 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 public final class HostNameSSLSocketVerifier
        extends SSLSocketVerifier
 {
+  /**
+   * The name of a system property that can be used to specify the default
+   * behavior that the verifier should exhibit when checking certificates that
+   * contain both a CN attribute in the subject DN and a subject alternative
+   * name extension that contains one or more dNSName,
+   * uniformResourceIdentifier, or iPAddress values. RFC 6125 section 6.4.4
+   * indicates that the CN attribute should not be checked in certificates that
+   * have an appropriate subject alternative name extension, although some
+   * clients may expect CN matching anyway.
+   */
+  public static final String
+       PROPERTY_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT =
+            HostNameSSLSocketVerifier.class.getName() +
+                 ".checkCNWhenSubjectAltNameIsPresent";
+
+
+
+  /**
+   * Indicates whether to check the CN attribute in the peer certificate's
+   * subject DN when that certificate also contains a subject subject
+   * alternative name extension.
+   */
+  static final boolean DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT;
+  static
+  {
+    boolean checkCN = false;
+    final String propValue = StaticUtils.getSystemProperty(
+         PROPERTY_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT);
+    if ((propValue != null) && propValue.equalsIgnoreCase("true"))
+    {
+      checkCN = true;
+    }
+
+    DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT = checkCN;
+  }
+
+
+
   // Indicates whether to allow wildcard certificates which contain an asterisk
   // as the first component of a CN subject attribute or dNSName subjectAltName
   // extension.
   private final boolean allowWildcards;
+
+  // Indicates whether to check the CN attribute in the peer certificate's
+  // subject DN if the certificate also contains a subject alternative name
+  // extension that contains at least dNSName, uniformResourceIdentifier, or
+  // iPAddress value.
+  private final boolean checkCNWhenSubjectAltNameIsPresent;
 
 
 
@@ -85,13 +134,44 @@ public final class HostNameSSLSocketVerifier
    * Creates a new instance of this {@code SSLSocket} verifier.
    *
    * @param  allowWildcards  Indicates whether to allow wildcard certificates
-   *                         which contain an asterisk as the first component of
-   *                         a CN subject attribute or dNSName subjectAltName
-   *                         extension.
+   *                         that contain an asterisk in the leftmost component
+   *                         of a hostname in the dNSName or
+   *                         uniformResourceIdentifier of the subject
+   *                         alternative name extension, or in the CN attribute
+   *                         of the subject DN.
    */
   public HostNameSSLSocketVerifier(final boolean allowWildcards)
   {
+    this(allowWildcards, DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT);
+  }
+
+
+
+  /**
+   * Creates a new instance of this {@code SSLSocket} verifier.
+   *
+   * @param  allowWildcards
+   *              Indicates whether to allow wildcard certificates that contain
+   *              an asterisk in the leftmost component of a hostname in the
+   *              dNSName or uniformResourceIdentifier of the subject
+   *              alternative name extension, or in the CN attribute of the
+   *              subject DN.
+   * @param  checkCNWhenSubjectAltNameIsPresent
+   *              Indicates whether to check the CN attribute in the peer
+   *              certificate's subject DN if the certificate also contains a
+   *              subject alternative name extension that contains at least one
+   *              dNSName, uniformResourceIdentifier, or iPAddress value.  RFC
+   *              6125 section 6.4.4 indicates that the CN attribute should not
+   *              be checked in certificates that have an appropriate subject
+   *              alternative name extension, although some clients may expect
+   *              CN matching anyway.
+   */
+  public HostNameSSLSocketVerifier(final boolean allowWildcards,
+              final boolean checkCNWhenSubjectAltNameIsPresent)
+  {
     this.allowWildcards = allowWildcards;
+    this.checkCNWhenSubjectAltNameIsPresent =
+         checkCNWhenSubjectAltNameIsPresent;
   }
 
 
@@ -126,18 +206,20 @@ public final class HostNameSSLSocketVerifier
              ERR_HOST_NAME_SSL_SOCKET_VERIFIER_NO_SESSION.get(host, port));
       }
 
-      final Certificate[] peerCertificates = sslSession.getPeerCertificates();
-      if ((peerCertificates == null) || (peerCertificates.length == 0))
+      final Certificate[] peerCertificateChain =
+           sslSession.getPeerCertificates();
+      if ((peerCertificateChain == null) || (peerCertificateChain.length == 0))
       {
         throw new LDAPException(ResultCode.CONNECT_ERROR,
              ERR_HOST_NAME_SSL_SOCKET_VERIFIER_NO_PEER_CERTS.get(host, port));
       }
 
-      if (peerCertificates[0] instanceof X509Certificate)
+      if (peerCertificateChain[0] instanceof X509Certificate)
       {
         final StringBuilder certInfo = new StringBuilder();
         if (! certificateIncludesHostname(host,
-             (X509Certificate) peerCertificates[0], allowWildcards, certInfo))
+             (X509Certificate) peerCertificateChain[0], allowWildcards,
+             checkCNWhenSubjectAltNameIsPresent, certInfo))
         {
           throw new LDAPException(ResultCode.CONNECT_ERROR,
                ERR_HOST_NAME_SSL_SOCKET_VERIFIER_HOSTNAME_NOT_FOUND.get(host,
@@ -148,7 +230,7 @@ public final class HostNameSSLSocketVerifier
       {
         throw new LDAPException(ResultCode.CONNECT_ERROR,
              ERR_HOST_NAME_SSL_SOCKET_VERIFIER_PEER_NOT_X509.get(host, port,
-                  peerCertificates[0].getType()));
+                  peerCertificateChain[0].getType()));
       }
     }
     catch (final LDAPException le)
@@ -172,37 +254,155 @@ public final class HostNameSSLSocketVerifier
    * Determines whether the provided certificate contains the specified
    * hostname.
    *
-   * @param  host            The address expected to be found in the provided
-   *                         certificate.
-   * @param  certificate     The peer certificate to be validated.
-   * @param  allowWildcards  Indicates whether to allow wildcard certificates
-   *                         which contain an asterisk as the first component of
-   *                         a CN subject attribute or dNSName subjectAltName
-   *                         extension.
-   * @param  certInfo        A buffer into which information will be provided
-   *                         about the provided certificate.
+   * @param  host
+   *              The address expected to be found in the provided certificate.
+   * @param  certificate
+   *              The peer certificate to be validated.
+   * @param  allowWildcards
+   *              Indicates whether to allow wildcard certificates that contain
+   *              an asterisk in the leftmost component of a hostname in the
+   *              dNSName or uniformResourceIdentifier of the subject
+   *              alternative name extension, or in the CN attribute of the
+   *              subject DN.
+   * @param  checkCNWhenSubjectAltNameIsPresent
+   *              Indicates whether to check the CN attribute in the peer
+   *              certificate's subject DN if the certificate also contains a
+   *              subject alternative name extension that contains at least one
+   *              dNSName, uniformResourceIdentifier, or iPAddress value.  RFC
+   *              6125 section 6.4.4 indicates that the CN attribute should not
+   *              be checked in certificates that have an appropriate subject
+   *              alternative name extension, although some clients may expect
+   *              CN matching anyway.
+   * @param  certInfo
+   *              A buffer into which information will be provided about the
+   *              provided certificate.
    *
    * @return  {@code true} if the expected hostname was found in the
    *          certificate, or {@code false} if not.
    */
   static boolean certificateIncludesHostname(final String host,
-                                             final X509Certificate certificate,
-                                             final boolean allowWildcards,
-                                             final StringBuilder certInfo)
+                      final X509Certificate certificate,
+                      final boolean allowWildcards,
+                      final boolean checkCNWhenSubjectAltNameIsPresent,
+                      final StringBuilder certInfo)
   {
-    final String lowerHost = StaticUtils.toLowerCase(host);
+    // Check to see if the provided hostname is an IP address.
+    InetAddress hostInetAddress = null;
+    if (IPAddressArgumentValueValidator.isValidNumericIPAddress(host))
+    {
+      try
+      {
+        hostInetAddress =
+             LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(host);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
 
-    // First, check the CN from the certificate subject.
-    final String subjectDN =
+
+    // Check to see if the certificate has a subject alternative name extension.
+    // If so, then check its dNSName, uniformResourceLocator, and iPAddress
+    // elements.
+    boolean hasAuthoritativeSubjectAlternativeName = false;
+    try
+    {
+      final Collection<List<?>> subjectAltNames;
+      subjectAltNames = certificate.getSubjectAlternativeNames();
+      if (subjectAltNames != null)
+      {
+        for (final List<?> l : subjectAltNames)
+        {
+          final Integer type = (Integer) l.get(0);
+          switch (type)
+          {
+            case 2: // dNSName
+              final String dnsName = (String) l.get(1);
+              certInfo.append(" dNSName='");
+              certInfo.append(dnsName);
+              certInfo.append('\'');
+
+              if (hostnameMatches(host, dnsName, allowWildcards))
+              {
+                return true;
+              }
+
+              hasAuthoritativeSubjectAlternativeName = true;
+              break;
+
+            case 6: // uniformResourceIdentifier
+              final String uriString = (String) l.get(1);
+              certInfo.append(" uniformResourceIdentifier='");
+              certInfo.append(uriString);
+              certInfo.append('\'');
+
+              final String uriHost = getHostFromURI(uriString);
+              if (uriHost != null)
+              {
+                if (IPAddressArgumentValueValidator.isValidNumericIPAddress(
+                     uriHost))
+                {
+                  if ((hostInetAddress != null) &&
+                       ipAddressMatches(hostInetAddress, uriHost))
+                  {
+                    return true;
+                  }
+                }
+                else if (hostnameMatches(host, uriHost, allowWildcards))
+                {
+                  return true;
+                }
+              }
+
+              hasAuthoritativeSubjectAlternativeName = true;
+              break;
+
+            case 7: // iPAddress
+              final String ipAddressString = (String) l.get(1);
+              certInfo.append(" iPAddress='");
+              certInfo.append(ipAddressString);
+              certInfo.append('\'');
+
+              if ((hostInetAddress != null) &&
+                   ipAddressMatches(hostInetAddress, ipAddressString))
+              {
+                return true;
+              }
+
+              hasAuthoritativeSubjectAlternativeName = true;
+              break;
+          }
+        }
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+
+    // If we found an authoritative subject alternative name and we should not
+    // check the subject DN to see if it contains a CN attribute, then indicate
+    // that we didn't find a match.
+    if (hasAuthoritativeSubjectAlternativeName &&
+         (! checkCNWhenSubjectAltNameIsPresent))
+    {
+      return false;
+    }
+
+
+    // Look for any CN attributes in the certificate subject.
+    final String subjectDNString =
          certificate.getSubjectX500Principal().getName(X500Principal.RFC2253);
     certInfo.append("subject='");
-    certInfo.append(subjectDN);
+    certInfo.append(subjectDNString);
     certInfo.append('\'');
 
     try
     {
-      final DN dn = new DN(subjectDN);
-      for (final RDN rdn : dn.getRDNs())
+      final DN subjectDN = new DN(subjectDNString);
+      for (final RDN rdn : subjectDN.getRDNs())
       {
         final String[] names  = rdn.getAttributeNames();
         final String[] values = rdn.getAttributeValues();
@@ -211,17 +411,21 @@ public final class HostNameSSLSocketVerifier
           final String lowerName = StaticUtils.toLowerCase(names[i]);
           if (lowerName.equals("cn") || lowerName.equals("commonname") ||
               lowerName.equals("2.5.4.3"))
-          {
-            final String lowerValue = StaticUtils.toLowerCase(values[i]);
-            if (lowerHost.equals(lowerValue))
-            {
-              return true;
-            }
 
-            if (allowWildcards && lowerValue.startsWith("*."))
+          {
+            final String cnValue = values[i];
+            if (IPAddressArgumentValueValidator.
+                 isValidNumericIPAddress(cnValue))
             {
-              final String withoutWildcard = lowerValue.substring(1);
-              if (lowerHost.endsWith(withoutWildcard))
+              if ((hostInetAddress != null) &&
+                   ipAddressMatches(hostInetAddress, cnValue))
+              {
+                return true;
+              }
+            }
+            else
+            {
+              if (hostnameMatches(host, cnValue, allowWildcards))
               {
                 return true;
               }
@@ -238,11 +442,86 @@ public final class HostNameSSLSocketVerifier
     }
 
 
-    // Next, check any supported subjectAltName extension values.
-    final Collection<List<?>> subjectAltNames;
+    // If we've gotten here, then we can't consider the hostname a match.
+    return false;
+  }
+
+
+
+  /**
+   * Determines whether the provided client hostname matches the given
+   * hostname from the certificate.
+   *
+   * @param  clientHostname
+   *              The hostname that the client used when establishing the
+   *              connection.
+   * @param  certificateHostname
+   *              A hostname obtained from the certificate.
+   * @param  allowWildcards
+   *              Indicates whether to allow wildcard certificates that contain
+   *              an asterisk in the leftmost component of a hostname in the
+   *              dNSName or uniformResourceIdentifier of the subject
+   *              alternative name extension, or in the CN attribute of the
+   *              subject DN.
+   *
+   * @return  {@code true} if the client hostname is considered a match for the
+   *          certificate hostname, or {@code false} if not.
+   */
+  private static boolean hostnameMatches(final String clientHostname,
+                                         final String certificateHostname,
+                                         final boolean allowWildcards)
+  {
+    // If the provided certificate hostname does not contain any asterisks,
+    // then we just need to do a case-insensitive match.
+    if (! certificateHostname.contains("*"))
+    {
+      return clientHostname.equalsIgnoreCase(certificateHostname);
+    }
+
+
+    // The certificate hostname contains at least one wildcard.  See if that's
+    // allowed.
+    if (! allowWildcards)
+    {
+      return false;
+    }
+
+
+    // Get the first component and the remainder for both the client and
+    // certificate hostnames.  If the remainder doesn't match, then it's not a
+    // match.
+    final ObjectPair<String,String> clientFirstComponentAndRemainder =
+         getFirstComponentAndRemainder(clientHostname);
+    final ObjectPair<String,String> certificateFirstComponentAndRemainder =
+         getFirstComponentAndRemainder(certificateHostname);
+    if (! clientFirstComponentAndRemainder.getSecond().equalsIgnoreCase(
+         certificateFirstComponentAndRemainder.getSecond()))
+    {
+      return false;
+    }
+
+
+    // If the first component of the certificate hostname is just an asterisk,
+    // then we can consider it a match.
+    final String certificateFirstComponent =
+         certificateFirstComponentAndRemainder.getFirst();
+    if (certificateFirstComponent.equals("*"))
+    {
+      return true;
+    }
+
+
+    // The filter has wildcard and non-wildcard components.  At this point, the
+    // easiest thing to do is to try to create a substring filter to get the
+    // individual components of the filter.
+    final Filter filter;
     try
     {
-      subjectAltNames = certificate.getSubjectAlternativeNames();
+      filter = Filter.create("(hostname=" + certificateFirstComponent + ')');
+      if (filter.getFilterType() != Filter.FILTER_TYPE_SUBSTRING)
+      {
+        return false;
+      }
     }
     catch (final Exception e)
     {
@@ -250,90 +529,163 @@ public final class HostNameSSLSocketVerifier
       return false;
     }
 
-    if (subjectAltNames != null)
+
+    return CaseIgnoreStringMatchingRule.getInstance().matchesSubstring(
+         new ASN1OctetString(clientFirstComponentAndRemainder.getFirst()),
+         filter.getRawSubInitialValue(),
+         filter.getRawSubAnyValues(), filter.getRawSubFinalValue());
+  }
+
+
+
+  /**
+   * Separates the provided address into the leftmost component (everything up
+   * to the first period) and the remainder (everything else, including the
+   * first period).  If the provided address does not contain any periods, then
+   * the leftmost component will be the entire value and the remainder will be
+   * an empty string.
+   *
+   * @param  address  The address to be separated into the leftmost component
+   *                  and the remainder.  It must not be {@code null}.
+   *
+   * @return  An object pair in which the first element is the leftmost
+   *          component of the provided address and the second element is the
+   *          remainder of the address.
+   */
+  private static ObjectPair<String,String> getFirstComponentAndRemainder(
+                                                final String address)
+  {
+    final int periodPos = address.indexOf('.');
+    if (periodPos < 0)
     {
-      for (final List<?> l : subjectAltNames)
-      {
-        try
-        {
-          final Integer type = (Integer) l.get(0);
-          switch (type)
-          {
-            case 2: // dNSName
-              final String dnsName = (String) l.get(1);
-              certInfo.append(" dNSName='");
-              certInfo.append(dnsName);
-              certInfo.append('\'');
+      return new ObjectPair<>(address, "");
+    }
+    else
+    {
+      return new ObjectPair<>(address.substring(0, periodPos),
+           address.substring(periodPos));
+    }
+  }
 
-              final String lowerDNSName = StaticUtils.toLowerCase(dnsName);
-              if (lowerHost.equals(lowerDNSName))
-              {
-                return true;
-              }
 
-              // If the given DNS name starts with a "*.", then it's a wildcard
-              // certificate.  See if that's allowed, and if so whether it
-              // matches any acceptable name.
-              if (allowWildcards && lowerDNSName.startsWith("*."))
-              {
-                final String withoutWildcard = lowerDNSName.substring(1);
-                if (lowerHost.endsWith(withoutWildcard))
-                {
-                  return true;
-                }
-              }
-              break;
 
-            case 6: // uniformResourceIdentifier
-              final String uriString = (String) l.get(1);
-              certInfo.append(" uniformResourceIdentifier='");
-              certInfo.append(uriString);
-              certInfo.append('\'');
-
-              final URI uri = new URI(uriString);
-              if (lowerHost.equals(StaticUtils.toLowerCase(uri.getHost())))
-              {
-                return true;
-              }
-              break;
-
-            case 7: // iPAddress
-              final String ipAddressString = (String) l.get(1);
-              certInfo.append(" iPAddress='");
-              certInfo.append(ipAddressString);
-              certInfo.append('\'');
-
-              final InetAddress inetAddress =
-                   LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
-                        getByName(ipAddressString);
-              if (Character.isDigit(host.charAt(0)) || (host.indexOf(':') >= 0))
-              {
-                final InetAddress a = InetAddress.getByName(host);
-                if (inetAddress.equals(a))
-                {
-                  return true;
-                }
-              }
-              break;
-
-            case 0: // otherName
-            case 1: // rfc822Name
-            case 3: // x400Address
-            case 4: // directoryName
-            case 5: // ediPartyName
-            case 8: // registeredID
-            default:
-              // We won't do any checking for any of these formats.
-              break;
-          }
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-        }
-      }
+  /**
+   * Determines whether the provided client IP address matches the IP address
+   * represented by the provided string.
+   *
+   * @param  clientIPAddress
+   *              The IP address that the client used when establishing the
+   *              connection.
+   * @param  certificateIPAddressString
+   *              The string representation of an IP address obtained from the
+   *              certificate.
+   *
+   * @return  {@code true} if the client hostname is considered a match for the
+   *          certificate hostname, or {@code false} if not.
+   */
+  private static boolean ipAddressMatches(final InetAddress clientIPAddress,
+                              final String certificateIPAddressString)
+  {
+    final InetAddress certificateIPAddress;
+    try
+    {
+      certificateIPAddress = LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.
+           getByName(certificateIPAddressString);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return false;
     }
 
-    return false;
+    return clientIPAddress.equals(certificateIPAddress);
+  }
+
+
+
+  /**
+   * Extracts the host from the URI with the given string representation.  Note
+   * that the Java URI parser doesn't like hostnames that have wildcards, so we
+   * have to handle them specially.
+   *
+   * @param  uriString  The string representation of the URI to parse.  It must
+   *                    not be {@code null}.
+   *
+   * @return  The host extracted from the provided URI, or {@code null} if none
+   *          is available (e.g., because the URI is malformed).
+   */
+  private static String getHostFromURI(final String uriString)
+  {
+    final URI uri;
+    try
+    {
+      uri = new URI(uriString);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      return null;
+    }
+
+    final String uriHost = uri.getHost();
+    if (uriHost != null)
+    {
+      return uriHost;
+    }
+
+
+    // Java's URI code can't handle hosts with wildcards.  See if the provided
+    // URI string looks like it might contain a wildcard.  If not, then just
+    // return null.
+    if (! uriString.contains("*"))
+    {
+      return null;
+    }
+
+
+    // If Java was at least able to parse the scheme, and if the URI starts with
+    // that scheme, then we can go ahead with our own parsing attempt.
+    final String scheme = uri.getScheme();
+    if ((scheme == null) || scheme.isEmpty() ||
+         (! uriString.toLowerCase().startsWith(scheme)))
+    {
+      return null;
+    }
+
+
+    // Strip the scheme from the beginning of the URI.  Note that the scheme
+    // probably won't contain the "://", so strip that separately.
+    String paredDownURI = uriString.substring(scheme.length());
+    if (paredDownURI.startsWith("://"))
+    {
+      paredDownURI = paredDownURI.substring(3);
+    }
+
+
+    // If the pared down URI contains a slash (which would separate the hostport
+    // section from the path), then strip that off and everything after it.
+    final int slashPos = paredDownURI.indexOf('/');
+    if (slashPos >= 0)
+    {
+      paredDownURI = paredDownURI.substring(0, slashPos);
+    }
+
+
+    // If the pared down URI contains a colon (which would separate the host
+    // from the port), then strip that off and everything after it.
+    final int colonPos = paredDownURI.indexOf(':');
+    if (colonPos >= 0)
+    {
+      paredDownURI = paredDownURI.substring(0, colonPos);
+    }
+
+
+    // If there's anything left, then it should be the host.
+    if (! paredDownURI.isEmpty())
+    {
+      return paredDownURI;
+    }
+
+    return null;
   }
 }

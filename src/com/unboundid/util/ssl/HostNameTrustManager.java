@@ -90,6 +90,12 @@ public final class HostNameTrustManager
   // Indicates whether to allow wildcard certificates (which
   private final boolean allowWildcards;
 
+  // Indicates whether to check the CN attribute in the peer certificate's
+  // subject DN if the certificate also contains a subject alternative name
+  // extension that contains at least dNSName, uniformResourceIdentifier, or
+  // iPAddress value.
+  private final boolean checkCNWhenSubjectAltNameIsPresent;
+
   // The set of hostname values that will be considered acceptable.
   private final Set<String> acceptableHostNames;
 
@@ -136,11 +142,50 @@ public final class HostNameTrustManager
   public HostNameTrustManager(final boolean allowWildcards,
                               final Collection<String> acceptableHostNames)
   {
+    this(allowWildcards,
+         HostNameSSLSocketVerifier.
+              DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT,
+         acceptableHostNames);
+  }
+
+
+
+  /**
+   * Creates a new hostname trust manager with the provided information.
+   *
+   * @param  allowWildcards
+   *              Indicates whether to allow wildcard certificates that contain
+   *              an asterisk in the leftmost component of a hostname in the
+   *              dNSName or uniformResourceIdentifier of the subject
+   *              alternative name extension, or in the CN attribute of the
+   *              subject DN.
+   * @param  checkCNWhenSubjectAltNameIsPresent
+   *              Indicates whether to check the CN attribute in the peer
+   *              certificate's subject DN if the certificate also contains a
+   *              subject alternative name extension that contains at least one
+   *              dNSName, uniformResourceIdentifier, or iPAddress value.  RFC
+   *              6125 section 6.4.4 indicates that the CN attribute should not
+   *              be checked in certificates that have an appropriate subject
+   *              alternative name extension, although some clients may expect
+   *              CN matching anyway.
+   * @param  acceptableHostNames
+   *              The set of hostnames and/or IP addresses that will be
+   *              considered acceptable.  Only certificates with a CN or
+   *              subjectAltName value that exactly matches one of these names
+   *              (ignoring differences in capitalization) will be considered
+   *              acceptable.  It must not be {@code null} or empty.
+   */
+  public HostNameTrustManager(final boolean allowWildcards,
+                              final boolean checkCNWhenSubjectAltNameIsPresent,
+                              final Collection<String> acceptableHostNames)
+  {
     Validator.ensureNotNull(acceptableHostNames);
     Validator.ensureFalse(acceptableHostNames.isEmpty(),
          "The set of acceptable host names must not be empty.");
 
     this.allowWildcards = allowWildcards;
+    this.checkCNWhenSubjectAltNameIsPresent =
+         checkCNWhenSubjectAltNameIsPresent;
 
     final LinkedHashSet<String> nameSet = new LinkedHashSet<>(
          StaticUtils.computeMapCapacity(acceptableHostNames.size()));
@@ -201,7 +246,7 @@ public final class HostNameTrustManager
     {
       buffer.setLength(0);
       if (HostNameSSLSocketVerifier.certificateIncludesHostname(s, chain[0],
-           allowWildcards, buffer))
+           allowWildcards, checkCNWhenSubjectAltNameIsPresent, buffer))
       {
         return;
       }
@@ -234,7 +279,7 @@ public final class HostNameTrustManager
     {
       buffer.setLength(0);
       if (HostNameSSLSocketVerifier.certificateIncludesHostname(s, chain[0],
-           allowWildcards, buffer))
+           allowWildcards, checkCNWhenSubjectAltNameIsPresent, buffer))
       {
         return;
       }
